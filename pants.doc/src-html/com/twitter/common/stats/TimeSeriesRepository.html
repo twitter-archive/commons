@@ -1,0 +1,127 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    // =================================================================================================<a name="line.1"></a>
+<FONT color="green">002</FONT>    // Copyright 2011 Twitter, Inc.<a name="line.2"></a>
+<FONT color="green">003</FONT>    // -------------------------------------------------------------------------------------------------<a name="line.3"></a>
+<FONT color="green">004</FONT>    // Licensed to the Apache Software Foundation (ASF) under one or more contributor license<a name="line.4"></a>
+<FONT color="green">005</FONT>    // agreements.  See the NOTICE file distributed with this work for additional information regarding<a name="line.5"></a>
+<FONT color="green">006</FONT>    // copyright ownership.  The ASF licenses this file to you under the Apache License, Version 2.0<a name="line.6"></a>
+<FONT color="green">007</FONT>    // (the "License"); you may not use this file except in compliance with the License.  You may<a name="line.7"></a>
+<FONT color="green">008</FONT>    // obtain a copy of the License at<a name="line.8"></a>
+<FONT color="green">009</FONT>    //<a name="line.9"></a>
+<FONT color="green">010</FONT>    //  http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
+<FONT color="green">011</FONT>    //<a name="line.11"></a>
+<FONT color="green">012</FONT>    // Unless required by applicable law or agreed to in writing, software distributed under the<a name="line.12"></a>
+<FONT color="green">013</FONT>    // License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either<a name="line.13"></a>
+<FONT color="green">014</FONT>    // express or implied.  See the License for the specific language governing permissions and<a name="line.14"></a>
+<FONT color="green">015</FONT>    // limitations under the License.<a name="line.15"></a>
+<FONT color="green">016</FONT>    // =================================================================================================<a name="line.16"></a>
+<FONT color="green">017</FONT>    <a name="line.17"></a>
+<FONT color="green">018</FONT>    package com.twitter.common.stats;<a name="line.18"></a>
+<FONT color="green">019</FONT>    <a name="line.19"></a>
+<FONT color="green">020</FONT>    import com.twitter.common.application.ActionRegistry;<a name="line.20"></a>
+<FONT color="green">021</FONT>    <a name="line.21"></a>
+<FONT color="green">022</FONT>    import java.util.Set;<a name="line.22"></a>
+<FONT color="green">023</FONT>    <a name="line.23"></a>
+<FONT color="green">024</FONT>    /**<a name="line.24"></a>
+<FONT color="green">025</FONT>     * A repository for time series data.<a name="line.25"></a>
+<FONT color="green">026</FONT>     *<a name="line.26"></a>
+<FONT color="green">027</FONT>     * @author William Farner<a name="line.27"></a>
+<FONT color="green">028</FONT>     */<a name="line.28"></a>
+<FONT color="green">029</FONT>    public interface TimeSeriesRepository {<a name="line.29"></a>
+<FONT color="green">030</FONT>    <a name="line.30"></a>
+<FONT color="green">031</FONT>      /**<a name="line.31"></a>
+<FONT color="green">032</FONT>       * Starts the time series sampler.<a name="line.32"></a>
+<FONT color="green">033</FONT>       *<a name="line.33"></a>
+<FONT color="green">034</FONT>       * @param shutdownRegistry An action registry that the repository can use to register a shutdown<a name="line.34"></a>
+<FONT color="green">035</FONT>       *    for the sampler.<a name="line.35"></a>
+<FONT color="green">036</FONT>       */<a name="line.36"></a>
+<FONT color="green">037</FONT>      public void start(ActionRegistry shutdownRegistry);<a name="line.37"></a>
+<FONT color="green">038</FONT>    <a name="line.38"></a>
+<FONT color="green">039</FONT>      /**<a name="line.39"></a>
+<FONT color="green">040</FONT>       * Fetches the names of all available time series.<a name="line.40"></a>
+<FONT color="green">041</FONT>       *<a name="line.41"></a>
+<FONT color="green">042</FONT>       * @return Available time series, which can then be obtained by calling {@link #get(String)}.<a name="line.42"></a>
+<FONT color="green">043</FONT>       */<a name="line.43"></a>
+<FONT color="green">044</FONT>      public Set&lt;String&gt; getAvailableSeries();<a name="line.44"></a>
+<FONT color="green">045</FONT>    <a name="line.45"></a>
+<FONT color="green">046</FONT>      /**<a name="line.46"></a>
+<FONT color="green">047</FONT>       * Fetches a time series by name.<a name="line.47"></a>
+<FONT color="green">048</FONT>       *<a name="line.48"></a>
+<FONT color="green">049</FONT>       * @param name The name of the time series to fetch.<a name="line.49"></a>
+<FONT color="green">050</FONT>       * @return The time series registered with the given name, or {@code null} if no such time series<a name="line.50"></a>
+<FONT color="green">051</FONT>       *     has been registered.<a name="line.51"></a>
+<FONT color="green">052</FONT>       */<a name="line.52"></a>
+<FONT color="green">053</FONT>      public TimeSeries get(String name);<a name="line.53"></a>
+<FONT color="green">054</FONT>    <a name="line.54"></a>
+<FONT color="green">055</FONT>      /**<a name="line.55"></a>
+<FONT color="green">056</FONT>       * Gets an ordered iterable of the timestamps that all timeseries were sampled at.<a name="line.56"></a>
+<FONT color="green">057</FONT>       *<a name="line.57"></a>
+<FONT color="green">058</FONT>       * @return All current timestamps.<a name="line.58"></a>
+<FONT color="green">059</FONT>       */<a name="line.59"></a>
+<FONT color="green">060</FONT>      public Iterable&lt;Number&gt; getTimestamps();<a name="line.60"></a>
+<FONT color="green">061</FONT>    }<a name="line.61"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

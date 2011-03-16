@@ -1,0 +1,337 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    // =================================================================================================<a name="line.1"></a>
+<FONT color="green">002</FONT>    // Copyright 2011 Twitter, Inc.<a name="line.2"></a>
+<FONT color="green">003</FONT>    // -------------------------------------------------------------------------------------------------<a name="line.3"></a>
+<FONT color="green">004</FONT>    // Licensed to the Apache Software Foundation (ASF) under one or more contributor license<a name="line.4"></a>
+<FONT color="green">005</FONT>    // agreements.  See the NOTICE file distributed with this work for additional information regarding<a name="line.5"></a>
+<FONT color="green">006</FONT>    // copyright ownership.  The ASF licenses this file to you under the Apache License, Version 2.0<a name="line.6"></a>
+<FONT color="green">007</FONT>    // (the "License"); you may not use this file except in compliance with the License.  You may<a name="line.7"></a>
+<FONT color="green">008</FONT>    // obtain a copy of the License at<a name="line.8"></a>
+<FONT color="green">009</FONT>    //<a name="line.9"></a>
+<FONT color="green">010</FONT>    //  http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
+<FONT color="green">011</FONT>    //<a name="line.11"></a>
+<FONT color="green">012</FONT>    // Unless required by applicable law or agreed to in writing, software distributed under the<a name="line.12"></a>
+<FONT color="green">013</FONT>    // License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either<a name="line.13"></a>
+<FONT color="green">014</FONT>    // express or implied.  See the License for the specific language governing permissions and<a name="line.14"></a>
+<FONT color="green">015</FONT>    // limitations under the License.<a name="line.15"></a>
+<FONT color="green">016</FONT>    // =================================================================================================<a name="line.16"></a>
+<FONT color="green">017</FONT>    <a name="line.17"></a>
+<FONT color="green">018</FONT>    package com.twitter.common.zookeeper;<a name="line.18"></a>
+<FONT color="green">019</FONT>    <a name="line.19"></a>
+<FONT color="green">020</FONT>    import com.google.common.base.Preconditions;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import com.google.common.collect.ImmutableList;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import com.google.common.collect.Ordering;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import com.twitter.common.base.MorePreconditions;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import org.apache.zookeeper.CreateMode;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import org.apache.zookeeper.KeeperException;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import org.apache.zookeeper.WatchedEvent;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import org.apache.zookeeper.Watcher;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import org.apache.zookeeper.ZooDefs;<a name="line.28"></a>
+<FONT color="green">029</FONT>    import org.apache.zookeeper.data.Stat;<a name="line.29"></a>
+<FONT color="green">030</FONT>    <a name="line.30"></a>
+<FONT color="green">031</FONT>    import javax.annotation.concurrent.ThreadSafe;<a name="line.31"></a>
+<FONT color="green">032</FONT>    import java.util.List;<a name="line.32"></a>
+<FONT color="green">033</FONT>    import java.util.concurrent.CountDownLatch;<a name="line.33"></a>
+<FONT color="green">034</FONT>    import java.util.concurrent.TimeUnit;<a name="line.34"></a>
+<FONT color="green">035</FONT>    import java.util.concurrent.atomic.AtomicBoolean;<a name="line.35"></a>
+<FONT color="green">036</FONT>    import java.util.logging.Level;<a name="line.36"></a>
+<FONT color="green">037</FONT>    import java.util.logging.Logger;<a name="line.37"></a>
+<FONT color="green">038</FONT>    <a name="line.38"></a>
+<FONT color="green">039</FONT>    /**<a name="line.39"></a>
+<FONT color="green">040</FONT>     * Distributed locking via ZooKeeper. Assuming there are N clients that all try to acquire a lock,<a name="line.40"></a>
+<FONT color="green">041</FONT>     * the algorithm works as follows. Each host creates an ephemeral|sequential node, and requests a<a name="line.41"></a>
+<FONT color="green">042</FONT>     * list of children for the lock node. Due to the nature of sequential, all the ids are increasing<a name="line.42"></a>
+<FONT color="green">043</FONT>     * in order, therefore the client with the least ID according to natural ordering will hold the<a name="line.43"></a>
+<FONT color="green">044</FONT>     * lock. Every other client watches the id immediately preceding its own id and checks for the lock<a name="line.44"></a>
+<FONT color="green">045</FONT>     * in case of notification. The client holding the lock does the work and finally deletes the node,<a name="line.45"></a>
+<FONT color="green">046</FONT>     * thereby triggering the next client in line to acquire the lock. Deadlocks are possible but<a name="line.46"></a>
+<FONT color="green">047</FONT>     * avoided in most cases because if a client drops dead while holding the lock, the ZK session<a name="line.47"></a>
+<FONT color="green">048</FONT>     * should timeout and since the node is ephemeral, it will be removed in such a case. Deadlocks<a name="line.48"></a>
+<FONT color="green">049</FONT>     * could occur if the the worker thread on a client hangs but the zk-client thread is still alive.<a name="line.49"></a>
+<FONT color="green">050</FONT>     * There could be an external monitor client that ensures that alerts are triggered if the least-id<a name="line.50"></a>
+<FONT color="green">051</FONT>     * ephemeral node is present past a time-out.<a name="line.51"></a>
+<FONT color="green">052</FONT>     * &lt;p/&gt;<a name="line.52"></a>
+<FONT color="green">053</FONT>     * Note: Locking attempts will fail in case session expires!<a name="line.53"></a>
+<FONT color="green">054</FONT>     *<a name="line.54"></a>
+<FONT color="green">055</FONT>     * @author Florian Leibert<a name="line.55"></a>
+<FONT color="green">056</FONT>     */<a name="line.56"></a>
+<FONT color="green">057</FONT>    @ThreadSafe<a name="line.57"></a>
+<FONT color="green">058</FONT>    public class DistributedLockImpl implements DistributedLock {<a name="line.58"></a>
+<FONT color="green">059</FONT>    <a name="line.59"></a>
+<FONT color="green">060</FONT>      private static final Logger LOG = Logger.getLogger(DistributedLockImpl.class.getName());<a name="line.60"></a>
+<FONT color="green">061</FONT>      private final ZooKeeperClient zkClient;<a name="line.61"></a>
+<FONT color="green">062</FONT>      private final String lockPath;<a name="line.62"></a>
+<FONT color="green">063</FONT>      private final AtomicBoolean aborted = new AtomicBoolean(false);<a name="line.63"></a>
+<FONT color="green">064</FONT>    <a name="line.64"></a>
+<FONT color="green">065</FONT>      private CountDownLatch syncPoint;<a name="line.65"></a>
+<FONT color="green">066</FONT>      private boolean holdsLock = false;<a name="line.66"></a>
+<FONT color="green">067</FONT>      private String currentId;<a name="line.67"></a>
+<FONT color="green">068</FONT>      private String currentNode;<a name="line.68"></a>
+<FONT color="green">069</FONT>      private String watchedNode;<a name="line.69"></a>
+<FONT color="green">070</FONT>      private LockWatcher watcher;<a name="line.70"></a>
+<FONT color="green">071</FONT>    <a name="line.71"></a>
+<FONT color="green">072</FONT>      public DistributedLockImpl(ZooKeeperClient zkClient, String lockPath) {<a name="line.72"></a>
+<FONT color="green">073</FONT>        this.zkClient = Preconditions.checkNotNull(zkClient);<a name="line.73"></a>
+<FONT color="green">074</FONT>        this.lockPath = MorePreconditions.checkNotBlank(lockPath);<a name="line.74"></a>
+<FONT color="green">075</FONT>        this.syncPoint = new CountDownLatch(1);<a name="line.75"></a>
+<FONT color="green">076</FONT>      }<a name="line.76"></a>
+<FONT color="green">077</FONT>    <a name="line.77"></a>
+<FONT color="green">078</FONT>      private synchronized void prepare()<a name="line.78"></a>
+<FONT color="green">079</FONT>          throws ZooKeeperClient.ZooKeeperConnectionException, InterruptedException, KeeperException {<a name="line.79"></a>
+<FONT color="green">080</FONT>    <a name="line.80"></a>
+<FONT color="green">081</FONT>          ZooKeeperUtils.ensurePath(zkClient, ZooDefs.Ids.OPEN_ACL_UNSAFE, lockPath);<a name="line.81"></a>
+<FONT color="green">082</FONT>          LOG.log(Level.FINE, "Working with locking path:" + lockPath);<a name="line.82"></a>
+<FONT color="green">083</FONT>    <a name="line.83"></a>
+<FONT color="green">084</FONT>          // Create an EPHEMERAL_SEQUENTIAL node.<a name="line.84"></a>
+<FONT color="green">085</FONT>          currentNode = zkClient.get()<a name="line.85"></a>
+<FONT color="green">086</FONT>              .create(lockPath + "/member_", null, ZooDefs.Ids.OPEN_ACL_UNSAFE,<a name="line.86"></a>
+<FONT color="green">087</FONT>                  CreateMode.EPHEMERAL_SEQUENTIAL);<a name="line.87"></a>
+<FONT color="green">088</FONT>    <a name="line.88"></a>
+<FONT color="green">089</FONT>          // We only care about our actual id since we want to compare ourselves to siblings.<a name="line.89"></a>
+<FONT color="green">090</FONT>          if (currentNode.contains("/")) {<a name="line.90"></a>
+<FONT color="green">091</FONT>            currentId = currentNode.substring(currentNode.lastIndexOf("/") + 1);<a name="line.91"></a>
+<FONT color="green">092</FONT>          }<a name="line.92"></a>
+<FONT color="green">093</FONT>          LOG.log(Level.FINE, "Received ID from zk:" + currentId);<a name="line.93"></a>
+<FONT color="green">094</FONT>          this.watcher = new LockWatcher();<a name="line.94"></a>
+<FONT color="green">095</FONT>      }<a name="line.95"></a>
+<FONT color="green">096</FONT>    <a name="line.96"></a>
+<FONT color="green">097</FONT>      @Override<a name="line.97"></a>
+<FONT color="green">098</FONT>      public synchronized void lock() throws LockingException {<a name="line.98"></a>
+<FONT color="green">099</FONT>        if (holdsLock) {<a name="line.99"></a>
+<FONT color="green">100</FONT>          throw new LockingException("Error, already holding a lock. Call unlock first!");<a name="line.100"></a>
+<FONT color="green">101</FONT>        }<a name="line.101"></a>
+<FONT color="green">102</FONT>        try {<a name="line.102"></a>
+<FONT color="green">103</FONT>          prepare();<a name="line.103"></a>
+<FONT color="green">104</FONT>          watcher.checkForLock();<a name="line.104"></a>
+<FONT color="green">105</FONT>          syncPoint.await();<a name="line.105"></a>
+<FONT color="green">106</FONT>          if (!holdsLock) {<a name="line.106"></a>
+<FONT color="green">107</FONT>            throw new LockingException("Error, couldn't acquire the lock!");<a name="line.107"></a>
+<FONT color="green">108</FONT>          }<a name="line.108"></a>
+<FONT color="green">109</FONT>        } catch (InterruptedException e) {<a name="line.109"></a>
+<FONT color="green">110</FONT>          cancelAttempt();<a name="line.110"></a>
+<FONT color="green">111</FONT>          throw new LockingException("InterruptedException while trying to acquire lock!", e);<a name="line.111"></a>
+<FONT color="green">112</FONT>        } catch (KeeperException e) {<a name="line.112"></a>
+<FONT color="green">113</FONT>          // No need to clean up since the node wasn't created yet.<a name="line.113"></a>
+<FONT color="green">114</FONT>          throw new LockingException("KeeperException while trying to acquire lock!", e);<a name="line.114"></a>
+<FONT color="green">115</FONT>        } catch (ZooKeeperClient.ZooKeeperConnectionException e) {<a name="line.115"></a>
+<FONT color="green">116</FONT>          // No need to clean up since the node wasn't created yet.<a name="line.116"></a>
+<FONT color="green">117</FONT>          throw new LockingException("ZooKeeperConnectionException while trying to acquire lock", e);<a name="line.117"></a>
+<FONT color="green">118</FONT>        }<a name="line.118"></a>
+<FONT color="green">119</FONT>      }<a name="line.119"></a>
+<FONT color="green">120</FONT>    <a name="line.120"></a>
+<FONT color="green">121</FONT>      @Override<a name="line.121"></a>
+<FONT color="green">122</FONT>      public synchronized boolean tryLock(long timeout, TimeUnit unit) {<a name="line.122"></a>
+<FONT color="green">123</FONT>        if (holdsLock) {<a name="line.123"></a>
+<FONT color="green">124</FONT>          throw new LockingException("Error, already holding a lock. Call unlock first!");<a name="line.124"></a>
+<FONT color="green">125</FONT>        }<a name="line.125"></a>
+<FONT color="green">126</FONT>        try {<a name="line.126"></a>
+<FONT color="green">127</FONT>          prepare();<a name="line.127"></a>
+<FONT color="green">128</FONT>          watcher.checkForLock();<a name="line.128"></a>
+<FONT color="green">129</FONT>          boolean success = syncPoint.await(timeout, unit);<a name="line.129"></a>
+<FONT color="green">130</FONT>          if (!success) {<a name="line.130"></a>
+<FONT color="green">131</FONT>            return false;<a name="line.131"></a>
+<FONT color="green">132</FONT>          }<a name="line.132"></a>
+<FONT color="green">133</FONT>          if (!holdsLock &amp;&amp; !success) {<a name="line.133"></a>
+<FONT color="green">134</FONT>            throw new LockingException("Error, couldn't acquire the lock!");<a name="line.134"></a>
+<FONT color="green">135</FONT>          }<a name="line.135"></a>
+<FONT color="green">136</FONT>        } catch (InterruptedException e) {<a name="line.136"></a>
+<FONT color="green">137</FONT>          cancelAttempt();<a name="line.137"></a>
+<FONT color="green">138</FONT>          return false;<a name="line.138"></a>
+<FONT color="green">139</FONT>        } catch (KeeperException e) {<a name="line.139"></a>
+<FONT color="green">140</FONT>          // No need to clean up since the node wasn't created yet.<a name="line.140"></a>
+<FONT color="green">141</FONT>          throw new LockingException("KeeperException while trying to acquire lock!", e);<a name="line.141"></a>
+<FONT color="green">142</FONT>        } catch (ZooKeeperClient.ZooKeeperConnectionException e) {<a name="line.142"></a>
+<FONT color="green">143</FONT>          // No need to clean up since the node wasn't created yet.<a name="line.143"></a>
+<FONT color="green">144</FONT>          throw new LockingException("ZooKeeperConnectionException while trying to acquire lock", e);<a name="line.144"></a>
+<FONT color="green">145</FONT>        }<a name="line.145"></a>
+<FONT color="green">146</FONT>        return true;<a name="line.146"></a>
+<FONT color="green">147</FONT>      }<a name="line.147"></a>
+<FONT color="green">148</FONT>    <a name="line.148"></a>
+<FONT color="green">149</FONT>      @Override<a name="line.149"></a>
+<FONT color="green">150</FONT>      public synchronized void unlock() throws LockingException {<a name="line.150"></a>
+<FONT color="green">151</FONT>        if (currentId == null) {<a name="line.151"></a>
+<FONT color="green">152</FONT>          throw new LockingException("Error, neither attempting to lock nor holding a lock!");<a name="line.152"></a>
+<FONT color="green">153</FONT>        }<a name="line.153"></a>
+<FONT color="green">154</FONT>        Preconditions.checkNotNull(currentId);<a name="line.154"></a>
+<FONT color="green">155</FONT>        // Try aborting!<a name="line.155"></a>
+<FONT color="green">156</FONT>        if (!holdsLock) {<a name="line.156"></a>
+<FONT color="green">157</FONT>          aborted.set(true);<a name="line.157"></a>
+<FONT color="green">158</FONT>          LOG.log(Level.INFO, "Not holding lock, aborting acquisition attempt!");<a name="line.158"></a>
+<FONT color="green">159</FONT>        } else {<a name="line.159"></a>
+<FONT color="green">160</FONT>          LOG.log(Level.INFO, "Cleaning up this locks ephemeral node.");<a name="line.160"></a>
+<FONT color="green">161</FONT>          cleanup();<a name="line.161"></a>
+<FONT color="green">162</FONT>        }<a name="line.162"></a>
+<FONT color="green">163</FONT>      }<a name="line.163"></a>
+<FONT color="green">164</FONT>    <a name="line.164"></a>
+<FONT color="green">165</FONT>      //TODO(Florian Leibert): Make sure this isn't a runtime exception. Put exceptions into the token?<a name="line.165"></a>
+<FONT color="green">166</FONT>    <a name="line.166"></a>
+<FONT color="green">167</FONT>      private synchronized void cancelAttempt() {<a name="line.167"></a>
+<FONT color="green">168</FONT>        LOG.log(Level.INFO, "Cancelling lock attempt!");<a name="line.168"></a>
+<FONT color="green">169</FONT>        cleanup();<a name="line.169"></a>
+<FONT color="green">170</FONT>        // Bubble up failure...<a name="line.170"></a>
+<FONT color="green">171</FONT>        holdsLock = false;<a name="line.171"></a>
+<FONT color="green">172</FONT>        syncPoint.countDown();<a name="line.172"></a>
+<FONT color="green">173</FONT>      }<a name="line.173"></a>
+<FONT color="green">174</FONT>    <a name="line.174"></a>
+<FONT color="green">175</FONT>      private void cleanup() {<a name="line.175"></a>
+<FONT color="green">176</FONT>        LOG.info("Cleaning up!");<a name="line.176"></a>
+<FONT color="green">177</FONT>        Preconditions.checkNotNull(currentId);<a name="line.177"></a>
+<FONT color="green">178</FONT>        try {<a name="line.178"></a>
+<FONT color="green">179</FONT>          Stat stat = zkClient.get().exists(currentNode, false);<a name="line.179"></a>
+<FONT color="green">180</FONT>          if (stat != null) {<a name="line.180"></a>
+<FONT color="green">181</FONT>            zkClient.get().delete(currentNode, ZooKeeperUtils.ANY_VERSION);<a name="line.181"></a>
+<FONT color="green">182</FONT>          } else {<a name="line.182"></a>
+<FONT color="green">183</FONT>            LOG.log(Level.WARNING, "Called cleanup but nothing to cleanup!");<a name="line.183"></a>
+<FONT color="green">184</FONT>          }<a name="line.184"></a>
+<FONT color="green">185</FONT>        } catch (Exception e) {<a name="line.185"></a>
+<FONT color="green">186</FONT>          throw new RuntimeException(e);<a name="line.186"></a>
+<FONT color="green">187</FONT>        }<a name="line.187"></a>
+<FONT color="green">188</FONT>        holdsLock = false;<a name="line.188"></a>
+<FONT color="green">189</FONT>        aborted.set(false);<a name="line.189"></a>
+<FONT color="green">190</FONT>        currentId = null;<a name="line.190"></a>
+<FONT color="green">191</FONT>        currentNode = null;<a name="line.191"></a>
+<FONT color="green">192</FONT>        watcher = null;<a name="line.192"></a>
+<FONT color="green">193</FONT>        syncPoint = new CountDownLatch(1);<a name="line.193"></a>
+<FONT color="green">194</FONT>      }<a name="line.194"></a>
+<FONT color="green">195</FONT>    <a name="line.195"></a>
+<FONT color="green">196</FONT>      class LockWatcher implements Watcher {<a name="line.196"></a>
+<FONT color="green">197</FONT>    <a name="line.197"></a>
+<FONT color="green">198</FONT>        public synchronized void checkForLock() {<a name="line.198"></a>
+<FONT color="green">199</FONT>          MorePreconditions.checkNotBlank(currentId);<a name="line.199"></a>
+<FONT color="green">200</FONT>    <a name="line.200"></a>
+<FONT color="green">201</FONT>          try {<a name="line.201"></a>
+<FONT color="green">202</FONT>            List&lt;String&gt; candidates = zkClient.get().getChildren(lockPath, null);<a name="line.202"></a>
+<FONT color="green">203</FONT>            ImmutableList&lt;String&gt; sortedMembers = Ordering.natural().immutableSortedCopy(candidates);<a name="line.203"></a>
+<FONT color="green">204</FONT>    <a name="line.204"></a>
+<FONT color="green">205</FONT>            // Unexpected behavior if there are no children!<a name="line.205"></a>
+<FONT color="green">206</FONT>            if (sortedMembers.isEmpty()) {<a name="line.206"></a>
+<FONT color="green">207</FONT>              throw new LockingException("Error, member list is empty!");<a name="line.207"></a>
+<FONT color="green">208</FONT>            }<a name="line.208"></a>
+<FONT color="green">209</FONT>    <a name="line.209"></a>
+<FONT color="green">210</FONT>            int memberIndex = sortedMembers.indexOf(currentId);<a name="line.210"></a>
+<FONT color="green">211</FONT>    <a name="line.211"></a>
+<FONT color="green">212</FONT>            // If we hold the lock<a name="line.212"></a>
+<FONT color="green">213</FONT>            if (memberIndex == 0) {<a name="line.213"></a>
+<FONT color="green">214</FONT>              holdsLock = true;<a name="line.214"></a>
+<FONT color="green">215</FONT>              syncPoint.countDown();<a name="line.215"></a>
+<FONT color="green">216</FONT>            } else {<a name="line.216"></a>
+<FONT color="green">217</FONT>              final String nextLowestNode = sortedMembers.get(memberIndex - 1);<a name="line.217"></a>
+<FONT color="green">218</FONT>              LOG.log(Level.INFO, String.format("Current LockWatcher with ephemeral node [%s], is " +<a name="line.218"></a>
+<FONT color="green">219</FONT>                  "waiting for [%s] to release lock.", currentId, nextLowestNode));<a name="line.219"></a>
+<FONT color="green">220</FONT>    <a name="line.220"></a>
+<FONT color="green">221</FONT>              watchedNode = String.format("%s/%s", lockPath, nextLowestNode);<a name="line.221"></a>
+<FONT color="green">222</FONT>              Stat stat = zkClient.get().exists(watchedNode, this);<a name="line.222"></a>
+<FONT color="green">223</FONT>              if (stat == null) {<a name="line.223"></a>
+<FONT color="green">224</FONT>                checkForLock();<a name="line.224"></a>
+<FONT color="green">225</FONT>              }<a name="line.225"></a>
+<FONT color="green">226</FONT>            }<a name="line.226"></a>
+<FONT color="green">227</FONT>          } catch (InterruptedException e) {<a name="line.227"></a>
+<FONT color="green">228</FONT>            LOG.log(Level.WARNING, String.format("Current LockWatcher with ephemeral node [%s] " +<a name="line.228"></a>
+<FONT color="green">229</FONT>                "got interrupted. Trying to cancel lock acquisition.", currentId), e);<a name="line.229"></a>
+<FONT color="green">230</FONT>            cancelAttempt();<a name="line.230"></a>
+<FONT color="green">231</FONT>          } catch (KeeperException e) {<a name="line.231"></a>
+<FONT color="green">232</FONT>            LOG.log(Level.WARNING, String.format("Current LockWatcher with ephemeral node [%s] " +<a name="line.232"></a>
+<FONT color="green">233</FONT>                "got a KeeperException. Trying to cancel lock acquisition.", currentId), e);<a name="line.233"></a>
+<FONT color="green">234</FONT>            cancelAttempt();<a name="line.234"></a>
+<FONT color="green">235</FONT>          } catch (ZooKeeperClient.ZooKeeperConnectionException e) {<a name="line.235"></a>
+<FONT color="green">236</FONT>            LOG.log(Level.WARNING, String.format("Current LockWatcher with ephemeral node [%s] " +<a name="line.236"></a>
+<FONT color="green">237</FONT>                "got a ConnectionException. Trying to cancel lock acquisition.", currentId), e);<a name="line.237"></a>
+<FONT color="green">238</FONT>            cancelAttempt();<a name="line.238"></a>
+<FONT color="green">239</FONT>          }<a name="line.239"></a>
+<FONT color="green">240</FONT>        }<a name="line.240"></a>
+<FONT color="green">241</FONT>    <a name="line.241"></a>
+<FONT color="green">242</FONT>        @Override<a name="line.242"></a>
+<FONT color="green">243</FONT>        public synchronized void process(WatchedEvent event) {<a name="line.243"></a>
+<FONT color="green">244</FONT>          // this handles the case where we have aborted a lock and deleted ourselves but still have a<a name="line.244"></a>
+<FONT color="green">245</FONT>          // watch on the nextLowestNode. This is a workaround since ZK doesn't support unsub.<a name="line.245"></a>
+<FONT color="green">246</FONT>          if (!event.getPath().equals(watchedNode)) {<a name="line.246"></a>
+<FONT color="green">247</FONT>            LOG.log(Level.INFO, "Ignoring call for node:" + watchedNode);<a name="line.247"></a>
+<FONT color="green">248</FONT>            return;<a name="line.248"></a>
+<FONT color="green">249</FONT>          }<a name="line.249"></a>
+<FONT color="green">250</FONT>          //TODO(Florian Leibert): Pull this into the outer class.<a name="line.250"></a>
+<FONT color="green">251</FONT>          if (event.getType() == Watcher.Event.EventType.None) {<a name="line.251"></a>
+<FONT color="green">252</FONT>            switch (event.getState()) {<a name="line.252"></a>
+<FONT color="green">253</FONT>              case SyncConnected:<a name="line.253"></a>
+<FONT color="green">254</FONT>                // TODO(Florian Leibert): maybe we should just try to "fail-fast" in this case and abort.<a name="line.254"></a>
+<FONT color="green">255</FONT>                LOG.info("Reconnected...");<a name="line.255"></a>
+<FONT color="green">256</FONT>                break;<a name="line.256"></a>
+<FONT color="green">257</FONT>              case Expired:<a name="line.257"></a>
+<FONT color="green">258</FONT>                LOG.log(Level.WARNING, String.format("Current ZK session expired![%s]", currentId));<a name="line.258"></a>
+<FONT color="green">259</FONT>                cancelAttempt();<a name="line.259"></a>
+<FONT color="green">260</FONT>                break;<a name="line.260"></a>
+<FONT color="green">261</FONT>            }<a name="line.261"></a>
+<FONT color="green">262</FONT>          } else if (event.getType() == Event.EventType.NodeDeleted) {<a name="line.262"></a>
+<FONT color="green">263</FONT>            checkForLock();<a name="line.263"></a>
+<FONT color="green">264</FONT>          } else {<a name="line.264"></a>
+<FONT color="green">265</FONT>            LOG.log(Level.WARNING, String.format("Unexpected ZK event: %s", event.getType().name()));<a name="line.265"></a>
+<FONT color="green">266</FONT>          }<a name="line.266"></a>
+<FONT color="green">267</FONT>        }<a name="line.267"></a>
+<FONT color="green">268</FONT>    <a name="line.268"></a>
+<FONT color="green">269</FONT>    <a name="line.269"></a>
+<FONT color="green">270</FONT>      }<a name="line.270"></a>
+<FONT color="green">271</FONT>    }<a name="line.271"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

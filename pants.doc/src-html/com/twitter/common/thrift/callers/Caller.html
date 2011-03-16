@@ -1,0 +1,169 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    // =================================================================================================<a name="line.1"></a>
+<FONT color="green">002</FONT>    // Copyright 2011 Twitter, Inc.<a name="line.2"></a>
+<FONT color="green">003</FONT>    // -------------------------------------------------------------------------------------------------<a name="line.3"></a>
+<FONT color="green">004</FONT>    // Licensed to the Apache Software Foundation (ASF) under one or more contributor license<a name="line.4"></a>
+<FONT color="green">005</FONT>    // agreements.  See the NOTICE file distributed with this work for additional information regarding<a name="line.5"></a>
+<FONT color="green">006</FONT>    // copyright ownership.  The ASF licenses this file to you under the Apache License, Version 2.0<a name="line.6"></a>
+<FONT color="green">007</FONT>    // (the "License"); you may not use this file except in compliance with the License.  You may<a name="line.7"></a>
+<FONT color="green">008</FONT>    // obtain a copy of the License at<a name="line.8"></a>
+<FONT color="green">009</FONT>    //<a name="line.9"></a>
+<FONT color="green">010</FONT>    //  http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
+<FONT color="green">011</FONT>    //<a name="line.11"></a>
+<FONT color="green">012</FONT>    // Unless required by applicable law or agreed to in writing, software distributed under the<a name="line.12"></a>
+<FONT color="green">013</FONT>    // License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either<a name="line.13"></a>
+<FONT color="green">014</FONT>    // express or implied.  See the License for the specific language governing permissions and<a name="line.14"></a>
+<FONT color="green">015</FONT>    // limitations under the License.<a name="line.15"></a>
+<FONT color="green">016</FONT>    // =================================================================================================<a name="line.16"></a>
+<FONT color="green">017</FONT>    <a name="line.17"></a>
+<FONT color="green">018</FONT>    package com.twitter.common.thrift.callers;<a name="line.18"></a>
+<FONT color="green">019</FONT>    <a name="line.19"></a>
+<FONT color="green">020</FONT>    import com.google.common.base.Preconditions;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import com.twitter.common.quantity.Amount;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import com.twitter.common.quantity.Time;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import org.apache.thrift.async.AsyncMethodCallback;<a name="line.23"></a>
+<FONT color="green">024</FONT>    <a name="line.24"></a>
+<FONT color="green">025</FONT>    import javax.annotation.Nullable;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import java.lang.reflect.Method;<a name="line.26"></a>
+<FONT color="green">027</FONT>    <a name="line.27"></a>
+<FONT color="green">028</FONT>    /**<a name="line.28"></a>
+<FONT color="green">029</FONT>    * A caller that invokes a method on an object.<a name="line.29"></a>
+<FONT color="green">030</FONT>    *<a name="line.30"></a>
+<FONT color="green">031</FONT>    * @author William Farner<a name="line.31"></a>
+<FONT color="green">032</FONT>    */<a name="line.32"></a>
+<FONT color="green">033</FONT>    public interface Caller {<a name="line.33"></a>
+<FONT color="green">034</FONT>    <a name="line.34"></a>
+<FONT color="green">035</FONT>      /**<a name="line.35"></a>
+<FONT color="green">036</FONT>       * Invokes a method on an object, using the given arguments.  The method call may be<a name="line.36"></a>
+<FONT color="green">037</FONT>       * asynchronous, in which case {@code callback} will be non-null.<a name="line.37"></a>
+<FONT color="green">038</FONT>       *<a name="line.38"></a>
+<FONT color="green">039</FONT>       * @param method The method being invoked.<a name="line.39"></a>
+<FONT color="green">040</FONT>       * @param args The arguments to call {@code method} with.<a name="line.40"></a>
+<FONT color="green">041</FONT>       * @param callback The callback to use if the method is asynchronous.<a name="line.41"></a>
+<FONT color="green">042</FONT>       * @param connectTimeoutOverride Optional override for the default connection timeout.<a name="line.42"></a>
+<FONT color="green">043</FONT>       * @return The return value from invoking the method.<a name="line.43"></a>
+<FONT color="green">044</FONT>       * @throws Throwable Exception, as prescribed by the method's contract.<a name="line.44"></a>
+<FONT color="green">045</FONT>       */<a name="line.45"></a>
+<FONT color="green">046</FONT>      public Object call(Method method, Object[] args, @Nullable AsyncMethodCallback callback,<a name="line.46"></a>
+<FONT color="green">047</FONT>          @Nullable Amount&lt;Long, Time&gt; connectTimeoutOverride) throws Throwable;<a name="line.47"></a>
+<FONT color="green">048</FONT>    <a name="line.48"></a>
+<FONT color="green">049</FONT>      /**<a name="line.49"></a>
+<FONT color="green">050</FONT>       * Captures the result of a request, whether synchronous or asynchronous.  It should be expected<a name="line.50"></a>
+<FONT color="green">051</FONT>       * that for every request made, exactly one of these methods will be called.<a name="line.51"></a>
+<FONT color="green">052</FONT>       */<a name="line.52"></a>
+<FONT color="green">053</FONT>      static interface ResultCapture {<a name="line.53"></a>
+<FONT color="green">054</FONT>        /**<a name="line.54"></a>
+<FONT color="green">055</FONT>         * Called when the request completed successfully.<a name="line.55"></a>
+<FONT color="green">056</FONT>         */<a name="line.56"></a>
+<FONT color="green">057</FONT>        void success();<a name="line.57"></a>
+<FONT color="green">058</FONT>    <a name="line.58"></a>
+<FONT color="green">059</FONT>        /**<a name="line.59"></a>
+<FONT color="green">060</FONT>         * Called when the request failed.<a name="line.60"></a>
+<FONT color="green">061</FONT>         *<a name="line.61"></a>
+<FONT color="green">062</FONT>         * @param t Throwable that was caught.  Must never be null.<a name="line.62"></a>
+<FONT color="green">063</FONT>         * @return {@code true} if a wrapped callback should be notified of the failure,<a name="line.63"></a>
+<FONT color="green">064</FONT>         *    {@code false} otherwise.<a name="line.64"></a>
+<FONT color="green">065</FONT>         */<a name="line.65"></a>
+<FONT color="green">066</FONT>        boolean fail(Throwable t);<a name="line.66"></a>
+<FONT color="green">067</FONT>      }<a name="line.67"></a>
+<FONT color="green">068</FONT>    <a name="line.68"></a>
+<FONT color="green">069</FONT>      /**<a name="line.69"></a>
+<FONT color="green">070</FONT>       * A callback that adapts a {@link ResultCapture} with an {@link AsyncMethodCallback} while<a name="line.70"></a>
+<FONT color="green">071</FONT>       * maintaining the AsyncMethodCallback interface.  The wrapped callback will handle invocation<a name="line.71"></a>
+<FONT color="green">072</FONT>       * of the underlying callback based on the return values from the ResultCapture.<a name="line.72"></a>
+<FONT color="green">073</FONT>       */<a name="line.73"></a>
+<FONT color="green">074</FONT>      static class WrappedMethodCallback implements AsyncMethodCallback {<a name="line.74"></a>
+<FONT color="green">075</FONT>        private final AsyncMethodCallback wrapped;<a name="line.75"></a>
+<FONT color="green">076</FONT>        private final ResultCapture capture;<a name="line.76"></a>
+<FONT color="green">077</FONT>    <a name="line.77"></a>
+<FONT color="green">078</FONT>        private boolean callbackTriggered = false;<a name="line.78"></a>
+<FONT color="green">079</FONT>    <a name="line.79"></a>
+<FONT color="green">080</FONT>        public WrappedMethodCallback(AsyncMethodCallback wrapped, ResultCapture capture) {<a name="line.80"></a>
+<FONT color="green">081</FONT>          this.wrapped = wrapped;<a name="line.81"></a>
+<FONT color="green">082</FONT>          this.capture = capture;<a name="line.82"></a>
+<FONT color="green">083</FONT>        }<a name="line.83"></a>
+<FONT color="green">084</FONT>    <a name="line.84"></a>
+<FONT color="green">085</FONT>        private void callbackTriggered() {<a name="line.85"></a>
+<FONT color="green">086</FONT>          Preconditions.checkState(!callbackTriggered, "Each callback may only be triggered once.");<a name="line.86"></a>
+<FONT color="green">087</FONT>          callbackTriggered = true;<a name="line.87"></a>
+<FONT color="green">088</FONT>        }<a name="line.88"></a>
+<FONT color="green">089</FONT>    <a name="line.89"></a>
+<FONT color="green">090</FONT>        @Override @SuppressWarnings("unchecked") public void onComplete(Object o) {<a name="line.90"></a>
+<FONT color="green">091</FONT>          capture.success();<a name="line.91"></a>
+<FONT color="green">092</FONT>          wrapped.onComplete(o);<a name="line.92"></a>
+<FONT color="green">093</FONT>          callbackTriggered();<a name="line.93"></a>
+<FONT color="green">094</FONT>        }<a name="line.94"></a>
+<FONT color="green">095</FONT>    <a name="line.95"></a>
+<FONT color="green">096</FONT>        @Override public void onError(Throwable t) {<a name="line.96"></a>
+<FONT color="green">097</FONT>          if (capture.fail(t)) {<a name="line.97"></a>
+<FONT color="green">098</FONT>            wrapped.onError(t);<a name="line.98"></a>
+<FONT color="green">099</FONT>            callbackTriggered();<a name="line.99"></a>
+<FONT color="green">100</FONT>          }<a name="line.100"></a>
+<FONT color="green">101</FONT>        }<a name="line.101"></a>
+<FONT color="green">102</FONT>      }<a name="line.102"></a>
+<FONT color="green">103</FONT>    }<a name="line.103"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

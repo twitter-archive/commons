@@ -1,0 +1,513 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    // =================================================================================================<a name="line.1"></a>
+<FONT color="green">002</FONT>    // Copyright 2011 Twitter, Inc.<a name="line.2"></a>
+<FONT color="green">003</FONT>    // -------------------------------------------------------------------------------------------------<a name="line.3"></a>
+<FONT color="green">004</FONT>    // Licensed to the Apache Software Foundation (ASF) under one or more contributor license<a name="line.4"></a>
+<FONT color="green">005</FONT>    // agreements.  See the NOTICE file distributed with this work for additional information regarding<a name="line.5"></a>
+<FONT color="green">006</FONT>    // copyright ownership.  The ASF licenses this file to you under the Apache License, Version 2.0<a name="line.6"></a>
+<FONT color="green">007</FONT>    // (the "License"); you may not use this file except in compliance with the License.  You may<a name="line.7"></a>
+<FONT color="green">008</FONT>    // obtain a copy of the License at<a name="line.8"></a>
+<FONT color="green">009</FONT>    //<a name="line.9"></a>
+<FONT color="green">010</FONT>    //  http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
+<FONT color="green">011</FONT>    //<a name="line.11"></a>
+<FONT color="green">012</FONT>    // Unless required by applicable law or agreed to in writing, software distributed under the<a name="line.12"></a>
+<FONT color="green">013</FONT>    // License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either<a name="line.13"></a>
+<FONT color="green">014</FONT>    // express or implied.  See the License for the specific language governing permissions and<a name="line.14"></a>
+<FONT color="green">015</FONT>    // limitations under the License.<a name="line.15"></a>
+<FONT color="green">016</FONT>    // =================================================================================================<a name="line.16"></a>
+<FONT color="green">017</FONT>    <a name="line.17"></a>
+<FONT color="green">018</FONT>    package com.twitter.common.net;<a name="line.18"></a>
+<FONT color="green">019</FONT>    <a name="line.19"></a>
+<FONT color="green">020</FONT>    import com.google.common.annotations.VisibleForTesting;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import com.google.common.base.Functions;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import com.google.common.base.Joiner;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import com.google.common.base.Preconditions;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import com.google.common.collect.ImmutableList;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import com.google.common.collect.Iterables;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import com.google.common.collect.Lists;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import com.google.common.util.concurrent.ListenableFutureTask;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import com.google.common.util.concurrent.ThreadFactoryBuilder;<a name="line.28"></a>
+<FONT color="green">029</FONT>    import com.twitter.common.base.ExceptionalFunction;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import com.twitter.common.net.UrlResolver.ResolvedUrl.EndState;<a name="line.30"></a>
+<FONT color="green">031</FONT>    import com.twitter.common.quantity.Amount;<a name="line.31"></a>
+<FONT color="green">032</FONT>    import com.twitter.common.quantity.Time;<a name="line.32"></a>
+<FONT color="green">033</FONT>    import com.twitter.common.stats.PrintableHistogram;<a name="line.33"></a>
+<FONT color="green">034</FONT>    import com.twitter.common.util.BackoffStrategy;<a name="line.34"></a>
+<FONT color="green">035</FONT>    import com.twitter.common.util.Clock;<a name="line.35"></a>
+<FONT color="green">036</FONT>    import com.twitter.common.util.TruncatedBinaryBackoff;<a name="line.36"></a>
+<FONT color="green">037</FONT>    import com.twitter.common.util.caching.Cache;<a name="line.37"></a>
+<FONT color="green">038</FONT>    import com.twitter.common.util.caching.LRUCache;<a name="line.38"></a>
+<FONT color="green">039</FONT>    import java.io.IOException;<a name="line.39"></a>
+<FONT color="green">040</FONT>    import java.util.List;<a name="line.40"></a>
+<FONT color="green">041</FONT>    import java.util.concurrent.Callable;<a name="line.41"></a>
+<FONT color="green">042</FONT>    import java.util.concurrent.Executor;<a name="line.42"></a>
+<FONT color="green">043</FONT>    import java.util.concurrent.ExecutorService;<a name="line.43"></a>
+<FONT color="green">044</FONT>    import java.util.concurrent.Executors;<a name="line.44"></a>
+<FONT color="green">045</FONT>    import java.util.concurrent.Future;<a name="line.45"></a>
+<FONT color="green">046</FONT>    import java.util.concurrent.Semaphore;<a name="line.46"></a>
+<FONT color="green">047</FONT>    import java.util.concurrent.TimeUnit;<a name="line.47"></a>
+<FONT color="green">048</FONT>    import java.util.concurrent.atomic.AtomicInteger;<a name="line.48"></a>
+<FONT color="green">049</FONT>    import java.util.logging.Level;<a name="line.49"></a>
+<FONT color="green">050</FONT>    import java.util.logging.Logger;<a name="line.50"></a>
+<FONT color="green">051</FONT>    import javax.annotation.Nullable;<a name="line.51"></a>
+<FONT color="green">052</FONT>    <a name="line.52"></a>
+<FONT color="green">053</FONT>    /**<a name="line.53"></a>
+<FONT color="green">054</FONT>     * Class to aid in resolving URLs by following redirects, which can optionally be performed<a name="line.54"></a>
+<FONT color="green">055</FONT>     * asynchronously using a thread pool.<a name="line.55"></a>
+<FONT color="green">056</FONT>     *<a name="line.56"></a>
+<FONT color="green">057</FONT>     * @author William Farner<a name="line.57"></a>
+<FONT color="green">058</FONT>     */<a name="line.58"></a>
+<FONT color="green">059</FONT>    public class UrlResolver {<a name="line.59"></a>
+<FONT color="green">060</FONT>      private static final Logger LOG = Logger.getLogger(UrlResolver.class.getName());<a name="line.60"></a>
+<FONT color="green">061</FONT>    <a name="line.61"></a>
+<FONT color="green">062</FONT>      private static final String TWITTER_UA = "Twitterbot/0.1";<a name="line.62"></a>
+<FONT color="green">063</FONT>      private static final UrlResolverUtil URL_RESOLVER =<a name="line.63"></a>
+<FONT color="green">064</FONT>          new UrlResolverUtil(Functions.constant(TWITTER_UA));<a name="line.64"></a>
+<FONT color="green">065</FONT>    <a name="line.65"></a>
+<FONT color="green">066</FONT>      private static final ExceptionalFunction&lt;String, String, IOException&gt; RESOLVER =<a name="line.66"></a>
+<FONT color="green">067</FONT>          new ExceptionalFunction&lt;String, String, IOException&gt;() {<a name="line.67"></a>
+<FONT color="green">068</FONT>            @Override public String apply(String url) throws IOException {<a name="line.68"></a>
+<FONT color="green">069</FONT>              return URL_RESOLVER.getEffectiveUrl(url, null);<a name="line.69"></a>
+<FONT color="green">070</FONT>            }<a name="line.70"></a>
+<FONT color="green">071</FONT>          };<a name="line.71"></a>
+<FONT color="green">072</FONT>    <a name="line.72"></a>
+<FONT color="green">073</FONT>      private static ExceptionalFunction&lt;String, String, IOException&gt;<a name="line.73"></a>
+<FONT color="green">074</FONT>          getUrlResolver(final @Nullable ProxyConfig proxyConfig) {<a name="line.74"></a>
+<FONT color="green">075</FONT>        if (proxyConfig != null) {<a name="line.75"></a>
+<FONT color="green">076</FONT>          return new ExceptionalFunction&lt;String, String, IOException&gt;() {<a name="line.76"></a>
+<FONT color="green">077</FONT>            @Override public String apply(String url) throws IOException {<a name="line.77"></a>
+<FONT color="green">078</FONT>              return URL_RESOLVER.getEffectiveUrl(url, proxyConfig);<a name="line.78"></a>
+<FONT color="green">079</FONT>            }<a name="line.79"></a>
+<FONT color="green">080</FONT>          };<a name="line.80"></a>
+<FONT color="green">081</FONT>        } else {<a name="line.81"></a>
+<FONT color="green">082</FONT>          return RESOLVER;<a name="line.82"></a>
+<FONT color="green">083</FONT>        }<a name="line.83"></a>
+<FONT color="green">084</FONT>      }<a name="line.84"></a>
+<FONT color="green">085</FONT>    <a name="line.85"></a>
+<FONT color="green">086</FONT>      private final ExceptionalFunction&lt;String, String, IOException&gt; resolver;<a name="line.86"></a>
+<FONT color="green">087</FONT>      private final int maxRedirects;<a name="line.87"></a>
+<FONT color="green">088</FONT>    <a name="line.88"></a>
+<FONT color="green">089</FONT>      // Tracks the number of active tasks (threads in use).<a name="line.89"></a>
+<FONT color="green">090</FONT>      private final Semaphore poolEntrySemaphore;<a name="line.90"></a>
+<FONT color="green">091</FONT>      private final Integer threadPoolSize;<a name="line.91"></a>
+<FONT color="green">092</FONT>    <a name="line.92"></a>
+<FONT color="green">093</FONT>      // Helps with signaling the handler.<a name="line.93"></a>
+<FONT color="green">094</FONT>      private final Executor handlerExecutor;<a name="line.94"></a>
+<FONT color="green">095</FONT>    <a name="line.95"></a>
+<FONT color="green">096</FONT>      // Manages the thread pool and task execution.<a name="line.96"></a>
+<FONT color="green">097</FONT>      private ExecutorService executor;<a name="line.97"></a>
+<FONT color="green">098</FONT>    <a name="line.98"></a>
+<FONT color="green">099</FONT>      // Cache to store resolved URLs.<a name="line.99"></a>
+<FONT color="green">100</FONT>      private final Cache&lt;String, String&gt; urlCache = LRUCache.&lt;String, String&gt;builder()<a name="line.100"></a>
+<FONT color="green">101</FONT>          .maxSize(10000)<a name="line.101"></a>
+<FONT color="green">102</FONT>          .makeSynchronized(true)<a name="line.102"></a>
+<FONT color="green">103</FONT>          .build();<a name="line.103"></a>
+<FONT color="green">104</FONT>    <a name="line.104"></a>
+<FONT color="green">105</FONT>      // Variables to track connection/request stats.<a name="line.105"></a>
+<FONT color="green">106</FONT>      private AtomicInteger requestCount = new AtomicInteger(0);<a name="line.106"></a>
+<FONT color="green">107</FONT>      private AtomicInteger cacheHits = new AtomicInteger(0);<a name="line.107"></a>
+<FONT color="green">108</FONT>      private AtomicInteger failureCount = new AtomicInteger(0);<a name="line.108"></a>
+<FONT color="green">109</FONT>      // Tracks the time (in milliseconds) required to resolve URLs.<a name="line.109"></a>
+<FONT color="green">110</FONT>      private final PrintableHistogram urlResolutionTimesMs = new PrintableHistogram(<a name="line.110"></a>
+<FONT color="green">111</FONT>          1, 5, 10, 25, 50, 75, 100, 150, 200, 250, 300, 500, 750, 1000, 1500, 2000);<a name="line.111"></a>
+<FONT color="green">112</FONT>    <a name="line.112"></a>
+<FONT color="green">113</FONT>      private final Clock clock;<a name="line.113"></a>
+<FONT color="green">114</FONT>      private final BackoffStrategy backoffStrategy;<a name="line.114"></a>
+<FONT color="green">115</FONT>    <a name="line.115"></a>
+<FONT color="green">116</FONT>      @VisibleForTesting<a name="line.116"></a>
+<FONT color="green">117</FONT>      UrlResolver(Clock clock, BackoffStrategy backoffStrategy,<a name="line.117"></a>
+<FONT color="green">118</FONT>          ExceptionalFunction&lt;String, String, IOException&gt; resolver, int maxRedirects) {<a name="line.118"></a>
+<FONT color="green">119</FONT>        this(clock, backoffStrategy, resolver, maxRedirects, null);<a name="line.119"></a>
+<FONT color="green">120</FONT>      }<a name="line.120"></a>
+<FONT color="green">121</FONT>    <a name="line.121"></a>
+<FONT color="green">122</FONT>      /**<a name="line.122"></a>
+<FONT color="green">123</FONT>       * Creates a new asynchronous URL resolver.  A thread pool will be used to resolve URLs, and<a name="line.123"></a>
+<FONT color="green">124</FONT>       * resolved URLs will be announced via {@code handler}.<a name="line.124"></a>
+<FONT color="green">125</FONT>       *<a name="line.125"></a>
+<FONT color="green">126</FONT>       * @param maxRedirects The maximum number of HTTP redirects to follow.<a name="line.126"></a>
+<FONT color="green">127</FONT>       * @param threadPoolSize The number of threads to use for resolving URLs.<a name="line.127"></a>
+<FONT color="green">128</FONT>       * @param proxyConfig The proxy settings with which to make the HTTP request, or null for the<a name="line.128"></a>
+<FONT color="green">129</FONT>       *    default configured proxy.<a name="line.129"></a>
+<FONT color="green">130</FONT>       */<a name="line.130"></a>
+<FONT color="green">131</FONT>      public UrlResolver(int maxRedirects, int threadPoolSize, @Nullable ProxyConfig proxyConfig) {<a name="line.131"></a>
+<FONT color="green">132</FONT>        this(Clock.SYSTEM_CLOCK,<a name="line.132"></a>
+<FONT color="green">133</FONT>            new TruncatedBinaryBackoff(Amount.of(100L, Time.MILLISECONDS), Amount.of(1L, Time.SECONDS)),<a name="line.133"></a>
+<FONT color="green">134</FONT>            getUrlResolver(proxyConfig), maxRedirects, threadPoolSize);<a name="line.134"></a>
+<FONT color="green">135</FONT>      }<a name="line.135"></a>
+<FONT color="green">136</FONT>    <a name="line.136"></a>
+<FONT color="green">137</FONT>      public UrlResolver(int maxRedirects, int threadPoolSize) {<a name="line.137"></a>
+<FONT color="green">138</FONT>        this(maxRedirects, threadPoolSize, null);<a name="line.138"></a>
+<FONT color="green">139</FONT>      }<a name="line.139"></a>
+<FONT color="green">140</FONT>    <a name="line.140"></a>
+<FONT color="green">141</FONT>      private UrlResolver(Clock clock, BackoffStrategy backoffStrategy,<a name="line.141"></a>
+<FONT color="green">142</FONT>          ExceptionalFunction&lt;String, String, IOException&gt; resolver, int maxRedirects,<a name="line.142"></a>
+<FONT color="green">143</FONT>          @Nullable Integer threadPoolSize) {<a name="line.143"></a>
+<FONT color="green">144</FONT>        this.clock = clock;<a name="line.144"></a>
+<FONT color="green">145</FONT>        this.backoffStrategy = backoffStrategy;<a name="line.145"></a>
+<FONT color="green">146</FONT>        this.resolver = resolver;<a name="line.146"></a>
+<FONT color="green">147</FONT>        this.maxRedirects = maxRedirects;<a name="line.147"></a>
+<FONT color="green">148</FONT>    <a name="line.148"></a>
+<FONT color="green">149</FONT>        if (threadPoolSize != null) {<a name="line.149"></a>
+<FONT color="green">150</FONT>          this.threadPoolSize = threadPoolSize;<a name="line.150"></a>
+<FONT color="green">151</FONT>          Preconditions.checkState(threadPoolSize &gt; 0);<a name="line.151"></a>
+<FONT color="green">152</FONT>          poolEntrySemaphore = new Semaphore(threadPoolSize);<a name="line.152"></a>
+<FONT color="green">153</FONT>    <a name="line.153"></a>
+<FONT color="green">154</FONT>          // Start up the thread pool.<a name="line.154"></a>
+<FONT color="green">155</FONT>          reset();<a name="line.155"></a>
+<FONT color="green">156</FONT>    <a name="line.156"></a>
+<FONT color="green">157</FONT>          // Executor to send notifications back to the handler.  This also needs to be<a name="line.157"></a>
+<FONT color="green">158</FONT>          // a daemon thread.<a name="line.158"></a>
+<FONT color="green">159</FONT>          handlerExecutor =<a name="line.159"></a>
+<FONT color="green">160</FONT>              Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setDaemon(true).build());<a name="line.160"></a>
+<FONT color="green">161</FONT>        } else {<a name="line.161"></a>
+<FONT color="green">162</FONT>          this.threadPoolSize = null;<a name="line.162"></a>
+<FONT color="green">163</FONT>          poolEntrySemaphore = null;<a name="line.163"></a>
+<FONT color="green">164</FONT>          handlerExecutor = null;<a name="line.164"></a>
+<FONT color="green">165</FONT>        }<a name="line.165"></a>
+<FONT color="green">166</FONT>      }<a name="line.166"></a>
+<FONT color="green">167</FONT>    <a name="line.167"></a>
+<FONT color="green">168</FONT>      public Future&lt;ResolvedUrl&gt; resolveUrlAsync(final String url, final ResolvedUrlHandler handler) {<a name="line.168"></a>
+<FONT color="green">169</FONT>        Preconditions.checkNotNull(<a name="line.169"></a>
+<FONT color="green">170</FONT>            "Asynchronous URL resolution cannot be performed without a valid handler.", handler);<a name="line.170"></a>
+<FONT color="green">171</FONT>    <a name="line.171"></a>
+<FONT color="green">172</FONT>        try {<a name="line.172"></a>
+<FONT color="green">173</FONT>          poolEntrySemaphore.acquire();<a name="line.173"></a>
+<FONT color="green">174</FONT>        } catch (InterruptedException e) {<a name="line.174"></a>
+<FONT color="green">175</FONT>          LOG.log(Level.SEVERE, "Interrupted while waiting for thread to resolve URL: " + url, e);<a name="line.175"></a>
+<FONT color="green">176</FONT>          return null;<a name="line.176"></a>
+<FONT color="green">177</FONT>        }<a name="line.177"></a>
+<FONT color="green">178</FONT>        final ListenableFutureTask&lt;ResolvedUrl&gt; future =<a name="line.178"></a>
+<FONT color="green">179</FONT>            new ListenableFutureTask&lt;ResolvedUrl&gt;(<a name="line.179"></a>
+<FONT color="green">180</FONT>              new Callable&lt;ResolvedUrl&gt;() {<a name="line.180"></a>
+<FONT color="green">181</FONT>                @Override public ResolvedUrl call() {<a name="line.181"></a>
+<FONT color="green">182</FONT>                  return resolveUrl(url);<a name="line.182"></a>
+<FONT color="green">183</FONT>                }<a name="line.183"></a>
+<FONT color="green">184</FONT>              });<a name="line.184"></a>
+<FONT color="green">185</FONT>    <a name="line.185"></a>
+<FONT color="green">186</FONT>        future.addListener(new Runnable() {<a name="line.186"></a>
+<FONT color="green">187</FONT>          @Override public void run() {<a name="line.187"></a>
+<FONT color="green">188</FONT>            try {<a name="line.188"></a>
+<FONT color="green">189</FONT>              handler.resolved(future);<a name="line.189"></a>
+<FONT color="green">190</FONT>            } finally {<a name="line.190"></a>
+<FONT color="green">191</FONT>              poolEntrySemaphore.release();<a name="line.191"></a>
+<FONT color="green">192</FONT>            }<a name="line.192"></a>
+<FONT color="green">193</FONT>          }<a name="line.193"></a>
+<FONT color="green">194</FONT>        }, handlerExecutor);<a name="line.194"></a>
+<FONT color="green">195</FONT>    <a name="line.195"></a>
+<FONT color="green">196</FONT>        executor.execute(future);<a name="line.196"></a>
+<FONT color="green">197</FONT>        return future;<a name="line.197"></a>
+<FONT color="green">198</FONT>      }<a name="line.198"></a>
+<FONT color="green">199</FONT>    <a name="line.199"></a>
+<FONT color="green">200</FONT>      private void logThreadpoolInfo() {<a name="line.200"></a>
+<FONT color="green">201</FONT>        LOG.info("Shutting down thread pool, available permits: "<a name="line.201"></a>
+<FONT color="green">202</FONT>                 + poolEntrySemaphore.availablePermits());<a name="line.202"></a>
+<FONT color="green">203</FONT>        LOG.info("Queued threads? " + poolEntrySemaphore.hasQueuedThreads());<a name="line.203"></a>
+<FONT color="green">204</FONT>        LOG.info("Queue length: " + poolEntrySemaphore.getQueueLength());<a name="line.204"></a>
+<FONT color="green">205</FONT>      }<a name="line.205"></a>
+<FONT color="green">206</FONT>    <a name="line.206"></a>
+<FONT color="green">207</FONT>      public void reset() {<a name="line.207"></a>
+<FONT color="green">208</FONT>        Preconditions.checkState(threadPoolSize != null);<a name="line.208"></a>
+<FONT color="green">209</FONT>        if (executor != null) {<a name="line.209"></a>
+<FONT color="green">210</FONT>          Preconditions.checkState(executor.isShutdown(),<a name="line.210"></a>
+<FONT color="green">211</FONT>              "The thread pool must be shut down before resetting.");<a name="line.211"></a>
+<FONT color="green">212</FONT>          Preconditions.checkState(executor.isTerminated(), "There may still be pending async tasks.");<a name="line.212"></a>
+<FONT color="green">213</FONT>        }<a name="line.213"></a>
+<FONT color="green">214</FONT>    <a name="line.214"></a>
+<FONT color="green">215</FONT>        // Create a thread pool with daemon threads, so that they may be terminated when no<a name="line.215"></a>
+<FONT color="green">216</FONT>        // application threads are running.<a name="line.216"></a>
+<FONT color="green">217</FONT>        executor = Executors.newFixedThreadPool(threadPoolSize,<a name="line.217"></a>
+<FONT color="green">218</FONT>            new ThreadFactoryBuilder().setDaemon(true).setNameFormat("UrlResolver[%d]").build());<a name="line.218"></a>
+<FONT color="green">219</FONT>      }<a name="line.219"></a>
+<FONT color="green">220</FONT>    <a name="line.220"></a>
+<FONT color="green">221</FONT>      /**<a name="line.221"></a>
+<FONT color="green">222</FONT>       * Terminates the thread pool, waiting at most {@code waitSeconds} for active threads to complete.<a name="line.222"></a>
+<FONT color="green">223</FONT>       * After this method is called, no more URLs may be submitted for resolution.<a name="line.223"></a>
+<FONT color="green">224</FONT>       *<a name="line.224"></a>
+<FONT color="green">225</FONT>       * @param waitSeconds The number of seconds to wait for active threads to complete.<a name="line.225"></a>
+<FONT color="green">226</FONT>       */<a name="line.226"></a>
+<FONT color="green">227</FONT>      public void clearAsyncTasks(int waitSeconds) {<a name="line.227"></a>
+<FONT color="green">228</FONT>        Preconditions.checkState(threadPoolSize != null,<a name="line.228"></a>
+<FONT color="green">229</FONT>            "finish() should not be called on a synchronous URL resolver.");<a name="line.229"></a>
+<FONT color="green">230</FONT>    <a name="line.230"></a>
+<FONT color="green">231</FONT>        logThreadpoolInfo();<a name="line.231"></a>
+<FONT color="green">232</FONT>        executor.shutdown(); // Disable new tasks from being submitted.<a name="line.232"></a>
+<FONT color="green">233</FONT>        try {<a name="line.233"></a>
+<FONT color="green">234</FONT>          // Wait a while for existing tasks to terminate<a name="line.234"></a>
+<FONT color="green">235</FONT>          if (!executor.awaitTermination(waitSeconds, TimeUnit.SECONDS)) {<a name="line.235"></a>
+<FONT color="green">236</FONT>            LOG.info("Pool did not terminate, forcing shutdown.");<a name="line.236"></a>
+<FONT color="green">237</FONT>            logThreadpoolInfo();<a name="line.237"></a>
+<FONT color="green">238</FONT>            List&lt;Runnable&gt; remaining = executor.shutdownNow();<a name="line.238"></a>
+<FONT color="green">239</FONT>            LOG.info("Tasks still running: " + remaining);<a name="line.239"></a>
+<FONT color="green">240</FONT>            // Wait a while for tasks to respond to being cancelled<a name="line.240"></a>
+<FONT color="green">241</FONT>            if (!executor.awaitTermination(waitSeconds, TimeUnit.SECONDS)) {<a name="line.241"></a>
+<FONT color="green">242</FONT>              LOG.warning("Pool did not terminate.");<a name="line.242"></a>
+<FONT color="green">243</FONT>              logThreadpoolInfo();<a name="line.243"></a>
+<FONT color="green">244</FONT>            }<a name="line.244"></a>
+<FONT color="green">245</FONT>          }<a name="line.245"></a>
+<FONT color="green">246</FONT>        } catch (InterruptedException e) {<a name="line.246"></a>
+<FONT color="green">247</FONT>          LOG.log(Level.WARNING, "Interrupted while waiting for threadpool to finish.", e);<a name="line.247"></a>
+<FONT color="green">248</FONT>          // (Re-)Cancel if current thread also interrupted<a name="line.248"></a>
+<FONT color="green">249</FONT>          executor.shutdownNow();<a name="line.249"></a>
+<FONT color="green">250</FONT>          // Preserve interrupt status<a name="line.250"></a>
+<FONT color="green">251</FONT>          Thread.currentThread().interrupt();<a name="line.251"></a>
+<FONT color="green">252</FONT>        }<a name="line.252"></a>
+<FONT color="green">253</FONT>      }<a name="line.253"></a>
+<FONT color="green">254</FONT>    <a name="line.254"></a>
+<FONT color="green">255</FONT>      /**<a name="line.255"></a>
+<FONT color="green">256</FONT>       * Resolves a URL synchronously.<a name="line.256"></a>
+<FONT color="green">257</FONT>       *<a name="line.257"></a>
+<FONT color="green">258</FONT>       * @param url The URL to resolve.<a name="line.258"></a>
+<FONT color="green">259</FONT>       * @return The resolved URL.<a name="line.259"></a>
+<FONT color="green">260</FONT>       */<a name="line.260"></a>
+<FONT color="green">261</FONT>      public ResolvedUrl resolveUrl(String url) {<a name="line.261"></a>
+<FONT color="green">262</FONT>        ResolvedUrl resolvedUrl = new ResolvedUrl();<a name="line.262"></a>
+<FONT color="green">263</FONT>        resolvedUrl.setStartUrl(url);<a name="line.263"></a>
+<FONT color="green">264</FONT>    <a name="line.264"></a>
+<FONT color="green">265</FONT>        String cached = urlCache.get(url);<a name="line.265"></a>
+<FONT color="green">266</FONT>        if (cached != null) {<a name="line.266"></a>
+<FONT color="green">267</FONT>          cacheHits.incrementAndGet();<a name="line.267"></a>
+<FONT color="green">268</FONT>          resolvedUrl.setNextResolve(cached);<a name="line.268"></a>
+<FONT color="green">269</FONT>          resolvedUrl.setEndState(EndState.CACHED);<a name="line.269"></a>
+<FONT color="green">270</FONT>          return resolvedUrl;<a name="line.270"></a>
+<FONT color="green">271</FONT>        }<a name="line.271"></a>
+<FONT color="green">272</FONT>    <a name="line.272"></a>
+<FONT color="green">273</FONT>        String currentUrl = url;<a name="line.273"></a>
+<FONT color="green">274</FONT>        long backoffMs = 0L;<a name="line.274"></a>
+<FONT color="green">275</FONT>        String next = null;<a name="line.275"></a>
+<FONT color="green">276</FONT>        for (int i = 0; i &lt; maxRedirects; i++) {<a name="line.276"></a>
+<FONT color="green">277</FONT>          try {<a name="line.277"></a>
+<FONT color="green">278</FONT>            next = resolveOnce(currentUrl);<a name="line.278"></a>
+<FONT color="green">279</FONT>    <a name="line.279"></a>
+<FONT color="green">280</FONT>            // If there was a 4xx or a 5xx, we''ll get a null back, so we pretend like we never advanced<a name="line.280"></a>
+<FONT color="green">281</FONT>            // to allow for a retry within the redirect limit.<a name="line.281"></a>
+<FONT color="green">282</FONT>            // TODO(John Sirois): we really need access to the return code here to do the right thing; ie:<a name="line.282"></a>
+<FONT color="green">283</FONT>            // retry for internal server errors but probably not for unauthorized<a name="line.283"></a>
+<FONT color="green">284</FONT>            if (next == null) {<a name="line.284"></a>
+<FONT color="green">285</FONT>              if (i &lt; maxRedirects - 1) { // don't wait if we're about to exit the loop<a name="line.285"></a>
+<FONT color="green">286</FONT>                backoffMs = backoffStrategy.calculateBackoffMs(backoffMs);<a name="line.286"></a>
+<FONT color="green">287</FONT>                try {<a name="line.287"></a>
+<FONT color="green">288</FONT>                  clock.waitFor(backoffMs);<a name="line.288"></a>
+<FONT color="green">289</FONT>                } catch (InterruptedException e) {<a name="line.289"></a>
+<FONT color="green">290</FONT>                  Thread.currentThread().interrupt();<a name="line.290"></a>
+<FONT color="green">291</FONT>                  throw new RuntimeException(<a name="line.291"></a>
+<FONT color="green">292</FONT>                      "Interrupted waiting to retry a failed resolution for: " + currentUrl, e);<a name="line.292"></a>
+<FONT color="green">293</FONT>                }<a name="line.293"></a>
+<FONT color="green">294</FONT>              }<a name="line.294"></a>
+<FONT color="green">295</FONT>              continue;<a name="line.295"></a>
+<FONT color="green">296</FONT>            }<a name="line.296"></a>
+<FONT color="green">297</FONT>    <a name="line.297"></a>
+<FONT color="green">298</FONT>            backoffMs = 0L;<a name="line.298"></a>
+<FONT color="green">299</FONT>            if (next.equals(currentUrl)) {<a name="line.299"></a>
+<FONT color="green">300</FONT>              // We've reached the end of the redirect chain.<a name="line.300"></a>
+<FONT color="green">301</FONT>              resolvedUrl.setEndState(EndState.REACHED_LANDING);<a name="line.301"></a>
+<FONT color="green">302</FONT>              urlCache.put(url, currentUrl);<a name="line.302"></a>
+<FONT color="green">303</FONT>              for (String intermediateUrl : resolvedUrl.getIntermediateUrls()) {<a name="line.303"></a>
+<FONT color="green">304</FONT>                urlCache.put(intermediateUrl, currentUrl);<a name="line.304"></a>
+<FONT color="green">305</FONT>              }<a name="line.305"></a>
+<FONT color="green">306</FONT>              return resolvedUrl;<a name="line.306"></a>
+<FONT color="green">307</FONT>            } else if (!url.equals(next)) {<a name="line.307"></a>
+<FONT color="green">308</FONT>              resolvedUrl.setNextResolve(next);<a name="line.308"></a>
+<FONT color="green">309</FONT>            }<a name="line.309"></a>
+<FONT color="green">310</FONT>            currentUrl = next;<a name="line.310"></a>
+<FONT color="green">311</FONT>          } catch (IOException e) {<a name="line.311"></a>
+<FONT color="green">312</FONT>            LOG.log(Level.INFO, "Failed to resolve url: " + url, e);<a name="line.312"></a>
+<FONT color="green">313</FONT>            resolvedUrl.setEndState(EndState.ERROR);<a name="line.313"></a>
+<FONT color="green">314</FONT>            return resolvedUrl;<a name="line.314"></a>
+<FONT color="green">315</FONT>          }<a name="line.315"></a>
+<FONT color="green">316</FONT>        }<a name="line.316"></a>
+<FONT color="green">317</FONT>    <a name="line.317"></a>
+<FONT color="green">318</FONT>        resolvedUrl.setEndState(next == null || url.equals(currentUrl) ? EndState.ERROR<a name="line.318"></a>
+<FONT color="green">319</FONT>            : EndState.REDIRECT_LIMIT);<a name="line.319"></a>
+<FONT color="green">320</FONT>        return resolvedUrl;<a name="line.320"></a>
+<FONT color="green">321</FONT>      }<a name="line.321"></a>
+<FONT color="green">322</FONT>    <a name="line.322"></a>
+<FONT color="green">323</FONT>      /**<a name="line.323"></a>
+<FONT color="green">324</FONT>       * Resolves a url, following at most one redirect.  Thread-safe.<a name="line.324"></a>
+<FONT color="green">325</FONT>       *<a name="line.325"></a>
+<FONT color="green">326</FONT>       * @param url The URL to resolve.<a name="line.326"></a>
+<FONT color="green">327</FONT>       * @return The result of following the URL through at most one redirect or null if the url could<a name="line.327"></a>
+<FONT color="green">328</FONT>       *     not be followed<a name="line.328"></a>
+<FONT color="green">329</FONT>       * @throws IOException If an error occurs while resolving the URL.<a name="line.329"></a>
+<FONT color="green">330</FONT>       */<a name="line.330"></a>
+<FONT color="green">331</FONT>      private String resolveOnce(String url) throws IOException {<a name="line.331"></a>
+<FONT color="green">332</FONT>        requestCount.incrementAndGet();<a name="line.332"></a>
+<FONT color="green">333</FONT>    <a name="line.333"></a>
+<FONT color="green">334</FONT>        String resolvedUrl = urlCache.get(url);<a name="line.334"></a>
+<FONT color="green">335</FONT>        if (resolvedUrl != null) {<a name="line.335"></a>
+<FONT color="green">336</FONT>          cacheHits.incrementAndGet();<a name="line.336"></a>
+<FONT color="green">337</FONT>          return resolvedUrl;<a name="line.337"></a>
+<FONT color="green">338</FONT>        }<a name="line.338"></a>
+<FONT color="green">339</FONT>    <a name="line.339"></a>
+<FONT color="green">340</FONT>        try {<a name="line.340"></a>
+<FONT color="green">341</FONT>          long startTimeMs = System.currentTimeMillis();<a name="line.341"></a>
+<FONT color="green">342</FONT>          resolvedUrl = resolver.apply(url);<a name="line.342"></a>
+<FONT color="green">343</FONT>          if (resolvedUrl == null) {<a name="line.343"></a>
+<FONT color="green">344</FONT>            return null;<a name="line.344"></a>
+<FONT color="green">345</FONT>          }<a name="line.345"></a>
+<FONT color="green">346</FONT>    <a name="line.346"></a>
+<FONT color="green">347</FONT>          urlCache.put(url, resolvedUrl);<a name="line.347"></a>
+<FONT color="green">348</FONT>    <a name="line.348"></a>
+<FONT color="green">349</FONT>          synchronized (urlResolutionTimesMs) {<a name="line.349"></a>
+<FONT color="green">350</FONT>            urlResolutionTimesMs.addValue(System.currentTimeMillis() - startTimeMs);<a name="line.350"></a>
+<FONT color="green">351</FONT>          }<a name="line.351"></a>
+<FONT color="green">352</FONT>          return resolvedUrl;<a name="line.352"></a>
+<FONT color="green">353</FONT>        } catch (IOException e) {<a name="line.353"></a>
+<FONT color="green">354</FONT>          failureCount.incrementAndGet();<a name="line.354"></a>
+<FONT color="green">355</FONT>          throw e;<a name="line.355"></a>
+<FONT color="green">356</FONT>        }<a name="line.356"></a>
+<FONT color="green">357</FONT>      }<a name="line.357"></a>
+<FONT color="green">358</FONT>    <a name="line.358"></a>
+<FONT color="green">359</FONT>      @Override<a name="line.359"></a>
+<FONT color="green">360</FONT>      public String toString() {<a name="line.360"></a>
+<FONT color="green">361</FONT>        return String.format("Cache: %s\nFailed requests: %d,\nResolution Times: %s",<a name="line.361"></a>
+<FONT color="green">362</FONT>            urlCache, failureCount.get(),<a name="line.362"></a>
+<FONT color="green">363</FONT>            urlResolutionTimesMs.toString());<a name="line.363"></a>
+<FONT color="green">364</FONT>      }<a name="line.364"></a>
+<FONT color="green">365</FONT>    <a name="line.365"></a>
+<FONT color="green">366</FONT>      /**<a name="line.366"></a>
+<FONT color="green">367</FONT>       * Class to wrap the result of a URL resolution.<a name="line.367"></a>
+<FONT color="green">368</FONT>       */<a name="line.368"></a>
+<FONT color="green">369</FONT>      public static class ResolvedUrl {<a name="line.369"></a>
+<FONT color="green">370</FONT>        public enum EndState {<a name="line.370"></a>
+<FONT color="green">371</FONT>          REACHED_LANDING,<a name="line.371"></a>
+<FONT color="green">372</FONT>          ERROR,<a name="line.372"></a>
+<FONT color="green">373</FONT>          CACHED,<a name="line.373"></a>
+<FONT color="green">374</FONT>          REDIRECT_LIMIT<a name="line.374"></a>
+<FONT color="green">375</FONT>        }<a name="line.375"></a>
+<FONT color="green">376</FONT>    <a name="line.376"></a>
+<FONT color="green">377</FONT>        private String startUrl;<a name="line.377"></a>
+<FONT color="green">378</FONT>        private final List&lt;String&gt; resolveChain;<a name="line.378"></a>
+<FONT color="green">379</FONT>        private EndState endState;<a name="line.379"></a>
+<FONT color="green">380</FONT>    <a name="line.380"></a>
+<FONT color="green">381</FONT>        public ResolvedUrl() {<a name="line.381"></a>
+<FONT color="green">382</FONT>          resolveChain = Lists.newArrayList();<a name="line.382"></a>
+<FONT color="green">383</FONT>        }<a name="line.383"></a>
+<FONT color="green">384</FONT>    <a name="line.384"></a>
+<FONT color="green">385</FONT>        @VisibleForTesting<a name="line.385"></a>
+<FONT color="green">386</FONT>        public ResolvedUrl(EndState endState, String startUrl, String... resolveChain) {<a name="line.386"></a>
+<FONT color="green">387</FONT>          this.endState = endState;<a name="line.387"></a>
+<FONT color="green">388</FONT>          this.startUrl = startUrl;<a name="line.388"></a>
+<FONT color="green">389</FONT>          this.resolveChain = Lists.newArrayList(resolveChain);<a name="line.389"></a>
+<FONT color="green">390</FONT>        }<a name="line.390"></a>
+<FONT color="green">391</FONT>    <a name="line.391"></a>
+<FONT color="green">392</FONT>        public String getStartUrl() {<a name="line.392"></a>
+<FONT color="green">393</FONT>          return startUrl;<a name="line.393"></a>
+<FONT color="green">394</FONT>        }<a name="line.394"></a>
+<FONT color="green">395</FONT>    <a name="line.395"></a>
+<FONT color="green">396</FONT>        void setStartUrl(String startUrl) {<a name="line.396"></a>
+<FONT color="green">397</FONT>          this.startUrl = startUrl;<a name="line.397"></a>
+<FONT color="green">398</FONT>        }<a name="line.398"></a>
+<FONT color="green">399</FONT>    <a name="line.399"></a>
+<FONT color="green">400</FONT>        /**<a name="line.400"></a>
+<FONT color="green">401</FONT>         * Returns the last URL resolved following a redirect chain, or null if the startUrl is a<a name="line.401"></a>
+<FONT color="green">402</FONT>         * landing URL.<a name="line.402"></a>
+<FONT color="green">403</FONT>         */<a name="line.403"></a>
+<FONT color="green">404</FONT>        public String getEndUrl() {<a name="line.404"></a>
+<FONT color="green">405</FONT>          return resolveChain.isEmpty() ? null : Iterables.getLast(resolveChain);<a name="line.405"></a>
+<FONT color="green">406</FONT>        }<a name="line.406"></a>
+<FONT color="green">407</FONT>    <a name="line.407"></a>
+<FONT color="green">408</FONT>        void setNextResolve(String endUrl) {<a name="line.408"></a>
+<FONT color="green">409</FONT>          this.resolveChain.add(endUrl);<a name="line.409"></a>
+<FONT color="green">410</FONT>        }<a name="line.410"></a>
+<FONT color="green">411</FONT>    <a name="line.411"></a>
+<FONT color="green">412</FONT>        /**<a name="line.412"></a>
+<FONT color="green">413</FONT>         * Returns any immediate URLs encountered on the resolution chain.  If the startUrl redirects<a name="line.413"></a>
+<FONT color="green">414</FONT>         * directly to the endUrl or they are the same the imtermediate URLs will be empty.<a name="line.414"></a>
+<FONT color="green">415</FONT>         */<a name="line.415"></a>
+<FONT color="green">416</FONT>        public Iterable&lt;String&gt; getIntermediateUrls() {<a name="line.416"></a>
+<FONT color="green">417</FONT>          return resolveChain.size() &lt;= 1 ? ImmutableList.&lt;String&gt;of()<a name="line.417"></a>
+<FONT color="green">418</FONT>              : resolveChain.subList(0, resolveChain.size() - 1);<a name="line.418"></a>
+<FONT color="green">419</FONT>        }<a name="line.419"></a>
+<FONT color="green">420</FONT>    <a name="line.420"></a>
+<FONT color="green">421</FONT>        public EndState getEndState() {<a name="line.421"></a>
+<FONT color="green">422</FONT>          return endState;<a name="line.422"></a>
+<FONT color="green">423</FONT>        }<a name="line.423"></a>
+<FONT color="green">424</FONT>    <a name="line.424"></a>
+<FONT color="green">425</FONT>        void setEndState(EndState endState) {<a name="line.425"></a>
+<FONT color="green">426</FONT>          this.endState = endState;<a name="line.426"></a>
+<FONT color="green">427</FONT>        }<a name="line.427"></a>
+<FONT color="green">428</FONT>    <a name="line.428"></a>
+<FONT color="green">429</FONT>        public String toString() {<a name="line.429"></a>
+<FONT color="green">430</FONT>          return String.format("%s -&gt; %s [%s, %d redirects]",<a name="line.430"></a>
+<FONT color="green">431</FONT>              startUrl, Joiner.on(" -&gt; ").join(resolveChain), endState, resolveChain.size());<a name="line.431"></a>
+<FONT color="green">432</FONT>        }<a name="line.432"></a>
+<FONT color="green">433</FONT>      }<a name="line.433"></a>
+<FONT color="green">434</FONT>    <a name="line.434"></a>
+<FONT color="green">435</FONT>      /**<a name="line.435"></a>
+<FONT color="green">436</FONT>       * Interface to use for notifying the caller of resolved URLs.<a name="line.436"></a>
+<FONT color="green">437</FONT>       */<a name="line.437"></a>
+<FONT color="green">438</FONT>      public interface ResolvedUrlHandler {<a name="line.438"></a>
+<FONT color="green">439</FONT>        /**<a name="line.439"></a>
+<FONT color="green">440</FONT>         * Signals that a URL has been resolved to its target.  The implementation of this method must<a name="line.440"></a>
+<FONT color="green">441</FONT>         * be thread safe.<a name="line.441"></a>
+<FONT color="green">442</FONT>         *<a name="line.442"></a>
+<FONT color="green">443</FONT>         * @param future The future that has finished resolving a URL.<a name="line.443"></a>
+<FONT color="green">444</FONT>         */<a name="line.444"></a>
+<FONT color="green">445</FONT>        public void resolved(Future&lt;ResolvedUrl&gt; future);<a name="line.445"></a>
+<FONT color="green">446</FONT>      }<a name="line.446"></a>
+<FONT color="green">447</FONT>    }<a name="line.447"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

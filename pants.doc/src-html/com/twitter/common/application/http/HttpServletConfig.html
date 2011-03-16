@@ -1,0 +1,130 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    // =================================================================================================<a name="line.1"></a>
+<FONT color="green">002</FONT>    // Copyright 2011 Twitter, Inc.<a name="line.2"></a>
+<FONT color="green">003</FONT>    // -------------------------------------------------------------------------------------------------<a name="line.3"></a>
+<FONT color="green">004</FONT>    // Licensed to the Apache Software Foundation (ASF) under one or more contributor license<a name="line.4"></a>
+<FONT color="green">005</FONT>    // agreements.  See the NOTICE file distributed with this work for additional information regarding<a name="line.5"></a>
+<FONT color="green">006</FONT>    // copyright ownership.  The ASF licenses this file to you under the Apache License, Version 2.0<a name="line.6"></a>
+<FONT color="green">007</FONT>    // (the "License"); you may not use this file except in compliance with the License.  You may<a name="line.7"></a>
+<FONT color="green">008</FONT>    // obtain a copy of the License at<a name="line.8"></a>
+<FONT color="green">009</FONT>    //<a name="line.9"></a>
+<FONT color="green">010</FONT>    //  http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
+<FONT color="green">011</FONT>    //<a name="line.11"></a>
+<FONT color="green">012</FONT>    // Unless required by applicable law or agreed to in writing, software distributed under the<a name="line.12"></a>
+<FONT color="green">013</FONT>    // License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either<a name="line.13"></a>
+<FONT color="green">014</FONT>    // express or implied.  See the License for the specific language governing permissions and<a name="line.14"></a>
+<FONT color="green">015</FONT>    // limitations under the License.<a name="line.15"></a>
+<FONT color="green">016</FONT>    // =================================================================================================<a name="line.16"></a>
+<FONT color="green">017</FONT>    <a name="line.17"></a>
+<FONT color="green">018</FONT>    package com.twitter.common.application.http;<a name="line.18"></a>
+<FONT color="green">019</FONT>    <a name="line.19"></a>
+<FONT color="green">020</FONT>    import javax.servlet.http.HttpServlet;<a name="line.20"></a>
+<FONT color="green">021</FONT>    <a name="line.21"></a>
+<FONT color="green">022</FONT>    import com.google.common.collect.ImmutableMap;<a name="line.22"></a>
+<FONT color="green">023</FONT>    <a name="line.23"></a>
+<FONT color="green">024</FONT>    import static com.google.common.base.Preconditions.checkNotNull;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import static com.twitter.common.base.MorePreconditions.checkNotBlank;<a name="line.25"></a>
+<FONT color="green">026</FONT>    <a name="line.26"></a>
+<FONT color="green">027</FONT>    /**<a name="line.27"></a>
+<FONT color="green">028</FONT>     * An {@link javax.servlet.http.HttpServlet} configuration used to mount HTTP handlers via<a name="line.28"></a>
+<FONT color="green">029</FONT>     * {@link com.twitter.common_internal.process.GuicedProcess#registerServlet(com.google.inject.Binder, HttpServletConfig)}.<a name="line.29"></a>
+<FONT color="green">030</FONT>     *<a name="line.30"></a>
+<FONT color="green">031</FONT>     * TODO(William Farner): Move this to a more appropriate package after initial AppLauncher check-in.<a name="line.31"></a>
+<FONT color="green">032</FONT>     *<a name="line.32"></a>
+<FONT color="green">033</FONT>     */<a name="line.33"></a>
+<FONT color="green">034</FONT>    public class HttpServletConfig {<a name="line.34"></a>
+<FONT color="green">035</FONT>      public final String path;<a name="line.35"></a>
+<FONT color="green">036</FONT>      public final Class&lt;? extends HttpServlet&gt; handlerClass;<a name="line.36"></a>
+<FONT color="green">037</FONT>      public final ImmutableMap&lt;String, String&gt; params;<a name="line.37"></a>
+<FONT color="green">038</FONT>      public final boolean silent;<a name="line.38"></a>
+<FONT color="green">039</FONT>    <a name="line.39"></a>
+<FONT color="green">040</FONT>      /**<a name="line.40"></a>
+<FONT color="green">041</FONT>       * @param path the absolute path to mount the handler on<a name="line.41"></a>
+<FONT color="green">042</FONT>       * @param servletClass the type of servlet that will render pages at {@code path}<a name="line.42"></a>
+<FONT color="green">043</FONT>       * @param silent whether or not to display a link for this handler on the landing page<a name="line.43"></a>
+<FONT color="green">044</FONT>       */<a name="line.44"></a>
+<FONT color="green">045</FONT>      public HttpServletConfig(String path, Class&lt;? extends HttpServlet&gt; servletClass,<a name="line.45"></a>
+<FONT color="green">046</FONT>          boolean silent) {<a name="line.46"></a>
+<FONT color="green">047</FONT>        this(path, servletClass, ImmutableMap.&lt;String, String&gt;of(), silent);<a name="line.47"></a>
+<FONT color="green">048</FONT>      }<a name="line.48"></a>
+<FONT color="green">049</FONT>    <a name="line.49"></a>
+<FONT color="green">050</FONT>      /**<a name="line.50"></a>
+<FONT color="green">051</FONT>       * @param path the absolute path to mount the handler on<a name="line.51"></a>
+<FONT color="green">052</FONT>       * @param servletClass the type of servlet that will render pages at {@code path}<a name="line.52"></a>
+<FONT color="green">053</FONT>       * @param params a map of servlet init parameters to initialize the servlet with<a name="line.53"></a>
+<FONT color="green">054</FONT>       * @param silent whether or not to display a link for this handler on the landing page<a name="line.54"></a>
+<FONT color="green">055</FONT>       */<a name="line.55"></a>
+<FONT color="green">056</FONT>      public HttpServletConfig(String path, Class&lt;? extends HttpServlet&gt; servletClass,<a name="line.56"></a>
+<FONT color="green">057</FONT>          ImmutableMap&lt;String, String&gt; params, boolean silent) {<a name="line.57"></a>
+<FONT color="green">058</FONT>    <a name="line.58"></a>
+<FONT color="green">059</FONT>        this.path = checkNotBlank(path);<a name="line.59"></a>
+<FONT color="green">060</FONT>        this.handlerClass = checkNotNull(servletClass);<a name="line.60"></a>
+<FONT color="green">061</FONT>        this.params = checkNotNull(params);<a name="line.61"></a>
+<FONT color="green">062</FONT>        this.silent = silent;<a name="line.62"></a>
+<FONT color="green">063</FONT>      }<a name="line.63"></a>
+<FONT color="green">064</FONT>    }<a name="line.64"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>
