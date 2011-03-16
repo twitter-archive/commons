@@ -1,0 +1,459 @@
+<?xml version="1.0"?>
+<!--
+====================================================================================================
+Copyright 2011 Twitter, Inc.
+____________________________________________________________________________________________________
+Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+agreements.  See the NOTICE file distributed with this work for additional information regarding
+copyright ownership.  The ASF licenses this file to you under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with the License.  You may
+obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the
+License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+express or implied.  See the License for the specific language governing permissions and
+limitations under the License.
+====================================================================================================
+-->
+
+<!DOCTYPE module PUBLIC
+          "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
+          "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
+
+<!--
+   Copied from sun_checks.xml which is part of the checkstyle 5.3
+   distribution, then modified by aroetter. This is a work in progress,
+   I expect many changes will be required to make this work at twitter.
+
+   TODO(aroetter): file is a mix of 2 space and 4 space indent. fix this
+-->
+
+<!--
+
+  Checkstyle configuration that checks the sun coding conventions from:
+
+    - the Java Language Specification at
+      http://java.sun.com/docs/books/jls/second_edition/html/index.html
+
+    - the Sun Code Conventions at http://java.sun.com/docs/codeconv/
+
+    - the Javadoc guidelines at
+      http://java.sun.com/j2se/javadoc/writingdoccomments/index.html
+
+    - the JDK Api documentation http://java.sun.com/j2se/docs/api/index.html
+
+    - some best practices
+
+  Checkstyle is very configurable. Be sure to read the documentation at
+  http://checkstyle.sf.net (or in your downloaded distribution).
+
+  Most Checks are configurable, be sure to consult the documentation.
+
+  To completely disable a check, just comment it out or delete it from the file.
+
+  Finally, it is worth reading the documentation.
+
+-->
+
+<module name="Checker">
+	  <!--
+        If you set the basedir property below, then all reported file
+        names will be relative to the specified directory. See
+        http://checkstyle.sourceforge.net/config.html#Checker
+        <property name="basedir" value="${basedir}"/>
+          -->
+
+    <!-- We use this to turn off specific checks for specific file types.
+    -->
+    <module name="com.twitter.common.checkstyle.SplitSuppressionFilter">
+      <property name="files" value="${checkstyle.supression.files}"/>
+    </module>
+
+    <!-- allow suppression (via comments) of a specified check +/- 1 line from
+      a in-code comment "// SUPPRESS CHECKSTYLE CheckNameHere"
+      C style comments are allowed as well
+    -->
+    <module name="SuppressWithNearbyCommentFilter">
+      <property name="influenceFormat" value="1"/>
+    </module>
+    <!-- now again for one line before the comment -->
+    <module name="SuppressWithNearbyCommentFilter">
+      <property name="influenceFormat" value="-1"/>
+    </module>
+
+    <!-- Checks that a package-info.java file exists for each package.     -->
+    <!-- See http://checkstyle.sf.net/config_javadoc.html#JavadocPackage -->
+		<!--
+    <module name="JavadocPackage"/>
+		-->
+
+    <!-- Checks whether files end with a new line.                        -->
+    <!-- See http://checkstyle.sf.net/config_misc.html#NewlineAtEndOfFile -->
+    <module name="NewlineAtEndOfFile"/>
+
+    <!-- Checks that property files contain the same keys.         -->
+    <!-- See http://checkstyle.sf.net/config_misc.html#Translation -->
+    <module name="Translation"/>
+
+    <!-- Checks for Size Violations.                    -->
+    <!-- See http://checkstyle.sf.net/config_sizes.html -->
+    <module name="FileLength">
+      <property name="max" value="1000"/>
+    </module>
+
+    <!-- Checks for whitespace                               -->
+    <!-- See http://checkstyle.sf.net/config_whitespace.html -->
+    <module name="FileTabCharacter"/>
+
+    <!-- Miscellaneous other checks.                   -->
+    <!-- See http://checkstyle.sf.net/config_misc.html -->
+    <module name="RegexpSingleline">
+       <property name="format" value="\s+$"/>
+       <property name="minimum" value="0"/>
+       <property name="maximum" value="0"/>
+       <property name="message" value="Line has trailing spaces."/>
+    </module>
+
+    <module name="TreeWalker">
+        <property name="tabWidth" value="2"/>
+
+        <!-- needed for SuppressWithNearbyCommentFilter -->
+        <module name="FileContentsHolder"/>
+
+        <!-- Annotations -->
+        <module name="AnnotationUseStyle"/>
+        <module name="MissingDeprecated"/>
+        <module name="MissingOverride"/>
+        <module name="PackageAnnotation"/>
+        <!-- TODO(aroetter): get this regex inverse matching to work -->
+        <!--
+        <module name="SuppressWarnings">
+          <property name="format" value="^(?!.*unchecked)$"/>
+        </module>
+        -->
+
+        <!-- Checks for Javadoc comments.                     -->
+        <!-- See http://checkstyle.sf.net/config_javadoc.html -->
+        <module name="com.twitter.common.checkstyle.JavadocMethodRegexCheck">
+          <!-- don't require javadoc for methods shorter than or equal to
+          this many lines (including opening & closing brace lines)
+          -->
+          <property name="minLineCount" value="5"/>
+          <!-- javadoc doesn't need one @param, @return, @throws tags -->
+          <property name="scope" value="public"/>
+          <!-- if you want to not-require javadocs for methods that
+          match a certain regex include that here -->
+          <!--
+          <property name="ignoreMethodNamesRegex" value="^test\w{15,}$"/>
+          -->
+          <property name="allowMissingParamTags" value="true"/>
+          <property name="allowMissingThrowsTags" value="true"/>
+          <property name="allowMissingReturnTag" value="true"/>
+          <!-- simple set/get methods don't need javadoc comments -->
+          <property name="allowMissingPropertyJavadoc" value="true" />
+          <!-- Allow tags for runtime exceptions that are not explicitly declared -->
+          <property name="allowUndeclaredRTE" value="true" />
+        </module>
+        <module name="JavadocType">
+          <!-- Require something resembling 'FirstName LastName', allowing for
+               other formats (hyphenated names, middle initial, etc). -->
+          <property name="authorFormat" value="^[A-Z].+ [A-Z].+$"/>
+        </module>
+        <!-- <module name="JavadocVariable"/> -->
+        <module name="JavadocStyle">
+          <property name="checkFirstSentence" value="false"/>
+          <property name="checkEmptyJavadoc" value="true"/>
+        </module>
+
+        <!-- Metrics -->
+        <module name="BooleanExpressionComplexity">
+          <property name="max" value="3"/>
+        </module>
+        <module name="ClassDataAbstractionCoupling">
+          <property name="max" value="20"/>
+        </module>
+        <module name="ClassFanOutComplexity">
+          <property name="max" value="30"/>
+        </module>
+
+        <!-- TODO(aroetter): refactor ProtocolBufferUtils or exclude it, then
+             change to the default of 10 -->
+        <module name="CyclomaticComplexity">
+          <property name="max" value="12"/>
+        </module>
+        <!-- <module name="NPathComplexity"/> -->
+        <module name="JavaNCSS">
+          <property name="classMaximum" value="500"/>
+          <property name="fileMaximum" value="1000"/>
+        </module>
+
+        <!-- Checks for Naming Conventions.                  -->
+        <!-- See http://checkstyle.sf.net/config_naming.html -->
+        <!-- TODO(aroetter): rename the abstract class Scribe -> AbstractScribe,
+        patch up uses in scala code, then re-enable this check -->
+        <!-- <module name="AbstractClassName"/> -->
+        <module name="ClassTypeParameterName"/>
+        <module name="ConstantName"/>
+        <module name="LocalFinalVariableName">
+          <!-- allow VAR_NAME and varName in local final variables,
+          leave it up to user to use them appropriately depending on whether
+          or not the variable is A_CONSTANT_VARIBLE, or aMutableVariable.
+          -->
+          <property name="format" value="^(([a-z][a-zA-Z0-9]*)|([A-Z][A-Z0-9]*(_[A-Z0-9]+)*))$" />
+
+        </module>
+        <module name="LocalVariableName"/>
+        <module name="MemberName"/>
+        <module name="com.twitter.common.checkstyle.NonOverriddenMethodName">
+          <property name="format" value="^(([a-z][a-zA-Z0-9]*)|(\$tag))$" />
+        </module>
+        <module name="MethodTypeParameterName"/>
+        <module name="PackageName"/>
+        <module name="ParameterName"/>
+        <module name="StaticVariableName"/>
+        <module name="TypeName"/>
+
+        <!-- Checks for Headers                                -->
+        <!-- See http://checkstyle.sf.net/config_header.html   -->
+        <!-- <module name="Header">                            -->
+            <!-- The follow property value demonstrates the ability     -->
+            <!-- to have access to ANT properties. In this case it uses -->
+            <!-- the ${basedir} property to allow Checkstyle to be run  -->
+            <!-- from any directory within a project. See property      -->
+            <!-- expansion,                                             -->
+            <!-- http://checkstyle.sf.net/config.html#properties        -->
+            <!-- <property                                              -->
+            <!--     name="headerFile"                                  -->
+            <!--     value="${basedir}/java.header"/>                   -->
+        <!-- </module> -->
+
+        <!-- Following interprets the header file as regular expressions. -->
+        <!-- <module name="RegexpHeader"/>                                -->
+
+        <!-- Checks for imports                              -->
+        <!-- See http://checkstyle.sf.net/config_import.html -->
+        <module name="AvoidStarImport">
+          <property name="excludes" value="org.junit.Assert"/>
+          <property name="excludes" value="java.util.*"/>
+        </module>
+        <module name="IllegalImport"/> <!-- defaults to sun.* packages -->
+        <module name="RedundantImport"/>
+        <module name="UnusedImports"/>
+        <module name="ImportOrder">
+          <property name="groups"
+                    value="/^javax?\./,scala,com,net,org,com.twitter"/>
+          <property name="ordered" value="true"/>
+          <property name="separated" value="true"/>
+          <property name="option" value="bottom"/>
+        </module>
+
+        <!-- Checks for Size Violations.                    -->
+        <!-- See http://checkstyle.sf.net/config_sizes.html -->
+        <module name="LineLength">
+          <property name="max" value="100"/>
+        </module>
+        <module name="MethodLength"/>
+        <module name="AnonInnerLength">
+          <!-- TODO(aroetter): consider reducing to default of 20 -->
+          <property name="max" value="25"/>
+        </module>
+        <module name="ParameterNumber"/>
+        <module name="OuterTypeNumber"/>
+        <module name="MethodCount">
+          <property name="maxTotal" value="60"/>
+        </module>
+
+        <!-- Checks for whitespace                               -->
+        <!-- See http://checkstyle.sf.net/config_whitespace.html -->
+        <module name="EmptyForInitializerPad"/>
+        <module name="EmptyForIteratorPad"/>
+        <module name="GenericWhitespace"/>
+        <module name="MethodParamPad"/>
+        <module name="NoWhitespaceAfter"/>
+        <module name="NoWhitespaceBefore"/>
+        <module name="OperatorWrap"/>
+        <module name="ParenPad"/>
+        <module name="TypecastParenPad"/>
+        <module name="WhitespaceAfter"/>
+        <module name="WhitespaceAround"/>
+
+        <!-- Modifier Checks                                    -->
+        <!-- See http://checkstyle.sf.net/config_modifiers.html -->
+        <module name="ModifierOrder"/>
+        <module name="RedundantModifier"/>
+
+        <!-- Checks for blocks. You know, those {}'s         -->
+        <!-- See http://checkstyle.sf.net/config_blocks.html -->
+        <module name="AvoidNestedBlocks"/>
+        <module name="EmptyBlock">
+          <!-- Allow comments to satisfy the EmptyBlock check -->
+          <property name="option" value="text"/>
+        </module>
+        <module name="LeftCurly"/>
+        <module name="NeedBraces"/>
+        <module name="RightCurly"/>
+
+        <!-- Checks for common coding problems               -->
+        <!-- See http://checkstyle.sf.net/config_coding.html -->
+        <!-- forbids "(flag) ? x : y" -->
+        <module name="ArrayTrailingComma"/>
+        <!-- aroetter thinks we should allow this, if used judiciously -->
+        <!-- <module name="AvoidInlineConditionals"/>  -->
+        <module name="CovariantEquals"/>
+        <module name="DoubleCheckedLocking"/>
+        <module name="EmptyStatement"/>
+        <module name="EqualsAvoidNull"/>
+        <module name="EqualsHashCode"/>
+        <!-- leave this out, b/c it requires a lot of "final" keywords, and
+        doesn't solve the major case, of calling methods that mutate an object
+        no C++ like const keyword on object contents -->
+        <!-- <module name="FinalLocalVariable"/> -->
+        <module name="HiddenField">
+          <property name="ignoreConstructorParameter" value="true"/>
+          <property name="ignoreSetter" value="true"/>
+        </module>
+        <!-- disallow calling constructors on these classes
+             calling factories is the only way to create these objects
+        -->
+        <module name="IllegalInstantiation">
+          <property name="classes" value="java.lang.Boolean"/>
+        </module>
+        <module name="IllegalToken">
+          <property name="tokens" value="LITERAL_NATIVE"/>
+        </module>
+        <module name="InnerAssignment"/>
+        <module name="MagicNumber"/>
+        <module name="MissingSwitchDefault"/>
+        <module name="ModifiedControlVariable"/>
+        <module name="RedundantThrows">
+          <!-- Need to set to true, else we get lots of errors:
+               "Unable to get class information for ThriftException -->
+          <property name="suppressLoadErrors" value="true"/>
+          <message key="redundant.throws.duplicate"
+                   value="Redundant throws: {0} listed more than one time. This
+will trigger spuriously if checkstyle can''t resolve {0} on its classpath." />
+          <message key="redundant.throws.subclass"
+                   value="Redundant throws: {0} is a subclass of {1}. This
+will trigger spuriously if checkstyle can''t resolve either class on its
+classpath." />
+        </module>
+
+        <module name="SimplifyBooleanExpression"/>
+        <module name="SimplifyBooleanReturn"/>
+        <module name="StringLiteralEquality"/>
+        <module name="NestedForDepth">
+          <property name="max" value="2"/>
+        </module>
+        <module name="NestedIfDepth">
+          <property name="max" value="2"/>
+        </module>
+        <module name="NestedTryDepth">
+          <property name="max" value="1"/>
+        </module>
+        <module name="NoClone"/>
+        <module name="NoFinalizer"/>
+        <module name="SuperClone"/>
+        <module name="SuperFinalize"/>
+        <module name="IllegalThrows"/>
+        <module name="PackageDeclaration">
+          <property name="ignoreDirectoryName" value="true"/>
+        </module>
+        <module name="JUnitTestCase"/>
+        <module name="ReturnCount">
+          <property name="max" value="3"/>
+          <property name="format" value="^$"/>
+        </module>
+        <module name="IllegalType">
+          <message key="illegal.type"
+                   value="Return values or parameters of
+type ''{0}'' is not allowed. Use interface type instead, e.g. Map&lt;T&gt; =
+new HashMap&lt;T&gt;();"/>
+          <property name="tokens" value="PARAMETER_DEF,METHOD_DEF"/>
+        </module>
+	<!-- correct order is static vars, instance vars, ctors, methods
+        vars are sorted by "public, protected, package (no modifier), private"
+        methods should be grouped by functionality, not public vs. private
+        -->
+        <module name="DeclarationOrder">
+          <message key="declaration.order.static"
+                   value="Static vars should be before instance vars,
+constructors, and methods. Methods should be sorted into logical groups (by
+usage, not by access modifier)." />
+          <message key="declaration.order.instance"
+                   value="Instance vars should be after static vars, but
+before constructors and methods. Methods should be sorted into logical groups
+(by usage, not by access modifier)." />
+          <message key="declaration.order.constructor"
+                   value="Constructors should be after static and instance vars,
+but before methods. Methods should be sorted into logical groups (by
+usage, not by access modifier)." />
+          <message key="declaration.order.method"
+                   value="Methods should be after static vars, instance vars,
+and constructors. Methods should be sorted into logical groups (by
+usage, not by access modifier)." />
+          <message key="declaration.order.access" value="Vars should be ordered
+by access modifier: public, protected, package (no modifier), then private." />
+
+        </module>
+        <module name="ParameterAssignment"/>
+        <module name="DefaultComesLast"/>
+        <module name="FallThrough"/>
+        <module name="MultipleStringLiterals"/>
+        <module name="MultipleVariableDeclarations"/>
+        <module name="UnnecessaryParentheses"/>
+        <module name="OneStatementPerLine"/>
+
+        <!-- Checks for class design                         -->
+        <!-- See http://checkstyle.sf.net/config_design.html -->
+        <!-- Disabled by anand/aroetter -->
+        <!-- <module name="DesignForExtension"/> -->
+        <module name="FinalClass"/>
+        <module name="HideUtilityClassConstructor"/>
+        <module name="InterfaceIsType"/>
+        <module name="VisibilityModifier"/>
+        <module name="MutableException"/>
+        <module name="ThrowsCount">
+          <property name="max" value="3"/>
+        </module>
+        <!-- intentionally leaving this out. it is nice to put the inner class
+             definition where it makes the entire file easiest to read -->
+        <!-- <module name="InnerTypeLast" /> -->
+
+        <!-- Miscellaneous other checks.                   -->
+        <!-- See http://checkstyle.sf.net/config_misc.html -->
+        <module name="ArrayTypeStyle"/>
+        <!-- <module name="FinalParameters"/> -->
+        <!-- Disable this check, consider eventually moving away from the
+        com.twitter.adserver.mains package, and having a class name convention,
+        e.g. *Mains.java
+        -->
+        <!-- <module name="UncommentedMain"/> -->
+        <module name="UpperEll"/>
+
+        <module name="ArrayTypeStyle"/>
+
+        <module name="Indentation">
+          <property name="basicOffset" value="2"/>
+          <property name="braceAdjustment" value="0"/>
+          <property name="caseIndent" value="2"/>
+        </module>
+        <module name="OuterTypeFilename"/>
+
+        <!-- Regexp checks -->
+        <module name="RegexpSinglelineJava">
+          <property name="format" value="System.exit"/>
+          <property name="ignoreComments" value="true"/>
+          <property name="message"
+                    value="Don't System.exit(), throw a RuntimeException()" />
+        </module>
+
+        <!-- Size violations -->
+        <module name="ExecutableStatementCount">
+          <!-- TODO(aroetter): change to 30 or 40 once i fix offenders -->
+          <property name="max" value="50"/>
+        </module>
+
+    </module>
+</module>

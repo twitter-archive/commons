@@ -1,0 +1,1145 @@
+<!--
+====================================================================================================
+Copyright 2011 Twitter, Inc.
+____________________________________________________________________________________________________
+Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+agreements.  See the NOTICE file distributed with this work for additional information regarding
+copyright ownership.  The ASF licenses this file to you under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with the License.  You may
+obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the
+License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+express or implied.  See the License for the specific language governing permissions and
+limitations under the License.
+====================================================================================================
+-->
+
+<project name="compile"
+         xmlns:ivy="antlib:org.apache.ivy.ant"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+
+  <dirname property="compile.basedir" file="${ant.file.compile}"/>
+
+  <import file="${compile.basedir}/init.xml"/>
+  <import file="${compile.basedir}/util.xml"/>
+  <import file="${compile.basedir}/ivy.xml"/>
+  <import file="${compile.basedir}/base.xml"/>
+  <import file="${compile.basedir}/build-info.xml"/>
+
+  <target name="check-ivy-configured">
+    <fail unless="compile.name"/>
+
+    <propertycopy name="current.project.buildfile" from="ant.file.${compile.name}"/>
+    <dirname property="current.project.basedir" file="${current.project.buildfile}"/>
+    <condition property="ivy.dep.file" value="${current.project.basedir}/ivy.xml">
+      <available file="${current.project.basedir}/ivy.xml"/>
+    </condition>
+  </target>
+
+  <target name="ivy-configure" depends="check-ivy-configured, install-ivy" if="ivy.dep.file">
+    <property name="ivy.deliver.ivy.pattern"
+              value="${build-support.dir}/ivy/internal-repo/[module]/[artifact]-[revision].[ext]"/>
+
+    <!-- default the ivysettings file if not already set by the invoking build -->
+    <property name="ivy.settings.file" value="${build-support.dir}/ivy/ivysettings.xml"/>
+    <ivy:settings file="${ivy.settings.file}"/>
+
+    <echo>Using ivy lock strategy: ${ivy.lock.strategy}</echo>
+  </target>
+
+  <property name="skip.dep.resolve" value="false"/>
+
+  <target name="publish-dependant-modules"
+          depends="ivy-configure, gen-build-info"
+          unless="is.internal.dep">
+
+    <property name="skip-dep-file" value="${build.dir}/skip-dependant-modules"/>
+
+    <if>
+      <or>
+        <isfalse value="${skip.dep.resolve}"/>
+        <not><available file="${skip-dep-file}"/></not>
+      </or>
+      <then>
+        <trycatch property="problem">
+          <try>
+            <ivy:buildlist reference="module.buildfiles"
+                           ivyfilepath="ivy.xml"
+                           root="${ivy.module}"
+                           excluderoot="true"
+                           onMissingDescriptor="fail">
+              <fileset dir="${root.dir}/.pants.d">
+                <include name="**/build.xml"/>
+              </fileset>
+            </ivy:buildlist>
+
+            <echo>
+              ordered module deps for ${compile.name}:
+            </echo>
+            <pathconvert refid="module.buildfiles" pathsep="${line.separator}"/>
+          </try>
+          <catch>
+            <_log>
+              no ivy module deps for ${compile.name}: ${problem}
+            </_log>
+          </catch>
+        </trycatch>
+
+        <if>
+          <isreference refid="module.buildfiles"/>
+          <then>
+            <subant buildpathref="module.buildfiles" verbose="true">
+              <property name="is.internal.dep" value="true"/>
+              <property name="skip.ivy-download" value="true"/>
+              <property name="build.info.file" value="${build.info.file}"/>
+
+              <target name="maybe-push-local"/>
+            </subant>
+          </then>
+        </if>
+        <touch file="${skip-dep-file}"/>
+      </then>
+    </if>
+  </target>
+
+  <macrodef name="_if_dep_modified">
+    <element name="files" implicit="false"/>
+    <element name="tasks" implicit="false"/>
+
+    <sequential>
+      <uptodate property="skip.dep" value="true" targetfile="${local-artifact}">
+        <files/>
+      </uptodate>
+      <property name="skip.dep" value="false"/>
+
+      <if>
+        <isfalse value="${skip.dep}"/>
+        <then>
+          <tasks/>
+        </then>
+      </if>
+    </sequential>
+  </macrodef>
+
+  <target name="maybe-push-local"
+          depends="resolve-internal, init, init-artifact"
+          unless="skip.push-local">
+
+    <if>
+      <isreference refid="${compile.sources}"/>
+      <then>
+        <_if_dep_modified>
+          <files>
+            <srcfiles refid="${compile.sources}"/>
+          </files>
+          <tasks>
+            <antcall target="jar"/>
+            <antcall target="push-local"/>
+          </tasks>
+        </_if_dep_modified>
+      </then>
+      <elseif>
+        <!--
+          TODO(jsirois): this is a hack - should be generating test jars as <artifact>-tests.jar and publishing
+          with a test classifier
+        -->
+        <isreference refid="${compile.tests}"/>
+        <then>
+          <_if_dep_modified>
+            <files>
+              <srcfiles refid="${compile.tests}"/>
+            </files>
+            <tasks>
+              <antcall target="tests-jar"/>
+              <antcall target="push-local"/>
+            </tasks>
+          </_if_dep_modified>
+        </then>
+      </elseif>
+    </if>
+  </target>
+
+  <target name="resolve-internal" depends="ivy-configure" if="ivy.dep.file">
+    <echo>
+      [${compile.name}] resolving dependencies
+    </echo>
+
+    <_if_verbose>
+      <property name="resolve-log-level" value="default"/>
+    </_if_verbose>
+    <property name="resolve-log-level" value="download-only"/>
+
+    <ivy:resolve log="${resolve-log-level}" file="${ivy.dep.file}" conf="default,sources,docs"/>
+  </target>
+
+  <target name="resolve" depends="resolve-internal, publish-dependant-modules" if="ivy.dep.file"/>
+
+  <target name="resolve-all" depends="ivy-configure, publish-dependant-modules" if="ivy.dep.file">
+    <ivy:resolve log="download-only" file="${ivy.dep.file}"/>
+  </target>
+
+  <target name="dep-report"
+          description="Generate a report of this module's dependency graph"
+          depends="init, resolve-internal"
+          if="ivy.dep.file">
+
+    <mkdir dir="${reports.dir}/ivy"/>
+    <ivy:report dot="true" todir="${reports.dir}/ivy"/>
+  </target>
+
+  <target name="maybe-configure-ivy-classpaths" depends="resolve" if="ivy.dep.file">
+    <ivy:cachepath pathid="${compile.name}.libs" conf="default" type="${ivy.jar.types}"/>
+    <ivy:cachepath pathid="${compile.name}.testlibs" conf="test" type="${ivy.jar.types}"/>
+  </target>
+
+  <target name="initdeps" depends="maybe-configure-ivy-classpaths">
+    <fail unless="compile.name"/>
+
+    <property name="compile.libs" value="${compile.name}.libs"/>
+    <property name="compile.testlibs" value="${compile.name}.testlibs"/>
+  </target>
+
+  <target name="clean-build" depends="initprops">
+    <delete dir="${build.dir}"/>
+  </target>
+
+  <target name="clean" depends="clean-build">
+    <delete dir="${dist.dir}/${compile.name}"/>
+    <delete file="${dist.dir}/${compile.name}.jar"/>
+  </target>
+
+  <target name="clean-all">
+    <delete dir="${dist.dir}"/>
+    <delete dir="${build-support.dir}/ivy/internal-repo"/>
+    <delete dir="${root.dir}/target"/>
+  </target>
+
+  <patternset id="patternset.text">
+    <include name="**/*.csv"/>
+    <include name="**/*.html"/>
+    <include name="**/*.js"/>
+    <include name="**/*.json"/>
+    <include name="**/*.monit"/>
+    <include name="**/*.properties"/>
+    <include name="**/*.sh"/>
+    <include name="**/*.st"/>
+    <include name="**/*.tab"/>
+    <include name="**/*.txt"/>
+    <include name="**/*.yml"/>
+  </patternset>
+
+  <patternset id="patternset.binary">
+    <include name="**/*.png"/>
+    <include name="**/*.gif"/>
+    <include name="**/*.jpg"/>
+    <include name="**/*.ico"/>
+    <include name="**/*.zip"/>
+  </patternset>
+
+  <macrodef name="_copy_resources">
+    <attribute name="srcdir"/>
+    <attribute name="includes"/>
+    <attribute name="destdir"/>
+    <attribute name="filtering"/>
+
+    <sequential>
+      <propertyregex property="@{includes}.resourcepattern"
+                     input="${@{includes}}"
+                     regexp="\s+"
+                     replace=" "/>
+
+      <_log>
+        [${compile.name}] using resources under @{srcdir}: ${@{includes}}
+        [${compile.name}] generated src pattern: ${@{includes}.resourcepattern}
+        [${compile.name}] to dest: @{destdir}
+        [${compile.name}] with filtering: @{filtering}
+      </_log>
+
+      <copy todir="@{destdir}" failonerror="false" filtering="@{filtering}">
+        <fileset dir="@{srcdir}" includes="${@{includes}.resourcepattern}"/>
+      </copy>
+    </sequential>
+  </macrodef>
+
+  <!--
+    a hook that can be over-ridden to set up filter tokens just in time prior to resource copying
+  -->
+  <target name="setup-resource-filters"/>
+
+  <target name="_copy-resources" depends="init, setup-resource-filters">
+    <if>
+      <isset property="${compile.resources}"/>
+      <then>
+        <_copy_resources srcdir="${resource.dir}"
+                         includes="${compile.resources}"
+                         destdir="${build.dir}/jvm"
+                         filtering="true"/>
+      </then>
+    </if>
+    <if>
+      <isset property="${compile.binary.resources}"/>
+      <then>
+        <_copy_resources srcdir="${resource.dir}"
+                         includes="${compile.binary.resources}"
+                         destdir="${build.dir}/jvm"
+                         filtering="false"/>
+      </then>
+    </if>
+  </target>
+
+  <target name="_copy-test-resources" depends="init">
+    <copy todir="${build.dir}/tests" failonerror="false" filtering="true">
+      <fileset dir="${test.dir}/resources">
+        <patternset refid="patternset.text"/>
+      </fileset>
+    </copy>
+    <copy todir="${build.dir}/tests" failonerror="false">
+      <fileset dir="${test.dir}/resources">
+        <patternset refid="patternset.binary"/>
+      </fileset>
+    </copy>
+  </target>
+
+  <macrodef name="_compile_java">
+    <attribute name="srcdir"/>
+    <attribute name="includes" default="**/*"/>
+    <attribute name="destdir"/>
+    <attribute name="classpathrefid"/>
+    <attribute name="deprecation" default="true"/>
+    <attribute name="checkstyle" default="true"/>
+    <attribute name="compilerargs"
+               default="-encoding UTF-8 -Xlint:all -Xlint:-serial -Xlint:-path"/>
+
+    <sequential>
+      <if>
+        <equals arg1="@{includes}" arg2="**/*"/>
+        <then>
+          <property name="@{includes}.srcpattern" value="@{includes}"/>
+        </then>
+        <else>
+          <propertyregex property="@{includes}.srcpattern"
+                         input="${@{includes}}"
+                         regexp="\s+"
+                         replace=" "/>
+
+          <_log>
+            [${compile.name}] using source under @{srcdir}: ${@{includes}}
+            [${compile.name}] generated src pattern: ${@{includes}.srcpattern}
+            [${compile.name}] to dest: @{destdir}
+          </_log>
+        </else>
+      </if>
+
+      <_log>
+        [${compile.name}] using classpath:
+        <pathconvert refid="@{classpathrefid}"/>
+      </_log>
+
+      <javac srcdir="@{srcdir}"
+             sourcepath=""
+             includes="${@{includes}.srcpattern}"
+             destdir="@{destdir}"
+             debug="true"
+             fork="false"
+             deprecation="@{deprecation}"
+             includeantruntime="false"
+             listfiles="false"
+             verbose="false">
+        <compilerarg line="@{compilerargs}"/>
+        <classpath refid="@{classpathrefid}"/>
+      </javac>
+      <if>
+        <and>
+          <isfalse value="${skip.checkstyle}"/>
+          <istrue value="@{checkstyle}"/>
+        </and>
+        <then>
+          <property name="checkstyle.conf.dir" value="${build-support.dir}/checkstyle"/>
+
+          <path id="checkstyle.classpath">
+            <path refid="@{classpathrefid}"/>
+            <pathelement path="@{destdir}"/>
+            <pathelement path="${antlib.dir}/checkstyle-custom-checks.jar"/>
+          </path>
+
+          <!-- we compiled some custom checkers, so they
+          will be in checkstyle.classpath, along with checkstyle.jar
+          and its dependencies -->
+          <taskdef resource="checkstyletask.properties" classpathref="checkstyle.classpath"/>
+
+          <checkstyle config="${checkstyle.conf.dir}/coding_style.xml"
+                      classpathref="checkstyle.classpath">
+            <fileset dir="@{srcdir}" includes="${@{includes}.srcpattern}"/>
+          </checkstyle>
+        </then>
+      </if>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="_compile_scala">
+    <attribute name="srcdir"/>
+    <attribute name="includes"/>
+    <attribute name="javaincludes" default=""/>
+    <attribute name="destdir"/>
+    <attribute name="classpathrefid"/>
+
+    <attribute name="compilerargs" default="-encoding UTF-8 -g:vars"/>
+
+    <sequential>
+      <propertyregex property="@{includes}.scalasrcpattern"
+                     input="${@{includes}}"
+                     regexp="\s+"
+                     replace=" "/>
+
+      <propertyregex property="@{javaincludes}.javasrcpattern"
+                     input="${@{javaincludes}}"
+                     regexp="\s+"
+                     replace=" "/>
+
+      <_log>
+        [${compile.name}] using source under @{srcdir}/scala:@{srcdir}/java : ${@{includes}}
+        [${compile.name}] generated src pattern: ${@{includes}.scalasrcpattern} ${@{javaincludes}.javasrcpattern}
+        [${compile.name}] to dest: @{destdir}
+      </_log>
+
+      <_log>
+        [${compile.name}] using classpath:
+        <pathconvert refid="@{classpathrefid}"/>
+      </_log>
+
+      <taskdef resource="scala/tools/ant/antlib.xml">
+        <classpath>
+          <pathelement path="${antlib.dir}/scala-compiler-2.8.1.jar"/>
+          <pathelement path="${antlib.dir}/scala-library-2.8.1.jar"/>
+        </classpath>
+      </taskdef>
+
+      <if>
+        <equals arg1="fsc" arg2="${scala.compiler}"/>
+        <!--
+          NOTE: the args to the <fsc/> task and the <scalac/> task should always be kept in sync.
+        -->
+        <then>
+          <fsc srcdir="@{srcdir}/scala:@{srcdir}/java"
+               sourcepath=""
+               includes="${@{includes}.scalasrcpattern} ${@{javaincludes}.javasrcpattern}"
+               destdir="@{destdir}"
+               unchecked="on"
+               deprecation="on"
+               addparams="@{compilerargs}"
+               scalacdebugging="false"
+               force="false">
+            <classpath refid="@{classpathrefid}"/>
+          </fsc>
+        </then>
+        <else>
+          <scalac srcdir="@{srcdir}/scala:@{srcdir}/java"
+                  sourcepath=""
+                  includes="${@{includes}.scalasrcpattern} ${@{javaincludes}.javasrcpattern}"
+                  destdir="@{destdir}"
+                  unchecked="on"
+                  deprecation="on"
+                  addparams="@{compilerargs}"
+                  scalacdebugging="false"
+                  force="false">
+            <classpath refid="@{classpathrefid}"/>
+          </scalac>
+        </else>
+      </if>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="_generate_protobuf">
+    <attribute name="protobufsrc"/>
+
+    <sequential>
+      <mkdir dir="${protobuf.gen.dir}/gen-java"/>
+      <switch value="${os.name}">
+        <case value="Mac OS X">
+          <propertyregex property="protoc.bin"
+                         input="${os.version}"
+                         regexp="^(10\.[56])\..*$"
+                         select="${build-support.dir}/bin/protobuf/mac/\1/${protobuf.binary.version}/protoc"/>
+        </case>
+        <case value="Linux">
+          <switch value="${os.arch}">
+            <case value="amd64">
+              <property name="protoc.bin"
+                        location="${build-support.dir}/bin/protobuf/linux/x86_64/${protobuf.binary.version}/protoc"/>
+            </case>
+            <case value="x86_64">
+              <property name="protoc.bin"
+                        location="${build-support.dir}/bin/protobuf/linux/x86_64/${protobuf.binary.version}/protoc"/>
+            </case>
+          </switch>
+        </case>
+      </switch>
+      <fail message="Do not have protoc binary for os: ${os.name} ${os.version} ${os.arch}"
+            unless="protoc.bin"/>
+      <apply executable="${protoc.bin}"
+             failonerror="true"
+             skipemptyfilesets="true"
+             verbose="true">
+        <arg value="--proto_path=${protobuf.src.dir}"/>
+        <arg value="--java_out=${protobuf.gen.dir}/gen-java"/>
+        <fileset refid="@{protobufsrc}"/>
+      </apply>
+    </sequential>
+  </macrodef>
+
+  <target name="protobuf-uptodate" depends="init">
+    <property name="protobuf.isuptodate.file" value="${protobuf.gen.dir}/protobuf.lastgen"/>
+
+    <uptodate property="protobuf.isuptodate" targetfile="${protobuf.isuptodate.file}">
+      <srcfiles refid="${compile.protobuf.sources}"/>
+    </uptodate>
+  </target>
+
+  <target name="generate-protobuf" depends="protobuf-uptodate" unless="protobuf.isuptodate">
+    <if>
+      <isreference refid="${compile.protobuf.sources}"/>
+      <then>
+        <_generate_protobuf protobufsrc="${compile.protobuf.sources}"/>
+        <touch file="${protobuf.isuptodate.file}"/>
+      </then>
+    </if>
+  </target>
+
+  <target name="compile-protobuf"
+          depends="init, publish-dependant-modules, initdeps, generate-protobuf">
+
+    <if>
+      <isreference refid="${compile.protobuf.sources}"/>
+      <then>
+        <_compile_java deprecation="false"
+                       checkstyle="false"
+                       compilerargs="-Xlint:none"
+                       srcdir="${protobuf.gen.dir}/gen-java"
+                       classpathrefid="${compile.libs}"
+                       destdir="${build.dir}/jvm"/>
+      </then>
+    </if>
+  </target>
+
+  <macrodef name="_generate_thrift">
+    <attribute name="thriftsrc"/>
+
+    <sequential>
+      <mkdir dir="${thrift.gen.dir}"/>
+      <switch value="${os.name}">
+        <case value="Mac OS X">
+          <propertyregex property="thrift.bin"
+                         input="${os.version}"
+                         regexp="^(10\.[56])\..*$"
+                         select="${build-support.dir}/bin/thrift/mac/\1/${thrift.binary.version}/thrift"/>
+        </case>
+        <case value="Linux">
+          <switch value="${os.arch}">
+            <case value="amd64">
+              <property name="thrift.bin"
+                        location="${build-support.dir}/bin/thrift/linux/x86_64/${thrift.binary.version}/thrift"/>
+            </case>
+            <case value="x86_64">
+              <property name="thrift.bin"
+                        location="${build-support.dir}/bin/thrift/linux/x86_64/${thrift.binary.version}/thrift"/>
+            </case>
+          </switch>
+        </case>
+      </switch>
+      <fail message="Do not have thrift binary for os: ${os.name} ${os.version} ${os.arch}"
+            unless="thrift.bin"/>
+      <apply executable="${thrift.bin}"
+             failonerror="true"
+             skipemptyfilesets="true"
+             verbose="true">
+        <arg value="--gen"/>
+        <arg value="java:hashcode"/>
+        <arg value="-o"/>
+        <arg value="${thrift.gen.dir}"/>
+        <arg value=""/>
+        <fileset refid="@{thriftsrc}"/>
+      </apply>
+    </sequential>
+  </macrodef>
+
+  <target name="thrift-uptodate" depends="init">
+    <property name="thift.isuptodate.file" value="${thrift.gen.dir}/thrift.lastgen"/>
+
+    <uptodate property="thift.isuptodate" targetfile="${thift.isuptodate.file}">
+      <srcfiles refid="${compile.thrift.sources}"/>
+    </uptodate>
+  </target>
+
+  <target name="generate-thrift" depends="thrift-uptodate" unless="thift.isuptodate">
+    <if>
+      <isreference refid="${compile.thrift.sources}"/>
+      <then>
+        <_generate_thrift thriftsrc="${compile.thrift.sources}"/>
+        <touch file="${thift.isuptodate.file}"/>
+      </then>
+    </if>
+  </target>
+
+  <target name="compile-thrift"
+          depends="init, publish-dependant-modules, initdeps, generate-thrift">
+
+    <if>
+      <isreference refid="${compile.thrift.sources}"/>
+      <then>
+        <_compile_java deprecation="false"
+                       checkstyle="false"
+                       compilerargs="-Xlint:none"
+                       srcdir="${thrift.gen.dir}/gen-java"
+                       classpathrefid="${compile.libs}"
+                       destdir="${build.dir}/jvm"/>
+      </then>
+    </if>
+  </target>
+
+  <target name="compile" depends="compile-protobuf, compile-thrift, _copy-resources">
+    <path id="compile.deps">
+      <pathelement path="${build.dir}/jvm"/>
+      <path refid="${compile.libs}"/>
+    </path>
+    <if>
+      <isset property="${compile.scala.sources}"/>
+      <then>
+        <_compile_scala destdir="${build.dir}/jvm"
+                        srcdir="${src.dir}"
+                        includes="${compile.scala.sources}"
+                        javaincludes="${compile.java.sources}"
+                        classpathrefid="compile.deps"/>
+      </then>
+    </if>
+    <if>
+      <isset property="${compile.java.sources}"/>
+      <then>
+        <_compile_java destdir="${build.dir}/jvm"
+                       srcdir="${java.src.dir}"
+                       includes="${compile.java.sources}"
+                       classpathrefid="compile.deps"/>
+      </then>
+    </if>
+  </target>
+
+  <target name="compile-tests" depends="compile, _copy-test-resources">
+    <path id="compile.testdeps">
+      <pathelement path="${build.dir}/jvm"/>
+      <path refid="${compile.libs}"/>
+      <path refid="${compile.testlibs}"/>
+    </path>
+    <if>
+      <isset property="${compile.scala.tests}"/>
+      <then>
+        <_compile_scala destdir="${build.dir}/tests"
+                        srcdir="${test.dir}"
+                        includes="${compile.scala.tests}"
+                        javaincludes="${compile.java.tests}"
+                        classpathrefid="compile.testdeps"/>
+      </then>
+    </if>
+    <if>
+      <isset property="${compile.java.tests}"/>
+      <then>
+        <_compile_java destdir="${build.dir}/tests"
+                       srcdir="${java.test.dir}"
+                       includes="${compile.java.tests}"
+                       classpathrefid="compile.testdeps"/>
+      </then>
+    </if>
+  </target>
+
+  <macrodef name="_javadoc">
+    <attribute name="srcdir"/>
+    <attribute name="includes" default="**/*"/>
+    <attribute name="classpathrefid"/>
+
+    <sequential>
+      <if>
+        <equals arg1="@{includes}" arg2="**/*"/>
+        <then>
+          <property name="@{includes}.javadocpattern" value="@{includes}"/>
+        </then>
+        <else>
+          <propertyregex property="@{includes}.javadocpattern"
+                         input="${@{includes}}"
+                         regexp="\s+"
+                         replace=" "/>
+
+          <_log>
+            [${compile.name}] using source under @{srcdir}: ${@{includes}}
+            [${compile.name}] generated src pattern: ${@{includes}.javadocpattern}
+          </_log>
+        </else>
+      </if>
+
+      <_log>
+        [${compile.name}] using classpath:
+        <pathconvert refid="@{classpathrefid}"/>
+      </_log>
+
+      <javadoc destdir="${javadoc.dir}" classpathref="@{classpathrefid}">
+        <fileset dir="@{srcdir}" includes="${@{includes}.javadocpattern}" excludes="**/BUILD"/>
+      </javadoc>
+    </sequential>
+  </macrodef>
+
+  <target name="javadoc" depends="init, initdeps, resolve-internal">
+    <if>
+      <isset property="${compile.java.sources}"/>
+      <then>
+        <_javadoc srcdir="${java.src.dir}"
+                  includes="${compile.java.sources}"
+                  classpathrefid="${compile.libs}"/>
+      </then>
+    </if>
+    <if>
+      <available file="${protobuf.gen.dir}/gen-java"/>
+      <then>
+        <_javadoc srcdir="${protobuf.gen.dir}/gen-java"
+                  includes="**/*"
+                  classpathrefid="${compile.libs}"/>
+      </then>
+    </if>
+    <if>
+      <available file="${thrift.gen.dir}/gen-java"/>
+      <then>
+        <_javadoc srcdir="${thrift.gen.dir}/gen-java"
+                  includes="**/*"
+                  classpathrefid="${compile.libs}"/>
+      </then>
+    </if>
+  </target>
+
+  <target name="package-javadoc" depends="javadoc">
+    <_package_files srcdir="${javadoc.dir}"
+                    includes="**/*"
+                    jarfile="${dist.dir}/${compile.jar.name}-javadoc.jar"/>
+  </target>
+
+  <macrodef name="_junit">
+    <element name="testspec" implicit="true" optional="false"/>
+
+    <sequential>
+      <if>
+        <and>
+          <isset property="debug"/>
+          <isfalse value="${is.internal.dep}"/>
+        </and>
+        <then>
+          <property name="jvmargs"
+                    value="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"/>
+        </then>
+        <else>
+          <property name="jvmargs" value=""/>
+        </else>
+      </if>
+
+      <junit printsummary="true"
+             haltonfailure="true"
+             dir="${test.basedir}"
+             fork="true"
+             forkmode="once"
+             maxmemory="256m"
+             showoutput="false"
+             failureproperty="tests.failed"
+             errorproperty="tests.failed">
+        <sysproperty key="file.encoding" value="utf8"/>
+        <classpath>
+          <pathelement path="${build.dir}/jvm"/>
+          <pathelement path="${build.dir}/tests"/>
+          <path refid="${compile.libs}"/>
+          <path refid="${compile.testlibs}"/>
+        </classpath>
+        <jvmarg line="${jvmargs}"/>
+        <testspec/>
+      </junit>
+    </sequential>
+  </macrodef>
+
+  <target name="junit-tests" unless="skip.tests">
+    <if>
+      <isset property="${compile.java.tests}"/>
+      <then>
+        <if>
+          <and>
+            <isset property="test"/>
+            <isfalse value="${is.internal.dep}"/>
+          </and>
+          <then>
+            <_junit>
+              <test todir="${java.io.tmpdir}" name="${test}">
+                <formatter type="plain" usefile="false"/>
+              </test>
+            </_junit>
+          </then>
+          <else>
+            <_junit>
+              <batchtest todir="${junit.reports.dir}">
+                <fileset dir="${build.dir}/tests">
+                  <include name="**/*Test.class"/>
+                  <include name="**/*IT.class"/>
+                  <exclude name="**/Base*Test.class"/>
+                  <exclude name="**/Abstract*Test.class"/>
+                </fileset>
+                <formatter type="xml"/>
+              </batchtest>
+            </_junit>
+          </else>
+        </if>
+      </then>
+    </if>
+  </target>
+
+  <target name="scala-specs" unless="skip.tests">
+    <if>
+      <isset property="${compile.scala.tests}"/>
+      <then>
+        <if>
+          <and>
+            <isset property="debug"/>
+            <isfalse value="${is.internal.dep}"/>
+          </and>
+          <then>
+            <property name="jvmargs"
+                      value="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"/>
+          </then>
+          <else>
+            <property name="jvmargs" value=""/>
+          </else>
+        </if>
+
+        <if>
+          <and>
+            <isset property="test"/>
+            <isfalse value="${is.internal.dep}"/>
+          </and>
+          <then>
+            <java classname="run"
+                  dir="${test.basedir}"
+                  fork="true"
+                  failonerror="true">
+              <classpath>
+                <pathelement path="${build.dir}/jvm"/>
+                <pathelement path="${build.dir}/tests"/>
+                <path refid="${compile.libs}"/>
+                <path refid="${compile.testlibs}"/>
+              </classpath>
+              <jvmarg value="-Xmx2g"/>
+              <jvmarg line="${jvmargs}"/>
+              <arg value="${test}"/>
+            </java>
+          </then>
+          <else>
+            <propertycopy name="spec.files" from="${compile.scala.tests}"/>
+            <propertyregex property="spec.files.list"
+                           input="${spec.files}"
+                           regexp="\s+"
+                           replace=","/>
+
+            <_log>
+              Testing using: ${spec.files.list}
+            </_log>
+
+            <java classname="com.twitter.common.testing.ExplicitSpecsRunnerMain"
+                  dir="${test.basedir}"
+                  fork="true"
+                  failonerror="true">
+              <classpath>
+                <pathelement path="${build.dir}/jvm"/>
+                <pathelement path="${build.dir}/tests"/>
+                <path refid="${compile.libs}"/>
+                <path refid="${compile.testlibs}"/>
+              </classpath>
+              <jvmarg value="-Dspecs.base.dir=${root.dir}/tests/scala"/>
+              <jvmarg value="-Dspecs.path.list=${spec.files.list}"/>
+              <jvmarg value="-Xmx2g"/>
+              <jvmarg line="${jvmargs}"/>
+              <arg value="--color"/>
+            </java>
+          </else>
+        </if>
+      </then>
+    </if>
+  </target>
+
+  <target name="test" depends="compile-tests, scala-specs, junit-tests" unless="skip.tests"/>
+
+  <macrodef name="_jar">
+    <attribute name="contentroot"/>
+    <sequential>
+      <delete file="${dist.dir}/${compile.jar.name}.jar"/>
+      <jar jarfile="${dist.dir}/${compile.jar.name}.jar">
+        <fileset dir="@{contentroot}"/>
+      </jar>
+    </sequential>
+  </macrodef>
+
+  <target name="jar" depends="test, gen-build-info">
+    <_jar contentroot="${build.dir}/jvm"/>
+  </target>
+
+  <target name="tests-jar" depends="test">
+    <_jar contentroot="${build.dir}/tests"/>
+  </target>
+
+  <target name="_set_extra_build_info">
+    <!-- add extra build info for dist and zip app deployment packaging -->
+    <property name="build.info.extra" value="true"/>
+  </target>
+
+  <target name="package" depends="_set_extra_build_info, retrieve, test"/>
+
+  <target name="retrieve" depends="init, publish-dependant-modules, initdeps">
+    <property name="package.dir" value="${build.dir}/libs"/>
+    <delete dir="${package.dir}"/>
+    <mkdir dir="${package.dir}"/>
+
+    <echo>bundling ${compile.name} libs to ${package.dir}</echo>
+    <ivy:retrieve conf="default"
+                  type="${ivy.jar.types}"
+                  log="download-only"
+                  symlink="true"
+                  pattern="${package.dir}/[artifact]-[revision].[ext]"/>
+  </target>
+
+  <macrodef name="_package_files">
+    <attribute name="srcdir"/>
+    <attribute name="includes" default="**/*"/>
+    <attribute name="jarfile"/>
+
+    <element name="extras" implicit="true" optional="true"/>
+
+    <sequential>
+      <if>
+        <equals arg1="@{includes}" arg2="**/*"/>
+        <then>
+          <property name="@{includes}.filepattern" value="@{includes}"/>
+        </then>
+        <else>
+          <propertyregex property="@{includes}.filepattern"
+                         input="${@{includes}}"
+                         regexp="\s+"
+                         replace=" "/>
+
+          <_log>
+            [${compile.name}] using files under @{srcdir}: ${@{includes}}
+            [${compile.name}] generated file pattern: ${@{includes}.filepattern}
+            [${compile.name}] to jar: @{jarfile}
+          </_log>
+        </else>
+      </if>
+
+      <jar destfile="@{jarfile}"
+           basedir="@{srcdir}"
+           includes="${@{includes}.filepattern}"
+           update="true"/>
+    </sequential>
+  </macrodef>
+
+  <target name="package-sources" depends="init">
+    <if>
+      <isset property="${compile.java.sources}"/>
+      <then>
+        <_package_files srcdir="${java.src.dir}"
+                        includes="${compile.java.sources}"
+                        jarfile="${dist.dir}/${compile.jar.name}-sources.jar"/>
+      </then>
+    </if>
+
+    <if>
+      <isset property="${compile.scala.sources}"/>
+      <then>
+        <_package_files srcdir="${scala.src.dir}"
+                        includes="${compile.scala.sources}"
+                        jarfile="${dist.dir}/${compile.jar.name}-sources.jar"/>
+      </then>
+    </if>
+
+    <if>
+      <isset property="${compile.resources}"/>
+      <then>
+        <_package_files srcdir="${resource.dir}"
+                        includes="${compile.resources}"
+                        jarfile="${dist.dir}/${compile.jar.name}-sources.jar"/>
+      </then>
+    </if>
+  </target>
+
+  <property name="jar.main.class"
+            value="*** No Main-Class Specified ***: use java -cp ${project.jar.name} [main class] instead"/>
+
+  <target name="dist"
+          depends="package"
+          if="${compile.name}.deployjar"
+          description="Create a monolithic deploy jar that contains all jvm code dependencies">
+
+    <delete file="${dist.dir}/${project.deploy-jar.name}"/>
+    <jar jarfile="${dist.dir}/${project.deploy-jar.name}">
+      <manifest>
+        <attribute name="Main-Class" value="${jar.main.class}"/>
+      </manifest>
+      <fileset dir="${build.dir}/jvm"/>
+      <zipgroupfileset dir="${package.dir}"/>
+    </jar>
+  </target>
+
+  <macrodef name="_zip_additional_dirs">
+    <attribute name="zipfile"/>
+
+    <sequential>
+      <if>
+        <isset property="project.dist.dir.additional"/>
+        <then>
+          <for list="${project.dist.dir.additional}" delimiter="," param="project.dist.dir">
+            <sequential>
+              <zip destfile="@{zipfile}" basedir="${root.dir}/@{project.dist.dir}" update="true">
+                <!-- configs/scripts/auxillary data -->
+                <include name="**"/>
+                <exclude name="Capfile*"/>
+              </zip>
+            </sequential>
+          </for>
+        </then>
+      </if>
+    </sequential>
+  </macrodef>
+
+  <target name="_zip_loose" depends="package, jar" unless="${compile.name}.deployjar">
+    <delete file="${dist.dir}/${project.zip.name}"/>
+
+    <copy file="${root.dir}/dist/${compile.jar.name}.jar"
+          tofile="${build.dir}/${project.jar.name}"/>
+
+    <if>
+      <istrue value="${legacy.zip.layout}"/>
+      <then>
+        <zip destfile="${dist.dir}/${project.zip.name}" basedir="${root.dir}">
+          <!-- main jar -->
+          <include name="dist/${project.jar.name}"/>
+
+          <!-- libs -->
+          <mappedresources>
+            <fileset dir="${build.dir}/libs" includes="*.jar"/>
+            <globmapper from="*" to="target/${project.dist.name}/lib/*"/>
+          </mappedresources>
+
+          <!-- configs/scripts/auxillary data -->
+          <include name="${project.dist.dir}/**"/>
+          <exclude name="${project.dist.dir}/Capfile*"/>
+        </zip>
+      </then>
+      <else>
+        <pathconvert pathsep=" " property="jar.class.path">
+          <path>
+            <fileset dir="${build.dir}/libs" includes="*.jar"/>
+          </path>
+          <chainedmapper>
+            <flattenmapper/>
+            <globmapper from="*" to="libs/*"/>
+          </chainedmapper>
+        </pathconvert>
+
+        <jar jarfile="${build.dir}/${project.jar.name}" update="true">
+          <manifest>
+            <attribute name="Main-Class" value="${jar.main.class}"/>
+            <attribute name="Class-Path" value="${jar.class.path}"/>
+          </manifest>
+        </jar>
+
+        <zip destfile="${dist.dir}/${project.zip.name}" basedir="${root.dir}/${project.dist.dir}">
+          <!-- main jar -->
+          <mappedresources>
+            <fileset dir="${build.dir}" includes="${project.jar.name}"/>
+            <globmapper from="*" to="*"/>
+          </mappedresources>
+
+          <!-- libs -->
+          <mappedresources>
+            <fileset dir="${build.dir}/libs" includes="*.jar"/>
+            <globmapper from="*" to="libs/*"/>
+          </mappedresources>
+
+          <!-- configs/scripts/auxillary data -->
+          <include name="**"/>
+          <exclude name="Capfile*"/>
+        </zip>
+      </else>
+    </if>
+
+    <_zip_additional_dirs zipfile="${dist.dir}/${project.zip.name}"/>
+  </target>
+
+  <target name="_zip_jarjar" depends="dist" if="${compile.name}.deployjar">
+    <delete file="${dist.dir}/${project.zip.name}"/>
+
+    <if>
+      <istrue value="${legacy.zip.layout}"/>
+      <then>
+        <zip destfile="${dist.dir}/${project.zip.name}" basedir="${root.dir}">
+          <!-- main jar -->
+          <include name="dist/${project.deploy-jar.name}"/>
+
+          <!-- configs/scripts/auxillary data -->
+          <include name="${project.dist.dir}/**"/>
+          <exclude name="${project.dist.dir}/Capfile*"/>
+        </zip>
+      </then>
+      <else>
+        <zip destfile="${dist.dir}/${project.zip.name}" basedir="${root.dir}/${project.dist.dir}">
+          <!-- main jar -->
+          <mappedresources>
+            <fileset dir="${dist.dir}" includes="${project.deploy-jar.name}"/>
+            <globmapper from="*" to="*"/>
+          </mappedresources>
+
+          <!-- configs/scripts/auxillary data -->
+          <include name="**"/>
+          <exclude name="Capfile*"/>
+        </zip>
+      </else>
+    </if>
+
+    <_zip_additional_dirs zipfile="${dist.dir}/${project.zip.name}"/>
+  </target>
+
+  <target name="zip"
+          depends="_zip_loose, _zip_jarjar"
+          description="Create a deployable distribution including necessary jar(s), scripts, and configuration data"/>
+
+  <target name="init-artifact">
+    <property name="artifact_module" value="${ivy.module}"/>
+    <property name="artifact_revision" value="${ivy.revision}"/>
+
+    <property name="artifact-name" value="${artifact_module}-${artifact_revision}"/>
+    <property name="local-artifact"
+              value="${build-support.dir}/ivy/internal-repo/${artifact_module}/${artifact-name}.jar"/>
+  </target>
+
+  <target name="prepare-jar-artifact" depends="initprops, init-artifact">
+    <copy file="${dist.dir}/${compile.jar.name}.jar" tofile="${local-artifact}"/>
+
+    <ivy:resolve log="download-only"/>
+
+    <ivy:deliver conf="*(public)" pubrevision="${artifact_revision}"/>
+
+    <ivy:makepom ivyfile="${ivy.internal-repo.dir}/${artifact_module}/ivy-${artifact_revision}.xml"
+                 pomfile="${ivy.internal-repo.dir}/${artifact_module}/${artifact-name}.pom">
+
+      <mapping conf="default" scope="compile"/>
+      <mapping conf="sources" scope="sources"/>
+      <mapping conf="test" scope="test"/>
+    </ivy:makepom>
+  </target>
+
+  <target name="prepare-jar-artifacts" depends="prepare-jar-artifact">
+    <copy file="${dist.dir}/${compile.jar.name}-sources.jar"
+          tofile="${build-support.dir}/ivy/internal-repo/${artifact_module}/${artifact-name}-sources.jar"/>
+  </target>
+
+  <target name="push-local" depends="prepare-jar-artifact"/>
+</project>

@@ -1,0 +1,15 @@
+The checkstyle checks configured for the build use some custom rules built with the target
+'src/java/com/twitter/common/checkstyle'.  To develop new checkstyle rules or fix
+existing custom rules, the following workflow is reccomended:
+1.) Pick a target that has source code you'd like to test your new rule
+against - say 'src/java/com/twitter/common/base:base' and temporarily add
+pants('src/java/com/twitter/common/checkstyle') to its dependencies list.  This will
+place the rule you are fixing or developing early on the checkstyle classpath.
+2.) Code your rule and run the test target until the rule works in the way you
+want.
+3.) Remove the dependency you added in 1.) and create a new checkstyle jar:
+$ ./pants src/java/com/twitter/common/checkstyle dist
+$ cp dist/checkstyle-custom-checks.jar build-support/antlib/
+4.) send out a review with your rule changes/additions and the updated
+build-support/antlib/checkstyle-custom-checks.jar
+

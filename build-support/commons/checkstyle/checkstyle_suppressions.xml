@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!--
+====================================================================================================
+Copyright 2011 Twitter, Inc.
+____________________________________________________________________________________________________
+Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+agreements.  See the NOTICE file distributed with this work for additional information regarding
+copyright ownership.  The ASF licenses this file to you under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with the License.  You may
+obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the
+License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+express or implied.  See the License for the specific language governing permissions and
+limitations under the License.
+====================================================================================================
+-->
+
+<!DOCTYPE suppressions PUBLIC
+    "-//Puppy Crawl//DTD Suppressions 1.1//EN"
+    "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
+
+<suppressions>
+  <!-- Magic Numbers and a few other violations are allowed in test code -->
+  <!-- for things like assertEquals(12, obj.somethingId()) -->
+  <!-- also disables custom checks that are subclasses of the Javadoc* built-in checks -->
+  <suppress files="tests/.*\.java" checks="Javadoc*"/>
+  <suppress files="tests/.*\.java" checks="MagicNumberCheck"/>
+  <suppress files="tests/.*\.java" checks="MultipleStringLiterals"/>
+
+  <!-- if you want separate lines for src & test, do something like:
+  <suppress files="src/java/com/twitter/common/base/.*\.java" checks=".*"/>
+  <suppress files="tests/java/com/twitter/common/base/.*\.java" checks=".*"/>
+  -->
+
+  <!-- matches src/... & tests/... -->
+  <suppress files="com/twitter/common/application/.*\.java" checks=".*"/>
+  <suppress files="com/twitter/common/args/.*\.java" checks=".*"/>
+  <suppress files="com/twitter/common/geo/.*\.java" checks=".*"/>
+  <suppress files="com/twitter/common/inject/.*\.java" checks=".*"/>
+  <suppress files="com/twitter/common/io/.*\.java" checks=".*"/>
+  <suppress files="com/twitter/common/logging/.*\.java" checks=".*"/>
+  <suppress files="com/twitter/common/memcached/.*\.java" checks=".*"/>
+  <suppress files="com/twitter/common/net/.*\.java" checks=".*"/>
+  <suppress files="com/twitter/common/objectsize/.*\.java" checks=".*"/>
+  <suppress files="com/twitter/common/process/.*\.java" checks=".*"/>
+  <suppress files="com/twitter/common/quantity/.*\.java" checks=".*"/>
+  <suppress files="com/twitter/common/stats/.*\.java" checks=".*"/>
+  <suppress files="com/twitter/common/testing/.*\.java" checks=".*"/>
+  <suppress files="com/twitter/common/thrift/.*\.java" checks=".*"/>
+  <suppress files="com/twitter/common/util/.*\.java" checks=".*"/>
+  <suppress files="com/twitter/common/zookeeper/.*\.java" checks=".*"/>
+</suppressions>
