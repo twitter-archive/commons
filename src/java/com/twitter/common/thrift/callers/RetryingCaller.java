@@ -45,7 +45,7 @@ import java.util.logging.Logger;
 *
 * @author William Farner
 */
-public class RetryingCaller extends CallerDecorator {
+public classRetryingCaller extends CallerDecorator {
   private static final Logger LOG = Logger.getLogger(RetryingCaller.class.getName());
 
   @VisibleForTesting
