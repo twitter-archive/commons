@@ -65,7 +65,7 @@ limitations under the License.
         function hashToPathName(hash) {
           return hash
               .replace(/^#/, '/')
-              .replace(/\./g, '/')
+              .replace(/\.([a-z0-9_]+)\./g, '/$1/')
               .replace(/^/, javadocBasePath)
               .replace(/$/, '.html');
         }
