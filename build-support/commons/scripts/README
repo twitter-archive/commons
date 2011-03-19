@@ -1,0 +1,8 @@
+This directory contains scripts to help automate releases to and merges from the Twitter Commons
+open source repository hosted on github @ http://github.com/twitter/commons.
+
+I want to:
+
++ publish new api docs to http://twitter.github.com/commons/apidocs
+  use publish-docs.sh in a clone of the github repo
+
