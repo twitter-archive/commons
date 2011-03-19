@@ -5,7 +5,7 @@ BUILD_ROOT=$MY_DIR/../../..
 PANTS=$BUILD_ROOT/pants
 
 ref=$(git symbolic-ref head)
-branch=${ref#refs/heads}
+branch=${ref#refs/heads/}
 sha=$(git rev-list head | head -1)
 
 $PANTS doc --title="Twitter Commons API Docs" && \
