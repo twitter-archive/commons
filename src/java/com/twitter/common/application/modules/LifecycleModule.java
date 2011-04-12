@@ -65,8 +65,7 @@ public class LifecycleModule extends AbstractModule {
   }
 
   public static class Init {
-    @Inject
-    private static void setupShutdownHook(
+    @Inject private static void setupShutdownHook(
         @ShutdownStage final ActionController actionController) {
 
       Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {

@@ -43,7 +43,7 @@ limitations under the License.
   <property name="ivysettings.file" value="${build-support.dir}/commons/ivy/ivysettings.xml"/>
   <property name="ivy.internal-repo.dir" value="${build-support.dir}/ivy/internal-repo"/>
 
-  <property name="checkstyle.supression.files"
+  <property name="checkstyle.suppression.files"
             value="${build-support.dir}/commons/checkstyle/checkstyle_suppressions.xml"/>
 
   <property name="lib.dir" value="${root.dir}/3rdparty"/>

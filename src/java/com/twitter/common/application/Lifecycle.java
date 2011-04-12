@@ -41,18 +41,23 @@ public class Lifecycle {
   private final ActionController shutdownController;
 
   @Inject
-  public Lifecycle(@ShutdownStage final ActionController shutdownController,
+  public Lifecycle(@ShutdownStage ActionController shutdownController,
       UncaughtExceptionHandler exceptionHandler) {
 
     this.shutdownController = shutdownController;
-
     Thread.setDefaultUncaughtExceptionHandler(exceptionHandler);
+  }
 
-    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-      @Override public void run() {
-        shutdownController.execute();
-      }
-    }, getClass().getSimpleName() + "-ShutdownHook"));
+  /**
+   * Checks whether this lifecycle is still considered alive.  The lifecycle is still alive until
+   * {@link #shutdown()} has been called and all of the actions registered with the shutdown
+   * controller have completed.
+   *
+   * @return {@code true} if the lifecycle is alive, {@code false} otherwise.
+   *
+   */
+  public final boolean isAlive() {
+    return !destroyed;
   }
 
   /**

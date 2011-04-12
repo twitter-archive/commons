@@ -15,12 +15,13 @@
 # limitations under the License.
 # ==================================================================================================
 
-__author__ = 'John Sirios'
+__author__ = 'John Sirois'
 
+from common.collections import OrderedSet
 from pants import (
   Builder,
-  PythonTarget,
-  PythonTests,
+  is_python,
+  is_test,
 )
 
 import os
@@ -30,32 +31,32 @@ class PythonBuilder(Builder):
   def __init__(self, ferror, root_dir):
     Builder.__init__(self, ferror, root_dir)
 
-  def build(self, target, is_meta, args):
-    assert isinstance(target, PythonTarget), \
-      "PythonBuilder can only build PythonTargets, given %s" % str(target)
+  def build(self, targets, args):
+    for target in targets:
+      assert is_python(target), "PythonBuilder can only build PythonTargets, given %s" % str(target)
+      if not is_test(target):
+        raise Exception("PythonBuilder cannot handle target: %s" % str(target))
 
-    if isinstance(target, PythonTests):
-      return self._run_tests(target, args)
+    return self._run_tests(targets, args)
 
-    raise Exception("PythonBuilder cannot handle target: %s" % str(target))
-
-  def _run_tests(self, target, args):
-    template_data = target._create_template_data()
-
-    testargs = [ 'py.test' ]
+  def _run_tests(self, targets, args):
+    testargs = OrderedSet([ 'py.test' ])
     if args:
-      testargs.extend(args)
+      testargs.update(args)
 
     def add_tests(template_data):
       if template_data.sources:
         basedir = template_data.template_base
-        testargs.extend(os.path.join(basedir, test) for test in template_data.sources)
+        testargs.update(os.path.join(basedir, test) for test in template_data.sources)
 
       if template_data.dependencies:
         for dependency in template_data.dependencies:
-          add_tests(dependency.resolve()._create_template_data())
+          for dep in dependency.resolve():
+            add_tests(dep._create_template_data())
 
-    add_tests(template_data)
+    for target in targets:
+      template_data = target._create_template_data()
+      add_tests(template_data)
 
     print 'PythonBuilder executing (PYTHONPATH="%s") %s' % (
       os.environ['PYTHONPATH'],

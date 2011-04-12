@@ -40,7 +40,7 @@ your user account's PATH.
 import os
 
 class TemplateData(object):
-  """Encapsulates data for a mako template as a property-addressable map-like struct."""
+  """Encapsulates data for a mako template as a property-addressable read-only map-like struct."""
 
   def __init__(self, **kwargs):
     self._props = kwargs.copy()
@@ -54,7 +54,16 @@ class TemplateData(object):
     return TemplateData(**props)
 
   def __getattr__(self, key):
-    return self._props[key]
+    try:
+      return self._props[key]
+    except KeyError:
+      raise AttributeError("Attribute %s not defined" % key)
+
+  def __setattr__(self, key, value):
+    if key == '_props' and not key in self.__dict__:
+      object.__setattr__(self, key, value)
+    else:
+      raise AttributeError("Mutation not allowed - use %s.extend(%s = %s)" % (self, key, value))
 
   def __eq__(self, other):
     result = other and (
@@ -76,17 +85,16 @@ class Generator(object):
 
   _module_directory = '/tmp/pants-%s' % os.environ['USER']
 
-  def __init__(self, template_path, root_dir, template_data):
+  def __init__(self, template_path, **template_data):
     self._template = Template(filename = template_path,
                               module_directory = Generator._module_directory)
-    self._root_dir = root_dir
-    self._template_data = template_data
+    self.template_data = template_data
 
   def write(self, stream):
     """Applies the template to the template data and writes the result to the given file-like
     stream."""
 
-    stream.write(self._template.render(root_dir = self._root_dir, lib = self._template_data))
+    stream.write(self._template.render(**self.template_data))
 
 class Builder(object):
   """Abstract base class for builder implementations that can execute a parsed BUILD target."""
@@ -97,12 +105,11 @@ class Builder(object):
     self.ferror = ferror
     self.root_dir = root_dir
 
-  def build(self, target, is_meta, args):
+  def build(self, target, args):
     """Subclasses must implement a BUILD target executor.  The value returned should be an int,
     0 indicating success and any other value indicating failure.
 
     target: the parsed target to build
-    is_meta: True if the meta build flag is set
     args: additional arguments to the builder backend"""
 
     pass

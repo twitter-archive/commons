@@ -52,6 +52,8 @@ java_library(name = 'util',
     pants('3rdparty:commons-lang'),
     pants('3rdparty:guava'),
     pants('3rdparty:jsr305'),
+    # TODO(William Farner): Untangle this false dependency, there are likely people relying
+    #   on the util target just to get logging - fix.
     pants(':logging'),
     pants('src/java/com/twitter/common/collections'),
     pants('src/java/com/twitter/common/quantity'),

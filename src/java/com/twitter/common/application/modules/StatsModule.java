@@ -26,10 +26,12 @@ import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 
+import com.twitter.common.application.ActionRegistry;
 import com.twitter.common.application.ShutdownStage;
 import com.twitter.common.application.StartupStage;
+import com.twitter.common.args.Arg;
+import com.twitter.common.args.CmdLine;
 import com.twitter.common.base.Command;
-import com.twitter.common.application.ActionRegistry;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
 import com.twitter.common.stats.JvmStats;
@@ -42,9 +44,31 @@ import com.twitter.common.util.BuildInfo;
 /**
  * Binding module for injections related to the in-process stats system.
  *
+ * This modules supports two command line arguments:
+ * <ul>
+ *   <li>{@code stat_sampling_interval} - Statistic value sampling interval.
+ *   <li>{@code stat_retention_period} - Time for a stat to be retained in memory before expring.
+ * </ul>
+ *
+ * Bindings required by this module:
+ * <ul>
+ *   <li>{@code @StartupStage ActionRegistry} - Startup action registry.
+ *   <li>{@code @ShutdownStage ActionRegistry} - Shutdown hook registry.
+ *   <li>{@code BuildInfo} - Build information for the application.
+ * </ul>
+ *
  * @author William Farner
  */
 public class StatsModule extends AbstractModule {
+
+  @CmdLine(name = "stat_sampling_interval", help = "Statistic value sampling interval.")
+  private static final Arg<Amount<Long, Time>> SAMPLING_INTERVAL =
+      Arg.create(Amount.of(1L, Time.SECONDS));
+
+  @CmdLine(name = "stat_retention_period",
+      help = "Time for a stat to be retained in memory before expiring.")
+  private static final Arg<Amount<Long, Time>> RETENTION_PERIOD =
+      Arg.create(Amount.of(1L, Time.HOURS));
 
   @Override
   protected void configure() {
@@ -55,10 +79,10 @@ public class StatsModule extends AbstractModule {
     // Bindings for TimeSeriesRepositoryImpl.
     bind(new TypeLiteral<Amount<Long, Time>>() {})
         .annotatedWith(Names.named(TimeSeriesRepositoryImpl.SAMPLE_RETENTION_PERIOD))
-        .toInstance(Amount.of(1L, Time.HOURS));
+        .toInstance(RETENTION_PERIOD.get());
     bind(new TypeLiteral<Amount<Long, Time>>() {})
         .annotatedWith(Names.named(TimeSeriesRepositoryImpl.SAMPLE_PERIOD))
-        .toInstance(Amount.of(1L, Time.SECONDS));
+        .toInstance(SAMPLING_INTERVAL.get());
     bind(TimeSeriesRepository.class).to(TimeSeriesRepositoryImpl.class).in(Singleton.class);
 
     requestStaticInjection(Init.class);

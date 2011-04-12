@@ -17,6 +17,13 @@
 
 package com.twitter.common.zookeeper;
 
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
+import javax.annotation.Nullable;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
@@ -24,12 +31,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.twitter.common.base.Command;
-import com.twitter.common.base.Commands;
-import com.twitter.common.base.ExceptionalSupplier;
-import com.twitter.common.base.MorePreconditions;
-import com.twitter.common.util.BackoffHelper;
-import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.zookeeper.CreateMode;
@@ -38,14 +40,15 @@ import org.apache.zookeeper.KeeperException.NoNodeException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
+import org.apache.zookeeper.common.PathUtils;
 import org.apache.zookeeper.data.ACL;
 
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
+import com.twitter.common.base.Command;
+import com.twitter.common.base.Commands;
+import com.twitter.common.base.ExceptionalSupplier;
+import com.twitter.common.base.MorePreconditions;
+import com.twitter.common.util.BackoffHelper;
+import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException;
 
 /**
  * This class exposes methods for joining and monitoring distributed groups.  The groups this class
@@ -69,16 +72,31 @@ public class Group {
 
   private final BackoffHelper backoffHelper;
 
+  @VisibleForTesting static String normalizePath(String path) {
+    String normalizedPath = path.replaceAll("//+", "/").replaceFirst("(.+)/$", "$1");
+    PathUtils.validatePath(normalizedPath);
+    return normalizedPath;
+  }
+
   /**
+   * Creates a group rooted at the given {@code path}.  Paths must be absolute and trailing or
+   * duplicate slashes will be normalized.  For example, all the following paths would create a
+   * group at the normalized path /my/distributed/group:
+   * <ul>
+   *   <li>/my/distributed/group
+   *   <li>/my/distributed/group/
+   *   <li>/my/distributed//group
+   * </ul>
+   *
    * @param zkClient the client to use for interactions with ZooKeeper
    * @param acl the ACL to use for creating the persistent group path if it does not already exist
-   * @param path the persistent path that represents this group
+   * @param path the absolute persistent path that represents this group
    * @param nodeNamePrefix Node name prefix that denotes group membership.
    */
   public Group(ZooKeeperClient zkClient, List<ACL> acl, String path, String nodeNamePrefix) {
     this.zkClient = Preconditions.checkNotNull(zkClient);
     this.acl = Preconditions.checkNotNull(acl);
-    this.path = MorePreconditions.checkNotBlank(path);
+    this.path = normalizePath(Preconditions.checkNotNull(path));
     this.nodeNamePrefix = MorePreconditions.checkNotBlank(nodeNamePrefix);
 
     final Pattern groupNodeNamePattern = Pattern.compile(
@@ -93,9 +111,8 @@ public class Group {
   }
 
   /**
-   * @param zkClient the client to use for interactions with ZooKeeper
-   * @param acl the ACL to use for creating the persistent group path if it does not already exist
-   * @param path the persistent path that represents this group
+   * Equivalent to {@link #Group(ZooKeeperClient, java.util.List, String, String)} with a default
+   * {@code nodeNamePrefix} of 'member_'.
    */
   public Group(ZooKeeperClient zkClient, List<ACL> acl, String path) {
     this(zkClient, acl, path, DEFAULT_NODE_NAME_PREFIX);
@@ -404,12 +421,14 @@ public class Group {
       nodePath = zkClient.get().create(path + "/" + nodeNamePrefix, membershipData, acl,
           CreateMode.EPHEMERAL_SEQUENTIAL);
       memberId = extractMemberId(nodePath);
+      LOG.info("Set group member ID to " + memberId);
       this.membershipData = membershipData;
 
       // Re-join if our ephemeral node goes away due to maliciousness.
       zkClient.get().exists(nodePath, new Watcher() {
         @Override public void process(WatchedEvent event) {
           if (event.getType() == EventType.NodeDeleted) {
+            LOG.info("Member ID deleted. Rejoining. Event: " + event);
             tryJoin();
           }
         }

@@ -272,6 +272,9 @@ public class ServerSetImpl implements ServerSet {
       @Override public void process(WatchedEvent event) {
         if (event.getState() == KeeperState.SyncConnected) {
           switch (event.getType()) {
+            case None:
+              // Ignore re-connects that happen while we're watching
+              break;
             case NodeDeleted:
               // Ignore deletes since these trigger a group change through the group node watch.
               break;
@@ -279,7 +282,7 @@ public class ServerSetImpl implements ServerSet {
               notifyNodeChange(event.getPath());
               break;
             default:
-              throw new IllegalStateException("Did not expect event: " + event);
+              LOG.severe("Unexpected event watching service node: " + event);
           }
         }
       }

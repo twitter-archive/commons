@@ -16,32 +16,29 @@
 # ==================================================================================================
 
 from pants import (
+  InternalTarget,
   JavaLibrary,
   JavaProtobufLibrary,
-  JavaTarget,
   JavaTests,
   JavaThriftLibrary,
   ScalaLibrary,
   ScalaTests,
+  is_jvm,
 )
 
-def extract_target(java_target):
+def extract_target(java_targets, name = None):
   """Extracts a minimal set of linked targets from the given target's internal transitive dependency
   set.  The root target in the extracted target set is returned.  The algorithm does a topological
   sort of the internal targets and then tries to coalesce targets of a given type.  Any target with
   a custom ant build xml will be excluded from the coalescing."""
 
-  coalesced = java_target.coalesce()
-  if not coalesced:
-    return java_target
+  # TODO(John Sirois): this is broken - representative_target is not necessarily representative
+  representative_target = list(java_targets)[0]
 
-  coalesced.insert(0, java_target)
-  coalesced = list(reversed(coalesced))
-
-  name = "fast-%s" % java_target.name
+  meta_target_base_name = "fast-%s" % (name if name else representative_target.name)
   provides = None
-  deployjar = hasattr(java_target, 'deployjar') and java_target.deployjar
-  buildflags = java_target.buildflags
+  deployjar = hasattr(representative_target, 'deployjar') and representative_target.deployjar
+  buildflags = representative_target.buildflags
 
   def create_target(target_type, target_name, target_index, targets):
     def name(name):
@@ -63,6 +60,9 @@ def extract_target(java_target):
       raise Exception("Cannot aggregate targets of type: %s" % target_type)
 
   # chunk up our targets by type & custom build xml
+  coalesced = InternalTarget.coalesce_targets(java_targets)
+  coalesced = list(reversed(coalesced))
+
   start_type = type(coalesced[0])
   start = 0
   descriptors = []
@@ -96,12 +96,11 @@ def extract_target(java_target):
   # meta targets
   meta_targets_by_target_id = dict()
   targets_by_meta_target = []
-  parent_meta_target = None
   for (target_type, targets), index in zip(descriptors, reversed(range(0, len(descriptors)))):
-    parent_meta_target = create_target(target_type, name, index, targets)
-    targets_by_meta_target.append((parent_meta_target, targets))
+    meta_target = create_target(target_type, meta_target_base_name, index, targets)
+    targets_by_meta_target.append((meta_target, targets))
     for target in targets:
-      meta_targets_by_target_id[target._id] = parent_meta_target
+      meta_targets_by_target_id[target._id] = meta_target
 
   # calculate the other meta-targets (if any) each meta-target depends on
   extra_targets_by_meta_target = []
@@ -112,7 +111,7 @@ def extract_target(java_target):
       if target.custom_antxml_path:
         custom_antxml_path = target.custom_antxml_path
       for dep in target.resolved_dependencies:
-        if isinstance(dep, JavaTarget):
+        if is_jvm(dep):
           meta = meta_targets_by_target_id[dep._id]
           if meta != meta_target:
             meta_deps.add(meta)
@@ -131,11 +130,29 @@ def extract_target(java_target):
     return excludes
 
   # link in the extra inter-meta deps
+  meta_targets = []
   for meta_target, extra_deps, custom_antxml_path in extra_targets_by_meta_target:
-    for dep in extra_deps:
-      meta_target.jar_dependencies.update(dep._as_jar_dependencies())
-    meta_target.internal_dependencies.update(extra_deps)
+    meta_targets.append(meta_target)
+    meta_target.update_dependencies(extra_deps)
     meta_target.excludes = lift_excludes(meta_target)
     meta_target.custom_antxml_path = custom_antxml_path
 
-  return parent_meta_target
+  sorted_meta_targets = InternalTarget.sort_targets(meta_targets)
+  def prune_metas(target):
+    if sorted_meta_targets:
+      try:
+        sorted_meta_targets.remove(target)
+      except ValueError:
+        # we've already removed target in the current walk
+        pass
+
+  # link any disconnected meta_target graphs so we can return 1 root target
+  root = None
+  while sorted_meta_targets:
+    new_root = sorted_meta_targets[0]
+    new_root.walk(prune_metas, is_jvm)
+    if root:
+      new_root.update_dependencies([root])
+    root = new_root
+
+  return root

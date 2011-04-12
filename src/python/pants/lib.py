@@ -23,7 +23,7 @@ import collections
 import os
 import re
 
-_RESOURCES_BASE_DIR = 'src/resources'
+RESOURCES_BASE_DIR = 'src/resources'
 
 class JarDependency(object):
   """Represents a binary jar dependency ala maven or ivy.  For the ivy dependency defined by:
@@ -88,7 +88,7 @@ class JarDependency(object):
     return "%s-%s-%s" % (self.org, self.name, self.rev)
 
   def resolve(self):
-    return self
+    yield self
 
   def _as_jar_dependencies(self):
     yield self
@@ -400,10 +400,44 @@ class Target(object):
     Target._addresses_by_buildfile[self.address.buildfile].add(self.address)
 
   def resolve(self):
-    return self
+    yield self
+
+  def walk(self, work, predicate = None):
+    """Performs a walk of this target's dependency graph visiting each node exactly once.  If a
+    predicate is supplied it will be used to test each target before handing the target to work and
+    descending.  Work can return targets in which case these will be added to the walk candidate set
+    if not already walked."""
+
+    self._walk(set(), work, predicate)
+
+  def _walk(self, walked, work, predicate = None):
+    for target in self.resolve():
+      if target not in walked:
+        walked.add(target)
+        if not predicate or predicate(target):
+          additional_targets = work(target)
+          target._walk(walked, work, predicate)
+          if additional_targets:
+            for additional_target in additional_targets:
+              additional_target._walk(walked, work, predicate)
 
   def do_in_context(self, work):
     return ParseContext(self.address.buildfile).do_in_context(work)
+
+  def __eq__(self, other):
+    result = other and (
+      type(self) == type(other)) and (
+      self.address == other.address)
+    return result
+
+  def __hash__(self):
+    return hash(self.address)
+
+  def __ne__(self, other):
+    return not self.__eq__(other)
+
+  def __repr__(self):
+    return "%s(%s)" % (type(self).__name__, self.address)
 
 class Pants(Target):
   """A pointer to a pants target."""
@@ -436,28 +470,27 @@ class Pants(Target):
     resolved = Target.get(self.address)
     if not resolved:
       raise KeyError("Failed to find target for: %s" % self.address)
-    return resolved
+    for dep in resolved.resolve():
+      yield dep
 
 class JarLibrary(Target):
-  """Serves as a proxy for one or more JarDependencies."""
+  """Serves as a proxy for one or more JarDependencies or JavaTargets."""
 
   def __init__(self, name, *dependencies):
     """name: The name of this module target, addressable via pants via the portion of the spec
         following the colon
     dependencies: one or more JarDependencies this JarLibrary bundles or Pants pointing to other
-        JarLibraries"""
+        JarLibraries or JavaTargets"""
 
     assert len(dependencies) > 0, "At least one dependency must be specified"
     Target.__init__(self, name, False)
 
-    self.jar_dependencies = OrderedSet()
+    self.dependencies = dependencies
 
-    for dependency in dependencies:
-      self.jar_dependencies.update((dependency.resolve())._as_jar_dependencies())
-
-  def _as_jar_dependencies(self):
-    for jar in self.jar_dependencies:
-      yield jar
+  def resolve(self):
+    for dependency in self.dependencies:
+      for resolved_dependency in dependency.resolve():
+        yield resolved_dependency
 
 class Repository(Target):
   """Represents an artifact repository.  Typically this is a maven-style artifact repo."""
@@ -488,9 +521,6 @@ class Repository(Target):
   def __repr__(self):
     return "%s -> %s (%s)" % (self.name, self.url, self.push_db)
 
-  def resolve(self):
-    return self
-
 class Artifact(object):
   """Represents a jvm artifact ala maven or ivy."""
 
@@ -502,7 +532,10 @@ class Artifact(object):
     self.org = org
     self.name = name
     self.rev = None
-    self.repo = repo.resolve()
+    repos = list(repo.resolve())
+    if len(repos) != 1:
+      raise Exception("An artifact must have exactly 1 repo, given: %s" % repos)
+    self.repo = repos[0]
 
   def __eq__(self, other):
     result = other and (
@@ -531,51 +564,80 @@ class Artifact(object):
       repo = self.repo.name
     )
 
+class CycleException(Exception):
+  """Thrown when a circular dependency is detected."""
+
+  def __init__(self, precedents, cycle):
+    Exception.__init__(self, 'Cycle detected along path:\n\t%s' % (
+      ' ->\n\t'.join(str(target.address) for target in list(precedents) + [ cycle ])
+    ))
+
 class InternalTarget(Target):
   """A baseclass for targets that support an optional dependency set."""
 
-  def sort(self):
-    """Returns a list of targets this target depends on sorted from most dependent to least."""
+  @classmethod
+  def check_cycles(cls, internal_target):
+    """Validates the given InternalTarget has no circular dependencies.  Raises CycleException if
+    it does."""
 
-    roots = dict() # address -> root target
-    inverted_deps = collections.defaultdict(OrderedSet) # address -> dependent targets
-    visited = set() # addresses
+    dep_stack = OrderedSet()
+
+    def descend(internal_dep):
+      if internal_dep in dep_stack:
+        raise CycleException(dep_stack, internal_dep)
+      if hasattr(internal_dep, 'internal_dependencies'):
+        dep_stack.add(internal_dep)
+        for dep in internal_dep.internal_dependencies:
+          descend(dep)
+        dep_stack.remove(internal_dep)
+
+    descend(internal_target)
+
+  @classmethod
+  def sort_targets(cls, internal_targets):
+    """Returns a list of targets that internal_targets depend on sorted from most dependent to
+    least."""
+
+    roots = OrderedSet()
+    inverted_deps = collections.defaultdict(OrderedSet) # target -> dependent targets
+    visited = set()
 
     def invert(target):
-      if target.address not in visited:
-        visited.add(target.address)
+      if target not in visited:
+        visited.add(target)
         if target.internal_dependencies:
           for internal_dependency in target.internal_dependencies:
             if isinstance(internal_dependency, InternalTarget):
-              inverted_deps[internal_dependency.address].add(target)
+              inverted_deps[internal_dependency].add(target)
               invert(internal_dependency)
         else:
-          roots[target.address] = target
+          roots.add(target)
 
-
-    invert(self)
+    for internal_target in internal_targets:
+      invert(internal_target)
 
     sorted = []
     visited.clear()
 
     def topological_sort(target):
-      if target.address not in visited:
-        visited.add(target.address)
-        if target.address in inverted_deps:
-          for dep in inverted_deps[target.address]:
+      if target not in visited:
+        visited.add(target)
+        if target in inverted_deps:
+          for dep in inverted_deps[target]:
             topological_sort(dep)
-          sorted.append(target)
+        sorted.append(target)
 
-    for root in roots.values():
+    for root in roots:
       topological_sort(root)
 
     return sorted
 
-  def coalesce(self):
-    """Returns a list of targets this target depends on sorted from most dependent to least and
+  @classmethod
+  def coalesce_targets(cls, internal_targets):
+    """Returns a list of targets internal_targets depend on sorted from most dependent to least and
     grouped where possible by target type."""
 
-    sorted_targets = self.sort()
+    sorted_targets = InternalTarget.sort_targets(internal_targets)
 
     # can do no better for any of these:
     # []
@@ -590,7 +652,7 @@ class InternalTarget(Target):
     # the opposite edge and then try to swap dependency pairs to move the type back left to its
     # grouping.  If the leftwards migration fails due to a dependency constraint, we just stop
     # and move on leaving "type islands".
-    current_type = type(self)
+    current_type = None
 
     # main scan left to right no backtracking
     for i in range(len(sorted_targets) - 1):
@@ -622,6 +684,17 @@ class InternalTarget(Target):
 
     return sorted_targets
 
+  def sort(self):
+    """Returns a list of targets this target depends on sorted from most dependent to least."""
+
+    return InternalTarget.sort_targets([ self ])
+
+  def coalesce(self):
+    """Returns a list of targets this target depends on sorted from most dependent to least and
+    grouped where possible by target type."""
+
+    return InternalTarget.coalesce_targets([ self ])
+
   def __init__(self, name, dependencies, is_meta):
     Target.__init__(self, name, is_meta)
 
@@ -629,13 +702,28 @@ class InternalTarget(Target):
     self.internal_dependencies = OrderedSet()
     self.jar_dependencies = OrderedSet()
 
+    self.update_dependencies(dependencies)
+
+  def update_dependencies(self, dependencies):
     if dependencies:
       for dependency in dependencies:
-        resolved_dependency = dependency.resolve()
-        self.resolved_dependencies.add(resolved_dependency)
-        if isinstance(resolved_dependency, InternalTarget):
-          self.internal_dependencies.add(resolved_dependency)
-        self.jar_dependencies.update(resolved_dependency._as_jar_dependencies())
+        for resolved_dependency in dependency.resolve():
+          self.resolved_dependencies.add(resolved_dependency)
+          if isinstance(resolved_dependency, InternalTarget):
+            self.internal_dependencies.add(resolved_dependency)
+          self.jar_dependencies.update(resolved_dependency._as_jar_dependencies())
+
+  def _walk(self, walked, work, predicate = None):
+    Target._walk(self, walked, work, predicate)
+    for dep in self.resolved_dependencies:
+      if isinstance(dep, Target) and not dep in walked:
+        walked.add(dep)
+        if not predicate or predicate(dep):
+          additional_targets = work(dep)
+          dep._walk(walked, work, predicate)
+          if additional_targets:
+            for additional_target in additional_targets:
+              additional_target._walk(walked, work, predicate)
 
 class TargetWithSources(Target):
   def __init__(self, target_base, name, is_meta = False):
@@ -694,7 +782,7 @@ class TargetWithSources(Target):
     finally:
       os.chdir(start)
 
-class JavaTarget(InternalTarget, TargetWithSources):
+class JvmTarget(InternalTarget, TargetWithSources):
   """A base class for all java module targets that provides path and dependency translation."""
 
   def __init__(self, target_base, name, sources, dependencies, excludes = None,
@@ -735,7 +823,7 @@ class JavaTarget(InternalTarget, TargetWithSources):
   def _provides(self):
     return None
 
-class ExportableJavaLibrary(JavaTarget):
+class ExportableJvmLibrary(JvmTarget):
   """A baseclass for java targets that support being exported to an artifact repository."""
 
   def __init__(self,
@@ -752,7 +840,7 @@ class ExportableJavaLibrary(JavaTarget):
     # flow
     self.provides = provides
 
-    JavaTarget.__init__(self,
+    JvmTarget.__init__(self,
                         target_base,
                         name,
                         sources,
@@ -789,7 +877,7 @@ class ExportableJavaLibrary(JavaTarget):
       publish_repo = self.provides.repo.name if exported else None,
     )
 
-class JavaThriftLibrary(ExportableJavaLibrary):
+class JavaThriftLibrary(ExportableJvmLibrary):
   """Defines a target that builds java stubs from a thrift IDL file."""
 
   _SRC_DIR = 'src/thrift'
@@ -837,18 +925,17 @@ class JavaThriftLibrary(ExportableJavaLibrary):
         for this target"""
 
     def get_all_deps():
-      all_deps = OrderedSet([
-        Pants('3rdparty:commons-lang').resolve(),
-        JarDependency(org = 'org.apache.thrift',
-                      name = 'libthrift',
-                      rev = '${thrift.library.version}'),
-        Pants('3rdparty:slf4j-api').resolve(),
-      ])
+      all_deps = OrderedSet()
+      all_deps.update(Pants('3rdparty:commons-lang').resolve())
+      all_deps.update(JarDependency(org = 'org.apache.thrift',
+                                    name = 'libthrift',
+                                    rev = '${thrift.library.version}').resolve())
+      all_deps.update(Pants('3rdparty:slf4j-api').resolve())
       if dependencies:
         all_deps.update(dependencies)
       return all_deps
 
-    ExportableJavaLibrary.__init__(self,
+    ExportableJvmLibrary.__init__(self,
                                    JavaThriftLibrary._SRC_DIR,
                                    name,
                                    sources,
@@ -860,18 +947,18 @@ class JavaThriftLibrary(ExportableJavaLibrary):
     self.is_codegen = True
 
   def _as_jar_dependency(self):
-    return ExportableJavaLibrary._as_jar_dependency(self).withSources()
+    return ExportableJvmLibrary._as_jar_dependency(self).withSources()
 
   def _create_template_data(self):
     allsources = []
     if self.sources:
       allsources += list(os.path.join(JavaThriftLibrary._SRC_DIR, src) for src in self.sources)
 
-    return ExportableJavaLibrary._create_template_data(self).extend(
+    return ExportableJvmLibrary._create_template_data(self).extend(
       allsources = allsources,
     )
 
-class JavaProtobufLibrary(ExportableJavaLibrary):
+class JavaProtobufLibrary(ExportableJvmLibrary):
   """Defines a target that builds java stubs from a protobuf IDL file."""
 
   _SRC_DIR = 'src/protobuf'
@@ -928,7 +1015,7 @@ class JavaProtobufLibrary(ExportableJavaLibrary):
         all_deps.update(dependencies)
       return all_deps
 
-    ExportableJavaLibrary.__init__(self,
+    ExportableJvmLibrary.__init__(self,
                                    JavaProtobufLibrary._SRC_DIR,
                                    name,
                                    sources,
@@ -940,18 +1027,18 @@ class JavaProtobufLibrary(ExportableJavaLibrary):
     self.is_codegen = True
 
   def _as_jar_dependency(self):
-    return ExportableJavaLibrary._as_jar_dependency(self).withSources()
+    return ExportableJvmLibrary._as_jar_dependency(self).withSources()
 
   def _create_template_data(self):
     allsources = []
     if self.sources:
       allsources += list(os.path.join(JavaProtobufLibrary._SRC_DIR, src) for src in self.sources)
 
-    return ExportableJavaLibrary._create_template_data(self).extend(
+    return ExportableJvmLibrary._create_template_data(self).extend(
       allsources = allsources,
     )
 
-class JavaLibrary(ExportableJavaLibrary):
+class JavaLibrary(ExportableJvmLibrary):
   """Defines a target that produces a java library."""
 
   _SRC_DIR = 'src/java'
@@ -1013,18 +1100,18 @@ class JavaLibrary(ExportableJavaLibrary):
     buildflags: A list of additional command line arguments to pass to the underlying build system
         for this target"""
 
-    ExportableJavaLibrary.__init__(self,
-                                   JavaLibrary._SRC_DIR,
-                                   name,
-                                   sources,
-                                   provides,
-                                   dependencies,
-                                   excludes,
-                                   buildflags,
-                                   is_meta)
+    ExportableJvmLibrary.__init__(self,
+                                  JavaLibrary._SRC_DIR,
+                                  name,
+                                  sources,
+                                  provides,
+                                  dependencies,
+                                  excludes,
+                                  buildflags,
+                                  is_meta)
 
-    self.resources = self._resolve_paths(_RESOURCES_BASE_DIR, resources)
-    self.binary_resources = self._resolve_paths(_RESOURCES_BASE_DIR, binary_resources)
+    self.resources = self._resolve_paths(RESOURCES_BASE_DIR, resources)
+    self.binary_resources = self._resolve_paths(RESOURCES_BASE_DIR, binary_resources)
     self.deployjar = deployjar
 
   def _create_template_data(self):
@@ -1032,18 +1119,18 @@ class JavaLibrary(ExportableJavaLibrary):
     if self.sources:
       allsources += list(os.path.join(JavaLibrary._SRC_DIR, source) for source in self.sources)
     if self.resources:
-      allsources += list(os.path.join(_RESOURCES_BASE_DIR, res) for res in self.resources)
+      allsources += list(os.path.join(RESOURCES_BASE_DIR, res) for res in self.resources)
     if self.binary_resources:
-      allsources += list(os.path.join(_RESOURCES_BASE_DIR, res) for res in self.binary_resources)
+      allsources += list(os.path.join(RESOURCES_BASE_DIR, res) for res in self.binary_resources)
 
-    return ExportableJavaLibrary._create_template_data(self).extend(
+    return ExportableJvmLibrary._create_template_data(self).extend(
       resources = self.resources,
       binary_resources = self.binary_resources,
       deploy_jar = self.deployjar,
       allsources = allsources
     )
 
-class JavaTests(JavaTarget):
+class JavaTests(JvmTarget):
   """Defines a target that tests a java library."""
 
   @classmethod
@@ -1087,14 +1174,13 @@ class JavaTests(JavaTarget):
         for this target"""
 
     def get_all_deps():
-      all_deps = OrderedSet([
-        Pants('3rdparty:junit').resolve(),
-      ])
+      all_deps = OrderedSet()
+      all_deps.update(Pants('3rdparty:junit').resolve())
       if dependencies:
         all_deps.update(dependencies)
       return all_deps
 
-    JavaTarget.__init__(self,
+    JvmTarget.__init__(self,
                         'tests/java',
                         name,
                         sources,
@@ -1125,7 +1211,7 @@ class JavaTests(JavaTarget):
       buildflags = self.buildflags,
     )
 
-class ScalaLibrary(ExportableJavaLibrary):
+class ScalaLibrary(ExportableJvmLibrary):
   """Defines a target that produces a scala library."""
 
   _SRC_DIR = 'src/scala'
@@ -1195,26 +1281,25 @@ class ScalaLibrary(ExportableJavaLibrary):
         for this target"""
 
     def get_all_deps():
-      all_deps = OrderedSet([
-        Pants('3rdparty:scala-library').resolve(),
-      ])
+      all_deps = OrderedSet()
+      all_deps.update(Pants('3rdparty:scala-library').resolve())
       if dependencies:
         all_deps.update(dependencies)
       return all_deps
 
-    ExportableJavaLibrary.__init__(self,
-                                   ScalaLibrary._SRC_DIR,
-                                   name,
-                                   sources,
-                                   provides,
-                                   get_all_deps(),
-                                   excludes,
-                                   buildflags,
-                                   is_meta)
+    ExportableJvmLibrary.__init__(self,
+                                  ScalaLibrary._SRC_DIR,
+                                  name,
+                                  sources,
+                                  provides,
+                                  get_all_deps(),
+                                  excludes,
+                                  buildflags,
+                                  is_meta)
 
     self.java_sources = self._resolve_paths('src/java', java_sources)
-    self.resources = self._resolve_paths(_RESOURCES_BASE_DIR, resources)
-    self.binary_resources = self._resolve_paths(_RESOURCES_BASE_DIR, binary_resources)
+    self.resources = self._resolve_paths(RESOURCES_BASE_DIR, resources)
+    self.binary_resources = self._resolve_paths(RESOURCES_BASE_DIR, binary_resources)
     self.deployjar = deployjar
 
   def _create_template_data(self):
@@ -1222,11 +1307,11 @@ class ScalaLibrary(ExportableJavaLibrary):
     if self.sources:
       allsources += list(os.path.join(ScalaLibrary._SRC_DIR, source) for source in self.sources)
     if self.resources:
-      allsources += list(os.path.join(_RESOURCES_BASE_DIR, res) for res in self.resources)
+      allsources += list(os.path.join(RESOURCES_BASE_DIR, res) for res in self.resources)
     if self.binary_resources:
-      allsources += list(os.path.join(_RESOURCES_BASE_DIR, res) for res in self.binary_resources)
+      allsources += list(os.path.join(RESOURCES_BASE_DIR, res) for res in self.binary_resources)
 
-    return ExportableJavaLibrary._create_template_data(self).extend(
+    return ExportableJvmLibrary._create_template_data(self).extend(
       java_sources = self.java_sources,
       resources = self.resources,
       binary_resources = self.binary_resources,
@@ -1234,7 +1319,7 @@ class ScalaLibrary(ExportableJavaLibrary):
       allsources = allsources,
     )
 
-class ScalaTests(JavaTarget):
+class ScalaTests(JvmTarget):
   """Defines a target that tests a scala library."""
 
   @classmethod
@@ -1277,15 +1362,14 @@ class ScalaTests(JavaTarget):
         for this target"""
 
     def get_all_deps():
-      all_deps = OrderedSet([
-        Pants('src/scala/com/twitter/common/testing:explicit-specs-runner').resolve(),
-        Pants('3rdparty:scala-library').resolve(),
-      ])
+      all_deps = OrderedSet()
+      all_deps.update(Pants('src/scala/com/twitter/common/testing:explicit-specs-runner').resolve())
+      all_deps.update(Pants('3rdparty:scala-library').resolve())
       if dependencies:
         all_deps.update(dependencies)
       return all_deps
 
-    JavaTarget.__init__(self,
+    JvmTarget.__init__(self,
                         'tests/scala',
                         name,
                         sources,
@@ -1321,14 +1405,14 @@ class PythonTarget(TargetWithSources):
     TargetWithSources.__init__(self, target_base, name, is_meta)
 
     self.sources = self._resolve_paths(target_base, sources)
-    self.dependecies = dependencies if dependencies else OrderedSet()
+    self.dependencies = dependencies if dependencies else OrderedSet()
 
   def _create_template_data(self):
     return TemplateData(
       name = self.name,
       template_base = self.target_base,
       sources = self.sources,
-      dependencies = self.dependecies
+      dependencies = self.dependencies
     )
 
 class PythonTests(PythonTarget):

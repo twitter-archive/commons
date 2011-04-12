@@ -59,12 +59,14 @@ class IdeTest(unittest.TestCase):
                    internal_dependencies = [d, e],
                    jar_dependencies = [jar3])
 
-    a = MockTarget('a', internal_dependencies = [b, c, e], jar_dependencies = [jar4])
+    a = MockTarget('a', internal_dependencies = [c, b, e], jar_dependencies = [jar4])
 
     internal_deps, jar_deps = _extract_target(a, lambda target: True)
 
-    self.assertEquals(OrderedSet([b, c]), internal_deps)
-    for dep in internal_deps:
-      self.assertEquals(OrderedSet([f]), dep.internal_dependencies)
+    self.assertEquals(OrderedSet([c, b]), internal_deps)
+    self.assertEquals(OrderedSet([f]), c.internal_dependencies,
+                      'Expected depth first walk to roll up f to 1st visited dependee')
+    self.assertEquals(OrderedSet(), b.internal_dependencies,
+                      'Expected depth first walk to roll up f to 1st visited dependee')
 
     self.assertEquals(set([jar1, jar2, jar4]), set(jar_deps))

@@ -23,14 +23,11 @@ import java.util.logging.Logger;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
-import com.google.inject.Key;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
-import com.google.inject.name.Names;
 
-import com.twitter.common.base.Command;
 import com.twitter.common.application.ActionRegistry;
 import com.twitter.common.application.StartupStage;
+import com.twitter.common.base.Command;
 import com.twitter.common.util.BuildInfo;
 
 /**

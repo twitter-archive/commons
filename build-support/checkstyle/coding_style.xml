@@ -68,7 +68,13 @@ limitations under the License.
     <!-- We use this to turn off specific checks for specific file types.
     -->
     <module name="com.twitter.common.checkstyle.SplitSuppressionFilter">
-      <property name="files" value="${checkstyle.supression.files}"/>
+      <property name="files" value="${checkstyle.suppression.files}"/>
+    </module>
+
+    <module name="SuppressionCommentFilter">
+      <property name="offCommentFormat" value="CHECKSTYLE\:OFF ([\w\|]+)"/>
+      <property name="onCommentFormat" value="CHECKSTYLE\:ON ([\w\|]+)"/>
+      <property name="checkFormat" value="$1"/>
     </module>
 
     <!-- allow suppression (via comments) of a specified check +/- 1 line from
@@ -169,13 +175,13 @@ limitations under the License.
 
         <!-- Metrics -->
         <module name="BooleanExpressionComplexity">
-          <property name="max" value="3"/>
+          <property name="max" value="4"/>
         </module>
         <module name="ClassDataAbstractionCoupling">
           <property name="max" value="20"/>
         </module>
         <module name="ClassFanOutComplexity">
-          <property name="max" value="30"/>
+          <property name="max" value="40"/>
         </module>
 
         <!-- TODO(aroetter): refactor ProtocolBufferUtils or exclude it, then
@@ -247,6 +253,9 @@ limitations under the License.
           <property name="ordered" value="true"/>
           <property name="separated" value="true"/>
           <property name="option" value="bottom"/>
+          <message key="import.ordering"
+                   value="Wrong order for ''{0}'' import. Order should be: java, javax, scala, com, net, org,
+ com.twitter. Each group should be separated by a single blank line." />
         </module>
 
         <!-- Checks for Size Violations.                    -->
@@ -259,7 +268,9 @@ limitations under the License.
           <!-- TODO(aroetter): consider reducing to default of 20 -->
           <property name="max" value="25"/>
         </module>
-        <module name="ParameterNumber"/>
+        <module name="ParameterNumber">
+          <property name="max" value="10"/>
+        </module>
         <module name="OuterTypeNumber"/>
         <module name="MethodCount">
           <property name="maxTotal" value="60"/>
@@ -298,7 +309,8 @@ limitations under the License.
         <!-- Checks for common coding problems               -->
         <!-- See http://checkstyle.sf.net/config_coding.html -->
         <!-- forbids "(flag) ? x : y" -->
-        <module name="ArrayTrailingComma"/>
+        <!-- qma thinks we should not be requring trailing , in array init -->
+        <!-- <module name="ArrayTrailingComma"/> -->
         <!-- aroetter thinks we should allow this, if used judiciously -->
         <!-- <module name="AvoidInlineConditionals"/>  -->
         <module name="CovariantEquals"/>
@@ -324,7 +336,12 @@ limitations under the License.
           <property name="tokens" value="LITERAL_NATIVE"/>
         </module>
         <module name="InnerAssignment"/>
-        <module name="MagicNumber"/>
+        <module name="MagicNumber">
+          <property name="ignoreNumbers" value="-1, 0, 1, 2"/>
+          <!-- useful for bit manipulations. 255 == 0xFF -->
+          <property name="ignoreNumbers" value="8, 16, 24, 255"/>
+          <property name="ignoreHashCodeMethod" value="true"/>
+        </module>
         <module name="MissingSwitchDefault"/>
         <module name="ModifiedControlVariable"/>
         <module name="RedundantThrows">
@@ -363,7 +380,8 @@ classpath." />
         <module name="JUnitTestCase"/>
         <module name="ReturnCount">
           <property name="max" value="3"/>
-          <property name="format" value="^$"/>
+          <!-- ignore equals() which has many return counts -->
+          <property name="format" value="^equals$"/>
         </module>
         <module name="IllegalType">
           <message key="illegal.type"
@@ -412,11 +430,19 @@ by access modifier: public, protected, package (no modifier), then private." />
         <module name="FinalClass"/>
         <module name="HideUtilityClassConstructor"/>
         <module name="InterfaceIsType"/>
-        <module name="VisibilityModifier"/>
+        <module name="VisibilityModifier">
+          <property name="protectedAllowed" value="true"/>
+          <!-- Allow public members at the coder's discretion, for struct-like things, e.g., configs. -->
+          <property name="publicMemberPattern" value="^.*$" />
+        </module>
         <module name="MutableException"/>
+        <!-- intentionally leaving this out. No sane coder will declare many thrown exception types
+             unless there's a good reason. -->
+        <!--
         <module name="ThrowsCount">
           <property name="max" value="3"/>
         </module>
+        -->
         <!-- intentionally leaving this out. it is nice to put the inner class
              definition where it makes the entire file easiest to read -->
         <!-- <module name="InnerTypeLast" /> -->
@@ -434,11 +460,16 @@ by access modifier: public, protected, package (no modifier), then private." />
 
         <module name="ArrayTypeStyle"/>
 
+        <!-- Temporarily disabling this check since it handles line continuations poorly
+        TODO(aroetter): LT solution is to write a custom check that deals with it.
+        -->
+        <!--
         <module name="Indentation">
           <property name="basicOffset" value="2"/>
           <property name="braceAdjustment" value="0"/>
           <property name="caseIndent" value="2"/>
         </module>
+        -->
         <module name="OuterTypeFilename"/>
 
         <!-- Regexp checks -->

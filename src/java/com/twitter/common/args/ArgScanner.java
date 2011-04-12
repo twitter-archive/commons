@@ -37,6 +37,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
@@ -50,8 +51,10 @@ import org.reflections.scanners.FieldAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
+import org.reflections.util.FilterBuilder.Include;
 
 import com.twitter.common.args.Parsers.Parser;
+import com.twitter.common.args.constraints.NotNull;
 import com.twitter.common.args.constraints.Verifier;
 import com.twitter.common.base.Closure;
 import com.twitter.common.collections.Pair;
@@ -102,7 +105,7 @@ public class ArgScanner {
 
   // Pattern for the required argument format.
   private static final Pattern ARG_PATTERN =
-      Pattern.compile(String.format("-(%s)(?:(?:=| +)(.+))?", ARG_NAME_RE));
+      Pattern.compile(String.format("-(%s)(?:(?:=| +)(.*))?", ARG_NAME_RE));
 
   private ArgScanner() {
     // Utility.
@@ -117,9 +120,22 @@ public class ArgScanner {
    * @throws IllegalArgumentException If the arguments provided are invalid based on the declared
    *    arguments found.
    */
+  public static void parse(Iterable<String> packagePrefix, Map<String, String> args) {
+    process(scan(packagePrefix), args);
+  }
+
+  /**
+   * Convenience ethod to call {@link #parse(Iterable, Map)} that will handle mapping of argument
+   * keys to values.
+   *
+   * @param packagePrefix Prefix of package to scan.
+   * @param args Argument values to map, parse, validate, and apply.
+   * @throws IllegalArgumentException If the arguments provided are invalid based on the declared
+   *    arguments found.
+   */
   public static void parse(Iterable<String> packagePrefix, String... args)
       throws IllegalArgumentException {
-    process(scan(packagePrefix), args);
+    parse(packagePrefix, mapArguments(args));
   }
 
   // Regular expression to identify a possible dangling assignment.
@@ -181,14 +197,13 @@ public class ArgScanner {
   }
 
   /**
-   * Applies argument values to fields based on their annotations.
-   * This method simply transforms the argument array into a mapping from argument name
-   * to argument value, and delegates value parsing to {@link #process(Set, Map)}.
+   * Scans through args, mapping keys to values even if the arg values are 'dangling' and reside
+   * in different array entries than the respective keys.
    *
-   * @param fields Fields to apply argument values to.
-   * @param args Unparsed argument values.
+   * @param args Arguments to build into a map.
+   * @return Map from argument key (arg name) to value.
    */
-  @VisibleForTesting static void process(Set<Field> fields, String... args) {
+  public static Map<String, String> mapArguments(String... args) {
     ImmutableMap.Builder<String, String> argMap = ImmutableMap.builder();
     for (String arg : joinKeysToValues(args)) {
       Matcher matcher = ARG_PATTERN.matcher(arg);
@@ -201,7 +216,7 @@ public class ArgScanner {
       argMap.put(matcher.group(1), rawValue);
     }
 
-    process(fields, argMap.build());
+    return argMap.build();
   }
 
   /**
@@ -292,7 +307,8 @@ public class ArgScanner {
    * @param argFields Fields to apply argument values to.
    * @param args Unparsed argument values.
    */
-  private static void process(Set<Field> argFields, Map<String, String> args) {
+  @VisibleForTesting
+  static void process(Set<Field> argFields, Map<String, String> args) {
 
     final Set<String> argsFailedToParse = Sets.newHashSet();
     final Set<String> argsConstraintsFailed = Sets.newHashSet();
@@ -376,13 +392,12 @@ public class ArgScanner {
       setField(argField, assignmentValue);
     }
 
-    infoLog("-------------------------------------------------------------------------");
-    infoLog("Command line argument values");
+    Set<String> commandLineArgumentInfos = Sets.newTreeSet();
     for (Pair<Field, CmdLine> argDef : argDefs) {
       Field argField = argDef.getFirst();
       Arg arg = getArg(argField);
 
-      infoLog(String.format("%s (%s.%s): %s",
+      commandLineArgumentInfos.add(String.format("%s (%s.%s): %s",
           argDef.getSecond().name(), argField.getDeclaringClass().getName(), argField.getName(),
           arg.uncheckedGet()));
 
@@ -392,6 +407,11 @@ public class ArgScanner {
       } catch (IllegalArgumentException e) {
         argsConstraintsFailed.add(argDef.getSecond().name() + " - " + e.getMessage());
       }
+    }
+    infoLog("-------------------------------------------------------------------------");
+    infoLog("Command line argument values");
+    for (String commandLineArgumentInfo : commandLineArgumentInfos) {
+      infoLog(commandLineArgumentInfo);
     }
     infoLog("-------------------------------------------------------------------------");
 
@@ -416,13 +436,34 @@ public class ArgScanner {
     System.out.println(msg);
   }
 
-  @SuppressWarnings("unchecked")
-  private static void checkConstraints(Class fieldClass, Object value, Annotation[] annotations) {
-    for (Annotation annotation : annotations) {
-      Verifier verifier = Constraints.get(fieldClass, annotation);
-      if (verifier != null) {
-        verifier.verify(value, annotation);
+  private static void checkConstraints(Class<?> fieldClass, Object value, Annotation[] annotations) {
+    for (Annotation annotation : maybeFilterNullable(fieldClass, value, annotations)) {
+      verify(fieldClass, value, annotation);
+    }
+  }
+
+  private static Iterable<Annotation> maybeFilterNullable(Class<?> fieldClass, Object value,
+      Annotation[] annotations) {
+
+    // Apply all the normal constraint annotations
+    if (value != null) {
+      return Arrays.asList(annotations);
+    }
+
+    // The value is null so skip verifications unless a @NotNull was specified as a constraint
+    for (Annotation annotation: annotations) {
+      if (annotation instanceof NotNull) {
+        verify(fieldClass, value, annotation); // will throw
       }
+    }
+    return ImmutableList.of();
+  }
+
+  @SuppressWarnings("unchecked")
+  private static void verify(Class<?> fieldClass, Object value, Annotation annotation) {
+    Verifier verifier = Constraints.get(fieldClass, annotation);
+    if (verifier != null) {
+      verifier.verify(value, annotation);
     }
   }
 
@@ -455,16 +496,20 @@ public class ArgScanner {
   }
 
   private static Set<Field> scan(Iterable<String> scanPackagePrefixes) {
-    FilterBuilder filterBuilder = new FilterBuilder().add(new FilterBuilder.Exclude(".*Test"));
-    ImmutableSet.Builder<URL> urls = ImmutableSet.builder();
+    FilterBuilder filterBuilder = new FilterBuilder();
+    ImmutableSet.Builder<URL> urlsBuilder = ImmutableSet.builder();
     for (String packagePrefix : scanPackagePrefixes) {
       filterBuilder.add(new FilterBuilder.Include(FilterBuilder.prefix(packagePrefix)));
-      urls.addAll(ClasspathHelper.getUrlsForPackagePrefix(packagePrefix));
+      urlsBuilder.addAll(ClasspathHelper.getUrlsForPackagePrefix(packagePrefix));
     }
+    filterBuilder.add(new FilterBuilder.Exclude(".*Test"));
+
+    Set<URL> urls = urlsBuilder.build();
+    LOG.info("Scanning resource URLs: " + urls);
 
     return new Reflections(new ConfigurationBuilder()
         .filterInputsBy(filterBuilder)
-        .setUrls(urls.build())
+        .setUrls(urls)
         .useParallelExecutor()
         .setScanners(new FieldAnnotationsScanner()))
         .getFieldsAnnotatedWith(CmdLine.class);

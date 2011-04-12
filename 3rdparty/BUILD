@@ -26,9 +26,6 @@ from pants import *
 # Production libs
 #
 
-# Extracted as a constant since we need it in two places below
-GUAVA_JAR = jar(org = 'com.google.guava', name = 'guava', rev = 'r08').withSources()
-
 jar_library('antlr', jar(org = 'antlr', name = 'antlr', rev = '2.7.7'))
 
 jar_library('aopalliance',
@@ -38,13 +35,7 @@ jar_library('checkstyle',
             jar(org = 'com.puppycrawl.tools', name = 'checkstyle', rev = '5.3')
               .exclude(org = 'com.google.collections', name = 'google-collections'),
             # Needs this as the replacement for the excluded google-collections.
-            # we can't put in pants(':guava') here since that gives an infinite recursion.
-            # pants ":guava" will have an automatic dep on
-            # pants('src/java/com/twitter/common/checkstyle') (see src/python/pants/lib.py), which
-            # depends on pants('3rdparty/checkstyle'), which depends on pants(':guava')...
-            # Since we are specifying the guava jar in two places, we extract it as a constant
-            # above.
-            GUAVA_JAR)
+            pants(':guava'))
 
 jar_library('commons-beanutils',
             jar(org = 'commons-beanutils', name = 'commons-beanutils', rev = '1.8.3').withSources())
@@ -56,7 +47,7 @@ jar_library('commons-lang',
 
 jar_library('gson', jar(org = 'com.google.code.gson', name = 'gson', rev = '1.6'))
 
-jar_library('guava', GUAVA_JAR)
+jar_library('guava', jar(org = 'com.google.guava', name = 'guava', rev = 'r08').withSources())
 
 jar_library('guice', jar(org = 'com.google.inject', name = 'guice', rev = '2.0').withSources())
 jar_library('guice-multibindings',
@@ -64,9 +55,6 @@ jar_library('guice-multibindings',
 jar_library('guice-servlet',
             jar(org = 'com.google.inject.extensions', name = 'guice-servlet', rev = '2.0')
               .withSources())
-
-jar_library('hadoop-core',
-            jar(org = 'org.apache.hadoop', name = 'hadoop-core', rev = '0.20.1+169.89'))
 
 jar_library('hamcrest-core', jar(org = 'org.hamcrest', name = 'hamcrest-core', rev = '1.2'))
 
@@ -80,7 +68,8 @@ jar_library('protobuf-java',
             jar(org = 'com.google.protobuf', name = 'protobuf-java', rev = '2.3.0'))
 
 jar_library('reflections',
-            jar(org = 'org.reflections', name = 'reflections', rev = '0.9.5-RC2'))
+            jar(org = 'org.reflections', name = 'reflections', rev = '0.9.5-RC2')
+              .exclude(org = 'ch.qos.logback', name='logback-classic'))
 
 jar_library('scala-library',
             jar(org='org.scala-lang', name='scala-library', rev='2.8.1').withSources())
@@ -123,6 +112,7 @@ jar_library('zookeeper',
 #
 
 jar_library('easymock', jar(org = 'org.easymock', name = 'easymock', rev = '3.0'))
+jar_library('mockito', jar(org = 'org.mockito', name = 'mockito-all', rev = '1.8.4'))
 jar_library('junit', jar(org = 'junit', name = 'junit', rev = '4.8.2').withSources())
 jar_library('specs', jar(org = 'org.scala-tools.testing', name = 'specs_2.8.0', rev = '1.6.5'))
 jar_library('tl4j',

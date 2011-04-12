@@ -17,7 +17,17 @@
 
 package com.twitter.common.zookeeper;
 
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import com.google.common.collect.Iterables;
+
+import org.apache.zookeeper.ZooDefs;
+import org.apache.zookeeper.data.ACL;
+import org.junit.Before;
+import org.junit.Test;
+
 import com.twitter.common.base.Command;
 import com.twitter.common.base.Supplier;
 import com.twitter.common.quantity.Amount;
@@ -26,14 +36,6 @@ import com.twitter.common.testing.EasyMockTest;
 import com.twitter.common.zookeeper.Group.GroupChangeListener;
 import com.twitter.common.zookeeper.Group.Membership;
 import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
-import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.data.ACL;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import static com.google.common.testing.junit4.JUnitAsserts.assertNotEqual;
 import static org.easymock.EasyMock.createMock;
@@ -44,6 +46,7 @@ import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author John Sirois
@@ -74,6 +77,36 @@ public class GroupTest extends BaseZooKeeperTest {
     @Override
     public void onGroupChange(Iterable<String> memberIds) {
       membershipChanges.add(memberIds);
+    }
+  }
+
+  @Test
+  public void testLenientPaths() {
+    assertEquals("/", Group.normalizePath("///"));
+    assertEquals("/a/group", Group.normalizePath("/a/group"));
+    assertEquals("/a/group", Group.normalizePath("/a/group/"));
+    assertEquals("/a/group", Group.normalizePath("/a//group"));
+    assertEquals("/a/group", Group.normalizePath("/a//group//"));
+
+    try {
+      Group.normalizePath("a/group");
+      fail("Relative paths should not be allowed.");
+    } catch (IllegalArgumentException e) {
+      // expected
+    }
+
+    try {
+      Group.normalizePath("/a/./group");
+      fail("Relative paths should not be allowed.");
+    } catch (IllegalArgumentException e) {
+      // expected
+    }
+
+    try {
+      Group.normalizePath("/a/../group");
+      fail("Relative paths should not be allowed.");
+    } catch (IllegalArgumentException e) {
+      // expected
     }
   }
 

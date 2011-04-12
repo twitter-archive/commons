@@ -15,16 +15,18 @@
 # limitations under the License.
 # ==================================================================================================
 
-__author__ = 'John Sirios'
+__author__ = 'John Sirois'
 
 from . import Command
 
-import optparse
+from copy import copy
 
 class Help(Command):
   """Provides help for available commands or a single specified command."""
 
   def setup_parser(self, parser):
+    self.parser = copy(parser)
+
     parser.set_usage("%prog help ([command])")
     parser.epilog = """Lists available commands with no arguments; otherwise prints help for the
                     specifed command."""
@@ -39,5 +41,5 @@ class Help(Command):
   def execute(self):
     subcommand_class = Command.find_command_class(self.subcommand)
 
-    command = subcommand_class(self.root_dir, optparse.OptionParser(), [ '--help' ])
+    command = subcommand_class(self.root_dir, self.parser, [ '--help' ])
     return command.execute()

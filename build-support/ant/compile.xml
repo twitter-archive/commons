@@ -53,11 +53,11 @@ limitations under the License.
 
   <property name="skip.dep.resolve" value="false"/>
 
-  <target name="publish-dependant-modules"
+  <target name="publish-dependent-modules"
           depends="ivy-configure, gen-build-info"
           unless="is.internal.dep">
 
-    <property name="skip-dep-file" value="${build.dir}/skip-dependant-modules"/>
+    <property name="skip-dep-file" value="${build.dir}/skip-dependent-modules"/>
 
     <if>
       <or>
@@ -176,9 +176,9 @@ limitations under the License.
     <ivy:resolve log="${resolve-log-level}" file="${ivy.dep.file}" conf="default,sources,docs"/>
   </target>
 
-  <target name="resolve" depends="resolve-internal, publish-dependant-modules" if="ivy.dep.file"/>
+  <target name="resolve" depends="resolve-internal, publish-dependent-modules" if="ivy.dep.file"/>
 
-  <target name="resolve-all" depends="ivy-configure, publish-dependant-modules" if="ivy.dep.file">
+  <target name="resolve-all" depends="ivy-configure, publish-dependent-modules" if="ivy.dep.file">
     <ivy:resolve log="download-only" file="${ivy.dep.file}"/>
   </target>
 
@@ -218,26 +218,8 @@ limitations under the License.
     <delete dir="${root.dir}/target"/>
   </target>
 
-  <patternset id="patternset.text">
-    <include name="**/*.csv"/>
-    <include name="**/*.html"/>
-    <include name="**/*.js"/>
-    <include name="**/*.json"/>
-    <include name="**/*.monit"/>
-    <include name="**/*.properties"/>
-    <include name="**/*.sh"/>
-    <include name="**/*.st"/>
-    <include name="**/*.tab"/>
-    <include name="**/*.txt"/>
-    <include name="**/*.yml"/>
-  </patternset>
-
-  <patternset id="patternset.binary">
-    <include name="**/*.png"/>
-    <include name="**/*.gif"/>
-    <include name="**/*.jpg"/>
-    <include name="**/*.ico"/>
-    <include name="**/*.zip"/>
+  <patternset id="patternset.resources">
+    <include name="**/*"/>
   </patternset>
 
   <macrodef name="_copy_resources">
@@ -292,14 +274,9 @@ limitations under the License.
   </target>
 
   <target name="_copy-test-resources" depends="init">
-    <copy todir="${build.dir}/tests" failonerror="false" filtering="true">
-      <fileset dir="${test.dir}/resources">
-        <patternset refid="patternset.text"/>
-      </fileset>
-    </copy>
     <copy todir="${build.dir}/tests" failonerror="false">
       <fileset dir="${test.dir}/resources">
-        <patternset refid="patternset.binary"/>
+        <patternset refid="patternset.resources"/>
       </fileset>
     </copy>
   </target>
@@ -510,7 +487,7 @@ limitations under the License.
   </target>
 
   <target name="compile-protobuf"
-          depends="init, publish-dependant-modules, initdeps, generate-protobuf">
+          depends="init, publish-dependent-modules, initdeps, generate-protobuf">
 
     <if>
       <isreference refid="${compile.protobuf.sources}"/>
@@ -560,6 +537,8 @@ limitations under the License.
         <arg value="java:hashcode"/>
         <arg value="-o"/>
         <arg value="${thrift.gen.dir}"/>
+        <arg value="-I"/>
+        <arg value="${thrift.src.dir}"/>
         <arg value=""/>
         <fileset refid="@{thriftsrc}"/>
       </apply>
@@ -567,25 +546,25 @@ limitations under the License.
   </macrodef>
 
   <target name="thrift-uptodate" depends="init">
-    <property name="thift.isuptodate.file" value="${thrift.gen.dir}/thrift.lastgen"/>
+    <property name="thrift.isuptodate.file" value="${thrift.gen.dir}/thrift.lastgen"/>
 
-    <uptodate property="thift.isuptodate" targetfile="${thift.isuptodate.file}">
+    <uptodate property="thrift.isuptodate" targetfile="${thrift.isuptodate.file}">
       <srcfiles refid="${compile.thrift.sources}"/>
     </uptodate>
   </target>
 
-  <target name="generate-thrift" depends="thrift-uptodate" unless="thift.isuptodate">
+  <target name="generate-thrift" depends="thrift-uptodate" unless="thrift.isuptodate">
     <if>
       <isreference refid="${compile.thrift.sources}"/>
       <then>
         <_generate_thrift thriftsrc="${compile.thrift.sources}"/>
-        <touch file="${thift.isuptodate.file}"/>
+        <touch file="${thrift.isuptodate.file}"/>
       </then>
     </if>
   </target>
 
   <target name="compile-thrift"
-          depends="init, publish-dependant-modules, initdeps, generate-thrift">
+          depends="init, publish-dependent-modules, initdeps, generate-thrift">
 
     <if>
       <isreference refid="${compile.thrift.sources}"/>
@@ -894,7 +873,7 @@ limitations under the License.
 
   <target name="package" depends="_set_extra_build_info, retrieve, test"/>
 
-  <target name="retrieve" depends="init, publish-dependant-modules, initdeps">
+  <target name="retrieve" depends="init, publish-dependent-modules, initdeps">
     <property name="package.dir" value="${build.dir}/libs"/>
     <delete dir="${package.dir}"/>
     <mkdir dir="${package.dir}"/>
@@ -988,8 +967,8 @@ limitations under the License.
     </jar>
   </target>
 
-  <macrodef name="_zip_additional_dirs">
-    <attribute name="zipfile"/>
+  <macrodef name="_copy_additional_dirs">
+    <attribute name="todir"/>
 
     <sequential>
       <if>
@@ -997,11 +976,13 @@ limitations under the License.
         <then>
           <for list="${project.dist.dir.additional}" delimiter="," param="project.dist.dir">
             <sequential>
-              <zip destfile="@{zipfile}" basedir="${root.dir}/@{project.dist.dir}" update="true">
+              <copy todir="@{todir}">
                 <!-- configs/scripts/auxillary data -->
-                <include name="**"/>
-                <exclude name="Capfile*"/>
-              </zip>
+                <fileset dir="${root.dir}/@{project.dist.dir}">
+                  <include name="**"/>
+                  <exclude name="Capfile*"/>
+                </fileset>
+              </copy>
             </sequential>
           </for>
         </then>
@@ -1009,8 +990,9 @@ limitations under the License.
     </sequential>
   </macrodef>
 
-  <target name="_zip_loose" depends="package, jar" unless="${compile.name}.deployjar">
-    <delete file="${dist.dir}/${project.zip.name}"/>
+  <target name="_bundle_loose" depends="package, jar" unless="${compile.name}.deployjar">
+    <delete dir="${bundle.dir}"/>
+    <mkdir dir="${bundle.dir}" />
 
     <copy file="${root.dir}/dist/${compile.jar.name}.jar"
           tofile="${build.dir}/${project.jar.name}"/>
@@ -1018,10 +1000,12 @@ limitations under the License.
     <if>
       <istrue value="${legacy.zip.layout}"/>
       <then>
-        <zip destfile="${dist.dir}/${project.zip.name}" basedir="${root.dir}">
+        <copy todir="${bundle.dir}">
           <!-- main jar -->
-          <include name="dist/${project.jar.name}"/>
-
+          <mappedresources>
+            <fileset file="${root.dir}/dist/${project.jar.name}"/>
+            <globmapper from="*" to="dist/*"/>
+          </mappedresources>
           <!-- libs -->
           <mappedresources>
             <fileset dir="${build.dir}/libs" includes="*.jar"/>
@@ -1029,9 +1013,11 @@ limitations under the License.
           </mappedresources>
 
           <!-- configs/scripts/auxillary data -->
-          <include name="${project.dist.dir}/**"/>
-          <exclude name="${project.dist.dir}/Capfile*"/>
-        </zip>
+          <fileset dir="${root.dir}">
+            <include name="${project.dist.dir}/**"/>
+            <exclude name="${project.dist.dir}/Capfile*"/>
+          </fileset>
+        </copy>
       </then>
       <else>
         <pathconvert pathsep=" " property="jar.class.path">
@@ -1051,7 +1037,7 @@ limitations under the License.
           </manifest>
         </jar>
 
-        <zip destfile="${dist.dir}/${project.zip.name}" basedir="${root.dir}/${project.dist.dir}">
+        <copy todir="${bundle.dir}">
           <!-- main jar -->
           <mappedresources>
             <fileset dir="${build.dir}" includes="${project.jar.name}"/>
@@ -1065,32 +1051,40 @@ limitations under the License.
           </mappedresources>
 
           <!-- configs/scripts/auxillary data -->
-          <include name="**"/>
-          <exclude name="Capfile*"/>
-        </zip>
+          <fileset dir="${root.dir}/${project.dist.dir}">
+            <include name="**"/>
+            <exclude name="Capfile*"/>
+          </fileset>
+        </copy>
       </else>
     </if>
 
-    <_zip_additional_dirs zipfile="${dist.dir}/${project.zip.name}"/>
+    <_copy_additional_dirs todir="${bundle.dir}"/>
   </target>
 
-  <target name="_zip_jarjar" depends="dist" if="${compile.name}.deployjar">
-    <delete file="${dist.dir}/${project.zip.name}"/>
+  <target name="_bundle_jarjar" depends="dist" if="${compile.name}.deployjar">
+    <delete dir="${bundle.dir}"/>
+    <mkdir dir="${bundle.dir}" />
 
     <if>
       <istrue value="${legacy.zip.layout}"/>
       <then>
-        <zip destfile="${dist.dir}/${project.zip.name}" basedir="${root.dir}">
+        <copy todir="${bundle.dir}">
           <!-- main jar -->
-          <include name="dist/${project.deploy-jar.name}"/>
+          <mappedresources>
+            <fileset file="${root.dir}/dist/${project.deploy-jar.name}"/>
+            <globmapper from="*" to="dist/*"/>
+          </mappedresources>
 
           <!-- configs/scripts/auxillary data -->
-          <include name="${project.dist.dir}/**"/>
-          <exclude name="${project.dist.dir}/Capfile*"/>
-        </zip>
+          <fileset dir="${root.dir}">
+            <include name="${project.dist.dir}/**"/>
+            <exclude name="${project.dist.dir}/Capfile*"/>
+          </fileset>
+        </copy>
       </then>
       <else>
-        <zip destfile="${dist.dir}/${project.zip.name}" basedir="${root.dir}/${project.dist.dir}">
+        <copy todir="${bundle.dir}">
           <!-- main jar -->
           <mappedresources>
             <fileset dir="${dist.dir}" includes="${project.deploy-jar.name}"/>
@@ -1098,26 +1092,35 @@ limitations under the License.
           </mappedresources>
 
           <!-- configs/scripts/auxillary data -->
-          <include name="**"/>
-          <exclude name="Capfile*"/>
-        </zip>
+          <fileset dir="${root.dir}/${project.dist.dir}">
+            <include name="**"/>
+            <exclude name="Capfile*"/>
+          </fileset>
+        </copy>
       </else>
     </if>
 
-    <_zip_additional_dirs zipfile="${dist.dir}/${project.zip.name}"/>
+    <_copy_additional_dirs todir="${bundle.dir}"/>
   </target>
 
-  <target name="zip"
-          depends="_zip_loose, _zip_jarjar"
+  <target name="bundle" depends="_bundle_loose, _bundle_jarjar"
           description="Create a deployable distribution including necessary jar(s), scripts, and configuration data"/>
 
+  <target name="zip"
+          depends="bundle"
+          description="Create a zipped up deployable distribution including necessary jar(s), scripts, and configuration data">
+    <delete file="${dist.dir}/${project.zip.name}"/>
+    <zip destfile="${dist.dir}/${project.zip.name}" basedir="${bundle.dir}"/>
+  </target>
+
   <target name="init-artifact">
+    <property name="artifact_org" value="${ivy.organisation}"/>
     <property name="artifact_module" value="${ivy.module}"/>
     <property name="artifact_revision" value="${ivy.revision}"/>
 
     <property name="artifact-name" value="${artifact_module}-${artifact_revision}"/>
     <property name="local-artifact"
-              value="${build-support.dir}/ivy/internal-repo/${artifact_module}/${artifact-name}.jar"/>
+              value="${build-support.dir}/ivy/internal-repo/${artifact_org}/${artifact_module}/${artifact-name}.jar"/>
   </target>
 
   <target name="prepare-jar-artifact" depends="initprops, init-artifact">
@@ -1125,10 +1128,12 @@ limitations under the License.
 
     <ivy:resolve log="download-only"/>
 
-    <ivy:deliver conf="*(public)" pubrevision="${artifact_revision}"/>
+    <ivy:deliver conf="*(public)"
+                 pubrevision="${artifact_revision}"
+                 deliverpattern="${ivy.internal-repo.dir}/[organisation]/[module]/ivy-[revision].xml"/>
 
-    <ivy:makepom ivyfile="${ivy.internal-repo.dir}/${artifact_module}/ivy-${artifact_revision}.xml"
-                 pomfile="${ivy.internal-repo.dir}/${artifact_module}/${artifact-name}.pom">
+    <ivy:makepom ivyfile="${ivy.internal-repo.dir}/${artifact_org}/${artifact_module}/ivy-${artifact_revision}.xml"
+                 pomfile="${ivy.internal-repo.dir}/${artifact_org}/${artifact_module}/${artifact-name}.pom">
 
       <mapping conf="default" scope="compile"/>
       <mapping conf="sources" scope="sources"/>
@@ -1138,7 +1143,7 @@ limitations under the License.
 
   <target name="prepare-jar-artifacts" depends="prepare-jar-artifact">
     <copy file="${dist.dir}/${compile.jar.name}-sources.jar"
-          tofile="${build-support.dir}/ivy/internal-repo/${artifact_module}/${artifact-name}-sources.jar"/>
+          tofile="${build-support.dir}/ivy/internal-repo/${artifact_org}/${artifact_module}/${artifact-name}-sources.jar"/>
   </target>
 
   <target name="push-local" depends="prepare-jar-artifact"/>

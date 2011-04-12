@@ -22,10 +22,14 @@ import java.util.logging.Logger;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
-import com.google.inject.Key;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
+import com.twitter.common.args.Arg;
+import com.twitter.common.args.CmdLine;
+import com.twitter.common.args.constraints.CanRead;
+import com.twitter.common.args.constraints.Exists;
+import com.twitter.common.args.constraints.IsDirectory;
 import com.twitter.common.logging.LogUtil;
 import com.twitter.common.net.http.handlers.LogPrinter;
 import com.twitter.common.stats.StatImpl;
@@ -33,6 +37,10 @@ import com.twitter.common.stats.Stats;
 
 /**
  * Binding module for logging-related bindings, such as the log directory.
+ *
+ * This module uses a single optional command line argument 'log_dir'.  If unset, the logging
+ * directory will be auto-discovered via:
+ * {@link com.twitter.common.logging.LogUtil#getLogManagerLogDir()}.
  *
  * Bindings provided by this module:
  * <ul>
@@ -51,14 +59,28 @@ public class LogModule extends AbstractModule {
 
   private static final Logger LOG = Logger.getLogger(LogModule.class.getName());
 
+  @Exists
+  @CanRead
+  @IsDirectory
+  @CmdLine(name = "log_dir",
+           help = "The directory where application logs are written.")
+  private static final Arg<File> LOG_DIR = Arg.create(null);
+
   @Override
   protected void configure() {
     // Bind the default log directory.
-    final File logDir = LogUtil.getLogManagerLogDir();
-    LOG.info("From logging properties, parsed log directory " + logDir.getAbsolutePath());
-    bind(File.class).annotatedWith(Names.named(LogPrinter.LOG_DIR_KEY)).toInstance(logDir);
+    bind(File.class).annotatedWith(Names.named(LogPrinter.LOG_DIR_KEY)).toInstance(getLogDir());
 
     requestStaticInjection(Init.class);
+  }
+
+  private File getLogDir() {
+    File logDir = LOG_DIR.get();
+    if (logDir == null) {
+      logDir = LogUtil.getLogManagerLogDir();
+      LOG.info("From logging properties, parsed log directory " + logDir.getAbsolutePath());
+    }
+    return logDir;
   }
 
   public static class Init {

@@ -17,23 +17,25 @@
 
 package com.twitter.common.logging;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Sets;
-import com.twitter.common.quantity.Amount;
-import com.twitter.common.quantity.Time;
-import com.twitter.common.thrift.Thrift;
-import com.twitter.common.thrift.ThriftFactory;
-import org.apache.scribe.LogEntry;
-import org.apache.scribe.ResultCode;
-import org.apache.scribe.scribe;
-import org.apache.thrift.TException;
-
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Sets;
+
+import org.apache.scribe.LogEntry;
+import org.apache.scribe.ResultCode;
+import org.apache.scribe.scribe;
+import org.apache.thrift.TException;
+
+import com.twitter.common.quantity.Amount;
+import com.twitter.common.quantity.Time;
+import com.twitter.common.thrift.Thrift;
+import com.twitter.common.thrift.ThriftFactory;
 
 /**
  * Implementation of the scribe client, logs message directly to scribe.

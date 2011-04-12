@@ -15,7 +15,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-__author__ = 'John Sirios'
+__author__ = 'John Sirois'
 
 from . import Command
 
@@ -25,9 +25,9 @@ from copy import copy
 from datetime import datetime
 from pants import (
   Address,
-  ExportableJavaLibrary,
   JavaLibrary,
   Target,
+  is_exported,
 )
 from pants.ant import AntBuilder
 
@@ -38,7 +38,7 @@ import subprocess
 import traceback
 import util
 
-_TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), 'doc/templates')
+_ASSETS_DIR = os.path.join(os.path.dirname(__file__), 'doc/assets')
 
 class Doc(Command):
   """Generates documentation for a set of targets."""
@@ -134,8 +134,8 @@ class Doc(Command):
     ] + doc_target.sources)
 
     if self.options.ignore_failure or javadoc_result == 0:
-      for root, dirs, files in os.walk(_TEMPLATES_DIR):
-        newdir = os.path.join(self.target_path, os.path.relpath(root, _TEMPLATES_DIR))
+      for root, dirs, files in os.walk(_ASSETS_DIR):
+        newdir = os.path.join(self.target_path, os.path.relpath(root, _ASSETS_DIR))
         if not os.path.exists(newdir):
           os.makedirs(os.path.dirname(newdir))
         for file in files:
@@ -148,7 +148,7 @@ class Doc(Command):
     all_sources = []
     all_deps = OrderedSet()
     for target in self.targets:
-      if not self.only_provides or (isinstance(target, ExportableJavaLibrary) and target.provides):
+      if not self.only_provides or is_exported(target):
         for source in target.sources:
           source_path = os.path.join(self.java_src_prefix, source)
           if os.path.exists(source_path):
@@ -205,7 +205,7 @@ class Doc(Command):
 
     data = {}
     for target in self.targets:
-      if isinstance(target, ExportableJavaLibrary) and target.provides:
+      if is_exported(target):
         props = get_publish_properties(target)
         for source in target.sources:
           source_path = os.path.join(self.java_src_prefix, source)

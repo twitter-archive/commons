@@ -17,120 +17,89 @@
 
 package com.twitter.common.zookeeper.testing;
 
-import com.google.common.base.Preconditions;
+import java.io.IOException;
+
 import com.google.common.testing.TearDown;
 import com.google.common.testing.junit4.TearDownTestCase;
-import com.twitter.common.io.FileUtils;
+
+import org.junit.Before;
+
+import com.twitter.common.application.ActionController;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
 import com.twitter.common.zookeeper.ZooKeeperClient;
 import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException;
-import org.apache.zookeeper.server.NIOServerCnxn;
-import org.apache.zookeeper.server.ZooKeeperServer;
-import org.apache.zookeeper.server.ZooKeeperServer.BasicDataTreeBuilder;
-import org.apache.zookeeper.server.persistence.FileTxnSnapLog;
-import org.junit.Before;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.InetSocketAddress;
 
 /**
- * A baseclass for in-process zookeeper tests.  Ensures
+ * A baseclass for in-process zookeeper tests.
+ * Uses ZooKeeperTestHelper to start the server and create clients: new tests should directly use
+ * that helper class instead of extending this class.
  *
  * @author John Sirois
  */
 public abstract class BaseZooKeeperTest extends TearDownTestCase {
-  private static final Amount<Integer, Time> DEFAULT_SESSION_TIMEOUT =
-      Amount.of(100, Time.MILLISECONDS);
-
-  private ZooKeeperServer zooKeeperServer;
-  private NIOServerCnxn.Factory connectionFactory;
-  private int zkPort;
+  private ZooKeeperTestServer zkTestServer;
 
   @Before
   public final void setUp() throws Exception {
-    zooKeeperServer =
-        new ZooKeeperServer(new FileTxnSnapLog(createTempDir(), createTempDir()),
-            new BasicDataTreeBuilder());
-
-    startupNetwork(0);
+    final ActionController shutdownRegistry = new ActionController();
     addTearDown(new TearDown() {
       @Override public void tearDown() {
-        shutdownNetwork();
+        shutdownRegistry.execute();
       }
     });
-
-    zkPort = zooKeeperServer.getClientPort();
-  }
-
-  private void startupNetwork(int port) throws Exception {
-    connectionFactory = new NIOServerCnxn.Factory(new InetSocketAddress(port));
-    connectionFactory.startup(zooKeeperServer);
-    zkPort = zooKeeperServer.getClientPort();
+    zkTestServer = new ZooKeeperTestServer(0, shutdownRegistry);
+    zkTestServer.startNetwork();
   }
 
   /**
    * Starts zookeeper back up on the last used port.
    */
-  protected final void restartNetwork() throws Exception {
-    Preconditions.checkState(zkPort > 0);
-    startupNetwork(zkPort);
+  protected final void restartNetwork() throws IOException, InterruptedException {
+    zkTestServer.restartNetwork();
   }
 
   /**
    * Shuts down the in-process zookeeper network server.
    */
   protected final void shutdownNetwork() {
-    if (connectionFactory.isAlive()) {
-      connectionFactory.shutdown();
-    }
+    zkTestServer.shutdownNetwork();
   }
 
+  /**
+   * Expires the active session for the given client.  The client should be one returned from
+   * {@link #createZkClient}.
+   *
+   * @param zkClient the client to expire
+   * @throws ZooKeeperClient.ZooKeeperConnectionException if a problem is encountered connecting to
+   *    the local zk server while trying to expire the session
+   * @throws InterruptedException if interrupted while requesting expiration
+   */
   protected final void expireSession(ZooKeeperClient zkClient)
       throws ZooKeeperConnectionException, InterruptedException {
-    zooKeeperServer.closeSession(zkClient.get().getSessionId());
-  }
-
-  private File createTempDir() {
-    final File tempDir = FileUtils.createTempDir();
-    addTearDown(new TearDown() {
-      @Override public void tearDown() throws IOException {
-        org.apache.commons.io.FileUtils.deleteDirectory(tempDir);
-      }
-    });
-    return tempDir;
+    zkTestServer.expireClientSession(zkClient);
   }
 
   /**
    * Returns the current port to connect to the in-process zookeeper instance.
    */
   protected final int getPort() {
-    return zkPort;
+    return zkTestServer.getPort();
   }
 
   /**
    * Returns a new zookeeper client connected to the in-process zookeeper server with the
-   * {@link #DEFAULT_SESSION_TIMEOUT}.
+   * default session timeout in ZooKeeperTestHelper.
    */
-  protected final ZooKeeperClient createZkClient() throws IOException {
-    return createZkClient(DEFAULT_SESSION_TIMEOUT);
+  protected final ZooKeeperClient createZkClient() {
+    return zkTestServer.createClient();
   }
 
   /**
    * Returns a new zookeeper client connected to the in-process zookeeper server with a custom
    * {@code sessionTimeout}.
    */
-  protected final ZooKeeperClient createZkClient(Amount<Integer, Time> sessionTimeout)
-      throws IOException {
-
-    final ZooKeeperClient client = new ZooKeeperClient(sessionTimeout,
-        InetSocketAddress.createUnresolved("127.0.0.1", zkPort));
-    addTearDown(new TearDown() {
-      @Override public void tearDown() throws InterruptedException {
-        client.close();
-      }
-    });
-    return client;
+  protected final ZooKeeperClient createZkClient(Amount<Integer, Time> sessionTimeout) {
+    return zkTestServer.createClient(sessionTimeout);
   }
 }

@@ -32,9 +32,13 @@ limitations under the License.
 
   <macrodef name="_chain_resolvers">
     <chain returnFirst="true">
-      <filesystem name="ivy-internal" transactional="false" local="true" checkmodified="true">
-        <ivy pattern="${ivy.internal-repo.dir}/[module]/ivy-[revision].xml" />
-        <artifact pattern="${ivy.internal-repo.dir}/[module]/[artifact]-[revision](-[classifier]).[ext]"/>
+      <filesystem name="ivy-internal"
+                  transactional="false"
+                  local="true"
+                  checkmodified="true"
+                  force="true">
+        <ivy pattern="${ivy.internal-repo.dir}/[organisation]/[module]/ivy-[revision].xml" />
+        <artifact pattern="${ivy.internal-repo.dir}/[organisation]/[module]/[artifact]-[revision](-[classifier]).[ext]"/>
       </filesystem>
 
       <ibiblio name="maven2"

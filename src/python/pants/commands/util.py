@@ -17,7 +17,7 @@
 
 """Utility methods shared by various pants subcommands."""
 
-__author__ = 'John Sirios'
+__author__ = 'John Sirois'
 
 from common.collections import OrderedSet
 from pants import (
@@ -30,7 +30,7 @@ def scan_addresses(root_dir, base_path = None):
   base_path is specified, root_dir is assumed to be the base_path"""
 
   addresses = OrderedSet()
-  for buildfile in BuildFile.scan_buildfiles(base_path if base_path else root_dir):
+  for buildfile in BuildFile.scan_buildfiles(root_dir, base_path):
     addresses.update(Target.get_all_addresses(buildfile))
   return addresses
 

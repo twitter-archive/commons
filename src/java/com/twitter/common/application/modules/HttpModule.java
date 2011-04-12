@@ -53,7 +53,6 @@ import com.twitter.common.net.http.handlers.LogPrinter;
 import com.twitter.common.net.http.handlers.QuitHandler;
 import com.twitter.common.net.http.handlers.StringTemplateServlet.CacheTemplates;
 import com.twitter.common.net.http.handlers.ThreadStackPrinter;
-import com.twitter.common.net.http.handlers.ThriftServlet;
 import com.twitter.common.net.http.handlers.TimeSeriesDataSource;
 import com.twitter.common.net.http.handlers.VarsHandler;
 

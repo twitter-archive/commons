@@ -30,12 +30,12 @@ public interface Stat<T> {
    *
    * @return The variable name.
    */
-  public String getName();
+  String getName();
 
   /**
    * Retrieves the most recent value of the stat.
    *
    * @return The most recent value.
    */
-  public T read();
+  T read();
 }

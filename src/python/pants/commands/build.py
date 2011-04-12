@@ -17,7 +17,15 @@
 
 from . import Command
 
-from pants import Address, Target
+from common.collections import OrderedSet
+from pants import (
+  Address,
+  CycleException,
+  InternalTarget,
+  Target,
+  is_jvm,
+  is_python,
+)
 from pants.ant import AntBuilder
 from pants.ant.lib import (
   TRANSITIVITY_NONE,
@@ -29,20 +37,21 @@ from pants.python import PythonBuilder
 
 import traceback
 
-_VALID_TRANSITIVITIES = set([
+_TRANSITIVITY_CHOICES = [
   TRANSITIVITY_NONE,
   TRANSITIVITY_SOURCES,
   TRANSITIVITY_TESTS,
   TRANSITIVITY_ALL
-])
-
-_DEFAULT_TRANSITIVITY = TRANSITIVITY_TESTS
+]
+_VALID_TRANSITIVITIES = set(_TRANSITIVITY_CHOICES)
 
 class Build(Command):
   """Builds a specified target."""
 
   def setup_parser(self, parser):
-    parser.set_usage("%prog build (options) [spec] (build args)")
+    parser.set_usage("\n"
+                     "  %prog build (options) [spec] (build args)\n"
+                     "  %prog build (options) [spec]... -- (build args)")
     parser.disable_interspersed_args()
     parser.add_option("--fast", action="store_true", dest = "is_meta", default = False,
                       help = "Specifies the build should be flattened before executing, this can "
@@ -50,14 +59,15 @@ class Build(Command):
                              "modifier")
     parser.add_option("--ide", action="store_true", dest = "is_ide", default = False,
                       help = "Specifies the build should just do enough to get an IDE usable.")
-    parser.add_option("--ide-transitivity", dest = "ide_transitivity", default = None,
-                      help = "Specifies IDE dependencies should be transitive for: sources, tests, "
-                             "all or none")
+    parser.add_option("-t", "--ide-transitivity", dest = "ide_transitivity", type = "choice",
+                      choices = _TRANSITIVITY_CHOICES, default = TRANSITIVITY_TESTS,
+                      help = "[%%default] Specifies IDE dependencies should be transitive for one "
+                             "of: %s" % _TRANSITIVITY_CHOICES)
     parser.add_option("-q", "--quiet", action="store_true", dest = "quiet", default = False,
                       help = "Don't output result of empty targets")
 
-    parser.epilog = """Builds the specified target.  Currently any additional arguments are passed
-    straight through to the ant build system."""
+    parser.epilog = """Builds the specified target(s).  Currently any additional arguments are
+    passed straight through to the ant build system."""
 
   def __init__(self, root_dir, parser, argv):
     Command.__init__(self, root_dir, parser, argv)
@@ -65,48 +75,66 @@ class Build(Command):
     if not self.args:
       self.error("A spec argument is required")
 
-    spec = self.args[0]
     try:
-      self.address = Address.parse(root_dir, spec)
-    except:
-      self.error("Problem parsing spec %s: %s" % (spec, traceback.format_exc()))
+      specs_end = self.args.index('--')
+      if len(self.args) > specs_end:
+        self.build_args = self.args.__getslice__(specs_end + 1, len(self.args) + 1)
+      else:
+        self.build_args = []
+    except ValueError:
+      specs_end = 1
+      self.build_args = self.args[1:] if len(self.args) > 1 else []
 
-    if not self.address.is_meta:
-      self.address.is_meta = self.options.is_meta
+    self.targets = OrderedSet()
+    for spec in self.args.__getslice__(0, specs_end):
+      try:
+        address = Address.parse(root_dir, spec)
+      except:
+        self.error("Problem parsing spec %s: %s" % (spec, traceback.format_exc()))
+
+      try:
+        target = Target.get(address)
+      except:
+        self.error("Problem parsing BUILD target %s: %s" % (address, traceback.format_exc()))
+
+      try:
+        InternalTarget.check_cycles(target)
+      except CycleException as e:
+        self.error("Target contains an internal dependency cycle: %s" % e)
+
+      if not target:
+        self.error("Target %s does not exist" % address)
+      if not target.address.is_meta:
+        target.address.is_meta = self.options.is_meta or address.is_meta
+      self.targets.add(target)
 
     self.is_ide = self.options.is_ide
-    if self.options.ide_transitivity:
-      if not self.is_ide:
-        self.error("--ide-transitivity only applies when using --ide")
-      elif self.options.ide_transitivity not in _VALID_TRANSITIVITIES:
-        self.error("%s is not a valid value for --ide-transitivity" % self.options.ide_transitivity)
-      self.ide_transitivity = self.options.ide_transitivity
-    else:
-      self.ide_transitivity = _DEFAULT_TRANSITIVITY
-
-    self.build_args = self.args[1:] if len(self.args) > 1 else []
+    self.ide_transitivity = self.options.ide_transitivity
 
   def execute(self):
-    print "Build operating on address: %s" % self.address
+    print "Build operating on targets: %s" % self.targets
 
-    try:
-      target = Target.get(self.address)
-    except:
-      self.error("Problem parsing BUILD target %s: %s" % (self.address, traceback.format_exc()))
+    jvm_targets = OrderedSet()
+    python_targets = OrderedSet()
+    for target in self.targets:
+      if is_jvm(target):
+        jvm_targets.add(target)
+      elif is_python(target):
+        python_targets.add(target)
+      else:
+        self.error("Cannot build target %s" % target)
 
-    if not target:
-      self.error("Target %s does not exist" % self.address)
+    if jvm_targets:
+      status = self._jvm_build(jvm_targets)
+      if status != 0:
+        return status
 
-    return self._build(target)
+    if python_targets:
+      status = self._python_build(python_targets)
 
-  def _build(self, target):
-    if self.address.buildfile.relpath.startswith('tests/python'):
-      return self._python_build(target)
-    else:
-      return self._jvm_build(target)
+    return status
 
-
-  def _jvm_build(self, target):
+  def _jvm_build(self, targets):
     try:
       # TODO(John Sirois): think about moving away from the ant backend
       executor = AntBuilder(self.error, self.root_dir, self.is_ide, self.ide_transitivity)
@@ -114,15 +142,15 @@ class Build(Command):
         self.build_args.insert(0, "-logger")
         self.build_args.insert(1, "org.apache.tools.ant.NoBannerLogger")
         self.build_args.insert(2, "-q")
-      return executor.build(target, self.address.is_meta, self.build_args)
+      return executor.build(targets, self.build_args)
     except:
-      self.error("Problem executing AntBuilder for target %s: %s" % (self.address,
-                                                                     traceback.format_exc()))
+      self.error("Problem executing AntBuilder for targets %s: %s" % (targets,
+                                                                      traceback.format_exc()))
 
-  def _python_build(self, target):
+  def _python_build(self, targets):
     try:
       executor = PythonBuilder(self.error, self.root_dir)
-      return executor.build(target, self.address.is_meta, self.build_args)
+      return executor.build(targets, self.build_args)
     except:
-      self.error("Problem executing PythonBuilder for target %s: %s" % (self.address,
-                                                                        traceback.format_exc()))
+      self.error("Problem executing PythonBuilder for targets %s: %s" % (targets,
+                                                                         traceback.format_exc()))

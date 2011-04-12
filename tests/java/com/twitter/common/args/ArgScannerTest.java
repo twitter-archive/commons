@@ -40,6 +40,7 @@ import com.twitter.common.base.Command;
 import com.twitter.common.collections.Pair;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -145,13 +146,13 @@ public class ArgScannerTest {
         "no_bool", "false");
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testFailsNoValue() {
-    parse(StandardArgs.class, "-string=");
-  }
-
   @Test
   public void testAllowsEmptyString() {
+    parse(StandardArgs.class, "-string=");
+    assertThat(StandardArgs.stringVal.get(), is(""));
+
+    resetArgs(StandardArgs.class);
+
     parse(StandardArgs.class, "-string=''");
     assertThat(StandardArgs.stringVal.get(), is(""));
 
@@ -267,6 +268,8 @@ public class ArgScannerTest {
   public static class VerifyArgs {
     @NotEmpty @CmdLine(name = "string", help = "help")
     static final Arg<String> stringVal = Arg.create("string");
+    @NotEmpty @CmdLine(name = "optional_string", help = "help")
+    static final Arg<String> optionalStringVal = Arg.create(null);
     @Positive @CmdLine(name = "int", help = "help")
     static final Arg<Integer> intVal = Arg.create(1);
     @NotNegative @CmdLine(name = "long", help = "help")
@@ -285,11 +288,13 @@ public class ArgScannerTest {
         new Command() {
           @Override public void execute() {
             assertThat(VerifyArgs.stringVal.get(), is("newstring"));
+            assertThat(VerifyArgs.optionalStringVal.get(), nullValue(String.class));
           }
         },
         "string", "newstring");
 
     testFails(VerifyArgs.class, "string", "");
+    testFails(VerifyArgs.class, "optional_string", "");
     testFails(VerifyArgs.class, "int", "0");
     testFails(VerifyArgs.class, "long", "-1");
 
@@ -465,7 +470,8 @@ public class ArgScannerTest {
   }
 
   private static void parse(Class scope, String... args) {
-    ArgScanner.process(ImmutableSet.copyOf(scope.getDeclaredFields()), args);
+    ArgScanner.process(ImmutableSet.copyOf(scope.getDeclaredFields()),
+        ArgScanner.mapArguments(args));
   }
 
   private static void parse(Iterable<Class> scope, String... args) {
@@ -474,6 +480,6 @@ public class ArgScannerTest {
       fields.addAll(ImmutableSet.copyOf(cls.getDeclaredFields()));
     }
 
-    ArgScanner.process(fields.build(), args);
+    ArgScanner.process(fields.build(), ArgScanner.mapArguments(args));
   }
 }

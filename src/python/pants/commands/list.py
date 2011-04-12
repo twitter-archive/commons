@@ -15,7 +15,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-__author__ = 'John Sirios'
+__author__ = 'John Sirois'
 
 from . import Command
 
@@ -23,13 +23,11 @@ from common.collections import OrderedSet
 from pants import (
   Address,
   BuildFile,
-  ExportableJavaLibrary,
   Target,
+  is_exported,
 )
 
-import os
 import traceback
-import util
 
 class List(Command):
   """Lists BUILD file targets."""
@@ -101,6 +99,6 @@ class List(Command):
 
   def _print_provides(self, column_extractors, address):
     target = Target.get(address)
-    if isinstance(target, ExportableJavaLibrary) and target.provides:
+    if is_exported(target):
       return " ".join(extractor(target) for extractor in column_extractors)
 

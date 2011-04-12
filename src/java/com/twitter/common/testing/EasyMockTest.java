@@ -64,7 +64,7 @@ public abstract class EasyMockTest extends TearDownTestCase {
    * A class meant to be sub-classed in order to capture a generic type literal value.  To capture
    * the type of a {@code List<String>} you would use: {@code new Clazz<List<String>>() {}}
    */
-  public static abstract class Clazz<T> {
+  public abstract static class Clazz<T> {
     Class<T> getRawType() {
       // This is us.
       ParameterizedType clazz = (ParameterizedType) this.getClass().getGenericSuperclass();

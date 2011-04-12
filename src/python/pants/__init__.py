@@ -18,11 +18,13 @@
 from lib import (
   Address,
   BuildFile,
-  ExportableJavaLibrary,
+  CycleException,
+  ExportableJvmLibrary,
+  InternalTarget,
   JarDependency,
   JavaLibrary,
   JavaProtobufLibrary,
-  JavaTarget,
+  JvmTarget,
   JavaTests,
   JavaThriftLibrary,
   Pants,
@@ -32,6 +34,7 @@ from lib import (
   ScalaLibrary,
   ScalaTests,
   Target,
+  TargetWithSources,
 )
 
 from generator import (
@@ -42,6 +45,14 @@ from generator import (
 
 from util import (
   globs,
+  has_sources,
+  is_exported,
+  is_internal,
+  is_java,
+  is_jvm,
+  is_python,
+  is_scala,
+  is_test,
   rglobs,
 )
 

@@ -38,7 +38,7 @@ public class ActionController implements ActionRegistry {
 
   private final List<ExceptionalCommand<? extends Exception>> actions = Lists.newLinkedList();
 
-  private boolean completed;
+  private boolean completed = false;
 
   /**
    * Registers an action to execute during {@link #execute()}.  It is an error to call this method
@@ -71,6 +71,8 @@ public class ActionController implements ActionRegistry {
           LOG.log(Level.WARNING, "Lifecycle action failed.", e);
         }
       }
+    } else {
+      LOG.info("Action controller has already completed, subsequent calls ignored.");
     }
   }
 }

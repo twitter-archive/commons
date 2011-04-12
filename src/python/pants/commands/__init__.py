@@ -76,17 +76,21 @@ class Command(object):
 from build import Build
 from depmap import Depmap
 from doc import Doc
+from eclipse import Eclipse
 from filemap import Filemap
 from files import Files
 from help import Help
+from idea import Idea
 from list import List
 
 __all__ = (
   Build,
   Depmap,
   Doc,
+  Eclipse,
   Filemap,
   Files,
   Help,
+  Idea,
   List,
 )

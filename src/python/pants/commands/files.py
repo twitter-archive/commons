@@ -15,7 +15,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-__author__ = 'John Sirios'
+__author__ = 'John Sirois'
 
 from . import Command
 
@@ -38,10 +38,18 @@ class Files(Command):
 
     spec = self.args[0]
     try:
-      self.address = Address.parse(root_dir, spec)
+      address = Address.parse(root_dir, spec)
     except:
       self.error("Problem parsing spec %s: %s" % (spec, traceback.format_exc()))
 
+    try:
+      self.target = Target.get(address)
+    except:
+      self.error("Problem parsing BUILD target %s: %s" % (address, traceback.format_exc()))
+
+    if not self.target:
+        self.error("Target %s does not exist" % address)
+
   def execute(self):
-    for sourcefile in Target.get(self.address).sources:
+    for sourcefile in self.target.sources:
       print sourcefile

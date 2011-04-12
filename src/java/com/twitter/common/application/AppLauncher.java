@@ -17,42 +17,52 @@
 
 package com.twitter.common.application;
 
-import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Stage;
+import com.google.inject.TypeLiteral;
 import com.google.inject.util.Modules;
 
+import com.twitter.common.application.modules.AppLauncherModule;
+import com.twitter.common.application.modules.LifecycleModule;
 import com.twitter.common.args.Arg;
 import com.twitter.common.args.ArgScanner;
 import com.twitter.common.args.CmdLine;
 import com.twitter.common.args.constraints.NotNull;
+import com.twitter.common.args.parsers.ListParser;
 import com.twitter.common.args.parsers.NonParameterizedTypeParser;
-import com.twitter.common.application.modules.AppLauncherModule;
-import com.twitter.common.application.modules.LifecycleModule;
 
 /**
  * An application launcher that sets up a framework for pluggable binding modules.  This class
  * should be called directly as the main class, with a command line argument {@code -app_class}
  * which is the canonical class name of the application to execute.
  *
- * Command line arguments will be processed and applied globally within the {@code com.twitter}
- * package, using {@link ArgScanner}.
+ * If your application uses command line arguments ({@link Arg}} annotated with {@link CmdLine},
+ * you should specify {@code -arg_scan_packages} to indicate which java packages should be
+ * recursively scanned for arguments to parse, validate, and apply.
  *
  * A bootstrap module will be automatically applied ({@link AppLauncherModule}), which provides
  * overridable default bindings for things like quit/abort hooks and a health check function.
+ * A {@link LifecycleModule} is also automatically applied to perform startup and shutdown
+ * actions.
  *
  * @author William Farner
  */
 public final class AppLauncher {
 
   private static final Logger LOG = Logger.getLogger(AppLauncher.class.getName());
+
+  private static final String SCAN_PACKAGES_ARG = "arg_scan_packages";
+  private static final ListParser SCAN_PACKAGES_PARSER = new ListParser();
 
   @NotNull
   @CmdLine(name = "app_class",
@@ -75,6 +85,7 @@ public final class AppLauncher {
   }
 
   @Inject @StartupStage private ActionController startupController;
+  @Inject private Lifecycle lifecycle;
 
   private void run(Application application) {
     configureInjection(application);
@@ -82,8 +93,12 @@ public final class AppLauncher {
     LOG.info("Executing startup actions.");
     startupController.execute();
 
-    application.run();
-    LOG.info("Application run() exited.");
+    try {
+      application.run();
+    } finally {
+      LOG.info("Application run() exited.");
+      lifecycle.shutdown();
+    }
   }
 
   private void configureInjection(Application application) {
@@ -100,9 +115,23 @@ public final class AppLauncher {
   }
 
   public static void main(String[] args) throws IllegalAccessException, InstantiationException {
-    LOG.info("Scanning arguments.");
+    Map<String, String> argumentMap = Maps.newHashMap(ArgScanner.mapArguments(args));
+
+    ImmutableList.Builder<String> scanPackages = ImmutableList.<String>builder()
+        .add(AppLauncher.class.getPackage().getName());
+
+    String argSpecifiedPackages = argumentMap.remove(SCAN_PACKAGES_ARG);
+    if (argSpecifiedPackages != null) {
+      @SuppressWarnings("unchecked")
+      List<String> argScanPackages = (List<String>) SCAN_PACKAGES_PARSER.parse(
+              new TypeLiteral<List<String>>() {}.getType(), argSpecifiedPackages);
+      scanPackages.addAll(argScanPackages);
+    }
+
+    LOG.info("Scanning arguments in packages: " + scanPackages);
+
     try {
-      ArgScanner.parse(Arrays.asList("com.twitter"), args);
+      ArgScanner.parse(scanPackages.build(), argumentMap);
     } catch (IllegalArgumentException e) {
       LOG.log(Level.SEVERE, "Failed to apply arguments:\n" + e.getMessage());
       System.exit(1);

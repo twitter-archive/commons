@@ -96,6 +96,15 @@ public class Percentile<T extends Number> {
     this.percentiles = builder.build();
   }
 
+  /**
+   * Get the variables associated with this percentile tracker.
+   *
+   * @return A map from tracked percentile to the Stat corresponding to it
+   */
+  public Map<Integer, ? extends Stat> getPercentiles() {
+    return ImmutableMap.copyOf(percentiles);
+  }
+
   @VisibleForTesting
   SampledStat<Double> getPercentile(int percentile) {
     return percentiles.get(percentile);

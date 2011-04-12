@@ -78,6 +78,7 @@ limitations under the License.
 
     <property name="compile.java.tests" value="${compile.name}.java.tests"/>
     <property name="compile.scala.tests" value="${compile.name}.scala.tests"/>
+    <property name="bundle.dir" value="${dist.dir}/${project.dist.name}-bundle"/>
   </target>
 
   <target name="init" depends="initprops">

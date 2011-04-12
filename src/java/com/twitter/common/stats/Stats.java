@@ -17,14 +17,6 @@
 
 package com.twitter.common.stats;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Supplier;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
-import com.twitter.common.base.MorePreconditions;
-
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -32,6 +24,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
+
+import com.twitter.common.base.MorePreconditions;
 
 /**
  * Manages {@link Stat}s that should be exported for monitoring.
@@ -79,7 +79,7 @@ public class Stats {
       });
     }
 
-    @Override public AtomicLong makeCounter(final String name) {
+    @Override public AtomicLong makeCounter(String name) {
       return Stats.exportLong(name);
     }
 
@@ -166,7 +166,7 @@ public class Stats {
    * @param name The name to export the stat with.
    * @return A reference to the {@link AtomicInteger} created.
    */
-  public static AtomicInteger exportInt(final String name) {
+  public static AtomicInteger exportInt(String name) {
     return export(name, new AtomicInteger());
   }
 
@@ -191,7 +191,7 @@ public class Stats {
    * @param name The name to export the stat with.
    * @return A reference to the {@link AtomicLong} created.
    */
-  public static AtomicLong exportLong(final String name) {
+  public static AtomicLong exportLong(String name) {
     return export(name, new AtomicLong());
   }
 

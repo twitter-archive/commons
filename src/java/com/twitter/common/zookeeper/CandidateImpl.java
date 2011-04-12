@@ -17,12 +17,21 @@
 
 package com.twitter.common.zookeeper;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
+
+import org.apache.zookeeper.KeeperException;
+
 import com.twitter.common.base.Command;
 import com.twitter.common.base.ExceptionalCommand;
 import com.twitter.common.zookeeper.Group.GroupChangeListener;
@@ -30,13 +39,6 @@ import com.twitter.common.zookeeper.Group.JoinException;
 import com.twitter.common.zookeeper.Group.Membership;
 import com.twitter.common.zookeeper.Group.WatchException;
 import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException;
-import org.apache.zookeeper.KeeperException;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Implements leader election for small groups of candidates.  This implementation is subject to the
@@ -88,11 +90,16 @@ public class CandidateImpl implements Candidate {
     group.watch(new GroupChangeListener() {
         @Override public void onGroupChange(Iterable<String> memberIds) {
           boolean noCandidates = Iterables.isEmpty(memberIds);
+          String memberId = membership.getMemberId();
 
           if (noCandidates) {
             LOG.warning("All candidates have temporarily left the group: " + group);
+          } else if (!Iterables.contains(memberIds, memberId)) {
+            LOG.severe(String.format(
+                "Current member ID %s is not a candidate for leader, current voting: %s",
+                memberId, memberIds));
           } else {
-            boolean electedLeader = membership.getMemberId().equals(getLeader(memberIds));
+            boolean electedLeader = memberId.equals(getLeader(memberIds));
             boolean previouslyElected = elected.getAndSet(electedLeader);
 
             if (!previouslyElected && electedLeader) {
