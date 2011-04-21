@@ -68,18 +68,17 @@
 <FONT color="green">065</FONT>      }<a name="line.65"></a>
 <FONT color="green">066</FONT>    <a name="line.66"></a>
 <FONT color="green">067</FONT>      public static class Init {<a name="line.67"></a>
-<FONT color="green">068</FONT>        @Inject<a name="line.68"></a>
-<FONT color="green">069</FONT>        private static void setupShutdownHook(<a name="line.69"></a>
-<FONT color="green">070</FONT>            @ShutdownStage final ActionController actionController) {<a name="line.70"></a>
-<FONT color="green">071</FONT>    <a name="line.71"></a>
-<FONT color="green">072</FONT>          Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {<a name="line.72"></a>
-<FONT color="green">073</FONT>            @Override public void run() {<a name="line.73"></a>
-<FONT color="green">074</FONT>              actionController.execute();<a name="line.74"></a>
-<FONT color="green">075</FONT>            }<a name="line.75"></a>
-<FONT color="green">076</FONT>          }, actionController.getClass().getSimpleName() + "-ShutdownHook"));<a name="line.76"></a>
-<FONT color="green">077</FONT>        }<a name="line.77"></a>
-<FONT color="green">078</FONT>      }<a name="line.78"></a>
-<FONT color="green">079</FONT>    }<a name="line.79"></a>
+<FONT color="green">068</FONT>        @Inject private static void setupShutdownHook(<a name="line.68"></a>
+<FONT color="green">069</FONT>            @ShutdownStage final ActionController actionController) {<a name="line.69"></a>
+<FONT color="green">070</FONT>    <a name="line.70"></a>
+<FONT color="green">071</FONT>          Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {<a name="line.71"></a>
+<FONT color="green">072</FONT>            @Override public void run() {<a name="line.72"></a>
+<FONT color="green">073</FONT>              actionController.execute();<a name="line.73"></a>
+<FONT color="green">074</FONT>            }<a name="line.74"></a>
+<FONT color="green">075</FONT>          }, actionController.getClass().getSimpleName() + "-ShutdownHook"));<a name="line.75"></a>
+<FONT color="green">076</FONT>        }<a name="line.76"></a>
+<FONT color="green">077</FONT>      }<a name="line.77"></a>
+<FONT color="green">078</FONT>    }<a name="line.78"></a>
 
 
 

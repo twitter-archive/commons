@@ -67,7 +67,7 @@
 <FONT color="green">064</FONT>       * A class meant to be sub-classed in order to capture a generic type literal value.  To capture<a name="line.64"></a>
 <FONT color="green">065</FONT>       * the type of a {@code List&lt;String&gt;} you would use: {@code new Clazz&lt;List&lt;String&gt;&gt;() {}}<a name="line.65"></a>
 <FONT color="green">066</FONT>       */<a name="line.66"></a>
-<FONT color="green">067</FONT>      public static abstract class Clazz&lt;T&gt; {<a name="line.67"></a>
+<FONT color="green">067</FONT>      public abstract static class Clazz&lt;T&gt; {<a name="line.67"></a>
 <FONT color="green">068</FONT>        Class&lt;T&gt; getRawType() {<a name="line.68"></a>
 <FONT color="green">069</FONT>          // This is us.<a name="line.69"></a>
 <FONT color="green">070</FONT>          ParameterizedType clazz = (ParameterizedType) this.getClass().getGenericSuperclass();<a name="line.70"></a>

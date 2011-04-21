@@ -41,7 +41,7 @@
 <FONT color="green">038</FONT>    <a name="line.38"></a>
 <FONT color="green">039</FONT>      private final List&lt;ExceptionalCommand&lt;? extends Exception&gt;&gt; actions = Lists.newLinkedList();<a name="line.39"></a>
 <FONT color="green">040</FONT>    <a name="line.40"></a>
-<FONT color="green">041</FONT>      private boolean completed;<a name="line.41"></a>
+<FONT color="green">041</FONT>      private boolean completed = false;<a name="line.41"></a>
 <FONT color="green">042</FONT>    <a name="line.42"></a>
 <FONT color="green">043</FONT>      /**<a name="line.43"></a>
 <FONT color="green">044</FONT>       * Registers an action to execute during {@link #execute()}.  It is an error to call this method<a name="line.44"></a>
@@ -74,9 +74,11 @@
 <FONT color="green">071</FONT>              LOG.log(Level.WARNING, "Lifecycle action failed.", e);<a name="line.71"></a>
 <FONT color="green">072</FONT>            }<a name="line.72"></a>
 <FONT color="green">073</FONT>          }<a name="line.73"></a>
-<FONT color="green">074</FONT>        }<a name="line.74"></a>
-<FONT color="green">075</FONT>      }<a name="line.75"></a>
-<FONT color="green">076</FONT>    }<a name="line.76"></a>
+<FONT color="green">074</FONT>        } else {<a name="line.74"></a>
+<FONT color="green">075</FONT>          LOG.info("Action controller has already completed, subsequent calls ignored.");<a name="line.75"></a>
+<FONT color="green">076</FONT>        }<a name="line.76"></a>
+<FONT color="green">077</FONT>      }<a name="line.77"></a>
+<FONT color="green">078</FONT>    }<a name="line.78"></a>
 
 
 

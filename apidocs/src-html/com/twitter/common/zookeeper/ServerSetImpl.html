@@ -275,134 +275,137 @@
 <FONT color="green">272</FONT>          @Override public void process(WatchedEvent event) {<a name="line.272"></a>
 <FONT color="green">273</FONT>            if (event.getState() == KeeperState.SyncConnected) {<a name="line.273"></a>
 <FONT color="green">274</FONT>              switch (event.getType()) {<a name="line.274"></a>
-<FONT color="green">275</FONT>                case NodeDeleted:<a name="line.275"></a>
-<FONT color="green">276</FONT>                  // Ignore deletes since these trigger a group change through the group node watch.<a name="line.276"></a>
+<FONT color="green">275</FONT>                case None:<a name="line.275"></a>
+<FONT color="green">276</FONT>                  // Ignore re-connects that happen while we're watching<a name="line.276"></a>
 <FONT color="green">277</FONT>                  break;<a name="line.277"></a>
-<FONT color="green">278</FONT>                case NodeDataChanged:<a name="line.278"></a>
-<FONT color="green">279</FONT>                  notifyNodeChange(event.getPath());<a name="line.279"></a>
+<FONT color="green">278</FONT>                case NodeDeleted:<a name="line.278"></a>
+<FONT color="green">279</FONT>                  // Ignore deletes since these trigger a group change through the group node watch.<a name="line.279"></a>
 <FONT color="green">280</FONT>                  break;<a name="line.280"></a>
-<FONT color="green">281</FONT>                default:<a name="line.281"></a>
-<FONT color="green">282</FONT>                  throw new IllegalStateException("Did not expect event: " + event);<a name="line.282"></a>
-<FONT color="green">283</FONT>              }<a name="line.283"></a>
-<FONT color="green">284</FONT>            }<a name="line.284"></a>
-<FONT color="green">285</FONT>          }<a name="line.285"></a>
-<FONT color="green">286</FONT>        };<a name="line.286"></a>
-<FONT color="green">287</FONT>    <a name="line.287"></a>
-<FONT color="green">288</FONT>        private ServiceInstance getServiceInstance(final String nodePath) {<a name="line.288"></a>
-<FONT color="green">289</FONT>          try {<a name="line.289"></a>
-<FONT color="green">290</FONT>            return backoffHelper.doUntilResult(new Supplier&lt;ServiceInstance&gt;() {<a name="line.290"></a>
-<FONT color="green">291</FONT>              @Override public ServiceInstance get() {<a name="line.291"></a>
-<FONT color="green">292</FONT>                try {<a name="line.292"></a>
-<FONT color="green">293</FONT>                  byte[] data = zkClient.get().getData(nodePath, serviceInstanceWatcher, null);<a name="line.293"></a>
-<FONT color="green">294</FONT>                  return codec.deserialize(new ByteArrayInputStream(data));<a name="line.294"></a>
-<FONT color="green">295</FONT>                } catch (InterruptedException e) {<a name="line.295"></a>
-<FONT color="green">296</FONT>                  Thread.currentThread().interrupt();<a name="line.296"></a>
-<FONT color="green">297</FONT>                  throw new ServiceInstanceFetchException(<a name="line.297"></a>
-<FONT color="green">298</FONT>                      "Interrupted updating service data for: " + nodePath, e);<a name="line.298"></a>
-<FONT color="green">299</FONT>                } catch (ZooKeeperConnectionException e) {<a name="line.299"></a>
-<FONT color="green">300</FONT>                  LOG.log(Level.WARNING,<a name="line.300"></a>
-<FONT color="green">301</FONT>                      "Temporary error trying to updating service data for: " + nodePath, e);<a name="line.301"></a>
-<FONT color="green">302</FONT>                  return null;<a name="line.302"></a>
-<FONT color="green">303</FONT>                } catch (NoNodeException e) {<a name="line.303"></a>
-<FONT color="green">304</FONT>                  invalidateNodePath(nodePath);<a name="line.304"></a>
-<FONT color="green">305</FONT>                  throw new ServiceInstanceDeletedException(nodePath);<a name="line.305"></a>
-<FONT color="green">306</FONT>                } catch (KeeperException e) {<a name="line.306"></a>
-<FONT color="green">307</FONT>                  if (zkClient.shouldRetry(e)) {<a name="line.307"></a>
-<FONT color="green">308</FONT>                    LOG.log(Level.WARNING,<a name="line.308"></a>
-<FONT color="green">309</FONT>                        "Temporary error trying to update service data for: " + nodePath, e);<a name="line.309"></a>
-<FONT color="green">310</FONT>                    return null;<a name="line.310"></a>
-<FONT color="green">311</FONT>                  } else {<a name="line.311"></a>
-<FONT color="green">312</FONT>                    throw new ServiceInstanceFetchException(<a name="line.312"></a>
-<FONT color="green">313</FONT>                        "Failed to update service data for: " + nodePath, e);<a name="line.313"></a>
-<FONT color="green">314</FONT>                  }<a name="line.314"></a>
-<FONT color="green">315</FONT>                } catch (IOException e) {<a name="line.315"></a>
-<FONT color="green">316</FONT>                  throw new ServiceInstanceFetchException(<a name="line.316"></a>
-<FONT color="green">317</FONT>                      "Failed to deserialize the ServiceInstance data for: " + nodePath, e);<a name="line.317"></a>
-<FONT color="green">318</FONT>                }<a name="line.318"></a>
-<FONT color="green">319</FONT>              }<a name="line.319"></a>
-<FONT color="green">320</FONT>            });<a name="line.320"></a>
-<FONT color="green">321</FONT>          } catch (InterruptedException e) {<a name="line.321"></a>
-<FONT color="green">322</FONT>            Thread.currentThread().interrupt();<a name="line.322"></a>
-<FONT color="green">323</FONT>            throw new ServiceInstanceFetchException(<a name="line.323"></a>
-<FONT color="green">324</FONT>                "Interrupted trying to update service data for: " + nodePath, e);<a name="line.324"></a>
-<FONT color="green">325</FONT>          }<a name="line.325"></a>
-<FONT color="green">326</FONT>        }<a name="line.326"></a>
-<FONT color="green">327</FONT>    <a name="line.327"></a>
-<FONT color="green">328</FONT>        private final Map&lt;String, ServiceInstance&gt; servicesByMemberId = new MapMaker()<a name="line.328"></a>
-<FONT color="green">329</FONT>            .makeComputingMap(new Function&lt;String, ServiceInstance&gt;() {<a name="line.329"></a>
-<FONT color="green">330</FONT>              @Override public ServiceInstance apply(String memberId) {<a name="line.330"></a>
-<FONT color="green">331</FONT>                return getServiceInstance(group.getMemberPath(memberId));<a name="line.331"></a>
-<FONT color="green">332</FONT>              }<a name="line.332"></a>
-<FONT color="green">333</FONT>            });<a name="line.333"></a>
-<FONT color="green">334</FONT>    <a name="line.334"></a>
-<FONT color="green">335</FONT>        private void rebuildServerSet() {<a name="line.335"></a>
-<FONT color="green">336</FONT>          Set&lt;String&gt; memberIds = ImmutableSet.copyOf(servicesByMemberId.keySet());<a name="line.336"></a>
-<FONT color="green">337</FONT>          servicesByMemberId.clear();<a name="line.337"></a>
-<FONT color="green">338</FONT>          notifyGroupChange(memberIds);<a name="line.338"></a>
-<FONT color="green">339</FONT>        }<a name="line.339"></a>
-<FONT color="green">340</FONT>    <a name="line.340"></a>
-<FONT color="green">341</FONT>        private void notifyNodeChange(String changedPath) {<a name="line.341"></a>
-<FONT color="green">342</FONT>          // Invalidate the associated ServiceInstance to trigger a fetch on group notify.<a name="line.342"></a>
-<FONT color="green">343</FONT>          String memberId = invalidateNodePath(changedPath);<a name="line.343"></a>
-<FONT color="green">344</FONT>          notifyGroupChange(Iterables.concat(servicesByMemberId.keySet(), ImmutableList.of(memberId)));<a name="line.344"></a>
-<FONT color="green">345</FONT>        }<a name="line.345"></a>
-<FONT color="green">346</FONT>    <a name="line.346"></a>
-<FONT color="green">347</FONT>        private String invalidateNodePath(String deletedPath) {<a name="line.347"></a>
-<FONT color="green">348</FONT>          String memberId = group.getMemberId(deletedPath);<a name="line.348"></a>
-<FONT color="green">349</FONT>          servicesByMemberId.remove(memberId);<a name="line.349"></a>
-<FONT color="green">350</FONT>          return memberId;<a name="line.350"></a>
-<FONT color="green">351</FONT>        }<a name="line.351"></a>
-<FONT color="green">352</FONT>    <a name="line.352"></a>
-<FONT color="green">353</FONT>        private synchronized void notifyGroupChange(Iterable&lt;String&gt; memberIds) {<a name="line.353"></a>
-<FONT color="green">354</FONT>          Set&lt;String&gt; currentMemberIds = ImmutableSet.copyOf(memberIds);<a name="line.354"></a>
-<FONT color="green">355</FONT>          Set&lt;String&gt; oldMemberIds = servicesByMemberId.keySet();<a name="line.355"></a>
-<FONT color="green">356</FONT>    <a name="line.356"></a>
-<FONT color="green">357</FONT>          // Ignore no-op state changes except for the 1st when we've seen no group yet.<a name="line.357"></a>
-<FONT color="green">358</FONT>          if ((serverSet == null) || !currentMemberIds.equals(oldMemberIds)) {<a name="line.358"></a>
-<FONT color="green">359</FONT>            SetView&lt;String&gt; deletedMemberIds = Sets.difference(oldMemberIds, currentMemberIds);<a name="line.359"></a>
-<FONT color="green">360</FONT>            oldMemberIds.removeAll(deletedMemberIds);<a name="line.360"></a>
-<FONT color="green">361</FONT>    <a name="line.361"></a>
-<FONT color="green">362</FONT>            SetView&lt;String&gt; unchangedMemberIds = Sets.intersection(oldMemberIds, currentMemberIds);<a name="line.362"></a>
-<FONT color="green">363</FONT>            ImmutableSet.Builder&lt;ServiceInstance&gt; services = ImmutableSet.builder();<a name="line.363"></a>
-<FONT color="green">364</FONT>            for (String unchangedMemberId : unchangedMemberIds) {<a name="line.364"></a>
-<FONT color="green">365</FONT>              services.add(servicesByMemberId.get(unchangedMemberId));<a name="line.365"></a>
-<FONT color="green">366</FONT>            }<a name="line.366"></a>
-<FONT color="green">367</FONT>    <a name="line.367"></a>
-<FONT color="green">368</FONT>            // TODO(John Sirois): consider parallelizing fetches<a name="line.368"></a>
-<FONT color="green">369</FONT>            SetView&lt;String&gt; newMemberIds = Sets.difference(currentMemberIds, oldMemberIds);<a name="line.369"></a>
-<FONT color="green">370</FONT>            for (String newMemberId : newMemberIds) {<a name="line.370"></a>
-<FONT color="green">371</FONT>              // This get will trigger a fetch<a name="line.371"></a>
-<FONT color="green">372</FONT>              try {<a name="line.372"></a>
-<FONT color="green">373</FONT>                services.add(servicesByMemberId.get(newMemberId));<a name="line.373"></a>
-<FONT color="green">374</FONT>              } catch (ComputationException e) {<a name="line.374"></a>
-<FONT color="green">375</FONT>                Throwable cause = e.getCause();<a name="line.375"></a>
-<FONT color="green">376</FONT>                if (!(cause instanceof ServiceInstanceDeletedException)) {<a name="line.376"></a>
-<FONT color="green">377</FONT>                  Throwables.propagateIfInstanceOf(cause, ServiceInstanceFetchException.class);<a name="line.377"></a>
-<FONT color="green">378</FONT>                  throw new IllegalStateException(<a name="line.378"></a>
-<FONT color="green">379</FONT>                      "Unexpected error fetching member data for: " + newMemberId, e);<a name="line.379"></a>
-<FONT color="green">380</FONT>                }<a name="line.380"></a>
-<FONT color="green">381</FONT>              }<a name="line.381"></a>
-<FONT color="green">382</FONT>            }<a name="line.382"></a>
-<FONT color="green">383</FONT>    <a name="line.383"></a>
-<FONT color="green">384</FONT>            notifyServerSetChange(services.build());<a name="line.384"></a>
-<FONT color="green">385</FONT>          }<a name="line.385"></a>
-<FONT color="green">386</FONT>        }<a name="line.386"></a>
-<FONT color="green">387</FONT>    <a name="line.387"></a>
-<FONT color="green">388</FONT>        private void notifyServerSetChange(ImmutableSet&lt;ServiceInstance&gt; currentServerSet) {<a name="line.388"></a>
-<FONT color="green">389</FONT>          // ZK nodes may have changed if there was a session expiry for a server in the server set, but<a name="line.389"></a>
-<FONT color="green">390</FONT>          // if the server's status has not changed, we can skip any onChange updates.<a name="line.390"></a>
-<FONT color="green">391</FONT>          if (!currentServerSet.equals(serverSet)) {<a name="line.391"></a>
-<FONT color="green">392</FONT>            serverSet = currentServerSet;<a name="line.392"></a>
-<FONT color="green">393</FONT>            if (serverSet.isEmpty()) {<a name="line.393"></a>
-<FONT color="green">394</FONT>              LOG.warning("server set empty!");<a name="line.394"></a>
-<FONT color="green">395</FONT>            } else {<a name="line.395"></a>
-<FONT color="green">396</FONT>              LOG.info("server set change to:\n\t" + Joiner.on("\n\t").join(serverSet));<a name="line.396"></a>
-<FONT color="green">397</FONT>            }<a name="line.397"></a>
-<FONT color="green">398</FONT>            monitor.onChange(serverSet);<a name="line.398"></a>
-<FONT color="green">399</FONT>          }<a name="line.399"></a>
-<FONT color="green">400</FONT>        }<a name="line.400"></a>
-<FONT color="green">401</FONT>      }<a name="line.401"></a>
-<FONT color="green">402</FONT>    }<a name="line.402"></a>
+<FONT color="green">281</FONT>                case NodeDataChanged:<a name="line.281"></a>
+<FONT color="green">282</FONT>                  notifyNodeChange(event.getPath());<a name="line.282"></a>
+<FONT color="green">283</FONT>                  break;<a name="line.283"></a>
+<FONT color="green">284</FONT>                default:<a name="line.284"></a>
+<FONT color="green">285</FONT>                  LOG.severe("Unexpected event watching service node: " + event);<a name="line.285"></a>
+<FONT color="green">286</FONT>              }<a name="line.286"></a>
+<FONT color="green">287</FONT>            }<a name="line.287"></a>
+<FONT color="green">288</FONT>          }<a name="line.288"></a>
+<FONT color="green">289</FONT>        };<a name="line.289"></a>
+<FONT color="green">290</FONT>    <a name="line.290"></a>
+<FONT color="green">291</FONT>        private ServiceInstance getServiceInstance(final String nodePath) {<a name="line.291"></a>
+<FONT color="green">292</FONT>          try {<a name="line.292"></a>
+<FONT color="green">293</FONT>            return backoffHelper.doUntilResult(new Supplier&lt;ServiceInstance&gt;() {<a name="line.293"></a>
+<FONT color="green">294</FONT>              @Override public ServiceInstance get() {<a name="line.294"></a>
+<FONT color="green">295</FONT>                try {<a name="line.295"></a>
+<FONT color="green">296</FONT>                  byte[] data = zkClient.get().getData(nodePath, serviceInstanceWatcher, null);<a name="line.296"></a>
+<FONT color="green">297</FONT>                  return codec.deserialize(new ByteArrayInputStream(data));<a name="line.297"></a>
+<FONT color="green">298</FONT>                } catch (InterruptedException e) {<a name="line.298"></a>
+<FONT color="green">299</FONT>                  Thread.currentThread().interrupt();<a name="line.299"></a>
+<FONT color="green">300</FONT>                  throw new ServiceInstanceFetchException(<a name="line.300"></a>
+<FONT color="green">301</FONT>                      "Interrupted updating service data for: " + nodePath, e);<a name="line.301"></a>
+<FONT color="green">302</FONT>                } catch (ZooKeeperConnectionException e) {<a name="line.302"></a>
+<FONT color="green">303</FONT>                  LOG.log(Level.WARNING,<a name="line.303"></a>
+<FONT color="green">304</FONT>                      "Temporary error trying to updating service data for: " + nodePath, e);<a name="line.304"></a>
+<FONT color="green">305</FONT>                  return null;<a name="line.305"></a>
+<FONT color="green">306</FONT>                } catch (NoNodeException e) {<a name="line.306"></a>
+<FONT color="green">307</FONT>                  invalidateNodePath(nodePath);<a name="line.307"></a>
+<FONT color="green">308</FONT>                  throw new ServiceInstanceDeletedException(nodePath);<a name="line.308"></a>
+<FONT color="green">309</FONT>                } catch (KeeperException e) {<a name="line.309"></a>
+<FONT color="green">310</FONT>                  if (zkClient.shouldRetry(e)) {<a name="line.310"></a>
+<FONT color="green">311</FONT>                    LOG.log(Level.WARNING,<a name="line.311"></a>
+<FONT color="green">312</FONT>                        "Temporary error trying to update service data for: " + nodePath, e);<a name="line.312"></a>
+<FONT color="green">313</FONT>                    return null;<a name="line.313"></a>
+<FONT color="green">314</FONT>                  } else {<a name="line.314"></a>
+<FONT color="green">315</FONT>                    throw new ServiceInstanceFetchException(<a name="line.315"></a>
+<FONT color="green">316</FONT>                        "Failed to update service data for: " + nodePath, e);<a name="line.316"></a>
+<FONT color="green">317</FONT>                  }<a name="line.317"></a>
+<FONT color="green">318</FONT>                } catch (IOException e) {<a name="line.318"></a>
+<FONT color="green">319</FONT>                  throw new ServiceInstanceFetchException(<a name="line.319"></a>
+<FONT color="green">320</FONT>                      "Failed to deserialize the ServiceInstance data for: " + nodePath, e);<a name="line.320"></a>
+<FONT color="green">321</FONT>                }<a name="line.321"></a>
+<FONT color="green">322</FONT>              }<a name="line.322"></a>
+<FONT color="green">323</FONT>            });<a name="line.323"></a>
+<FONT color="green">324</FONT>          } catch (InterruptedException e) {<a name="line.324"></a>
+<FONT color="green">325</FONT>            Thread.currentThread().interrupt();<a name="line.325"></a>
+<FONT color="green">326</FONT>            throw new ServiceInstanceFetchException(<a name="line.326"></a>
+<FONT color="green">327</FONT>                "Interrupted trying to update service data for: " + nodePath, e);<a name="line.327"></a>
+<FONT color="green">328</FONT>          }<a name="line.328"></a>
+<FONT color="green">329</FONT>        }<a name="line.329"></a>
+<FONT color="green">330</FONT>    <a name="line.330"></a>
+<FONT color="green">331</FONT>        private final Map&lt;String, ServiceInstance&gt; servicesByMemberId = new MapMaker()<a name="line.331"></a>
+<FONT color="green">332</FONT>            .makeComputingMap(new Function&lt;String, ServiceInstance&gt;() {<a name="line.332"></a>
+<FONT color="green">333</FONT>              @Override public ServiceInstance apply(String memberId) {<a name="line.333"></a>
+<FONT color="green">334</FONT>                return getServiceInstance(group.getMemberPath(memberId));<a name="line.334"></a>
+<FONT color="green">335</FONT>              }<a name="line.335"></a>
+<FONT color="green">336</FONT>            });<a name="line.336"></a>
+<FONT color="green">337</FONT>    <a name="line.337"></a>
+<FONT color="green">338</FONT>        private void rebuildServerSet() {<a name="line.338"></a>
+<FONT color="green">339</FONT>          Set&lt;String&gt; memberIds = ImmutableSet.copyOf(servicesByMemberId.keySet());<a name="line.339"></a>
+<FONT color="green">340</FONT>          servicesByMemberId.clear();<a name="line.340"></a>
+<FONT color="green">341</FONT>          notifyGroupChange(memberIds);<a name="line.341"></a>
+<FONT color="green">342</FONT>        }<a name="line.342"></a>
+<FONT color="green">343</FONT>    <a name="line.343"></a>
+<FONT color="green">344</FONT>        private void notifyNodeChange(String changedPath) {<a name="line.344"></a>
+<FONT color="green">345</FONT>          // Invalidate the associated ServiceInstance to trigger a fetch on group notify.<a name="line.345"></a>
+<FONT color="green">346</FONT>          String memberId = invalidateNodePath(changedPath);<a name="line.346"></a>
+<FONT color="green">347</FONT>          notifyGroupChange(Iterables.concat(servicesByMemberId.keySet(), ImmutableList.of(memberId)));<a name="line.347"></a>
+<FONT color="green">348</FONT>        }<a name="line.348"></a>
+<FONT color="green">349</FONT>    <a name="line.349"></a>
+<FONT color="green">350</FONT>        private String invalidateNodePath(String deletedPath) {<a name="line.350"></a>
+<FONT color="green">351</FONT>          String memberId = group.getMemberId(deletedPath);<a name="line.351"></a>
+<FONT color="green">352</FONT>          servicesByMemberId.remove(memberId);<a name="line.352"></a>
+<FONT color="green">353</FONT>          return memberId;<a name="line.353"></a>
+<FONT color="green">354</FONT>        }<a name="line.354"></a>
+<FONT color="green">355</FONT>    <a name="line.355"></a>
+<FONT color="green">356</FONT>        private synchronized void notifyGroupChange(Iterable&lt;String&gt; memberIds) {<a name="line.356"></a>
+<FONT color="green">357</FONT>          Set&lt;String&gt; currentMemberIds = ImmutableSet.copyOf(memberIds);<a name="line.357"></a>
+<FONT color="green">358</FONT>          Set&lt;String&gt; oldMemberIds = servicesByMemberId.keySet();<a name="line.358"></a>
+<FONT color="green">359</FONT>    <a name="line.359"></a>
+<FONT color="green">360</FONT>          // Ignore no-op state changes except for the 1st when we've seen no group yet.<a name="line.360"></a>
+<FONT color="green">361</FONT>          if ((serverSet == null) || !currentMemberIds.equals(oldMemberIds)) {<a name="line.361"></a>
+<FONT color="green">362</FONT>            SetView&lt;String&gt; deletedMemberIds = Sets.difference(oldMemberIds, currentMemberIds);<a name="line.362"></a>
+<FONT color="green">363</FONT>            oldMemberIds.removeAll(deletedMemberIds);<a name="line.363"></a>
+<FONT color="green">364</FONT>    <a name="line.364"></a>
+<FONT color="green">365</FONT>            SetView&lt;String&gt; unchangedMemberIds = Sets.intersection(oldMemberIds, currentMemberIds);<a name="line.365"></a>
+<FONT color="green">366</FONT>            ImmutableSet.Builder&lt;ServiceInstance&gt; services = ImmutableSet.builder();<a name="line.366"></a>
+<FONT color="green">367</FONT>            for (String unchangedMemberId : unchangedMemberIds) {<a name="line.367"></a>
+<FONT color="green">368</FONT>              services.add(servicesByMemberId.get(unchangedMemberId));<a name="line.368"></a>
+<FONT color="green">369</FONT>            }<a name="line.369"></a>
+<FONT color="green">370</FONT>    <a name="line.370"></a>
+<FONT color="green">371</FONT>            // TODO(John Sirois): consider parallelizing fetches<a name="line.371"></a>
+<FONT color="green">372</FONT>            SetView&lt;String&gt; newMemberIds = Sets.difference(currentMemberIds, oldMemberIds);<a name="line.372"></a>
+<FONT color="green">373</FONT>            for (String newMemberId : newMemberIds) {<a name="line.373"></a>
+<FONT color="green">374</FONT>              // This get will trigger a fetch<a name="line.374"></a>
+<FONT color="green">375</FONT>              try {<a name="line.375"></a>
+<FONT color="green">376</FONT>                services.add(servicesByMemberId.get(newMemberId));<a name="line.376"></a>
+<FONT color="green">377</FONT>              } catch (ComputationException e) {<a name="line.377"></a>
+<FONT color="green">378</FONT>                Throwable cause = e.getCause();<a name="line.378"></a>
+<FONT color="green">379</FONT>                if (!(cause instanceof ServiceInstanceDeletedException)) {<a name="line.379"></a>
+<FONT color="green">380</FONT>                  Throwables.propagateIfInstanceOf(cause, ServiceInstanceFetchException.class);<a name="line.380"></a>
+<FONT color="green">381</FONT>                  throw new IllegalStateException(<a name="line.381"></a>
+<FONT color="green">382</FONT>                      "Unexpected error fetching member data for: " + newMemberId, e);<a name="line.382"></a>
+<FONT color="green">383</FONT>                }<a name="line.383"></a>
+<FONT color="green">384</FONT>              }<a name="line.384"></a>
+<FONT color="green">385</FONT>            }<a name="line.385"></a>
+<FONT color="green">386</FONT>    <a name="line.386"></a>
+<FONT color="green">387</FONT>            notifyServerSetChange(services.build());<a name="line.387"></a>
+<FONT color="green">388</FONT>          }<a name="line.388"></a>
+<FONT color="green">389</FONT>        }<a name="line.389"></a>
+<FONT color="green">390</FONT>    <a name="line.390"></a>
+<FONT color="green">391</FONT>        private void notifyServerSetChange(ImmutableSet&lt;ServiceInstance&gt; currentServerSet) {<a name="line.391"></a>
+<FONT color="green">392</FONT>          // ZK nodes may have changed if there was a session expiry for a server in the server set, but<a name="line.392"></a>
+<FONT color="green">393</FONT>          // if the server's status has not changed, we can skip any onChange updates.<a name="line.393"></a>
+<FONT color="green">394</FONT>          if (!currentServerSet.equals(serverSet)) {<a name="line.394"></a>
+<FONT color="green">395</FONT>            serverSet = currentServerSet;<a name="line.395"></a>
+<FONT color="green">396</FONT>            if (serverSet.isEmpty()) {<a name="line.396"></a>
+<FONT color="green">397</FONT>              LOG.warning("server set empty!");<a name="line.397"></a>
+<FONT color="green">398</FONT>            } else {<a name="line.398"></a>
+<FONT color="green">399</FONT>              LOG.info("server set change to:\n\t" + Joiner.on("\n\t").join(serverSet));<a name="line.399"></a>
+<FONT color="green">400</FONT>            }<a name="line.400"></a>
+<FONT color="green">401</FONT>            monitor.onChange(serverSet);<a name="line.401"></a>
+<FONT color="green">402</FONT>          }<a name="line.402"></a>
+<FONT color="green">403</FONT>        }<a name="line.403"></a>
+<FONT color="green">404</FONT>      }<a name="line.404"></a>
+<FONT color="green">405</FONT>    }<a name="line.405"></a>
 
 
 

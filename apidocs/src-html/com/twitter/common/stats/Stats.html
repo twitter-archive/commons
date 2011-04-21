@@ -20,21 +20,21 @@
 <FONT color="green">017</FONT>    <a name="line.17"></a>
 <FONT color="green">018</FONT>    package com.twitter.common.stats;<a name="line.18"></a>
 <FONT color="green">019</FONT>    <a name="line.19"></a>
-<FONT color="green">020</FONT>    import com.google.common.annotations.VisibleForTesting;<a name="line.20"></a>
-<FONT color="green">021</FONT>    import com.google.common.base.Preconditions;<a name="line.21"></a>
-<FONT color="green">022</FONT>    import com.google.common.base.Supplier;<a name="line.22"></a>
-<FONT color="green">023</FONT>    import com.google.common.collect.ImmutableList;<a name="line.23"></a>
-<FONT color="green">024</FONT>    import com.google.common.collect.Maps;<a name="line.24"></a>
-<FONT color="green">025</FONT>    import com.twitter.common.base.MorePreconditions;<a name="line.25"></a>
-<FONT color="green">026</FONT>    <a name="line.26"></a>
-<FONT color="green">027</FONT>    import java.util.Arrays;<a name="line.27"></a>
-<FONT color="green">028</FONT>    import java.util.Collections;<a name="line.28"></a>
-<FONT color="green">029</FONT>    import java.util.LinkedHashMap;<a name="line.29"></a>
-<FONT color="green">030</FONT>    import java.util.Map;<a name="line.30"></a>
-<FONT color="green">031</FONT>    import java.util.concurrent.atomic.AtomicInteger;<a name="line.31"></a>
-<FONT color="green">032</FONT>    import java.util.concurrent.atomic.AtomicLong;<a name="line.32"></a>
-<FONT color="green">033</FONT>    import java.util.logging.Logger;<a name="line.33"></a>
-<FONT color="green">034</FONT>    import java.util.regex.Pattern;<a name="line.34"></a>
+<FONT color="green">020</FONT>    import java.util.Collections;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import java.util.LinkedHashMap;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import java.util.Map;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import java.util.concurrent.atomic.AtomicInteger;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import java.util.concurrent.atomic.AtomicLong;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import java.util.logging.Logger;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import java.util.regex.Pattern;<a name="line.26"></a>
+<FONT color="green">027</FONT>    <a name="line.27"></a>
+<FONT color="green">028</FONT>    import com.google.common.annotations.VisibleForTesting;<a name="line.28"></a>
+<FONT color="green">029</FONT>    import com.google.common.base.Preconditions;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import com.google.common.base.Supplier;<a name="line.30"></a>
+<FONT color="green">031</FONT>    import com.google.common.collect.ImmutableList;<a name="line.31"></a>
+<FONT color="green">032</FONT>    import com.google.common.collect.Maps;<a name="line.32"></a>
+<FONT color="green">033</FONT>    <a name="line.33"></a>
+<FONT color="green">034</FONT>    import com.twitter.common.base.MorePreconditions;<a name="line.34"></a>
 <FONT color="green">035</FONT>    <a name="line.35"></a>
 <FONT color="green">036</FONT>    /**<a name="line.36"></a>
 <FONT color="green">037</FONT>     * Manages {@link Stat}s that should be exported for monitoring.<a name="line.37"></a>
@@ -82,7 +82,7 @@
 <FONT color="green">079</FONT>          });<a name="line.79"></a>
 <FONT color="green">080</FONT>        }<a name="line.80"></a>
 <FONT color="green">081</FONT>    <a name="line.81"></a>
-<FONT color="green">082</FONT>        @Override public AtomicLong makeCounter(final String name) {<a name="line.82"></a>
+<FONT color="green">082</FONT>        @Override public AtomicLong makeCounter(String name) {<a name="line.82"></a>
 <FONT color="green">083</FONT>          return Stats.exportLong(name);<a name="line.83"></a>
 <FONT color="green">084</FONT>        }<a name="line.84"></a>
 <FONT color="green">085</FONT>    <a name="line.85"></a>
@@ -169,7 +169,7 @@
 <FONT color="green">166</FONT>       * @param name The name to export the stat with.<a name="line.166"></a>
 <FONT color="green">167</FONT>       * @return A reference to the {@link AtomicInteger} created.<a name="line.167"></a>
 <FONT color="green">168</FONT>       */<a name="line.168"></a>
-<FONT color="green">169</FONT>      public static AtomicInteger exportInt(final String name) {<a name="line.169"></a>
+<FONT color="green">169</FONT>      public static AtomicInteger exportInt(String name) {<a name="line.169"></a>
 <FONT color="green">170</FONT>        return export(name, new AtomicInteger());<a name="line.170"></a>
 <FONT color="green">171</FONT>      }<a name="line.171"></a>
 <FONT color="green">172</FONT>    <a name="line.172"></a>
@@ -194,7 +194,7 @@
 <FONT color="green">191</FONT>       * @param name The name to export the stat with.<a name="line.191"></a>
 <FONT color="green">192</FONT>       * @return A reference to the {@link AtomicLong} created.<a name="line.192"></a>
 <FONT color="green">193</FONT>       */<a name="line.193"></a>
-<FONT color="green">194</FONT>      public static AtomicLong exportLong(final String name) {<a name="line.194"></a>
+<FONT color="green">194</FONT>      public static AtomicLong exportLong(String name) {<a name="line.194"></a>
 <FONT color="green">195</FONT>        return export(name, new AtomicLong());<a name="line.195"></a>
 <FONT color="green">196</FONT>      }<a name="line.196"></a>
 <FONT color="green">197</FONT>    <a name="line.197"></a>

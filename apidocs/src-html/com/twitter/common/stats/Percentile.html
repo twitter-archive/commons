@@ -99,66 +99,75 @@
 <FONT color="green">096</FONT>        this.percentiles = builder.build();<a name="line.96"></a>
 <FONT color="green">097</FONT>      }<a name="line.97"></a>
 <FONT color="green">098</FONT>    <a name="line.98"></a>
-<FONT color="green">099</FONT>      @VisibleForTesting<a name="line.99"></a>
-<FONT color="green">100</FONT>      SampledStat&lt;Double&gt; getPercentile(int percentile) {<a name="line.100"></a>
-<FONT color="green">101</FONT>        return percentiles.get(percentile);<a name="line.101"></a>
-<FONT color="green">102</FONT>      }<a name="line.102"></a>
-<FONT color="green">103</FONT>    <a name="line.103"></a>
-<FONT color="green">104</FONT>      /**<a name="line.104"></a>
-<FONT color="green">105</FONT>       * Records an event.<a name="line.105"></a>
-<FONT color="green">106</FONT>       *<a name="line.106"></a>
-<FONT color="green">107</FONT>       * @param value The value to record if it is randomly selected based on the sampling rate.<a name="line.107"></a>
-<FONT color="green">108</FONT>       */<a name="line.108"></a>
-<FONT color="green">109</FONT>      public void record(T value) {<a name="line.109"></a>
-<FONT color="green">110</FONT>        if (sampler.select()) {<a name="line.110"></a>
-<FONT color="green">111</FONT>          synchronized (samples) {<a name="line.111"></a>
-<FONT color="green">112</FONT>            samples.addLast(value);<a name="line.112"></a>
-<FONT color="green">113</FONT>    <a name="line.113"></a>
-<FONT color="green">114</FONT>            while (samples.size() &gt; MAX_BUFFER_SIZE) samples.removeFirst();<a name="line.114"></a>
-<FONT color="green">115</FONT>          }<a name="line.115"></a>
-<FONT color="green">116</FONT>        }<a name="line.116"></a>
-<FONT color="green">117</FONT>      }<a name="line.117"></a>
-<FONT color="green">118</FONT>    <a name="line.118"></a>
-<FONT color="green">119</FONT>      private class PercentileVar extends SampledStat&lt;Double&gt; {<a name="line.119"></a>
-<FONT color="green">120</FONT>        private final int percentile;<a name="line.120"></a>
-<FONT color="green">121</FONT>        private final boolean sortFirst;<a name="line.121"></a>
-<FONT color="green">122</FONT>        private final boolean flushAfterSampling;<a name="line.122"></a>
-<FONT color="green">123</FONT>    <a name="line.123"></a>
-<FONT color="green">124</FONT>        PercentileVar(String name, int percentile, boolean sortFirst, boolean flushAfterSampling) {<a name="line.124"></a>
-<FONT color="green">125</FONT>          super(name, 0d);<a name="line.125"></a>
-<FONT color="green">126</FONT>          this.percentile = percentile;<a name="line.126"></a>
-<FONT color="green">127</FONT>          this.sortFirst = sortFirst;<a name="line.127"></a>
-<FONT color="green">128</FONT>          this.flushAfterSampling = flushAfterSampling;<a name="line.128"></a>
-<FONT color="green">129</FONT>        }<a name="line.129"></a>
-<FONT color="green">130</FONT>    <a name="line.130"></a>
-<FONT color="green">131</FONT>        @Override<a name="line.131"></a>
-<FONT color="green">132</FONT>        public Double doSample() {<a name="line.132"></a>
-<FONT color="green">133</FONT>          synchronized (samples) {<a name="line.133"></a>
-<FONT color="green">134</FONT>            if (samples.isEmpty()) return 0d;<a name="line.134"></a>
-<FONT color="green">135</FONT>            if (sortFirst) Collections.sort(samples, NUMBER_COMPARATOR);<a name="line.135"></a>
-<FONT color="green">136</FONT>    <a name="line.136"></a>
-<FONT color="green">137</FONT>            int selectIndex = ((samples.size() * percentile) / 100) - 1;<a name="line.137"></a>
-<FONT color="green">138</FONT>            selectIndex = selectIndex &lt; 0 ? 0 : selectIndex;<a name="line.138"></a>
+<FONT color="green">099</FONT>      /**<a name="line.99"></a>
+<FONT color="green">100</FONT>       * Get the variables associated with this percentile tracker.<a name="line.100"></a>
+<FONT color="green">101</FONT>       *<a name="line.101"></a>
+<FONT color="green">102</FONT>       * @return A map from tracked percentile to the Stat corresponding to it<a name="line.102"></a>
+<FONT color="green">103</FONT>       */<a name="line.103"></a>
+<FONT color="green">104</FONT>      public Map&lt;Integer, ? extends Stat&gt; getPercentiles() {<a name="line.104"></a>
+<FONT color="green">105</FONT>        return ImmutableMap.copyOf(percentiles);<a name="line.105"></a>
+<FONT color="green">106</FONT>      }<a name="line.106"></a>
+<FONT color="green">107</FONT>    <a name="line.107"></a>
+<FONT color="green">108</FONT>      @VisibleForTesting<a name="line.108"></a>
+<FONT color="green">109</FONT>      SampledStat&lt;Double&gt; getPercentile(int percentile) {<a name="line.109"></a>
+<FONT color="green">110</FONT>        return percentiles.get(percentile);<a name="line.110"></a>
+<FONT color="green">111</FONT>      }<a name="line.111"></a>
+<FONT color="green">112</FONT>    <a name="line.112"></a>
+<FONT color="green">113</FONT>      /**<a name="line.113"></a>
+<FONT color="green">114</FONT>       * Records an event.<a name="line.114"></a>
+<FONT color="green">115</FONT>       *<a name="line.115"></a>
+<FONT color="green">116</FONT>       * @param value The value to record if it is randomly selected based on the sampling rate.<a name="line.116"></a>
+<FONT color="green">117</FONT>       */<a name="line.117"></a>
+<FONT color="green">118</FONT>      public void record(T value) {<a name="line.118"></a>
+<FONT color="green">119</FONT>        if (sampler.select()) {<a name="line.119"></a>
+<FONT color="green">120</FONT>          synchronized (samples) {<a name="line.120"></a>
+<FONT color="green">121</FONT>            samples.addLast(value);<a name="line.121"></a>
+<FONT color="green">122</FONT>    <a name="line.122"></a>
+<FONT color="green">123</FONT>            while (samples.size() &gt; MAX_BUFFER_SIZE) samples.removeFirst();<a name="line.123"></a>
+<FONT color="green">124</FONT>          }<a name="line.124"></a>
+<FONT color="green">125</FONT>        }<a name="line.125"></a>
+<FONT color="green">126</FONT>      }<a name="line.126"></a>
+<FONT color="green">127</FONT>    <a name="line.127"></a>
+<FONT color="green">128</FONT>      private class PercentileVar extends SampledStat&lt;Double&gt; {<a name="line.128"></a>
+<FONT color="green">129</FONT>        private final int percentile;<a name="line.129"></a>
+<FONT color="green">130</FONT>        private final boolean sortFirst;<a name="line.130"></a>
+<FONT color="green">131</FONT>        private final boolean flushAfterSampling;<a name="line.131"></a>
+<FONT color="green">132</FONT>    <a name="line.132"></a>
+<FONT color="green">133</FONT>        PercentileVar(String name, int percentile, boolean sortFirst, boolean flushAfterSampling) {<a name="line.133"></a>
+<FONT color="green">134</FONT>          super(name, 0d);<a name="line.134"></a>
+<FONT color="green">135</FONT>          this.percentile = percentile;<a name="line.135"></a>
+<FONT color="green">136</FONT>          this.sortFirst = sortFirst;<a name="line.136"></a>
+<FONT color="green">137</FONT>          this.flushAfterSampling = flushAfterSampling;<a name="line.137"></a>
+<FONT color="green">138</FONT>        }<a name="line.138"></a>
 <FONT color="green">139</FONT>    <a name="line.139"></a>
-<FONT color="green">140</FONT>            // Whether we need to interpolate between two values to calculate the percentile.<a name="line.140"></a>
-<FONT color="green">141</FONT>            boolean interpolate = ((selectIndex + 1) * 100) / percentile &lt; samples.size();<a name="line.141"></a>
-<FONT color="green">142</FONT>    <a name="line.142"></a>
-<FONT color="green">143</FONT>            double value = samples.get(selectIndex).doubleValue();<a name="line.143"></a>
-<FONT color="green">144</FONT>            if (interpolate) value = (value + samples.get(selectIndex + 1).doubleValue()) / 2;<a name="line.144"></a>
+<FONT color="green">140</FONT>        @Override<a name="line.140"></a>
+<FONT color="green">141</FONT>        public Double doSample() {<a name="line.141"></a>
+<FONT color="green">142</FONT>          synchronized (samples) {<a name="line.142"></a>
+<FONT color="green">143</FONT>            if (samples.isEmpty()) return 0d;<a name="line.143"></a>
+<FONT color="green">144</FONT>            if (sortFirst) Collections.sort(samples, NUMBER_COMPARATOR);<a name="line.144"></a>
 <FONT color="green">145</FONT>    <a name="line.145"></a>
-<FONT color="green">146</FONT>            if (flushAfterSampling) samples.clear();<a name="line.146"></a>
-<FONT color="green">147</FONT>            return value;<a name="line.147"></a>
-<FONT color="green">148</FONT>          }<a name="line.148"></a>
-<FONT color="green">149</FONT>        }<a name="line.149"></a>
-<FONT color="green">150</FONT>      }<a name="line.150"></a>
+<FONT color="green">146</FONT>            int selectIndex = ((samples.size() * percentile) / 100) - 1;<a name="line.146"></a>
+<FONT color="green">147</FONT>            selectIndex = selectIndex &lt; 0 ? 0 : selectIndex;<a name="line.147"></a>
+<FONT color="green">148</FONT>    <a name="line.148"></a>
+<FONT color="green">149</FONT>            // Whether we need to interpolate between two values to calculate the percentile.<a name="line.149"></a>
+<FONT color="green">150</FONT>            boolean interpolate = ((selectIndex + 1) * 100) / percentile &lt; samples.size();<a name="line.150"></a>
 <FONT color="green">151</FONT>    <a name="line.151"></a>
-<FONT color="green">152</FONT>      private static final Comparator&lt;Number&gt; NUMBER_COMPARATOR = new Comparator&lt;Number&gt;() {<a name="line.152"></a>
-<FONT color="green">153</FONT>        @Override<a name="line.153"></a>
-<FONT color="green">154</FONT>        public int compare(Number a, Number b) {<a name="line.154"></a>
-<FONT color="green">155</FONT>          return (int) Math.signum(a.doubleValue() - b.doubleValue());<a name="line.155"></a>
-<FONT color="green">156</FONT>        }<a name="line.156"></a>
-<FONT color="green">157</FONT>      };<a name="line.157"></a>
-<FONT color="green">158</FONT>    }<a name="line.158"></a>
+<FONT color="green">152</FONT>            double value = samples.get(selectIndex).doubleValue();<a name="line.152"></a>
+<FONT color="green">153</FONT>            if (interpolate) value = (value + samples.get(selectIndex + 1).doubleValue()) / 2;<a name="line.153"></a>
+<FONT color="green">154</FONT>    <a name="line.154"></a>
+<FONT color="green">155</FONT>            if (flushAfterSampling) samples.clear();<a name="line.155"></a>
+<FONT color="green">156</FONT>            return value;<a name="line.156"></a>
+<FONT color="green">157</FONT>          }<a name="line.157"></a>
+<FONT color="green">158</FONT>        }<a name="line.158"></a>
+<FONT color="green">159</FONT>      }<a name="line.159"></a>
+<FONT color="green">160</FONT>    <a name="line.160"></a>
+<FONT color="green">161</FONT>      private static final Comparator&lt;Number&gt; NUMBER_COMPARATOR = new Comparator&lt;Number&gt;() {<a name="line.161"></a>
+<FONT color="green">162</FONT>        @Override<a name="line.162"></a>
+<FONT color="green">163</FONT>        public int compare(Number a, Number b) {<a name="line.163"></a>
+<FONT color="green">164</FONT>          return (int) Math.signum(a.doubleValue() - b.doubleValue());<a name="line.164"></a>
+<FONT color="green">165</FONT>        }<a name="line.165"></a>
+<FONT color="green">166</FONT>      };<a name="line.166"></a>
+<FONT color="green">167</FONT>    }<a name="line.167"></a>
 
 
 

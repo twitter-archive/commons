@@ -72,6 +72,7 @@ limitations under the License.
                 conf="default"
                 transitive="false"
     >
+      <exclude org="ch.qos.logback" module="logback-classic"/>
     </dependency>
     <dependency org="commons-lang"
                 name="commons-lang"
