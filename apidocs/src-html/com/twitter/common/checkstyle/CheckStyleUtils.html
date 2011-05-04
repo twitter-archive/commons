@@ -1,47 +1,62 @@
 <HTML>
 <BODY BGCOLOR="white">
 <PRE>
-<FONT color="green">001</FONT>    package com.twitter.common.checkstyle;<a name="line.1"></a>
-<FONT color="green">002</FONT>    <a name="line.2"></a>
-<FONT color="green">003</FONT>    import com.puppycrawl.tools.checkstyle.api.Check;<a name="line.3"></a>
-<FONT color="green">004</FONT>    <a name="line.4"></a>
-<FONT color="green">005</FONT>    /**<a name="line.5"></a>
-<FONT color="green">006</FONT>     * Utilities needed by custom checkstyle rules<a name="line.6"></a>
-<FONT color="green">007</FONT>     *<a name="line.7"></a>
-<FONT color="green">008</FONT>     * @author Utkarsh Srivastava<a name="line.8"></a>
-<FONT color="green">009</FONT>     */<a name="line.9"></a>
-<FONT color="green">010</FONT>    public final class CheckStyleUtils {<a name="line.10"></a>
-<FONT color="green">011</FONT>    <a name="line.11"></a>
-<FONT color="green">012</FONT>      /**<a name="line.12"></a>
-<FONT color="green">013</FONT>       * Hide constructor<a name="line.13"></a>
-<FONT color="green">014</FONT>       */<a name="line.14"></a>
-<FONT color="green">015</FONT>      private CheckStyleUtils() {<a name="line.15"></a>
-<FONT color="green">016</FONT>      }<a name="line.16"></a>
+<FONT color="green">001</FONT>    // =================================================================================================<a name="line.1"></a>
+<FONT color="green">002</FONT>    // Copyright 2011 Twitter, Inc.<a name="line.2"></a>
+<FONT color="green">003</FONT>    // -------------------------------------------------------------------------------------------------<a name="line.3"></a>
+<FONT color="green">004</FONT>    // Licensed under the Apache License, Version 2.0 (the "License");<a name="line.4"></a>
+<FONT color="green">005</FONT>    // you may not use this work except in compliance with the License.<a name="line.5"></a>
+<FONT color="green">006</FONT>    // You may obtain a copy of the License in the LICENSE file, or at:<a name="line.6"></a>
+<FONT color="green">007</FONT>    //<a name="line.7"></a>
+<FONT color="green">008</FONT>    //  http://www.apache.org/licenses/LICENSE-2.0<a name="line.8"></a>
+<FONT color="green">009</FONT>    //<a name="line.9"></a>
+<FONT color="green">010</FONT>    // Unless required by applicable law or agreed to in writing, software<a name="line.10"></a>
+<FONT color="green">011</FONT>    // distributed under the License is distributed on an "AS IS" BASIS,<a name="line.11"></a>
+<FONT color="green">012</FONT>    // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.12"></a>
+<FONT color="green">013</FONT>    // See the License for the specific language governing permissions and<a name="line.13"></a>
+<FONT color="green">014</FONT>    // limitations under the License.<a name="line.14"></a>
+<FONT color="green">015</FONT>    // =================================================================================================<a name="line.15"></a>
+<FONT color="green">016</FONT>    package com.twitter.common.checkstyle;<a name="line.16"></a>
 <FONT color="green">017</FONT>    <a name="line.17"></a>
-<FONT color="green">018</FONT>      /**<a name="line.18"></a>
-<FONT color="green">019</FONT>       * Returns the message bundle to use for a custom rule. All built-in rules in checkstyle have<a name="line.19"></a>
-<FONT color="green">020</FONT>       * a message bundle in the same package as that rule. This method returns the path to that<a name="line.20"></a>
-<FONT color="green">021</FONT>       * bundle.<a name="line.21"></a>
-<FONT color="green">022</FONT>       *<a name="line.22"></a>
-<FONT color="green">023</FONT>       * @param parentBuiltInCheckClass The class of the built-in checkstyle rule that the custom rule<a name="line.23"></a>
-<FONT color="green">024</FONT>       *                                ultimately derives from<a name="line.24"></a>
-<FONT color="green">025</FONT>       * @return Path to message bundle<a name="line.25"></a>
-<FONT color="green">026</FONT>       */<a name="line.26"></a>
-<FONT color="green">027</FONT>      public static String getMessageBundle(final Class&lt;? extends Check&gt; parentBuiltInCheckClass) {<a name="line.27"></a>
-<FONT color="green">028</FONT>        String parentBuiltInCheckClassName = parentBuiltInCheckClass.getName();<a name="line.28"></a>
-<FONT color="green">029</FONT>        // This code is copied from com.puppycrawl.tools.checkstyle.api.<a name="line.29"></a>
-<FONT color="green">030</FONT>        // AbstractViolationReporter.java::getMessageBundle(String s)<a name="line.30"></a>
-<FONT color="green">031</FONT>        // If that method were protected (and not package private) we could<a name="line.31"></a>
-<FONT color="green">032</FONT>        // just invoke it<a name="line.32"></a>
-<FONT color="green">033</FONT>        final int endIndex = parentBuiltInCheckClassName.lastIndexOf('.');<a name="line.33"></a>
-<FONT color="green">034</FONT>        final String messages = "messages";<a name="line.34"></a>
-<FONT color="green">035</FONT>        if (endIndex &lt; 0) {<a name="line.35"></a>
-<FONT color="green">036</FONT>          return messages;<a name="line.36"></a>
-<FONT color="green">037</FONT>        }<a name="line.37"></a>
-<FONT color="green">038</FONT>        final String packageName = parentBuiltInCheckClassName.substring(0, endIndex);<a name="line.38"></a>
-<FONT color="green">039</FONT>        return packageName + "." + messages;<a name="line.39"></a>
-<FONT color="green">040</FONT>      }<a name="line.40"></a>
-<FONT color="green">041</FONT>    }<a name="line.41"></a>
+<FONT color="green">018</FONT>    import com.puppycrawl.tools.checkstyle.api.Check;<a name="line.18"></a>
+<FONT color="green">019</FONT>    <a name="line.19"></a>
+<FONT color="green">020</FONT>    /**<a name="line.20"></a>
+<FONT color="green">021</FONT>     * Utilities needed by custom checkstyle rules<a name="line.21"></a>
+<FONT color="green">022</FONT>     *<a name="line.22"></a>
+<FONT color="green">023</FONT>     * @author Utkarsh Srivastava<a name="line.23"></a>
+<FONT color="green">024</FONT>     */<a name="line.24"></a>
+<FONT color="green">025</FONT>    public final class CheckStyleUtils {<a name="line.25"></a>
+<FONT color="green">026</FONT>    <a name="line.26"></a>
+<FONT color="green">027</FONT>      /**<a name="line.27"></a>
+<FONT color="green">028</FONT>       * Hide constructor<a name="line.28"></a>
+<FONT color="green">029</FONT>       */<a name="line.29"></a>
+<FONT color="green">030</FONT>      private CheckStyleUtils() {<a name="line.30"></a>
+<FONT color="green">031</FONT>      }<a name="line.31"></a>
+<FONT color="green">032</FONT>    <a name="line.32"></a>
+<FONT color="green">033</FONT>      /**<a name="line.33"></a>
+<FONT color="green">034</FONT>       * Returns the message bundle to use for a custom rule. All built-in rules in checkstyle have<a name="line.34"></a>
+<FONT color="green">035</FONT>       * a message bundle in the same package as that rule. This method returns the path to that<a name="line.35"></a>
+<FONT color="green">036</FONT>       * bundle.<a name="line.36"></a>
+<FONT color="green">037</FONT>       *<a name="line.37"></a>
+<FONT color="green">038</FONT>       * @param parentBuiltInCheckClass The class of the built-in checkstyle rule that the custom rule<a name="line.38"></a>
+<FONT color="green">039</FONT>       *                                ultimately derives from<a name="line.39"></a>
+<FONT color="green">040</FONT>       * @return Path to message bundle<a name="line.40"></a>
+<FONT color="green">041</FONT>       */<a name="line.41"></a>
+<FONT color="green">042</FONT>      public static String getMessageBundle(final Class&lt;? extends Check&gt; parentBuiltInCheckClass) {<a name="line.42"></a>
+<FONT color="green">043</FONT>        String parentBuiltInCheckClassName = parentBuiltInCheckClass.getName();<a name="line.43"></a>
+<FONT color="green">044</FONT>        // This code is copied from com.puppycrawl.tools.checkstyle.api.<a name="line.44"></a>
+<FONT color="green">045</FONT>        // AbstractViolationReporter.java::getMessageBundle(String s)<a name="line.45"></a>
+<FONT color="green">046</FONT>        // If that method were protected (and not package private) we could<a name="line.46"></a>
+<FONT color="green">047</FONT>        // just invoke it<a name="line.47"></a>
+<FONT color="green">048</FONT>        final int endIndex = parentBuiltInCheckClassName.lastIndexOf('.');<a name="line.48"></a>
+<FONT color="green">049</FONT>        final String messages = "messages";<a name="line.49"></a>
+<FONT color="green">050</FONT>        if (endIndex &lt; 0) {<a name="line.50"></a>
+<FONT color="green">051</FONT>          return messages;<a name="line.51"></a>
+<FONT color="green">052</FONT>        }<a name="line.52"></a>
+<FONT color="green">053</FONT>        final String packageName = parentBuiltInCheckClassName.substring(0, endIndex);<a name="line.53"></a>
+<FONT color="green">054</FONT>        return packageName + "." + messages;<a name="line.54"></a>
+<FONT color="green">055</FONT>      }<a name="line.55"></a>
+<FONT color="green">056</FONT>    }<a name="line.56"></a>
 
 
 

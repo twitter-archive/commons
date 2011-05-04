@@ -4,75 +4,74 @@
 <FONT color="green">001</FONT>    // =================================================================================================<a name="line.1"></a>
 <FONT color="green">002</FONT>    // Copyright 2011 Twitter, Inc.<a name="line.2"></a>
 <FONT color="green">003</FONT>    // -------------------------------------------------------------------------------------------------<a name="line.3"></a>
-<FONT color="green">004</FONT>    // Licensed to the Apache Software Foundation (ASF) under one or more contributor license<a name="line.4"></a>
-<FONT color="green">005</FONT>    // agreements.  See the NOTICE file distributed with this work for additional information regarding<a name="line.5"></a>
-<FONT color="green">006</FONT>    // copyright ownership.  The ASF licenses this file to you under the Apache License, Version 2.0<a name="line.6"></a>
-<FONT color="green">007</FONT>    // (the "License"); you may not use this file except in compliance with the License.  You may<a name="line.7"></a>
-<FONT color="green">008</FONT>    // obtain a copy of the License at<a name="line.8"></a>
+<FONT color="green">004</FONT>    // Licensed under the Apache License, Version 2.0 (the "License");<a name="line.4"></a>
+<FONT color="green">005</FONT>    // you may not use this work except in compliance with the License.<a name="line.5"></a>
+<FONT color="green">006</FONT>    // You may obtain a copy of the License in the LICENSE file, or at:<a name="line.6"></a>
+<FONT color="green">007</FONT>    //<a name="line.7"></a>
+<FONT color="green">008</FONT>    //  http://www.apache.org/licenses/LICENSE-2.0<a name="line.8"></a>
 <FONT color="green">009</FONT>    //<a name="line.9"></a>
-<FONT color="green">010</FONT>    //  http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
-<FONT color="green">011</FONT>    //<a name="line.11"></a>
-<FONT color="green">012</FONT>    // Unless required by applicable law or agreed to in writing, software distributed under the<a name="line.12"></a>
-<FONT color="green">013</FONT>    // License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either<a name="line.13"></a>
-<FONT color="green">014</FONT>    // express or implied.  See the License for the specific language governing permissions and<a name="line.14"></a>
-<FONT color="green">015</FONT>    // limitations under the License.<a name="line.15"></a>
-<FONT color="green">016</FONT>    // =================================================================================================<a name="line.16"></a>
-<FONT color="green">017</FONT>    <a name="line.17"></a>
-<FONT color="green">018</FONT>    package com.twitter.common.stats;<a name="line.18"></a>
-<FONT color="green">019</FONT>    <a name="line.19"></a>
-<FONT color="green">020</FONT>    import com.google.common.base.Preconditions;<a name="line.20"></a>
-<FONT color="green">021</FONT>    <a name="line.21"></a>
-<FONT color="green">022</FONT>    import java.util.concurrent.LinkedBlockingDeque;<a name="line.22"></a>
-<FONT color="green">023</FONT>    <a name="line.23"></a>
-<FONT color="green">024</FONT>    /**<a name="line.24"></a>
-<FONT color="green">025</FONT>     * Function to compute the moving average of a time series.<a name="line.25"></a>
-<FONT color="green">026</FONT>     *<a name="line.26"></a>
-<FONT color="green">027</FONT>     * @author William Farner<a name="line.27"></a>
-<FONT color="green">028</FONT>     */<a name="line.28"></a>
-<FONT color="green">029</FONT>    public class MovingAverage&lt;T extends Number&gt; extends SampledStat&lt;Double&gt; {<a name="line.29"></a>
-<FONT color="green">030</FONT>    <a name="line.30"></a>
-<FONT color="green">031</FONT>      private static final int DEFAULT_WINDOW = 10;<a name="line.31"></a>
-<FONT color="green">032</FONT>      private final Stat&lt;T&gt; input;<a name="line.32"></a>
-<FONT color="green">033</FONT>    <a name="line.33"></a>
-<FONT color="green">034</FONT>      private final LinkedBlockingDeque&lt;T&gt; samples;<a name="line.34"></a>
-<FONT color="green">035</FONT>      private double sampleSum = 0;<a name="line.35"></a>
-<FONT color="green">036</FONT>    <a name="line.36"></a>
-<FONT color="green">037</FONT>      private MovingAverage(String name, Stat&lt;T&gt; input, int windowSize) {<a name="line.37"></a>
-<FONT color="green">038</FONT>        super(name, 0d);<a name="line.38"></a>
-<FONT color="green">039</FONT>        Preconditions.checkArgument(windowSize &gt; 1);<a name="line.39"></a>
-<FONT color="green">040</FONT>    <a name="line.40"></a>
-<FONT color="green">041</FONT>        this.input = Preconditions.checkNotNull(input);<a name="line.41"></a>
-<FONT color="green">042</FONT>        this.samples = new LinkedBlockingDeque&lt;T&gt;(windowSize);<a name="line.42"></a>
-<FONT color="green">043</FONT>        Stats.export(input);<a name="line.43"></a>
-<FONT color="green">044</FONT>      }<a name="line.44"></a>
-<FONT color="green">045</FONT>    <a name="line.45"></a>
-<FONT color="green">046</FONT>      public static &lt;T extends Number&gt; MovingAverage&lt;T&gt; of(Stat&lt;T&gt; input) {<a name="line.46"></a>
-<FONT color="green">047</FONT>        return MovingAverage.of(input, DEFAULT_WINDOW);<a name="line.47"></a>
-<FONT color="green">048</FONT>      }<a name="line.48"></a>
-<FONT color="green">049</FONT>    <a name="line.49"></a>
-<FONT color="green">050</FONT>      public static &lt;T extends Number&gt; MovingAverage&lt;T&gt; of(Stat&lt;T&gt; input, int windowSize) {<a name="line.50"></a>
-<FONT color="green">051</FONT>        return MovingAverage.of(String.format("%s_avg", input.getName()), input, windowSize);<a name="line.51"></a>
-<FONT color="green">052</FONT>      }<a name="line.52"></a>
-<FONT color="green">053</FONT>    <a name="line.53"></a>
-<FONT color="green">054</FONT>      public static &lt;T extends Number&gt; MovingAverage&lt;T&gt; of(String name, Stat&lt;T&gt; input,<a name="line.54"></a>
-<FONT color="green">055</FONT>          int windowSize) {<a name="line.55"></a>
-<FONT color="green">056</FONT>        return new MovingAverage&lt;T&gt;(name, input, windowSize);<a name="line.56"></a>
-<FONT color="green">057</FONT>      }<a name="line.57"></a>
-<FONT color="green">058</FONT>    <a name="line.58"></a>
-<FONT color="green">059</FONT>      @Override<a name="line.59"></a>
-<FONT color="green">060</FONT>      public Double doSample() {<a name="line.60"></a>
-<FONT color="green">061</FONT>        T sample = input.read();<a name="line.61"></a>
-<FONT color="green">062</FONT>    <a name="line.62"></a>
-<FONT color="green">063</FONT>        if (samples.remainingCapacity() == 0) {<a name="line.63"></a>
-<FONT color="green">064</FONT>          sampleSum -= samples.removeLast().doubleValue();<a name="line.64"></a>
-<FONT color="green">065</FONT>        }<a name="line.65"></a>
-<FONT color="green">066</FONT>    <a name="line.66"></a>
-<FONT color="green">067</FONT>        samples.addFirst(sample);<a name="line.67"></a>
-<FONT color="green">068</FONT>        sampleSum += sample.doubleValue();<a name="line.68"></a>
-<FONT color="green">069</FONT>    <a name="line.69"></a>
-<FONT color="green">070</FONT>        return sampleSum / samples.size();<a name="line.70"></a>
-<FONT color="green">071</FONT>      }<a name="line.71"></a>
-<FONT color="green">072</FONT>    }<a name="line.72"></a>
+<FONT color="green">010</FONT>    // Unless required by applicable law or agreed to in writing, software<a name="line.10"></a>
+<FONT color="green">011</FONT>    // distributed under the License is distributed on an "AS IS" BASIS,<a name="line.11"></a>
+<FONT color="green">012</FONT>    // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.12"></a>
+<FONT color="green">013</FONT>    // See the License for the specific language governing permissions and<a name="line.13"></a>
+<FONT color="green">014</FONT>    // limitations under the License.<a name="line.14"></a>
+<FONT color="green">015</FONT>    // =================================================================================================<a name="line.15"></a>
+<FONT color="green">016</FONT>    <a name="line.16"></a>
+<FONT color="green">017</FONT>    package com.twitter.common.stats;<a name="line.17"></a>
+<FONT color="green">018</FONT>    <a name="line.18"></a>
+<FONT color="green">019</FONT>    import com.google.common.base.Preconditions;<a name="line.19"></a>
+<FONT color="green">020</FONT>    <a name="line.20"></a>
+<FONT color="green">021</FONT>    import java.util.concurrent.LinkedBlockingDeque;<a name="line.21"></a>
+<FONT color="green">022</FONT>    <a name="line.22"></a>
+<FONT color="green">023</FONT>    /**<a name="line.23"></a>
+<FONT color="green">024</FONT>     * Function to compute the moving average of a time series.<a name="line.24"></a>
+<FONT color="green">025</FONT>     *<a name="line.25"></a>
+<FONT color="green">026</FONT>     * @author William Farner<a name="line.26"></a>
+<FONT color="green">027</FONT>     */<a name="line.27"></a>
+<FONT color="green">028</FONT>    public class MovingAverage&lt;T extends Number&gt; extends SampledStat&lt;Double&gt; {<a name="line.28"></a>
+<FONT color="green">029</FONT>    <a name="line.29"></a>
+<FONT color="green">030</FONT>      private static final int DEFAULT_WINDOW = 10;<a name="line.30"></a>
+<FONT color="green">031</FONT>      private final Stat&lt;T&gt; input;<a name="line.31"></a>
+<FONT color="green">032</FONT>    <a name="line.32"></a>
+<FONT color="green">033</FONT>      private final LinkedBlockingDeque&lt;T&gt; samples;<a name="line.33"></a>
+<FONT color="green">034</FONT>      private double sampleSum = 0;<a name="line.34"></a>
+<FONT color="green">035</FONT>    <a name="line.35"></a>
+<FONT color="green">036</FONT>      private MovingAverage(String name, Stat&lt;T&gt; input, int windowSize) {<a name="line.36"></a>
+<FONT color="green">037</FONT>        super(name, 0d);<a name="line.37"></a>
+<FONT color="green">038</FONT>        Preconditions.checkArgument(windowSize &gt; 1);<a name="line.38"></a>
+<FONT color="green">039</FONT>    <a name="line.39"></a>
+<FONT color="green">040</FONT>        this.input = Preconditions.checkNotNull(input);<a name="line.40"></a>
+<FONT color="green">041</FONT>        this.samples = new LinkedBlockingDeque&lt;T&gt;(windowSize);<a name="line.41"></a>
+<FONT color="green">042</FONT>        Stats.export(input);<a name="line.42"></a>
+<FONT color="green">043</FONT>      }<a name="line.43"></a>
+<FONT color="green">044</FONT>    <a name="line.44"></a>
+<FONT color="green">045</FONT>      public static &lt;T extends Number&gt; MovingAverage&lt;T&gt; of(Stat&lt;T&gt; input) {<a name="line.45"></a>
+<FONT color="green">046</FONT>        return MovingAverage.of(input, DEFAULT_WINDOW);<a name="line.46"></a>
+<FONT color="green">047</FONT>      }<a name="line.47"></a>
+<FONT color="green">048</FONT>    <a name="line.48"></a>
+<FONT color="green">049</FONT>      public static &lt;T extends Number&gt; MovingAverage&lt;T&gt; of(Stat&lt;T&gt; input, int windowSize) {<a name="line.49"></a>
+<FONT color="green">050</FONT>        return MovingAverage.of(String.format("%s_avg", input.getName()), input, windowSize);<a name="line.50"></a>
+<FONT color="green">051</FONT>      }<a name="line.51"></a>
+<FONT color="green">052</FONT>    <a name="line.52"></a>
+<FONT color="green">053</FONT>      public static &lt;T extends Number&gt; MovingAverage&lt;T&gt; of(String name, Stat&lt;T&gt; input,<a name="line.53"></a>
+<FONT color="green">054</FONT>          int windowSize) {<a name="line.54"></a>
+<FONT color="green">055</FONT>        return new MovingAverage&lt;T&gt;(name, input, windowSize);<a name="line.55"></a>
+<FONT color="green">056</FONT>      }<a name="line.56"></a>
+<FONT color="green">057</FONT>    <a name="line.57"></a>
+<FONT color="green">058</FONT>      @Override<a name="line.58"></a>
+<FONT color="green">059</FONT>      public Double doSample() {<a name="line.59"></a>
+<FONT color="green">060</FONT>        T sample = input.read();<a name="line.60"></a>
+<FONT color="green">061</FONT>    <a name="line.61"></a>
+<FONT color="green">062</FONT>        if (samples.remainingCapacity() == 0) {<a name="line.62"></a>
+<FONT color="green">063</FONT>          sampleSum -= samples.removeLast().doubleValue();<a name="line.63"></a>
+<FONT color="green">064</FONT>        }<a name="line.64"></a>
+<FONT color="green">065</FONT>    <a name="line.65"></a>
+<FONT color="green">066</FONT>        samples.addFirst(sample);<a name="line.66"></a>
+<FONT color="green">067</FONT>        sampleSum += sample.doubleValue();<a name="line.67"></a>
+<FONT color="green">068</FONT>    <a name="line.68"></a>
+<FONT color="green">069</FONT>        return sampleSum / samples.size();<a name="line.69"></a>
+<FONT color="green">070</FONT>      }<a name="line.70"></a>
+<FONT color="green">071</FONT>    }<a name="line.71"></a>
 
 
 

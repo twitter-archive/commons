@@ -4,168 +4,167 @@
 <FONT color="green">001</FONT>    // =================================================================================================<a name="line.1"></a>
 <FONT color="green">002</FONT>    // Copyright 2011 Twitter, Inc.<a name="line.2"></a>
 <FONT color="green">003</FONT>    // -------------------------------------------------------------------------------------------------<a name="line.3"></a>
-<FONT color="green">004</FONT>    // Licensed to the Apache Software Foundation (ASF) under one or more contributor license<a name="line.4"></a>
-<FONT color="green">005</FONT>    // agreements.  See the NOTICE file distributed with this work for additional information regarding<a name="line.5"></a>
-<FONT color="green">006</FONT>    // copyright ownership.  The ASF licenses this file to you under the Apache License, Version 2.0<a name="line.6"></a>
-<FONT color="green">007</FONT>    // (the "License"); you may not use this file except in compliance with the License.  You may<a name="line.7"></a>
-<FONT color="green">008</FONT>    // obtain a copy of the License at<a name="line.8"></a>
+<FONT color="green">004</FONT>    // Licensed under the Apache License, Version 2.0 (the "License");<a name="line.4"></a>
+<FONT color="green">005</FONT>    // you may not use this work except in compliance with the License.<a name="line.5"></a>
+<FONT color="green">006</FONT>    // You may obtain a copy of the License in the LICENSE file, or at:<a name="line.6"></a>
+<FONT color="green">007</FONT>    //<a name="line.7"></a>
+<FONT color="green">008</FONT>    //  http://www.apache.org/licenses/LICENSE-2.0<a name="line.8"></a>
 <FONT color="green">009</FONT>    //<a name="line.9"></a>
-<FONT color="green">010</FONT>    //  http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
-<FONT color="green">011</FONT>    //<a name="line.11"></a>
-<FONT color="green">012</FONT>    // Unless required by applicable law or agreed to in writing, software distributed under the<a name="line.12"></a>
-<FONT color="green">013</FONT>    // License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either<a name="line.13"></a>
-<FONT color="green">014</FONT>    // express or implied.  See the License for the specific language governing permissions and<a name="line.14"></a>
-<FONT color="green">015</FONT>    // limitations under the License.<a name="line.15"></a>
-<FONT color="green">016</FONT>    // =================================================================================================<a name="line.16"></a>
-<FONT color="green">017</FONT>    <a name="line.17"></a>
-<FONT color="green">018</FONT>    package com.twitter.common.zookeeper;<a name="line.18"></a>
-<FONT color="green">019</FONT>    <a name="line.19"></a>
-<FONT color="green">020</FONT>    import com.google.common.annotations.VisibleForTesting;<a name="line.20"></a>
-<FONT color="green">021</FONT>    import com.google.common.base.Predicate;<a name="line.21"></a>
-<FONT color="green">022</FONT>    import com.google.common.collect.Ordering;<a name="line.22"></a>
-<FONT color="green">023</FONT>    import com.twitter.common.zookeeper.Group.GroupChangeListener;<a name="line.23"></a>
-<FONT color="green">024</FONT>    import com.twitter.common.zookeeper.Group.JoinException;<a name="line.24"></a>
-<FONT color="green">025</FONT>    import com.twitter.common.zookeeper.Group.Membership;<a name="line.25"></a>
-<FONT color="green">026</FONT>    import com.twitter.common.zookeeper.Group.UpdateException;<a name="line.26"></a>
-<FONT color="green">027</FONT>    import com.twitter.common.zookeeper.Group.WatchException;<a name="line.27"></a>
-<FONT color="green">028</FONT>    import org.apache.zookeeper.data.ACL;<a name="line.28"></a>
-<FONT color="green">029</FONT>    <a name="line.29"></a>
-<FONT color="green">030</FONT>    import javax.annotation.Nullable;<a name="line.30"></a>
-<FONT color="green">031</FONT>    import java.util.List;<a name="line.31"></a>
-<FONT color="green">032</FONT>    import java.util.logging.Logger;<a name="line.32"></a>
-<FONT color="green">033</FONT>    <a name="line.33"></a>
-<FONT color="green">034</FONT>    /**<a name="line.34"></a>
-<FONT color="green">035</FONT>     * A distributed mechanism for eventually arriving at an evenly partitioned space of long values.<a name="line.35"></a>
-<FONT color="green">036</FONT>     * A typical usage would have a client on each of several hosts joining a logical partition (a<a name="line.36"></a>
-<FONT color="green">037</FONT>     * "partition group") that represents some shared work.  Clients could then process a subset of a<a name="line.37"></a>
-<FONT color="green">038</FONT>     * full body of work by testing any given item of work with their partition filter.<a name="line.38"></a>
-<FONT color="green">039</FONT>     *<a name="line.39"></a>
-<FONT color="green">040</FONT>     * &lt;p&gt;Note that clients must be able to tolerate periods of duplicate processing by more than 1<a name="line.40"></a>
-<FONT color="green">041</FONT>     * partition as explained in {@link #join()}.<a name="line.41"></a>
-<FONT color="green">042</FONT>     *<a name="line.42"></a>
-<FONT color="green">043</FONT>     * @author John Sirois<a name="line.43"></a>
-<FONT color="green">044</FONT>     */<a name="line.44"></a>
-<FONT color="green">045</FONT>    public class Partitioner {<a name="line.45"></a>
-<FONT color="green">046</FONT>    <a name="line.46"></a>
-<FONT color="green">047</FONT>      private static final Logger LOG = Logger.getLogger(Partitioner.class.getName());<a name="line.47"></a>
-<FONT color="green">048</FONT>    <a name="line.48"></a>
-<FONT color="green">049</FONT>      private volatile int groupSize;<a name="line.49"></a>
-<FONT color="green">050</FONT>      private volatile int groupIndex;<a name="line.50"></a>
-<FONT color="green">051</FONT>      private final Group group;<a name="line.51"></a>
-<FONT color="green">052</FONT>    <a name="line.52"></a>
-<FONT color="green">053</FONT>      /**<a name="line.53"></a>
-<FONT color="green">054</FONT>       * Constructs a representation of a partition group but does not join it.  Note that the partition<a name="line.54"></a>
-<FONT color="green">055</FONT>       * group path will be created as a persistent zookeeper path if it does not already exist.<a name="line.55"></a>
-<FONT color="green">056</FONT>       *<a name="line.56"></a>
-<FONT color="green">057</FONT>       * @param zkClient a client to use for joining the partition group and watching its membership<a name="line.57"></a>
-<FONT color="green">058</FONT>       * @param acl the acl for this partition group<a name="line.58"></a>
-<FONT color="green">059</FONT>       * @param path a zookeeper path that represents the partition group<a name="line.59"></a>
-<FONT color="green">060</FONT>       */<a name="line.60"></a>
-<FONT color="green">061</FONT>      public Partitioner(ZooKeeperClient zkClient, List&lt;ACL&gt; acl, String path) {<a name="line.61"></a>
-<FONT color="green">062</FONT>        group = new Group(zkClient, acl, path);<a name="line.62"></a>
-<FONT color="green">063</FONT>      }<a name="line.63"></a>
-<FONT color="green">064</FONT>    <a name="line.64"></a>
-<FONT color="green">065</FONT>      @VisibleForTesting<a name="line.65"></a>
-<FONT color="green">066</FONT>      int getGroupSize() {<a name="line.66"></a>
-<FONT color="green">067</FONT>        return groupSize;<a name="line.67"></a>
-<FONT color="green">068</FONT>      }<a name="line.68"></a>
-<FONT color="green">069</FONT>    <a name="line.69"></a>
-<FONT color="green">070</FONT>      /**<a name="line.70"></a>
-<FONT color="green">071</FONT>       * Represents a slice of a partition group.  The partition is dynamic and will adjust its size as<a name="line.71"></a>
-<FONT color="green">072</FONT>       * members join and leave its partition group.<a name="line.72"></a>
-<FONT color="green">073</FONT>       */<a name="line.73"></a>
-<FONT color="green">074</FONT>      public abstract static class Partition implements Predicate&lt;Long&gt;, Membership {<a name="line.74"></a>
-<FONT color="green">075</FONT>    <a name="line.75"></a>
-<FONT color="green">076</FONT>        /**<a name="line.76"></a>
-<FONT color="green">077</FONT>         * Returns {@code true} if the given {@code value} is a member of this partition at this time.<a name="line.77"></a>
-<FONT color="green">078</FONT>         */<a name="line.78"></a>
-<FONT color="green">079</FONT>        public abstract boolean isMember(long value);<a name="line.79"></a>
-<FONT color="green">080</FONT>    <a name="line.80"></a>
-<FONT color="green">081</FONT>        /**<a name="line.81"></a>
-<FONT color="green">082</FONT>         * Evaluates partition membership based on the given {@code value}'s hash code.  If the value<a name="line.82"></a>
-<FONT color="green">083</FONT>         * is null it is never a member of a partition.<a name="line.83"></a>
-<FONT color="green">084</FONT>         */<a name="line.84"></a>
-<FONT color="green">085</FONT>        boolean isMember(Object value) {<a name="line.85"></a>
-<FONT color="green">086</FONT>          return (value != null) &amp;&amp; isMember(value.hashCode());<a name="line.86"></a>
-<FONT color="green">087</FONT>        }<a name="line.87"></a>
-<FONT color="green">088</FONT>    <a name="line.88"></a>
-<FONT color="green">089</FONT>        /**<a name="line.89"></a>
-<FONT color="green">090</FONT>         * Equivalent to {@link #isMember(long)} for all non-null values; however incurs unboxing<a name="line.90"></a>
-<FONT color="green">091</FONT>         * overhead.<a name="line.91"></a>
-<FONT color="green">092</FONT>         */<a name="line.92"></a>
-<FONT color="green">093</FONT>        @Override<a name="line.93"></a>
-<FONT color="green">094</FONT>        public boolean apply(@Nullable Long input) {<a name="line.94"></a>
-<FONT color="green">095</FONT>          return (input != null) &amp;&amp; isMember(input);<a name="line.95"></a>
-<FONT color="green">096</FONT>        }<a name="line.96"></a>
-<FONT color="green">097</FONT>      }<a name="line.97"></a>
-<FONT color="green">098</FONT>    <a name="line.98"></a>
-<FONT color="green">099</FONT>      /**<a name="line.99"></a>
-<FONT color="green">100</FONT>       * Attempts to join the partition group and claim a slice.  When successful, a predicate is<a name="line.100"></a>
-<FONT color="green">101</FONT>       * returned that can be used to test whether or not an item belongs to this partition.  The<a name="line.101"></a>
-<FONT color="green">102</FONT>       * predicate is dynamic such that as the group is further partitioned or partitions merge the<a name="line.102"></a>
-<FONT color="green">103</FONT>       * predicate will claim a narrower or wider swath of the partition space respectively.  Partition<a name="line.103"></a>
-<FONT color="green">104</FONT>       * creation and merging is not instantaneous and clients should expect independent partitions to<a name="line.104"></a>
-<FONT color="green">105</FONT>       * claim ownership of some items when partition membership is in flux.  It is only in the steady<a name="line.105"></a>
-<FONT color="green">106</FONT>       * state that a client should expect independent partitions to divide the partition space evenly<a name="line.106"></a>
-<FONT color="green">107</FONT>       * and without overlap.<a name="line.107"></a>
-<FONT color="green">108</FONT>       *<a name="line.108"></a>
-<FONT color="green">109</FONT>       * &lt;p&gt;TODO(John Sirois): consider adding a version with a global timeout for the join operation.<a name="line.109"></a>
-<FONT color="green">110</FONT>       *<a name="line.110"></a>
-<FONT color="green">111</FONT>       * @return the partition representing the slice of the partition group this member can claim<a name="line.111"></a>
-<FONT color="green">112</FONT>       * @throws JoinException if there was a problem joining the partition group<a name="line.112"></a>
-<FONT color="green">113</FONT>       * @throws InterruptedException if interrupted while waiting to join the partition group<a name="line.113"></a>
-<FONT color="green">114</FONT>       */<a name="line.114"></a>
-<FONT color="green">115</FONT>      public final Partition join() throws JoinException, InterruptedException {<a name="line.115"></a>
-<FONT color="green">116</FONT>        final Membership membership = group.join();<a name="line.116"></a>
-<FONT color="green">117</FONT>        try {<a name="line.117"></a>
-<FONT color="green">118</FONT>          group.watch(createGroupChangeListener(membership));<a name="line.118"></a>
-<FONT color="green">119</FONT>        } catch (WatchException e) {<a name="line.119"></a>
-<FONT color="green">120</FONT>          membership.cancel();<a name="line.120"></a>
-<FONT color="green">121</FONT>          throw new JoinException("Problem establishing watch on group after joining it", e);<a name="line.121"></a>
-<FONT color="green">122</FONT>        }<a name="line.122"></a>
-<FONT color="green">123</FONT>        return new Partition() {<a name="line.123"></a>
-<FONT color="green">124</FONT>          @Override public boolean isMember(long value) {<a name="line.124"></a>
-<FONT color="green">125</FONT>            return (value % groupSize) == groupIndex;<a name="line.125"></a>
-<FONT color="green">126</FONT>          }<a name="line.126"></a>
-<FONT color="green">127</FONT>    <a name="line.127"></a>
-<FONT color="green">128</FONT>          @Override public String getGroupPath() {<a name="line.128"></a>
-<FONT color="green">129</FONT>            return membership.getGroupPath();<a name="line.129"></a>
-<FONT color="green">130</FONT>          }<a name="line.130"></a>
-<FONT color="green">131</FONT>    <a name="line.131"></a>
-<FONT color="green">132</FONT>          @Override public String getMemberId() {<a name="line.132"></a>
-<FONT color="green">133</FONT>            return membership.getMemberId();<a name="line.133"></a>
-<FONT color="green">134</FONT>          }<a name="line.134"></a>
-<FONT color="green">135</FONT>    <a name="line.135"></a>
-<FONT color="green">136</FONT>          @Override public String getMemberPath() {<a name="line.136"></a>
-<FONT color="green">137</FONT>            return membership.getMemberPath();<a name="line.137"></a>
-<FONT color="green">138</FONT>          }<a name="line.138"></a>
-<FONT color="green">139</FONT>    <a name="line.139"></a>
-<FONT color="green">140</FONT>          @Override public byte[] updateMemberData() throws UpdateException {<a name="line.140"></a>
-<FONT color="green">141</FONT>            return membership.updateMemberData();<a name="line.141"></a>
-<FONT color="green">142</FONT>          }<a name="line.142"></a>
-<FONT color="green">143</FONT>    <a name="line.143"></a>
-<FONT color="green">144</FONT>          @Override public void cancel() throws JoinException {<a name="line.144"></a>
-<FONT color="green">145</FONT>            membership.cancel();<a name="line.145"></a>
-<FONT color="green">146</FONT>          }<a name="line.146"></a>
-<FONT color="green">147</FONT>        };<a name="line.147"></a>
-<FONT color="green">148</FONT>      }<a name="line.148"></a>
-<FONT color="green">149</FONT>    <a name="line.149"></a>
-<FONT color="green">150</FONT>      @VisibleForTesting GroupChangeListener createGroupChangeListener(final Membership membership) {<a name="line.150"></a>
-<FONT color="green">151</FONT>        return new GroupChangeListener() {<a name="line.151"></a>
-<FONT color="green">152</FONT>          @Override public void onGroupChange(Iterable&lt;String&gt; memberIds) {<a name="line.152"></a>
-<FONT color="green">153</FONT>            List&lt;String&gt; members = Ordering.natural().sortedCopy(memberIds);<a name="line.153"></a>
-<FONT color="green">154</FONT>            int newSize = members.size();<a name="line.154"></a>
-<FONT color="green">155</FONT>            int newIndex = members.indexOf(membership.getMemberId());<a name="line.155"></a>
-<FONT color="green">156</FONT>    <a name="line.156"></a>
-<FONT color="green">157</FONT>            LOG.info(String.format("Rebuilding group %s:%s [%d:%d]-&gt;[%d:%d]",<a name="line.157"></a>
-<FONT color="green">158</FONT>                membership.getGroupPath(), members, groupSize, groupIndex, newSize, newIndex));<a name="line.158"></a>
-<FONT color="green">159</FONT>    <a name="line.159"></a>
-<FONT color="green">160</FONT>            groupSize = newSize;<a name="line.160"></a>
-<FONT color="green">161</FONT>            groupIndex = newIndex;<a name="line.161"></a>
-<FONT color="green">162</FONT>          }<a name="line.162"></a>
-<FONT color="green">163</FONT>        };<a name="line.163"></a>
-<FONT color="green">164</FONT>      }<a name="line.164"></a>
-<FONT color="green">165</FONT>    }<a name="line.165"></a>
+<FONT color="green">010</FONT>    // Unless required by applicable law or agreed to in writing, software<a name="line.10"></a>
+<FONT color="green">011</FONT>    // distributed under the License is distributed on an "AS IS" BASIS,<a name="line.11"></a>
+<FONT color="green">012</FONT>    // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.12"></a>
+<FONT color="green">013</FONT>    // See the License for the specific language governing permissions and<a name="line.13"></a>
+<FONT color="green">014</FONT>    // limitations under the License.<a name="line.14"></a>
+<FONT color="green">015</FONT>    // =================================================================================================<a name="line.15"></a>
+<FONT color="green">016</FONT>    <a name="line.16"></a>
+<FONT color="green">017</FONT>    package com.twitter.common.zookeeper;<a name="line.17"></a>
+<FONT color="green">018</FONT>    <a name="line.18"></a>
+<FONT color="green">019</FONT>    import com.google.common.annotations.VisibleForTesting;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import com.google.common.base.Predicate;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import com.google.common.collect.Ordering;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import com.twitter.common.zookeeper.Group.GroupChangeListener;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import com.twitter.common.zookeeper.Group.JoinException;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import com.twitter.common.zookeeper.Group.Membership;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import com.twitter.common.zookeeper.Group.UpdateException;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import com.twitter.common.zookeeper.Group.WatchException;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import org.apache.zookeeper.data.ACL;<a name="line.27"></a>
+<FONT color="green">028</FONT>    <a name="line.28"></a>
+<FONT color="green">029</FONT>    import javax.annotation.Nullable;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import java.util.List;<a name="line.30"></a>
+<FONT color="green">031</FONT>    import java.util.logging.Logger;<a name="line.31"></a>
+<FONT color="green">032</FONT>    <a name="line.32"></a>
+<FONT color="green">033</FONT>    /**<a name="line.33"></a>
+<FONT color="green">034</FONT>     * A distributed mechanism for eventually arriving at an evenly partitioned space of long values.<a name="line.34"></a>
+<FONT color="green">035</FONT>     * A typical usage would have a client on each of several hosts joining a logical partition (a<a name="line.35"></a>
+<FONT color="green">036</FONT>     * "partition group") that represents some shared work.  Clients could then process a subset of a<a name="line.36"></a>
+<FONT color="green">037</FONT>     * full body of work by testing any given item of work with their partition filter.<a name="line.37"></a>
+<FONT color="green">038</FONT>     *<a name="line.38"></a>
+<FONT color="green">039</FONT>     * &lt;p&gt;Note that clients must be able to tolerate periods of duplicate processing by more than 1<a name="line.39"></a>
+<FONT color="green">040</FONT>     * partition as explained in {@link #join()}.<a name="line.40"></a>
+<FONT color="green">041</FONT>     *<a name="line.41"></a>
+<FONT color="green">042</FONT>     * @author John Sirois<a name="line.42"></a>
+<FONT color="green">043</FONT>     */<a name="line.43"></a>
+<FONT color="green">044</FONT>    public class Partitioner {<a name="line.44"></a>
+<FONT color="green">045</FONT>    <a name="line.45"></a>
+<FONT color="green">046</FONT>      private static final Logger LOG = Logger.getLogger(Partitioner.class.getName());<a name="line.46"></a>
+<FONT color="green">047</FONT>    <a name="line.47"></a>
+<FONT color="green">048</FONT>      private volatile int groupSize;<a name="line.48"></a>
+<FONT color="green">049</FONT>      private volatile int groupIndex;<a name="line.49"></a>
+<FONT color="green">050</FONT>      private final Group group;<a name="line.50"></a>
+<FONT color="green">051</FONT>    <a name="line.51"></a>
+<FONT color="green">052</FONT>      /**<a name="line.52"></a>
+<FONT color="green">053</FONT>       * Constructs a representation of a partition group but does not join it.  Note that the partition<a name="line.53"></a>
+<FONT color="green">054</FONT>       * group path will be created as a persistent zookeeper path if it does not already exist.<a name="line.54"></a>
+<FONT color="green">055</FONT>       *<a name="line.55"></a>
+<FONT color="green">056</FONT>       * @param zkClient a client to use for joining the partition group and watching its membership<a name="line.56"></a>
+<FONT color="green">057</FONT>       * @param acl the acl for this partition group<a name="line.57"></a>
+<FONT color="green">058</FONT>       * @param path a zookeeper path that represents the partition group<a name="line.58"></a>
+<FONT color="green">059</FONT>       */<a name="line.59"></a>
+<FONT color="green">060</FONT>      public Partitioner(ZooKeeperClient zkClient, List&lt;ACL&gt; acl, String path) {<a name="line.60"></a>
+<FONT color="green">061</FONT>        group = new Group(zkClient, acl, path);<a name="line.61"></a>
+<FONT color="green">062</FONT>      }<a name="line.62"></a>
+<FONT color="green">063</FONT>    <a name="line.63"></a>
+<FONT color="green">064</FONT>      @VisibleForTesting<a name="line.64"></a>
+<FONT color="green">065</FONT>      int getGroupSize() {<a name="line.65"></a>
+<FONT color="green">066</FONT>        return groupSize;<a name="line.66"></a>
+<FONT color="green">067</FONT>      }<a name="line.67"></a>
+<FONT color="green">068</FONT>    <a name="line.68"></a>
+<FONT color="green">069</FONT>      /**<a name="line.69"></a>
+<FONT color="green">070</FONT>       * Represents a slice of a partition group.  The partition is dynamic and will adjust its size as<a name="line.70"></a>
+<FONT color="green">071</FONT>       * members join and leave its partition group.<a name="line.71"></a>
+<FONT color="green">072</FONT>       */<a name="line.72"></a>
+<FONT color="green">073</FONT>      public abstract static class Partition implements Predicate&lt;Long&gt;, Membership {<a name="line.73"></a>
+<FONT color="green">074</FONT>    <a name="line.74"></a>
+<FONT color="green">075</FONT>        /**<a name="line.75"></a>
+<FONT color="green">076</FONT>         * Returns {@code true} if the given {@code value} is a member of this partition at this time.<a name="line.76"></a>
+<FONT color="green">077</FONT>         */<a name="line.77"></a>
+<FONT color="green">078</FONT>        public abstract boolean isMember(long value);<a name="line.78"></a>
+<FONT color="green">079</FONT>    <a name="line.79"></a>
+<FONT color="green">080</FONT>        /**<a name="line.80"></a>
+<FONT color="green">081</FONT>         * Evaluates partition membership based on the given {@code value}'s hash code.  If the value<a name="line.81"></a>
+<FONT color="green">082</FONT>         * is null it is never a member of a partition.<a name="line.82"></a>
+<FONT color="green">083</FONT>         */<a name="line.83"></a>
+<FONT color="green">084</FONT>        boolean isMember(Object value) {<a name="line.84"></a>
+<FONT color="green">085</FONT>          return (value != null) &amp;&amp; isMember(value.hashCode());<a name="line.85"></a>
+<FONT color="green">086</FONT>        }<a name="line.86"></a>
+<FONT color="green">087</FONT>    <a name="line.87"></a>
+<FONT color="green">088</FONT>        /**<a name="line.88"></a>
+<FONT color="green">089</FONT>         * Equivalent to {@link #isMember(long)} for all non-null values; however incurs unboxing<a name="line.89"></a>
+<FONT color="green">090</FONT>         * overhead.<a name="line.90"></a>
+<FONT color="green">091</FONT>         */<a name="line.91"></a>
+<FONT color="green">092</FONT>        @Override<a name="line.92"></a>
+<FONT color="green">093</FONT>        public boolean apply(@Nullable Long input) {<a name="line.93"></a>
+<FONT color="green">094</FONT>          return (input != null) &amp;&amp; isMember(input);<a name="line.94"></a>
+<FONT color="green">095</FONT>        }<a name="line.95"></a>
+<FONT color="green">096</FONT>      }<a name="line.96"></a>
+<FONT color="green">097</FONT>    <a name="line.97"></a>
+<FONT color="green">098</FONT>      /**<a name="line.98"></a>
+<FONT color="green">099</FONT>       * Attempts to join the partition group and claim a slice.  When successful, a predicate is<a name="line.99"></a>
+<FONT color="green">100</FONT>       * returned that can be used to test whether or not an item belongs to this partition.  The<a name="line.100"></a>
+<FONT color="green">101</FONT>       * predicate is dynamic such that as the group is further partitioned or partitions merge the<a name="line.101"></a>
+<FONT color="green">102</FONT>       * predicate will claim a narrower or wider swath of the partition space respectively.  Partition<a name="line.102"></a>
+<FONT color="green">103</FONT>       * creation and merging is not instantaneous and clients should expect independent partitions to<a name="line.103"></a>
+<FONT color="green">104</FONT>       * claim ownership of some items when partition membership is in flux.  It is only in the steady<a name="line.104"></a>
+<FONT color="green">105</FONT>       * state that a client should expect independent partitions to divide the partition space evenly<a name="line.105"></a>
+<FONT color="green">106</FONT>       * and without overlap.<a name="line.106"></a>
+<FONT color="green">107</FONT>       *<a name="line.107"></a>
+<FONT color="green">108</FONT>       * &lt;p&gt;TODO(John Sirois): consider adding a version with a global timeout for the join operation.<a name="line.108"></a>
+<FONT color="green">109</FONT>       *<a name="line.109"></a>
+<FONT color="green">110</FONT>       * @return the partition representing the slice of the partition group this member can claim<a name="line.110"></a>
+<FONT color="green">111</FONT>       * @throws JoinException if there was a problem joining the partition group<a name="line.111"></a>
+<FONT color="green">112</FONT>       * @throws InterruptedException if interrupted while waiting to join the partition group<a name="line.112"></a>
+<FONT color="green">113</FONT>       */<a name="line.113"></a>
+<FONT color="green">114</FONT>      public final Partition join() throws JoinException, InterruptedException {<a name="line.114"></a>
+<FONT color="green">115</FONT>        final Membership membership = group.join();<a name="line.115"></a>
+<FONT color="green">116</FONT>        try {<a name="line.116"></a>
+<FONT color="green">117</FONT>          group.watch(createGroupChangeListener(membership));<a name="line.117"></a>
+<FONT color="green">118</FONT>        } catch (WatchException e) {<a name="line.118"></a>
+<FONT color="green">119</FONT>          membership.cancel();<a name="line.119"></a>
+<FONT color="green">120</FONT>          throw new JoinException("Problem establishing watch on group after joining it", e);<a name="line.120"></a>
+<FONT color="green">121</FONT>        }<a name="line.121"></a>
+<FONT color="green">122</FONT>        return new Partition() {<a name="line.122"></a>
+<FONT color="green">123</FONT>          @Override public boolean isMember(long value) {<a name="line.123"></a>
+<FONT color="green">124</FONT>            return (value % groupSize) == groupIndex;<a name="line.124"></a>
+<FONT color="green">125</FONT>          }<a name="line.125"></a>
+<FONT color="green">126</FONT>    <a name="line.126"></a>
+<FONT color="green">127</FONT>          @Override public String getGroupPath() {<a name="line.127"></a>
+<FONT color="green">128</FONT>            return membership.getGroupPath();<a name="line.128"></a>
+<FONT color="green">129</FONT>          }<a name="line.129"></a>
+<FONT color="green">130</FONT>    <a name="line.130"></a>
+<FONT color="green">131</FONT>          @Override public String getMemberId() {<a name="line.131"></a>
+<FONT color="green">132</FONT>            return membership.getMemberId();<a name="line.132"></a>
+<FONT color="green">133</FONT>          }<a name="line.133"></a>
+<FONT color="green">134</FONT>    <a name="line.134"></a>
+<FONT color="green">135</FONT>          @Override public String getMemberPath() {<a name="line.135"></a>
+<FONT color="green">136</FONT>            return membership.getMemberPath();<a name="line.136"></a>
+<FONT color="green">137</FONT>          }<a name="line.137"></a>
+<FONT color="green">138</FONT>    <a name="line.138"></a>
+<FONT color="green">139</FONT>          @Override public byte[] updateMemberData() throws UpdateException {<a name="line.139"></a>
+<FONT color="green">140</FONT>            return membership.updateMemberData();<a name="line.140"></a>
+<FONT color="green">141</FONT>          }<a name="line.141"></a>
+<FONT color="green">142</FONT>    <a name="line.142"></a>
+<FONT color="green">143</FONT>          @Override public void cancel() throws JoinException {<a name="line.143"></a>
+<FONT color="green">144</FONT>            membership.cancel();<a name="line.144"></a>
+<FONT color="green">145</FONT>          }<a name="line.145"></a>
+<FONT color="green">146</FONT>        };<a name="line.146"></a>
+<FONT color="green">147</FONT>      }<a name="line.147"></a>
+<FONT color="green">148</FONT>    <a name="line.148"></a>
+<FONT color="green">149</FONT>      @VisibleForTesting GroupChangeListener createGroupChangeListener(final Membership membership) {<a name="line.149"></a>
+<FONT color="green">150</FONT>        return new GroupChangeListener() {<a name="line.150"></a>
+<FONT color="green">151</FONT>          @Override public void onGroupChange(Iterable&lt;String&gt; memberIds) {<a name="line.151"></a>
+<FONT color="green">152</FONT>            List&lt;String&gt; members = Ordering.natural().sortedCopy(memberIds);<a name="line.152"></a>
+<FONT color="green">153</FONT>            int newSize = members.size();<a name="line.153"></a>
+<FONT color="green">154</FONT>            int newIndex = members.indexOf(membership.getMemberId());<a name="line.154"></a>
+<FONT color="green">155</FONT>    <a name="line.155"></a>
+<FONT color="green">156</FONT>            LOG.info(String.format("Rebuilding group %s:%s [%d:%d]-&gt;[%d:%d]",<a name="line.156"></a>
+<FONT color="green">157</FONT>                membership.getGroupPath(), members, groupSize, groupIndex, newSize, newIndex));<a name="line.157"></a>
+<FONT color="green">158</FONT>    <a name="line.158"></a>
+<FONT color="green">159</FONT>            groupSize = newSize;<a name="line.159"></a>
+<FONT color="green">160</FONT>            groupIndex = newIndex;<a name="line.160"></a>
+<FONT color="green">161</FONT>          }<a name="line.161"></a>
+<FONT color="green">162</FONT>        };<a name="line.162"></a>
+<FONT color="green">163</FONT>      }<a name="line.163"></a>
+<FONT color="green">164</FONT>    }<a name="line.164"></a>
 
 
 

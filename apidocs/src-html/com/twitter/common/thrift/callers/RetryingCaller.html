@@ -4,227 +4,226 @@
 <FONT color="green">001</FONT>    // =================================================================================================<a name="line.1"></a>
 <FONT color="green">002</FONT>    // Copyright 2011 Twitter, Inc.<a name="line.2"></a>
 <FONT color="green">003</FONT>    // -------------------------------------------------------------------------------------------------<a name="line.3"></a>
-<FONT color="green">004</FONT>    // Licensed to the Apache Software Foundation (ASF) under one or more contributor license<a name="line.4"></a>
-<FONT color="green">005</FONT>    // agreements.  See the NOTICE file distributed with this work for additional information regarding<a name="line.5"></a>
-<FONT color="green">006</FONT>    // copyright ownership.  The ASF licenses this file to you under the Apache License, Version 2.0<a name="line.6"></a>
-<FONT color="green">007</FONT>    // (the "License"); you may not use this file except in compliance with the License.  You may<a name="line.7"></a>
-<FONT color="green">008</FONT>    // obtain a copy of the License at<a name="line.8"></a>
+<FONT color="green">004</FONT>    // Licensed under the Apache License, Version 2.0 (the "License");<a name="line.4"></a>
+<FONT color="green">005</FONT>    // you may not use this work except in compliance with the License.<a name="line.5"></a>
+<FONT color="green">006</FONT>    // You may obtain a copy of the License in the LICENSE file, or at:<a name="line.6"></a>
+<FONT color="green">007</FONT>    //<a name="line.7"></a>
+<FONT color="green">008</FONT>    //  http://www.apache.org/licenses/LICENSE-2.0<a name="line.8"></a>
 <FONT color="green">009</FONT>    //<a name="line.9"></a>
-<FONT color="green">010</FONT>    //  http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
-<FONT color="green">011</FONT>    //<a name="line.11"></a>
-<FONT color="green">012</FONT>    // Unless required by applicable law or agreed to in writing, software distributed under the<a name="line.12"></a>
-<FONT color="green">013</FONT>    // License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either<a name="line.13"></a>
-<FONT color="green">014</FONT>    // express or implied.  See the License for the specific language governing permissions and<a name="line.14"></a>
-<FONT color="green">015</FONT>    // limitations under the License.<a name="line.15"></a>
-<FONT color="green">016</FONT>    // =================================================================================================<a name="line.16"></a>
-<FONT color="green">017</FONT>    <a name="line.17"></a>
-<FONT color="green">018</FONT>    package com.twitter.common.thrift.callers;<a name="line.18"></a>
-<FONT color="green">019</FONT>    <a name="line.19"></a>
-<FONT color="green">020</FONT>    import com.google.common.annotations.VisibleForTesting;<a name="line.20"></a>
-<FONT color="green">021</FONT>    import com.google.common.base.Function;<a name="line.21"></a>
-<FONT color="green">022</FONT>    import com.google.common.base.Joiner;<a name="line.22"></a>
-<FONT color="green">023</FONT>    import com.google.common.base.Predicate;<a name="line.23"></a>
-<FONT color="green">024</FONT>    import com.google.common.base.Throwables;<a name="line.24"></a>
-<FONT color="green">025</FONT>    import com.google.common.collect.ImmutableSet;<a name="line.25"></a>
-<FONT color="green">026</FONT>    import com.google.common.collect.Iterables;<a name="line.26"></a>
-<FONT color="green">027</FONT>    import com.google.common.collect.Lists;<a name="line.27"></a>
-<FONT color="green">028</FONT>    import com.google.common.collect.MapMaker;<a name="line.28"></a>
-<FONT color="green">029</FONT>    import com.twitter.common.quantity.Amount;<a name="line.29"></a>
-<FONT color="green">030</FONT>    import com.twitter.common.quantity.Time;<a name="line.30"></a>
-<FONT color="green">031</FONT>    import com.twitter.common.stats.StatsProvider;<a name="line.31"></a>
-<FONT color="green">032</FONT>    import com.twitter.common.thrift.TResourceExhaustedException;<a name="line.32"></a>
-<FONT color="green">033</FONT>    import org.apache.thrift.async.AsyncMethodCallback;<a name="line.33"></a>
-<FONT color="green">034</FONT>    <a name="line.34"></a>
-<FONT color="green">035</FONT>    import javax.annotation.Nullable;<a name="line.35"></a>
-<FONT color="green">036</FONT>    import java.lang.reflect.Method;<a name="line.36"></a>
-<FONT color="green">037</FONT>    import java.util.List;<a name="line.37"></a>
-<FONT color="green">038</FONT>    import java.util.Map;<a name="line.38"></a>
-<FONT color="green">039</FONT>    import java.util.concurrent.atomic.AtomicInteger;<a name="line.39"></a>
-<FONT color="green">040</FONT>    import java.util.concurrent.atomic.AtomicLong;<a name="line.40"></a>
-<FONT color="green">041</FONT>    import java.util.logging.Logger;<a name="line.41"></a>
-<FONT color="green">042</FONT>    <a name="line.42"></a>
-<FONT color="green">043</FONT>    /**<a name="line.43"></a>
-<FONT color="green">044</FONT>    * A caller that will retry calls to the wrapped caller.<a name="line.44"></a>
-<FONT color="green">045</FONT>    *<a name="line.45"></a>
-<FONT color="green">046</FONT>    * @author William Farner<a name="line.46"></a>
-<FONT color="green">047</FONT>    */<a name="line.47"></a>
-<FONT color="green">048</FONT>    public class RetryingCaller extends CallerDecorator {<a name="line.48"></a>
-<FONT color="green">049</FONT>      private static final Logger LOG = Logger.getLogger(RetryingCaller.class.getName());<a name="line.49"></a>
-<FONT color="green">050</FONT>    <a name="line.50"></a>
-<FONT color="green">051</FONT>      @VisibleForTesting<a name="line.51"></a>
-<FONT color="green">052</FONT>      public static final Amount&lt;Long, Time&gt; NONBLOCKING_TIMEOUT = Amount.of(-1L, Time.MILLISECONDS);<a name="line.52"></a>
-<FONT color="green">053</FONT>    <a name="line.53"></a>
-<FONT color="green">054</FONT>      private final StatsProvider statsProvider;<a name="line.54"></a>
-<FONT color="green">055</FONT>      private final String serviceName;<a name="line.55"></a>
-<FONT color="green">056</FONT>      private final int retries;<a name="line.56"></a>
-<FONT color="green">057</FONT>      private final ImmutableSet&lt;Class&lt;? extends Exception&gt;&gt; retryableExceptions;<a name="line.57"></a>
-<FONT color="green">058</FONT>      private final boolean debug;<a name="line.58"></a>
-<FONT color="green">059</FONT>    <a name="line.59"></a>
-<FONT color="green">060</FONT>      /**<a name="line.60"></a>
-<FONT color="green">061</FONT>       * Creates a new retrying caller. The retrying caller will attempt to call invoked methods on the<a name="line.61"></a>
-<FONT color="green">062</FONT>       * underlying caller at most {@code retries} times.  A retry will be performed only when one of<a name="line.62"></a>
-<FONT color="green">063</FONT>       * the {@code retryableExceptions} is caught.<a name="line.63"></a>
-<FONT color="green">064</FONT>       *<a name="line.64"></a>
-<FONT color="green">065</FONT>       * @param decoratedCall The caller to decorate with retries.<a name="line.65"></a>
-<FONT color="green">066</FONT>       * @param async Whether the caller is asynchronous.<a name="line.66"></a>
-<FONT color="green">067</FONT>       * @param statsProvider The stat provider to export retry statistics through.<a name="line.67"></a>
-<FONT color="green">068</FONT>       * @param serviceName The service name that calls are being invoked on.<a name="line.68"></a>
-<FONT color="green">069</FONT>       * @param retries The maximum number of retries to perform.<a name="line.69"></a>
-<FONT color="green">070</FONT>       * @param retryableExceptions The exceptions that can be retried.<a name="line.70"></a>
-<FONT color="green">071</FONT>       * @param debug Whether to include debugging information when retries are being performed.<a name="line.71"></a>
-<FONT color="green">072</FONT>       */<a name="line.72"></a>
-<FONT color="green">073</FONT>      public RetryingCaller(Caller decoratedCall, boolean async, StatsProvider statsProvider,<a name="line.73"></a>
-<FONT color="green">074</FONT>          String serviceName, int retries, ImmutableSet&lt;Class&lt;? extends Exception&gt;&gt; retryableExceptions,<a name="line.74"></a>
-<FONT color="green">075</FONT>          boolean debug) {<a name="line.75"></a>
-<FONT color="green">076</FONT>        super(decoratedCall, async);<a name="line.76"></a>
-<FONT color="green">077</FONT>        this.statsProvider = statsProvider;<a name="line.77"></a>
-<FONT color="green">078</FONT>        this.serviceName = serviceName;<a name="line.78"></a>
-<FONT color="green">079</FONT>        this.retries = retries;<a name="line.79"></a>
-<FONT color="green">080</FONT>        this.retryableExceptions = retryableExceptions;<a name="line.80"></a>
-<FONT color="green">081</FONT>        this.debug = debug;<a name="line.81"></a>
-<FONT color="green">082</FONT>      }<a name="line.82"></a>
-<FONT color="green">083</FONT>    <a name="line.83"></a>
-<FONT color="green">084</FONT>      private final Map&lt;Method, AtomicLong&gt; stats =<a name="line.84"></a>
-<FONT color="green">085</FONT>          new MapMaker().makeComputingMap(new Function&lt;Method, AtomicLong&gt;() {<a name="line.85"></a>
-<FONT color="green">086</FONT>            @Override public AtomicLong apply(Method method) {<a name="line.86"></a>
-<FONT color="green">087</FONT>              // Thrift does not support overloads - so just the name disambiguates all calls.<a name="line.87"></a>
-<FONT color="green">088</FONT>              return statsProvider.makeCounter(serviceName + "_" + method.getName() + "_retries");<a name="line.88"></a>
-<FONT color="green">089</FONT>            }<a name="line.89"></a>
-<FONT color="green">090</FONT>          });<a name="line.90"></a>
-<FONT color="green">091</FONT>    <a name="line.91"></a>
-<FONT color="green">092</FONT>      @Override public Object call(final Method method, final Object[] args,<a name="line.92"></a>
-<FONT color="green">093</FONT>          @Nullable final AsyncMethodCallback callback,<a name="line.93"></a>
-<FONT color="green">094</FONT>          @Nullable final Amount&lt;Long, Time&gt; connectTimeoutOverride) throws Throwable {<a name="line.94"></a>
-<FONT color="green">095</FONT>        final AtomicLong retryCounter = stats.get(method);<a name="line.95"></a>
-<FONT color="green">096</FONT>        final AtomicInteger attempts = new AtomicInteger();<a name="line.96"></a>
-<FONT color="green">097</FONT>        final List&lt;Throwable&gt; exceptions = Lists.newArrayList();<a name="line.97"></a>
-<FONT color="green">098</FONT>    <a name="line.98"></a>
-<FONT color="green">099</FONT>        final ResultCapture capture = new ResultCapture() {<a name="line.99"></a>
-<FONT color="green">100</FONT>          @Override public void success() {<a name="line.100"></a>
-<FONT color="green">101</FONT>            // No-op.<a name="line.101"></a>
-<FONT color="green">102</FONT>          }<a name="line.102"></a>
-<FONT color="green">103</FONT>    <a name="line.103"></a>
-<FONT color="green">104</FONT>          @Override public boolean fail(Throwable t) {<a name="line.104"></a>
-<FONT color="green">105</FONT>            if (!isRetryable(t)) {<a name="line.105"></a>
-<FONT color="green">106</FONT>              if (debug) {<a name="line.106"></a>
-<FONT color="green">107</FONT>                LOG.warning(String.format(<a name="line.107"></a>
-<FONT color="green">108</FONT>                    "Call failed with un-retryable exception of [%s]: %s, previous exceptions: %s",<a name="line.108"></a>
-<FONT color="green">109</FONT>                    t.getClass().getName(), t.getMessage(), combineStackTraces(exceptions)));<a name="line.109"></a>
-<FONT color="green">110</FONT>              }<a name="line.110"></a>
-<FONT color="green">111</FONT>    <a name="line.111"></a>
-<FONT color="green">112</FONT>              return true;<a name="line.112"></a>
-<FONT color="green">113</FONT>            } else if (attempts.get() &gt;= retries) {<a name="line.113"></a>
-<FONT color="green">114</FONT>              exceptions.add(t);<a name="line.114"></a>
-<FONT color="green">115</FONT>    <a name="line.115"></a>
-<FONT color="green">116</FONT>              if (debug) {<a name="line.116"></a>
-<FONT color="green">117</FONT>                LOG.warning(String.format("Retried %d times, last error: %s, exceptions: %s",<a name="line.117"></a>
-<FONT color="green">118</FONT>                    attempts.get(), t, combineStackTraces(exceptions)));<a name="line.118"></a>
-<FONT color="green">119</FONT>              }<a name="line.119"></a>
-<FONT color="green">120</FONT>    <a name="line.120"></a>
-<FONT color="green">121</FONT>              return true;<a name="line.121"></a>
-<FONT color="green">122</FONT>            } else {<a name="line.122"></a>
-<FONT color="green">123</FONT>              exceptions.add(t);<a name="line.123"></a>
-<FONT color="green">124</FONT>    <a name="line.124"></a>
-<FONT color="green">125</FONT>              if (isAsync() &amp;&amp; attempts.incrementAndGet() &lt;= retries) {<a name="line.125"></a>
-<FONT color="green">126</FONT>                try {<a name="line.126"></a>
-<FONT color="green">127</FONT>                  retryCounter.incrementAndGet();<a name="line.127"></a>
-<FONT color="green">128</FONT>                  // override connect timeout in ThriftCaller to prevent blocking for a connection<a name="line.128"></a>
-<FONT color="green">129</FONT>                  // for async retries (since this is within the callback in the selector thread)<a name="line.129"></a>
-<FONT color="green">130</FONT>                  invoke(method, args, callback, this, NONBLOCKING_TIMEOUT);<a name="line.130"></a>
-<FONT color="green">131</FONT>                } catch (Throwable throwable) {<a name="line.131"></a>
-<FONT color="green">132</FONT>                  return fail(throwable);<a name="line.132"></a>
-<FONT color="green">133</FONT>                }<a name="line.133"></a>
-<FONT color="green">134</FONT>              }<a name="line.134"></a>
-<FONT color="green">135</FONT>    <a name="line.135"></a>
-<FONT color="green">136</FONT>              return false;<a name="line.136"></a>
-<FONT color="green">137</FONT>            }<a name="line.137"></a>
-<FONT color="green">138</FONT>          }<a name="line.138"></a>
-<FONT color="green">139</FONT>        };<a name="line.139"></a>
-<FONT color="green">140</FONT>    <a name="line.140"></a>
-<FONT color="green">141</FONT>        boolean continueLoop;<a name="line.141"></a>
-<FONT color="green">142</FONT>        do {<a name="line.142"></a>
-<FONT color="green">143</FONT>          try {<a name="line.143"></a>
-<FONT color="green">144</FONT>            // If this is an async call, the looping will be handled within the capture.<a name="line.144"></a>
-<FONT color="green">145</FONT>            return invoke(method, args, callback, capture, connectTimeoutOverride);<a name="line.145"></a>
-<FONT color="green">146</FONT>          } catch (Throwable t) {<a name="line.146"></a>
-<FONT color="green">147</FONT>            if (!isRetryable(t)) {<a name="line.147"></a>
-<FONT color="green">148</FONT>              Throwable propagated = t;<a name="line.148"></a>
-<FONT color="green">149</FONT>    <a name="line.149"></a>
-<FONT color="green">150</FONT>              if (!exceptions.isEmpty() &amp;&amp; (t instanceof TResourceExhaustedException)) {<a name="line.150"></a>
-<FONT color="green">151</FONT>                // If we've been trucking along through retries that have had remote call failures<a name="line.151"></a>
-<FONT color="green">152</FONT>                // and we suddenly can't immediately get a connection on the next retry, throw the<a name="line.152"></a>
-<FONT color="green">153</FONT>                // previous remote call failure - the idea here is that the remote call failure is<a name="line.153"></a>
-<FONT color="green">154</FONT>                // more interesting than a transient inability to get an immediate connection.<a name="line.154"></a>
-<FONT color="green">155</FONT>                propagated = exceptions.remove(exceptions.size() - 1);<a name="line.155"></a>
-<FONT color="green">156</FONT>              }<a name="line.156"></a>
-<FONT color="green">157</FONT>    <a name="line.157"></a>
-<FONT color="green">158</FONT>              if (isAsync()) {<a name="line.158"></a>
-<FONT color="green">159</FONT>                callback.onError(propagated);<a name="line.159"></a>
-<FONT color="green">160</FONT>              } else {<a name="line.160"></a>
-<FONT color="green">161</FONT>                throw propagated;<a name="line.161"></a>
-<FONT color="green">162</FONT>              }<a name="line.162"></a>
-<FONT color="green">163</FONT>            }<a name="line.163"></a>
-<FONT color="green">164</FONT>          }<a name="line.164"></a>
-<FONT color="green">165</FONT>    <a name="line.165"></a>
-<FONT color="green">166</FONT>          continueLoop = !isAsync() &amp;&amp; attempts.incrementAndGet() &lt;= retries;<a name="line.166"></a>
-<FONT color="green">167</FONT>          if (continueLoop) retryCounter.incrementAndGet();<a name="line.167"></a>
-<FONT color="green">168</FONT>        } while (continueLoop);<a name="line.168"></a>
-<FONT color="green">169</FONT>    <a name="line.169"></a>
-<FONT color="green">170</FONT>        Throwable lastRetriedException = Iterables.getLast(exceptions);<a name="line.170"></a>
-<FONT color="green">171</FONT>        if (debug) {<a name="line.171"></a>
-<FONT color="green">172</FONT>          if (!exceptions.isEmpty()) {<a name="line.172"></a>
-<FONT color="green">173</FONT>            LOG.warning(<a name="line.173"></a>
-<FONT color="green">174</FONT>                String.format("Retried %d times, last error: %s, previous exceptions: %s",<a name="line.174"></a>
-<FONT color="green">175</FONT>                    attempts.get(), lastRetriedException, combineStackTraces(exceptions)));<a name="line.175"></a>
-<FONT color="green">176</FONT>          } else {<a name="line.176"></a>
-<FONT color="green">177</FONT>            LOG.warning(<a name="line.177"></a>
-<FONT color="green">178</FONT>                String.format("Retried 1 time, last error: %s", lastRetriedException));<a name="line.178"></a>
-<FONT color="green">179</FONT>          }<a name="line.179"></a>
-<FONT color="green">180</FONT>        }<a name="line.180"></a>
-<FONT color="green">181</FONT>    <a name="line.181"></a>
-<FONT color="green">182</FONT>        if (!isAsync()) throw lastRetriedException;<a name="line.182"></a>
-<FONT color="green">183</FONT>        return null;<a name="line.183"></a>
-<FONT color="green">184</FONT>      }<a name="line.184"></a>
-<FONT color="green">185</FONT>    <a name="line.185"></a>
-<FONT color="green">186</FONT>      private boolean isRetryable(Throwable throwable) {<a name="line.186"></a>
-<FONT color="green">187</FONT>        return isRetryable.get(throwable.getClass());<a name="line.187"></a>
-<FONT color="green">188</FONT>      }<a name="line.188"></a>
-<FONT color="green">189</FONT>    <a name="line.189"></a>
-<FONT color="green">190</FONT>      private final Map&lt;Class&lt;? extends Throwable&gt;, Boolean&gt; isRetryable =<a name="line.190"></a>
-<FONT color="green">191</FONT>          new MapMaker().makeComputingMap(new Function&lt;Class&lt;? extends Throwable&gt;, Boolean&gt;() {<a name="line.191"></a>
-<FONT color="green">192</FONT>            @Override public Boolean apply(Class&lt;? extends Throwable&gt; exceptionClass) {<a name="line.192"></a>
-<FONT color="green">193</FONT>              return isRetryable(exceptionClass);<a name="line.193"></a>
-<FONT color="green">194</FONT>            }<a name="line.194"></a>
-<FONT color="green">195</FONT>          });<a name="line.195"></a>
-<FONT color="green">196</FONT>    <a name="line.196"></a>
-<FONT color="green">197</FONT>      private boolean isRetryable(final Class&lt;? extends Throwable&gt; exceptionClass) {<a name="line.197"></a>
-<FONT color="green">198</FONT>        if (retryableExceptions.contains(exceptionClass)) {<a name="line.198"></a>
-<FONT color="green">199</FONT>          return true;<a name="line.199"></a>
-<FONT color="green">200</FONT>        }<a name="line.200"></a>
-<FONT color="green">201</FONT>        return Iterables.any(retryableExceptions, new Predicate&lt;Class&lt;? extends Exception&gt;&gt;() {<a name="line.201"></a>
-<FONT color="green">202</FONT>          @Override public boolean apply(Class&lt;? extends Exception&gt; retryableExceptionClass) {<a name="line.202"></a>
-<FONT color="green">203</FONT>            return retryableExceptionClass.isAssignableFrom(exceptionClass);<a name="line.203"></a>
-<FONT color="green">204</FONT>          }<a name="line.204"></a>
-<FONT color="green">205</FONT>        });<a name="line.205"></a>
-<FONT color="green">206</FONT>      }<a name="line.206"></a>
-<FONT color="green">207</FONT>    <a name="line.207"></a>
-<FONT color="green">208</FONT>      private static final Joiner STACK_TRACE_JOINER = Joiner.on('\n');<a name="line.208"></a>
-<FONT color="green">209</FONT>    <a name="line.209"></a>
-<FONT color="green">210</FONT>      private static String combineStackTraces(List&lt;Throwable&gt; exceptions) {<a name="line.210"></a>
-<FONT color="green">211</FONT>        if (exceptions.isEmpty()) {<a name="line.211"></a>
-<FONT color="green">212</FONT>          return "none";<a name="line.212"></a>
-<FONT color="green">213</FONT>        } else {<a name="line.213"></a>
-<FONT color="green">214</FONT>          return STACK_TRACE_JOINER.join(Iterables.transform(exceptions,<a name="line.214"></a>
-<FONT color="green">215</FONT>              new Function&lt;Throwable, String&gt;() {<a name="line.215"></a>
-<FONT color="green">216</FONT>                private int index = 1;<a name="line.216"></a>
-<FONT color="green">217</FONT>                @Override public String apply(Throwable exception) {<a name="line.217"></a>
-<FONT color="green">218</FONT>                  return String.format("[%d] %s",<a name="line.218"></a>
-<FONT color="green">219</FONT>                      index++, Throwables.getStackTraceAsString(exception));<a name="line.219"></a>
-<FONT color="green">220</FONT>                }<a name="line.220"></a>
-<FONT color="green">221</FONT>              }));<a name="line.221"></a>
-<FONT color="green">222</FONT>        }<a name="line.222"></a>
-<FONT color="green">223</FONT>      }<a name="line.223"></a>
-<FONT color="green">224</FONT>    }<a name="line.224"></a>
+<FONT color="green">010</FONT>    // Unless required by applicable law or agreed to in writing, software<a name="line.10"></a>
+<FONT color="green">011</FONT>    // distributed under the License is distributed on an "AS IS" BASIS,<a name="line.11"></a>
+<FONT color="green">012</FONT>    // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.12"></a>
+<FONT color="green">013</FONT>    // See the License for the specific language governing permissions and<a name="line.13"></a>
+<FONT color="green">014</FONT>    // limitations under the License.<a name="line.14"></a>
+<FONT color="green">015</FONT>    // =================================================================================================<a name="line.15"></a>
+<FONT color="green">016</FONT>    <a name="line.16"></a>
+<FONT color="green">017</FONT>    package com.twitter.common.thrift.callers;<a name="line.17"></a>
+<FONT color="green">018</FONT>    <a name="line.18"></a>
+<FONT color="green">019</FONT>    import com.google.common.annotations.VisibleForTesting;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import com.google.common.base.Function;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import com.google.common.base.Joiner;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import com.google.common.base.Predicate;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import com.google.common.base.Throwables;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import com.google.common.collect.ImmutableSet;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import com.google.common.collect.Iterables;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import com.google.common.collect.Lists;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import com.google.common.collect.MapMaker;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import com.twitter.common.quantity.Amount;<a name="line.28"></a>
+<FONT color="green">029</FONT>    import com.twitter.common.quantity.Time;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import com.twitter.common.stats.StatsProvider;<a name="line.30"></a>
+<FONT color="green">031</FONT>    import com.twitter.common.thrift.TResourceExhaustedException;<a name="line.31"></a>
+<FONT color="green">032</FONT>    import org.apache.thrift.async.AsyncMethodCallback;<a name="line.32"></a>
+<FONT color="green">033</FONT>    <a name="line.33"></a>
+<FONT color="green">034</FONT>    import javax.annotation.Nullable;<a name="line.34"></a>
+<FONT color="green">035</FONT>    import java.lang.reflect.Method;<a name="line.35"></a>
+<FONT color="green">036</FONT>    import java.util.List;<a name="line.36"></a>
+<FONT color="green">037</FONT>    import java.util.Map;<a name="line.37"></a>
+<FONT color="green">038</FONT>    import java.util.concurrent.atomic.AtomicInteger;<a name="line.38"></a>
+<FONT color="green">039</FONT>    import java.util.concurrent.atomic.AtomicLong;<a name="line.39"></a>
+<FONT color="green">040</FONT>    import java.util.logging.Logger;<a name="line.40"></a>
+<FONT color="green">041</FONT>    <a name="line.41"></a>
+<FONT color="green">042</FONT>    /**<a name="line.42"></a>
+<FONT color="green">043</FONT>    * A caller that will retry calls to the wrapped caller.<a name="line.43"></a>
+<FONT color="green">044</FONT>    *<a name="line.44"></a>
+<FONT color="green">045</FONT>    * @author William Farner<a name="line.45"></a>
+<FONT color="green">046</FONT>    */<a name="line.46"></a>
+<FONT color="green">047</FONT>    public class RetryingCaller extends CallerDecorator {<a name="line.47"></a>
+<FONT color="green">048</FONT>      private static final Logger LOG = Logger.getLogger(RetryingCaller.class.getName());<a name="line.48"></a>
+<FONT color="green">049</FONT>    <a name="line.49"></a>
+<FONT color="green">050</FONT>      @VisibleForTesting<a name="line.50"></a>
+<FONT color="green">051</FONT>      public static final Amount&lt;Long, Time&gt; NONBLOCKING_TIMEOUT = Amount.of(-1L, Time.MILLISECONDS);<a name="line.51"></a>
+<FONT color="green">052</FONT>    <a name="line.52"></a>
+<FONT color="green">053</FONT>      private final StatsProvider statsProvider;<a name="line.53"></a>
+<FONT color="green">054</FONT>      private final String serviceName;<a name="line.54"></a>
+<FONT color="green">055</FONT>      private final int retries;<a name="line.55"></a>
+<FONT color="green">056</FONT>      private final ImmutableSet&lt;Class&lt;? extends Exception&gt;&gt; retryableExceptions;<a name="line.56"></a>
+<FONT color="green">057</FONT>      private final boolean debug;<a name="line.57"></a>
+<FONT color="green">058</FONT>    <a name="line.58"></a>
+<FONT color="green">059</FONT>      /**<a name="line.59"></a>
+<FONT color="green">060</FONT>       * Creates a new retrying caller. The retrying caller will attempt to call invoked methods on the<a name="line.60"></a>
+<FONT color="green">061</FONT>       * underlying caller at most {@code retries} times.  A retry will be performed only when one of<a name="line.61"></a>
+<FONT color="green">062</FONT>       * the {@code retryableExceptions} is caught.<a name="line.62"></a>
+<FONT color="green">063</FONT>       *<a name="line.63"></a>
+<FONT color="green">064</FONT>       * @param decoratedCall The caller to decorate with retries.<a name="line.64"></a>
+<FONT color="green">065</FONT>       * @param async Whether the caller is asynchronous.<a name="line.65"></a>
+<FONT color="green">066</FONT>       * @param statsProvider The stat provider to export retry statistics through.<a name="line.66"></a>
+<FONT color="green">067</FONT>       * @param serviceName The service name that calls are being invoked on.<a name="line.67"></a>
+<FONT color="green">068</FONT>       * @param retries The maximum number of retries to perform.<a name="line.68"></a>
+<FONT color="green">069</FONT>       * @param retryableExceptions The exceptions that can be retried.<a name="line.69"></a>
+<FONT color="green">070</FONT>       * @param debug Whether to include debugging information when retries are being performed.<a name="line.70"></a>
+<FONT color="green">071</FONT>       */<a name="line.71"></a>
+<FONT color="green">072</FONT>      public RetryingCaller(Caller decoratedCall, boolean async, StatsProvider statsProvider,<a name="line.72"></a>
+<FONT color="green">073</FONT>          String serviceName, int retries, ImmutableSet&lt;Class&lt;? extends Exception&gt;&gt; retryableExceptions,<a name="line.73"></a>
+<FONT color="green">074</FONT>          boolean debug) {<a name="line.74"></a>
+<FONT color="green">075</FONT>        super(decoratedCall, async);<a name="line.75"></a>
+<FONT color="green">076</FONT>        this.statsProvider = statsProvider;<a name="line.76"></a>
+<FONT color="green">077</FONT>        this.serviceName = serviceName;<a name="line.77"></a>
+<FONT color="green">078</FONT>        this.retries = retries;<a name="line.78"></a>
+<FONT color="green">079</FONT>        this.retryableExceptions = retryableExceptions;<a name="line.79"></a>
+<FONT color="green">080</FONT>        this.debug = debug;<a name="line.80"></a>
+<FONT color="green">081</FONT>      }<a name="line.81"></a>
+<FONT color="green">082</FONT>    <a name="line.82"></a>
+<FONT color="green">083</FONT>      private final Map&lt;Method, AtomicLong&gt; stats =<a name="line.83"></a>
+<FONT color="green">084</FONT>          new MapMaker().makeComputingMap(new Function&lt;Method, AtomicLong&gt;() {<a name="line.84"></a>
+<FONT color="green">085</FONT>            @Override public AtomicLong apply(Method method) {<a name="line.85"></a>
+<FONT color="green">086</FONT>              // Thrift does not support overloads - so just the name disambiguates all calls.<a name="line.86"></a>
+<FONT color="green">087</FONT>              return statsProvider.makeCounter(serviceName + "_" + method.getName() + "_retries");<a name="line.87"></a>
+<FONT color="green">088</FONT>            }<a name="line.88"></a>
+<FONT color="green">089</FONT>          });<a name="line.89"></a>
+<FONT color="green">090</FONT>    <a name="line.90"></a>
+<FONT color="green">091</FONT>      @Override public Object call(final Method method, final Object[] args,<a name="line.91"></a>
+<FONT color="green">092</FONT>          @Nullable final AsyncMethodCallback callback,<a name="line.92"></a>
+<FONT color="green">093</FONT>          @Nullable final Amount&lt;Long, Time&gt; connectTimeoutOverride) throws Throwable {<a name="line.93"></a>
+<FONT color="green">094</FONT>        final AtomicLong retryCounter = stats.get(method);<a name="line.94"></a>
+<FONT color="green">095</FONT>        final AtomicInteger attempts = new AtomicInteger();<a name="line.95"></a>
+<FONT color="green">096</FONT>        final List&lt;Throwable&gt; exceptions = Lists.newArrayList();<a name="line.96"></a>
+<FONT color="green">097</FONT>    <a name="line.97"></a>
+<FONT color="green">098</FONT>        final ResultCapture capture = new ResultCapture() {<a name="line.98"></a>
+<FONT color="green">099</FONT>          @Override public void success() {<a name="line.99"></a>
+<FONT color="green">100</FONT>            // No-op.<a name="line.100"></a>
+<FONT color="green">101</FONT>          }<a name="line.101"></a>
+<FONT color="green">102</FONT>    <a name="line.102"></a>
+<FONT color="green">103</FONT>          @Override public boolean fail(Throwable t) {<a name="line.103"></a>
+<FONT color="green">104</FONT>            if (!isRetryable(t)) {<a name="line.104"></a>
+<FONT color="green">105</FONT>              if (debug) {<a name="line.105"></a>
+<FONT color="green">106</FONT>                LOG.warning(String.format(<a name="line.106"></a>
+<FONT color="green">107</FONT>                    "Call failed with un-retryable exception of [%s]: %s, previous exceptions: %s",<a name="line.107"></a>
+<FONT color="green">108</FONT>                    t.getClass().getName(), t.getMessage(), combineStackTraces(exceptions)));<a name="line.108"></a>
+<FONT color="green">109</FONT>              }<a name="line.109"></a>
+<FONT color="green">110</FONT>    <a name="line.110"></a>
+<FONT color="green">111</FONT>              return true;<a name="line.111"></a>
+<FONT color="green">112</FONT>            } else if (attempts.get() &gt;= retries) {<a name="line.112"></a>
+<FONT color="green">113</FONT>              exceptions.add(t);<a name="line.113"></a>
+<FONT color="green">114</FONT>    <a name="line.114"></a>
+<FONT color="green">115</FONT>              if (debug) {<a name="line.115"></a>
+<FONT color="green">116</FONT>                LOG.warning(String.format("Retried %d times, last error: %s, exceptions: %s",<a name="line.116"></a>
+<FONT color="green">117</FONT>                    attempts.get(), t, combineStackTraces(exceptions)));<a name="line.117"></a>
+<FONT color="green">118</FONT>              }<a name="line.118"></a>
+<FONT color="green">119</FONT>    <a name="line.119"></a>
+<FONT color="green">120</FONT>              return true;<a name="line.120"></a>
+<FONT color="green">121</FONT>            } else {<a name="line.121"></a>
+<FONT color="green">122</FONT>              exceptions.add(t);<a name="line.122"></a>
+<FONT color="green">123</FONT>    <a name="line.123"></a>
+<FONT color="green">124</FONT>              if (isAsync() &amp;&amp; attempts.incrementAndGet() &lt;= retries) {<a name="line.124"></a>
+<FONT color="green">125</FONT>                try {<a name="line.125"></a>
+<FONT color="green">126</FONT>                  retryCounter.incrementAndGet();<a name="line.126"></a>
+<FONT color="green">127</FONT>                  // override connect timeout in ThriftCaller to prevent blocking for a connection<a name="line.127"></a>
+<FONT color="green">128</FONT>                  // for async retries (since this is within the callback in the selector thread)<a name="line.128"></a>
+<FONT color="green">129</FONT>                  invoke(method, args, callback, this, NONBLOCKING_TIMEOUT);<a name="line.129"></a>
+<FONT color="green">130</FONT>                } catch (Throwable throwable) {<a name="line.130"></a>
+<FONT color="green">131</FONT>                  return fail(throwable);<a name="line.131"></a>
+<FONT color="green">132</FONT>                }<a name="line.132"></a>
+<FONT color="green">133</FONT>              }<a name="line.133"></a>
+<FONT color="green">134</FONT>    <a name="line.134"></a>
+<FONT color="green">135</FONT>              return false;<a name="line.135"></a>
+<FONT color="green">136</FONT>            }<a name="line.136"></a>
+<FONT color="green">137</FONT>          }<a name="line.137"></a>
+<FONT color="green">138</FONT>        };<a name="line.138"></a>
+<FONT color="green">139</FONT>    <a name="line.139"></a>
+<FONT color="green">140</FONT>        boolean continueLoop;<a name="line.140"></a>
+<FONT color="green">141</FONT>        do {<a name="line.141"></a>
+<FONT color="green">142</FONT>          try {<a name="line.142"></a>
+<FONT color="green">143</FONT>            // If this is an async call, the looping will be handled within the capture.<a name="line.143"></a>
+<FONT color="green">144</FONT>            return invoke(method, args, callback, capture, connectTimeoutOverride);<a name="line.144"></a>
+<FONT color="green">145</FONT>          } catch (Throwable t) {<a name="line.145"></a>
+<FONT color="green">146</FONT>            if (!isRetryable(t)) {<a name="line.146"></a>
+<FONT color="green">147</FONT>              Throwable propagated = t;<a name="line.147"></a>
+<FONT color="green">148</FONT>    <a name="line.148"></a>
+<FONT color="green">149</FONT>              if (!exceptions.isEmpty() &amp;&amp; (t instanceof TResourceExhaustedException)) {<a name="line.149"></a>
+<FONT color="green">150</FONT>                // If we've been trucking along through retries that have had remote call failures<a name="line.150"></a>
+<FONT color="green">151</FONT>                // and we suddenly can't immediately get a connection on the next retry, throw the<a name="line.151"></a>
+<FONT color="green">152</FONT>                // previous remote call failure - the idea here is that the remote call failure is<a name="line.152"></a>
+<FONT color="green">153</FONT>                // more interesting than a transient inability to get an immediate connection.<a name="line.153"></a>
+<FONT color="green">154</FONT>                propagated = exceptions.remove(exceptions.size() - 1);<a name="line.154"></a>
+<FONT color="green">155</FONT>              }<a name="line.155"></a>
+<FONT color="green">156</FONT>    <a name="line.156"></a>
+<FONT color="green">157</FONT>              if (isAsync()) {<a name="line.157"></a>
+<FONT color="green">158</FONT>                callback.onError(propagated);<a name="line.158"></a>
+<FONT color="green">159</FONT>              } else {<a name="line.159"></a>
+<FONT color="green">160</FONT>                throw propagated;<a name="line.160"></a>
+<FONT color="green">161</FONT>              }<a name="line.161"></a>
+<FONT color="green">162</FONT>            }<a name="line.162"></a>
+<FONT color="green">163</FONT>          }<a name="line.163"></a>
+<FONT color="green">164</FONT>    <a name="line.164"></a>
+<FONT color="green">165</FONT>          continueLoop = !isAsync() &amp;&amp; attempts.incrementAndGet() &lt;= retries;<a name="line.165"></a>
+<FONT color="green">166</FONT>          if (continueLoop) retryCounter.incrementAndGet();<a name="line.166"></a>
+<FONT color="green">167</FONT>        } while (continueLoop);<a name="line.167"></a>
+<FONT color="green">168</FONT>    <a name="line.168"></a>
+<FONT color="green">169</FONT>        Throwable lastRetriedException = Iterables.getLast(exceptions);<a name="line.169"></a>
+<FONT color="green">170</FONT>        if (debug) {<a name="line.170"></a>
+<FONT color="green">171</FONT>          if (!exceptions.isEmpty()) {<a name="line.171"></a>
+<FONT color="green">172</FONT>            LOG.warning(<a name="line.172"></a>
+<FONT color="green">173</FONT>                String.format("Retried %d times, last error: %s, previous exceptions: %s",<a name="line.173"></a>
+<FONT color="green">174</FONT>                    attempts.get(), lastRetriedException, combineStackTraces(exceptions)));<a name="line.174"></a>
+<FONT color="green">175</FONT>          } else {<a name="line.175"></a>
+<FONT color="green">176</FONT>            LOG.warning(<a name="line.176"></a>
+<FONT color="green">177</FONT>                String.format("Retried 1 time, last error: %s", lastRetriedException));<a name="line.177"></a>
+<FONT color="green">178</FONT>          }<a name="line.178"></a>
+<FONT color="green">179</FONT>        }<a name="line.179"></a>
+<FONT color="green">180</FONT>    <a name="line.180"></a>
+<FONT color="green">181</FONT>        if (!isAsync()) throw lastRetriedException;<a name="line.181"></a>
+<FONT color="green">182</FONT>        return null;<a name="line.182"></a>
+<FONT color="green">183</FONT>      }<a name="line.183"></a>
+<FONT color="green">184</FONT>    <a name="line.184"></a>
+<FONT color="green">185</FONT>      private boolean isRetryable(Throwable throwable) {<a name="line.185"></a>
+<FONT color="green">186</FONT>        return isRetryable.get(throwable.getClass());<a name="line.186"></a>
+<FONT color="green">187</FONT>      }<a name="line.187"></a>
+<FONT color="green">188</FONT>    <a name="line.188"></a>
+<FONT color="green">189</FONT>      private final Map&lt;Class&lt;? extends Throwable&gt;, Boolean&gt; isRetryable =<a name="line.189"></a>
+<FONT color="green">190</FONT>          new MapMaker().makeComputingMap(new Function&lt;Class&lt;? extends Throwable&gt;, Boolean&gt;() {<a name="line.190"></a>
+<FONT color="green">191</FONT>            @Override public Boolean apply(Class&lt;? extends Throwable&gt; exceptionClass) {<a name="line.191"></a>
+<FONT color="green">192</FONT>              return isRetryable(exceptionClass);<a name="line.192"></a>
+<FONT color="green">193</FONT>            }<a name="line.193"></a>
+<FONT color="green">194</FONT>          });<a name="line.194"></a>
+<FONT color="green">195</FONT>    <a name="line.195"></a>
+<FONT color="green">196</FONT>      private boolean isRetryable(final Class&lt;? extends Throwable&gt; exceptionClass) {<a name="line.196"></a>
+<FONT color="green">197</FONT>        if (retryableExceptions.contains(exceptionClass)) {<a name="line.197"></a>
+<FONT color="green">198</FONT>          return true;<a name="line.198"></a>
+<FONT color="green">199</FONT>        }<a name="line.199"></a>
+<FONT color="green">200</FONT>        return Iterables.any(retryableExceptions, new Predicate&lt;Class&lt;? extends Exception&gt;&gt;() {<a name="line.200"></a>
+<FONT color="green">201</FONT>          @Override public boolean apply(Class&lt;? extends Exception&gt; retryableExceptionClass) {<a name="line.201"></a>
+<FONT color="green">202</FONT>            return retryableExceptionClass.isAssignableFrom(exceptionClass);<a name="line.202"></a>
+<FONT color="green">203</FONT>          }<a name="line.203"></a>
+<FONT color="green">204</FONT>        });<a name="line.204"></a>
+<FONT color="green">205</FONT>      }<a name="line.205"></a>
+<FONT color="green">206</FONT>    <a name="line.206"></a>
+<FONT color="green">207</FONT>      private static final Joiner STACK_TRACE_JOINER = Joiner.on('\n');<a name="line.207"></a>
+<FONT color="green">208</FONT>    <a name="line.208"></a>
+<FONT color="green">209</FONT>      private static String combineStackTraces(List&lt;Throwable&gt; exceptions) {<a name="line.209"></a>
+<FONT color="green">210</FONT>        if (exceptions.isEmpty()) {<a name="line.210"></a>
+<FONT color="green">211</FONT>          return "none";<a name="line.211"></a>
+<FONT color="green">212</FONT>        } else {<a name="line.212"></a>
+<FONT color="green">213</FONT>          return STACK_TRACE_JOINER.join(Iterables.transform(exceptions,<a name="line.213"></a>
+<FONT color="green">214</FONT>              new Function&lt;Throwable, String&gt;() {<a name="line.214"></a>
+<FONT color="green">215</FONT>                private int index = 1;<a name="line.215"></a>
+<FONT color="green">216</FONT>                @Override public String apply(Throwable exception) {<a name="line.216"></a>
+<FONT color="green">217</FONT>                  return String.format("[%d] %s",<a name="line.217"></a>
+<FONT color="green">218</FONT>                      index++, Throwables.getStackTraceAsString(exception));<a name="line.218"></a>
+<FONT color="green">219</FONT>                }<a name="line.219"></a>
+<FONT color="green">220</FONT>              }));<a name="line.220"></a>
+<FONT color="green">221</FONT>        }<a name="line.221"></a>
+<FONT color="green">222</FONT>      }<a name="line.222"></a>
+<FONT color="green">223</FONT>    }<a name="line.223"></a>
 
 
 

@@ -4,670 +4,669 @@
 <FONT color="green">001</FONT>    // =================================================================================================<a name="line.1"></a>
 <FONT color="green">002</FONT>    // Copyright 2011 Twitter, Inc.<a name="line.2"></a>
 <FONT color="green">003</FONT>    // -------------------------------------------------------------------------------------------------<a name="line.3"></a>
-<FONT color="green">004</FONT>    // Licensed to the Apache Software Foundation (ASF) under one or more contributor license<a name="line.4"></a>
-<FONT color="green">005</FONT>    // agreements.  See the NOTICE file distributed with this work for additional information regarding<a name="line.5"></a>
-<FONT color="green">006</FONT>    // copyright ownership.  The ASF licenses this file to you under the Apache License, Version 2.0<a name="line.6"></a>
-<FONT color="green">007</FONT>    // (the "License"); you may not use this file except in compliance with the License.  You may<a name="line.7"></a>
-<FONT color="green">008</FONT>    // obtain a copy of the License at<a name="line.8"></a>
+<FONT color="green">004</FONT>    // Licensed under the Apache License, Version 2.0 (the "License");<a name="line.4"></a>
+<FONT color="green">005</FONT>    // you may not use this work except in compliance with the License.<a name="line.5"></a>
+<FONT color="green">006</FONT>    // You may obtain a copy of the License in the LICENSE file, or at:<a name="line.6"></a>
+<FONT color="green">007</FONT>    //<a name="line.7"></a>
+<FONT color="green">008</FONT>    //  http://www.apache.org/licenses/LICENSE-2.0<a name="line.8"></a>
 <FONT color="green">009</FONT>    //<a name="line.9"></a>
-<FONT color="green">010</FONT>    //  http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
-<FONT color="green">011</FONT>    //<a name="line.11"></a>
-<FONT color="green">012</FONT>    // Unless required by applicable law or agreed to in writing, software distributed under the<a name="line.12"></a>
-<FONT color="green">013</FONT>    // License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either<a name="line.13"></a>
-<FONT color="green">014</FONT>    // express or implied.  See the License for the specific language governing permissions and<a name="line.14"></a>
-<FONT color="green">015</FONT>    // limitations under the License.<a name="line.15"></a>
-<FONT color="green">016</FONT>    // =================================================================================================<a name="line.16"></a>
-<FONT color="green">017</FONT>    <a name="line.17"></a>
-<FONT color="green">018</FONT>    package com.twitter.common.util;<a name="line.18"></a>
-<FONT color="green">019</FONT>    <a name="line.19"></a>
-<FONT color="green">020</FONT>    import com.google.common.annotations.VisibleForTesting;<a name="line.20"></a>
-<FONT color="green">021</FONT>    import com.google.common.base.Preconditions;<a name="line.21"></a>
-<FONT color="green">022</FONT>    import com.google.common.collect.Lists;<a name="line.22"></a>
-<FONT color="green">023</FONT>    import com.twitter.common.base.MorePreconditions;<a name="line.23"></a>
-<FONT color="green">024</FONT>    import com.twitter.common.quantity.Amount;<a name="line.24"></a>
-<FONT color="green">025</FONT>    import com.twitter.common.quantity.Time;<a name="line.25"></a>
-<FONT color="green">026</FONT>    import com.twitter.common.stats.Stats;<a name="line.26"></a>
-<FONT color="green">027</FONT>    import com.twitter.common.stats.StatsProvider;<a name="line.27"></a>
-<FONT color="green">028</FONT>    <a name="line.28"></a>
-<FONT color="green">029</FONT>    import javax.annotation.Nullable;<a name="line.29"></a>
-<FONT color="green">030</FONT>    import java.util.Deque;<a name="line.30"></a>
-<FONT color="green">031</FONT>    import java.util.Set;<a name="line.31"></a>
-<FONT color="green">032</FONT>    import java.util.concurrent.atomic.AtomicLong;<a name="line.32"></a>
-<FONT color="green">033</FONT>    import java.util.logging.Logger;<a name="line.33"></a>
-<FONT color="green">034</FONT>    <a name="line.34"></a>
-<FONT color="green">035</FONT>    /**<a name="line.35"></a>
-<FONT color="green">036</FONT>     * Handles logic for deciding whether to back off from calls to a backend.<a name="line.36"></a>
-<FONT color="green">037</FONT>     *<a name="line.37"></a>
-<FONT color="green">038</FONT>     * This works by offering a guard method {@link #shouldBackOff()}, which instructs the caller<a name="line.38"></a>
-<FONT color="green">039</FONT>     * whether they should avoid making the call.  The backoff logic will maintain statistics about<a name="line.39"></a>
-<FONT color="green">040</FONT>     * the failure rate, and push into a backoff state (silent period) when the failure rate exceeds<a name="line.40"></a>
-<FONT color="green">041</FONT>     * the configured threshold.  At the end of the quiet period, a recovery state will be entered,<a name="line.41"></a>
-<FONT color="green">042</FONT>     * during which the decider will allow traffic to ramp back up to full capacity.<a name="line.42"></a>
-<FONT color="green">043</FONT>     *<a name="line.43"></a>
-<FONT color="green">044</FONT>     * The expected use case looks something like this:<a name="line.44"></a>
-<FONT color="green">045</FONT>     *<a name="line.45"></a>
-<FONT color="green">046</FONT>     * &lt;pre&gt;<a name="line.46"></a>
-<FONT color="green">047</FONT>     * void sendRequestGuarded() {<a name="line.47"></a>
-<FONT color="green">048</FONT>     *   if (!decider.shouldBackOff()) {<a name="line.48"></a>
-<FONT color="green">049</FONT>     *     boolean success = sendRequestUnguarded();<a name="line.49"></a>
-<FONT color="green">050</FONT>     *     if (success) {<a name="line.50"></a>
-<FONT color="green">051</FONT>     *       decider.addSuccess();<a name="line.51"></a>
-<FONT color="green">052</FONT>     *     } else {<a name="line.52"></a>
-<FONT color="green">053</FONT>     *       decider.addFailure();<a name="line.53"></a>
-<FONT color="green">054</FONT>     *     }<a name="line.54"></a>
-<FONT color="green">055</FONT>     *   }<a name="line.55"></a>
-<FONT color="green">056</FONT>     * }<a name="line.56"></a>
-<FONT color="green">057</FONT>     * &lt;/pre&gt;<a name="line.57"></a>
-<FONT color="green">058</FONT>     *<a name="line.58"></a>
-<FONT color="green">059</FONT>     * @author William Farner<a name="line.59"></a>
-<FONT color="green">060</FONT>     */<a name="line.60"></a>
-<FONT color="green">061</FONT>    public class BackoffDecider {<a name="line.61"></a>
-<FONT color="green">062</FONT>      private static final Logger LOG = Logger.getLogger(BackoffDecider.class.getName());<a name="line.62"></a>
-<FONT color="green">063</FONT>    <a name="line.63"></a>
-<FONT color="green">064</FONT>      // The group that this decider is a part of.<a name="line.64"></a>
-<FONT color="green">065</FONT>      private final Iterable&lt;BackoffDecider&gt; deciderGroup;<a name="line.65"></a>
-<FONT color="green">066</FONT>    <a name="line.66"></a>
-<FONT color="green">067</FONT>      private final TimedStateMachine stateMachine;<a name="line.67"></a>
-<FONT color="green">068</FONT>    <a name="line.68"></a>
-<FONT color="green">069</FONT>      private final String name;<a name="line.69"></a>
-<FONT color="green">070</FONT>    <a name="line.70"></a>
-<FONT color="green">071</FONT>      private final double toleratedFailureRate;<a name="line.71"></a>
-<FONT color="green">072</FONT>    <a name="line.72"></a>
-<FONT color="green">073</FONT>      @VisibleForTesting final RequestWindow requests;<a name="line.73"></a>
-<FONT color="green">074</FONT>    <a name="line.74"></a>
-<FONT color="green">075</FONT>      // Used to calculate backoff durations when in backoff state.<a name="line.75"></a>
-<FONT color="green">076</FONT>      private final BackoffStrategy strategy;<a name="line.76"></a>
-<FONT color="green">077</FONT>    <a name="line.77"></a>
-<FONT color="green">078</FONT>      private final Amount&lt;Long, Time&gt; recoveryPeriod;<a name="line.78"></a>
-<FONT color="green">079</FONT>      private long previousBackoffPeriodNs = 0;<a name="line.79"></a>
-<FONT color="green">080</FONT>    <a name="line.80"></a>
-<FONT color="green">081</FONT>      // Used for random selection during recovery period.<a name="line.81"></a>
-<FONT color="green">082</FONT>      private final Random random;<a name="line.82"></a>
-<FONT color="green">083</FONT>    <a name="line.83"></a>
-<FONT color="green">084</FONT>      private final Clock clock;<a name="line.84"></a>
-<FONT color="green">085</FONT>      private final AtomicLong backoffs;<a name="line.85"></a>
-<FONT color="green">086</FONT>      private final RecoveryType recoveryType;<a name="line.86"></a>
-<FONT color="green">087</FONT>    <a name="line.87"></a>
-<FONT color="green">088</FONT>      /**<a name="line.88"></a>
-<FONT color="green">089</FONT>       * Different types of recovery mechanisms to use after exiting the backoff state.<a name="line.89"></a>
-<FONT color="green">090</FONT>       */<a name="line.90"></a>
-<FONT color="green">091</FONT>      public static enum RecoveryType {<a name="line.91"></a>
-<FONT color="green">092</FONT>        // Randomly allows traffic to flow through, with a linearly-ascending probability.<a name="line.92"></a>
-<FONT color="green">093</FONT>        RANDOM_LINEAR,<a name="line.93"></a>
-<FONT color="green">094</FONT>        // Allows full traffic capacity to flow during the recovery period.<a name="line.94"></a>
-<FONT color="green">095</FONT>        FULL_CAPACITY<a name="line.95"></a>
-<FONT color="green">096</FONT>      }<a name="line.96"></a>
-<FONT color="green">097</FONT>    <a name="line.97"></a>
-<FONT color="green">098</FONT>      private BackoffDecider(String name, int seedSize, double toleratedFailureRate,<a name="line.98"></a>
-<FONT color="green">099</FONT>          @Nullable Iterable&lt;BackoffDecider&gt; deciderGroup, BackoffStrategy strategy,<a name="line.99"></a>
-<FONT color="green">100</FONT>          @Nullable Amount&lt;Long, Time&gt; recoveryPeriod,<a name="line.100"></a>
-<FONT color="green">101</FONT>          long requestWindowNs, int numBuckets, RecoveryType recoveryType, StatsProvider statsProvider,<a name="line.101"></a>
-<FONT color="green">102</FONT>          Random random, Clock clock) {<a name="line.102"></a>
-<FONT color="green">103</FONT>        MorePreconditions.checkNotBlank(name);<a name="line.103"></a>
-<FONT color="green">104</FONT>        Preconditions.checkArgument(seedSize &gt; 0);<a name="line.104"></a>
-<FONT color="green">105</FONT>        Preconditions.checkArgument(toleratedFailureRate &gt;= 0 &amp;&amp; toleratedFailureRate &lt; 1.0);<a name="line.105"></a>
-<FONT color="green">106</FONT>        Preconditions.checkNotNull(strategy);<a name="line.106"></a>
-<FONT color="green">107</FONT>        Preconditions.checkArgument(recoveryPeriod == null || recoveryPeriod.getValue() &gt; 0);<a name="line.107"></a>
-<FONT color="green">108</FONT>        Preconditions.checkArgument(requestWindowNs &gt; 0);<a name="line.108"></a>
-<FONT color="green">109</FONT>        Preconditions.checkArgument(numBuckets &gt; 0);<a name="line.109"></a>
-<FONT color="green">110</FONT>        Preconditions.checkNotNull(recoveryType);<a name="line.110"></a>
-<FONT color="green">111</FONT>        Preconditions.checkNotNull(statsProvider);<a name="line.111"></a>
-<FONT color="green">112</FONT>        Preconditions.checkNotNull(random);<a name="line.112"></a>
-<FONT color="green">113</FONT>        Preconditions.checkNotNull(clock);<a name="line.113"></a>
-<FONT color="green">114</FONT>    <a name="line.114"></a>
-<FONT color="green">115</FONT>        this.name = name;<a name="line.115"></a>
-<FONT color="green">116</FONT>        this.toleratedFailureRate = toleratedFailureRate;<a name="line.116"></a>
-<FONT color="green">117</FONT>        this.deciderGroup = deciderGroup;<a name="line.117"></a>
-<FONT color="green">118</FONT>        this.strategy = strategy;<a name="line.118"></a>
-<FONT color="green">119</FONT>        this.recoveryPeriod = recoveryPeriod;<a name="line.119"></a>
-<FONT color="green">120</FONT>        this.recoveryType = recoveryType;<a name="line.120"></a>
-<FONT color="green">121</FONT>    <a name="line.121"></a>
-<FONT color="green">122</FONT>        this.random = random;<a name="line.122"></a>
-<FONT color="green">123</FONT>        this.clock = clock;<a name="line.123"></a>
-<FONT color="green">124</FONT>    <a name="line.124"></a>
-<FONT color="green">125</FONT>        this.backoffs = statsProvider.makeCounter(name + "_backoffs");<a name="line.125"></a>
-<FONT color="green">126</FONT>        this.requests = new RequestWindow(requestWindowNs, numBuckets, seedSize);<a name="line.126"></a>
-<FONT color="green">127</FONT>    <a name="line.127"></a>
-<FONT color="green">128</FONT>        this.stateMachine = new TimedStateMachine(name);<a name="line.128"></a>
-<FONT color="green">129</FONT>      }<a name="line.129"></a>
-<FONT color="green">130</FONT>    <a name="line.130"></a>
-<FONT color="green">131</FONT>      /**<a name="line.131"></a>
-<FONT color="green">132</FONT>       * Checks whether the caller should back off and if not then returns immediately; otherwise the<a name="line.132"></a>
-<FONT color="green">133</FONT>       * method blocks until it is safe for the caller to proceed without backing off further based on<a name="line.133"></a>
-<FONT color="green">134</FONT>       * all data available at the time of this call.<a name="line.134"></a>
-<FONT color="green">135</FONT>       *<a name="line.135"></a>
-<FONT color="green">136</FONT>       * @return the amount of time in nanoseconds spent awaiting backoff<a name="line.136"></a>
-<FONT color="green">137</FONT>       * @throws InterruptedException if the calling thread was interrupted while backing off<a name="line.137"></a>
-<FONT color="green">138</FONT>       */<a name="line.138"></a>
-<FONT color="green">139</FONT>      public long awaitBackoff() throws InterruptedException {<a name="line.139"></a>
-<FONT color="green">140</FONT>        if (shouldBackOff()) {<a name="line.140"></a>
-<FONT color="green">141</FONT>          long backoffTimeMs = stateMachine.getStateRemainingMs();<a name="line.141"></a>
-<FONT color="green">142</FONT>    <a name="line.142"></a>
-<FONT color="green">143</FONT>          if (backoffTimeMs &gt; 0) {<a name="line.143"></a>
-<FONT color="green">144</FONT>            // Wait without holding any external locks.<a name="line.144"></a>
-<FONT color="green">145</FONT>            Object waitCondition = new Object();<a name="line.145"></a>
-<FONT color="green">146</FONT>            synchronized (waitCondition) {<a name="line.146"></a>
-<FONT color="green">147</FONT>              waitCondition.wait(backoffTimeMs);<a name="line.147"></a>
-<FONT color="green">148</FONT>            }<a name="line.148"></a>
-<FONT color="green">149</FONT>            return backoffTimeMs;<a name="line.149"></a>
-<FONT color="green">150</FONT>          }<a name="line.150"></a>
-<FONT color="green">151</FONT>        }<a name="line.151"></a>
-<FONT color="green">152</FONT>        return 0;<a name="line.152"></a>
-<FONT color="green">153</FONT>      }<a name="line.153"></a>
-<FONT color="green">154</FONT>    <a name="line.154"></a>
-<FONT color="green">155</FONT>      /**<a name="line.155"></a>
-<FONT color="green">156</FONT>       * Checks whether this decider instructs the caller that it should back off from the associated<a name="line.156"></a>
-<FONT color="green">157</FONT>       * backend.  This is determined based on the response history for the backend as well as the<a name="line.157"></a>
-<FONT color="green">158</FONT>       * backoff state of the decider group (if configured).<a name="line.158"></a>
-<FONT color="green">159</FONT>       *<a name="line.159"></a>
-<FONT color="green">160</FONT>       * @return {@code true} if the decider is in backoff mode, otherwise {@code false}.<a name="line.160"></a>
-<FONT color="green">161</FONT>       */<a name="line.161"></a>
-<FONT color="green">162</FONT>      @SuppressWarnings("fallthrough")<a name="line.162"></a>
-<FONT color="green">163</FONT>      public synchronized boolean shouldBackOff() {<a name="line.163"></a>
-<FONT color="green">164</FONT>    <a name="line.164"></a>
-<FONT color="green">165</FONT>        boolean preventRequest;<a name="line.165"></a>
-<FONT color="green">166</FONT>        switch (stateMachine.getState()) {<a name="line.166"></a>
-<FONT color="green">167</FONT>          case NORMAL:<a name="line.167"></a>
-<FONT color="green">168</FONT>            preventRequest = false;<a name="line.168"></a>
-<FONT color="green">169</FONT>            break;<a name="line.169"></a>
-<FONT color="green">170</FONT>    <a name="line.170"></a>
-<FONT color="green">171</FONT>          case BACKOFF:<a name="line.171"></a>
-<FONT color="green">172</FONT>            if (deciderGroup != null &amp;&amp; allOthersBackingOff()) {<a name="line.172"></a>
-<FONT color="green">173</FONT>              LOG.info("Backends in group with " + name + " down, forcing back up.");<a name="line.173"></a>
-<FONT color="green">174</FONT>              stateMachine.transitionUnbounded(State.FORCED_NORMAL);<a name="line.174"></a>
-<FONT color="green">175</FONT>              return false;<a name="line.175"></a>
-<FONT color="green">176</FONT>            } else if (stateMachine.isStateExpired()) {<a name="line.176"></a>
-<FONT color="green">177</FONT>              long recoveryPeriodNs = recoveryPeriod == null ? stateMachine.getStateDurationNs()<a name="line.177"></a>
-<FONT color="green">178</FONT>                  : recoveryPeriod.as(Time.NANOSECONDS);<a name="line.178"></a>
-<FONT color="green">179</FONT>    <a name="line.179"></a>
-<FONT color="green">180</FONT>              // The silent period has expired, move to recovery state (and drop to its case block).<a name="line.180"></a>
-<FONT color="green">181</FONT>              stateMachine.transition(State.RECOVERY, recoveryPeriodNs);<a name="line.181"></a>
-<FONT color="green">182</FONT>              LOG.info(String.format("%s recovering for %s ms", name,<a name="line.182"></a>
-<FONT color="green">183</FONT>                  Amount.of(recoveryPeriodNs, Time.NANOSECONDS).as(Time.MILLISECONDS)));<a name="line.183"></a>
-<FONT color="green">184</FONT>            } else {<a name="line.184"></a>
-<FONT color="green">185</FONT>              preventRequest = true;<a name="line.185"></a>
-<FONT color="green">186</FONT>              break;<a name="line.186"></a>
-<FONT color="green">187</FONT>            }<a name="line.187"></a>
-<FONT color="green">188</FONT>    <a name="line.188"></a>
-<FONT color="green">189</FONT>          case RECOVERY:<a name="line.189"></a>
-<FONT color="green">190</FONT>            if (deciderGroup != null &amp;&amp; allOthersBackingOff()) {<a name="line.190"></a>
-<FONT color="green">191</FONT>              return false;<a name="line.191"></a>
-<FONT color="green">192</FONT>            } else if (stateMachine.isStateExpired()) {<a name="line.192"></a>
-<FONT color="green">193</FONT>              // We have reached the end of the recovery period, return to normal.<a name="line.193"></a>
-<FONT color="green">194</FONT>              stateMachine.transitionUnbounded(State.NORMAL);<a name="line.194"></a>
-<FONT color="green">195</FONT>              previousBackoffPeriodNs = 0;<a name="line.195"></a>
-<FONT color="green">196</FONT>              preventRequest = false;<a name="line.196"></a>
-<FONT color="green">197</FONT>            } else {<a name="line.197"></a>
-<FONT color="green">198</FONT>              switch (recoveryType) {<a name="line.198"></a>
-<FONT color="green">199</FONT>                case RANDOM_LINEAR:<a name="line.199"></a>
-<FONT color="green">200</FONT>                  // In the recovery period, allow request rate to return linearly to the full load.<a name="line.200"></a>
-<FONT color="green">201</FONT>                  preventRequest = random.nextDouble() &gt; stateMachine.getStateFractionComplete();<a name="line.201"></a>
-<FONT color="green">202</FONT>                  break;<a name="line.202"></a>
-<FONT color="green">203</FONT>                case FULL_CAPACITY:<a name="line.203"></a>
-<FONT color="green">204</FONT>                  preventRequest = false;<a name="line.204"></a>
-<FONT color="green">205</FONT>                  break;<a name="line.205"></a>
-<FONT color="green">206</FONT>                default:<a name="line.206"></a>
-<FONT color="green">207</FONT>                  throw new IllegalStateException("Unhandled recovery type " + recoveryType);<a name="line.207"></a>
-<FONT color="green">208</FONT>              }<a name="line.208"></a>
-<FONT color="green">209</FONT>            }<a name="line.209"></a>
-<FONT color="green">210</FONT>    <a name="line.210"></a>
-<FONT color="green">211</FONT>            break;<a name="line.211"></a>
-<FONT color="green">212</FONT>    <a name="line.212"></a>
-<FONT color="green">213</FONT>          case FORCED_NORMAL:<a name="line.213"></a>
-<FONT color="green">214</FONT>            if (!allOthersBackingOff()) {<a name="line.214"></a>
-<FONT color="green">215</FONT>              // We were in forced normal state, but at least one other backend is up, try recovering.<a name="line.215"></a>
-<FONT color="green">216</FONT>              stateMachine.transition(State.RECOVERY, stateMachine.getStateDurationNs());<a name="line.216"></a>
-<FONT color="green">217</FONT>              preventRequest = false;<a name="line.217"></a>
-<FONT color="green">218</FONT>            } else {<a name="line.218"></a>
-<FONT color="green">219</FONT>              preventRequest = true;<a name="line.219"></a>
-<FONT color="green">220</FONT>            }<a name="line.220"></a>
-<FONT color="green">221</FONT>    <a name="line.221"></a>
-<FONT color="green">222</FONT>            break;<a name="line.222"></a>
-<FONT color="green">223</FONT>    <a name="line.223"></a>
-<FONT color="green">224</FONT>          default:<a name="line.224"></a>
-<FONT color="green">225</FONT>            LOG.severe("Unrecognized state: " + stateMachine.getState());<a name="line.225"></a>
-<FONT color="green">226</FONT>            preventRequest = false;<a name="line.226"></a>
-<FONT color="green">227</FONT>        }<a name="line.227"></a>
-<FONT color="green">228</FONT>    <a name="line.228"></a>
-<FONT color="green">229</FONT>        if (preventRequest) {<a name="line.229"></a>
-<FONT color="green">230</FONT>          backoffs.incrementAndGet();<a name="line.230"></a>
-<FONT color="green">231</FONT>        }<a name="line.231"></a>
-<FONT color="green">232</FONT>        return preventRequest;<a name="line.232"></a>
-<FONT color="green">233</FONT>      }<a name="line.233"></a>
-<FONT color="green">234</FONT>    <a name="line.234"></a>
-<FONT color="green">235</FONT>      private boolean allOthersBackingOff() {<a name="line.235"></a>
-<FONT color="green">236</FONT>        // Search for another decider that is not backing off.<a name="line.236"></a>
-<FONT color="green">237</FONT>        for (BackoffDecider decider : deciderGroup) {<a name="line.237"></a>
-<FONT color="green">238</FONT>          State deciderState = decider.stateMachine.getState();<a name="line.238"></a>
-<FONT color="green">239</FONT>          boolean inBackoffState = deciderState == State.BACKOFF || deciderState == State.FORCED_NORMAL;<a name="line.239"></a>
-<FONT color="green">240</FONT>          if ((decider != this) &amp;&amp; !inBackoffState) {<a name="line.240"></a>
-<FONT color="green">241</FONT>            return false;<a name="line.241"></a>
-<FONT color="green">242</FONT>          }<a name="line.242"></a>
-<FONT color="green">243</FONT>        }<a name="line.243"></a>
-<FONT color="green">244</FONT>    <a name="line.244"></a>
-<FONT color="green">245</FONT>        return true;<a name="line.245"></a>
-<FONT color="green">246</FONT>      }<a name="line.246"></a>
-<FONT color="green">247</FONT>    <a name="line.247"></a>
-<FONT color="green">248</FONT>      /**<a name="line.248"></a>
-<FONT color="green">249</FONT>       * Records a failed request to the backend.<a name="line.249"></a>
-<FONT color="green">250</FONT>       */<a name="line.250"></a>
-<FONT color="green">251</FONT>      public void addFailure() {<a name="line.251"></a>
-<FONT color="green">252</FONT>        addResult(false);<a name="line.252"></a>
-<FONT color="green">253</FONT>      }<a name="line.253"></a>
-<FONT color="green">254</FONT>    <a name="line.254"></a>
-<FONT color="green">255</FONT>      /**<a name="line.255"></a>
-<FONT color="green">256</FONT>       * Records a successful request to the backend.<a name="line.256"></a>
-<FONT color="green">257</FONT>       */<a name="line.257"></a>
-<FONT color="green">258</FONT>      public void addSuccess() {<a name="line.258"></a>
-<FONT color="green">259</FONT>        addResult(true);<a name="line.259"></a>
-<FONT color="green">260</FONT>      }<a name="line.260"></a>
-<FONT color="green">261</FONT>    <a name="line.261"></a>
-<FONT color="green">262</FONT>      /**<a name="line.262"></a>
-<FONT color="green">263</FONT>       * Transitions the state to BACKOFF and logs a message appropriately if it is doing so because of high fail rate<a name="line.263"></a>
-<FONT color="green">264</FONT>       * or by force.<a name="line.264"></a>
-<FONT color="green">265</FONT>       *<a name="line.265"></a>
-<FONT color="green">266</FONT>       * @param failRate rate of request failures on this host.<a name="line.266"></a>
-<FONT color="green">267</FONT>       * @param force if {@code true}, forces the transition to BACKOFF. Typically used in cases when the host<a name="line.267"></a>
-<FONT color="green">268</FONT>       * was not found to be alive by LiveHostChecker.<a name="line.268"></a>
-<FONT color="green">269</FONT>       */<a name="line.269"></a>
-<FONT color="green">270</FONT>      public synchronized void transitionToBackOff(double failRate, boolean force) {<a name="line.270"></a>
-<FONT color="green">271</FONT>        long prevBackoffMs = Amount.of(previousBackoffPeriodNs, Time.NANOSECONDS)<a name="line.271"></a>
-<FONT color="green">272</FONT>            .as(Time.MILLISECONDS);<a name="line.272"></a>
-<FONT color="green">273</FONT>    <a name="line.273"></a>
-<FONT color="green">274</FONT>        long backoffPeriodNs = Amount.of(strategy.calculateBackoffMs(prevBackoffMs), Time.MILLISECONDS)<a name="line.274"></a>
-<FONT color="green">275</FONT>            .as(Time.NANOSECONDS);<a name="line.275"></a>
-<FONT color="green">276</FONT>        if (!force) {<a name="line.276"></a>
-<FONT color="green">277</FONT>          LOG.info(String.format("%s failure rate at %g, backing off for %s ms", name,failRate,<a name="line.277"></a>
-<FONT color="green">278</FONT>              Amount.of(backoffPeriodNs, Time.NANOSECONDS).as(Time.MILLISECONDS)));<a name="line.278"></a>
-<FONT color="green">279</FONT>        } else {<a name="line.279"></a>
-<FONT color="green">280</FONT>          LOG.info(String.format("%s forced to back off for %s ms", name,<a name="line.280"></a>
-<FONT color="green">281</FONT>              Amount.of(backoffPeriodNs, Time.NANOSECONDS).as(Time.MILLISECONDS)));<a name="line.281"></a>
-<FONT color="green">282</FONT>        }<a name="line.282"></a>
-<FONT color="green">283</FONT>        stateMachine.transition(State.BACKOFF, backoffPeriodNs);<a name="line.283"></a>
-<FONT color="green">284</FONT>        previousBackoffPeriodNs = backoffPeriodNs;<a name="line.284"></a>
-<FONT color="green">285</FONT>      }<a name="line.285"></a>
-<FONT color="green">286</FONT>    <a name="line.286"></a>
-<FONT color="green">287</FONT>      @SuppressWarnings("fallthrough")<a name="line.287"></a>
-<FONT color="green">288</FONT>      private synchronized void addResult(boolean success) {<a name="line.288"></a>
-<FONT color="green">289</FONT>        // Disallow statistics updating if we are in backoff state.<a name="line.289"></a>
-<FONT color="green">290</FONT>        if (stateMachine.getState() == State.BACKOFF) {<a name="line.290"></a>
-<FONT color="green">291</FONT>          return;<a name="line.291"></a>
-<FONT color="green">292</FONT>        }<a name="line.292"></a>
-<FONT color="green">293</FONT>    <a name="line.293"></a>
-<FONT color="green">294</FONT>        requests.addResult(success);<a name="line.294"></a>
-<FONT color="green">295</FONT>        double failRate = requests.getFailureRate();<a name="line.295"></a>
-<FONT color="green">296</FONT>        boolean highFailRate = requests.isSeeded() &amp;&amp; (failRate &gt; toleratedFailureRate);<a name="line.296"></a>
-<FONT color="green">297</FONT>    <a name="line.297"></a>
-<FONT color="green">298</FONT>        switch (stateMachine.getState()) {<a name="line.298"></a>
-<FONT color="green">299</FONT>          case NORMAL:<a name="line.299"></a>
-<FONT color="green">300</FONT>            if (!highFailRate) {<a name="line.300"></a>
-<FONT color="green">301</FONT>              // No-op.<a name="line.301"></a>
-<FONT color="green">302</FONT>              break;<a name="line.302"></a>
-<FONT color="green">303</FONT>            } else {<a name="line.303"></a>
-<FONT color="green">304</FONT>              // Artificially move into recovery state (by falling through) with a zero-duration<a name="line.304"></a>
-<FONT color="green">305</FONT>              // time window, to trigger the initial backoff period.<a name="line.305"></a>
-<FONT color="green">306</FONT>              stateMachine.setStateDurationNs(0);<a name="line.306"></a>
-<FONT color="green">307</FONT>            }<a name="line.307"></a>
-<FONT color="green">308</FONT>    <a name="line.308"></a>
-<FONT color="green">309</FONT>          case RECOVERY:<a name="line.309"></a>
-<FONT color="green">310</FONT>            if (highFailRate) {<a name="line.310"></a>
-<FONT color="green">311</FONT>              // We were trying to recover, and the failure rate is still too high.  Go back to<a name="line.311"></a>
-<FONT color="green">312</FONT>              // backoff state for a longer duration.<a name="line.312"></a>
-<FONT color="green">313</FONT>              requests.reset();<a name="line.313"></a>
-<FONT color="green">314</FONT>    <a name="line.314"></a>
-<FONT color="green">315</FONT>              // transition the state machine to BACKOFF state, due to high fail rate.<a name="line.315"></a>
-<FONT color="green">316</FONT>              transitionToBackOff(failRate, false);<a name="line.316"></a>
-<FONT color="green">317</FONT>            } else {<a name="line.317"></a>
-<FONT color="green">318</FONT>              // Do nothing.  We only exit the recovery state by expiration.<a name="line.318"></a>
-<FONT color="green">319</FONT>            }<a name="line.319"></a>
-<FONT color="green">320</FONT>            break;<a name="line.320"></a>
-<FONT color="green">321</FONT>    <a name="line.321"></a>
-<FONT color="green">322</FONT>          case FORCED_NORMAL:<a name="line.322"></a>
-<FONT color="green">323</FONT>            if (!highFailRate) {<a name="line.323"></a>
-<FONT color="green">324</FONT>              stateMachine.transition(State.RECOVERY, stateMachine.getStateDurationNs());<a name="line.324"></a>
-<FONT color="green">325</FONT>            }<a name="line.325"></a>
-<FONT color="green">326</FONT>            break;<a name="line.326"></a>
-<FONT color="green">327</FONT>    <a name="line.327"></a>
-<FONT color="green">328</FONT>          case BACKOFF:<a name="line.328"></a>
-<FONT color="green">329</FONT>            throw new IllegalStateException("Backoff state may only be exited by expiration.");<a name="line.329"></a>
-<FONT color="green">330</FONT>        }<a name="line.330"></a>
-<FONT color="green">331</FONT>      }<a name="line.331"></a>
-<FONT color="green">332</FONT>    <a name="line.332"></a>
-<FONT color="green">333</FONT>      /**<a name="line.333"></a>
-<FONT color="green">334</FONT>       * Creates a builder object.<a name="line.334"></a>
-<FONT color="green">335</FONT>       *<a name="line.335"></a>
-<FONT color="green">336</FONT>       * @param name Name for the backoff decider to build.<a name="line.336"></a>
-<FONT color="green">337</FONT>       * @return A builder.<a name="line.337"></a>
-<FONT color="green">338</FONT>       */<a name="line.338"></a>
-<FONT color="green">339</FONT>      public static Builder builder(String name) {<a name="line.339"></a>
-<FONT color="green">340</FONT>        return new Builder(name);<a name="line.340"></a>
-<FONT color="green">341</FONT>      }<a name="line.341"></a>
-<FONT color="green">342</FONT>    <a name="line.342"></a>
-<FONT color="green">343</FONT>      /**<a name="line.343"></a>
-<FONT color="green">344</FONT>       * Builder class to configure a BackoffDecider.<a name="line.344"></a>
-<FONT color="green">345</FONT>       *<a name="line.345"></a>
-<FONT color="green">346</FONT>       * The builder allows for customization of many different parameters to the BackoffDecider, while<a name="line.346"></a>
-<FONT color="green">347</FONT>       * defining defaults wherever possible.  The following defaults are used:<a name="line.347"></a>
-<FONT color="green">348</FONT>       *<a name="line.348"></a>
-<FONT color="green">349</FONT>       * &lt;ul&gt;<a name="line.349"></a>
-<FONT color="green">350</FONT>       * &lt;li&gt; seed size - The number of requests to accumulate before a backoff will be considered.<a name="line.350"></a>
-<FONT color="green">351</FONT>       * 100<a name="line.351"></a>
-<FONT color="green">352</FONT>       *<a name="line.352"></a>
-<FONT color="green">353</FONT>       * &lt;li&gt; tolerated failure rate - Maximum failure rate before backing off.<a name="line.353"></a>
-<FONT color="green">354</FONT>       * 0.5<a name="line.354"></a>
-<FONT color="green">355</FONT>       *<a name="line.355"></a>
-<FONT color="green">356</FONT>       * &lt;li&gt; decider group - Group this decider is a part of, to prevent complete backend failure.<a name="line.356"></a>
-<FONT color="green">357</FONT>       * null (disabled)<a name="line.357"></a>
-<FONT color="green">358</FONT>       *<a name="line.358"></a>
-<FONT color="green">359</FONT>       * &lt;li&gt; strategy - Used to calculate subsequent backoff durations.<a name="line.359"></a>
-<FONT color="green">360</FONT>       * TruncatedBinaryBackoff, initial 100 ms, max 10s<a name="line.360"></a>
-<FONT color="green">361</FONT>       *<a name="line.361"></a>
-<FONT color="green">362</FONT>       * &lt;li&gt; recovery period - Fixed recovery period while ramping traffic back to full capacity..<a name="line.362"></a>
-<FONT color="green">363</FONT>       * null (use last backoff period)<a name="line.363"></a>
-<FONT color="green">364</FONT>       *<a name="line.364"></a>
-<FONT color="green">365</FONT>       * &lt;li&gt; request window - Duration of the sliding window of requests to track statistics for.<a name="line.365"></a>
-<FONT color="green">366</FONT>       * 10 seconds<a name="line.366"></a>
-<FONT color="green">367</FONT>       *<a name="line.367"></a>
-<FONT color="green">368</FONT>       * &lt;li&gt; num buckets - The number of time slices within the request window, for stat expiration.<a name="line.368"></a>
-<FONT color="green">369</FONT>       *               The sliding request window advances in intervals of request window / num buckets.<a name="line.369"></a>
-<FONT color="green">370</FONT>       * 100<a name="line.370"></a>
-<FONT color="green">371</FONT>       *<a name="line.371"></a>
-<FONT color="green">372</FONT>       * &lt;li&gt; recovery type - Defines behavior during the recovery period, and how traffic is permitted.<a name="line.372"></a>
-<FONT color="green">373</FONT>       * random linear<a name="line.373"></a>
-<FONT color="green">374</FONT>       *<a name="line.374"></a>
-<FONT color="green">375</FONT>       * &lt;li&gt; stat provider - The stats provider to export statistics to.<a name="line.375"></a>
-<FONT color="green">376</FONT>       * Stats.STATS_PROVIDER<a name="line.376"></a>
-<FONT color="green">377</FONT>       * &lt;/ul&gt;<a name="line.377"></a>
-<FONT color="green">378</FONT>       *<a name="line.378"></a>
-<FONT color="green">379</FONT>       */<a name="line.379"></a>
-<FONT color="green">380</FONT>      public static class Builder {<a name="line.380"></a>
-<FONT color="green">381</FONT>        private String name;<a name="line.381"></a>
-<FONT color="green">382</FONT>        private int seedSize = 100;<a name="line.382"></a>
-<FONT color="green">383</FONT>        private double toleratedFailureRate = 0.5;<a name="line.383"></a>
-<FONT color="green">384</FONT>        private Set&lt;BackoffDecider&gt; deciderGroup = null;<a name="line.384"></a>
-<FONT color="green">385</FONT>        private BackoffStrategy strategy = new TruncatedBinaryBackoff(<a name="line.385"></a>
-<FONT color="green">386</FONT>            Amount.of(100L, Time.MILLISECONDS), Amount.of(10L, Time.SECONDS));<a name="line.386"></a>
-<FONT color="green">387</FONT>        private Amount&lt;Long, Time&gt; recoveryPeriod = null;<a name="line.387"></a>
-<FONT color="green">388</FONT>        private long requestWindowNs = Amount.of(10L, Time.SECONDS).as(Time.NANOSECONDS);<a name="line.388"></a>
-<FONT color="green">389</FONT>        private int numBuckets = 100;<a name="line.389"></a>
-<FONT color="green">390</FONT>        private RecoveryType recoveryType = RecoveryType.RANDOM_LINEAR;<a name="line.390"></a>
-<FONT color="green">391</FONT>        private StatsProvider statsProvider = Stats.STATS_PROVIDER;<a name="line.391"></a>
-<FONT color="green">392</FONT>        private Random random = Random.Util.newDefaultRandom();<a name="line.392"></a>
-<FONT color="green">393</FONT>        private Clock clock = Clock.SYSTEM_CLOCK;<a name="line.393"></a>
-<FONT color="green">394</FONT>    <a name="line.394"></a>
-<FONT color="green">395</FONT>        Builder(String name) {<a name="line.395"></a>
-<FONT color="green">396</FONT>          this.name = name;<a name="line.396"></a>
-<FONT color="green">397</FONT>        }<a name="line.397"></a>
-<FONT color="green">398</FONT>    <a name="line.398"></a>
-<FONT color="green">399</FONT>        /**<a name="line.399"></a>
-<FONT color="green">400</FONT>         * Sets the number of requests that must be accumulated before the error rate will be<a name="line.400"></a>
-<FONT color="green">401</FONT>         * calculated.  This improves the genesis problem where the first few requests are errors,<a name="line.401"></a>
-<FONT color="green">402</FONT>         * causing flapping in and out of backoff state.<a name="line.402"></a>
-<FONT color="green">403</FONT>         *<a name="line.403"></a>
-<FONT color="green">404</FONT>         * @param seedSize Request seed size.<a name="line.404"></a>
-<FONT color="green">405</FONT>         * @return A reference to the builder.<a name="line.405"></a>
-<FONT color="green">406</FONT>         */<a name="line.406"></a>
-<FONT color="green">407</FONT>        public Builder withSeedSize(int seedSize) {<a name="line.407"></a>
-<FONT color="green">408</FONT>          this.seedSize = seedSize;<a name="line.408"></a>
-<FONT color="green">409</FONT>          return this;<a name="line.409"></a>
-<FONT color="green">410</FONT>        }<a name="line.410"></a>
-<FONT color="green">411</FONT>    <a name="line.411"></a>
-<FONT color="green">412</FONT>        /**<a name="line.412"></a>
-<FONT color="green">413</FONT>         * Sets the tolerated failure rate for the decider.  If the rate is exceeded for the time<a name="line.413"></a>
-<FONT color="green">414</FONT>         * window, the decider begins backing off.<a name="line.414"></a>
-<FONT color="green">415</FONT>         *<a name="line.415"></a>
-<FONT color="green">416</FONT>         * @param toleratedRate The tolerated failure rate (between 0.0 and 1.0, exclusive).<a name="line.416"></a>
-<FONT color="green">417</FONT>         * @return A reference to the builder.<a name="line.417"></a>
-<FONT color="green">418</FONT>         */<a name="line.418"></a>
-<FONT color="green">419</FONT>        public Builder withTolerateFailureRate(double toleratedRate) {<a name="line.419"></a>
-<FONT color="green">420</FONT>          this.toleratedFailureRate = toleratedRate;<a name="line.420"></a>
-<FONT color="green">421</FONT>          return this;<a name="line.421"></a>
-<FONT color="green">422</FONT>        }<a name="line.422"></a>
-<FONT color="green">423</FONT>    <a name="line.423"></a>
-<FONT color="green">424</FONT>        /**<a name="line.424"></a>
-<FONT color="green">425</FONT>         * Makes the decider a part of a group.  When a decider is a part of a group, it will monitor<a name="line.425"></a>
-<FONT color="green">426</FONT>         * the other deciders to ensure that all deciders do not back off at once.<a name="line.426"></a>
-<FONT color="green">427</FONT>         *<a name="line.427"></a>
-<FONT color="green">428</FONT>         * @param deciderGroup Group to make this decider a part of.  More deciders may be added to the<a name="line.428"></a>
-<FONT color="green">429</FONT>         *     group after this call is made.<a name="line.429"></a>
-<FONT color="green">430</FONT>         * @return A reference to the builder.<a name="line.430"></a>
-<FONT color="green">431</FONT>         */<a name="line.431"></a>
-<FONT color="green">432</FONT>        public Builder groupWith(Set&lt;BackoffDecider&gt; deciderGroup) {<a name="line.432"></a>
-<FONT color="green">433</FONT>          this.deciderGroup = deciderGroup;<a name="line.433"></a>
-<FONT color="green">434</FONT>          return this;<a name="line.434"></a>
-<FONT color="green">435</FONT>        }<a name="line.435"></a>
-<FONT color="green">436</FONT>    <a name="line.436"></a>
-<FONT color="green">437</FONT>        /**<a name="line.437"></a>
-<FONT color="green">438</FONT>         * Overrides the default backoff strategy.<a name="line.438"></a>
-<FONT color="green">439</FONT>         *<a name="line.439"></a>
-<FONT color="green">440</FONT>         * @param strategy Backoff strategy to use.<a name="line.440"></a>
-<FONT color="green">441</FONT>         * @return A reference to the builder.<a name="line.441"></a>
-<FONT color="green">442</FONT>         */<a name="line.442"></a>
-<FONT color="green">443</FONT>        public Builder withStrategy(BackoffStrategy strategy) {<a name="line.443"></a>
-<FONT color="green">444</FONT>          this.strategy = strategy;<a name="line.444"></a>
-<FONT color="green">445</FONT>          return this;<a name="line.445"></a>
-<FONT color="green">446</FONT>        }<a name="line.446"></a>
-<FONT color="green">447</FONT>    <a name="line.447"></a>
-<FONT color="green">448</FONT>        /**<a name="line.448"></a>
-<FONT color="green">449</FONT>         * Overrides the default recovery period behavior.  By default, the recovery period is equal<a name="line.449"></a>
-<FONT color="green">450</FONT>         * to the previous backoff period (which is equivalent to setting the recovery period to null<a name="line.450"></a>
-<FONT color="green">451</FONT>         * here).  A non-null value here will assign a fixed recovery period.<a name="line.451"></a>
-<FONT color="green">452</FONT>         *<a name="line.452"></a>
-<FONT color="green">453</FONT>         * @param recoveryPeriod Fixed recovery period.<a name="line.453"></a>
-<FONT color="green">454</FONT>         * @return A reference to the builder.<a name="line.454"></a>
-<FONT color="green">455</FONT>         */<a name="line.455"></a>
-<FONT color="green">456</FONT>        public Builder withRecoveryPeriod(@Nullable Amount&lt;Long, Time&gt; recoveryPeriod) {<a name="line.456"></a>
-<FONT color="green">457</FONT>          this.recoveryPeriod = recoveryPeriod;<a name="line.457"></a>
-<FONT color="green">458</FONT>          return this;<a name="line.458"></a>
-<FONT color="green">459</FONT>        }<a name="line.459"></a>
-<FONT color="green">460</FONT>    <a name="line.460"></a>
-<FONT color="green">461</FONT>        /**<a name="line.461"></a>
-<FONT color="green">462</FONT>         * Sets the time window over which to analyze failures.  Beyond the time window, request history<a name="line.462"></a>
-<FONT color="green">463</FONT>         * is discarded (and ignored).<a name="line.463"></a>
-<FONT color="green">464</FONT>         *<a name="line.464"></a>
-<FONT color="green">465</FONT>         * @param requestWindow The analysis time window.<a name="line.465"></a>
-<FONT color="green">466</FONT>         * @return A reference to the builder.<a name="line.466"></a>
-<FONT color="green">467</FONT>         */<a name="line.467"></a>
-<FONT color="green">468</FONT>        public Builder withRequestWindow(Amount&lt;Long, Time&gt; requestWindow) {<a name="line.468"></a>
-<FONT color="green">469</FONT>          this.requestWindowNs = requestWindow.as(Time.NANOSECONDS);<a name="line.469"></a>
-<FONT color="green">470</FONT>          return this;<a name="line.470"></a>
-<FONT color="green">471</FONT>        }<a name="line.471"></a>
-<FONT color="green">472</FONT>    <a name="line.472"></a>
-<FONT color="green">473</FONT>        /**<a name="line.473"></a>
-<FONT color="green">474</FONT>         * Sets the number of time slices that the decider will use to partition aggregate statistics.<a name="line.474"></a>
-<FONT color="green">475</FONT>         *<a name="line.475"></a>
-<FONT color="green">476</FONT>         * @param numBuckets Bucket count.<a name="line.476"></a>
-<FONT color="green">477</FONT>         * @return A reference to the builder.<a name="line.477"></a>
-<FONT color="green">478</FONT>         */<a name="line.478"></a>
-<FONT color="green">479</FONT>        public Builder withBucketCount(int numBuckets) {<a name="line.479"></a>
-<FONT color="green">480</FONT>          this.numBuckets = numBuckets;<a name="line.480"></a>
-<FONT color="green">481</FONT>          return this;<a name="line.481"></a>
-<FONT color="green">482</FONT>        }<a name="line.482"></a>
-<FONT color="green">483</FONT>    <a name="line.483"></a>
-<FONT color="green">484</FONT>        /**<a name="line.484"></a>
-<FONT color="green">485</FONT>         * Sets the recovery mechanism to use when in the recovery period.<a name="line.485"></a>
-<FONT color="green">486</FONT>         *<a name="line.486"></a>
-<FONT color="green">487</FONT>         * @param recoveryType The recovery mechanism to use.<a name="line.487"></a>
-<FONT color="green">488</FONT>         * @return A reference to the builder.<a name="line.488"></a>
-<FONT color="green">489</FONT>         */<a name="line.489"></a>
-<FONT color="green">490</FONT>        public Builder withRecoveryType(RecoveryType recoveryType) {<a name="line.490"></a>
-<FONT color="green">491</FONT>          this.recoveryType = recoveryType;<a name="line.491"></a>
-<FONT color="green">492</FONT>          return this;<a name="line.492"></a>
-<FONT color="green">493</FONT>        }<a name="line.493"></a>
-<FONT color="green">494</FONT>    <a name="line.494"></a>
-<FONT color="green">495</FONT>        /**<a name="line.495"></a>
-<FONT color="green">496</FONT>         * Sets the stats provider that statistics should be exported to.<a name="line.496"></a>
-<FONT color="green">497</FONT>         *<a name="line.497"></a>
-<FONT color="green">498</FONT>         * @param statsProvider Stats provider to use.<a name="line.498"></a>
-<FONT color="green">499</FONT>         * @return A reference to the builder.<a name="line.499"></a>
-<FONT color="green">500</FONT>         */<a name="line.500"></a>
-<FONT color="green">501</FONT>        public Builder withStatsProvider(StatsProvider statsProvider) {<a name="line.501"></a>
-<FONT color="green">502</FONT>          this.statsProvider = statsProvider;<a name="line.502"></a>
-<FONT color="green">503</FONT>          return this;<a name="line.503"></a>
-<FONT color="green">504</FONT>        }<a name="line.504"></a>
-<FONT color="green">505</FONT>    <a name="line.505"></a>
-<FONT color="green">506</FONT>        @VisibleForTesting public Builder withRandom(Random random) {<a name="line.506"></a>
-<FONT color="green">507</FONT>          this.random = random;<a name="line.507"></a>
-<FONT color="green">508</FONT>          return this;<a name="line.508"></a>
-<FONT color="green">509</FONT>        }<a name="line.509"></a>
-<FONT color="green">510</FONT>    <a name="line.510"></a>
-<FONT color="green">511</FONT>        @VisibleForTesting public Builder withClock(Clock clock) {<a name="line.511"></a>
-<FONT color="green">512</FONT>          this.clock = clock;<a name="line.512"></a>
-<FONT color="green">513</FONT>          return this;<a name="line.513"></a>
-<FONT color="green">514</FONT>        }<a name="line.514"></a>
-<FONT color="green">515</FONT>    <a name="line.515"></a>
-<FONT color="green">516</FONT>        /**<a name="line.516"></a>
-<FONT color="green">517</FONT>         * Gets a reference to the built decider object.<a name="line.517"></a>
-<FONT color="green">518</FONT>         * @return A decider object.<a name="line.518"></a>
-<FONT color="green">519</FONT>         */<a name="line.519"></a>
-<FONT color="green">520</FONT>        public BackoffDecider build() {<a name="line.520"></a>
-<FONT color="green">521</FONT>          BackoffDecider decider =  new BackoffDecider(name, seedSize, toleratedFailureRate,<a name="line.521"></a>
-<FONT color="green">522</FONT>              deciderGroup, strategy, recoveryPeriod, requestWindowNs, numBuckets, recoveryType,<a name="line.522"></a>
-<FONT color="green">523</FONT>              statsProvider, random, clock);<a name="line.523"></a>
-<FONT color="green">524</FONT>          if (deciderGroup != null) deciderGroup.add(decider);<a name="line.524"></a>
-<FONT color="green">525</FONT>          return decider;<a name="line.525"></a>
-<FONT color="green">526</FONT>        }<a name="line.526"></a>
-<FONT color="green">527</FONT>      }<a name="line.527"></a>
-<FONT color="green">528</FONT>    <a name="line.528"></a>
-<FONT color="green">529</FONT>      private class TimeSlice {<a name="line.529"></a>
-<FONT color="green">530</FONT>        int requestCount = 0;<a name="line.530"></a>
-<FONT color="green">531</FONT>        int failureCount = 0;<a name="line.531"></a>
-<FONT color="green">532</FONT>        final long bucketStartNs;<a name="line.532"></a>
-<FONT color="green">533</FONT>    <a name="line.533"></a>
-<FONT color="green">534</FONT>        public TimeSlice() {<a name="line.534"></a>
-<FONT color="green">535</FONT>          bucketStartNs = clock.nowNanos();<a name="line.535"></a>
-<FONT color="green">536</FONT>        }<a name="line.536"></a>
-<FONT color="green">537</FONT>      }<a name="line.537"></a>
-<FONT color="green">538</FONT>    <a name="line.538"></a>
-<FONT color="green">539</FONT>      class RequestWindow {<a name="line.539"></a>
-<FONT color="green">540</FONT>        // These store the sum of the respective fields contained within buckets.  Doing so removes the<a name="line.540"></a>
-<FONT color="green">541</FONT>        // need to accumulate the counts within the buckets every time the backoff state is<a name="line.541"></a>
-<FONT color="green">542</FONT>        // recalculated.<a name="line.542"></a>
-<FONT color="green">543</FONT>        @VisibleForTesting long totalRequests = 0;<a name="line.543"></a>
-<FONT color="green">544</FONT>        @VisibleForTesting long totalFailures = 0;<a name="line.544"></a>
-<FONT color="green">545</FONT>    <a name="line.545"></a>
-<FONT color="green">546</FONT>        private final long durationNs;<a name="line.546"></a>
-<FONT color="green">547</FONT>        private final long bucketLengthNs;<a name="line.547"></a>
-<FONT color="green">548</FONT>        private final int seedSize;<a name="line.548"></a>
-<FONT color="green">549</FONT>    <a name="line.549"></a>
-<FONT color="green">550</FONT>        // Stores aggregate request/failure counts for time slices.<a name="line.550"></a>
-<FONT color="green">551</FONT>        private final Deque&lt;TimeSlice&gt; buckets = Lists.newLinkedList();<a name="line.551"></a>
-<FONT color="green">552</FONT>    <a name="line.552"></a>
-<FONT color="green">553</FONT>        RequestWindow(long durationNs, int bucketCount, int seedSize) {<a name="line.553"></a>
-<FONT color="green">554</FONT>          this.durationNs = durationNs;<a name="line.554"></a>
-<FONT color="green">555</FONT>          this.bucketLengthNs = durationNs / bucketCount;<a name="line.555"></a>
-<FONT color="green">556</FONT>          buckets.addFirst(new TimeSlice());<a name="line.556"></a>
-<FONT color="green">557</FONT>          this.seedSize = seedSize;<a name="line.557"></a>
-<FONT color="green">558</FONT>        }<a name="line.558"></a>
-<FONT color="green">559</FONT>    <a name="line.559"></a>
-<FONT color="green">560</FONT>        void reset() {<a name="line.560"></a>
-<FONT color="green">561</FONT>          totalRequests = 0;<a name="line.561"></a>
-<FONT color="green">562</FONT>          totalFailures = 0;<a name="line.562"></a>
-<FONT color="green">563</FONT>          buckets.clear();<a name="line.563"></a>
-<FONT color="green">564</FONT>          buckets.addFirst(new TimeSlice());<a name="line.564"></a>
-<FONT color="green">565</FONT>        }<a name="line.565"></a>
-<FONT color="green">566</FONT>    <a name="line.566"></a>
-<FONT color="green">567</FONT>        void addResult(boolean success) {<a name="line.567"></a>
-<FONT color="green">568</FONT>          maybeShuffleBuckets();<a name="line.568"></a>
-<FONT color="green">569</FONT>          buckets.peekFirst().requestCount++;<a name="line.569"></a>
-<FONT color="green">570</FONT>          totalRequests++;<a name="line.570"></a>
-<FONT color="green">571</FONT>    <a name="line.571"></a>
-<FONT color="green">572</FONT>          if (!success) {<a name="line.572"></a>
-<FONT color="green">573</FONT>            buckets.peekFirst().failureCount++;<a name="line.573"></a>
-<FONT color="green">574</FONT>            totalFailures++;<a name="line.574"></a>
-<FONT color="green">575</FONT>          }<a name="line.575"></a>
-<FONT color="green">576</FONT>        }<a name="line.576"></a>
-<FONT color="green">577</FONT>    <a name="line.577"></a>
-<FONT color="green">578</FONT>        void maybeShuffleBuckets() {<a name="line.578"></a>
-<FONT color="green">579</FONT>          // Check if the first bucket is still relevant.<a name="line.579"></a>
-<FONT color="green">580</FONT>          if (clock.nowNanos() - buckets.peekFirst().bucketStartNs &gt;= bucketLengthNs) {<a name="line.580"></a>
-<FONT color="green">581</FONT>    <a name="line.581"></a>
-<FONT color="green">582</FONT>            // Remove old buckets.<a name="line.582"></a>
-<FONT color="green">583</FONT>            while (!buckets.isEmpty()<a name="line.583"></a>
-<FONT color="green">584</FONT>                   &amp;&amp; buckets.peekLast().bucketStartNs &lt; clock.nowNanos() - durationNs) {<a name="line.584"></a>
-<FONT color="green">585</FONT>              TimeSlice removed = buckets.removeLast();<a name="line.585"></a>
-<FONT color="green">586</FONT>              totalRequests -= removed.requestCount;<a name="line.586"></a>
-<FONT color="green">587</FONT>              totalFailures -= removed.failureCount;<a name="line.587"></a>
-<FONT color="green">588</FONT>            }<a name="line.588"></a>
-<FONT color="green">589</FONT>    <a name="line.589"></a>
-<FONT color="green">590</FONT>            buckets.addFirst(new TimeSlice());<a name="line.590"></a>
-<FONT color="green">591</FONT>          }<a name="line.591"></a>
-<FONT color="green">592</FONT>        }<a name="line.592"></a>
-<FONT color="green">593</FONT>    <a name="line.593"></a>
-<FONT color="green">594</FONT>        boolean isSeeded() {<a name="line.594"></a>
-<FONT color="green">595</FONT>          return totalRequests &gt;= seedSize;<a name="line.595"></a>
-<FONT color="green">596</FONT>        }<a name="line.596"></a>
-<FONT color="green">597</FONT>    <a name="line.597"></a>
-<FONT color="green">598</FONT>        double getFailureRate() {<a name="line.598"></a>
-<FONT color="green">599</FONT>          return totalRequests == 0 ? 0 : ((double) totalFailures) / totalRequests;<a name="line.599"></a>
-<FONT color="green">600</FONT>        }<a name="line.600"></a>
-<FONT color="green">601</FONT>      }<a name="line.601"></a>
-<FONT color="green">602</FONT>    <a name="line.602"></a>
-<FONT color="green">603</FONT>      private static enum State {<a name="line.603"></a>
-<FONT color="green">604</FONT>        NORMAL,        // All requests are being permitted.<a name="line.604"></a>
-<FONT color="green">605</FONT>        BACKOFF,       // Quiet period while waiting for backend to recover/improve.<a name="line.605"></a>
-<FONT color="green">606</FONT>        RECOVERY,      // Ramping period where an ascending fraction of requests is being permitted.<a name="line.606"></a>
-<FONT color="green">607</FONT>        FORCED_NORMAL  // All other backends in the group are backing off, so this one is forced normal.<a name="line.607"></a>
-<FONT color="green">608</FONT>      }<a name="line.608"></a>
-<FONT color="green">609</FONT>      private class TimedStateMachine {<a name="line.609"></a>
-<FONT color="green">610</FONT>        final StateMachine&lt;State&gt; stateMachine;<a name="line.610"></a>
-<FONT color="green">611</FONT>    <a name="line.611"></a>
-<FONT color="green">612</FONT>        private long stateEndNs;<a name="line.612"></a>
-<FONT color="green">613</FONT>        private long stateDurationNs;<a name="line.613"></a>
-<FONT color="green">614</FONT>    <a name="line.614"></a>
-<FONT color="green">615</FONT>        TimedStateMachine(String name) {<a name="line.615"></a>
-<FONT color="green">616</FONT>          stateMachine = StateMachine.&lt;State&gt;builder(name + "_backoff_state_machine")<a name="line.616"></a>
-<FONT color="green">617</FONT>              .addState(State.NORMAL, State.BACKOFF, State.FORCED_NORMAL)<a name="line.617"></a>
-<FONT color="green">618</FONT>              .addState(State.BACKOFF, State.RECOVERY, State.FORCED_NORMAL)<a name="line.618"></a>
-<FONT color="green">619</FONT>              .addState(State.RECOVERY, State.NORMAL, State.BACKOFF, State.FORCED_NORMAL)<a name="line.619"></a>
-<FONT color="green">620</FONT>              .addState(State.FORCED_NORMAL, State.RECOVERY)<a name="line.620"></a>
-<FONT color="green">621</FONT>              .initialState(State.NORMAL)<a name="line.621"></a>
-<FONT color="green">622</FONT>              .build();<a name="line.622"></a>
-<FONT color="green">623</FONT>        }<a name="line.623"></a>
-<FONT color="green">624</FONT>    <a name="line.624"></a>
-<FONT color="green">625</FONT>        State getState() {<a name="line.625"></a>
-<FONT color="green">626</FONT>          return stateMachine.getState();<a name="line.626"></a>
-<FONT color="green">627</FONT>        }<a name="line.627"></a>
-<FONT color="green">628</FONT>    <a name="line.628"></a>
-<FONT color="green">629</FONT>        void transitionUnbounded(State state) {<a name="line.629"></a>
-<FONT color="green">630</FONT>          stateMachine.transition(state);<a name="line.630"></a>
-<FONT color="green">631</FONT>        }<a name="line.631"></a>
-<FONT color="green">632</FONT>    <a name="line.632"></a>
-<FONT color="green">633</FONT>        void transition(State state, long durationNs) {<a name="line.633"></a>
-<FONT color="green">634</FONT>          transitionUnbounded(state);<a name="line.634"></a>
-<FONT color="green">635</FONT>          this.stateEndNs = clock.nowNanos() + durationNs;<a name="line.635"></a>
-<FONT color="green">636</FONT>          this.stateDurationNs = durationNs;<a name="line.636"></a>
-<FONT color="green">637</FONT>        }<a name="line.637"></a>
-<FONT color="green">638</FONT>    <a name="line.638"></a>
-<FONT color="green">639</FONT>        long getStateDurationNs() {<a name="line.639"></a>
-<FONT color="green">640</FONT>          return stateDurationNs;<a name="line.640"></a>
-<FONT color="green">641</FONT>        }<a name="line.641"></a>
-<FONT color="green">642</FONT>    <a name="line.642"></a>
-<FONT color="green">643</FONT>        long getStateDurationMs() {<a name="line.643"></a>
-<FONT color="green">644</FONT>          return Amount.of(stateDurationNs, Time.NANOSECONDS).as(Time.MILLISECONDS);<a name="line.644"></a>
-<FONT color="green">645</FONT>        }<a name="line.645"></a>
-<FONT color="green">646</FONT>    <a name="line.646"></a>
-<FONT color="green">647</FONT>        void setStateDurationNs(long stateDurationNs) {<a name="line.647"></a>
-<FONT color="green">648</FONT>          this.stateDurationNs = stateDurationNs;<a name="line.648"></a>
-<FONT color="green">649</FONT>        }<a name="line.649"></a>
-<FONT color="green">650</FONT>    <a name="line.650"></a>
-<FONT color="green">651</FONT>        long getStateRemainingNs() {<a name="line.651"></a>
-<FONT color="green">652</FONT>          return stateEndNs - clock.nowNanos();<a name="line.652"></a>
-<FONT color="green">653</FONT>        }<a name="line.653"></a>
-<FONT color="green">654</FONT>    <a name="line.654"></a>
-<FONT color="green">655</FONT>        long getStateRemainingMs() {<a name="line.655"></a>
-<FONT color="green">656</FONT>          return Amount.of(getStateRemainingNs(), Time.NANOSECONDS).as(Time.MILLISECONDS);<a name="line.656"></a>
-<FONT color="green">657</FONT>        }<a name="line.657"></a>
-<FONT color="green">658</FONT>    <a name="line.658"></a>
-<FONT color="green">659</FONT>        double getStateFractionComplete() {<a name="line.659"></a>
-<FONT color="green">660</FONT>          return 1.0 - ((double) getStateRemainingNs()) / stateDurationNs;<a name="line.660"></a>
-<FONT color="green">661</FONT>        }<a name="line.661"></a>
-<FONT color="green">662</FONT>    <a name="line.662"></a>
-<FONT color="green">663</FONT>        boolean isStateExpired() {<a name="line.663"></a>
-<FONT color="green">664</FONT>          return clock.nowNanos() &gt; stateEndNs;<a name="line.664"></a>
-<FONT color="green">665</FONT>        }<a name="line.665"></a>
-<FONT color="green">666</FONT>      }<a name="line.666"></a>
-<FONT color="green">667</FONT>    }<a name="line.667"></a>
+<FONT color="green">010</FONT>    // Unless required by applicable law or agreed to in writing, software<a name="line.10"></a>
+<FONT color="green">011</FONT>    // distributed under the License is distributed on an "AS IS" BASIS,<a name="line.11"></a>
+<FONT color="green">012</FONT>    // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.12"></a>
+<FONT color="green">013</FONT>    // See the License for the specific language governing permissions and<a name="line.13"></a>
+<FONT color="green">014</FONT>    // limitations under the License.<a name="line.14"></a>
+<FONT color="green">015</FONT>    // =================================================================================================<a name="line.15"></a>
+<FONT color="green">016</FONT>    <a name="line.16"></a>
+<FONT color="green">017</FONT>    package com.twitter.common.util;<a name="line.17"></a>
+<FONT color="green">018</FONT>    <a name="line.18"></a>
+<FONT color="green">019</FONT>    import com.google.common.annotations.VisibleForTesting;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import com.google.common.base.Preconditions;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import com.google.common.collect.Lists;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import com.twitter.common.base.MorePreconditions;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import com.twitter.common.quantity.Amount;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import com.twitter.common.quantity.Time;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import com.twitter.common.stats.Stats;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import com.twitter.common.stats.StatsProvider;<a name="line.26"></a>
+<FONT color="green">027</FONT>    <a name="line.27"></a>
+<FONT color="green">028</FONT>    import javax.annotation.Nullable;<a name="line.28"></a>
+<FONT color="green">029</FONT>    import java.util.Deque;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import java.util.Set;<a name="line.30"></a>
+<FONT color="green">031</FONT>    import java.util.concurrent.atomic.AtomicLong;<a name="line.31"></a>
+<FONT color="green">032</FONT>    import java.util.logging.Logger;<a name="line.32"></a>
+<FONT color="green">033</FONT>    <a name="line.33"></a>
+<FONT color="green">034</FONT>    /**<a name="line.34"></a>
+<FONT color="green">035</FONT>     * Handles logic for deciding whether to back off from calls to a backend.<a name="line.35"></a>
+<FONT color="green">036</FONT>     *<a name="line.36"></a>
+<FONT color="green">037</FONT>     * This works by offering a guard method {@link #shouldBackOff()}, which instructs the caller<a name="line.37"></a>
+<FONT color="green">038</FONT>     * whether they should avoid making the call.  The backoff logic will maintain statistics about<a name="line.38"></a>
+<FONT color="green">039</FONT>     * the failure rate, and push into a backoff state (silent period) when the failure rate exceeds<a name="line.39"></a>
+<FONT color="green">040</FONT>     * the configured threshold.  At the end of the quiet period, a recovery state will be entered,<a name="line.40"></a>
+<FONT color="green">041</FONT>     * during which the decider will allow traffic to ramp back up to full capacity.<a name="line.41"></a>
+<FONT color="green">042</FONT>     *<a name="line.42"></a>
+<FONT color="green">043</FONT>     * The expected use case looks something like this:<a name="line.43"></a>
+<FONT color="green">044</FONT>     *<a name="line.44"></a>
+<FONT color="green">045</FONT>     * &lt;pre&gt;<a name="line.45"></a>
+<FONT color="green">046</FONT>     * void sendRequestGuarded() {<a name="line.46"></a>
+<FONT color="green">047</FONT>     *   if (!decider.shouldBackOff()) {<a name="line.47"></a>
+<FONT color="green">048</FONT>     *     boolean success = sendRequestUnguarded();<a name="line.48"></a>
+<FONT color="green">049</FONT>     *     if (success) {<a name="line.49"></a>
+<FONT color="green">050</FONT>     *       decider.addSuccess();<a name="line.50"></a>
+<FONT color="green">051</FONT>     *     } else {<a name="line.51"></a>
+<FONT color="green">052</FONT>     *       decider.addFailure();<a name="line.52"></a>
+<FONT color="green">053</FONT>     *     }<a name="line.53"></a>
+<FONT color="green">054</FONT>     *   }<a name="line.54"></a>
+<FONT color="green">055</FONT>     * }<a name="line.55"></a>
+<FONT color="green">056</FONT>     * &lt;/pre&gt;<a name="line.56"></a>
+<FONT color="green">057</FONT>     *<a name="line.57"></a>
+<FONT color="green">058</FONT>     * @author William Farner<a name="line.58"></a>
+<FONT color="green">059</FONT>     */<a name="line.59"></a>
+<FONT color="green">060</FONT>    public class BackoffDecider {<a name="line.60"></a>
+<FONT color="green">061</FONT>      private static final Logger LOG = Logger.getLogger(BackoffDecider.class.getName());<a name="line.61"></a>
+<FONT color="green">062</FONT>    <a name="line.62"></a>
+<FONT color="green">063</FONT>      // The group that this decider is a part of.<a name="line.63"></a>
+<FONT color="green">064</FONT>      private final Iterable&lt;BackoffDecider&gt; deciderGroup;<a name="line.64"></a>
+<FONT color="green">065</FONT>    <a name="line.65"></a>
+<FONT color="green">066</FONT>      private final TimedStateMachine stateMachine;<a name="line.66"></a>
+<FONT color="green">067</FONT>    <a name="line.67"></a>
+<FONT color="green">068</FONT>      private final String name;<a name="line.68"></a>
+<FONT color="green">069</FONT>    <a name="line.69"></a>
+<FONT color="green">070</FONT>      private final double toleratedFailureRate;<a name="line.70"></a>
+<FONT color="green">071</FONT>    <a name="line.71"></a>
+<FONT color="green">072</FONT>      @VisibleForTesting final RequestWindow requests;<a name="line.72"></a>
+<FONT color="green">073</FONT>    <a name="line.73"></a>
+<FONT color="green">074</FONT>      // Used to calculate backoff durations when in backoff state.<a name="line.74"></a>
+<FONT color="green">075</FONT>      private final BackoffStrategy strategy;<a name="line.75"></a>
+<FONT color="green">076</FONT>    <a name="line.76"></a>
+<FONT color="green">077</FONT>      private final Amount&lt;Long, Time&gt; recoveryPeriod;<a name="line.77"></a>
+<FONT color="green">078</FONT>      private long previousBackoffPeriodNs = 0;<a name="line.78"></a>
+<FONT color="green">079</FONT>    <a name="line.79"></a>
+<FONT color="green">080</FONT>      // Used for random selection during recovery period.<a name="line.80"></a>
+<FONT color="green">081</FONT>      private final Random random;<a name="line.81"></a>
+<FONT color="green">082</FONT>    <a name="line.82"></a>
+<FONT color="green">083</FONT>      private final Clock clock;<a name="line.83"></a>
+<FONT color="green">084</FONT>      private final AtomicLong backoffs;<a name="line.84"></a>
+<FONT color="green">085</FONT>      private final RecoveryType recoveryType;<a name="line.85"></a>
+<FONT color="green">086</FONT>    <a name="line.86"></a>
+<FONT color="green">087</FONT>      /**<a name="line.87"></a>
+<FONT color="green">088</FONT>       * Different types of recovery mechanisms to use after exiting the backoff state.<a name="line.88"></a>
+<FONT color="green">089</FONT>       */<a name="line.89"></a>
+<FONT color="green">090</FONT>      public static enum RecoveryType {<a name="line.90"></a>
+<FONT color="green">091</FONT>        // Randomly allows traffic to flow through, with a linearly-ascending probability.<a name="line.91"></a>
+<FONT color="green">092</FONT>        RANDOM_LINEAR,<a name="line.92"></a>
+<FONT color="green">093</FONT>        // Allows full traffic capacity to flow during the recovery period.<a name="line.93"></a>
+<FONT color="green">094</FONT>        FULL_CAPACITY<a name="line.94"></a>
+<FONT color="green">095</FONT>      }<a name="line.95"></a>
+<FONT color="green">096</FONT>    <a name="line.96"></a>
+<FONT color="green">097</FONT>      private BackoffDecider(String name, int seedSize, double toleratedFailureRate,<a name="line.97"></a>
+<FONT color="green">098</FONT>          @Nullable Iterable&lt;BackoffDecider&gt; deciderGroup, BackoffStrategy strategy,<a name="line.98"></a>
+<FONT color="green">099</FONT>          @Nullable Amount&lt;Long, Time&gt; recoveryPeriod,<a name="line.99"></a>
+<FONT color="green">100</FONT>          long requestWindowNs, int numBuckets, RecoveryType recoveryType, StatsProvider statsProvider,<a name="line.100"></a>
+<FONT color="green">101</FONT>          Random random, Clock clock) {<a name="line.101"></a>
+<FONT color="green">102</FONT>        MorePreconditions.checkNotBlank(name);<a name="line.102"></a>
+<FONT color="green">103</FONT>        Preconditions.checkArgument(seedSize &gt; 0);<a name="line.103"></a>
+<FONT color="green">104</FONT>        Preconditions.checkArgument(toleratedFailureRate &gt;= 0 &amp;&amp; toleratedFailureRate &lt; 1.0);<a name="line.104"></a>
+<FONT color="green">105</FONT>        Preconditions.checkNotNull(strategy);<a name="line.105"></a>
+<FONT color="green">106</FONT>        Preconditions.checkArgument(recoveryPeriod == null || recoveryPeriod.getValue() &gt; 0);<a name="line.106"></a>
+<FONT color="green">107</FONT>        Preconditions.checkArgument(requestWindowNs &gt; 0);<a name="line.107"></a>
+<FONT color="green">108</FONT>        Preconditions.checkArgument(numBuckets &gt; 0);<a name="line.108"></a>
+<FONT color="green">109</FONT>        Preconditions.checkNotNull(recoveryType);<a name="line.109"></a>
+<FONT color="green">110</FONT>        Preconditions.checkNotNull(statsProvider);<a name="line.110"></a>
+<FONT color="green">111</FONT>        Preconditions.checkNotNull(random);<a name="line.111"></a>
+<FONT color="green">112</FONT>        Preconditions.checkNotNull(clock);<a name="line.112"></a>
+<FONT color="green">113</FONT>    <a name="line.113"></a>
+<FONT color="green">114</FONT>        this.name = name;<a name="line.114"></a>
+<FONT color="green">115</FONT>        this.toleratedFailureRate = toleratedFailureRate;<a name="line.115"></a>
+<FONT color="green">116</FONT>        this.deciderGroup = deciderGroup;<a name="line.116"></a>
+<FONT color="green">117</FONT>        this.strategy = strategy;<a name="line.117"></a>
+<FONT color="green">118</FONT>        this.recoveryPeriod = recoveryPeriod;<a name="line.118"></a>
+<FONT color="green">119</FONT>        this.recoveryType = recoveryType;<a name="line.119"></a>
+<FONT color="green">120</FONT>    <a name="line.120"></a>
+<FONT color="green">121</FONT>        this.random = random;<a name="line.121"></a>
+<FONT color="green">122</FONT>        this.clock = clock;<a name="line.122"></a>
+<FONT color="green">123</FONT>    <a name="line.123"></a>
+<FONT color="green">124</FONT>        this.backoffs = statsProvider.makeCounter(name + "_backoffs");<a name="line.124"></a>
+<FONT color="green">125</FONT>        this.requests = new RequestWindow(requestWindowNs, numBuckets, seedSize);<a name="line.125"></a>
+<FONT color="green">126</FONT>    <a name="line.126"></a>
+<FONT color="green">127</FONT>        this.stateMachine = new TimedStateMachine(name);<a name="line.127"></a>
+<FONT color="green">128</FONT>      }<a name="line.128"></a>
+<FONT color="green">129</FONT>    <a name="line.129"></a>
+<FONT color="green">130</FONT>      /**<a name="line.130"></a>
+<FONT color="green">131</FONT>       * Checks whether the caller should back off and if not then returns immediately; otherwise the<a name="line.131"></a>
+<FONT color="green">132</FONT>       * method blocks until it is safe for the caller to proceed without backing off further based on<a name="line.132"></a>
+<FONT color="green">133</FONT>       * all data available at the time of this call.<a name="line.133"></a>
+<FONT color="green">134</FONT>       *<a name="line.134"></a>
+<FONT color="green">135</FONT>       * @return the amount of time in nanoseconds spent awaiting backoff<a name="line.135"></a>
+<FONT color="green">136</FONT>       * @throws InterruptedException if the calling thread was interrupted while backing off<a name="line.136"></a>
+<FONT color="green">137</FONT>       */<a name="line.137"></a>
+<FONT color="green">138</FONT>      public long awaitBackoff() throws InterruptedException {<a name="line.138"></a>
+<FONT color="green">139</FONT>        if (shouldBackOff()) {<a name="line.139"></a>
+<FONT color="green">140</FONT>          long backoffTimeMs = stateMachine.getStateRemainingMs();<a name="line.140"></a>
+<FONT color="green">141</FONT>    <a name="line.141"></a>
+<FONT color="green">142</FONT>          if (backoffTimeMs &gt; 0) {<a name="line.142"></a>
+<FONT color="green">143</FONT>            // Wait without holding any external locks.<a name="line.143"></a>
+<FONT color="green">144</FONT>            Object waitCondition = new Object();<a name="line.144"></a>
+<FONT color="green">145</FONT>            synchronized (waitCondition) {<a name="line.145"></a>
+<FONT color="green">146</FONT>              waitCondition.wait(backoffTimeMs);<a name="line.146"></a>
+<FONT color="green">147</FONT>            }<a name="line.147"></a>
+<FONT color="green">148</FONT>            return backoffTimeMs;<a name="line.148"></a>
+<FONT color="green">149</FONT>          }<a name="line.149"></a>
+<FONT color="green">150</FONT>        }<a name="line.150"></a>
+<FONT color="green">151</FONT>        return 0;<a name="line.151"></a>
+<FONT color="green">152</FONT>      }<a name="line.152"></a>
+<FONT color="green">153</FONT>    <a name="line.153"></a>
+<FONT color="green">154</FONT>      /**<a name="line.154"></a>
+<FONT color="green">155</FONT>       * Checks whether this decider instructs the caller that it should back off from the associated<a name="line.155"></a>
+<FONT color="green">156</FONT>       * backend.  This is determined based on the response history for the backend as well as the<a name="line.156"></a>
+<FONT color="green">157</FONT>       * backoff state of the decider group (if configured).<a name="line.157"></a>
+<FONT color="green">158</FONT>       *<a name="line.158"></a>
+<FONT color="green">159</FONT>       * @return {@code true} if the decider is in backoff mode, otherwise {@code false}.<a name="line.159"></a>
+<FONT color="green">160</FONT>       */<a name="line.160"></a>
+<FONT color="green">161</FONT>      @SuppressWarnings("fallthrough")<a name="line.161"></a>
+<FONT color="green">162</FONT>      public synchronized boolean shouldBackOff() {<a name="line.162"></a>
+<FONT color="green">163</FONT>    <a name="line.163"></a>
+<FONT color="green">164</FONT>        boolean preventRequest;<a name="line.164"></a>
+<FONT color="green">165</FONT>        switch (stateMachine.getState()) {<a name="line.165"></a>
+<FONT color="green">166</FONT>          case NORMAL:<a name="line.166"></a>
+<FONT color="green">167</FONT>            preventRequest = false;<a name="line.167"></a>
+<FONT color="green">168</FONT>            break;<a name="line.168"></a>
+<FONT color="green">169</FONT>    <a name="line.169"></a>
+<FONT color="green">170</FONT>          case BACKOFF:<a name="line.170"></a>
+<FONT color="green">171</FONT>            if (deciderGroup != null &amp;&amp; allOthersBackingOff()) {<a name="line.171"></a>
+<FONT color="green">172</FONT>              LOG.info("Backends in group with " + name + " down, forcing back up.");<a name="line.172"></a>
+<FONT color="green">173</FONT>              stateMachine.transitionUnbounded(State.FORCED_NORMAL);<a name="line.173"></a>
+<FONT color="green">174</FONT>              return false;<a name="line.174"></a>
+<FONT color="green">175</FONT>            } else if (stateMachine.isStateExpired()) {<a name="line.175"></a>
+<FONT color="green">176</FONT>              long recoveryPeriodNs = recoveryPeriod == null ? stateMachine.getStateDurationNs()<a name="line.176"></a>
+<FONT color="green">177</FONT>                  : recoveryPeriod.as(Time.NANOSECONDS);<a name="line.177"></a>
+<FONT color="green">178</FONT>    <a name="line.178"></a>
+<FONT color="green">179</FONT>              // The silent period has expired, move to recovery state (and drop to its case block).<a name="line.179"></a>
+<FONT color="green">180</FONT>              stateMachine.transition(State.RECOVERY, recoveryPeriodNs);<a name="line.180"></a>
+<FONT color="green">181</FONT>              LOG.info(String.format("%s recovering for %s ms", name,<a name="line.181"></a>
+<FONT color="green">182</FONT>                  Amount.of(recoveryPeriodNs, Time.NANOSECONDS).as(Time.MILLISECONDS)));<a name="line.182"></a>
+<FONT color="green">183</FONT>            } else {<a name="line.183"></a>
+<FONT color="green">184</FONT>              preventRequest = true;<a name="line.184"></a>
+<FONT color="green">185</FONT>              break;<a name="line.185"></a>
+<FONT color="green">186</FONT>            }<a name="line.186"></a>
+<FONT color="green">187</FONT>    <a name="line.187"></a>
+<FONT color="green">188</FONT>          case RECOVERY:<a name="line.188"></a>
+<FONT color="green">189</FONT>            if (deciderGroup != null &amp;&amp; allOthersBackingOff()) {<a name="line.189"></a>
+<FONT color="green">190</FONT>              return false;<a name="line.190"></a>
+<FONT color="green">191</FONT>            } else if (stateMachine.isStateExpired()) {<a name="line.191"></a>
+<FONT color="green">192</FONT>              // We have reached the end of the recovery period, return to normal.<a name="line.192"></a>
+<FONT color="green">193</FONT>              stateMachine.transitionUnbounded(State.NORMAL);<a name="line.193"></a>
+<FONT color="green">194</FONT>              previousBackoffPeriodNs = 0;<a name="line.194"></a>
+<FONT color="green">195</FONT>              preventRequest = false;<a name="line.195"></a>
+<FONT color="green">196</FONT>            } else {<a name="line.196"></a>
+<FONT color="green">197</FONT>              switch (recoveryType) {<a name="line.197"></a>
+<FONT color="green">198</FONT>                case RANDOM_LINEAR:<a name="line.198"></a>
+<FONT color="green">199</FONT>                  // In the recovery period, allow request rate to return linearly to the full load.<a name="line.199"></a>
+<FONT color="green">200</FONT>                  preventRequest = random.nextDouble() &gt; stateMachine.getStateFractionComplete();<a name="line.200"></a>
+<FONT color="green">201</FONT>                  break;<a name="line.201"></a>
+<FONT color="green">202</FONT>                case FULL_CAPACITY:<a name="line.202"></a>
+<FONT color="green">203</FONT>                  preventRequest = false;<a name="line.203"></a>
+<FONT color="green">204</FONT>                  break;<a name="line.204"></a>
+<FONT color="green">205</FONT>                default:<a name="line.205"></a>
+<FONT color="green">206</FONT>                  throw new IllegalStateException("Unhandled recovery type " + recoveryType);<a name="line.206"></a>
+<FONT color="green">207</FONT>              }<a name="line.207"></a>
+<FONT color="green">208</FONT>            }<a name="line.208"></a>
+<FONT color="green">209</FONT>    <a name="line.209"></a>
+<FONT color="green">210</FONT>            break;<a name="line.210"></a>
+<FONT color="green">211</FONT>    <a name="line.211"></a>
+<FONT color="green">212</FONT>          case FORCED_NORMAL:<a name="line.212"></a>
+<FONT color="green">213</FONT>            if (!allOthersBackingOff()) {<a name="line.213"></a>
+<FONT color="green">214</FONT>              // We were in forced normal state, but at least one other backend is up, try recovering.<a name="line.214"></a>
+<FONT color="green">215</FONT>              stateMachine.transition(State.RECOVERY, stateMachine.getStateDurationNs());<a name="line.215"></a>
+<FONT color="green">216</FONT>              preventRequest = false;<a name="line.216"></a>
+<FONT color="green">217</FONT>            } else {<a name="line.217"></a>
+<FONT color="green">218</FONT>              preventRequest = true;<a name="line.218"></a>
+<FONT color="green">219</FONT>            }<a name="line.219"></a>
+<FONT color="green">220</FONT>    <a name="line.220"></a>
+<FONT color="green">221</FONT>            break;<a name="line.221"></a>
+<FONT color="green">222</FONT>    <a name="line.222"></a>
+<FONT color="green">223</FONT>          default:<a name="line.223"></a>
+<FONT color="green">224</FONT>            LOG.severe("Unrecognized state: " + stateMachine.getState());<a name="line.224"></a>
+<FONT color="green">225</FONT>            preventRequest = false;<a name="line.225"></a>
+<FONT color="green">226</FONT>        }<a name="line.226"></a>
+<FONT color="green">227</FONT>    <a name="line.227"></a>
+<FONT color="green">228</FONT>        if (preventRequest) {<a name="line.228"></a>
+<FONT color="green">229</FONT>          backoffs.incrementAndGet();<a name="line.229"></a>
+<FONT color="green">230</FONT>        }<a name="line.230"></a>
+<FONT color="green">231</FONT>        return preventRequest;<a name="line.231"></a>
+<FONT color="green">232</FONT>      }<a name="line.232"></a>
+<FONT color="green">233</FONT>    <a name="line.233"></a>
+<FONT color="green">234</FONT>      private boolean allOthersBackingOff() {<a name="line.234"></a>
+<FONT color="green">235</FONT>        // Search for another decider that is not backing off.<a name="line.235"></a>
+<FONT color="green">236</FONT>        for (BackoffDecider decider : deciderGroup) {<a name="line.236"></a>
+<FONT color="green">237</FONT>          State deciderState = decider.stateMachine.getState();<a name="line.237"></a>
+<FONT color="green">238</FONT>          boolean inBackoffState = deciderState == State.BACKOFF || deciderState == State.FORCED_NORMAL;<a name="line.238"></a>
+<FONT color="green">239</FONT>          if ((decider != this) &amp;&amp; !inBackoffState) {<a name="line.239"></a>
+<FONT color="green">240</FONT>            return false;<a name="line.240"></a>
+<FONT color="green">241</FONT>          }<a name="line.241"></a>
+<FONT color="green">242</FONT>        }<a name="line.242"></a>
+<FONT color="green">243</FONT>    <a name="line.243"></a>
+<FONT color="green">244</FONT>        return true;<a name="line.244"></a>
+<FONT color="green">245</FONT>      }<a name="line.245"></a>
+<FONT color="green">246</FONT>    <a name="line.246"></a>
+<FONT color="green">247</FONT>      /**<a name="line.247"></a>
+<FONT color="green">248</FONT>       * Records a failed request to the backend.<a name="line.248"></a>
+<FONT color="green">249</FONT>       */<a name="line.249"></a>
+<FONT color="green">250</FONT>      public void addFailure() {<a name="line.250"></a>
+<FONT color="green">251</FONT>        addResult(false);<a name="line.251"></a>
+<FONT color="green">252</FONT>      }<a name="line.252"></a>
+<FONT color="green">253</FONT>    <a name="line.253"></a>
+<FONT color="green">254</FONT>      /**<a name="line.254"></a>
+<FONT color="green">255</FONT>       * Records a successful request to the backend.<a name="line.255"></a>
+<FONT color="green">256</FONT>       */<a name="line.256"></a>
+<FONT color="green">257</FONT>      public void addSuccess() {<a name="line.257"></a>
+<FONT color="green">258</FONT>        addResult(true);<a name="line.258"></a>
+<FONT color="green">259</FONT>      }<a name="line.259"></a>
+<FONT color="green">260</FONT>    <a name="line.260"></a>
+<FONT color="green">261</FONT>      /**<a name="line.261"></a>
+<FONT color="green">262</FONT>       * Transitions the state to BACKOFF and logs a message appropriately if it is doing so because of high fail rate<a name="line.262"></a>
+<FONT color="green">263</FONT>       * or by force.<a name="line.263"></a>
+<FONT color="green">264</FONT>       *<a name="line.264"></a>
+<FONT color="green">265</FONT>       * @param failRate rate of request failures on this host.<a name="line.265"></a>
+<FONT color="green">266</FONT>       * @param force if {@code true}, forces the transition to BACKOFF. Typically used in cases when the host<a name="line.266"></a>
+<FONT color="green">267</FONT>       * was not found to be alive by LiveHostChecker.<a name="line.267"></a>
+<FONT color="green">268</FONT>       */<a name="line.268"></a>
+<FONT color="green">269</FONT>      public synchronized void transitionToBackOff(double failRate, boolean force) {<a name="line.269"></a>
+<FONT color="green">270</FONT>        long prevBackoffMs = Amount.of(previousBackoffPeriodNs, Time.NANOSECONDS)<a name="line.270"></a>
+<FONT color="green">271</FONT>            .as(Time.MILLISECONDS);<a name="line.271"></a>
+<FONT color="green">272</FONT>    <a name="line.272"></a>
+<FONT color="green">273</FONT>        long backoffPeriodNs = Amount.of(strategy.calculateBackoffMs(prevBackoffMs), Time.MILLISECONDS)<a name="line.273"></a>
+<FONT color="green">274</FONT>            .as(Time.NANOSECONDS);<a name="line.274"></a>
+<FONT color="green">275</FONT>        if (!force) {<a name="line.275"></a>
+<FONT color="green">276</FONT>          LOG.info(String.format("%s failure rate at %g, backing off for %s ms", name,failRate,<a name="line.276"></a>
+<FONT color="green">277</FONT>              Amount.of(backoffPeriodNs, Time.NANOSECONDS).as(Time.MILLISECONDS)));<a name="line.277"></a>
+<FONT color="green">278</FONT>        } else {<a name="line.278"></a>
+<FONT color="green">279</FONT>          LOG.info(String.format("%s forced to back off for %s ms", name,<a name="line.279"></a>
+<FONT color="green">280</FONT>              Amount.of(backoffPeriodNs, Time.NANOSECONDS).as(Time.MILLISECONDS)));<a name="line.280"></a>
+<FONT color="green">281</FONT>        }<a name="line.281"></a>
+<FONT color="green">282</FONT>        stateMachine.transition(State.BACKOFF, backoffPeriodNs);<a name="line.282"></a>
+<FONT color="green">283</FONT>        previousBackoffPeriodNs = backoffPeriodNs;<a name="line.283"></a>
+<FONT color="green">284</FONT>      }<a name="line.284"></a>
+<FONT color="green">285</FONT>    <a name="line.285"></a>
+<FONT color="green">286</FONT>      @SuppressWarnings("fallthrough")<a name="line.286"></a>
+<FONT color="green">287</FONT>      private synchronized void addResult(boolean success) {<a name="line.287"></a>
+<FONT color="green">288</FONT>        // Disallow statistics updating if we are in backoff state.<a name="line.288"></a>
+<FONT color="green">289</FONT>        if (stateMachine.getState() == State.BACKOFF) {<a name="line.289"></a>
+<FONT color="green">290</FONT>          return;<a name="line.290"></a>
+<FONT color="green">291</FONT>        }<a name="line.291"></a>
+<FONT color="green">292</FONT>    <a name="line.292"></a>
+<FONT color="green">293</FONT>        requests.addResult(success);<a name="line.293"></a>
+<FONT color="green">294</FONT>        double failRate = requests.getFailureRate();<a name="line.294"></a>
+<FONT color="green">295</FONT>        boolean highFailRate = requests.isSeeded() &amp;&amp; (failRate &gt; toleratedFailureRate);<a name="line.295"></a>
+<FONT color="green">296</FONT>    <a name="line.296"></a>
+<FONT color="green">297</FONT>        switch (stateMachine.getState()) {<a name="line.297"></a>
+<FONT color="green">298</FONT>          case NORMAL:<a name="line.298"></a>
+<FONT color="green">299</FONT>            if (!highFailRate) {<a name="line.299"></a>
+<FONT color="green">300</FONT>              // No-op.<a name="line.300"></a>
+<FONT color="green">301</FONT>              break;<a name="line.301"></a>
+<FONT color="green">302</FONT>            } else {<a name="line.302"></a>
+<FONT color="green">303</FONT>              // Artificially move into recovery state (by falling through) with a zero-duration<a name="line.303"></a>
+<FONT color="green">304</FONT>              // time window, to trigger the initial backoff period.<a name="line.304"></a>
+<FONT color="green">305</FONT>              stateMachine.setStateDurationNs(0);<a name="line.305"></a>
+<FONT color="green">306</FONT>            }<a name="line.306"></a>
+<FONT color="green">307</FONT>    <a name="line.307"></a>
+<FONT color="green">308</FONT>          case RECOVERY:<a name="line.308"></a>
+<FONT color="green">309</FONT>            if (highFailRate) {<a name="line.309"></a>
+<FONT color="green">310</FONT>              // We were trying to recover, and the failure rate is still too high.  Go back to<a name="line.310"></a>
+<FONT color="green">311</FONT>              // backoff state for a longer duration.<a name="line.311"></a>
+<FONT color="green">312</FONT>              requests.reset();<a name="line.312"></a>
+<FONT color="green">313</FONT>    <a name="line.313"></a>
+<FONT color="green">314</FONT>              // transition the state machine to BACKOFF state, due to high fail rate.<a name="line.314"></a>
+<FONT color="green">315</FONT>              transitionToBackOff(failRate, false);<a name="line.315"></a>
+<FONT color="green">316</FONT>            } else {<a name="line.316"></a>
+<FONT color="green">317</FONT>              // Do nothing.  We only exit the recovery state by expiration.<a name="line.317"></a>
+<FONT color="green">318</FONT>            }<a name="line.318"></a>
+<FONT color="green">319</FONT>            break;<a name="line.319"></a>
+<FONT color="green">320</FONT>    <a name="line.320"></a>
+<FONT color="green">321</FONT>          case FORCED_NORMAL:<a name="line.321"></a>
+<FONT color="green">322</FONT>            if (!highFailRate) {<a name="line.322"></a>
+<FONT color="green">323</FONT>              stateMachine.transition(State.RECOVERY, stateMachine.getStateDurationNs());<a name="line.323"></a>
+<FONT color="green">324</FONT>            }<a name="line.324"></a>
+<FONT color="green">325</FONT>            break;<a name="line.325"></a>
+<FONT color="green">326</FONT>    <a name="line.326"></a>
+<FONT color="green">327</FONT>          case BACKOFF:<a name="line.327"></a>
+<FONT color="green">328</FONT>            throw new IllegalStateException("Backoff state may only be exited by expiration.");<a name="line.328"></a>
+<FONT color="green">329</FONT>        }<a name="line.329"></a>
+<FONT color="green">330</FONT>      }<a name="line.330"></a>
+<FONT color="green">331</FONT>    <a name="line.331"></a>
+<FONT color="green">332</FONT>      /**<a name="line.332"></a>
+<FONT color="green">333</FONT>       * Creates a builder object.<a name="line.333"></a>
+<FONT color="green">334</FONT>       *<a name="line.334"></a>
+<FONT color="green">335</FONT>       * @param name Name for the backoff decider to build.<a name="line.335"></a>
+<FONT color="green">336</FONT>       * @return A builder.<a name="line.336"></a>
+<FONT color="green">337</FONT>       */<a name="line.337"></a>
+<FONT color="green">338</FONT>      public static Builder builder(String name) {<a name="line.338"></a>
+<FONT color="green">339</FONT>        return new Builder(name);<a name="line.339"></a>
+<FONT color="green">340</FONT>      }<a name="line.340"></a>
+<FONT color="green">341</FONT>    <a name="line.341"></a>
+<FONT color="green">342</FONT>      /**<a name="line.342"></a>
+<FONT color="green">343</FONT>       * Builder class to configure a BackoffDecider.<a name="line.343"></a>
+<FONT color="green">344</FONT>       *<a name="line.344"></a>
+<FONT color="green">345</FONT>       * The builder allows for customization of many different parameters to the BackoffDecider, while<a name="line.345"></a>
+<FONT color="green">346</FONT>       * defining defaults wherever possible.  The following defaults are used:<a name="line.346"></a>
+<FONT color="green">347</FONT>       *<a name="line.347"></a>
+<FONT color="green">348</FONT>       * &lt;ul&gt;<a name="line.348"></a>
+<FONT color="green">349</FONT>       * &lt;li&gt; seed size - The number of requests to accumulate before a backoff will be considered.<a name="line.349"></a>
+<FONT color="green">350</FONT>       * 100<a name="line.350"></a>
+<FONT color="green">351</FONT>       *<a name="line.351"></a>
+<FONT color="green">352</FONT>       * &lt;li&gt; tolerated failure rate - Maximum failure rate before backing off.<a name="line.352"></a>
+<FONT color="green">353</FONT>       * 0.5<a name="line.353"></a>
+<FONT color="green">354</FONT>       *<a name="line.354"></a>
+<FONT color="green">355</FONT>       * &lt;li&gt; decider group - Group this decider is a part of, to prevent complete backend failure.<a name="line.355"></a>
+<FONT color="green">356</FONT>       * null (disabled)<a name="line.356"></a>
+<FONT color="green">357</FONT>       *<a name="line.357"></a>
+<FONT color="green">358</FONT>       * &lt;li&gt; strategy - Used to calculate subsequent backoff durations.<a name="line.358"></a>
+<FONT color="green">359</FONT>       * TruncatedBinaryBackoff, initial 100 ms, max 10s<a name="line.359"></a>
+<FONT color="green">360</FONT>       *<a name="line.360"></a>
+<FONT color="green">361</FONT>       * &lt;li&gt; recovery period - Fixed recovery period while ramping traffic back to full capacity..<a name="line.361"></a>
+<FONT color="green">362</FONT>       * null (use last backoff period)<a name="line.362"></a>
+<FONT color="green">363</FONT>       *<a name="line.363"></a>
+<FONT color="green">364</FONT>       * &lt;li&gt; request window - Duration of the sliding window of requests to track statistics for.<a name="line.364"></a>
+<FONT color="green">365</FONT>       * 10 seconds<a name="line.365"></a>
+<FONT color="green">366</FONT>       *<a name="line.366"></a>
+<FONT color="green">367</FONT>       * &lt;li&gt; num buckets - The number of time slices within the request window, for stat expiration.<a name="line.367"></a>
+<FONT color="green">368</FONT>       *               The sliding request window advances in intervals of request window / num buckets.<a name="line.368"></a>
+<FONT color="green">369</FONT>       * 100<a name="line.369"></a>
+<FONT color="green">370</FONT>       *<a name="line.370"></a>
+<FONT color="green">371</FONT>       * &lt;li&gt; recovery type - Defines behavior during the recovery period, and how traffic is permitted.<a name="line.371"></a>
+<FONT color="green">372</FONT>       * random linear<a name="line.372"></a>
+<FONT color="green">373</FONT>       *<a name="line.373"></a>
+<FONT color="green">374</FONT>       * &lt;li&gt; stat provider - The stats provider to export statistics to.<a name="line.374"></a>
+<FONT color="green">375</FONT>       * Stats.STATS_PROVIDER<a name="line.375"></a>
+<FONT color="green">376</FONT>       * &lt;/ul&gt;<a name="line.376"></a>
+<FONT color="green">377</FONT>       *<a name="line.377"></a>
+<FONT color="green">378</FONT>       */<a name="line.378"></a>
+<FONT color="green">379</FONT>      public static class Builder {<a name="line.379"></a>
+<FONT color="green">380</FONT>        private String name;<a name="line.380"></a>
+<FONT color="green">381</FONT>        private int seedSize = 100;<a name="line.381"></a>
+<FONT color="green">382</FONT>        private double toleratedFailureRate = 0.5;<a name="line.382"></a>
+<FONT color="green">383</FONT>        private Set&lt;BackoffDecider&gt; deciderGroup = null;<a name="line.383"></a>
+<FONT color="green">384</FONT>        private BackoffStrategy strategy = new TruncatedBinaryBackoff(<a name="line.384"></a>
+<FONT color="green">385</FONT>            Amount.of(100L, Time.MILLISECONDS), Amount.of(10L, Time.SECONDS));<a name="line.385"></a>
+<FONT color="green">386</FONT>        private Amount&lt;Long, Time&gt; recoveryPeriod = null;<a name="line.386"></a>
+<FONT color="green">387</FONT>        private long requestWindowNs = Amount.of(10L, Time.SECONDS).as(Time.NANOSECONDS);<a name="line.387"></a>
+<FONT color="green">388</FONT>        private int numBuckets = 100;<a name="line.388"></a>
+<FONT color="green">389</FONT>        private RecoveryType recoveryType = RecoveryType.RANDOM_LINEAR;<a name="line.389"></a>
+<FONT color="green">390</FONT>        private StatsProvider statsProvider = Stats.STATS_PROVIDER;<a name="line.390"></a>
+<FONT color="green">391</FONT>        private Random random = Random.Util.newDefaultRandom();<a name="line.391"></a>
+<FONT color="green">392</FONT>        private Clock clock = Clock.SYSTEM_CLOCK;<a name="line.392"></a>
+<FONT color="green">393</FONT>    <a name="line.393"></a>
+<FONT color="green">394</FONT>        Builder(String name) {<a name="line.394"></a>
+<FONT color="green">395</FONT>          this.name = name;<a name="line.395"></a>
+<FONT color="green">396</FONT>        }<a name="line.396"></a>
+<FONT color="green">397</FONT>    <a name="line.397"></a>
+<FONT color="green">398</FONT>        /**<a name="line.398"></a>
+<FONT color="green">399</FONT>         * Sets the number of requests that must be accumulated before the error rate will be<a name="line.399"></a>
+<FONT color="green">400</FONT>         * calculated.  This improves the genesis problem where the first few requests are errors,<a name="line.400"></a>
+<FONT color="green">401</FONT>         * causing flapping in and out of backoff state.<a name="line.401"></a>
+<FONT color="green">402</FONT>         *<a name="line.402"></a>
+<FONT color="green">403</FONT>         * @param seedSize Request seed size.<a name="line.403"></a>
+<FONT color="green">404</FONT>         * @return A reference to the builder.<a name="line.404"></a>
+<FONT color="green">405</FONT>         */<a name="line.405"></a>
+<FONT color="green">406</FONT>        public Builder withSeedSize(int seedSize) {<a name="line.406"></a>
+<FONT color="green">407</FONT>          this.seedSize = seedSize;<a name="line.407"></a>
+<FONT color="green">408</FONT>          return this;<a name="line.408"></a>
+<FONT color="green">409</FONT>        }<a name="line.409"></a>
+<FONT color="green">410</FONT>    <a name="line.410"></a>
+<FONT color="green">411</FONT>        /**<a name="line.411"></a>
+<FONT color="green">412</FONT>         * Sets the tolerated failure rate for the decider.  If the rate is exceeded for the time<a name="line.412"></a>
+<FONT color="green">413</FONT>         * window, the decider begins backing off.<a name="line.413"></a>
+<FONT color="green">414</FONT>         *<a name="line.414"></a>
+<FONT color="green">415</FONT>         * @param toleratedRate The tolerated failure rate (between 0.0 and 1.0, exclusive).<a name="line.415"></a>
+<FONT color="green">416</FONT>         * @return A reference to the builder.<a name="line.416"></a>
+<FONT color="green">417</FONT>         */<a name="line.417"></a>
+<FONT color="green">418</FONT>        public Builder withTolerateFailureRate(double toleratedRate) {<a name="line.418"></a>
+<FONT color="green">419</FONT>          this.toleratedFailureRate = toleratedRate;<a name="line.419"></a>
+<FONT color="green">420</FONT>          return this;<a name="line.420"></a>
+<FONT color="green">421</FONT>        }<a name="line.421"></a>
+<FONT color="green">422</FONT>    <a name="line.422"></a>
+<FONT color="green">423</FONT>        /**<a name="line.423"></a>
+<FONT color="green">424</FONT>         * Makes the decider a part of a group.  When a decider is a part of a group, it will monitor<a name="line.424"></a>
+<FONT color="green">425</FONT>         * the other deciders to ensure that all deciders do not back off at once.<a name="line.425"></a>
+<FONT color="green">426</FONT>         *<a name="line.426"></a>
+<FONT color="green">427</FONT>         * @param deciderGroup Group to make this decider a part of.  More deciders may be added to the<a name="line.427"></a>
+<FONT color="green">428</FONT>         *     group after this call is made.<a name="line.428"></a>
+<FONT color="green">429</FONT>         * @return A reference to the builder.<a name="line.429"></a>
+<FONT color="green">430</FONT>         */<a name="line.430"></a>
+<FONT color="green">431</FONT>        public Builder groupWith(Set&lt;BackoffDecider&gt; deciderGroup) {<a name="line.431"></a>
+<FONT color="green">432</FONT>          this.deciderGroup = deciderGroup;<a name="line.432"></a>
+<FONT color="green">433</FONT>          return this;<a name="line.433"></a>
+<FONT color="green">434</FONT>        }<a name="line.434"></a>
+<FONT color="green">435</FONT>    <a name="line.435"></a>
+<FONT color="green">436</FONT>        /**<a name="line.436"></a>
+<FONT color="green">437</FONT>         * Overrides the default backoff strategy.<a name="line.437"></a>
+<FONT color="green">438</FONT>         *<a name="line.438"></a>
+<FONT color="green">439</FONT>         * @param strategy Backoff strategy to use.<a name="line.439"></a>
+<FONT color="green">440</FONT>         * @return A reference to the builder.<a name="line.440"></a>
+<FONT color="green">441</FONT>         */<a name="line.441"></a>
+<FONT color="green">442</FONT>        public Builder withStrategy(BackoffStrategy strategy) {<a name="line.442"></a>
+<FONT color="green">443</FONT>          this.strategy = strategy;<a name="line.443"></a>
+<FONT color="green">444</FONT>          return this;<a name="line.444"></a>
+<FONT color="green">445</FONT>        }<a name="line.445"></a>
+<FONT color="green">446</FONT>    <a name="line.446"></a>
+<FONT color="green">447</FONT>        /**<a name="line.447"></a>
+<FONT color="green">448</FONT>         * Overrides the default recovery period behavior.  By default, the recovery period is equal<a name="line.448"></a>
+<FONT color="green">449</FONT>         * to the previous backoff period (which is equivalent to setting the recovery period to null<a name="line.449"></a>
+<FONT color="green">450</FONT>         * here).  A non-null value here will assign a fixed recovery period.<a name="line.450"></a>
+<FONT color="green">451</FONT>         *<a name="line.451"></a>
+<FONT color="green">452</FONT>         * @param recoveryPeriod Fixed recovery period.<a name="line.452"></a>
+<FONT color="green">453</FONT>         * @return A reference to the builder.<a name="line.453"></a>
+<FONT color="green">454</FONT>         */<a name="line.454"></a>
+<FONT color="green">455</FONT>        public Builder withRecoveryPeriod(@Nullable Amount&lt;Long, Time&gt; recoveryPeriod) {<a name="line.455"></a>
+<FONT color="green">456</FONT>          this.recoveryPeriod = recoveryPeriod;<a name="line.456"></a>
+<FONT color="green">457</FONT>          return this;<a name="line.457"></a>
+<FONT color="green">458</FONT>        }<a name="line.458"></a>
+<FONT color="green">459</FONT>    <a name="line.459"></a>
+<FONT color="green">460</FONT>        /**<a name="line.460"></a>
+<FONT color="green">461</FONT>         * Sets the time window over which to analyze failures.  Beyond the time window, request history<a name="line.461"></a>
+<FONT color="green">462</FONT>         * is discarded (and ignored).<a name="line.462"></a>
+<FONT color="green">463</FONT>         *<a name="line.463"></a>
+<FONT color="green">464</FONT>         * @param requestWindow The analysis time window.<a name="line.464"></a>
+<FONT color="green">465</FONT>         * @return A reference to the builder.<a name="line.465"></a>
+<FONT color="green">466</FONT>         */<a name="line.466"></a>
+<FONT color="green">467</FONT>        public Builder withRequestWindow(Amount&lt;Long, Time&gt; requestWindow) {<a name="line.467"></a>
+<FONT color="green">468</FONT>          this.requestWindowNs = requestWindow.as(Time.NANOSECONDS);<a name="line.468"></a>
+<FONT color="green">469</FONT>          return this;<a name="line.469"></a>
+<FONT color="green">470</FONT>        }<a name="line.470"></a>
+<FONT color="green">471</FONT>    <a name="line.471"></a>
+<FONT color="green">472</FONT>        /**<a name="line.472"></a>
+<FONT color="green">473</FONT>         * Sets the number of time slices that the decider will use to partition aggregate statistics.<a name="line.473"></a>
+<FONT color="green">474</FONT>         *<a name="line.474"></a>
+<FONT color="green">475</FONT>         * @param numBuckets Bucket count.<a name="line.475"></a>
+<FONT color="green">476</FONT>         * @return A reference to the builder.<a name="line.476"></a>
+<FONT color="green">477</FONT>         */<a name="line.477"></a>
+<FONT color="green">478</FONT>        public Builder withBucketCount(int numBuckets) {<a name="line.478"></a>
+<FONT color="green">479</FONT>          this.numBuckets = numBuckets;<a name="line.479"></a>
+<FONT color="green">480</FONT>          return this;<a name="line.480"></a>
+<FONT color="green">481</FONT>        }<a name="line.481"></a>
+<FONT color="green">482</FONT>    <a name="line.482"></a>
+<FONT color="green">483</FONT>        /**<a name="line.483"></a>
+<FONT color="green">484</FONT>         * Sets the recovery mechanism to use when in the recovery period.<a name="line.484"></a>
+<FONT color="green">485</FONT>         *<a name="line.485"></a>
+<FONT color="green">486</FONT>         * @param recoveryType The recovery mechanism to use.<a name="line.486"></a>
+<FONT color="green">487</FONT>         * @return A reference to the builder.<a name="line.487"></a>
+<FONT color="green">488</FONT>         */<a name="line.488"></a>
+<FONT color="green">489</FONT>        public Builder withRecoveryType(RecoveryType recoveryType) {<a name="line.489"></a>
+<FONT color="green">490</FONT>          this.recoveryType = recoveryType;<a name="line.490"></a>
+<FONT color="green">491</FONT>          return this;<a name="line.491"></a>
+<FONT color="green">492</FONT>        }<a name="line.492"></a>
+<FONT color="green">493</FONT>    <a name="line.493"></a>
+<FONT color="green">494</FONT>        /**<a name="line.494"></a>
+<FONT color="green">495</FONT>         * Sets the stats provider that statistics should be exported to.<a name="line.495"></a>
+<FONT color="green">496</FONT>         *<a name="line.496"></a>
+<FONT color="green">497</FONT>         * @param statsProvider Stats provider to use.<a name="line.497"></a>
+<FONT color="green">498</FONT>         * @return A reference to the builder.<a name="line.498"></a>
+<FONT color="green">499</FONT>         */<a name="line.499"></a>
+<FONT color="green">500</FONT>        public Builder withStatsProvider(StatsProvider statsProvider) {<a name="line.500"></a>
+<FONT color="green">501</FONT>          this.statsProvider = statsProvider;<a name="line.501"></a>
+<FONT color="green">502</FONT>          return this;<a name="line.502"></a>
+<FONT color="green">503</FONT>        }<a name="line.503"></a>
+<FONT color="green">504</FONT>    <a name="line.504"></a>
+<FONT color="green">505</FONT>        @VisibleForTesting public Builder withRandom(Random random) {<a name="line.505"></a>
+<FONT color="green">506</FONT>          this.random = random;<a name="line.506"></a>
+<FONT color="green">507</FONT>          return this;<a name="line.507"></a>
+<FONT color="green">508</FONT>        }<a name="line.508"></a>
+<FONT color="green">509</FONT>    <a name="line.509"></a>
+<FONT color="green">510</FONT>        @VisibleForTesting public Builder withClock(Clock clock) {<a name="line.510"></a>
+<FONT color="green">511</FONT>          this.clock = clock;<a name="line.511"></a>
+<FONT color="green">512</FONT>          return this;<a name="line.512"></a>
+<FONT color="green">513</FONT>        }<a name="line.513"></a>
+<FONT color="green">514</FONT>    <a name="line.514"></a>
+<FONT color="green">515</FONT>        /**<a name="line.515"></a>
+<FONT color="green">516</FONT>         * Gets a reference to the built decider object.<a name="line.516"></a>
+<FONT color="green">517</FONT>         * @return A decider object.<a name="line.517"></a>
+<FONT color="green">518</FONT>         */<a name="line.518"></a>
+<FONT color="green">519</FONT>        public BackoffDecider build() {<a name="line.519"></a>
+<FONT color="green">520</FONT>          BackoffDecider decider =  new BackoffDecider(name, seedSize, toleratedFailureRate,<a name="line.520"></a>
+<FONT color="green">521</FONT>              deciderGroup, strategy, recoveryPeriod, requestWindowNs, numBuckets, recoveryType,<a name="line.521"></a>
+<FONT color="green">522</FONT>              statsProvider, random, clock);<a name="line.522"></a>
+<FONT color="green">523</FONT>          if (deciderGroup != null) deciderGroup.add(decider);<a name="line.523"></a>
+<FONT color="green">524</FONT>          return decider;<a name="line.524"></a>
+<FONT color="green">525</FONT>        }<a name="line.525"></a>
+<FONT color="green">526</FONT>      }<a name="line.526"></a>
+<FONT color="green">527</FONT>    <a name="line.527"></a>
+<FONT color="green">528</FONT>      private class TimeSlice {<a name="line.528"></a>
+<FONT color="green">529</FONT>        int requestCount = 0;<a name="line.529"></a>
+<FONT color="green">530</FONT>        int failureCount = 0;<a name="line.530"></a>
+<FONT color="green">531</FONT>        final long bucketStartNs;<a name="line.531"></a>
+<FONT color="green">532</FONT>    <a name="line.532"></a>
+<FONT color="green">533</FONT>        public TimeSlice() {<a name="line.533"></a>
+<FONT color="green">534</FONT>          bucketStartNs = clock.nowNanos();<a name="line.534"></a>
+<FONT color="green">535</FONT>        }<a name="line.535"></a>
+<FONT color="green">536</FONT>      }<a name="line.536"></a>
+<FONT color="green">537</FONT>    <a name="line.537"></a>
+<FONT color="green">538</FONT>      class RequestWindow {<a name="line.538"></a>
+<FONT color="green">539</FONT>        // These store the sum of the respective fields contained within buckets.  Doing so removes the<a name="line.539"></a>
+<FONT color="green">540</FONT>        // need to accumulate the counts within the buckets every time the backoff state is<a name="line.540"></a>
+<FONT color="green">541</FONT>        // recalculated.<a name="line.541"></a>
+<FONT color="green">542</FONT>        @VisibleForTesting long totalRequests = 0;<a name="line.542"></a>
+<FONT color="green">543</FONT>        @VisibleForTesting long totalFailures = 0;<a name="line.543"></a>
+<FONT color="green">544</FONT>    <a name="line.544"></a>
+<FONT color="green">545</FONT>        private final long durationNs;<a name="line.545"></a>
+<FONT color="green">546</FONT>        private final long bucketLengthNs;<a name="line.546"></a>
+<FONT color="green">547</FONT>        private final int seedSize;<a name="line.547"></a>
+<FONT color="green">548</FONT>    <a name="line.548"></a>
+<FONT color="green">549</FONT>        // Stores aggregate request/failure counts for time slices.<a name="line.549"></a>
+<FONT color="green">550</FONT>        private final Deque&lt;TimeSlice&gt; buckets = Lists.newLinkedList();<a name="line.550"></a>
+<FONT color="green">551</FONT>    <a name="line.551"></a>
+<FONT color="green">552</FONT>        RequestWindow(long durationNs, int bucketCount, int seedSize) {<a name="line.552"></a>
+<FONT color="green">553</FONT>          this.durationNs = durationNs;<a name="line.553"></a>
+<FONT color="green">554</FONT>          this.bucketLengthNs = durationNs / bucketCount;<a name="line.554"></a>
+<FONT color="green">555</FONT>          buckets.addFirst(new TimeSlice());<a name="line.555"></a>
+<FONT color="green">556</FONT>          this.seedSize = seedSize;<a name="line.556"></a>
+<FONT color="green">557</FONT>        }<a name="line.557"></a>
+<FONT color="green">558</FONT>    <a name="line.558"></a>
+<FONT color="green">559</FONT>        void reset() {<a name="line.559"></a>
+<FONT color="green">560</FONT>          totalRequests = 0;<a name="line.560"></a>
+<FONT color="green">561</FONT>          totalFailures = 0;<a name="line.561"></a>
+<FONT color="green">562</FONT>          buckets.clear();<a name="line.562"></a>
+<FONT color="green">563</FONT>          buckets.addFirst(new TimeSlice());<a name="line.563"></a>
+<FONT color="green">564</FONT>        }<a name="line.564"></a>
+<FONT color="green">565</FONT>    <a name="line.565"></a>
+<FONT color="green">566</FONT>        void addResult(boolean success) {<a name="line.566"></a>
+<FONT color="green">567</FONT>          maybeShuffleBuckets();<a name="line.567"></a>
+<FONT color="green">568</FONT>          buckets.peekFirst().requestCount++;<a name="line.568"></a>
+<FONT color="green">569</FONT>          totalRequests++;<a name="line.569"></a>
+<FONT color="green">570</FONT>    <a name="line.570"></a>
+<FONT color="green">571</FONT>          if (!success) {<a name="line.571"></a>
+<FONT color="green">572</FONT>            buckets.peekFirst().failureCount++;<a name="line.572"></a>
+<FONT color="green">573</FONT>            totalFailures++;<a name="line.573"></a>
+<FONT color="green">574</FONT>          }<a name="line.574"></a>
+<FONT color="green">575</FONT>        }<a name="line.575"></a>
+<FONT color="green">576</FONT>    <a name="line.576"></a>
+<FONT color="green">577</FONT>        void maybeShuffleBuckets() {<a name="line.577"></a>
+<FONT color="green">578</FONT>          // Check if the first bucket is still relevant.<a name="line.578"></a>
+<FONT color="green">579</FONT>          if (clock.nowNanos() - buckets.peekFirst().bucketStartNs &gt;= bucketLengthNs) {<a name="line.579"></a>
+<FONT color="green">580</FONT>    <a name="line.580"></a>
+<FONT color="green">581</FONT>            // Remove old buckets.<a name="line.581"></a>
+<FONT color="green">582</FONT>            while (!buckets.isEmpty()<a name="line.582"></a>
+<FONT color="green">583</FONT>                   &amp;&amp; buckets.peekLast().bucketStartNs &lt; clock.nowNanos() - durationNs) {<a name="line.583"></a>
+<FONT color="green">584</FONT>              TimeSlice removed = buckets.removeLast();<a name="line.584"></a>
+<FONT color="green">585</FONT>              totalRequests -= removed.requestCount;<a name="line.585"></a>
+<FONT color="green">586</FONT>              totalFailures -= removed.failureCount;<a name="line.586"></a>
+<FONT color="green">587</FONT>            }<a name="line.587"></a>
+<FONT color="green">588</FONT>    <a name="line.588"></a>
+<FONT color="green">589</FONT>            buckets.addFirst(new TimeSlice());<a name="line.589"></a>
+<FONT color="green">590</FONT>          }<a name="line.590"></a>
+<FONT color="green">591</FONT>        }<a name="line.591"></a>
+<FONT color="green">592</FONT>    <a name="line.592"></a>
+<FONT color="green">593</FONT>        boolean isSeeded() {<a name="line.593"></a>
+<FONT color="green">594</FONT>          return totalRequests &gt;= seedSize;<a name="line.594"></a>
+<FONT color="green">595</FONT>        }<a name="line.595"></a>
+<FONT color="green">596</FONT>    <a name="line.596"></a>
+<FONT color="green">597</FONT>        double getFailureRate() {<a name="line.597"></a>
+<FONT color="green">598</FONT>          return totalRequests == 0 ? 0 : ((double) totalFailures) / totalRequests;<a name="line.598"></a>
+<FONT color="green">599</FONT>        }<a name="line.599"></a>
+<FONT color="green">600</FONT>      }<a name="line.600"></a>
+<FONT color="green">601</FONT>    <a name="line.601"></a>
+<FONT color="green">602</FONT>      private static enum State {<a name="line.602"></a>
+<FONT color="green">603</FONT>        NORMAL,        // All requests are being permitted.<a name="line.603"></a>
+<FONT color="green">604</FONT>        BACKOFF,       // Quiet period while waiting for backend to recover/improve.<a name="line.604"></a>
+<FONT color="green">605</FONT>        RECOVERY,      // Ramping period where an ascending fraction of requests is being permitted.<a name="line.605"></a>
+<FONT color="green">606</FONT>        FORCED_NORMAL  // All other backends in the group are backing off, so this one is forced normal.<a name="line.606"></a>
+<FONT color="green">607</FONT>      }<a name="line.607"></a>
+<FONT color="green">608</FONT>      private class TimedStateMachine {<a name="line.608"></a>
+<FONT color="green">609</FONT>        final StateMachine&lt;State&gt; stateMachine;<a name="line.609"></a>
+<FONT color="green">610</FONT>    <a name="line.610"></a>
+<FONT color="green">611</FONT>        private long stateEndNs;<a name="line.611"></a>
+<FONT color="green">612</FONT>        private long stateDurationNs;<a name="line.612"></a>
+<FONT color="green">613</FONT>    <a name="line.613"></a>
+<FONT color="green">614</FONT>        TimedStateMachine(String name) {<a name="line.614"></a>
+<FONT color="green">615</FONT>          stateMachine = StateMachine.&lt;State&gt;builder(name + "_backoff_state_machine")<a name="line.615"></a>
+<FONT color="green">616</FONT>              .addState(State.NORMAL, State.BACKOFF, State.FORCED_NORMAL)<a name="line.616"></a>
+<FONT color="green">617</FONT>              .addState(State.BACKOFF, State.RECOVERY, State.FORCED_NORMAL)<a name="line.617"></a>
+<FONT color="green">618</FONT>              .addState(State.RECOVERY, State.NORMAL, State.BACKOFF, State.FORCED_NORMAL)<a name="line.618"></a>
+<FONT color="green">619</FONT>              .addState(State.FORCED_NORMAL, State.RECOVERY)<a name="line.619"></a>
+<FONT color="green">620</FONT>              .initialState(State.NORMAL)<a name="line.620"></a>
+<FONT color="green">621</FONT>              .build();<a name="line.621"></a>
+<FONT color="green">622</FONT>        }<a name="line.622"></a>
+<FONT color="green">623</FONT>    <a name="line.623"></a>
+<FONT color="green">624</FONT>        State getState() {<a name="line.624"></a>
+<FONT color="green">625</FONT>          return stateMachine.getState();<a name="line.625"></a>
+<FONT color="green">626</FONT>        }<a name="line.626"></a>
+<FONT color="green">627</FONT>    <a name="line.627"></a>
+<FONT color="green">628</FONT>        void transitionUnbounded(State state) {<a name="line.628"></a>
+<FONT color="green">629</FONT>          stateMachine.transition(state);<a name="line.629"></a>
+<FONT color="green">630</FONT>        }<a name="line.630"></a>
+<FONT color="green">631</FONT>    <a name="line.631"></a>
+<FONT color="green">632</FONT>        void transition(State state, long durationNs) {<a name="line.632"></a>
+<FONT color="green">633</FONT>          transitionUnbounded(state);<a name="line.633"></a>
+<FONT color="green">634</FONT>          this.stateEndNs = clock.nowNanos() + durationNs;<a name="line.634"></a>
+<FONT color="green">635</FONT>          this.stateDurationNs = durationNs;<a name="line.635"></a>
+<FONT color="green">636</FONT>        }<a name="line.636"></a>
+<FONT color="green">637</FONT>    <a name="line.637"></a>
+<FONT color="green">638</FONT>        long getStateDurationNs() {<a name="line.638"></a>
+<FONT color="green">639</FONT>          return stateDurationNs;<a name="line.639"></a>
+<FONT color="green">640</FONT>        }<a name="line.640"></a>
+<FONT color="green">641</FONT>    <a name="line.641"></a>
+<FONT color="green">642</FONT>        long getStateDurationMs() {<a name="line.642"></a>
+<FONT color="green">643</FONT>          return Amount.of(stateDurationNs, Time.NANOSECONDS).as(Time.MILLISECONDS);<a name="line.643"></a>
+<FONT color="green">644</FONT>        }<a name="line.644"></a>
+<FONT color="green">645</FONT>    <a name="line.645"></a>
+<FONT color="green">646</FONT>        void setStateDurationNs(long stateDurationNs) {<a name="line.646"></a>
+<FONT color="green">647</FONT>          this.stateDurationNs = stateDurationNs;<a name="line.647"></a>
+<FONT color="green">648</FONT>        }<a name="line.648"></a>
+<FONT color="green">649</FONT>    <a name="line.649"></a>
+<FONT color="green">650</FONT>        long getStateRemainingNs() {<a name="line.650"></a>
+<FONT color="green">651</FONT>          return stateEndNs - clock.nowNanos();<a name="line.651"></a>
+<FONT color="green">652</FONT>        }<a name="line.652"></a>
+<FONT color="green">653</FONT>    <a name="line.653"></a>
+<FONT color="green">654</FONT>        long getStateRemainingMs() {<a name="line.654"></a>
+<FONT color="green">655</FONT>          return Amount.of(getStateRemainingNs(), Time.NANOSECONDS).as(Time.MILLISECONDS);<a name="line.655"></a>
+<FONT color="green">656</FONT>        }<a name="line.656"></a>
+<FONT color="green">657</FONT>    <a name="line.657"></a>
+<FONT color="green">658</FONT>        double getStateFractionComplete() {<a name="line.658"></a>
+<FONT color="green">659</FONT>          return 1.0 - ((double) getStateRemainingNs()) / stateDurationNs;<a name="line.659"></a>
+<FONT color="green">660</FONT>        }<a name="line.660"></a>
+<FONT color="green">661</FONT>    <a name="line.661"></a>
+<FONT color="green">662</FONT>        boolean isStateExpired() {<a name="line.662"></a>
+<FONT color="green">663</FONT>          return clock.nowNanos() &gt; stateEndNs;<a name="line.663"></a>
+<FONT color="green">664</FONT>        }<a name="line.664"></a>
+<FONT color="green">665</FONT>      }<a name="line.665"></a>
+<FONT color="green">666</FONT>    }<a name="line.666"></a>
 
 
 

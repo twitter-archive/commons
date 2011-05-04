@@ -4,366 +4,365 @@
 <FONT color="green">001</FONT>    // =================================================================================================<a name="line.1"></a>
 <FONT color="green">002</FONT>    // Copyright 2011 Twitter, Inc.<a name="line.2"></a>
 <FONT color="green">003</FONT>    // -------------------------------------------------------------------------------------------------<a name="line.3"></a>
-<FONT color="green">004</FONT>    // Licensed to the Apache Software Foundation (ASF) under one or more contributor license<a name="line.4"></a>
-<FONT color="green">005</FONT>    // agreements.  See the NOTICE file distributed with this work for additional information regarding<a name="line.5"></a>
-<FONT color="green">006</FONT>    // copyright ownership.  The ASF licenses this file to you under the Apache License, Version 2.0<a name="line.6"></a>
-<FONT color="green">007</FONT>    // (the "License"); you may not use this file except in compliance with the License.  You may<a name="line.7"></a>
-<FONT color="green">008</FONT>    // obtain a copy of the License at<a name="line.8"></a>
+<FONT color="green">004</FONT>    // Licensed under the Apache License, Version 2.0 (the "License");<a name="line.4"></a>
+<FONT color="green">005</FONT>    // you may not use this work except in compliance with the License.<a name="line.5"></a>
+<FONT color="green">006</FONT>    // You may obtain a copy of the License in the LICENSE file, or at:<a name="line.6"></a>
+<FONT color="green">007</FONT>    //<a name="line.7"></a>
+<FONT color="green">008</FONT>    //  http://www.apache.org/licenses/LICENSE-2.0<a name="line.8"></a>
 <FONT color="green">009</FONT>    //<a name="line.9"></a>
-<FONT color="green">010</FONT>    //  http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
-<FONT color="green">011</FONT>    //<a name="line.11"></a>
-<FONT color="green">012</FONT>    // Unless required by applicable law or agreed to in writing, software distributed under the<a name="line.12"></a>
-<FONT color="green">013</FONT>    // License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either<a name="line.13"></a>
-<FONT color="green">014</FONT>    // express or implied.  See the License for the specific language governing permissions and<a name="line.14"></a>
-<FONT color="green">015</FONT>    // limitations under the License.<a name="line.15"></a>
-<FONT color="green">016</FONT>    // =================================================================================================<a name="line.16"></a>
-<FONT color="green">017</FONT>    <a name="line.17"></a>
-<FONT color="green">018</FONT>    package com.twitter.common.zookeeper;<a name="line.18"></a>
-<FONT color="green">019</FONT>    <a name="line.19"></a>
-<FONT color="green">020</FONT>    import com.google.common.annotations.VisibleForTesting;<a name="line.20"></a>
-<FONT color="green">021</FONT>    import com.google.common.base.Function;<a name="line.21"></a>
-<FONT color="green">022</FONT>    import com.google.common.base.Functions;<a name="line.22"></a>
-<FONT color="green">023</FONT>    import com.google.common.base.Preconditions;<a name="line.23"></a>
-<FONT color="green">024</FONT>    import com.google.common.collect.ForwardingMap;<a name="line.24"></a>
-<FONT color="green">025</FONT>    import com.google.common.collect.Sets;<a name="line.25"></a>
-<FONT color="green">026</FONT>    import com.twitter.common.base.Command;<a name="line.26"></a>
-<FONT color="green">027</FONT>    import com.twitter.common.base.ExceptionalSupplier;<a name="line.27"></a>
-<FONT color="green">028</FONT>    import com.twitter.common.base.MorePreconditions;<a name="line.28"></a>
-<FONT color="green">029</FONT>    import com.twitter.common.util.BackoffHelper;<a name="line.29"></a>
-<FONT color="green">030</FONT>    import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException;<a name="line.30"></a>
-<FONT color="green">031</FONT>    import org.apache.zookeeper.KeeperException;<a name="line.31"></a>
-<FONT color="green">032</FONT>    import org.apache.zookeeper.WatchedEvent;<a name="line.32"></a>
-<FONT color="green">033</FONT>    import org.apache.zookeeper.Watcher;<a name="line.33"></a>
-<FONT color="green">034</FONT>    <a name="line.34"></a>
-<FONT color="green">035</FONT>    import java.util.List;<a name="line.35"></a>
-<FONT color="green">036</FONT>    import java.util.Map;<a name="line.36"></a>
-<FONT color="green">037</FONT>    import java.util.Set;<a name="line.37"></a>
-<FONT color="green">038</FONT>    import java.util.concurrent.ConcurrentHashMap;<a name="line.38"></a>
-<FONT color="green">039</FONT>    import java.util.concurrent.ConcurrentMap;<a name="line.39"></a>
-<FONT color="green">040</FONT>    import java.util.logging.Level;<a name="line.40"></a>
-<FONT color="green">041</FONT>    import java.util.logging.Logger;<a name="line.41"></a>
-<FONT color="green">042</FONT>    <a name="line.42"></a>
-<FONT color="green">043</FONT>    /**<a name="line.43"></a>
-<FONT color="green">044</FONT>     * A ZooKeeper backed {@link Map}.  Initialized with a node path, this map represents child nodes<a name="line.44"></a>
-<FONT color="green">045</FONT>     * under that path as keys, with the data in those nodes as values.  This map is readonly from<a name="line.45"></a>
-<FONT color="green">046</FONT>     * clients of this class, and only can be modified via direct zookeeper operations.<a name="line.46"></a>
-<FONT color="green">047</FONT>     *<a name="line.47"></a>
-<FONT color="green">048</FONT>     * Note that instances of this class maintain a zookeeper watch for each zookeeper node under the<a name="line.48"></a>
-<FONT color="green">049</FONT>     * parent, as well as on the parent itself.  Instances of this class should be created via the<a name="line.49"></a>
-<FONT color="green">050</FONT>     * {@link #create} factory method.<a name="line.50"></a>
-<FONT color="green">051</FONT>     *<a name="line.51"></a>
-<FONT color="green">052</FONT>     * As of ZooKeeper Version 3.1, the maxiumum allowable size of a data node is 1 MB  A single<a name="line.52"></a>
-<FONT color="green">053</FONT>     * client should be able to hold up to maintain several thousand watches, but this depends on rate<a name="line.53"></a>
-<FONT color="green">054</FONT>     * of data change as well.<a name="line.54"></a>
-<FONT color="green">055</FONT>     *<a name="line.55"></a>
-<FONT color="green">056</FONT>     * Talk to your zookeeper cluster administrator if you expect number of map entries times number<a name="line.56"></a>
-<FONT color="green">057</FONT>     * of live clients to exceed a thousand, as a zookeeper cluster is limited by total number of<a name="line.57"></a>
-<FONT color="green">058</FONT>     * server-side watches enabled.<a name="line.58"></a>
-<FONT color="green">059</FONT>     *<a name="line.59"></a>
-<FONT color="green">060</FONT>     * For an example of a set of tools to maintain one of these maps, please see<a name="line.60"></a>
-<FONT color="green">061</FONT>     * src/scripts/HenAccess.py in the hen repository.<a name="line.61"></a>
-<FONT color="green">062</FONT>     *<a name="line.62"></a>
-<FONT color="green">063</FONT>     * @param &lt;V&gt; the type of values this map stores<a name="line.63"></a>
-<FONT color="green">064</FONT>     *<a name="line.64"></a>
-<FONT color="green">065</FONT>     * @author Adam Samet<a name="line.65"></a>
-<FONT color="green">066</FONT>     */<a name="line.66"></a>
-<FONT color="green">067</FONT>    public class ZooKeeperMap&lt;V&gt; extends ForwardingMap&lt;String, V&gt; {<a name="line.67"></a>
-<FONT color="green">068</FONT>    <a name="line.68"></a>
-<FONT color="green">069</FONT>      /**<a name="line.69"></a>
-<FONT color="green">070</FONT>       * Default deserializer for the constructor if you want to simply store the zookeeper byte[] data<a name="line.70"></a>
-<FONT color="green">071</FONT>       * in this map.<a name="line.71"></a>
-<FONT color="green">072</FONT>       */<a name="line.72"></a>
-<FONT color="green">073</FONT>      public static final Function&lt;byte[], byte[]&gt; BYTE_ARRAY_VALUES = Functions.identity();<a name="line.73"></a>
-<FONT color="green">074</FONT>    <a name="line.74"></a>
-<FONT color="green">075</FONT>      private static final Logger LOG = Logger.getLogger(ZooKeeperMap.class.getName());<a name="line.75"></a>
-<FONT color="green">076</FONT>    <a name="line.76"></a>
-<FONT color="green">077</FONT>      private final ZooKeeperClient zkClient;<a name="line.77"></a>
-<FONT color="green">078</FONT>      private final String nodePath;<a name="line.78"></a>
-<FONT color="green">079</FONT>      private final Function&lt;byte[], V&gt; deserializer;<a name="line.79"></a>
-<FONT color="green">080</FONT>    <a name="line.80"></a>
-<FONT color="green">081</FONT>      private final ConcurrentMap&lt;String, V&gt; localMap;<a name="line.81"></a>
-<FONT color="green">082</FONT>      private final BackoffHelper backoffHelper;<a name="line.82"></a>
-<FONT color="green">083</FONT>    <a name="line.83"></a>
-<FONT color="green">084</FONT>      // Whether it's safe to re-establish watches if our zookeeper session has expired.<a name="line.84"></a>
-<FONT color="green">085</FONT>      private final Object safeToRewatchLock;<a name="line.85"></a>
-<FONT color="green">086</FONT>      private volatile boolean safeToRewatch;<a name="line.86"></a>
-<FONT color="green">087</FONT>    <a name="line.87"></a>
-<FONT color="green">088</FONT>      /**<a name="line.88"></a>
-<FONT color="green">089</FONT>       * Returns an initialized ZooKeeperMap.  The given path must exist at the time of<a name="line.89"></a>
-<FONT color="green">090</FONT>       * creation or a {@link KeeperException} will be thrown.<a name="line.90"></a>
-<FONT color="green">091</FONT>       *<a name="line.91"></a>
-<FONT color="green">092</FONT>       * @param zkClient a zookeeper client<a name="line.92"></a>
-<FONT color="green">093</FONT>       * @param nodePath path to a node whose data will be watched<a name="line.93"></a>
-<FONT color="green">094</FONT>       * @param deserializer a function that converts byte[] data from a zk node to this map's<a name="line.94"></a>
-<FONT color="green">095</FONT>       *     value type V<a name="line.95"></a>
-<FONT color="green">096</FONT>       *<a name="line.96"></a>
-<FONT color="green">097</FONT>       * @throws InterruptedException if the underlying zookeeper server transaction is interrupted<a name="line.97"></a>
-<FONT color="green">098</FONT>       * @throws KeeperException.NoNodeException if the given nodePath doesn't exist<a name="line.98"></a>
-<FONT color="green">099</FONT>       * @throws KeeperException if the server signals an error<a name="line.99"></a>
-<FONT color="green">100</FONT>       * @throws ZooKeeperConnectionException if there was a problem connecting to the zookeeper<a name="line.100"></a>
-<FONT color="green">101</FONT>       *     cluster<a name="line.101"></a>
-<FONT color="green">102</FONT>       */<a name="line.102"></a>
-<FONT color="green">103</FONT>      public static &lt;V&gt; ZooKeeperMap&lt;V&gt; create(ZooKeeperClient zkClient, String nodePath,<a name="line.103"></a>
-<FONT color="green">104</FONT>          Function&lt;byte[], V&gt; deserializer) throws InterruptedException, KeeperException,<a name="line.104"></a>
-<FONT color="green">105</FONT>          ZooKeeperConnectionException {<a name="line.105"></a>
-<FONT color="green">106</FONT>        ZooKeeperMap&lt;V&gt; zkMap = new ZooKeeperMap&lt;V&gt;(zkClient, nodePath, deserializer);<a name="line.106"></a>
-<FONT color="green">107</FONT>        zkMap.init();<a name="line.107"></a>
-<FONT color="green">108</FONT>        return zkMap;<a name="line.108"></a>
-<FONT color="green">109</FONT>      }<a name="line.109"></a>
-<FONT color="green">110</FONT>    <a name="line.110"></a>
-<FONT color="green">111</FONT>      /**<a name="line.111"></a>
-<FONT color="green">112</FONT>       * Initializes a ZooKeeperMap.  The given path must exist at the time of object creation or<a name="line.112"></a>
-<FONT color="green">113</FONT>       * a {@link KeeperException} will be thrown.<a name="line.113"></a>
-<FONT color="green">114</FONT>       *<a name="line.114"></a>
-<FONT color="green">115</FONT>       * Please note that this object will not track any remote zookeeper data until {@link #init()}<a name="line.115"></a>
-<FONT color="green">116</FONT>       * is successfully called.  After construction and before that call, this {@link Map} will<a name="line.116"></a>
-<FONT color="green">117</FONT>       * be empty.<a name="line.117"></a>
-<FONT color="green">118</FONT>       *<a name="line.118"></a>
-<FONT color="green">119</FONT>       * @param zkClient a zookeeper client<a name="line.119"></a>
-<FONT color="green">120</FONT>       * @param nodePath top-level node path under which the map data lives<a name="line.120"></a>
-<FONT color="green">121</FONT>       * @param deserializer a function that converts byte[] data from a zk node to this map's<a name="line.121"></a>
-<FONT color="green">122</FONT>       *     value type V<a name="line.122"></a>
-<FONT color="green">123</FONT>       *<a name="line.123"></a>
-<FONT color="green">124</FONT>       * @throws InterruptedException if the underlying zookeeper server transaction is interrupted<a name="line.124"></a>
-<FONT color="green">125</FONT>       * @throws KeeperException.NoNodeException if the given nodePath doesn't exist<a name="line.125"></a>
-<FONT color="green">126</FONT>       * @throws KeeperException if the server signals an error<a name="line.126"></a>
-<FONT color="green">127</FONT>       * @throws ZooKeeperConnectionException if there was a problem connecting to the zookeeper<a name="line.127"></a>
-<FONT color="green">128</FONT>       *     cluster<a name="line.128"></a>
-<FONT color="green">129</FONT>       */<a name="line.129"></a>
-<FONT color="green">130</FONT>      @VisibleForTesting<a name="line.130"></a>
-<FONT color="green">131</FONT>      ZooKeeperMap(ZooKeeperClient zkClient, String nodePath,<a name="line.131"></a>
-<FONT color="green">132</FONT>          Function&lt;byte[], V&gt; deserializer) throws InterruptedException, KeeperException,<a name="line.132"></a>
-<FONT color="green">133</FONT>          ZooKeeperConnectionException {<a name="line.133"></a>
-<FONT color="green">134</FONT>        super();<a name="line.134"></a>
-<FONT color="green">135</FONT>        this.zkClient = Preconditions.checkNotNull(zkClient);<a name="line.135"></a>
-<FONT color="green">136</FONT>        this.nodePath = MorePreconditions.checkNotBlank(nodePath);<a name="line.136"></a>
-<FONT color="green">137</FONT>        this.deserializer = Preconditions.checkNotNull(deserializer);<a name="line.137"></a>
-<FONT color="green">138</FONT>    <a name="line.138"></a>
-<FONT color="green">139</FONT>        localMap = new ConcurrentHashMap&lt;String, V&gt;();<a name="line.139"></a>
-<FONT color="green">140</FONT>        backoffHelper = new BackoffHelper();<a name="line.140"></a>
-<FONT color="green">141</FONT>        safeToRewatchLock = new Object();<a name="line.141"></a>
-<FONT color="green">142</FONT>        safeToRewatch = false;<a name="line.142"></a>
-<FONT color="green">143</FONT>    <a name="line.143"></a>
-<FONT color="green">144</FONT>        if (zkClient.get().exists(nodePath, null) == null) {<a name="line.144"></a>
-<FONT color="green">145</FONT>          throw new KeeperException.NoNodeException();<a name="line.145"></a>
-<FONT color="green">146</FONT>        }<a name="line.146"></a>
-<FONT color="green">147</FONT>      }<a name="line.147"></a>
-<FONT color="green">148</FONT>    <a name="line.148"></a>
-<FONT color="green">149</FONT>      /**<a name="line.149"></a>
-<FONT color="green">150</FONT>       * Initialize zookeeper tracking for this {@link Map}.  Once this call returns, this object<a name="line.150"></a>
-<FONT color="green">151</FONT>       * will be tracking data in zookeeper.<a name="line.151"></a>
-<FONT color="green">152</FONT>       *<a name="line.152"></a>
-<FONT color="green">153</FONT>       * @throws InterruptedException if the underlying zookeeper server transaction is interrupted<a name="line.153"></a>
-<FONT color="green">154</FONT>       * @throws KeeperException if the server signals an error<a name="line.154"></a>
-<FONT color="green">155</FONT>       * @throws ZooKeeperConnectionException if there was a problem connecting to the zookeeper<a name="line.155"></a>
-<FONT color="green">156</FONT>       *     cluster<a name="line.156"></a>
-<FONT color="green">157</FONT>       */<a name="line.157"></a>
-<FONT color="green">158</FONT>      @VisibleForTesting<a name="line.158"></a>
-<FONT color="green">159</FONT>      void init() throws InterruptedException, KeeperException,<a name="line.159"></a>
-<FONT color="green">160</FONT>          ZooKeeperConnectionException {<a name="line.160"></a>
-<FONT color="green">161</FONT>        Watcher watcher = zkClient.registerExpirationHandler(new Command() {<a name="line.161"></a>
-<FONT color="green">162</FONT>          @Override public void execute() {<a name="line.162"></a>
-<FONT color="green">163</FONT>            /*<a name="line.163"></a>
-<FONT color="green">164</FONT>             * First rewatch all of our locally cached children.  Some of them may not exist anymore,<a name="line.164"></a>
-<FONT color="green">165</FONT>             * which will lead to caught KeeperException.NoNode whereafter we'll remove that child<a name="line.165"></a>
-<FONT color="green">166</FONT>             * from the cached map.<a name="line.166"></a>
-<FONT color="green">167</FONT>             *<a name="line.167"></a>
-<FONT color="green">168</FONT>             * Next, we'll establish our top level child watch and add any new nodes that might exist.<a name="line.168"></a>
-<FONT color="green">169</FONT>             */<a name="line.169"></a>
-<FONT color="green">170</FONT>            try {<a name="line.170"></a>
-<FONT color="green">171</FONT>              synchronized (safeToRewatchLock) {<a name="line.171"></a>
-<FONT color="green">172</FONT>                if (safeToRewatch) {<a name="line.172"></a>
-<FONT color="green">173</FONT>                  rewatchDataNodes();<a name="line.173"></a>
-<FONT color="green">174</FONT>                  tryWatchChildren();<a name="line.174"></a>
-<FONT color="green">175</FONT>                }<a name="line.175"></a>
-<FONT color="green">176</FONT>              }<a name="line.176"></a>
-<FONT color="green">177</FONT>            } catch (InterruptedException e) {<a name="line.177"></a>
-<FONT color="green">178</FONT>              LOG.log(Level.WARNING, "Interrupted while trying to re-establish watch.", e);<a name="line.178"></a>
-<FONT color="green">179</FONT>            }<a name="line.179"></a>
-<FONT color="green">180</FONT>          }<a name="line.180"></a>
-<FONT color="green">181</FONT>        });<a name="line.181"></a>
-<FONT color="green">182</FONT>    <a name="line.182"></a>
-<FONT color="green">183</FONT>        try {<a name="line.183"></a>
-<FONT color="green">184</FONT>          // Synchronize to prevent the race of watchChildren completing and then the session expiring<a name="line.184"></a>
-<FONT color="green">185</FONT>          // before we update safeToRewatch.<a name="line.185"></a>
-<FONT color="green">186</FONT>          synchronized (safeToRewatchLock) {<a name="line.186"></a>
-<FONT color="green">187</FONT>            watchChildren();<a name="line.187"></a>
-<FONT color="green">188</FONT>            safeToRewatch = true;<a name="line.188"></a>
-<FONT color="green">189</FONT>          }<a name="line.189"></a>
-<FONT color="green">190</FONT>        } catch (InterruptedException e) {<a name="line.190"></a>
-<FONT color="green">191</FONT>          zkClient.unregister(watcher);<a name="line.191"></a>
-<FONT color="green">192</FONT>          throw e;<a name="line.192"></a>
-<FONT color="green">193</FONT>        } catch (KeeperException e) {<a name="line.193"></a>
-<FONT color="green">194</FONT>          zkClient.unregister(watcher);<a name="line.194"></a>
-<FONT color="green">195</FONT>          throw e;<a name="line.195"></a>
-<FONT color="green">196</FONT>        } catch (ZooKeeperConnectionException e) {<a name="line.196"></a>
-<FONT color="green">197</FONT>          zkClient.unregister(watcher);<a name="line.197"></a>
-<FONT color="green">198</FONT>          throw e;<a name="line.198"></a>
-<FONT color="green">199</FONT>        }<a name="line.199"></a>
-<FONT color="green">200</FONT>      }<a name="line.200"></a>
-<FONT color="green">201</FONT>    <a name="line.201"></a>
-<FONT color="green">202</FONT>      @Override<a name="line.202"></a>
-<FONT color="green">203</FONT>      protected Map&lt;String, V&gt; delegate() {<a name="line.203"></a>
-<FONT color="green">204</FONT>        return localMap;<a name="line.204"></a>
-<FONT color="green">205</FONT>      }<a name="line.205"></a>
-<FONT color="green">206</FONT>    <a name="line.206"></a>
-<FONT color="green">207</FONT>      /**<a name="line.207"></a>
-<FONT color="green">208</FONT>       * This map is readonly, this method throws a {@link UnsupportedOperationException}<a name="line.208"></a>
-<FONT color="green">209</FONT>       */<a name="line.209"></a>
-<FONT color="green">210</FONT>      @Override<a name="line.210"></a>
-<FONT color="green">211</FONT>      public void clear() {<a name="line.211"></a>
-<FONT color="green">212</FONT>        throw new UnsupportedOperationException();<a name="line.212"></a>
-<FONT color="green">213</FONT>      }<a name="line.213"></a>
-<FONT color="green">214</FONT>    <a name="line.214"></a>
-<FONT color="green">215</FONT>      /**<a name="line.215"></a>
-<FONT color="green">216</FONT>       * This map is readonly, this method throws a {@link UnsupportedOperationException}<a name="line.216"></a>
-<FONT color="green">217</FONT>       */<a name="line.217"></a>
-<FONT color="green">218</FONT>      @Override<a name="line.218"></a>
-<FONT color="green">219</FONT>      public V put(String key, V value) {<a name="line.219"></a>
-<FONT color="green">220</FONT>        throw new UnsupportedOperationException();<a name="line.220"></a>
-<FONT color="green">221</FONT>      }<a name="line.221"></a>
-<FONT color="green">222</FONT>    <a name="line.222"></a>
-<FONT color="green">223</FONT>      /**<a name="line.223"></a>
-<FONT color="green">224</FONT>       * This map is readonly, this method throws a {@link UnsupportedOperationException}<a name="line.224"></a>
-<FONT color="green">225</FONT>       */<a name="line.225"></a>
-<FONT color="green">226</FONT>      @Override<a name="line.226"></a>
-<FONT color="green">227</FONT>      public void putAll(Map&lt;? extends String, ? extends V&gt; m) {<a name="line.227"></a>
-<FONT color="green">228</FONT>        throw new UnsupportedOperationException();<a name="line.228"></a>
-<FONT color="green">229</FONT>      }<a name="line.229"></a>
-<FONT color="green">230</FONT>    <a name="line.230"></a>
-<FONT color="green">231</FONT>      /**<a name="line.231"></a>
-<FONT color="green">232</FONT>       * This map is readonly, this method throws a {@link UnsupportedOperationException}<a name="line.232"></a>
-<FONT color="green">233</FONT>       */<a name="line.233"></a>
-<FONT color="green">234</FONT>      @Override<a name="line.234"></a>
-<FONT color="green">235</FONT>      public V remove(Object key) {<a name="line.235"></a>
-<FONT color="green">236</FONT>        throw new UnsupportedOperationException();<a name="line.236"></a>
-<FONT color="green">237</FONT>      }<a name="line.237"></a>
-<FONT color="green">238</FONT>    <a name="line.238"></a>
-<FONT color="green">239</FONT>      private void tryWatchChildren() throws InterruptedException {<a name="line.239"></a>
-<FONT color="green">240</FONT>        backoffHelper.doUntilSuccess(new ExceptionalSupplier&lt;Boolean, InterruptedException&gt;() {<a name="line.240"></a>
-<FONT color="green">241</FONT>          @Override public Boolean get() throws InterruptedException {<a name="line.241"></a>
-<FONT color="green">242</FONT>            try {<a name="line.242"></a>
-<FONT color="green">243</FONT>              watchChildren();<a name="line.243"></a>
-<FONT color="green">244</FONT>              return true;<a name="line.244"></a>
-<FONT color="green">245</FONT>            } catch (KeeperException e) {<a name="line.245"></a>
-<FONT color="green">246</FONT>              return false;<a name="line.246"></a>
-<FONT color="green">247</FONT>            } catch (ZooKeeperConnectionException e) {<a name="line.247"></a>
-<FONT color="green">248</FONT>              return false;<a name="line.248"></a>
-<FONT color="green">249</FONT>            }<a name="line.249"></a>
-<FONT color="green">250</FONT>          }<a name="line.250"></a>
-<FONT color="green">251</FONT>        });<a name="line.251"></a>
-<FONT color="green">252</FONT>      }<a name="line.252"></a>
-<FONT color="green">253</FONT>    <a name="line.253"></a>
-<FONT color="green">254</FONT>      private synchronized void watchChildren() throws InterruptedException, KeeperException,<a name="line.254"></a>
-<FONT color="green">255</FONT>          ZooKeeperConnectionException {<a name="line.255"></a>
-<FONT color="green">256</FONT>        /*<a name="line.256"></a>
-<FONT color="green">257</FONT>         * Add a watch on the parent node itself, and attempt to rewatch if it<a name="line.257"></a>
-<FONT color="green">258</FONT>         * gets deleted<a name="line.258"></a>
-<FONT color="green">259</FONT>         */<a name="line.259"></a>
-<FONT color="green">260</FONT>        zkClient.get().exists(nodePath, new Watcher() {<a name="line.260"></a>
-<FONT color="green">261</FONT>          @Override public void process(WatchedEvent event) {<a name="line.261"></a>
-<FONT color="green">262</FONT>            if (event.getType() == Watcher.Event.EventType.NodeDeleted) {<a name="line.262"></a>
-<FONT color="green">263</FONT>              // If the parent node no longer exists<a name="line.263"></a>
-<FONT color="green">264</FONT>              localMap.clear();<a name="line.264"></a>
-<FONT color="green">265</FONT>              try {<a name="line.265"></a>
-<FONT color="green">266</FONT>                tryWatchChildren();<a name="line.266"></a>
-<FONT color="green">267</FONT>              } catch (InterruptedException e) {<a name="line.267"></a>
-<FONT color="green">268</FONT>                LOG.log(Level.WARNING, "Interrupted while trying to watch children.", e);<a name="line.268"></a>
-<FONT color="green">269</FONT>              }<a name="line.269"></a>
-<FONT color="green">270</FONT>            }<a name="line.270"></a>
-<FONT color="green">271</FONT>          }});<a name="line.271"></a>
-<FONT color="green">272</FONT>    <a name="line.272"></a>
-<FONT color="green">273</FONT>        final Watcher childWatcher = new Watcher() {<a name="line.273"></a>
-<FONT color="green">274</FONT>          @Override<a name="line.274"></a>
-<FONT color="green">275</FONT>          public void process(WatchedEvent event) {<a name="line.275"></a>
-<FONT color="green">276</FONT>            if (event.getType() == Watcher.Event.EventType.NodeChildrenChanged) {<a name="line.276"></a>
-<FONT color="green">277</FONT>              try {<a name="line.277"></a>
-<FONT color="green">278</FONT>                tryWatchChildren();<a name="line.278"></a>
-<FONT color="green">279</FONT>              } catch (InterruptedException e) {<a name="line.279"></a>
-<FONT color="green">280</FONT>                LOG.log(Level.WARNING, "Interrupted while trying to watch children.", e);<a name="line.280"></a>
-<FONT color="green">281</FONT>              }<a name="line.281"></a>
-<FONT color="green">282</FONT>            }<a name="line.282"></a>
-<FONT color="green">283</FONT>          }<a name="line.283"></a>
-<FONT color="green">284</FONT>        };<a name="line.284"></a>
-<FONT color="green">285</FONT>    <a name="line.285"></a>
-<FONT color="green">286</FONT>        List&lt;String&gt; children = zkClient.get().getChildren(nodePath, childWatcher);<a name="line.286"></a>
-<FONT color="green">287</FONT>        updateChildren(Sets.newHashSet(children));<a name="line.287"></a>
-<FONT color="green">288</FONT>      }<a name="line.288"></a>
-<FONT color="green">289</FONT>    <a name="line.289"></a>
-<FONT color="green">290</FONT>      private void tryAddChild(final String child) throws InterruptedException{<a name="line.290"></a>
-<FONT color="green">291</FONT>        backoffHelper.doUntilSuccess(new ExceptionalSupplier&lt;Boolean, InterruptedException&gt;() {<a name="line.291"></a>
-<FONT color="green">292</FONT>          @Override public Boolean get() throws InterruptedException {<a name="line.292"></a>
-<FONT color="green">293</FONT>            try {<a name="line.293"></a>
-<FONT color="green">294</FONT>              addChild(child);<a name="line.294"></a>
-<FONT color="green">295</FONT>              return true;<a name="line.295"></a>
-<FONT color="green">296</FONT>            } catch (KeeperException e) {<a name="line.296"></a>
-<FONT color="green">297</FONT>              return false;<a name="line.297"></a>
-<FONT color="green">298</FONT>            } catch (ZooKeeperConnectionException e) {<a name="line.298"></a>
-<FONT color="green">299</FONT>              return false;<a name="line.299"></a>
-<FONT color="green">300</FONT>            }<a name="line.300"></a>
-<FONT color="green">301</FONT>          }<a name="line.301"></a>
-<FONT color="green">302</FONT>        });<a name="line.302"></a>
-<FONT color="green">303</FONT>      }<a name="line.303"></a>
-<FONT color="green">304</FONT>    <a name="line.304"></a>
-<FONT color="green">305</FONT>      // TODO(Adam Samet) - Make this use the ZooKeeperNode class.<a name="line.305"></a>
-<FONT color="green">306</FONT>      private void addChild(final String child) throws InterruptedException, KeeperException,<a name="line.306"></a>
-<FONT color="green">307</FONT>          ZooKeeperConnectionException {<a name="line.307"></a>
-<FONT color="green">308</FONT>        final Watcher nodeWatcher = new Watcher() {<a name="line.308"></a>
-<FONT color="green">309</FONT>          @Override<a name="line.309"></a>
-<FONT color="green">310</FONT>          public void process(WatchedEvent event) {<a name="line.310"></a>
-<FONT color="green">311</FONT>            if (event.getType() == Watcher.Event.EventType.NodeDataChanged) {<a name="line.311"></a>
-<FONT color="green">312</FONT>              try {<a name="line.312"></a>
-<FONT color="green">313</FONT>                tryAddChild(child);<a name="line.313"></a>
-<FONT color="green">314</FONT>              } catch (InterruptedException e) {<a name="line.314"></a>
-<FONT color="green">315</FONT>                LOG.log(Level.WARNING, "Interrupted while trying to add a child.", e);<a name="line.315"></a>
-<FONT color="green">316</FONT>              }<a name="line.316"></a>
-<FONT color="green">317</FONT>            } else if (event.getType() == Watcher.Event.EventType.NodeDeleted) {<a name="line.317"></a>
-<FONT color="green">318</FONT>              removeEntry(child);<a name="line.318"></a>
-<FONT color="green">319</FONT>            }<a name="line.319"></a>
-<FONT color="green">320</FONT>          }<a name="line.320"></a>
-<FONT color="green">321</FONT>        };<a name="line.321"></a>
-<FONT color="green">322</FONT>    <a name="line.322"></a>
-<FONT color="green">323</FONT>        try {<a name="line.323"></a>
-<FONT color="green">324</FONT>          V value = deserializer.apply(zkClient.get().getData(makePath(child), nodeWatcher, null));<a name="line.324"></a>
-<FONT color="green">325</FONT>          putEntry(child, value);<a name="line.325"></a>
-<FONT color="green">326</FONT>        } catch (KeeperException.NoNodeException e) {<a name="line.326"></a>
-<FONT color="green">327</FONT>          // This node doesn't exist anymore, remove it from the map and we're done.<a name="line.327"></a>
-<FONT color="green">328</FONT>          removeEntry(child);<a name="line.328"></a>
-<FONT color="green">329</FONT>        }<a name="line.329"></a>
-<FONT color="green">330</FONT>      }<a name="line.330"></a>
-<FONT color="green">331</FONT>    <a name="line.331"></a>
-<FONT color="green">332</FONT>      @VisibleForTesting<a name="line.332"></a>
-<FONT color="green">333</FONT>      void removeEntry(String key) {<a name="line.333"></a>
-<FONT color="green">334</FONT>        localMap.remove(key);<a name="line.334"></a>
-<FONT color="green">335</FONT>      }<a name="line.335"></a>
-<FONT color="green">336</FONT>    <a name="line.336"></a>
-<FONT color="green">337</FONT>      @VisibleForTesting<a name="line.337"></a>
-<FONT color="green">338</FONT>      void putEntry(String key, V value) {<a name="line.338"></a>
-<FONT color="green">339</FONT>        localMap.put(key, value);<a name="line.339"></a>
-<FONT color="green">340</FONT>      }<a name="line.340"></a>
-<FONT color="green">341</FONT>    <a name="line.341"></a>
-<FONT color="green">342</FONT>      private void rewatchDataNodes() throws InterruptedException {<a name="line.342"></a>
-<FONT color="green">343</FONT>        for (String child : keySet()) {<a name="line.343"></a>
-<FONT color="green">344</FONT>          tryAddChild(child);<a name="line.344"></a>
-<FONT color="green">345</FONT>        }<a name="line.345"></a>
-<FONT color="green">346</FONT>      }<a name="line.346"></a>
-<FONT color="green">347</FONT>    <a name="line.347"></a>
-<FONT color="green">348</FONT>      private String makePath(final String child) {<a name="line.348"></a>
-<FONT color="green">349</FONT>        return nodePath + "/" + child;<a name="line.349"></a>
-<FONT color="green">350</FONT>      }<a name="line.350"></a>
-<FONT color="green">351</FONT>    <a name="line.351"></a>
-<FONT color="green">352</FONT>      private void updateChildren(Set&lt;String&gt; zkChildren) throws InterruptedException {<a name="line.352"></a>
-<FONT color="green">353</FONT>        Set&lt;String&gt; addedChildren = Sets.difference(zkChildren, keySet());<a name="line.353"></a>
-<FONT color="green">354</FONT>        Set&lt;String&gt; removedChildren = Sets.difference(keySet(), zkChildren);<a name="line.354"></a>
-<FONT color="green">355</FONT>        for (String child : addedChildren) {<a name="line.355"></a>
-<FONT color="green">356</FONT>          tryAddChild(child);<a name="line.356"></a>
-<FONT color="green">357</FONT>        }<a name="line.357"></a>
-<FONT color="green">358</FONT>        for (String child : removedChildren) {<a name="line.358"></a>
-<FONT color="green">359</FONT>          removeEntry(child);<a name="line.359"></a>
-<FONT color="green">360</FONT>        }<a name="line.360"></a>
-<FONT color="green">361</FONT>      }<a name="line.361"></a>
-<FONT color="green">362</FONT>    }<a name="line.362"></a>
-<FONT color="green">363</FONT>    <a name="line.363"></a>
+<FONT color="green">010</FONT>    // Unless required by applicable law or agreed to in writing, software<a name="line.10"></a>
+<FONT color="green">011</FONT>    // distributed under the License is distributed on an "AS IS" BASIS,<a name="line.11"></a>
+<FONT color="green">012</FONT>    // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.12"></a>
+<FONT color="green">013</FONT>    // See the License for the specific language governing permissions and<a name="line.13"></a>
+<FONT color="green">014</FONT>    // limitations under the License.<a name="line.14"></a>
+<FONT color="green">015</FONT>    // =================================================================================================<a name="line.15"></a>
+<FONT color="green">016</FONT>    <a name="line.16"></a>
+<FONT color="green">017</FONT>    package com.twitter.common.zookeeper;<a name="line.17"></a>
+<FONT color="green">018</FONT>    <a name="line.18"></a>
+<FONT color="green">019</FONT>    import com.google.common.annotations.VisibleForTesting;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import com.google.common.base.Function;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import com.google.common.base.Functions;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import com.google.common.base.Preconditions;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import com.google.common.collect.ForwardingMap;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import com.google.common.collect.Sets;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import com.twitter.common.base.Command;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import com.twitter.common.base.ExceptionalSupplier;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import com.twitter.common.base.MorePreconditions;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import com.twitter.common.util.BackoffHelper;<a name="line.28"></a>
+<FONT color="green">029</FONT>    import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import org.apache.zookeeper.KeeperException;<a name="line.30"></a>
+<FONT color="green">031</FONT>    import org.apache.zookeeper.WatchedEvent;<a name="line.31"></a>
+<FONT color="green">032</FONT>    import org.apache.zookeeper.Watcher;<a name="line.32"></a>
+<FONT color="green">033</FONT>    <a name="line.33"></a>
+<FONT color="green">034</FONT>    import java.util.List;<a name="line.34"></a>
+<FONT color="green">035</FONT>    import java.util.Map;<a name="line.35"></a>
+<FONT color="green">036</FONT>    import java.util.Set;<a name="line.36"></a>
+<FONT color="green">037</FONT>    import java.util.concurrent.ConcurrentHashMap;<a name="line.37"></a>
+<FONT color="green">038</FONT>    import java.util.concurrent.ConcurrentMap;<a name="line.38"></a>
+<FONT color="green">039</FONT>    import java.util.logging.Level;<a name="line.39"></a>
+<FONT color="green">040</FONT>    import java.util.logging.Logger;<a name="line.40"></a>
+<FONT color="green">041</FONT>    <a name="line.41"></a>
+<FONT color="green">042</FONT>    /**<a name="line.42"></a>
+<FONT color="green">043</FONT>     * A ZooKeeper backed {@link Map}.  Initialized with a node path, this map represents child nodes<a name="line.43"></a>
+<FONT color="green">044</FONT>     * under that path as keys, with the data in those nodes as values.  This map is readonly from<a name="line.44"></a>
+<FONT color="green">045</FONT>     * clients of this class, and only can be modified via direct zookeeper operations.<a name="line.45"></a>
+<FONT color="green">046</FONT>     *<a name="line.46"></a>
+<FONT color="green">047</FONT>     * Note that instances of this class maintain a zookeeper watch for each zookeeper node under the<a name="line.47"></a>
+<FONT color="green">048</FONT>     * parent, as well as on the parent itself.  Instances of this class should be created via the<a name="line.48"></a>
+<FONT color="green">049</FONT>     * {@link #create} factory method.<a name="line.49"></a>
+<FONT color="green">050</FONT>     *<a name="line.50"></a>
+<FONT color="green">051</FONT>     * As of ZooKeeper Version 3.1, the maxiumum allowable size of a data node is 1 MB  A single<a name="line.51"></a>
+<FONT color="green">052</FONT>     * client should be able to hold up to maintain several thousand watches, but this depends on rate<a name="line.52"></a>
+<FONT color="green">053</FONT>     * of data change as well.<a name="line.53"></a>
+<FONT color="green">054</FONT>     *<a name="line.54"></a>
+<FONT color="green">055</FONT>     * Talk to your zookeeper cluster administrator if you expect number of map entries times number<a name="line.55"></a>
+<FONT color="green">056</FONT>     * of live clients to exceed a thousand, as a zookeeper cluster is limited by total number of<a name="line.56"></a>
+<FONT color="green">057</FONT>     * server-side watches enabled.<a name="line.57"></a>
+<FONT color="green">058</FONT>     *<a name="line.58"></a>
+<FONT color="green">059</FONT>     * For an example of a set of tools to maintain one of these maps, please see<a name="line.59"></a>
+<FONT color="green">060</FONT>     * src/scripts/HenAccess.py in the hen repository.<a name="line.60"></a>
+<FONT color="green">061</FONT>     *<a name="line.61"></a>
+<FONT color="green">062</FONT>     * @param &lt;V&gt; the type of values this map stores<a name="line.62"></a>
+<FONT color="green">063</FONT>     *<a name="line.63"></a>
+<FONT color="green">064</FONT>     * @author Adam Samet<a name="line.64"></a>
+<FONT color="green">065</FONT>     */<a name="line.65"></a>
+<FONT color="green">066</FONT>    public class ZooKeeperMap&lt;V&gt; extends ForwardingMap&lt;String, V&gt; {<a name="line.66"></a>
+<FONT color="green">067</FONT>    <a name="line.67"></a>
+<FONT color="green">068</FONT>      /**<a name="line.68"></a>
+<FONT color="green">069</FONT>       * Default deserializer for the constructor if you want to simply store the zookeeper byte[] data<a name="line.69"></a>
+<FONT color="green">070</FONT>       * in this map.<a name="line.70"></a>
+<FONT color="green">071</FONT>       */<a name="line.71"></a>
+<FONT color="green">072</FONT>      public static final Function&lt;byte[], byte[]&gt; BYTE_ARRAY_VALUES = Functions.identity();<a name="line.72"></a>
+<FONT color="green">073</FONT>    <a name="line.73"></a>
+<FONT color="green">074</FONT>      private static final Logger LOG = Logger.getLogger(ZooKeeperMap.class.getName());<a name="line.74"></a>
+<FONT color="green">075</FONT>    <a name="line.75"></a>
+<FONT color="green">076</FONT>      private final ZooKeeperClient zkClient;<a name="line.76"></a>
+<FONT color="green">077</FONT>      private final String nodePath;<a name="line.77"></a>
+<FONT color="green">078</FONT>      private final Function&lt;byte[], V&gt; deserializer;<a name="line.78"></a>
+<FONT color="green">079</FONT>    <a name="line.79"></a>
+<FONT color="green">080</FONT>      private final ConcurrentMap&lt;String, V&gt; localMap;<a name="line.80"></a>
+<FONT color="green">081</FONT>      private final BackoffHelper backoffHelper;<a name="line.81"></a>
+<FONT color="green">082</FONT>    <a name="line.82"></a>
+<FONT color="green">083</FONT>      // Whether it's safe to re-establish watches if our zookeeper session has expired.<a name="line.83"></a>
+<FONT color="green">084</FONT>      private final Object safeToRewatchLock;<a name="line.84"></a>
+<FONT color="green">085</FONT>      private volatile boolean safeToRewatch;<a name="line.85"></a>
+<FONT color="green">086</FONT>    <a name="line.86"></a>
+<FONT color="green">087</FONT>      /**<a name="line.87"></a>
+<FONT color="green">088</FONT>       * Returns an initialized ZooKeeperMap.  The given path must exist at the time of<a name="line.88"></a>
+<FONT color="green">089</FONT>       * creation or a {@link KeeperException} will be thrown.<a name="line.89"></a>
+<FONT color="green">090</FONT>       *<a name="line.90"></a>
+<FONT color="green">091</FONT>       * @param zkClient a zookeeper client<a name="line.91"></a>
+<FONT color="green">092</FONT>       * @param nodePath path to a node whose data will be watched<a name="line.92"></a>
+<FONT color="green">093</FONT>       * @param deserializer a function that converts byte[] data from a zk node to this map's<a name="line.93"></a>
+<FONT color="green">094</FONT>       *     value type V<a name="line.94"></a>
+<FONT color="green">095</FONT>       *<a name="line.95"></a>
+<FONT color="green">096</FONT>       * @throws InterruptedException if the underlying zookeeper server transaction is interrupted<a name="line.96"></a>
+<FONT color="green">097</FONT>       * @throws KeeperException.NoNodeException if the given nodePath doesn't exist<a name="line.97"></a>
+<FONT color="green">098</FONT>       * @throws KeeperException if the server signals an error<a name="line.98"></a>
+<FONT color="green">099</FONT>       * @throws ZooKeeperConnectionException if there was a problem connecting to the zookeeper<a name="line.99"></a>
+<FONT color="green">100</FONT>       *     cluster<a name="line.100"></a>
+<FONT color="green">101</FONT>       */<a name="line.101"></a>
+<FONT color="green">102</FONT>      public static &lt;V&gt; ZooKeeperMap&lt;V&gt; create(ZooKeeperClient zkClient, String nodePath,<a name="line.102"></a>
+<FONT color="green">103</FONT>          Function&lt;byte[], V&gt; deserializer) throws InterruptedException, KeeperException,<a name="line.103"></a>
+<FONT color="green">104</FONT>          ZooKeeperConnectionException {<a name="line.104"></a>
+<FONT color="green">105</FONT>        ZooKeeperMap&lt;V&gt; zkMap = new ZooKeeperMap&lt;V&gt;(zkClient, nodePath, deserializer);<a name="line.105"></a>
+<FONT color="green">106</FONT>        zkMap.init();<a name="line.106"></a>
+<FONT color="green">107</FONT>        return zkMap;<a name="line.107"></a>
+<FONT color="green">108</FONT>      }<a name="line.108"></a>
+<FONT color="green">109</FONT>    <a name="line.109"></a>
+<FONT color="green">110</FONT>      /**<a name="line.110"></a>
+<FONT color="green">111</FONT>       * Initializes a ZooKeeperMap.  The given path must exist at the time of object creation or<a name="line.111"></a>
+<FONT color="green">112</FONT>       * a {@link KeeperException} will be thrown.<a name="line.112"></a>
+<FONT color="green">113</FONT>       *<a name="line.113"></a>
+<FONT color="green">114</FONT>       * Please note that this object will not track any remote zookeeper data until {@link #init()}<a name="line.114"></a>
+<FONT color="green">115</FONT>       * is successfully called.  After construction and before that call, this {@link Map} will<a name="line.115"></a>
+<FONT color="green">116</FONT>       * be empty.<a name="line.116"></a>
+<FONT color="green">117</FONT>       *<a name="line.117"></a>
+<FONT color="green">118</FONT>       * @param zkClient a zookeeper client<a name="line.118"></a>
+<FONT color="green">119</FONT>       * @param nodePath top-level node path under which the map data lives<a name="line.119"></a>
+<FONT color="green">120</FONT>       * @param deserializer a function that converts byte[] data from a zk node to this map's<a name="line.120"></a>
+<FONT color="green">121</FONT>       *     value type V<a name="line.121"></a>
+<FONT color="green">122</FONT>       *<a name="line.122"></a>
+<FONT color="green">123</FONT>       * @throws InterruptedException if the underlying zookeeper server transaction is interrupted<a name="line.123"></a>
+<FONT color="green">124</FONT>       * @throws KeeperException.NoNodeException if the given nodePath doesn't exist<a name="line.124"></a>
+<FONT color="green">125</FONT>       * @throws KeeperException if the server signals an error<a name="line.125"></a>
+<FONT color="green">126</FONT>       * @throws ZooKeeperConnectionException if there was a problem connecting to the zookeeper<a name="line.126"></a>
+<FONT color="green">127</FONT>       *     cluster<a name="line.127"></a>
+<FONT color="green">128</FONT>       */<a name="line.128"></a>
+<FONT color="green">129</FONT>      @VisibleForTesting<a name="line.129"></a>
+<FONT color="green">130</FONT>      ZooKeeperMap(ZooKeeperClient zkClient, String nodePath,<a name="line.130"></a>
+<FONT color="green">131</FONT>          Function&lt;byte[], V&gt; deserializer) throws InterruptedException, KeeperException,<a name="line.131"></a>
+<FONT color="green">132</FONT>          ZooKeeperConnectionException {<a name="line.132"></a>
+<FONT color="green">133</FONT>        super();<a name="line.133"></a>
+<FONT color="green">134</FONT>        this.zkClient = Preconditions.checkNotNull(zkClient);<a name="line.134"></a>
+<FONT color="green">135</FONT>        this.nodePath = MorePreconditions.checkNotBlank(nodePath);<a name="line.135"></a>
+<FONT color="green">136</FONT>        this.deserializer = Preconditions.checkNotNull(deserializer);<a name="line.136"></a>
+<FONT color="green">137</FONT>    <a name="line.137"></a>
+<FONT color="green">138</FONT>        localMap = new ConcurrentHashMap&lt;String, V&gt;();<a name="line.138"></a>
+<FONT color="green">139</FONT>        backoffHelper = new BackoffHelper();<a name="line.139"></a>
+<FONT color="green">140</FONT>        safeToRewatchLock = new Object();<a name="line.140"></a>
+<FONT color="green">141</FONT>        safeToRewatch = false;<a name="line.141"></a>
+<FONT color="green">142</FONT>    <a name="line.142"></a>
+<FONT color="green">143</FONT>        if (zkClient.get().exists(nodePath, null) == null) {<a name="line.143"></a>
+<FONT color="green">144</FONT>          throw new KeeperException.NoNodeException();<a name="line.144"></a>
+<FONT color="green">145</FONT>        }<a name="line.145"></a>
+<FONT color="green">146</FONT>      }<a name="line.146"></a>
+<FONT color="green">147</FONT>    <a name="line.147"></a>
+<FONT color="green">148</FONT>      /**<a name="line.148"></a>
+<FONT color="green">149</FONT>       * Initialize zookeeper tracking for this {@link Map}.  Once this call returns, this object<a name="line.149"></a>
+<FONT color="green">150</FONT>       * will be tracking data in zookeeper.<a name="line.150"></a>
+<FONT color="green">151</FONT>       *<a name="line.151"></a>
+<FONT color="green">152</FONT>       * @throws InterruptedException if the underlying zookeeper server transaction is interrupted<a name="line.152"></a>
+<FONT color="green">153</FONT>       * @throws KeeperException if the server signals an error<a name="line.153"></a>
+<FONT color="green">154</FONT>       * @throws ZooKeeperConnectionException if there was a problem connecting to the zookeeper<a name="line.154"></a>
+<FONT color="green">155</FONT>       *     cluster<a name="line.155"></a>
+<FONT color="green">156</FONT>       */<a name="line.156"></a>
+<FONT color="green">157</FONT>      @VisibleForTesting<a name="line.157"></a>
+<FONT color="green">158</FONT>      void init() throws InterruptedException, KeeperException,<a name="line.158"></a>
+<FONT color="green">159</FONT>          ZooKeeperConnectionException {<a name="line.159"></a>
+<FONT color="green">160</FONT>        Watcher watcher = zkClient.registerExpirationHandler(new Command() {<a name="line.160"></a>
+<FONT color="green">161</FONT>          @Override public void execute() {<a name="line.161"></a>
+<FONT color="green">162</FONT>            /*<a name="line.162"></a>
+<FONT color="green">163</FONT>             * First rewatch all of our locally cached children.  Some of them may not exist anymore,<a name="line.163"></a>
+<FONT color="green">164</FONT>             * which will lead to caught KeeperException.NoNode whereafter we'll remove that child<a name="line.164"></a>
+<FONT color="green">165</FONT>             * from the cached map.<a name="line.165"></a>
+<FONT color="green">166</FONT>             *<a name="line.166"></a>
+<FONT color="green">167</FONT>             * Next, we'll establish our top level child watch and add any new nodes that might exist.<a name="line.167"></a>
+<FONT color="green">168</FONT>             */<a name="line.168"></a>
+<FONT color="green">169</FONT>            try {<a name="line.169"></a>
+<FONT color="green">170</FONT>              synchronized (safeToRewatchLock) {<a name="line.170"></a>
+<FONT color="green">171</FONT>                if (safeToRewatch) {<a name="line.171"></a>
+<FONT color="green">172</FONT>                  rewatchDataNodes();<a name="line.172"></a>
+<FONT color="green">173</FONT>                  tryWatchChildren();<a name="line.173"></a>
+<FONT color="green">174</FONT>                }<a name="line.174"></a>
+<FONT color="green">175</FONT>              }<a name="line.175"></a>
+<FONT color="green">176</FONT>            } catch (InterruptedException e) {<a name="line.176"></a>
+<FONT color="green">177</FONT>              LOG.log(Level.WARNING, "Interrupted while trying to re-establish watch.", e);<a name="line.177"></a>
+<FONT color="green">178</FONT>            }<a name="line.178"></a>
+<FONT color="green">179</FONT>          }<a name="line.179"></a>
+<FONT color="green">180</FONT>        });<a name="line.180"></a>
+<FONT color="green">181</FONT>    <a name="line.181"></a>
+<FONT color="green">182</FONT>        try {<a name="line.182"></a>
+<FONT color="green">183</FONT>          // Synchronize to prevent the race of watchChildren completing and then the session expiring<a name="line.183"></a>
+<FONT color="green">184</FONT>          // before we update safeToRewatch.<a name="line.184"></a>
+<FONT color="green">185</FONT>          synchronized (safeToRewatchLock) {<a name="line.185"></a>
+<FONT color="green">186</FONT>            watchChildren();<a name="line.186"></a>
+<FONT color="green">187</FONT>            safeToRewatch = true;<a name="line.187"></a>
+<FONT color="green">188</FONT>          }<a name="line.188"></a>
+<FONT color="green">189</FONT>        } catch (InterruptedException e) {<a name="line.189"></a>
+<FONT color="green">190</FONT>          zkClient.unregister(watcher);<a name="line.190"></a>
+<FONT color="green">191</FONT>          throw e;<a name="line.191"></a>
+<FONT color="green">192</FONT>        } catch (KeeperException e) {<a name="line.192"></a>
+<FONT color="green">193</FONT>          zkClient.unregister(watcher);<a name="line.193"></a>
+<FONT color="green">194</FONT>          throw e;<a name="line.194"></a>
+<FONT color="green">195</FONT>        } catch (ZooKeeperConnectionException e) {<a name="line.195"></a>
+<FONT color="green">196</FONT>          zkClient.unregister(watcher);<a name="line.196"></a>
+<FONT color="green">197</FONT>          throw e;<a name="line.197"></a>
+<FONT color="green">198</FONT>        }<a name="line.198"></a>
+<FONT color="green">199</FONT>      }<a name="line.199"></a>
+<FONT color="green">200</FONT>    <a name="line.200"></a>
+<FONT color="green">201</FONT>      @Override<a name="line.201"></a>
+<FONT color="green">202</FONT>      protected Map&lt;String, V&gt; delegate() {<a name="line.202"></a>
+<FONT color="green">203</FONT>        return localMap;<a name="line.203"></a>
+<FONT color="green">204</FONT>      }<a name="line.204"></a>
+<FONT color="green">205</FONT>    <a name="line.205"></a>
+<FONT color="green">206</FONT>      /**<a name="line.206"></a>
+<FONT color="green">207</FONT>       * This map is readonly, this method throws a {@link UnsupportedOperationException}<a name="line.207"></a>
+<FONT color="green">208</FONT>       */<a name="line.208"></a>
+<FONT color="green">209</FONT>      @Override<a name="line.209"></a>
+<FONT color="green">210</FONT>      public void clear() {<a name="line.210"></a>
+<FONT color="green">211</FONT>        throw new UnsupportedOperationException();<a name="line.211"></a>
+<FONT color="green">212</FONT>      }<a name="line.212"></a>
+<FONT color="green">213</FONT>    <a name="line.213"></a>
+<FONT color="green">214</FONT>      /**<a name="line.214"></a>
+<FONT color="green">215</FONT>       * This map is readonly, this method throws a {@link UnsupportedOperationException}<a name="line.215"></a>
+<FONT color="green">216</FONT>       */<a name="line.216"></a>
+<FONT color="green">217</FONT>      @Override<a name="line.217"></a>
+<FONT color="green">218</FONT>      public V put(String key, V value) {<a name="line.218"></a>
+<FONT color="green">219</FONT>        throw new UnsupportedOperationException();<a name="line.219"></a>
+<FONT color="green">220</FONT>      }<a name="line.220"></a>
+<FONT color="green">221</FONT>    <a name="line.221"></a>
+<FONT color="green">222</FONT>      /**<a name="line.222"></a>
+<FONT color="green">223</FONT>       * This map is readonly, this method throws a {@link UnsupportedOperationException}<a name="line.223"></a>
+<FONT color="green">224</FONT>       */<a name="line.224"></a>
+<FONT color="green">225</FONT>      @Override<a name="line.225"></a>
+<FONT color="green">226</FONT>      public void putAll(Map&lt;? extends String, ? extends V&gt; m) {<a name="line.226"></a>
+<FONT color="green">227</FONT>        throw new UnsupportedOperationException();<a name="line.227"></a>
+<FONT color="green">228</FONT>      }<a name="line.228"></a>
+<FONT color="green">229</FONT>    <a name="line.229"></a>
+<FONT color="green">230</FONT>      /**<a name="line.230"></a>
+<FONT color="green">231</FONT>       * This map is readonly, this method throws a {@link UnsupportedOperationException}<a name="line.231"></a>
+<FONT color="green">232</FONT>       */<a name="line.232"></a>
+<FONT color="green">233</FONT>      @Override<a name="line.233"></a>
+<FONT color="green">234</FONT>      public V remove(Object key) {<a name="line.234"></a>
+<FONT color="green">235</FONT>        throw new UnsupportedOperationException();<a name="line.235"></a>
+<FONT color="green">236</FONT>      }<a name="line.236"></a>
+<FONT color="green">237</FONT>    <a name="line.237"></a>
+<FONT color="green">238</FONT>      private void tryWatchChildren() throws InterruptedException {<a name="line.238"></a>
+<FONT color="green">239</FONT>        backoffHelper.doUntilSuccess(new ExceptionalSupplier&lt;Boolean, InterruptedException&gt;() {<a name="line.239"></a>
+<FONT color="green">240</FONT>          @Override public Boolean get() throws InterruptedException {<a name="line.240"></a>
+<FONT color="green">241</FONT>            try {<a name="line.241"></a>
+<FONT color="green">242</FONT>              watchChildren();<a name="line.242"></a>
+<FONT color="green">243</FONT>              return true;<a name="line.243"></a>
+<FONT color="green">244</FONT>            } catch (KeeperException e) {<a name="line.244"></a>
+<FONT color="green">245</FONT>              return false;<a name="line.245"></a>
+<FONT color="green">246</FONT>            } catch (ZooKeeperConnectionException e) {<a name="line.246"></a>
+<FONT color="green">247</FONT>              return false;<a name="line.247"></a>
+<FONT color="green">248</FONT>            }<a name="line.248"></a>
+<FONT color="green">249</FONT>          }<a name="line.249"></a>
+<FONT color="green">250</FONT>        });<a name="line.250"></a>
+<FONT color="green">251</FONT>      }<a name="line.251"></a>
+<FONT color="green">252</FONT>    <a name="line.252"></a>
+<FONT color="green">253</FONT>      private synchronized void watchChildren() throws InterruptedException, KeeperException,<a name="line.253"></a>
+<FONT color="green">254</FONT>          ZooKeeperConnectionException {<a name="line.254"></a>
+<FONT color="green">255</FONT>        /*<a name="line.255"></a>
+<FONT color="green">256</FONT>         * Add a watch on the parent node itself, and attempt to rewatch if it<a name="line.256"></a>
+<FONT color="green">257</FONT>         * gets deleted<a name="line.257"></a>
+<FONT color="green">258</FONT>         */<a name="line.258"></a>
+<FONT color="green">259</FONT>        zkClient.get().exists(nodePath, new Watcher() {<a name="line.259"></a>
+<FONT color="green">260</FONT>          @Override public void process(WatchedEvent event) {<a name="line.260"></a>
+<FONT color="green">261</FONT>            if (event.getType() == Watcher.Event.EventType.NodeDeleted) {<a name="line.261"></a>
+<FONT color="green">262</FONT>              // If the parent node no longer exists<a name="line.262"></a>
+<FONT color="green">263</FONT>              localMap.clear();<a name="line.263"></a>
+<FONT color="green">264</FONT>              try {<a name="line.264"></a>
+<FONT color="green">265</FONT>                tryWatchChildren();<a name="line.265"></a>
+<FONT color="green">266</FONT>              } catch (InterruptedException e) {<a name="line.266"></a>
+<FONT color="green">267</FONT>                LOG.log(Level.WARNING, "Interrupted while trying to watch children.", e);<a name="line.267"></a>
+<FONT color="green">268</FONT>              }<a name="line.268"></a>
+<FONT color="green">269</FONT>            }<a name="line.269"></a>
+<FONT color="green">270</FONT>          }});<a name="line.270"></a>
+<FONT color="green">271</FONT>    <a name="line.271"></a>
+<FONT color="green">272</FONT>        final Watcher childWatcher = new Watcher() {<a name="line.272"></a>
+<FONT color="green">273</FONT>          @Override<a name="line.273"></a>
+<FONT color="green">274</FONT>          public void process(WatchedEvent event) {<a name="line.274"></a>
+<FONT color="green">275</FONT>            if (event.getType() == Watcher.Event.EventType.NodeChildrenChanged) {<a name="line.275"></a>
+<FONT color="green">276</FONT>              try {<a name="line.276"></a>
+<FONT color="green">277</FONT>                tryWatchChildren();<a name="line.277"></a>
+<FONT color="green">278</FONT>              } catch (InterruptedException e) {<a name="line.278"></a>
+<FONT color="green">279</FONT>                LOG.log(Level.WARNING, "Interrupted while trying to watch children.", e);<a name="line.279"></a>
+<FONT color="green">280</FONT>              }<a name="line.280"></a>
+<FONT color="green">281</FONT>            }<a name="line.281"></a>
+<FONT color="green">282</FONT>          }<a name="line.282"></a>
+<FONT color="green">283</FONT>        };<a name="line.283"></a>
+<FONT color="green">284</FONT>    <a name="line.284"></a>
+<FONT color="green">285</FONT>        List&lt;String&gt; children = zkClient.get().getChildren(nodePath, childWatcher);<a name="line.285"></a>
+<FONT color="green">286</FONT>        updateChildren(Sets.newHashSet(children));<a name="line.286"></a>
+<FONT color="green">287</FONT>      }<a name="line.287"></a>
+<FONT color="green">288</FONT>    <a name="line.288"></a>
+<FONT color="green">289</FONT>      private void tryAddChild(final String child) throws InterruptedException{<a name="line.289"></a>
+<FONT color="green">290</FONT>        backoffHelper.doUntilSuccess(new ExceptionalSupplier&lt;Boolean, InterruptedException&gt;() {<a name="line.290"></a>
+<FONT color="green">291</FONT>          @Override public Boolean get() throws InterruptedException {<a name="line.291"></a>
+<FONT color="green">292</FONT>            try {<a name="line.292"></a>
+<FONT color="green">293</FONT>              addChild(child);<a name="line.293"></a>
+<FONT color="green">294</FONT>              return true;<a name="line.294"></a>
+<FONT color="green">295</FONT>            } catch (KeeperException e) {<a name="line.295"></a>
+<FONT color="green">296</FONT>              return false;<a name="line.296"></a>
+<FONT color="green">297</FONT>            } catch (ZooKeeperConnectionException e) {<a name="line.297"></a>
+<FONT color="green">298</FONT>              return false;<a name="line.298"></a>
+<FONT color="green">299</FONT>            }<a name="line.299"></a>
+<FONT color="green">300</FONT>          }<a name="line.300"></a>
+<FONT color="green">301</FONT>        });<a name="line.301"></a>
+<FONT color="green">302</FONT>      }<a name="line.302"></a>
+<FONT color="green">303</FONT>    <a name="line.303"></a>
+<FONT color="green">304</FONT>      // TODO(Adam Samet) - Make this use the ZooKeeperNode class.<a name="line.304"></a>
+<FONT color="green">305</FONT>      private void addChild(final String child) throws InterruptedException, KeeperException,<a name="line.305"></a>
+<FONT color="green">306</FONT>          ZooKeeperConnectionException {<a name="line.306"></a>
+<FONT color="green">307</FONT>        final Watcher nodeWatcher = new Watcher() {<a name="line.307"></a>
+<FONT color="green">308</FONT>          @Override<a name="line.308"></a>
+<FONT color="green">309</FONT>          public void process(WatchedEvent event) {<a name="line.309"></a>
+<FONT color="green">310</FONT>            if (event.getType() == Watcher.Event.EventType.NodeDataChanged) {<a name="line.310"></a>
+<FONT color="green">311</FONT>              try {<a name="line.311"></a>
+<FONT color="green">312</FONT>                tryAddChild(child);<a name="line.312"></a>
+<FONT color="green">313</FONT>              } catch (InterruptedException e) {<a name="line.313"></a>
+<FONT color="green">314</FONT>                LOG.log(Level.WARNING, "Interrupted while trying to add a child.", e);<a name="line.314"></a>
+<FONT color="green">315</FONT>              }<a name="line.315"></a>
+<FONT color="green">316</FONT>            } else if (event.getType() == Watcher.Event.EventType.NodeDeleted) {<a name="line.316"></a>
+<FONT color="green">317</FONT>              removeEntry(child);<a name="line.317"></a>
+<FONT color="green">318</FONT>            }<a name="line.318"></a>
+<FONT color="green">319</FONT>          }<a name="line.319"></a>
+<FONT color="green">320</FONT>        };<a name="line.320"></a>
+<FONT color="green">321</FONT>    <a name="line.321"></a>
+<FONT color="green">322</FONT>        try {<a name="line.322"></a>
+<FONT color="green">323</FONT>          V value = deserializer.apply(zkClient.get().getData(makePath(child), nodeWatcher, null));<a name="line.323"></a>
+<FONT color="green">324</FONT>          putEntry(child, value);<a name="line.324"></a>
+<FONT color="green">325</FONT>        } catch (KeeperException.NoNodeException e) {<a name="line.325"></a>
+<FONT color="green">326</FONT>          // This node doesn't exist anymore, remove it from the map and we're done.<a name="line.326"></a>
+<FONT color="green">327</FONT>          removeEntry(child);<a name="line.327"></a>
+<FONT color="green">328</FONT>        }<a name="line.328"></a>
+<FONT color="green">329</FONT>      }<a name="line.329"></a>
+<FONT color="green">330</FONT>    <a name="line.330"></a>
+<FONT color="green">331</FONT>      @VisibleForTesting<a name="line.331"></a>
+<FONT color="green">332</FONT>      void removeEntry(String key) {<a name="line.332"></a>
+<FONT color="green">333</FONT>        localMap.remove(key);<a name="line.333"></a>
+<FONT color="green">334</FONT>      }<a name="line.334"></a>
+<FONT color="green">335</FONT>    <a name="line.335"></a>
+<FONT color="green">336</FONT>      @VisibleForTesting<a name="line.336"></a>
+<FONT color="green">337</FONT>      void putEntry(String key, V value) {<a name="line.337"></a>
+<FONT color="green">338</FONT>        localMap.put(key, value);<a name="line.338"></a>
+<FONT color="green">339</FONT>      }<a name="line.339"></a>
+<FONT color="green">340</FONT>    <a name="line.340"></a>
+<FONT color="green">341</FONT>      private void rewatchDataNodes() throws InterruptedException {<a name="line.341"></a>
+<FONT color="green">342</FONT>        for (String child : keySet()) {<a name="line.342"></a>
+<FONT color="green">343</FONT>          tryAddChild(child);<a name="line.343"></a>
+<FONT color="green">344</FONT>        }<a name="line.344"></a>
+<FONT color="green">345</FONT>      }<a name="line.345"></a>
+<FONT color="green">346</FONT>    <a name="line.346"></a>
+<FONT color="green">347</FONT>      private String makePath(final String child) {<a name="line.347"></a>
+<FONT color="green">348</FONT>        return nodePath + "/" + child;<a name="line.348"></a>
+<FONT color="green">349</FONT>      }<a name="line.349"></a>
+<FONT color="green">350</FONT>    <a name="line.350"></a>
+<FONT color="green">351</FONT>      private void updateChildren(Set&lt;String&gt; zkChildren) throws InterruptedException {<a name="line.351"></a>
+<FONT color="green">352</FONT>        Set&lt;String&gt; addedChildren = Sets.difference(zkChildren, keySet());<a name="line.352"></a>
+<FONT color="green">353</FONT>        Set&lt;String&gt; removedChildren = Sets.difference(keySet(), zkChildren);<a name="line.353"></a>
+<FONT color="green">354</FONT>        for (String child : addedChildren) {<a name="line.354"></a>
+<FONT color="green">355</FONT>          tryAddChild(child);<a name="line.355"></a>
+<FONT color="green">356</FONT>        }<a name="line.356"></a>
+<FONT color="green">357</FONT>        for (String child : removedChildren) {<a name="line.357"></a>
+<FONT color="green">358</FONT>          removeEntry(child);<a name="line.358"></a>
+<FONT color="green">359</FONT>        }<a name="line.359"></a>
+<FONT color="green">360</FONT>      }<a name="line.360"></a>
+<FONT color="green">361</FONT>    }<a name="line.361"></a>
+<FONT color="green">362</FONT>    <a name="line.362"></a>
 
 
 
