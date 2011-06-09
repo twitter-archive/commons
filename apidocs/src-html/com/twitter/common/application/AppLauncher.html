@@ -40,8 +40,8 @@
 <FONT color="green">037</FONT>    import com.twitter.common.args.ArgScanner;<a name="line.37"></a>
 <FONT color="green">038</FONT>    import com.twitter.common.args.CmdLine;<a name="line.38"></a>
 <FONT color="green">039</FONT>    import com.twitter.common.args.constraints.NotNull;<a name="line.39"></a>
-<FONT color="green">040</FONT>    import com.twitter.common.args.parsers.ListParser;<a name="line.40"></a>
-<FONT color="green">041</FONT>    import com.twitter.common.args.parsers.NonParameterizedTypeParser;<a name="line.41"></a>
+<FONT color="green">040</FONT>    import com.twitter.common.args.parsers.EnumParser;<a name="line.40"></a>
+<FONT color="green">041</FONT>    import com.twitter.common.args.parsers.ListParser;<a name="line.41"></a>
 <FONT color="green">042</FONT>    <a name="line.42"></a>
 <FONT color="green">043</FONT>    /**<a name="line.43"></a>
 <FONT color="green">044</FONT>     * An application launcher that sets up a framework for pluggable binding modules.  This class<a name="line.44"></a>
@@ -73,75 +73,65 @@
 <FONT color="green">070</FONT>    <a name="line.70"></a>
 <FONT color="green">071</FONT>      @CmdLine(name = "guice_stage",<a name="line.71"></a>
 <FONT color="green">072</FONT>               help = "Guice development stage to create injector with.",<a name="line.72"></a>
-<FONT color="green">073</FONT>               parser = StageParser.class)<a name="line.73"></a>
+<FONT color="green">073</FONT>               parser = EnumParser.class)<a name="line.73"></a>
 <FONT color="green">074</FONT>      private static final Arg&lt;Stage&gt; GUICE_STAGE = Arg.create(Stage.DEVELOPMENT);<a name="line.74"></a>
 <FONT color="green">075</FONT>    <a name="line.75"></a>
-<FONT color="green">076</FONT>      // TODO(William Farner): Add a generic enum args parser to handle this.<a name="line.76"></a>
-<FONT color="green">077</FONT>      public static class StageParser extends NonParameterizedTypeParser&lt;Stage&gt; {<a name="line.77"></a>
-<FONT color="green">078</FONT>        public StageParser() {<a name="line.78"></a>
-<FONT color="green">079</FONT>          super(Stage.class);<a name="line.79"></a>
-<FONT color="green">080</FONT>        }<a name="line.80"></a>
-<FONT color="green">081</FONT>        @Override public Stage doParse(String raw) throws IllegalArgumentException {<a name="line.81"></a>
-<FONT color="green">082</FONT>          return Stage.valueOf(raw);<a name="line.82"></a>
-<FONT color="green">083</FONT>        }<a name="line.83"></a>
-<FONT color="green">084</FONT>      }<a name="line.84"></a>
-<FONT color="green">085</FONT>    <a name="line.85"></a>
-<FONT color="green">086</FONT>      @Inject @StartupStage private ActionController startupController;<a name="line.86"></a>
-<FONT color="green">087</FONT>      @Inject private Lifecycle lifecycle;<a name="line.87"></a>
-<FONT color="green">088</FONT>    <a name="line.88"></a>
-<FONT color="green">089</FONT>      private void run(Application application) {<a name="line.89"></a>
-<FONT color="green">090</FONT>        configureInjection(application);<a name="line.90"></a>
-<FONT color="green">091</FONT>    <a name="line.91"></a>
-<FONT color="green">092</FONT>        LOG.info("Executing startup actions.");<a name="line.92"></a>
-<FONT color="green">093</FONT>        startupController.execute();<a name="line.93"></a>
-<FONT color="green">094</FONT>    <a name="line.94"></a>
-<FONT color="green">095</FONT>        try {<a name="line.95"></a>
-<FONT color="green">096</FONT>          application.run();<a name="line.96"></a>
-<FONT color="green">097</FONT>        } finally {<a name="line.97"></a>
-<FONT color="green">098</FONT>          LOG.info("Application run() exited.");<a name="line.98"></a>
-<FONT color="green">099</FONT>          lifecycle.shutdown();<a name="line.99"></a>
-<FONT color="green">100</FONT>        }<a name="line.100"></a>
-<FONT color="green">101</FONT>      }<a name="line.101"></a>
-<FONT color="green">102</FONT>    <a name="line.102"></a>
-<FONT color="green">103</FONT>      private void configureInjection(Application application) {<a name="line.103"></a>
-<FONT color="green">104</FONT>        Iterable&lt;Module&gt; modules = ImmutableList.&lt;Module&gt;builder()<a name="line.104"></a>
-<FONT color="green">105</FONT>            .add(new LifecycleModule())<a name="line.105"></a>
-<FONT color="green">106</FONT>            .add(new AppLauncherModule())<a name="line.106"></a>
-<FONT color="green">107</FONT>            .addAll(application.getModules())<a name="line.107"></a>
-<FONT color="green">108</FONT>            .build();<a name="line.108"></a>
-<FONT color="green">109</FONT>    <a name="line.109"></a>
-<FONT color="green">110</FONT>        Injector injector = Guice.createInjector(GUICE_STAGE.get(),<a name="line.110"></a>
-<FONT color="green">111</FONT>            Modules.override(Modules.combine(modules)).with(application.getOverridingModules()));<a name="line.111"></a>
-<FONT color="green">112</FONT>        injector.injectMembers(this);<a name="line.112"></a>
-<FONT color="green">113</FONT>        injector.injectMembers(application);<a name="line.113"></a>
-<FONT color="green">114</FONT>      }<a name="line.114"></a>
-<FONT color="green">115</FONT>    <a name="line.115"></a>
-<FONT color="green">116</FONT>      public static void main(String[] args) throws IllegalAccessException, InstantiationException {<a name="line.116"></a>
-<FONT color="green">117</FONT>        Map&lt;String, String&gt; argumentMap = Maps.newHashMap(ArgScanner.mapArguments(args));<a name="line.117"></a>
-<FONT color="green">118</FONT>    <a name="line.118"></a>
-<FONT color="green">119</FONT>        ImmutableList.Builder&lt;String&gt; scanPackages = ImmutableList.&lt;String&gt;builder()<a name="line.119"></a>
-<FONT color="green">120</FONT>            .add(AppLauncher.class.getPackage().getName());<a name="line.120"></a>
+<FONT color="green">076</FONT>      @Inject @StartupStage private ActionController startupController;<a name="line.76"></a>
+<FONT color="green">077</FONT>      @Inject private Lifecycle lifecycle;<a name="line.77"></a>
+<FONT color="green">078</FONT>    <a name="line.78"></a>
+<FONT color="green">079</FONT>      private void run(Application application) {<a name="line.79"></a>
+<FONT color="green">080</FONT>        configureInjection(application);<a name="line.80"></a>
+<FONT color="green">081</FONT>    <a name="line.81"></a>
+<FONT color="green">082</FONT>        LOG.info("Executing startup actions.");<a name="line.82"></a>
+<FONT color="green">083</FONT>        startupController.execute();<a name="line.83"></a>
+<FONT color="green">084</FONT>    <a name="line.84"></a>
+<FONT color="green">085</FONT>        try {<a name="line.85"></a>
+<FONT color="green">086</FONT>          application.run();<a name="line.86"></a>
+<FONT color="green">087</FONT>        } finally {<a name="line.87"></a>
+<FONT color="green">088</FONT>          LOG.info("Application run() exited.");<a name="line.88"></a>
+<FONT color="green">089</FONT>          lifecycle.shutdown();<a name="line.89"></a>
+<FONT color="green">090</FONT>        }<a name="line.90"></a>
+<FONT color="green">091</FONT>      }<a name="line.91"></a>
+<FONT color="green">092</FONT>    <a name="line.92"></a>
+<FONT color="green">093</FONT>      private void configureInjection(Application application) {<a name="line.93"></a>
+<FONT color="green">094</FONT>        Iterable&lt;Module&gt; modules = ImmutableList.&lt;Module&gt;builder()<a name="line.94"></a>
+<FONT color="green">095</FONT>            .add(new LifecycleModule())<a name="line.95"></a>
+<FONT color="green">096</FONT>            .add(new AppLauncherModule())<a name="line.96"></a>
+<FONT color="green">097</FONT>            .addAll(application.getModules())<a name="line.97"></a>
+<FONT color="green">098</FONT>            .build();<a name="line.98"></a>
+<FONT color="green">099</FONT>    <a name="line.99"></a>
+<FONT color="green">100</FONT>        Injector injector = Guice.createInjector(GUICE_STAGE.get(),<a name="line.100"></a>
+<FONT color="green">101</FONT>            Modules.override(Modules.combine(modules)).with(application.getOverridingModules()));<a name="line.101"></a>
+<FONT color="green">102</FONT>        injector.injectMembers(this);<a name="line.102"></a>
+<FONT color="green">103</FONT>        injector.injectMembers(application);<a name="line.103"></a>
+<FONT color="green">104</FONT>      }<a name="line.104"></a>
+<FONT color="green">105</FONT>    <a name="line.105"></a>
+<FONT color="green">106</FONT>      public static void main(String[] args) throws IllegalAccessException, InstantiationException {<a name="line.106"></a>
+<FONT color="green">107</FONT>        Map&lt;String, String&gt; argumentMap = Maps.newHashMap(ArgScanner.mapArguments(args));<a name="line.107"></a>
+<FONT color="green">108</FONT>    <a name="line.108"></a>
+<FONT color="green">109</FONT>        ImmutableList.Builder&lt;String&gt; scanPackages = ImmutableList.&lt;String&gt;builder()<a name="line.109"></a>
+<FONT color="green">110</FONT>            .add(AppLauncher.class.getPackage().getName());<a name="line.110"></a>
+<FONT color="green">111</FONT>    <a name="line.111"></a>
+<FONT color="green">112</FONT>        String argSpecifiedPackages = argumentMap.remove(SCAN_PACKAGES_ARG);<a name="line.112"></a>
+<FONT color="green">113</FONT>        if (argSpecifiedPackages != null) {<a name="line.113"></a>
+<FONT color="green">114</FONT>          @SuppressWarnings("unchecked")<a name="line.114"></a>
+<FONT color="green">115</FONT>          List&lt;String&gt; argScanPackages = (List&lt;String&gt;) SCAN_PACKAGES_PARSER.parse(<a name="line.115"></a>
+<FONT color="green">116</FONT>                  new TypeLiteral&lt;List&lt;String&gt;&gt;() {}.getType(), argSpecifiedPackages);<a name="line.116"></a>
+<FONT color="green">117</FONT>          scanPackages.addAll(argScanPackages);<a name="line.117"></a>
+<FONT color="green">118</FONT>        }<a name="line.118"></a>
+<FONT color="green">119</FONT>    <a name="line.119"></a>
+<FONT color="green">120</FONT>        LOG.info("Scanning arguments in packages: " + scanPackages);<a name="line.120"></a>
 <FONT color="green">121</FONT>    <a name="line.121"></a>
-<FONT color="green">122</FONT>        String argSpecifiedPackages = argumentMap.remove(SCAN_PACKAGES_ARG);<a name="line.122"></a>
-<FONT color="green">123</FONT>        if (argSpecifiedPackages != null) {<a name="line.123"></a>
-<FONT color="green">124</FONT>          @SuppressWarnings("unchecked")<a name="line.124"></a>
-<FONT color="green">125</FONT>          List&lt;String&gt; argScanPackages = (List&lt;String&gt;) SCAN_PACKAGES_PARSER.parse(<a name="line.125"></a>
-<FONT color="green">126</FONT>                  new TypeLiteral&lt;List&lt;String&gt;&gt;() {}.getType(), argSpecifiedPackages);<a name="line.126"></a>
-<FONT color="green">127</FONT>          scanPackages.addAll(argScanPackages);<a name="line.127"></a>
-<FONT color="green">128</FONT>        }<a name="line.128"></a>
-<FONT color="green">129</FONT>    <a name="line.129"></a>
-<FONT color="green">130</FONT>        LOG.info("Scanning arguments in packages: " + scanPackages);<a name="line.130"></a>
-<FONT color="green">131</FONT>    <a name="line.131"></a>
-<FONT color="green">132</FONT>        try {<a name="line.132"></a>
-<FONT color="green">133</FONT>          ArgScanner.parse(scanPackages.build(), argumentMap);<a name="line.133"></a>
-<FONT color="green">134</FONT>        } catch (IllegalArgumentException e) {<a name="line.134"></a>
-<FONT color="green">135</FONT>          LOG.log(Level.SEVERE, "Failed to apply arguments:\n" + e.getMessage());<a name="line.135"></a>
-<FONT color="green">136</FONT>          System.exit(1);<a name="line.136"></a>
-<FONT color="green">137</FONT>        }<a name="line.137"></a>
-<FONT color="green">138</FONT>    <a name="line.138"></a>
-<FONT color="green">139</FONT>        new AppLauncher().run(APP_CLASS.get().newInstance());<a name="line.139"></a>
-<FONT color="green">140</FONT>      }<a name="line.140"></a>
-<FONT color="green">141</FONT>    }<a name="line.141"></a>
+<FONT color="green">122</FONT>        try {<a name="line.122"></a>
+<FONT color="green">123</FONT>          ArgScanner.parse(scanPackages.build(), argumentMap);<a name="line.123"></a>
+<FONT color="green">124</FONT>        } catch (IllegalArgumentException e) {<a name="line.124"></a>
+<FONT color="green">125</FONT>          LOG.log(Level.SEVERE, "Failed to apply arguments:\n" + e.getMessage());<a name="line.125"></a>
+<FONT color="green">126</FONT>          System.exit(1);<a name="line.126"></a>
+<FONT color="green">127</FONT>        }<a name="line.127"></a>
+<FONT color="green">128</FONT>    <a name="line.128"></a>
+<FONT color="green">129</FONT>        new AppLauncher().run(APP_CLASS.get().newInstance());<a name="line.129"></a>
+<FONT color="green">130</FONT>      }<a name="line.130"></a>
+<FONT color="green">131</FONT>    }<a name="line.131"></a>
 
 
 

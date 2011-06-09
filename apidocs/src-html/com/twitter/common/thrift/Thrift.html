@@ -19,355 +19,381 @@
 <FONT color="green">016</FONT>    <a name="line.16"></a>
 <FONT color="green">017</FONT>    package com.twitter.common.thrift;<a name="line.17"></a>
 <FONT color="green">018</FONT>    <a name="line.18"></a>
-<FONT color="green">019</FONT>    import com.google.common.base.Function;<a name="line.19"></a>
-<FONT color="green">020</FONT>    import com.google.common.base.Preconditions;<a name="line.20"></a>
-<FONT color="green">021</FONT>    import com.google.common.collect.ImmutableSet;<a name="line.21"></a>
-<FONT color="green">022</FONT>    import com.google.common.collect.Lists;<a name="line.22"></a>
-<FONT color="green">023</FONT>    import com.google.common.util.concurrent.ThreadFactoryBuilder;<a name="line.23"></a>
-<FONT color="green">024</FONT>    import com.twitter.common.base.MorePreconditions;<a name="line.24"></a>
-<FONT color="green">025</FONT>    import com.twitter.common.net.loadbalancing.RequestTracker;<a name="line.25"></a>
-<FONT color="green">026</FONT>    import com.twitter.common.net.pool.Connection;<a name="line.26"></a>
-<FONT color="green">027</FONT>    import com.twitter.common.net.pool.ObjectPool;<a name="line.27"></a>
-<FONT color="green">028</FONT>    import com.twitter.common.quantity.Amount;<a name="line.28"></a>
-<FONT color="green">029</FONT>    import com.twitter.common.quantity.Time;<a name="line.29"></a>
-<FONT color="green">030</FONT>    import com.twitter.common.stats.StatsProvider;<a name="line.30"></a>
-<FONT color="green">031</FONT>    import com.twitter.common.thrift.callers.Caller;<a name="line.31"></a>
-<FONT color="green">032</FONT>    import com.twitter.common.thrift.callers.DeadlineCaller;<a name="line.32"></a>
-<FONT color="green">033</FONT>    import com.twitter.common.thrift.callers.DebugCaller;<a name="line.33"></a>
-<FONT color="green">034</FONT>    import com.twitter.common.thrift.callers.RetryingCaller;<a name="line.34"></a>
-<FONT color="green">035</FONT>    import com.twitter.common.thrift.callers.StatTrackingCaller;<a name="line.35"></a>
-<FONT color="green">036</FONT>    import com.twitter.common.thrift.callers.ThriftCaller;<a name="line.36"></a>
-<FONT color="green">037</FONT>    import org.apache.thrift.async.AsyncMethodCallback;<a name="line.37"></a>
-<FONT color="green">038</FONT>    import org.apache.thrift.transport.TTransport;<a name="line.38"></a>
-<FONT color="green">039</FONT>    import org.apache.thrift.transport.TTransportException;<a name="line.39"></a>
-<FONT color="green">040</FONT>    <a name="line.40"></a>
-<FONT color="green">041</FONT>    import java.io.IOException;<a name="line.41"></a>
-<FONT color="green">042</FONT>    import java.lang.reflect.InvocationHandler;<a name="line.42"></a>
-<FONT color="green">043</FONT>    import java.lang.reflect.Method;<a name="line.43"></a>
-<FONT color="green">044</FONT>    import java.lang.reflect.Proxy;<a name="line.44"></a>
-<FONT color="green">045</FONT>    import java.net.InetSocketAddress;<a name="line.45"></a>
-<FONT color="green">046</FONT>    import java.util.List;<a name="line.46"></a>
-<FONT color="green">047</FONT>    import java.util.concurrent.ExecutorService;<a name="line.47"></a>
-<FONT color="green">048</FONT>    import java.util.concurrent.Executors;<a name="line.48"></a>
-<FONT color="green">049</FONT>    import java.util.concurrent.RejectedExecutionException;<a name="line.49"></a>
-<FONT color="green">050</FONT>    <a name="line.50"></a>
-<FONT color="green">051</FONT>    /**<a name="line.51"></a>
-<FONT color="green">052</FONT>     * A generic thrift client that handles reconnection in the case of protocol errors, automatic<a name="line.52"></a>
-<FONT color="green">053</FONT>     * retries, call deadlines and call statistics tracking.  This class aims for behavior compatible<a name="line.53"></a>
-<FONT color="green">054</FONT>     * with the &lt;a href="http://github.com/fauna/thrift_client"&gt;generic ruby thrift client&lt;/a&gt;.<a name="line.54"></a>
-<FONT color="green">055</FONT>     *<a name="line.55"></a>
-<FONT color="green">056</FONT>     * &lt;p&gt;In order to enforce call deadlines for synchronous clients, this class uses an<a name="line.56"></a>
-<FONT color="green">057</FONT>     * {@link java.util.concurrent.ExecutorService}.  If a custom executor is supplied, it should throw<a name="line.57"></a>
-<FONT color="green">058</FONT>     * a subclass of {@link RejectedExecutionException} to signal thread resource exhaustion, in which<a name="line.58"></a>
-<FONT color="green">059</FONT>     * case the client will fail fast and propagate the event as a {@link TResourceExhaustedException}.<a name="line.59"></a>
-<FONT color="green">060</FONT>     *<a name="line.60"></a>
-<FONT color="green">061</FONT>     * TODO(William Farner): Before open sourcing, look into changing the current model of wrapped proxies<a name="line.61"></a>
-<FONT color="green">062</FONT>     *    to use a single proxy and wrapped functions for decorators.<a name="line.62"></a>
-<FONT color="green">063</FONT>     *<a name="line.63"></a>
-<FONT color="green">064</FONT>     * @author John Sirois<a name="line.64"></a>
-<FONT color="green">065</FONT>     */<a name="line.65"></a>
-<FONT color="green">066</FONT>    public class Thrift&lt;T&gt; {<a name="line.66"></a>
-<FONT color="green">067</FONT>    <a name="line.67"></a>
-<FONT color="green">068</FONT>      /**<a name="line.68"></a>
-<FONT color="green">069</FONT>       * The default thrift call configuration used if none is specified.<a name="line.69"></a>
-<FONT color="green">070</FONT>       *<a name="line.70"></a>
-<FONT color="green">071</FONT>       * Specifies the following settings:<a name="line.71"></a>
-<FONT color="green">072</FONT>       * &lt;ul&gt;<a name="line.72"></a>
-<FONT color="green">073</FONT>       * &lt;li&gt;global call timeout: 1 second<a name="line.73"></a>
-<FONT color="green">074</FONT>       * &lt;li&gt;call retries: 0<a name="line.74"></a>
-<FONT color="green">075</FONT>       * &lt;li&gt;retryable exceptions: TTransportException (network exceptions including socket timeouts)<a name="line.75"></a>
-<FONT color="green">076</FONT>       * &lt;li&gt;wait for connections: true<a name="line.76"></a>
-<FONT color="green">077</FONT>       * &lt;li&gt;debug: false<a name="line.77"></a>
-<FONT color="green">078</FONT>       * &lt;/ul&gt;<a name="line.78"></a>
-<FONT color="green">079</FONT>       */<a name="line.79"></a>
-<FONT color="green">080</FONT>      public static final Config DEFAULT_CONFIG = Config.builder()<a name="line.80"></a>
-<FONT color="green">081</FONT>          .withRequestTimeout(Amount.of(1L, Time.SECONDS))<a name="line.81"></a>
-<FONT color="green">082</FONT>          .noRetries()<a name="line.82"></a>
-<FONT color="green">083</FONT>          .retryOn(TTransportException.class) // if maxRetries is set non-zero<a name="line.83"></a>
-<FONT color="green">084</FONT>          .create();<a name="line.84"></a>
-<FONT color="green">085</FONT>    <a name="line.85"></a>
-<FONT color="green">086</FONT>      /**<a name="line.86"></a>
-<FONT color="green">087</FONT>       * The default thrift call configuration used for an async client if none is specified.<a name="line.87"></a>
-<FONT color="green">088</FONT>       *<a name="line.88"></a>
-<FONT color="green">089</FONT>       * Specifies the following settings:<a name="line.89"></a>
-<FONT color="green">090</FONT>       * &lt;ul&gt;<a name="line.90"></a>
-<FONT color="green">091</FONT>       * &lt;li&gt;global call timeout: none<a name="line.91"></a>
-<FONT color="green">092</FONT>       * &lt;li&gt;call retries: 0<a name="line.92"></a>
-<FONT color="green">093</FONT>       * &lt;li&gt;retryable exceptions: IOException, TTransportException<a name="line.93"></a>
-<FONT color="green">094</FONT>       *    (network exceptions but not timeouts)<a name="line.94"></a>
-<FONT color="green">095</FONT>       * &lt;li&gt;wait for connections: true<a name="line.95"></a>
-<FONT color="green">096</FONT>       * &lt;li&gt;debug: false<a name="line.96"></a>
-<FONT color="green">097</FONT>       * &lt;/ul&gt;<a name="line.97"></a>
-<FONT color="green">098</FONT>       */<a name="line.98"></a>
-<FONT color="green">099</FONT>      @SuppressWarnings("unchecked")<a name="line.99"></a>
-<FONT color="green">100</FONT>      public static final Config DEFAULT_ASYNC_CONFIG = Config.builder(DEFAULT_CONFIG)<a name="line.100"></a>
-<FONT color="green">101</FONT>          .withRequestTimeout(Amount.of(0L, Time.SECONDS))<a name="line.101"></a>
-<FONT color="green">102</FONT>          .noRetries()<a name="line.102"></a>
-<FONT color="green">103</FONT>          .retryOn(ImmutableSet.&lt;Class&lt;? extends Exception&gt;&gt;builder()<a name="line.103"></a>
-<FONT color="green">104</FONT>              .add(IOException.class)<a name="line.104"></a>
-<FONT color="green">105</FONT>              .add(TTransportException.class).build()) // if maxRetries is set non-zero<a name="line.105"></a>
-<FONT color="green">106</FONT>          .create();<a name="line.106"></a>
-<FONT color="green">107</FONT>    <a name="line.107"></a>
-<FONT color="green">108</FONT>      private final Config defaultConfig;<a name="line.108"></a>
-<FONT color="green">109</FONT>      private final ExecutorService executorService;<a name="line.109"></a>
-<FONT color="green">110</FONT>      private final ObjectPool&lt;Connection&lt;TTransport, InetSocketAddress&gt;&gt; connectionPool;<a name="line.110"></a>
-<FONT color="green">111</FONT>      private final RequestTracker&lt;InetSocketAddress&gt; requestTracker;<a name="line.111"></a>
-<FONT color="green">112</FONT>      private final String serviceName;<a name="line.112"></a>
-<FONT color="green">113</FONT>      private final Class&lt;T&gt; serviceInterface;<a name="line.113"></a>
-<FONT color="green">114</FONT>      private final Function&lt;TTransport, T&gt; clientFactory;<a name="line.114"></a>
-<FONT color="green">115</FONT>      private final boolean async;<a name="line.115"></a>
-<FONT color="green">116</FONT>    <a name="line.116"></a>
-<FONT color="green">117</FONT>      /**<a name="line.117"></a>
-<FONT color="green">118</FONT>       * Constructs an instance with the {@link #DEFAULT_CONFIG}, cached thread pool<a name="line.118"></a>
-<FONT color="green">119</FONT>       * {@link ExecutorService}, and synchronous calls.<a name="line.119"></a>
-<FONT color="green">120</FONT>       *<a name="line.120"></a>
-<FONT color="green">121</FONT>       * @see #Thrift(Config, ExecutorService, ObjectPool, RequestTracker , String, Class, Function, boolean)<a name="line.121"></a>
-<FONT color="green">122</FONT>       */<a name="line.122"></a>
-<FONT color="green">123</FONT>      public Thrift(ObjectPool&lt;Connection&lt;TTransport, InetSocketAddress&gt;&gt; connectionPool,<a name="line.123"></a>
-<FONT color="green">124</FONT>          RequestTracker&lt;InetSocketAddress&gt; requestTracker,<a name="line.124"></a>
-<FONT color="green">125</FONT>          String serviceName, Class&lt;T&gt; serviceInterface, Function&lt;TTransport, T&gt; clientFactory) {<a name="line.125"></a>
-<FONT color="green">126</FONT>    <a name="line.126"></a>
-<FONT color="green">127</FONT>        this(DEFAULT_CONFIG, connectionPool, requestTracker, serviceName, serviceInterface,<a name="line.127"></a>
-<FONT color="green">128</FONT>            clientFactory, false);<a name="line.128"></a>
-<FONT color="green">129</FONT>      }<a name="line.129"></a>
+<FONT color="green">019</FONT>    import java.io.IOException;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import java.lang.reflect.InvocationHandler;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import java.lang.reflect.Method;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import java.lang.reflect.Proxy;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import java.net.InetSocketAddress;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import java.util.List;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import java.util.concurrent.ExecutorService;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import java.util.concurrent.Executors;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import java.util.concurrent.RejectedExecutionException;<a name="line.27"></a>
+<FONT color="green">028</FONT>    <a name="line.28"></a>
+<FONT color="green">029</FONT>    import com.google.common.base.Function;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import com.google.common.base.Preconditions;<a name="line.30"></a>
+<FONT color="green">031</FONT>    import com.google.common.collect.ImmutableSet;<a name="line.31"></a>
+<FONT color="green">032</FONT>    import com.google.common.collect.Lists;<a name="line.32"></a>
+<FONT color="green">033</FONT>    import com.google.common.util.concurrent.ThreadFactoryBuilder;<a name="line.33"></a>
+<FONT color="green">034</FONT>    <a name="line.34"></a>
+<FONT color="green">035</FONT>    import org.apache.thrift.async.AsyncMethodCallback;<a name="line.35"></a>
+<FONT color="green">036</FONT>    import org.apache.thrift.transport.TTransport;<a name="line.36"></a>
+<FONT color="green">037</FONT>    import org.apache.thrift.transport.TTransportException;<a name="line.37"></a>
+<FONT color="green">038</FONT>    <a name="line.38"></a>
+<FONT color="green">039</FONT>    import com.twitter.common.base.MorePreconditions;<a name="line.39"></a>
+<FONT color="green">040</FONT>    import com.twitter.common.net.loadbalancing.RequestTracker;<a name="line.40"></a>
+<FONT color="green">041</FONT>    import com.twitter.common.net.pool.Connection;<a name="line.41"></a>
+<FONT color="green">042</FONT>    import com.twitter.common.net.pool.ObjectPool;<a name="line.42"></a>
+<FONT color="green">043</FONT>    import com.twitter.common.quantity.Amount;<a name="line.43"></a>
+<FONT color="green">044</FONT>    import com.twitter.common.quantity.Time;<a name="line.44"></a>
+<FONT color="green">045</FONT>    import com.twitter.common.stats.StatsProvider;<a name="line.45"></a>
+<FONT color="green">046</FONT>    import com.twitter.common.thrift.callers.Caller;<a name="line.46"></a>
+<FONT color="green">047</FONT>    import com.twitter.common.thrift.callers.DeadlineCaller;<a name="line.47"></a>
+<FONT color="green">048</FONT>    import com.twitter.common.thrift.callers.DebugCaller;<a name="line.48"></a>
+<FONT color="green">049</FONT>    import com.twitter.common.thrift.callers.RetryingCaller;<a name="line.49"></a>
+<FONT color="green">050</FONT>    import com.twitter.common.thrift.callers.StatTrackingCaller;<a name="line.50"></a>
+<FONT color="green">051</FONT>    import com.twitter.common.thrift.callers.ThriftCaller;<a name="line.51"></a>
+<FONT color="green">052</FONT>    <a name="line.52"></a>
+<FONT color="green">053</FONT>    /**<a name="line.53"></a>
+<FONT color="green">054</FONT>     * A generic thrift client that handles reconnection in the case of protocol errors, automatic<a name="line.54"></a>
+<FONT color="green">055</FONT>     * retries, call deadlines and call statistics tracking.  This class aims for behavior compatible<a name="line.55"></a>
+<FONT color="green">056</FONT>     * with the &lt;a href="http://github.com/fauna/thrift_client"&gt;generic ruby thrift client&lt;/a&gt;.<a name="line.56"></a>
+<FONT color="green">057</FONT>     *<a name="line.57"></a>
+<FONT color="green">058</FONT>     * &lt;p&gt;In order to enforce call deadlines for synchronous clients, this class uses an<a name="line.58"></a>
+<FONT color="green">059</FONT>     * {@link java.util.concurrent.ExecutorService}.  If a custom executor is supplied, it should throw<a name="line.59"></a>
+<FONT color="green">060</FONT>     * a subclass of {@link RejectedExecutionException} to signal thread resource exhaustion, in which<a name="line.60"></a>
+<FONT color="green">061</FONT>     * case the client will fail fast and propagate the event as a {@link TResourceExhaustedException}.<a name="line.61"></a>
+<FONT color="green">062</FONT>     *<a name="line.62"></a>
+<FONT color="green">063</FONT>     * TODO(William Farner): Before open sourcing, look into changing the current model of wrapped proxies<a name="line.63"></a>
+<FONT color="green">064</FONT>     *    to use a single proxy and wrapped functions for decorators.<a name="line.64"></a>
+<FONT color="green">065</FONT>     *<a name="line.65"></a>
+<FONT color="green">066</FONT>     * @author John Sirois<a name="line.66"></a>
+<FONT color="green">067</FONT>     */<a name="line.67"></a>
+<FONT color="green">068</FONT>    public class Thrift&lt;T&gt; {<a name="line.68"></a>
+<FONT color="green">069</FONT>    <a name="line.69"></a>
+<FONT color="green">070</FONT>      /**<a name="line.70"></a>
+<FONT color="green">071</FONT>       * The default thrift call configuration used if none is specified.<a name="line.71"></a>
+<FONT color="green">072</FONT>       *<a name="line.72"></a>
+<FONT color="green">073</FONT>       * Specifies the following settings:<a name="line.73"></a>
+<FONT color="green">074</FONT>       * &lt;ul&gt;<a name="line.74"></a>
+<FONT color="green">075</FONT>       * &lt;li&gt;global call timeout: 1 second<a name="line.75"></a>
+<FONT color="green">076</FONT>       * &lt;li&gt;call retries: 0<a name="line.76"></a>
+<FONT color="green">077</FONT>       * &lt;li&gt;retryable exceptions: TTransportException (network exceptions including socket timeouts)<a name="line.77"></a>
+<FONT color="green">078</FONT>       * &lt;li&gt;wait for connections: true<a name="line.78"></a>
+<FONT color="green">079</FONT>       * &lt;li&gt;debug: false<a name="line.79"></a>
+<FONT color="green">080</FONT>       * &lt;/ul&gt;<a name="line.80"></a>
+<FONT color="green">081</FONT>       */<a name="line.81"></a>
+<FONT color="green">082</FONT>      public static final Config DEFAULT_CONFIG = Config.builder()<a name="line.82"></a>
+<FONT color="green">083</FONT>          .withRequestTimeout(Amount.of(1L, Time.SECONDS))<a name="line.83"></a>
+<FONT color="green">084</FONT>          .noRetries()<a name="line.84"></a>
+<FONT color="green">085</FONT>          .retryOn(TTransportException.class) // if maxRetries is set non-zero<a name="line.85"></a>
+<FONT color="green">086</FONT>          .create();<a name="line.86"></a>
+<FONT color="green">087</FONT>    <a name="line.87"></a>
+<FONT color="green">088</FONT>      /**<a name="line.88"></a>
+<FONT color="green">089</FONT>       * The default thrift call configuration used for an async client if none is specified.<a name="line.89"></a>
+<FONT color="green">090</FONT>       *<a name="line.90"></a>
+<FONT color="green">091</FONT>       * Specifies the following settings:<a name="line.91"></a>
+<FONT color="green">092</FONT>       * &lt;ul&gt;<a name="line.92"></a>
+<FONT color="green">093</FONT>       * &lt;li&gt;global call timeout: none<a name="line.93"></a>
+<FONT color="green">094</FONT>       * &lt;li&gt;call retries: 0<a name="line.94"></a>
+<FONT color="green">095</FONT>       * &lt;li&gt;retryable exceptions: IOException, TTransportException<a name="line.95"></a>
+<FONT color="green">096</FONT>       *    (network exceptions but not timeouts)<a name="line.96"></a>
+<FONT color="green">097</FONT>       * &lt;li&gt;wait for connections: true<a name="line.97"></a>
+<FONT color="green">098</FONT>       * &lt;li&gt;debug: false<a name="line.98"></a>
+<FONT color="green">099</FONT>       * &lt;/ul&gt;<a name="line.99"></a>
+<FONT color="green">100</FONT>       */<a name="line.100"></a>
+<FONT color="green">101</FONT>      @SuppressWarnings("unchecked")<a name="line.101"></a>
+<FONT color="green">102</FONT>      public static final Config DEFAULT_ASYNC_CONFIG = Config.builder(DEFAULT_CONFIG)<a name="line.102"></a>
+<FONT color="green">103</FONT>          .withRequestTimeout(Amount.of(0L, Time.SECONDS))<a name="line.103"></a>
+<FONT color="green">104</FONT>          .noRetries()<a name="line.104"></a>
+<FONT color="green">105</FONT>          .retryOn(ImmutableSet.&lt;Class&lt;? extends Exception&gt;&gt;builder()<a name="line.105"></a>
+<FONT color="green">106</FONT>              .add(IOException.class)<a name="line.106"></a>
+<FONT color="green">107</FONT>              .add(TTransportException.class).build()) // if maxRetries is set non-zero<a name="line.107"></a>
+<FONT color="green">108</FONT>          .create();<a name="line.108"></a>
+<FONT color="green">109</FONT>    <a name="line.109"></a>
+<FONT color="green">110</FONT>      private final Config defaultConfig;<a name="line.110"></a>
+<FONT color="green">111</FONT>      private final ExecutorService executorService;<a name="line.111"></a>
+<FONT color="green">112</FONT>      private final ObjectPool&lt;Connection&lt;TTransport, InetSocketAddress&gt;&gt; connectionPool;<a name="line.112"></a>
+<FONT color="green">113</FONT>      private final RequestTracker&lt;InetSocketAddress&gt; requestTracker;<a name="line.113"></a>
+<FONT color="green">114</FONT>      private final String serviceName;<a name="line.114"></a>
+<FONT color="green">115</FONT>      private final Class&lt;T&gt; serviceInterface;<a name="line.115"></a>
+<FONT color="green">116</FONT>      private final Function&lt;TTransport, T&gt; clientFactory;<a name="line.116"></a>
+<FONT color="green">117</FONT>      private final boolean async;<a name="line.117"></a>
+<FONT color="green">118</FONT>      private final boolean withSsl;<a name="line.118"></a>
+<FONT color="green">119</FONT>    <a name="line.119"></a>
+<FONT color="green">120</FONT>      /**<a name="line.120"></a>
+<FONT color="green">121</FONT>       * Constructs an instance with the {@link #DEFAULT_CONFIG}, cached thread pool<a name="line.121"></a>
+<FONT color="green">122</FONT>       * {@link ExecutorService}, and synchronous calls.<a name="line.122"></a>
+<FONT color="green">123</FONT>       *<a name="line.123"></a>
+<FONT color="green">124</FONT>       * @see #Thrift(Config, ExecutorService, ObjectPool, RequestTracker , String, Class, Function,<a name="line.124"></a>
+<FONT color="green">125</FONT>       *     boolean, boolean)<a name="line.125"></a>
+<FONT color="green">126</FONT>       */<a name="line.126"></a>
+<FONT color="green">127</FONT>      public Thrift(ObjectPool&lt;Connection&lt;TTransport, InetSocketAddress&gt;&gt; connectionPool,<a name="line.127"></a>
+<FONT color="green">128</FONT>          RequestTracker&lt;InetSocketAddress&gt; requestTracker,<a name="line.128"></a>
+<FONT color="green">129</FONT>          String serviceName, Class&lt;T&gt; serviceInterface, Function&lt;TTransport, T&gt; clientFactory) {<a name="line.129"></a>
 <FONT color="green">130</FONT>    <a name="line.130"></a>
-<FONT color="green">131</FONT>      /**<a name="line.131"></a>
-<FONT color="green">132</FONT>       * Constructs an instance with the {@link #DEFAULT_CONFIG} and cached thread pool<a name="line.132"></a>
-<FONT color="green">133</FONT>       * {@link ExecutorService}.<a name="line.133"></a>
-<FONT color="green">134</FONT>       *<a name="line.134"></a>
-<FONT color="green">135</FONT>       * @see #Thrift(Config, ExecutorService, ObjectPool, RequestTracker , String, Class, Function, boolean)<a name="line.135"></a>
-<FONT color="green">136</FONT>       */<a name="line.136"></a>
-<FONT color="green">137</FONT>      public Thrift(ObjectPool&lt;Connection&lt;TTransport, InetSocketAddress&gt;&gt; connectionPool,<a name="line.137"></a>
-<FONT color="green">138</FONT>          RequestTracker&lt;InetSocketAddress&gt; requestTracker,<a name="line.138"></a>
-<FONT color="green">139</FONT>          String serviceName, Class&lt;T&gt; serviceInterface, Function&lt;TTransport, T&gt; clientFactory,<a name="line.139"></a>
-<FONT color="green">140</FONT>          boolean async) {<a name="line.140"></a>
-<FONT color="green">141</FONT>    <a name="line.141"></a>
-<FONT color="green">142</FONT>        this(getConfig(async), connectionPool, requestTracker, serviceName,<a name="line.142"></a>
-<FONT color="green">143</FONT>            serviceInterface, clientFactory, async);<a name="line.143"></a>
-<FONT color="green">144</FONT>      }<a name="line.144"></a>
-<FONT color="green">145</FONT>    <a name="line.145"></a>
-<FONT color="green">146</FONT>      /**<a name="line.146"></a>
-<FONT color="green">147</FONT>       * Constructs an instance with a cached thread pool {@link ExecutorService}.<a name="line.147"></a>
-<FONT color="green">148</FONT>       *<a name="line.148"></a>
-<FONT color="green">149</FONT>       * @see #Thrift(Config, ExecutorService, ObjectPool, RequestTracker , String, Class, Function, boolean)<a name="line.149"></a>
-<FONT color="green">150</FONT>       */<a name="line.150"></a>
-<FONT color="green">151</FONT>      public Thrift(Config config, ObjectPool&lt;Connection&lt;TTransport, InetSocketAddress&gt;&gt; connectionPool,<a name="line.151"></a>
-<FONT color="green">152</FONT>          RequestTracker&lt;InetSocketAddress&gt; requestTracker,<a name="line.152"></a>
-<FONT color="green">153</FONT>          String serviceName, Class&lt;T&gt; serviceInterface, Function&lt;TTransport, T&gt; clientFactory,<a name="line.153"></a>
-<FONT color="green">154</FONT>          boolean async) {<a name="line.154"></a>
-<FONT color="green">155</FONT>    <a name="line.155"></a>
-<FONT color="green">156</FONT>        this(config,<a name="line.156"></a>
-<FONT color="green">157</FONT>            Executors.newCachedThreadPool(<a name="line.157"></a>
-<FONT color="green">158</FONT>                new ThreadFactoryBuilder()<a name="line.158"></a>
-<FONT color="green">159</FONT>                    .setDaemon(true)<a name="line.159"></a>
-<FONT color="green">160</FONT>                    .setNameFormat("Thrift["+ serviceName +"][%d]")<a name="line.160"></a>
-<FONT color="green">161</FONT>                    .build()),<a name="line.161"></a>
-<FONT color="green">162</FONT>            connectionPool, requestTracker, serviceName, serviceInterface, clientFactory, async);<a name="line.162"></a>
-<FONT color="green">163</FONT>      }<a name="line.163"></a>
-<FONT color="green">164</FONT>    <a name="line.164"></a>
-<FONT color="green">165</FONT>      /**<a name="line.165"></a>
-<FONT color="green">166</FONT>       * Constructs an instance with the {@link #DEFAULT_CONFIG}.<a name="line.166"></a>
-<FONT color="green">167</FONT>       *<a name="line.167"></a>
-<FONT color="green">168</FONT>       * @see #Thrift(Config, ExecutorService, ObjectPool, RequestTracker , String, Class, Function, boolean)<a name="line.168"></a>
-<FONT color="green">169</FONT>       */<a name="line.169"></a>
-<FONT color="green">170</FONT>      public Thrift(ExecutorService executorService,<a name="line.170"></a>
-<FONT color="green">171</FONT>          ObjectPool&lt;Connection&lt;TTransport, InetSocketAddress&gt;&gt; connectionPool,<a name="line.171"></a>
-<FONT color="green">172</FONT>          RequestTracker&lt;InetSocketAddress&gt; requestTracker,<a name="line.172"></a>
-<FONT color="green">173</FONT>          String serviceName, Class&lt;T&gt; serviceInterface, Function&lt;TTransport, T&gt; clientFactory,<a name="line.173"></a>
-<FONT color="green">174</FONT>          boolean async) {<a name="line.174"></a>
-<FONT color="green">175</FONT>    <a name="line.175"></a>
-<FONT color="green">176</FONT>        this(getConfig(async), executorService, connectionPool, requestTracker, serviceName,<a name="line.176"></a>
-<FONT color="green">177</FONT>            serviceInterface, clientFactory, async);<a name="line.177"></a>
-<FONT color="green">178</FONT>      }<a name="line.178"></a>
-<FONT color="green">179</FONT>    <a name="line.179"></a>
-<FONT color="green">180</FONT>      private static Config getConfig(boolean async) {<a name="line.180"></a>
-<FONT color="green">181</FONT>        return async ? DEFAULT_ASYNC_CONFIG : DEFAULT_CONFIG;<a name="line.181"></a>
-<FONT color="green">182</FONT>      }<a name="line.182"></a>
-<FONT color="green">183</FONT>    <a name="line.183"></a>
-<FONT color="green">184</FONT>      /**<a name="line.184"></a>
-<FONT color="green">185</FONT>       * Constructs a new Thrift factory for creating clients that make calls to a particular thrift<a name="line.185"></a>
-<FONT color="green">186</FONT>       * service.<a name="line.186"></a>
-<FONT color="green">187</FONT>       *<a name="line.187"></a>
-<FONT color="green">188</FONT>       * &lt;p&gt;Note that the combination of {@code config} and {@code connectionPool} need to be chosen<a name="line.188"></a>
-<FONT color="green">189</FONT>       * with care depending on usage of the generated thrift clients.  In particular, if configured<a name="line.189"></a>
-<FONT color="green">190</FONT>       * to not wait for connections, the {@code connectionPool} ought to be warmed up with a set of<a name="line.190"></a>
-<FONT color="green">191</FONT>       * connections or else be actively building connections in the background.<a name="line.191"></a>
-<FONT color="green">192</FONT>       *<a name="line.192"></a>
-<FONT color="green">193</FONT>       * &lt;p&gt;TODO(John Sirois): consider adding an method to ObjectPool that would allow Thrift to handle<a name="line.193"></a>
-<FONT color="green">194</FONT>       * this case by pro-actively warming the pool.<a name="line.194"></a>
-<FONT color="green">195</FONT>       *<a name="line.195"></a>
-<FONT color="green">196</FONT>       * @param config the default configuration to use for all thrift calls; also the configuration all<a name="line.196"></a>
-<FONT color="green">197</FONT>       *     {@link ClientBuilder}s start with<a name="line.197"></a>
-<FONT color="green">198</FONT>       * @param executorService for invoking calls with a specified deadline<a name="line.198"></a>
-<FONT color="green">199</FONT>       * @param connectionPool the source for thrift connections<a name="line.199"></a>
-<FONT color="green">200</FONT>       * @param serviceName a /vars friendly name identifying the service clients will connect to<a name="line.200"></a>
-<FONT color="green">201</FONT>       * @param serviceInterface the thrift compiler generate interface class for the remote service<a name="line.201"></a>
-<FONT color="green">202</FONT>       *     (Iface)<a name="line.202"></a>
-<FONT color="green">203</FONT>       * @param clientFactory a function that can generate a concrete thrift client for the given<a name="line.203"></a>
-<FONT color="green">204</FONT>       *     {@code serviceInterface}<a name="line.204"></a>
-<FONT color="green">205</FONT>       */<a name="line.205"></a>
-<FONT color="green">206</FONT>      public Thrift(Config config, ExecutorService executorService,<a name="line.206"></a>
-<FONT color="green">207</FONT>          ObjectPool&lt;Connection&lt;TTransport, InetSocketAddress&gt;&gt; connectionPool,<a name="line.207"></a>
-<FONT color="green">208</FONT>          RequestTracker&lt;InetSocketAddress&gt; requestTracker, String serviceName,<a name="line.208"></a>
-<FONT color="green">209</FONT>          Class&lt;T&gt; serviceInterface, Function&lt;TTransport, T&gt; clientFactory, boolean async) {<a name="line.209"></a>
-<FONT color="green">210</FONT>    <a name="line.210"></a>
-<FONT color="green">211</FONT>        defaultConfig = Preconditions.checkNotNull(config);<a name="line.211"></a>
-<FONT color="green">212</FONT>        this.executorService = Preconditions.checkNotNull(executorService);<a name="line.212"></a>
-<FONT color="green">213</FONT>        this.connectionPool = Preconditions.checkNotNull(connectionPool);<a name="line.213"></a>
-<FONT color="green">214</FONT>        this.requestTracker = Preconditions.checkNotNull(requestTracker);<a name="line.214"></a>
-<FONT color="green">215</FONT>        this.serviceName = MorePreconditions.checkNotBlank(serviceName);<a name="line.215"></a>
-<FONT color="green">216</FONT>        this.serviceInterface = checkServiceInterface(serviceInterface);<a name="line.216"></a>
-<FONT color="green">217</FONT>        this.clientFactory = Preconditions.checkNotNull(clientFactory);<a name="line.217"></a>
-<FONT color="green">218</FONT>        this.async = async;<a name="line.218"></a>
-<FONT color="green">219</FONT>      }<a name="line.219"></a>
-<FONT color="green">220</FONT>    <a name="line.220"></a>
-<FONT color="green">221</FONT>      static &lt;I&gt; Class&lt;I&gt; checkServiceInterface(Class&lt;I&gt; serviceInterface) {<a name="line.221"></a>
-<FONT color="green">222</FONT>        Preconditions.checkNotNull(serviceInterface);<a name="line.222"></a>
-<FONT color="green">223</FONT>        Preconditions.checkArgument(serviceInterface.isInterface(),<a name="line.223"></a>
-<FONT color="green">224</FONT>            "%s must be a thrift service interface", serviceInterface);<a name="line.224"></a>
-<FONT color="green">225</FONT>        return serviceInterface;<a name="line.225"></a>
-<FONT color="green">226</FONT>      }<a name="line.226"></a>
-<FONT color="green">227</FONT>    <a name="line.227"></a>
-<FONT color="green">228</FONT>      /**<a name="line.228"></a>
-<FONT color="green">229</FONT>       * Closes any open connections and prepares this thrift client for graceful shutdown.  Any thrift<a name="line.229"></a>
-<FONT color="green">230</FONT>       * client proxies returned from {@link #create()} will become invalid.<a name="line.230"></a>
-<FONT color="green">231</FONT>       */<a name="line.231"></a>
-<FONT color="green">232</FONT>      public void close() {<a name="line.232"></a>
-<FONT color="green">233</FONT>        connectionPool.close();<a name="line.233"></a>
-<FONT color="green">234</FONT>        executorService.shutdown();<a name="line.234"></a>
-<FONT color="green">235</FONT>      }<a name="line.235"></a>
-<FONT color="green">236</FONT>    <a name="line.236"></a>
-<FONT color="green">237</FONT>      /**<a name="line.237"></a>
-<FONT color="green">238</FONT>       * A builder class that allows modifications of call behavior to be made for a given Thrift<a name="line.238"></a>
-<FONT color="green">239</FONT>       * client.  Note that in the case of conflicting configuration calls, the last call wins.  So,<a name="line.239"></a>
-<FONT color="green">240</FONT>       * for example, the following sequence would result in all calls being subject to a 5 second<a name="line.240"></a>
-<FONT color="green">241</FONT>       * global deadline:<a name="line.241"></a>
-<FONT color="green">242</FONT>       * &lt;code&gt;<a name="line.242"></a>
-<FONT color="green">243</FONT>       *   builder.blocking().withDeadline(5, TimeUnit.SECONDS).create()<a name="line.243"></a>
-<FONT color="green">244</FONT>       * &lt;/code&gt;<a name="line.244"></a>
-<FONT color="green">245</FONT>       *<a name="line.245"></a>
-<FONT color="green">246</FONT>       * @see Config<a name="line.246"></a>
-<FONT color="green">247</FONT>       */<a name="line.247"></a>
-<FONT color="green">248</FONT>      public final class ClientBuilder extends Config.AbstractBuilder&lt;ClientBuilder&gt; {<a name="line.248"></a>
-<FONT color="green">249</FONT>        private ClientBuilder(Config template) {<a name="line.249"></a>
-<FONT color="green">250</FONT>          super(template);<a name="line.250"></a>
-<FONT color="green">251</FONT>        }<a name="line.251"></a>
-<FONT color="green">252</FONT>    <a name="line.252"></a>
-<FONT color="green">253</FONT>        @Override<a name="line.253"></a>
-<FONT color="green">254</FONT>        protected ClientBuilder getThis() {<a name="line.254"></a>
-<FONT color="green">255</FONT>          return this;<a name="line.255"></a>
-<FONT color="green">256</FONT>        }<a name="line.256"></a>
-<FONT color="green">257</FONT>    <a name="line.257"></a>
-<FONT color="green">258</FONT>        /**<a name="line.258"></a>
-<FONT color="green">259</FONT>         * Creates a new client using the built up configuration changes.<a name="line.259"></a>
-<FONT color="green">260</FONT>         */<a name="line.260"></a>
-<FONT color="green">261</FONT>        public T create() {<a name="line.261"></a>
-<FONT color="green">262</FONT>          return createClient(getConfig());<a name="line.262"></a>
-<FONT color="green">263</FONT>        }<a name="line.263"></a>
-<FONT color="green">264</FONT>      }<a name="line.264"></a>
-<FONT color="green">265</FONT>    <a name="line.265"></a>
-<FONT color="green">266</FONT>      /**<a name="line.266"></a>
-<FONT color="green">267</FONT>       * Creates a new thrift client builder that inherits this Thrift instance's default configuration.<a name="line.267"></a>
-<FONT color="green">268</FONT>       * This is useful for customizing a client for a particular thrift call that makes sense to treat<a name="line.268"></a>
-<FONT color="green">269</FONT>       * differently from the rest of the calls to a given service.<a name="line.269"></a>
-<FONT color="green">270</FONT>       */<a name="line.270"></a>
-<FONT color="green">271</FONT>      public ClientBuilder builder() {<a name="line.271"></a>
-<FONT color="green">272</FONT>        return builder(defaultConfig);<a name="line.272"></a>
-<FONT color="green">273</FONT>      }<a name="line.273"></a>
-<FONT color="green">274</FONT>    <a name="line.274"></a>
-<FONT color="green">275</FONT>      /**<a name="line.275"></a>
-<FONT color="green">276</FONT>       * Creates a new thrift client builder that inherits the given configuration.<a name="line.276"></a>
-<FONT color="green">277</FONT>       * This is useful for customizing a client for a particular thrift call that makes sense to treat<a name="line.277"></a>
-<FONT color="green">278</FONT>       * differently from the rest of the calls to a given service.<a name="line.278"></a>
-<FONT color="green">279</FONT>       */<a name="line.279"></a>
-<FONT color="green">280</FONT>      public ClientBuilder builder(Config config) {<a name="line.280"></a>
-<FONT color="green">281</FONT>        Preconditions.checkNotNull(config);<a name="line.281"></a>
-<FONT color="green">282</FONT>        return new ClientBuilder(config);<a name="line.282"></a>
-<FONT color="green">283</FONT>      }<a name="line.283"></a>
-<FONT color="green">284</FONT>    <a name="line.284"></a>
-<FONT color="green">285</FONT>      /**<a name="line.285"></a>
-<FONT color="green">286</FONT>       * Creates a new client using the default configuration specified for this Thrift instance.<a name="line.286"></a>
-<FONT color="green">287</FONT>       */<a name="line.287"></a>
-<FONT color="green">288</FONT>      public T create() {<a name="line.288"></a>
-<FONT color="green">289</FONT>        return createClient(defaultConfig);<a name="line.289"></a>
+<FONT color="green">131</FONT>        this(DEFAULT_CONFIG, connectionPool, requestTracker, serviceName, serviceInterface,<a name="line.131"></a>
+<FONT color="green">132</FONT>            clientFactory, false, false);<a name="line.132"></a>
+<FONT color="green">133</FONT>      }<a name="line.133"></a>
+<FONT color="green">134</FONT>    <a name="line.134"></a>
+<FONT color="green">135</FONT>      /**<a name="line.135"></a>
+<FONT color="green">136</FONT>       * Constructs an instance with the {@link #DEFAULT_CONFIG} and cached thread pool<a name="line.136"></a>
+<FONT color="green">137</FONT>       * {@link ExecutorService}.<a name="line.137"></a>
+<FONT color="green">138</FONT>       *<a name="line.138"></a>
+<FONT color="green">139</FONT>       * @see #Thrift(Config, ExecutorService, ObjectPool, RequestTracker , String, Class, Function,<a name="line.139"></a>
+<FONT color="green">140</FONT>       *    boolean, boolean)<a name="line.140"></a>
+<FONT color="green">141</FONT>       */<a name="line.141"></a>
+<FONT color="green">142</FONT>      public Thrift(ObjectPool&lt;Connection&lt;TTransport, InetSocketAddress&gt;&gt; connectionPool,<a name="line.142"></a>
+<FONT color="green">143</FONT>          RequestTracker&lt;InetSocketAddress&gt; requestTracker,<a name="line.143"></a>
+<FONT color="green">144</FONT>          String serviceName, Class&lt;T&gt; serviceInterface, Function&lt;TTransport, T&gt; clientFactory,<a name="line.144"></a>
+<FONT color="green">145</FONT>          boolean async) {<a name="line.145"></a>
+<FONT color="green">146</FONT>    <a name="line.146"></a>
+<FONT color="green">147</FONT>        this(getConfig(async), connectionPool, requestTracker, serviceName,<a name="line.147"></a>
+<FONT color="green">148</FONT>            serviceInterface, clientFactory, async, false);<a name="line.148"></a>
+<FONT color="green">149</FONT>      }<a name="line.149"></a>
+<FONT color="green">150</FONT>    <a name="line.150"></a>
+<FONT color="green">151</FONT>      /**<a name="line.151"></a>
+<FONT color="green">152</FONT>       * Constructs an instance with the {@link #DEFAULT_CONFIG} and cached thread pool<a name="line.152"></a>
+<FONT color="green">153</FONT>       * {@link ExecutorService}.<a name="line.153"></a>
+<FONT color="green">154</FONT>       *<a name="line.154"></a>
+<FONT color="green">155</FONT>       * @see #Thrift(Config, ExecutorService, ObjectPool, RequestTracker , String, Class, Function,<a name="line.155"></a>
+<FONT color="green">156</FONT>       *    boolean, boolean)<a name="line.156"></a>
+<FONT color="green">157</FONT>       */<a name="line.157"></a>
+<FONT color="green">158</FONT>      public Thrift(ObjectPool&lt;Connection&lt;TTransport, InetSocketAddress&gt;&gt; connectionPool,<a name="line.158"></a>
+<FONT color="green">159</FONT>          RequestTracker&lt;InetSocketAddress&gt; requestTracker,<a name="line.159"></a>
+<FONT color="green">160</FONT>          String serviceName, Class&lt;T&gt; serviceInterface, Function&lt;TTransport, T&gt; clientFactory,<a name="line.160"></a>
+<FONT color="green">161</FONT>          boolean async, boolean ssl) {<a name="line.161"></a>
+<FONT color="green">162</FONT>    <a name="line.162"></a>
+<FONT color="green">163</FONT>        this(getConfig(async), connectionPool, requestTracker, serviceName,<a name="line.163"></a>
+<FONT color="green">164</FONT>            serviceInterface, clientFactory, async, ssl);<a name="line.164"></a>
+<FONT color="green">165</FONT>      }<a name="line.165"></a>
+<FONT color="green">166</FONT>    <a name="line.166"></a>
+<FONT color="green">167</FONT>      /**<a name="line.167"></a>
+<FONT color="green">168</FONT>       * Constructs an instance with a cached thread pool {@link ExecutorService}.<a name="line.168"></a>
+<FONT color="green">169</FONT>       *<a name="line.169"></a>
+<FONT color="green">170</FONT>       * @see #Thrift(Config, ExecutorService, ObjectPool, RequestTracker , String, Class, Function,<a name="line.170"></a>
+<FONT color="green">171</FONT>       *    boolean, boolean)<a name="line.171"></a>
+<FONT color="green">172</FONT>       */<a name="line.172"></a>
+<FONT color="green">173</FONT>      public Thrift(Config config, ObjectPool&lt;Connection&lt;TTransport, InetSocketAddress&gt;&gt; connectionPool,<a name="line.173"></a>
+<FONT color="green">174</FONT>          RequestTracker&lt;InetSocketAddress&gt; requestTracker,<a name="line.174"></a>
+<FONT color="green">175</FONT>          String serviceName, Class&lt;T&gt; serviceInterface, Function&lt;TTransport, T&gt; clientFactory,<a name="line.175"></a>
+<FONT color="green">176</FONT>          boolean async, boolean ssl) {<a name="line.176"></a>
+<FONT color="green">177</FONT>    <a name="line.177"></a>
+<FONT color="green">178</FONT>        this(config,<a name="line.178"></a>
+<FONT color="green">179</FONT>            Executors.newCachedThreadPool(<a name="line.179"></a>
+<FONT color="green">180</FONT>                new ThreadFactoryBuilder()<a name="line.180"></a>
+<FONT color="green">181</FONT>                    .setDaemon(true)<a name="line.181"></a>
+<FONT color="green">182</FONT>                    .setNameFormat("Thrift["+ serviceName +"][%d]")<a name="line.182"></a>
+<FONT color="green">183</FONT>                    .build()),<a name="line.183"></a>
+<FONT color="green">184</FONT>            connectionPool, requestTracker, serviceName, serviceInterface, clientFactory, async, ssl);<a name="line.184"></a>
+<FONT color="green">185</FONT>      }<a name="line.185"></a>
+<FONT color="green">186</FONT>    <a name="line.186"></a>
+<FONT color="green">187</FONT>      /**<a name="line.187"></a>
+<FONT color="green">188</FONT>       * Constructs an instance with the {@link #DEFAULT_CONFIG}.<a name="line.188"></a>
+<FONT color="green">189</FONT>       *<a name="line.189"></a>
+<FONT color="green">190</FONT>       * @see #Thrift(Config, ExecutorService, ObjectPool, RequestTracker , String, Class, Function,<a name="line.190"></a>
+<FONT color="green">191</FONT>       *    boolean, boolean)<a name="line.191"></a>
+<FONT color="green">192</FONT>       */<a name="line.192"></a>
+<FONT color="green">193</FONT>      public Thrift(ExecutorService executorService,<a name="line.193"></a>
+<FONT color="green">194</FONT>          ObjectPool&lt;Connection&lt;TTransport, InetSocketAddress&gt;&gt; connectionPool,<a name="line.194"></a>
+<FONT color="green">195</FONT>          RequestTracker&lt;InetSocketAddress&gt; requestTracker,<a name="line.195"></a>
+<FONT color="green">196</FONT>          String serviceName, Class&lt;T&gt; serviceInterface, Function&lt;TTransport, T&gt; clientFactory,<a name="line.196"></a>
+<FONT color="green">197</FONT>          boolean async, boolean ssl) {<a name="line.197"></a>
+<FONT color="green">198</FONT>    <a name="line.198"></a>
+<FONT color="green">199</FONT>        this(getConfig(async), executorService, connectionPool, requestTracker, serviceName,<a name="line.199"></a>
+<FONT color="green">200</FONT>            serviceInterface, clientFactory, async, ssl);<a name="line.200"></a>
+<FONT color="green">201</FONT>      }<a name="line.201"></a>
+<FONT color="green">202</FONT>    <a name="line.202"></a>
+<FONT color="green">203</FONT>      private static Config getConfig(boolean async) {<a name="line.203"></a>
+<FONT color="green">204</FONT>        return async ? DEFAULT_ASYNC_CONFIG : DEFAULT_CONFIG;<a name="line.204"></a>
+<FONT color="green">205</FONT>      }<a name="line.205"></a>
+<FONT color="green">206</FONT>    <a name="line.206"></a>
+<FONT color="green">207</FONT>      /**<a name="line.207"></a>
+<FONT color="green">208</FONT>       * Constructs a new Thrift factory for creating clients that make calls to a particular thrift<a name="line.208"></a>
+<FONT color="green">209</FONT>       * service.<a name="line.209"></a>
+<FONT color="green">210</FONT>       *<a name="line.210"></a>
+<FONT color="green">211</FONT>       * &lt;p&gt;Note that the combination of {@code config} and {@code connectionPool} need to be chosen<a name="line.211"></a>
+<FONT color="green">212</FONT>       * with care depending on usage of the generated thrift clients.  In particular, if configured<a name="line.212"></a>
+<FONT color="green">213</FONT>       * to not wait for connections, the {@code connectionPool} ought to be warmed up with a set of<a name="line.213"></a>
+<FONT color="green">214</FONT>       * connections or else be actively building connections in the background.<a name="line.214"></a>
+<FONT color="green">215</FONT>       *<a name="line.215"></a>
+<FONT color="green">216</FONT>       * &lt;p&gt;TODO(John Sirois): consider adding an method to ObjectPool that would allow Thrift to handle<a name="line.216"></a>
+<FONT color="green">217</FONT>       * this case by pro-actively warming the pool.<a name="line.217"></a>
+<FONT color="green">218</FONT>       *<a name="line.218"></a>
+<FONT color="green">219</FONT>       * @param config the default configuration to use for all thrift calls; also the configuration all<a name="line.219"></a>
+<FONT color="green">220</FONT>       *     {@link ClientBuilder}s start with<a name="line.220"></a>
+<FONT color="green">221</FONT>       * @param executorService for invoking calls with a specified deadline<a name="line.221"></a>
+<FONT color="green">222</FONT>       * @param connectionPool the source for thrift connections<a name="line.222"></a>
+<FONT color="green">223</FONT>       * @param serviceName a /vars friendly name identifying the service clients will connect to<a name="line.223"></a>
+<FONT color="green">224</FONT>       * @param serviceInterface the thrift compiler generate interface class for the remote service<a name="line.224"></a>
+<FONT color="green">225</FONT>       *     (Iface)<a name="line.225"></a>
+<FONT color="green">226</FONT>       * @param clientFactory a function that can generate a concrete thrift client for the given<a name="line.226"></a>
+<FONT color="green">227</FONT>       *     {@code serviceInterface}<a name="line.227"></a>
+<FONT color="green">228</FONT>       * @param async enable asynchronous API<a name="line.228"></a>
+<FONT color="green">229</FONT>       * @param ssl enable TLS handshaking for Thrift calls<a name="line.229"></a>
+<FONT color="green">230</FONT>       */<a name="line.230"></a>
+<FONT color="green">231</FONT>      public Thrift(Config config, ExecutorService executorService,<a name="line.231"></a>
+<FONT color="green">232</FONT>          ObjectPool&lt;Connection&lt;TTransport, InetSocketAddress&gt;&gt; connectionPool,<a name="line.232"></a>
+<FONT color="green">233</FONT>          RequestTracker&lt;InetSocketAddress&gt; requestTracker, String serviceName,<a name="line.233"></a>
+<FONT color="green">234</FONT>          Class&lt;T&gt; serviceInterface, Function&lt;TTransport, T&gt; clientFactory, boolean async, boolean ssl) {<a name="line.234"></a>
+<FONT color="green">235</FONT>    <a name="line.235"></a>
+<FONT color="green">236</FONT>        defaultConfig = Preconditions.checkNotNull(config);<a name="line.236"></a>
+<FONT color="green">237</FONT>        this.executorService = Preconditions.checkNotNull(executorService);<a name="line.237"></a>
+<FONT color="green">238</FONT>        this.connectionPool = Preconditions.checkNotNull(connectionPool);<a name="line.238"></a>
+<FONT color="green">239</FONT>        this.requestTracker = Preconditions.checkNotNull(requestTracker);<a name="line.239"></a>
+<FONT color="green">240</FONT>        this.serviceName = MorePreconditions.checkNotBlank(serviceName);<a name="line.240"></a>
+<FONT color="green">241</FONT>        this.serviceInterface = checkServiceInterface(serviceInterface);<a name="line.241"></a>
+<FONT color="green">242</FONT>        this.clientFactory = Preconditions.checkNotNull(clientFactory);<a name="line.242"></a>
+<FONT color="green">243</FONT>        this.async = async;<a name="line.243"></a>
+<FONT color="green">244</FONT>        this.withSsl = ssl;<a name="line.244"></a>
+<FONT color="green">245</FONT>      }<a name="line.245"></a>
+<FONT color="green">246</FONT>    <a name="line.246"></a>
+<FONT color="green">247</FONT>      static &lt;I&gt; Class&lt;I&gt; checkServiceInterface(Class&lt;I&gt; serviceInterface) {<a name="line.247"></a>
+<FONT color="green">248</FONT>        Preconditions.checkNotNull(serviceInterface);<a name="line.248"></a>
+<FONT color="green">249</FONT>        Preconditions.checkArgument(serviceInterface.isInterface(),<a name="line.249"></a>
+<FONT color="green">250</FONT>            "%s must be a thrift service interface", serviceInterface);<a name="line.250"></a>
+<FONT color="green">251</FONT>        return serviceInterface;<a name="line.251"></a>
+<FONT color="green">252</FONT>      }<a name="line.252"></a>
+<FONT color="green">253</FONT>    <a name="line.253"></a>
+<FONT color="green">254</FONT>      /**<a name="line.254"></a>
+<FONT color="green">255</FONT>       * Closes any open connections and prepares this thrift client for graceful shutdown.  Any thrift<a name="line.255"></a>
+<FONT color="green">256</FONT>       * client proxies returned from {@link #create()} will become invalid.<a name="line.256"></a>
+<FONT color="green">257</FONT>       */<a name="line.257"></a>
+<FONT color="green">258</FONT>      public void close() {<a name="line.258"></a>
+<FONT color="green">259</FONT>        connectionPool.close();<a name="line.259"></a>
+<FONT color="green">260</FONT>        executorService.shutdown();<a name="line.260"></a>
+<FONT color="green">261</FONT>      }<a name="line.261"></a>
+<FONT color="green">262</FONT>    <a name="line.262"></a>
+<FONT color="green">263</FONT>      /**<a name="line.263"></a>
+<FONT color="green">264</FONT>       * A builder class that allows modifications of call behavior to be made for a given Thrift<a name="line.264"></a>
+<FONT color="green">265</FONT>       * client.  Note that in the case of conflicting configuration calls, the last call wins.  So,<a name="line.265"></a>
+<FONT color="green">266</FONT>       * for example, the following sequence would result in all calls being subject to a 5 second<a name="line.266"></a>
+<FONT color="green">267</FONT>       * global deadline:<a name="line.267"></a>
+<FONT color="green">268</FONT>       * &lt;code&gt;<a name="line.268"></a>
+<FONT color="green">269</FONT>       *   builder.blocking().withDeadline(5, TimeUnit.SECONDS).create()<a name="line.269"></a>
+<FONT color="green">270</FONT>       * &lt;/code&gt;<a name="line.270"></a>
+<FONT color="green">271</FONT>       *<a name="line.271"></a>
+<FONT color="green">272</FONT>       * @see Config<a name="line.272"></a>
+<FONT color="green">273</FONT>       */<a name="line.273"></a>
+<FONT color="green">274</FONT>      public final class ClientBuilder extends Config.AbstractBuilder&lt;ClientBuilder&gt; {<a name="line.274"></a>
+<FONT color="green">275</FONT>        private ClientBuilder(Config template) {<a name="line.275"></a>
+<FONT color="green">276</FONT>          super(template);<a name="line.276"></a>
+<FONT color="green">277</FONT>        }<a name="line.277"></a>
+<FONT color="green">278</FONT>    <a name="line.278"></a>
+<FONT color="green">279</FONT>        @Override<a name="line.279"></a>
+<FONT color="green">280</FONT>        protected ClientBuilder getThis() {<a name="line.280"></a>
+<FONT color="green">281</FONT>          return this;<a name="line.281"></a>
+<FONT color="green">282</FONT>        }<a name="line.282"></a>
+<FONT color="green">283</FONT>    <a name="line.283"></a>
+<FONT color="green">284</FONT>        /**<a name="line.284"></a>
+<FONT color="green">285</FONT>         * Creates a new client using the built up configuration changes.<a name="line.285"></a>
+<FONT color="green">286</FONT>         */<a name="line.286"></a>
+<FONT color="green">287</FONT>        public T create() {<a name="line.287"></a>
+<FONT color="green">288</FONT>          return createClient(getConfig());<a name="line.288"></a>
+<FONT color="green">289</FONT>        }<a name="line.289"></a>
 <FONT color="green">290</FONT>      }<a name="line.290"></a>
 <FONT color="green">291</FONT>    <a name="line.291"></a>
-<FONT color="green">292</FONT>      private T createClient(Config config) {<a name="line.292"></a>
-<FONT color="green">293</FONT>        StatsProvider statsProvider = config.getStatsProvider();<a name="line.293"></a>
-<FONT color="green">294</FONT>    <a name="line.294"></a>
-<FONT color="green">295</FONT>        // lease/call/[invalidate]/release<a name="line.295"></a>
-<FONT color="green">296</FONT>        boolean debug = config.isDebug();<a name="line.296"></a>
-<FONT color="green">297</FONT>    <a name="line.297"></a>
-<FONT color="green">298</FONT>        Caller decorated = new ThriftCaller&lt;T&gt;(connectionPool, requestTracker, clientFactory,<a name="line.298"></a>
-<FONT color="green">299</FONT>            config.getConnectTimeout(), debug);<a name="line.299"></a>
+<FONT color="green">292</FONT>      /**<a name="line.292"></a>
+<FONT color="green">293</FONT>       * Creates a new thrift client builder that inherits this Thrift instance's default configuration.<a name="line.293"></a>
+<FONT color="green">294</FONT>       * This is useful for customizing a client for a particular thrift call that makes sense to treat<a name="line.294"></a>
+<FONT color="green">295</FONT>       * differently from the rest of the calls to a given service.<a name="line.295"></a>
+<FONT color="green">296</FONT>       */<a name="line.296"></a>
+<FONT color="green">297</FONT>      public ClientBuilder builder() {<a name="line.297"></a>
+<FONT color="green">298</FONT>        return builder(defaultConfig);<a name="line.298"></a>
+<FONT color="green">299</FONT>      }<a name="line.299"></a>
 <FONT color="green">300</FONT>    <a name="line.300"></a>
-<FONT color="green">301</FONT>        // [retry]<a name="line.301"></a>
-<FONT color="green">302</FONT>        if (config.getMaxRetries() &gt; 0) {<a name="line.302"></a>
-<FONT color="green">303</FONT>          decorated = new RetryingCaller(decorated, async, statsProvider, serviceName,<a name="line.303"></a>
-<FONT color="green">304</FONT>              config.getMaxRetries(), config.getRetryableExceptions(), debug);<a name="line.304"></a>
-<FONT color="green">305</FONT>        }<a name="line.305"></a>
-<FONT color="green">306</FONT>    <a name="line.306"></a>
-<FONT color="green">307</FONT>        // [deadline]<a name="line.307"></a>
-<FONT color="green">308</FONT>        if (config.getRequestTimeout().getValue() &gt; 0) {<a name="line.308"></a>
-<FONT color="green">309</FONT>          Preconditions.checkArgument(!async,<a name="line.309"></a>
-<FONT color="green">310</FONT>              "Request deadlines may not be used with an asynchronous client.");<a name="line.310"></a>
-<FONT color="green">311</FONT>    <a name="line.311"></a>
-<FONT color="green">312</FONT>          decorated = new DeadlineCaller(decorated, async, executorService, config.getRequestTimeout());<a name="line.312"></a>
-<FONT color="green">313</FONT>        }<a name="line.313"></a>
-<FONT color="green">314</FONT>    <a name="line.314"></a>
-<FONT color="green">315</FONT>        // [debug]<a name="line.315"></a>
-<FONT color="green">316</FONT>        if (debug) {<a name="line.316"></a>
-<FONT color="green">317</FONT>          decorated = new DebugCaller(decorated, async);<a name="line.317"></a>
-<FONT color="green">318</FONT>        }<a name="line.318"></a>
-<FONT color="green">319</FONT>    <a name="line.319"></a>
-<FONT color="green">320</FONT>        // stats<a name="line.320"></a>
-<FONT color="green">321</FONT>        if (config.enableStats()) {<a name="line.321"></a>
-<FONT color="green">322</FONT>          decorated = new StatTrackingCaller(decorated, async, statsProvider, serviceName);<a name="line.322"></a>
-<FONT color="green">323</FONT>        }<a name="line.323"></a>
-<FONT color="green">324</FONT>    <a name="line.324"></a>
-<FONT color="green">325</FONT>        final Caller caller = decorated;<a name="line.325"></a>
+<FONT color="green">301</FONT>      /**<a name="line.301"></a>
+<FONT color="green">302</FONT>       * Creates a new thrift client builder that inherits the given configuration.<a name="line.302"></a>
+<FONT color="green">303</FONT>       * This is useful for customizing a client for a particular thrift call that makes sense to treat<a name="line.303"></a>
+<FONT color="green">304</FONT>       * differently from the rest of the calls to a given service.<a name="line.304"></a>
+<FONT color="green">305</FONT>       */<a name="line.305"></a>
+<FONT color="green">306</FONT>      public ClientBuilder builder(Config config) {<a name="line.306"></a>
+<FONT color="green">307</FONT>        Preconditions.checkNotNull(config);<a name="line.307"></a>
+<FONT color="green">308</FONT>        return new ClientBuilder(config);<a name="line.308"></a>
+<FONT color="green">309</FONT>      }<a name="line.309"></a>
+<FONT color="green">310</FONT>    <a name="line.310"></a>
+<FONT color="green">311</FONT>      /**<a name="line.311"></a>
+<FONT color="green">312</FONT>       * Creates a new client using the default configuration specified for this Thrift instance.<a name="line.312"></a>
+<FONT color="green">313</FONT>       */<a name="line.313"></a>
+<FONT color="green">314</FONT>      public T create() {<a name="line.314"></a>
+<FONT color="green">315</FONT>        return createClient(defaultConfig);<a name="line.315"></a>
+<FONT color="green">316</FONT>      }<a name="line.316"></a>
+<FONT color="green">317</FONT>    <a name="line.317"></a>
+<FONT color="green">318</FONT>      private T createClient(Config config) {<a name="line.318"></a>
+<FONT color="green">319</FONT>        StatsProvider statsProvider = config.getStatsProvider();<a name="line.319"></a>
+<FONT color="green">320</FONT>    <a name="line.320"></a>
+<FONT color="green">321</FONT>        // lease/call/[invalidate]/release<a name="line.321"></a>
+<FONT color="green">322</FONT>        boolean debug = config.isDebug();<a name="line.322"></a>
+<FONT color="green">323</FONT>    <a name="line.323"></a>
+<FONT color="green">324</FONT>        Caller decorated = new ThriftCaller&lt;T&gt;(connectionPool, requestTracker, clientFactory,<a name="line.324"></a>
+<FONT color="green">325</FONT>            config.getConnectTimeout(), debug);<a name="line.325"></a>
 <FONT color="green">326</FONT>    <a name="line.326"></a>
-<FONT color="green">327</FONT>        final InvocationHandler invocationHandler = new InvocationHandler() {<a name="line.327"></a>
-<FONT color="green">328</FONT>          @Override<a name="line.328"></a>
-<FONT color="green">329</FONT>          public Object invoke(Object o, Method method, Object[] args) throws Throwable {<a name="line.329"></a>
-<FONT color="green">330</FONT>            AsyncMethodCallback callback = null;<a name="line.330"></a>
-<FONT color="green">331</FONT>            if (args != null &amp;&amp; async) {<a name="line.331"></a>
-<FONT color="green">332</FONT>              List&lt;Object&gt; argsList = Lists.newArrayList(args);<a name="line.332"></a>
-<FONT color="green">333</FONT>              callback = extractCallback(argsList);<a name="line.333"></a>
-<FONT color="green">334</FONT>              args = argsList.toArray();<a name="line.334"></a>
-<FONT color="green">335</FONT>            }<a name="line.335"></a>
-<FONT color="green">336</FONT>    <a name="line.336"></a>
-<FONT color="green">337</FONT>            return caller.call(method, args, callback, null);<a name="line.337"></a>
-<FONT color="green">338</FONT>          }<a name="line.338"></a>
-<FONT color="green">339</FONT>        };<a name="line.339"></a>
+<FONT color="green">327</FONT>        // [retry]<a name="line.327"></a>
+<FONT color="green">328</FONT>        if (config.getMaxRetries() &gt; 0) {<a name="line.328"></a>
+<FONT color="green">329</FONT>          decorated = new RetryingCaller(decorated, async, statsProvider, serviceName,<a name="line.329"></a>
+<FONT color="green">330</FONT>              config.getMaxRetries(), config.getRetryableExceptions(), debug);<a name="line.330"></a>
+<FONT color="green">331</FONT>        }<a name="line.331"></a>
+<FONT color="green">332</FONT>    <a name="line.332"></a>
+<FONT color="green">333</FONT>        // [deadline]<a name="line.333"></a>
+<FONT color="green">334</FONT>        if (config.getRequestTimeout().getValue() &gt; 0) {<a name="line.334"></a>
+<FONT color="green">335</FONT>          Preconditions.checkArgument(!async,<a name="line.335"></a>
+<FONT color="green">336</FONT>              "Request deadlines may not be used with an asynchronous client.");<a name="line.336"></a>
+<FONT color="green">337</FONT>    <a name="line.337"></a>
+<FONT color="green">338</FONT>          decorated = new DeadlineCaller(decorated, async, executorService, config.getRequestTimeout());<a name="line.338"></a>
+<FONT color="green">339</FONT>        }<a name="line.339"></a>
 <FONT color="green">340</FONT>    <a name="line.340"></a>
-<FONT color="green">341</FONT>        @SuppressWarnings("unchecked")<a name="line.341"></a>
-<FONT color="green">342</FONT>        T instance = (T) Proxy.newProxyInstance(serviceInterface.getClassLoader(),<a name="line.342"></a>
-<FONT color="green">343</FONT>            new Class&lt;?&gt;[] {serviceInterface}, invocationHandler);<a name="line.343"></a>
-<FONT color="green">344</FONT>        return instance;<a name="line.344"></a>
-<FONT color="green">345</FONT>      }<a name="line.345"></a>
-<FONT color="green">346</FONT>    <a name="line.346"></a>
-<FONT color="green">347</FONT>      /**<a name="line.347"></a>
-<FONT color="green">348</FONT>       * Verifies that the final argument in a list of objects is a fully-formed<a name="line.348"></a>
-<FONT color="green">349</FONT>       * {@link AsyncMethodCallback} and extracts it, removing it from the argument list.<a name="line.349"></a>
-<FONT color="green">350</FONT>       *<a name="line.350"></a>
-<FONT color="green">351</FONT>       * @param args Argument list to remove the callback from.<a name="line.351"></a>
-<FONT color="green">352</FONT>       * @return The callback extracted from {@code args}.<a name="line.352"></a>
-<FONT color="green">353</FONT>       */<a name="line.353"></a>
-<FONT color="green">354</FONT>      private static AsyncMethodCallback extractCallback(List&lt;Object&gt; args) {<a name="line.354"></a>
-<FONT color="green">355</FONT>        // TODO(William Farner): Check all interface methods when building the Thrift client<a name="line.355"></a>
-<FONT color="green">356</FONT>        //    and verify that last arguments are all callbacks...this saves us from checking<a name="line.356"></a>
-<FONT color="green">357</FONT>        //    each time.<a name="line.357"></a>
-<FONT color="green">358</FONT>    <a name="line.358"></a>
-<FONT color="green">359</FONT>        // Check that the last argument is a callback.<a name="line.359"></a>
-<FONT color="green">360</FONT>        Preconditions.checkArgument(args.size() &gt; 0);<a name="line.360"></a>
-<FONT color="green">361</FONT>        Object lastArg = args.get(args.size() - 1);<a name="line.361"></a>
-<FONT color="green">362</FONT>        Preconditions.checkArgument(lastArg instanceof AsyncMethodCallback,<a name="line.362"></a>
-<FONT color="green">363</FONT>            "Last argument of an async thrift call is expected to be of type AsyncMethodCallback.");<a name="line.363"></a>
-<FONT color="green">364</FONT>    <a name="line.364"></a>
-<FONT color="green">365</FONT>        return (AsyncMethodCallback) args.remove(args.size() - 1);<a name="line.365"></a>
-<FONT color="green">366</FONT>      }<a name="line.366"></a>
-<FONT color="green">367</FONT>    }<a name="line.367"></a>
+<FONT color="green">341</FONT>        // [debug]<a name="line.341"></a>
+<FONT color="green">342</FONT>        if (debug) {<a name="line.342"></a>
+<FONT color="green">343</FONT>          decorated = new DebugCaller(decorated, async);<a name="line.343"></a>
+<FONT color="green">344</FONT>        }<a name="line.344"></a>
+<FONT color="green">345</FONT>    <a name="line.345"></a>
+<FONT color="green">346</FONT>        // stats<a name="line.346"></a>
+<FONT color="green">347</FONT>        if (config.enableStats()) {<a name="line.347"></a>
+<FONT color="green">348</FONT>          decorated = new StatTrackingCaller(decorated, async, statsProvider, serviceName);<a name="line.348"></a>
+<FONT color="green">349</FONT>        }<a name="line.349"></a>
+<FONT color="green">350</FONT>    <a name="line.350"></a>
+<FONT color="green">351</FONT>        final Caller caller = decorated;<a name="line.351"></a>
+<FONT color="green">352</FONT>    <a name="line.352"></a>
+<FONT color="green">353</FONT>        final InvocationHandler invocationHandler = new InvocationHandler() {<a name="line.353"></a>
+<FONT color="green">354</FONT>          @Override<a name="line.354"></a>
+<FONT color="green">355</FONT>          public Object invoke(Object o, Method method, Object[] args) throws Throwable {<a name="line.355"></a>
+<FONT color="green">356</FONT>            AsyncMethodCallback callback = null;<a name="line.356"></a>
+<FONT color="green">357</FONT>            if (args != null &amp;&amp; async) {<a name="line.357"></a>
+<FONT color="green">358</FONT>              List&lt;Object&gt; argsList = Lists.newArrayList(args);<a name="line.358"></a>
+<FONT color="green">359</FONT>              callback = extractCallback(argsList);<a name="line.359"></a>
+<FONT color="green">360</FONT>              args = argsList.toArray();<a name="line.360"></a>
+<FONT color="green">361</FONT>            }<a name="line.361"></a>
+<FONT color="green">362</FONT>    <a name="line.362"></a>
+<FONT color="green">363</FONT>            return caller.call(method, args, callback, null);<a name="line.363"></a>
+<FONT color="green">364</FONT>          }<a name="line.364"></a>
+<FONT color="green">365</FONT>        };<a name="line.365"></a>
+<FONT color="green">366</FONT>    <a name="line.366"></a>
+<FONT color="green">367</FONT>        @SuppressWarnings("unchecked")<a name="line.367"></a>
+<FONT color="green">368</FONT>        T instance = (T) Proxy.newProxyInstance(serviceInterface.getClassLoader(),<a name="line.368"></a>
+<FONT color="green">369</FONT>            new Class&lt;?&gt;[] {serviceInterface}, invocationHandler);<a name="line.369"></a>
+<FONT color="green">370</FONT>        return instance;<a name="line.370"></a>
+<FONT color="green">371</FONT>      }<a name="line.371"></a>
+<FONT color="green">372</FONT>    <a name="line.372"></a>
+<FONT color="green">373</FONT>      /**<a name="line.373"></a>
+<FONT color="green">374</FONT>       * Verifies that the final argument in a list of objects is a fully-formed<a name="line.374"></a>
+<FONT color="green">375</FONT>       * {@link AsyncMethodCallback} and extracts it, removing it from the argument list.<a name="line.375"></a>
+<FONT color="green">376</FONT>       *<a name="line.376"></a>
+<FONT color="green">377</FONT>       * @param args Argument list to remove the callback from.<a name="line.377"></a>
+<FONT color="green">378</FONT>       * @return The callback extracted from {@code args}.<a name="line.378"></a>
+<FONT color="green">379</FONT>       */<a name="line.379"></a>
+<FONT color="green">380</FONT>      private static AsyncMethodCallback extractCallback(List&lt;Object&gt; args) {<a name="line.380"></a>
+<FONT color="green">381</FONT>        // TODO(William Farner): Check all interface methods when building the Thrift client<a name="line.381"></a>
+<FONT color="green">382</FONT>        //    and verify that last arguments are all callbacks...this saves us from checking<a name="line.382"></a>
+<FONT color="green">383</FONT>        //    each time.<a name="line.383"></a>
+<FONT color="green">384</FONT>    <a name="line.384"></a>
+<FONT color="green">385</FONT>        // Check that the last argument is a callback.<a name="line.385"></a>
+<FONT color="green">386</FONT>        Preconditions.checkArgument(args.size() &gt; 0);<a name="line.386"></a>
+<FONT color="green">387</FONT>        Object lastArg = args.get(args.size() - 1);<a name="line.387"></a>
+<FONT color="green">388</FONT>        Preconditions.checkArgument(lastArg instanceof AsyncMethodCallback,<a name="line.388"></a>
+<FONT color="green">389</FONT>            "Last argument of an async thrift call is expected to be of type AsyncMethodCallback.");<a name="line.389"></a>
+<FONT color="green">390</FONT>    <a name="line.390"></a>
+<FONT color="green">391</FONT>        return (AsyncMethodCallback) args.remove(args.size() - 1);<a name="line.391"></a>
+<FONT color="green">392</FONT>      }<a name="line.392"></a>
+<FONT color="green">393</FONT>    }<a name="line.393"></a>
 
 
 

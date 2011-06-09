@@ -31,12 +31,12 @@
 <FONT color="green">028</FONT>     */<a name="line.28"></a>
 <FONT color="green">029</FONT>    public abstract class AbstractApplication implements Application {<a name="line.29"></a>
 <FONT color="green">030</FONT>      @Override<a name="line.30"></a>
-<FONT color="green">031</FONT>      public Iterable&lt;Module&gt; getModules() {<a name="line.31"></a>
+<FONT color="green">031</FONT>      public Iterable&lt;? extends Module&gt; getModules() {<a name="line.31"></a>
 <FONT color="green">032</FONT>        return Collections.emptyList();<a name="line.32"></a>
 <FONT color="green">033</FONT>      }<a name="line.33"></a>
 <FONT color="green">034</FONT>    <a name="line.34"></a>
 <FONT color="green">035</FONT>      @Override<a name="line.35"></a>
-<FONT color="green">036</FONT>      public Iterable&lt;Module&gt; getOverridingModules() {<a name="line.36"></a>
+<FONT color="green">036</FONT>      public Iterable&lt;? extends Module&gt; getOverridingModules() {<a name="line.36"></a>
 <FONT color="green">037</FONT>        return Collections.emptyList();<a name="line.37"></a>
 <FONT color="green">038</FONT>      }<a name="line.38"></a>
 <FONT color="green">039</FONT>    }<a name="line.39"></a>

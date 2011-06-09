@@ -1,0 +1,122 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    // =================================================================================================<a name="line.1"></a>
+<FONT color="green">002</FONT>    // Copyright 2011 Twitter, Inc.<a name="line.2"></a>
+<FONT color="green">003</FONT>    // -------------------------------------------------------------------------------------------------<a name="line.3"></a>
+<FONT color="green">004</FONT>    // Licensed under the Apache License, Version 2.0 (the "License");<a name="line.4"></a>
+<FONT color="green">005</FONT>    // you may not use this work except in compliance with the License.<a name="line.5"></a>
+<FONT color="green">006</FONT>    // You may obtain a copy of the License in the LICENSE file, or at:<a name="line.6"></a>
+<FONT color="green">007</FONT>    //<a name="line.7"></a>
+<FONT color="green">008</FONT>    //  http://www.apache.org/licenses/LICENSE-2.0<a name="line.8"></a>
+<FONT color="green">009</FONT>    //<a name="line.9"></a>
+<FONT color="green">010</FONT>    // Unless required by applicable law or agreed to in writing, software<a name="line.10"></a>
+<FONT color="green">011</FONT>    // distributed under the License is distributed on an "AS IS" BASIS,<a name="line.11"></a>
+<FONT color="green">012</FONT>    // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.12"></a>
+<FONT color="green">013</FONT>    // See the License for the specific language governing permissions and<a name="line.13"></a>
+<FONT color="green">014</FONT>    // limitations under the License.<a name="line.14"></a>
+<FONT color="green">015</FONT>    // =================================================================================================<a name="line.15"></a>
+<FONT color="green">016</FONT>    <a name="line.16"></a>
+<FONT color="green">017</FONT>    package com.twitter.common.util;<a name="line.17"></a>
+<FONT color="green">018</FONT>    <a name="line.18"></a>
+<FONT color="green">019</FONT>    import com.google.common.base.Preconditions;<a name="line.19"></a>
+<FONT color="green">020</FONT>    <a name="line.20"></a>
+<FONT color="green">021</FONT>    import com.twitter.common.collections.Pair;<a name="line.21"></a>
+<FONT color="green">022</FONT>    <a name="line.22"></a>
+<FONT color="green">023</FONT>    /**<a name="line.23"></a>
+<FONT color="green">024</FONT>     * Common methods for parsing configs.<a name="line.24"></a>
+<FONT color="green">025</FONT>     *<a name="line.25"></a>
+<FONT color="green">026</FONT>     * @author John Sirois<a name="line.26"></a>
+<FONT color="green">027</FONT>     */<a name="line.27"></a>
+<FONT color="green">028</FONT>    public class ParsingUtil {<a name="line.28"></a>
+<FONT color="green">029</FONT>      /**<a name="line.29"></a>
+<FONT color="green">030</FONT>       * Parses a string as a range between one integer and another.  The integers must be separated by<a name="line.30"></a>
+<FONT color="green">031</FONT>       * a hypen character (space padding is acceptable).  Additionally, the first integer<a name="line.31"></a>
+<FONT color="green">032</FONT>       * (left-hand side) must be less than or equal to the second (right-hand side).<a name="line.32"></a>
+<FONT color="green">033</FONT>       *<a name="line.33"></a>
+<FONT color="green">034</FONT>       * @param rangeString The string to parse as an integer range.<a name="line.34"></a>
+<FONT color="green">035</FONT>       * @return A pair of the parsed integers.<a name="line.35"></a>
+<FONT color="green">036</FONT>       */<a name="line.36"></a>
+<FONT color="green">037</FONT>      public static Pair&lt;Integer, Integer&gt; parseRange(String rangeString) {<a name="line.37"></a>
+<FONT color="green">038</FONT>        if (rangeString == null) return null;<a name="line.38"></a>
+<FONT color="green">039</FONT>    <a name="line.39"></a>
+<FONT color="green">040</FONT>        String[] startEnd = rangeString.split("-");<a name="line.40"></a>
+<FONT color="green">041</FONT>        Preconditions.checkState(<a name="line.41"></a>
+<FONT color="green">042</FONT>            startEnd.length == 2, "Shard range format: start-end (e.g. 1-4)");<a name="line.42"></a>
+<FONT color="green">043</FONT>        int start;<a name="line.43"></a>
+<FONT color="green">044</FONT>        int end;<a name="line.44"></a>
+<FONT color="green">045</FONT>        try {<a name="line.45"></a>
+<FONT color="green">046</FONT>          start = Integer.parseInt(startEnd[0].trim());<a name="line.46"></a>
+<FONT color="green">047</FONT>          end = Integer.parseInt(startEnd[1].trim());<a name="line.47"></a>
+<FONT color="green">048</FONT>        } catch (NumberFormatException e) {<a name="line.48"></a>
+<FONT color="green">049</FONT>          throw new IllegalArgumentException("Failed to parse shard range.", e);<a name="line.49"></a>
+<FONT color="green">050</FONT>        }<a name="line.50"></a>
+<FONT color="green">051</FONT>    <a name="line.51"></a>
+<FONT color="green">052</FONT>        Preconditions.checkState(<a name="line.52"></a>
+<FONT color="green">053</FONT>            start &lt;= end, "The left-hand side of a shard range must be &lt;= the right-hand side.");<a name="line.53"></a>
+<FONT color="green">054</FONT>        return Pair.of(start, end);<a name="line.54"></a>
+<FONT color="green">055</FONT>      }<a name="line.55"></a>
+<FONT color="green">056</FONT>    }<a name="line.56"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

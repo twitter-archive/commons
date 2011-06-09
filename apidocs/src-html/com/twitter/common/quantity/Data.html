@@ -25,34 +25,36 @@
 <FONT color="green">022</FONT>     * of 1024 instead of 1000 as typical in metric units.  Additionally, units are divided in 2<a name="line.22"></a>
 <FONT color="green">023</FONT>     * hierarchies one based on bits and the other on bytes.  Thus {@link #Kb} represents kilobits; so<a name="line.23"></a>
 <FONT color="green">024</FONT>     * 1 Kb = 1024 bits, and {@link #KB} represents kilobytes so 1 KB = 1024 bytes or 8192 bits.<a name="line.24"></a>
-<FONT color="green">025</FONT>     */<a name="line.25"></a>
-<FONT color="green">026</FONT>    public enum Data implements Unit&lt;Data&gt; {<a name="line.26"></a>
-<FONT color="green">027</FONT>      BITS(1),<a name="line.27"></a>
-<FONT color="green">028</FONT>      Kb(1024, BITS),<a name="line.28"></a>
-<FONT color="green">029</FONT>      Mb(1024, Kb),<a name="line.29"></a>
-<FONT color="green">030</FONT>      Gb(1024, Mb),<a name="line.30"></a>
-<FONT color="green">031</FONT>      BYTES(8, BITS),<a name="line.31"></a>
-<FONT color="green">032</FONT>      KB(1024, BYTES),<a name="line.32"></a>
-<FONT color="green">033</FONT>      MB(1024, KB),<a name="line.33"></a>
-<FONT color="green">034</FONT>      GB(1024, MB),<a name="line.34"></a>
-<FONT color="green">035</FONT>      TB(1024, GB),<a name="line.35"></a>
-<FONT color="green">036</FONT>      PB(1024, TB);<a name="line.36"></a>
-<FONT color="green">037</FONT>    <a name="line.37"></a>
-<FONT color="green">038</FONT>      private final double multiplier;<a name="line.38"></a>
+<FONT color="green">025</FONT>     *<a name="line.25"></a>
+<FONT color="green">026</FONT>     * @author John Sirois<a name="line.26"></a>
+<FONT color="green">027</FONT>     */<a name="line.27"></a>
+<FONT color="green">028</FONT>    public enum Data implements Unit&lt;Data&gt; {<a name="line.28"></a>
+<FONT color="green">029</FONT>      BITS(1),<a name="line.29"></a>
+<FONT color="green">030</FONT>      Kb(1024, BITS),<a name="line.30"></a>
+<FONT color="green">031</FONT>      Mb(1024, Kb),<a name="line.31"></a>
+<FONT color="green">032</FONT>      Gb(1024, Mb),<a name="line.32"></a>
+<FONT color="green">033</FONT>      BYTES(8, BITS),<a name="line.33"></a>
+<FONT color="green">034</FONT>      KB(1024, BYTES),<a name="line.34"></a>
+<FONT color="green">035</FONT>      MB(1024, KB),<a name="line.35"></a>
+<FONT color="green">036</FONT>      GB(1024, MB),<a name="line.36"></a>
+<FONT color="green">037</FONT>      TB(1024, GB),<a name="line.37"></a>
+<FONT color="green">038</FONT>      PB(1024, TB);<a name="line.38"></a>
 <FONT color="green">039</FONT>    <a name="line.39"></a>
-<FONT color="green">040</FONT>      private Data(double multiplier) {<a name="line.40"></a>
-<FONT color="green">041</FONT>        this.multiplier = multiplier;<a name="line.41"></a>
-<FONT color="green">042</FONT>      }<a name="line.42"></a>
-<FONT color="green">043</FONT>    <a name="line.43"></a>
-<FONT color="green">044</FONT>      private Data(double multiplier, Data base) {<a name="line.44"></a>
-<FONT color="green">045</FONT>        this(multiplier * base.multiplier);<a name="line.45"></a>
-<FONT color="green">046</FONT>      }<a name="line.46"></a>
-<FONT color="green">047</FONT>    <a name="line.47"></a>
-<FONT color="green">048</FONT>      @Override<a name="line.48"></a>
-<FONT color="green">049</FONT>      public double multiplier() {<a name="line.49"></a>
-<FONT color="green">050</FONT>        return multiplier;<a name="line.50"></a>
-<FONT color="green">051</FONT>      }<a name="line.51"></a>
-<FONT color="green">052</FONT>    }<a name="line.52"></a>
+<FONT color="green">040</FONT>      private final double multiplier;<a name="line.40"></a>
+<FONT color="green">041</FONT>    <a name="line.41"></a>
+<FONT color="green">042</FONT>      private Data(double multiplier) {<a name="line.42"></a>
+<FONT color="green">043</FONT>        this.multiplier = multiplier;<a name="line.43"></a>
+<FONT color="green">044</FONT>      }<a name="line.44"></a>
+<FONT color="green">045</FONT>    <a name="line.45"></a>
+<FONT color="green">046</FONT>      private Data(double multiplier, Data base) {<a name="line.46"></a>
+<FONT color="green">047</FONT>        this(multiplier * base.multiplier);<a name="line.47"></a>
+<FONT color="green">048</FONT>      }<a name="line.48"></a>
+<FONT color="green">049</FONT>    <a name="line.49"></a>
+<FONT color="green">050</FONT>      @Override<a name="line.50"></a>
+<FONT color="green">051</FONT>      public double multiplier() {<a name="line.51"></a>
+<FONT color="green">052</FONT>        return multiplier;<a name="line.52"></a>
+<FONT color="green">053</FONT>      }<a name="line.53"></a>
+<FONT color="green">054</FONT>    }<a name="line.54"></a>
 
 
 

@@ -46,22 +46,29 @@ limitations under the License.
   <dependencies>
     <dependency org="com.google.guava"
                 name="guava"
-                rev="r08"
+                rev="r09"
+                conf="default;sources"
+                transitive="false"
+    >
+    </dependency>
+    <dependency org="javax.inject"
+                name="javax.inject"
+                rev="1"
                 conf="default;sources"
                 transitive="false"
     >
     </dependency>
     <dependency org="com.google.inject"
                 name="guice"
-                rev="2.0"
+                rev="3.0"
                 conf="default;sources"
                 transitive="false"
     >
     </dependency>
     <dependency org="com.google.inject.extensions"
                 name="guice-multibindings"
-                rev="2.0"
-                conf="default"
+                rev="3.0"
+                conf="default;sources"
                 transitive="false"
     >
     </dependency>
@@ -72,6 +79,7 @@ limitations under the License.
                 transitive="false"
     >
       <exclude org="ch.qos.logback" module="logback-classic"/>
+      <exclude org="com.google.collections" module="google-collections"/>
     </dependency>
     <dependency org="commons-lang"
                 name="commons-lang"
@@ -125,15 +133,22 @@ limitations under the License.
     </dependency>
     <dependency org="org.slf4j"
                 name="slf4j-api"
-                rev="1.5.10"
+                rev="1.6.1"
                 conf="default;sources"
                 transitive="false"
     >
     </dependency>
     <dependency org="org.slf4j"
                 name="slf4j-jdk14"
-                rev="1.5.10"
+                rev="1.6.1"
                 conf="default;sources"
+                transitive="false"
+    >
+    </dependency>
+    <dependency org="com.google.code.gson"
+                name="gson"
+                rev="1.6"
+                conf="default"
                 transitive="false"
     >
     </dependency>
@@ -153,7 +168,7 @@ limitations under the License.
     </dependency>
     <dependency org="com.google.inject.extensions"
                 name="guice-servlet"
-                rev="2.0"
+                rev="3.0"
                 conf="default;sources"
                 transitive="false"
     >
@@ -186,13 +201,6 @@ limitations under the License.
                 transitive="false"
     >
       <exclude org="com.google.collections" module="google-collections"/>
-    </dependency>
-    <dependency org="com.google.code.gson"
-                name="gson"
-                rev="1.6"
-                conf="default"
-                transitive="false"
-    >
     </dependency>
     <dependency org="org.easymock"
                 name="easymock"

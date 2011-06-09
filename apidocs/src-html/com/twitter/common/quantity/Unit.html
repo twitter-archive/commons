@@ -23,18 +23,20 @@
 <FONT color="green">020</FONT>     * Represents a unit hierarchy for a given unit of measure; eg: time.  Instances represent specific<a name="line.20"></a>
 <FONT color="green">021</FONT>     * units from the hierarchy; eg: seconds.<a name="line.21"></a>
 <FONT color="green">022</FONT>     *<a name="line.22"></a>
-<FONT color="green">023</FONT>     * @author John Sirois<a name="line.23"></a>
-<FONT color="green">024</FONT>     */<a name="line.24"></a>
-<FONT color="green">025</FONT>    public interface Unit&lt;U extends Unit&lt;U&gt;&gt; {<a name="line.25"></a>
-<FONT color="green">026</FONT>    <a name="line.26"></a>
-<FONT color="green">027</FONT>      /**<a name="line.27"></a>
-<FONT color="green">028</FONT>       * Returns the weight of this unit relative to other units in the same hierarchy.  Typically the<a name="line.28"></a>
-<FONT color="green">029</FONT>       * smallest unit in the hierarchy returns 1, but this need not be the case.  It is only required<a name="line.29"></a>
-<FONT color="green">030</FONT>       * that each unit of the hierarchy return a multiplier relative to a common base unit for the<a name="line.30"></a>
-<FONT color="green">031</FONT>       * hierarchy.<a name="line.31"></a>
-<FONT color="green">032</FONT>       */<a name="line.32"></a>
-<FONT color="green">033</FONT>      double multiplier();<a name="line.33"></a>
-<FONT color="green">034</FONT>    }<a name="line.34"></a>
+<FONT color="green">023</FONT>     * @param &lt;U&gt; the type of the concrete unit implementation<a name="line.23"></a>
+<FONT color="green">024</FONT>     *<a name="line.24"></a>
+<FONT color="green">025</FONT>     * @author John Sirois<a name="line.25"></a>
+<FONT color="green">026</FONT>     */<a name="line.26"></a>
+<FONT color="green">027</FONT>    public interface Unit&lt;U extends Unit&lt;U&gt;&gt; {<a name="line.27"></a>
+<FONT color="green">028</FONT>    <a name="line.28"></a>
+<FONT color="green">029</FONT>      /**<a name="line.29"></a>
+<FONT color="green">030</FONT>       * Returns the weight of this unit relative to other units in the same hierarchy.  Typically the<a name="line.30"></a>
+<FONT color="green">031</FONT>       * smallest unit in the hierarchy returns 1, but this need not be the case.  It is only required<a name="line.31"></a>
+<FONT color="green">032</FONT>       * that each unit of the hierarchy return a multiplier relative to a common base unit for the<a name="line.32"></a>
+<FONT color="green">033</FONT>       * hierarchy.<a name="line.33"></a>
+<FONT color="green">034</FONT>       */<a name="line.34"></a>
+<FONT color="green">035</FONT>      double multiplier();<a name="line.35"></a>
+<FONT color="green">036</FONT>    }<a name="line.36"></a>
 
 
 

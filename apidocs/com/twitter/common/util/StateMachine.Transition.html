@@ -1,0 +1,480 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+StateMachine.Transition
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../stylesheet.css" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="StateMachine.Transition";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<script type="text/javascript">top.updateArtifact(window.location);</script><HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/StateMachine.Transition.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../com/twitter/common/util/StateMachine.IllegalStateTransitionException.html" title="class in com.twitter.common.util"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../com/twitter/common/util/Timer.html" title="class in com.twitter.common.util"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../index.html?com/twitter/common/util/StateMachine.Transition.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="StateMachine.Transition.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../allclasses-noframe.html"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../allclasses-noframe.html"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+com.twitter.common.util</FONT>
+<BR>
+Class StateMachine.Transition&lt;T&gt;</H2>
+<PRE>
+java.lang.Object
+  <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.util.StateMachine.Transition&lt;T&gt;</B>
+</PRE>
+<DL>
+<DT><DT><B>Type Parameters:</B><DD><CODE>T</CODE> - State type.</DL>
+<DL>
+<DT><B>Enclosing class:</B><DD><A HREF="../../../../com/twitter/common/util/StateMachine.html" title="class in com.twitter.common.util">StateMachine</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.html" title="type parameter in StateMachine">T</A>&gt;</DD>
+</DL>
+<HR>
+<DL>
+<DT><PRE>public static class <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.html#line.360"><B>StateMachine.Transition&lt;T&gt;</B></A><DT>extends java.lang.Object</DL>
+</PRE>
+
+<P>
+Representation of a state transition.
+<P>
+
+<P>
+<HR>
+
+<P>
+
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html#StateMachine.Transition(T, T, boolean)">StateMachine.Transition</A></B>(<A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="type parameter in StateMachine.Transition">T</A>&nbsp;from,
+                                               <A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="type parameter in StateMachine.Transition">T</A>&nbsp;to,
+                                               boolean&nbsp;allowed)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html#equals(java.lang.Object)">equals</A></B>(java.lang.Object&nbsp;o)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;T&gt; com.google.common.base.Predicate&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="class in com.twitter.common.util">StateMachine.Transition</A>&lt;T&gt;&gt;</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html#from(T...)">from</A></B>(T...&nbsp;states)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a predicate that returns <code>true</code> for transitions from the given states.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="type parameter in StateMachine.Transition">T</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html#getFrom()">getFrom</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="type parameter in StateMachine.Transition">T</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html#getTo()">getTo</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html#hashCode()">hashCode</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html#isAllowed()">isAllowed</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html#isValidStateChange()">isValidStateChange</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Checks whether this transition represents a state change, which means that the 'to' state is
+ not equal to the 'from' state, and the transition is allowed.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;T&gt; com.google.common.base.Predicate&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="class in com.twitter.common.util">StateMachine.Transition</A>&lt;T&gt;&gt;</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html#to(T...)">to</A></B>(T...&nbsp;states)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a predicate that returns <code>true</code> for transitions to the given states.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html#toString()">toString</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;T&gt; com.google.common.base.Predicate&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="class in com.twitter.common.util">StateMachine.Transition</A>&lt;T&gt;&gt;</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html#transition(T, T)">transition</A></B>(T&nbsp;from,
+                     T&nbsp;to)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a predicate that returns <code>true</code> for a specific state transition.</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>clone, finalize, getClass, notify, notifyAll, wait, wait, wait</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="StateMachine.Transition(java.lang.Object,java.lang.Object,boolean)"><!-- --></A><A NAME="StateMachine.Transition(T, T, boolean)"><!-- --></A><H3>
+StateMachine.Transition</H3>
+<PRE>
+public <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Transition.html#line.365"><B>StateMachine.Transition</B></A>(<A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="type parameter in StateMachine.Transition">T</A>&nbsp;from,
+                               <A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="type parameter in StateMachine.Transition">T</A>&nbsp;to,
+                               boolean&nbsp;allowed)</PRE>
+<DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="from(java.lang.Object[])"><!-- --></A><A NAME="from(T...)"><!-- --></A><H3>
+from</H3>
+<PRE>
+public static &lt;T&gt; com.google.common.base.Predicate&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="class in com.twitter.common.util">StateMachine.Transition</A>&lt;T&gt;&gt; <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Transition.html#line.401"><B>from</B></A>(T...&nbsp;states)</PRE>
+<DL>
+<DD>Creates a predicate that returns <code>true</code> for transitions from the given states.
+<P>
+<DD><DL>
+<DT><B>Type Parameters:</B><DD><CODE>T</CODE> - State type.<DT><B>Parameters:</B><DD><CODE>states</CODE> - States to filter on.
+<DT><B>Returns:</B><DD>A from-state filter.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="to(java.lang.Object[])"><!-- --></A><A NAME="to(T...)"><!-- --></A><H3>
+to</H3>
+<PRE>
+public static &lt;T&gt; com.google.common.base.Predicate&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="class in com.twitter.common.util">StateMachine.Transition</A>&lt;T&gt;&gt; <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Transition.html#line.412"><B>to</B></A>(T...&nbsp;states)</PRE>
+<DL>
+<DD>Creates a predicate that returns <code>true</code> for transitions to the given states.
+<P>
+<DD><DL>
+<DT><B>Type Parameters:</B><DD><CODE>T</CODE> - State type.<DT><B>Parameters:</B><DD><CODE>states</CODE> - States to filter on.
+<DT><B>Returns:</B><DD>A to-state filter.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="transition(java.lang.Object,java.lang.Object)"><!-- --></A><A NAME="transition(T, T)"><!-- --></A><H3>
+transition</H3>
+<PRE>
+public static &lt;T&gt; com.google.common.base.Predicate&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="class in com.twitter.common.util">StateMachine.Transition</A>&lt;T&gt;&gt; <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Transition.html#line.424"><B>transition</B></A>(T&nbsp;from,
+                                                                                          T&nbsp;to)</PRE>
+<DL>
+<DD>Creates a predicate that returns <code>true</code> for a specific state transition.
+<P>
+<DD><DL>
+<DT><B>Type Parameters:</B><DD><CODE>T</CODE> - State type.<DT><B>Parameters:</B><DD><CODE>from</CODE> - From state.<DD><CODE>to</CODE> - To state.
+<DT><B>Returns:</B><DD>A state transition filter.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getFrom()"><!-- --></A><H3>
+getFrom</H3>
+<PRE>
+public <A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="type parameter in StateMachine.Transition">T</A> <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Transition.html#line.432"><B>getFrom</B></A>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getTo()"><!-- --></A><H3>
+getTo</H3>
+<PRE>
+public <A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="type parameter in StateMachine.Transition">T</A> <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Transition.html#line.436"><B>getTo</B></A>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isAllowed()"><!-- --></A><H3>
+isAllowed</H3>
+<PRE>
+public boolean <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Transition.html#line.440"><B>isAllowed</B></A>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isValidStateChange()"><!-- --></A><H3>
+isValidStateChange</H3>
+<PRE>
+public boolean <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Transition.html#line.450"><B>isValidStateChange</B></A>()</PRE>
+<DL>
+<DD>Checks whether this transition represents a state change, which means that the 'to' state is
+ not equal to the 'from' state, and the transition is allowed.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD><code>true</code> if the state was changed, <code>false</code> otherwise.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="equals(java.lang.Object)"><!-- --></A><H3>
+equals</H3>
+<PRE>
+public boolean <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Transition.html#line.455"><B>equals</B></A>(java.lang.Object&nbsp;o)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE>equals</CODE> in class <CODE>java.lang.Object</CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="hashCode()"><!-- --></A><H3>
+hashCode</H3>
+<PRE>
+public int <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Transition.html#line.469"><B>hashCode</B></A>()</PRE>
+<DL>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE>hashCode</CODE> in class <CODE>java.lang.Object</CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="toString()"><!-- --></A><H3>
+toString</H3>
+<PRE>
+public java.lang.String <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Transition.html#line.477"><B>toString</B></A>()</PRE>
+<DL>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE>toString</CODE> in class <CODE>java.lang.Object</CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/StateMachine.Transition.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../com/twitter/common/util/StateMachine.IllegalStateTransitionException.html" title="class in com.twitter.common.util"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../com/twitter/common/util/Timer.html" title="class in com.twitter.common.util"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../index.html?com/twitter/common/util/StateMachine.Transition.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="StateMachine.Transition.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../allclasses-noframe.html"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../allclasses-noframe.html"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>
