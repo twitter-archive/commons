@@ -14,8 +14,6 @@
 # limitations under the License.
 # ==================================================================================================
 
-from pants import *
-
 java_thrift_library(name = 'scribe_client-0.1.2',
   provides = artifact(
     org = 'org.apache.scribe',
@@ -24,3 +22,4 @@ java_thrift_library(name = 'scribe_client-0.1.2',
   ),
   sources = globs('0.1.2/*.thrift')
 )
+

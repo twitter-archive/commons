@@ -17,10 +17,16 @@
 package com.twitter.common.util;
 
 import com.google.common.collect.ImmutableSet;
+
+import com.twitter.common.base.Closure;
+import com.twitter.common.base.Closures;
 import com.twitter.common.base.Command;
 import com.twitter.common.base.Commands;
 import com.twitter.common.base.ExceptionalSupplier;
 import com.twitter.common.base.Supplier;
+import com.twitter.common.testing.EasyMockTest;
+import com.twitter.common.util.StateMachine.Transition;
+
 import org.junit.Test;
 
 import java.util.concurrent.BlockingQueue;
@@ -37,7 +43,7 @@ import static org.junit.Assert.fail;
  *
  * @author William Farner
  */
-public class StateMachineTest {
+public class StateMachineTest extends EasyMockTest {
   private static final String NAME = "State machine.";
 
   private static final String A = "A";
@@ -47,6 +53,8 @@ public class StateMachineTest {
 
   @Test
   public void testEmptySM() {
+    control.replay();
+
     try {
       StateMachine.builder(NAME).build();
       fail();
@@ -57,6 +65,8 @@ public class StateMachineTest {
 
   @Test
   public void testMachineNoInit() {
+    control.replay();
+
     try {
       StateMachine.<String>builder(NAME)
           .addState(A, B)
@@ -69,6 +79,8 @@ public class StateMachineTest {
 
   @Test
   public void testBasicFSM() {
+    control.replay();
+
     StateMachine<String> fsm = StateMachine.<String>builder(NAME)
         .initialState(A)
         .addState(A, B)
@@ -84,6 +96,8 @@ public class StateMachineTest {
 
   @Test
   public void testLoopingFSM() {
+    control.replay();
+
     StateMachine<String> fsm = StateMachine.<String>builder(NAME)
         .initialState(A)
         .addState(A, B)
@@ -103,6 +117,8 @@ public class StateMachineTest {
 
   @Test
   public void testMachineUnknownState() {
+    control.replay();
+
     StateMachine<String> fsm = StateMachine.<String>builder(NAME)
         .initialState(A)
         .addState(A, B)
@@ -117,6 +133,8 @@ public class StateMachineTest {
 
   @Test
   public void testMachineBadTransition() {
+    control.replay();
+
     StateMachine<String> fsm = StateMachine.<String>builder(NAME)
         .initialState(A)
         .addState(A, B)
@@ -131,6 +149,8 @@ public class StateMachineTest {
 
   @Test
   public void testMachineSelfTransitionAllowed() {
+    control.replay();
+
     StateMachine<String> fsm = StateMachine.<String>builder(NAME)
         .initialState(A)
         .addState(A, A)
@@ -143,6 +163,8 @@ public class StateMachineTest {
 
   @Test
   public void testMachineSelfTransitionDisallowed() {
+    control.replay();
+
     StateMachine<String> fsm = StateMachine.<String>builder(NAME)
         .initialState(A)
         .addState(A, B)
@@ -155,6 +177,8 @@ public class StateMachineTest {
 
   @Test
   public void testCheckStateMatches() {
+    control.replay();
+
     StateMachine<String> stateMachine = StateMachine.<String>builder(NAME)
         .initialState(A)
         .addState(A, B)
@@ -166,6 +190,8 @@ public class StateMachineTest {
 
   @Test(expected = IllegalStateException.class)
   public void testCheckStateFails() {
+    control.replay();
+
     StateMachine.<String>builder(NAME)
         .initialState(A)
         .addState(A, B)
@@ -175,6 +201,8 @@ public class StateMachineTest {
 
   @Test
   public void testDoInStateMatches() {
+    control.replay();
+
     StateMachine<String> stateMachine = StateMachine.<String>builder(NAME)
         .initialState(A)
         .addState(A, B)
@@ -199,6 +227,8 @@ public class StateMachineTest {
 
   @Test
   public void testDoInStateConcurrently() throws InterruptedException {
+    control.replay();
+
     final StateMachine<String> stateMachine = StateMachine.<String>builder(NAME)
         .initialState(A)
         .addState(A, B)
@@ -274,11 +304,94 @@ public class StateMachineTest {
 
   @Test(expected = IllegalStateException.class)
   public void testDoInStateFails() {
+    control.replay();
+
     StateMachine.<String>builder(NAME)
         .initialState(A)
         .addState(A, B)
         .build()
         .doInState(B, Commands.asSupplier(Commands.NOOP));
+  }
+
+  @Test
+  public void testNoThrowOnInvalidTransition() {
+    control.replay();
+
+    StateMachine<String> machine = StateMachine.<String>builder(NAME)
+        .initialState(A)
+        .addState(A, B)
+        .throwOnBadTransition(false)
+        .build();
+
+    machine.transition(C);
+    assertThat(machine.getState(), is(A));
+  }
+
+  private static final Clazz<Closure<Transition<String>>> TRANSITION_CLOSURE_CLZ =
+      new Clazz<Closure<Transition<String>>>() {};
+
+  @Test
+  public void testTransitionCallbacks() {
+    Closure<Transition<String>> anyTransition = createMock(TRANSITION_CLOSURE_CLZ);
+    Closure<Transition<String>> fromA = createMock(TRANSITION_CLOSURE_CLZ);
+    Closure<Transition<String>> fromB = createMock(TRANSITION_CLOSURE_CLZ);
+
+    Transition<String> aToB = new Transition<String>(A, B, true);
+    anyTransition.execute(aToB);
+    fromA.execute(aToB);
+
+    Transition<String> bToB = new Transition<String>(B, B, false);
+    anyTransition.execute(bToB);
+    fromB.execute(bToB);
+
+    Transition<String> bToC = new Transition<String>(B, C, true);
+    anyTransition.execute(bToC);
+    fromB.execute(bToC);
+
+    anyTransition.execute(new Transition<String>(C, B, true));
+
+    Transition<String> bToD = new Transition<String>(B, D, true);
+    anyTransition.execute(bToD);
+    fromB.execute(bToD);
+
+    control.replay();
+
+    StateMachine<String> machine = StateMachine.<String>builder(NAME)
+        .initialState(A)
+        .addState(fromA, A, B)
+        .addState(fromB, B, C, D)
+        .addState(C, B)
+        .addState(D)
+        .onAnyTransition(anyTransition)
+        .throwOnBadTransition(false)
+        .build();
+
+    machine.transition(B);
+    machine.transition(B);
+    machine.transition(C);
+    machine.transition(B);
+    machine.transition(D);
+  }
+
+  @Test
+  public void testFilteredTransitionCallbacks() {
+    Closure<Transition<String>> aToBHandler = createMock(TRANSITION_CLOSURE_CLZ);
+    Closure<Transition<String>> impossibleHandler = createMock(TRANSITION_CLOSURE_CLZ);
+
+    aToBHandler.execute(new Transition<String>(A, B, true));
+
+    control.replay();
+
+    StateMachine<String> machine = StateMachine.<String>builder(NAME)
+        .initialState(A)
+        .addState(Closures.filter(Transition.to(B), aToBHandler), A, B, C)
+        .addState(Closures.filter(Transition.to(B), impossibleHandler), B, A)
+        .addState(C)
+        .build();
+
+    machine.transition(B);
+    machine.transition(A);
+    machine.transition(C);
   }
 
   private static void changeState(StateMachine<String> machine, String to, boolean expectAllowed) {

@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-from pants import *
+
 
 TIMED_SOURCES = set([ 'TimedInterceptor.java' ])
 

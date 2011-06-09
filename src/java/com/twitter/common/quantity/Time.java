@@ -20,6 +20,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Provides a unit to allow conversions and unambiguous passing around of time {@link Amount}s.
+ *
+ * @author John Sirois
  */
 public enum Time implements Unit<Time> {
   NANOSECONDS(1, TimeUnit.NANOSECONDS, "ns"),

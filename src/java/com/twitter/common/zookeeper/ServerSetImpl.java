@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ComputationException;
 import com.google.common.collect.ImmutableList;
@@ -38,7 +39,10 @@ import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
+import org.apache.thrift.protocol.TType;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.KeeperException.NoNodeException;
 import org.apache.zookeeper.WatchedEvent;
@@ -51,6 +55,8 @@ import com.twitter.common.base.Command;
 import com.twitter.common.base.Function;
 import com.twitter.common.base.Supplier;
 import com.twitter.common.io.Codec;
+import com.twitter.common.io.CompatibilityCodec;
+import com.twitter.common.io.JsonCodec;
 import com.twitter.common.io.ThriftCodec;
 import com.twitter.common.util.BackoffHelper;
 import com.twitter.common.zookeeper.Group.GroupChangeListener;
@@ -70,9 +76,17 @@ import com.twitter.thrift.Status;
 public class ServerSetImpl implements ServerSet {
   private static final Logger LOG = Logger.getLogger(ServerSetImpl.class.getName());
 
-  // Binary protocol is used here since it is currently (5/18/10) compatible all thrift languages.
-  private static final Codec<ServiceInstance> THRIFT_BINARY_PROTOCOL_CODEC =
-      new ThriftCodec<ServiceInstance>(ServiceInstance.class, ThriftCodec.BINARY_PROTOCOL);
+  private static final Codec<ServiceInstance> DEFAULT_CODEC =
+      // TODO: switch the order of the codecs and set the discriminator to
+      // (byte)'{' once all clients are able to understand the JSON format.
+      CompatibilityCodec.create(
+          ThriftCodec.create(ServiceInstance.class, ThriftCodec.BINARY_PROTOCOL),
+          JsonCodec.create(ServiceInstance.class, createThriftExclusingGson()), 2,
+          new Predicate<byte[]>() {
+            public boolean apply(byte[] input) {
+              return input.length < 2 || input[0] != '{' || input[1] != '\"';
+            }
+          });
 
   private final ZooKeeperClient zkClient;
   private final Group group;
@@ -89,6 +103,11 @@ public class ServerSetImpl implements ServerSet {
     this(zkClient, ZooDefs.Ids.OPEN_ACL_UNSAFE, path);
   }
 
+  private static Gson createThriftExclusingGson() {
+    return new GsonBuilder().setExclusionStrategies(JsonCodec.getThriftExclusionStrategy())
+        .create();
+  }
+
   /**
    * Creates a new ServerSet for the given service {@code path}.
    *
@@ -97,7 +116,7 @@ public class ServerSetImpl implements ServerSet {
    * @param path the name-service path of the service to connect to
    */
   public ServerSetImpl(ZooKeeperClient zkClient, List<ACL> acl, String path) {
-    this(zkClient, new Group(zkClient, acl, path), THRIFT_BINARY_PROTOCOL_CODEC);
+    this(zkClient, new Group(zkClient, acl, path), DEFAULT_CODEC);
   }
 
   /**
@@ -107,7 +126,7 @@ public class ServerSetImpl implements ServerSet {
    * @param group the server group
    */
   public ServerSetImpl(ZooKeeperClient zkClient, Group group) {
-    this(zkClient, group, THRIFT_BINARY_PROTOCOL_CODEC);
+    this(zkClient, group, DEFAULT_CODEC);
   }
 
   /**

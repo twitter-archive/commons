@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-from pants import *
+
 
 java_library(name = 'zookeeper',
   provides = artifact(
@@ -27,6 +27,7 @@ java_library(name = 'zookeeper',
     pants('3rdparty:jsr305'),
     pants('3rdparty:zookeeper'),
     pants('src/java/com/twitter/common/base'),
+    pants('src/java/com/twitter/common/io:json'),
     pants('src/java/com/twitter/common/io:thrift'),
     pants('src/java/com/twitter/common/net:util'),
     pants('src/java/com/twitter/common/net:dynamic-host-set'),

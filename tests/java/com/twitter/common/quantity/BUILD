@@ -14,8 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-from glob import glob
-from pants import *
+
 
 java_tests(name = 'quantity',
   dependencies = [
@@ -24,5 +23,5 @@ java_tests(name = 'quantity',
     pants('3rdparty:tl4j'),
     pants('src/java/com/twitter/common/quantity'),
   ],
-  sources = glob('*.java'),
+  sources = globs('*.java'),
 )

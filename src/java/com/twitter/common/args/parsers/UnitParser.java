@@ -17,6 +17,14 @@
 package com.twitter.common.args.parsers;
 
 import java.util.EnumSet;
+import java.util.Map;
+
+import com.google.common.base.Functions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 
 import com.twitter.common.quantity.Data;
 import com.twitter.common.quantity.Time;
@@ -26,27 +34,25 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * Unit parser.
+ * Units are matched (case sensitively) against the result of {@link Unit#toString()}.
  *
  * @author William Farner
  */
 public class UnitParser extends NonParameterizedTypeParser<Unit> {
 
+  private final Map<String, Unit> unitValues;
+
   public UnitParser() {
     super(Unit.class);
+
+    unitValues = Maps.uniqueIndex(
+        ImmutableList.<Unit>builder().add(Time.values()).add(Data.values()).build(),
+        Functions.toStringFunction());
   }
 
   @Override
   public Unit doParse(String raw) {
-    Unit unit = null;
-    try {
-      unit = Time.valueOf(raw);
-    } catch (IllegalArgumentException e) {
-      try {
-        unit = Data.valueOf(raw);
-      } catch (IllegalArgumentException x) {
-        // No-op.
-      }
-    }
+    Unit unit = unitValues.get(raw);
 
     checkArgument(unit != null, String.format(
         "No Units found matching %s, options: (Time): %s, (Data): %s",

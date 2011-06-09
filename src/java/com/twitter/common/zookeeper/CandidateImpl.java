@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -51,13 +52,34 @@ public class CandidateImpl implements Candidate {
 
   private static final String UNKOWN_CANDIDATE_ADDRESS = "<unknown>";
 
+  private static final Function<Iterable<String>, String> MOST_RECENT_JUDGE =
+      new Function<Iterable<String>, String>() {
+        @Override public String apply(Iterable<String> candidates) {
+          return Ordering.natural().min(candidates);
+        }
+      };
+
   private final Group group;
+  private final Function<Iterable<String>, String> judge;
 
   /**
-   * Creates a candidate that can be used to offer leadership for the given {@code group}.
+   * Equivalent to {@link #CandidateImpl(Group, com.google.common.base.Function)} using a judge that
+   * always picks the lowest numbered candidate ephemeral node - by proxy the oldest or 1st
+   * candidate.
    */
   public CandidateImpl(Group group) {
+    this(group, MOST_RECENT_JUDGE);
+  }
+
+  /**
+   * Creates a candidate that can be used to offer leadership for the given {@code group}.  The
+   * {@code judge} is used to pick the current leader from all group members whenever the group
+   * membership changes.  To form a well-behaved election group with one leader, all candidates
+   * should use the same judge.
+   */
+  public CandidateImpl(Group group, Function<Iterable<String>, String> judge) {
     this.group = Preconditions.checkNotNull(group);
+    this.judge = Preconditions.checkNotNull(judge);
   }
 
   @Override
@@ -112,6 +134,9 @@ public class CandidateImpl implements Candidate {
                 }
               });
             } else if (!electedLeader) {
+              if (previouslyElected) {
+                leader.onDefeated();
+              }
               LOG.info(String.format(
                   "Candidate %s waiting for the next leader election, current voting: %s",
                   membership.getMemberPath(), memberIds));
@@ -127,11 +152,6 @@ public class CandidateImpl implements Candidate {
       };
   }
 
-  private static String getLeader(Iterable<String> candidates) {
-    ImmutableList<String> sortedMembers = Ordering.natural().immutableSortedCopy(candidates);
-    return sortedMembers.get(0);
-  }
-
   private String getAddress() {
     try {
       return InetAddress.getLocalHost().getHostAddress();
@@ -139,5 +159,9 @@ public class CandidateImpl implements Candidate {
       LOG.log(Level.WARNING, "Failed to determine local address!", e);
       return UNKOWN_CANDIDATE_ADDRESS;
     }
+  }
+
+  private String getLeader(Iterable<String> memberIds) {
+    return judge.apply(memberIds);
   }
 }

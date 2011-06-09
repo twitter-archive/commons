@@ -16,13 +16,14 @@
 
 package com.twitter.common.testing;
 
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import com.google.common.collect.ImmutableList;
+
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.easymock.EasyMock.expectLastCall;
 import static org.junit.Assert.assertEquals;
@@ -37,10 +38,10 @@ public class EasyMockTestTest extends EasyMockTest {
   public void testSimplyParametrizedMock() {
     final AtomicBoolean ran = new AtomicBoolean(false);
 
-    Runnable runnable = createMock(new Clazz<Runnable>() {});
+    Runnable runnable = createMock(new Clazz<Runnable>() { });
     runnable.run();
     expectLastCall().andAnswer(new IAnswer<Void>() {
-      @Override public Void answer() throws Throwable {
+      @Override public Void answer() {
         ran.set(true);
         return null;
       }
@@ -53,7 +54,7 @@ public class EasyMockTestTest extends EasyMockTest {
 
   @Test
   public void testNestedParametrizedMock() {
-    List<List<String>> list = createMock(new Clazz<List<List<String>>>() {});
+    List<List<String>> list = createMock(new Clazz<List<List<String>>>() { });
     EasyMock.expect(list.get(0)).andReturn(ImmutableList.of("jake"));
     control.replay();
 

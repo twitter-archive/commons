@@ -16,25 +16,23 @@
 
 package com.twitter.common.thrift;
 
+import java.net.InetSocketAddress;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
-import com.twitter.thrift.Endpoint;
-import com.twitter.thrift.ServiceInstance;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.net.InetSocketAddress;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.thrift.TBase;
 import org.apache.thrift.TFieldIdEnum;
 import org.apache.thrift.meta_data.FieldMetaData;
+
+import com.twitter.thrift.Endpoint;
+import com.twitter.thrift.ServiceInstance;
 
 /**
  * Utility functions for thrift.
@@ -96,6 +94,10 @@ public class Util {
       return "\n" + printTbase((TBase) o, depth + 1);
     } else if (Map.class.isAssignableFrom(o.getClass())) {
       return printMap((Map) o, depth + 1);
+    } else if (List.class.isAssignableFrom(o.getClass())) {
+      return printList((List) o, depth + 1);
+    } else if (Set.class.isAssignableFrom(o.getClass())) {
+      return printSet((Set) o, depth + 1);
     } else if (String.class == o.getClass()) {
       return '"' + o.toString() + '"';
     } else {
@@ -136,6 +138,41 @@ public class Util {
     for (Map.Entry entry : map.entrySet()) {
       entries.add(tabs(depth) + printValue(entry.getKey(), depth)
           + " = " + printValue(entry.getValue(), depth));
+    }
+
+    return entries.isEmpty() ? "{}"
+        : String.format("{\n%s\n%s}", Joiner.on(",\n").join(entries), tabs(depth - 1));
+  }
+
+  /**
+   * Prints a list in a style that is consistent with TBase pretty printing.
+   *
+   * @param list The list to print
+   * @param depth The print nesting level.
+   * @return The pretty-printed version of the list
+   */
+  private static String printList(List<?> list, int depth) {
+    List<String> entries = Lists.newArrayList();
+    for (int i = 0; i < list.size(); i++) {
+      entries.add(
+          String.format("%sItem[%d] = %s", tabs(depth), i, printValue(list.get(i), depth)));
+    }
+
+    return entries.isEmpty() ? "[]"
+        : String.format("[\n%s\n%s]", Joiner.on(",\n").join(entries), tabs(depth - 1));
+  }
+  /**
+   * Prints a set in a style that is consistent with TBase pretty printing.
+   *
+   * @param set The set to print
+   * @param depth The print nesting level.
+   * @return The pretty-printed version of the set
+   */
+  private static String printSet(Set<?> set, int depth) {
+    List<String> entries = Lists.newArrayList();
+    for (Object item : set) {
+      entries.add(
+          String.format("%sItem = %s", tabs(depth), printValue(item, depth)));
     }
 
     return entries.isEmpty() ? "{}"

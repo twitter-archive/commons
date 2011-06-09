@@ -50,7 +50,6 @@ import org.reflections.scanners.FieldAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
-import org.reflections.util.FilterBuilder.Include;
 
 import com.twitter.common.args.Parsers.Parser;
 import com.twitter.common.args.constraints.NotNull;

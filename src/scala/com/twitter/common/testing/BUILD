@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-from pants import *
+
 
 scala_library(name = 'explicit-specs-runner',
   dependencies = [

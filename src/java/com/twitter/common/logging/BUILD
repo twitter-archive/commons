@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-from pants import *
+
 
 java_library(name = 'logging',
   provides = artifact(
@@ -43,6 +43,11 @@ java_library(name = 'buffered',
 )
 
 java_library(name = 'scribe',
+  provides = artifact(
+    org = 'com.twitter.common',
+    name = 'logging-scribe',
+    repo = pants('build-support/commons/ivy:public'),
+  ),
   dependencies = [
     pants('3rdparty:guava'),
     pants('3rdparty:thrift'),

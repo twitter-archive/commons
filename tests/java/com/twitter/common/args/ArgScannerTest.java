@@ -30,13 +30,18 @@ import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.twitter.common.args.ArgScannerTest.StandardArgs.Optimizations;
 import com.twitter.common.args.constraints.NotEmpty;
 import com.twitter.common.args.constraints.NotNegative;
 import com.twitter.common.args.constraints.NotNull;
 import com.twitter.common.args.constraints.Positive;
 import com.twitter.common.args.constraints.Range;
+import com.twitter.common.args.parsers.EnumParser;
 import com.twitter.common.base.Command;
 import com.twitter.common.collections.Pair;
+import com.twitter.common.quantity.Amount;
+import com.twitter.common.quantity.Data;
+import com.twitter.common.quantity.Time;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -57,6 +62,9 @@ public class ArgScannerTest {
   }
 
   public static class StandardArgs {
+    enum Optimizations { NONE, MINIMAL, ALL }
+    @CmdLine(name = "enum", help = "help", parser = EnumParser.class)
+    static final Arg<Optimizations> enumVal = Arg.create(Optimizations.MINIMAL);
     @CmdLine(name = "string", help = "help")
     static final Arg<String> stringVal = Arg.create("string");
     @CmdLine(name = "char", help = "help")
@@ -75,10 +83,20 @@ public class ArgScannerTest {
     static Arg<Double> doubleVal = Arg.create(0D);
     @CmdLine(name = "bool", help = "help")
     static Arg<Boolean> bool = Arg.create(false);
+    @CmdLine(name = "time_amount", help = "help")
+    static Arg<Amount<Long, Time>> timeAmount = Arg.create(Amount.of(1L, Time.SECONDS));
+    @CmdLine(name = "data_amount", help = "help")
+    static Arg<Amount<Long, Data>> dataAmount = Arg.create(Amount.of(1L, Data.MB));
   }
 
   @Test
   public void testStandardArgs() {
+    test(StandardArgs.class,
+        new Command() {
+          @Override public void execute() {
+            assertThat(StandardArgs.enumVal.get(), is(Optimizations.ALL));
+          }
+        }, "enum", "ALL");
     test(StandardArgs.class,
         new Command() {
           @Override public void execute() {
@@ -143,6 +161,20 @@ public class ArgScannerTest {
           @Override public void execute() { assertThat(StandardArgs.bool.get(), is(true)); }
         },
         "no_bool", "false");
+    test(StandardArgs.class,
+        new Command() {
+          @Override public void execute() {
+            assertThat(StandardArgs.timeAmount.get(), is(Amount.of(100L, Time.SECONDS)));
+          }
+        },
+        "time_amount", "100secs");
+    test(StandardArgs.class,
+        new Command() {
+          @Override public void execute() {
+            assertThat(StandardArgs.dataAmount.get(), is(Amount.of(1L, Data.Gb)));
+          }
+        },
+        "data_amount", "1Gb");
   }
 
   @Test
@@ -390,6 +422,21 @@ public class ArgScannerTest {
     // TODO(William Farner): Fix.
     parse(ImmutableList.<Class>of(NameClashA.class, NameClashB.class),
         "-" + NameClashB.class.getCanonicalName() + ".string=blah");
+  }
+
+  public static class AmountContainer {
+    @CmdLine(name = "time_amount", help = "help")
+    static final Arg<Amount<Integer, Time>> timeAmount = Arg.create(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testBadUnitType() {
+    parse(ImmutableList.<Class>of(AmountContainer.class), "-time_amount=1Mb");
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testUnrecognizedUnitType() {
+    parse(ImmutableList.<Class>of(AmountContainer.class), "-time_amount=1abcd");
   }
 
   // TODO(William Farner): Do we want to support nested parameterized args?  If so, need to define a syntax

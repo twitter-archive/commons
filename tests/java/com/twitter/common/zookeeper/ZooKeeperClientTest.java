@@ -16,22 +16,24 @@
 
 package com.twitter.common.zookeeper;
 
-import com.twitter.common.quantity.Amount;
-import com.twitter.common.quantity.Time;
-import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException;
-import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.apache.zookeeper.KeeperException.ConnectionLossException;
 import org.apache.zookeeper.ZooKeeper;
 import org.junit.Test;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicReference;
+import com.twitter.common.quantity.Amount;
+import com.twitter.common.quantity.Time;
+import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException;
+import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
 
 import static com.google.common.testing.junit4.JUnitAsserts.assertNotEqual;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -46,7 +48,7 @@ public class ZooKeeperClientTest extends BaseZooKeeperTest {
       zkClient.get(Amount.of(50L, Time.MILLISECONDS));
       fail("Expected client connection to timeout while network down");
     } catch (TimeoutException e) {
-      // expected
+      assertTrue(zkClient.isClosed());
     }
 
     final CountDownLatch blockingGetComplete = new CountDownLatch(1);

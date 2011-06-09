@@ -14,8 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-from glob import glob
-from pants import *
+
 
 java_library(name = 'testing',
   dependencies = [
@@ -24,5 +23,5 @@ java_library(name = 'testing',
     pants('3rdparty:junit'),
     pants('3rdparty:tl4j'),
   ],
-  sources = glob('*.java')
+  sources = globs('*.java')
 )

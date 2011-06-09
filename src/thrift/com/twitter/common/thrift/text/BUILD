@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-from pants import *
+
 
 java_thrift_library(name = 'text',
   sources = [ 'TTextProtocolTest.thrift' ]

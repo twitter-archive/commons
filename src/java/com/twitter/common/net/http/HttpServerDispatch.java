@@ -16,20 +16,6 @@
 
 package com.twitter.common.net.http;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.twitter.common.net.http.handlers.TextResponseHandler;
-import org.mortbay.jetty.AbstractConnector;
-import org.mortbay.jetty.Connector;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.nio.SelectChannelConnector;
-import org.mortbay.jetty.servlet.Context;
-import org.mortbay.jetty.servlet.ServletHolder;
-
-import javax.annotation.Nullable;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +23,23 @@ import java.util.Random;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.annotation.Nullable;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
+import org.mortbay.jetty.AbstractConnector;
+import org.mortbay.jetty.Connector;
+import org.mortbay.jetty.Server;
+import org.mortbay.jetty.nio.SelectChannelConnector;
+import org.mortbay.jetty.servlet.Context;
+import org.mortbay.jetty.servlet.ServletHolder;
+
+import com.twitter.common.net.http.handlers.TextResponseHandler;
 
 /**
  * A simple multi-threaded HTTP server dispatcher.  Supports registering handlers for different
@@ -132,7 +135,7 @@ public class HttpServerDispatch {
         connector.open();
         return connector;
       } catch (IOException e) {
-        LOG.log(Level.INFO, "Failed to create HTTP server on port " + port);
+        LOG.log(Level.WARNING, "Failed to create HTTP server on port " + port, e);
       }
     }
     return null;

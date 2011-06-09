@@ -30,7 +30,7 @@ public interface Application extends Runnable {
    *
    * @return Application binding modules.
    */
-  Iterable<Module> getModules();
+  Iterable<? extends Module> getModules();
 
   /**
    * Returns an iterable containing modules that should <i>override</i> bindings made in the rest
@@ -38,5 +38,5 @@ public interface Application extends Runnable {
    *
    * @return Application override binding modules.
    */
-  Iterable<Module> getOverridingModules();
+  Iterable<? extends Module> getOverridingModules();
 }

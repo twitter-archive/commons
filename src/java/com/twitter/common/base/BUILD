@@ -38,7 +38,7 @@ report an error.
 Currently pants uses ant to implement the tasks available for a module.  In practice this means
 that pants will generate a build.xml/ivy.xml pair and pass any additional arguments along to ant."""
 
-from pants import *
+
 
 java_library(name = 'base',
   provides = artifact(

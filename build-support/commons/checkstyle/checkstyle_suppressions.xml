@@ -45,9 +45,7 @@ limitations under the License.
   <suppress files="com/twitter/common/net/.*\.java" checks=".*"/>
   <suppress files="com/twitter/common/objectsize/.*\.java" checks=".*"/>
   <suppress files="com/twitter/common/process/.*\.java" checks=".*"/>
-  <suppress files="com/twitter/common/quantity/.*\.java" checks=".*"/>
   <suppress files="com/twitter/common/stats/.*\.java" checks=".*"/>
-  <suppress files="com/twitter/common/testing/.*\.java" checks=".*"/>
   <suppress files="com/twitter/common/thrift/.*\.java" checks=".*"/>
   <suppress files="com/twitter/common/util/.*\.java" checks=".*"/>
   <suppress files="com/twitter/common/zookeeper/.*\.java" checks=".*"/>

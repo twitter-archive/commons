@@ -16,11 +16,26 @@
 
 package com.twitter.common.thrift;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.net.InetSocketAddress;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
+
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
+import org.apache.thrift.async.AsyncMethodCallback;
+import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.TTransportException;
+
 import com.twitter.common.base.MorePreconditions;
 import com.twitter.common.net.loadbalancing.RequestTracker;
 import com.twitter.common.net.pool.Connection;
@@ -34,19 +49,6 @@ import com.twitter.common.thrift.callers.DebugCaller;
 import com.twitter.common.thrift.callers.RetryingCaller;
 import com.twitter.common.thrift.callers.StatTrackingCaller;
 import com.twitter.common.thrift.callers.ThriftCaller;
-import org.apache.thrift.async.AsyncMethodCallback;
-import org.apache.thrift.transport.TTransport;
-import org.apache.thrift.transport.TTransportException;
-
-import java.io.IOException;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.net.InetSocketAddress;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.RejectedExecutionException;
 
 /**
  * A generic thrift client that handles reconnection in the case of protocol errors, automatic
@@ -113,26 +115,29 @@ public class Thrift<T> {
   private final Class<T> serviceInterface;
   private final Function<TTransport, T> clientFactory;
   private final boolean async;
+  private final boolean withSsl;
 
   /**
    * Constructs an instance with the {@link #DEFAULT_CONFIG}, cached thread pool
    * {@link ExecutorService}, and synchronous calls.
    *
-   * @see #Thrift(Config, ExecutorService, ObjectPool, RequestTracker , String, Class, Function, boolean)
+   * @see #Thrift(Config, ExecutorService, ObjectPool, RequestTracker , String, Class, Function,
+   *     boolean, boolean)
    */
   public Thrift(ObjectPool<Connection<TTransport, InetSocketAddress>> connectionPool,
       RequestTracker<InetSocketAddress> requestTracker,
       String serviceName, Class<T> serviceInterface, Function<TTransport, T> clientFactory) {
 
     this(DEFAULT_CONFIG, connectionPool, requestTracker, serviceName, serviceInterface,
-        clientFactory, false);
+        clientFactory, false, false);
   }
 
   /**
    * Constructs an instance with the {@link #DEFAULT_CONFIG} and cached thread pool
    * {@link ExecutorService}.
    *
-   * @see #Thrift(Config, ExecutorService, ObjectPool, RequestTracker , String, Class, Function, boolean)
+   * @see #Thrift(Config, ExecutorService, ObjectPool, RequestTracker , String, Class, Function,
+   *    boolean, boolean)
    */
   public Thrift(ObjectPool<Connection<TTransport, InetSocketAddress>> connectionPool,
       RequestTracker<InetSocketAddress> requestTracker,
@@ -140,18 +145,35 @@ public class Thrift<T> {
       boolean async) {
 
     this(getConfig(async), connectionPool, requestTracker, serviceName,
-        serviceInterface, clientFactory, async);
+        serviceInterface, clientFactory, async, false);
+  }
+
+  /**
+   * Constructs an instance with the {@link #DEFAULT_CONFIG} and cached thread pool
+   * {@link ExecutorService}.
+   *
+   * @see #Thrift(Config, ExecutorService, ObjectPool, RequestTracker , String, Class, Function,
+   *    boolean, boolean)
+   */
+  public Thrift(ObjectPool<Connection<TTransport, InetSocketAddress>> connectionPool,
+      RequestTracker<InetSocketAddress> requestTracker,
+      String serviceName, Class<T> serviceInterface, Function<TTransport, T> clientFactory,
+      boolean async, boolean ssl) {
+
+    this(getConfig(async), connectionPool, requestTracker, serviceName,
+        serviceInterface, clientFactory, async, ssl);
   }
 
   /**
    * Constructs an instance with a cached thread pool {@link ExecutorService}.
    *
-   * @see #Thrift(Config, ExecutorService, ObjectPool, RequestTracker , String, Class, Function, boolean)
+   * @see #Thrift(Config, ExecutorService, ObjectPool, RequestTracker , String, Class, Function,
+   *    boolean, boolean)
    */
   public Thrift(Config config, ObjectPool<Connection<TTransport, InetSocketAddress>> connectionPool,
       RequestTracker<InetSocketAddress> requestTracker,
       String serviceName, Class<T> serviceInterface, Function<TTransport, T> clientFactory,
-      boolean async) {
+      boolean async, boolean ssl) {
 
     this(config,
         Executors.newCachedThreadPool(
@@ -159,22 +181,23 @@ public class Thrift<T> {
                 .setDaemon(true)
                 .setNameFormat("Thrift["+ serviceName +"][%d]")
                 .build()),
-        connectionPool, requestTracker, serviceName, serviceInterface, clientFactory, async);
+        connectionPool, requestTracker, serviceName, serviceInterface, clientFactory, async, ssl);
   }
 
   /**
    * Constructs an instance with the {@link #DEFAULT_CONFIG}.
    *
-   * @see #Thrift(Config, ExecutorService, ObjectPool, RequestTracker , String, Class, Function, boolean)
+   * @see #Thrift(Config, ExecutorService, ObjectPool, RequestTracker , String, Class, Function,
+   *    boolean, boolean)
    */
   public Thrift(ExecutorService executorService,
       ObjectPool<Connection<TTransport, InetSocketAddress>> connectionPool,
       RequestTracker<InetSocketAddress> requestTracker,
       String serviceName, Class<T> serviceInterface, Function<TTransport, T> clientFactory,
-      boolean async) {
+      boolean async, boolean ssl) {
 
     this(getConfig(async), executorService, connectionPool, requestTracker, serviceName,
-        serviceInterface, clientFactory, async);
+        serviceInterface, clientFactory, async, ssl);
   }
 
   private static Config getConfig(boolean async) {
@@ -202,11 +225,13 @@ public class Thrift<T> {
    *     (Iface)
    * @param clientFactory a function that can generate a concrete thrift client for the given
    *     {@code serviceInterface}
+   * @param async enable asynchronous API
+   * @param ssl enable TLS handshaking for Thrift calls
    */
   public Thrift(Config config, ExecutorService executorService,
       ObjectPool<Connection<TTransport, InetSocketAddress>> connectionPool,
       RequestTracker<InetSocketAddress> requestTracker, String serviceName,
-      Class<T> serviceInterface, Function<TTransport, T> clientFactory, boolean async) {
+      Class<T> serviceInterface, Function<TTransport, T> clientFactory, boolean async, boolean ssl) {
 
     defaultConfig = Preconditions.checkNotNull(config);
     this.executorService = Preconditions.checkNotNull(executorService);
@@ -216,6 +241,7 @@ public class Thrift<T> {
     this.serviceInterface = checkServiceInterface(serviceInterface);
     this.clientFactory = Preconditions.checkNotNull(clientFactory);
     this.async = async;
+    this.withSsl = ssl;
   }
 
   static <I> Class<I> checkServiceInterface(Class<I> serviceInterface) {

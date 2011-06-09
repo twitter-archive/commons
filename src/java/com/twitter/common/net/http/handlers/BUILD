@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-from pants import *
+
 
 TEXT_SOURCES = [ 'TextResponseHandler.java' ]
 

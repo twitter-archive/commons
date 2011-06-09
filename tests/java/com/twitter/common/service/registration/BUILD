@@ -15,9 +15,9 @@
 # ==================================================================================================
 
 from glob import glob
-from pants import *
 
-java_tests(name = 'registration',
+
+java_tests(name = 'medium',
   dependencies = [
     pants('3rdparty:gson'),
     pants('3rdparty:hamcrest-core'),
@@ -26,5 +26,7 @@ java_tests(name = 'registration',
     pants('src/java/com/twitter/common/zookeeper:testing'),
     pants('src/java/com/twitter/common/service/registration:serverset'),
   ],
-  sources = glob('*.java'),
+  sources = [ 'ServerSet2Test.java' ],
 )
+
+jar_library(name = 'registration', dependencies = [ pants(':medium') ])

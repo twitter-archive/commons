@@ -16,20 +16,21 @@
 
 package com.twitter.common.thrift;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import com.google.common.base.Function;
-import com.twitter.common.base.Command;
-import com.twitter.common.thrift.testing.MockTSocket;
-import com.twitter.common.net.pool.Connection;
-import com.twitter.common.net.pool.ObjectPool;
-import com.twitter.common.net.pool.ResourceExhaustedException;
-import com.twitter.common.quantity.Amount;
-import com.twitter.common.quantity.Time;
-import com.twitter.common.stats.Stat;
-import com.twitter.common.stats.Stats;
-import com.twitter.common.thrift.callers.RetryingCaller;
-import com.twitter.common.net.loadbalancing.LoadBalancer;
-import com.twitter.common.net.loadbalancing.RequestTracker;
-import com.twitter.common.util.concurrent.ForwardingExecutorService;
+
 import org.apache.thrift.TException;
 import org.apache.thrift.async.AsyncMethodCallback;
 import org.apache.thrift.transport.TTransport;
@@ -44,18 +45,19 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import com.twitter.common.base.Command;
+import com.twitter.common.net.loadbalancing.LoadBalancer;
+import com.twitter.common.net.loadbalancing.RequestTracker;
+import com.twitter.common.net.pool.Connection;
+import com.twitter.common.net.pool.ObjectPool;
+import com.twitter.common.net.pool.ResourceExhaustedException;
+import com.twitter.common.quantity.Amount;
+import com.twitter.common.quantity.Time;
+import com.twitter.common.stats.Stat;
+import com.twitter.common.stats.Stats;
+import com.twitter.common.thrift.callers.RetryingCaller;
+import com.twitter.common.thrift.testing.MockTSocket;
+import com.twitter.common.util.concurrent.ForwardingExecutorService;
 
 import static org.easymock.EasyMock.and;
 import static org.easymock.EasyMock.anyLong;
@@ -292,7 +294,7 @@ public class ThriftTest {
         .create();
 
     new Thrift<TestServiceAsync>(config, connectionPool, requestTracker,
-      "foo", TestServiceAsync.class, asyncClientFactory, true).create();
+      "foo", TestServiceAsync.class, asyncClientFactory, true, false).create();
   }
 
   @Test
@@ -821,12 +823,12 @@ public class ThriftTest {
 
   private Thrift<TestService> createThrift(ExecutorService executorService) {
     return new Thrift<TestService>(executorService, connectionPool, requestTracker, "foo",
-        TestService.class, clientFactory, false);
+        TestService.class, clientFactory, false, false);
   }
 
   private Thrift<TestServiceAsync> createAsyncThrift(ExecutorService executorService) {
     return new Thrift<TestServiceAsync>(executorService, connectionPool, requestTracker, "foo",
-        TestServiceAsync.class, asyncClientFactory, true);
+        TestServiceAsync.class, asyncClientFactory, true, false);
   }
 
   private TestService expectServiceCall(boolean withFailure)

@@ -20,14 +20,34 @@ import java.util.LinkedList;
 
 import junit.framework.TestCase;
 
+/**
+ * @author Attila Szegedi
+ *
+ */
 public class ObjectSizeCalculatorTest extends TestCase {
+  private static int A = ObjectSizeCalculator.getArrayHeaderSize();
+  private static int O = ObjectSizeCalculator.getObjectHeaderSize();
+  private static int R = ObjectSizeCalculator.getReferenceSize();
+  private static int S = ObjectSizeCalculator.getSuperclassFieldPadding();
+
+  public void testRounding() {
+    assertEquals(0, roundTo(0, 8));
+    assertEquals(8, roundTo(1, 8));
+    assertEquals(8, roundTo(7, 8));
+    assertEquals(8, roundTo(8, 8));
+    assertEquals(16, roundTo(9, 8));
+    assertEquals(16, roundTo(15, 8));
+    assertEquals(16, roundTo(16, 8));
+    assertEquals(24, roundTo(17, 8));
+  }
 
   public void testObjectSize() {
-    assertSizeIs(16, new Object());
+    assertSizeIs(O, new Object());
   }
 
   public void testStringSize() {
-    assertSizeIs(64, new String());
+    // String has 3 int fields and one reference field
+    assertSizeIs(O + 3 * 4 + R + A, new String());
   }
 
   public static class Class1 {
@@ -35,7 +55,7 @@ public class ObjectSizeCalculatorTest extends TestCase {
   }
 
   public void testOneBooleanSize() {
-    assertSizeIs(24, new Class1());
+    assertSizeIs(O + 1, new Class1());
   }
 
   public static class Class2 extends Class1 {
@@ -43,47 +63,47 @@ public class ObjectSizeCalculatorTest extends TestCase {
   }
 
   public void testSimpleSubclassSize() {
-    assertSizeIs(32, new Class2());
+    assertSizeIs(O + roundTo(1, S) + 4, new Class2());
   }
 
   public void testZeroLengthArray() {
-    assertSizeIs(24, new byte[0]);
-    assertSizeIs(24, new int[0]);
-    assertSizeIs(24, new long[0]);
-    assertSizeIs(24, new Object[0]);
+    assertSizeIs(A, new byte[0]);
+    assertSizeIs(A, new int[0]);
+    assertSizeIs(A, new long[0]);
+    assertSizeIs(A, new Object[0]);
   }
 
   public void testByteArrays() {
-    assertSizeIs(32, new byte[1]);
-    assertSizeIs(32, new byte[8]);
-    assertSizeIs(40, new byte[9]);
+    assertSizeIs(A + 1, new byte[1]);
+    assertSizeIs(A + 8, new byte[8]);
+    assertSizeIs(A + 9, new byte[9]);
   }
 
   public void testCharArrays() {
-    assertSizeIs(32, new char[1]);
-    assertSizeIs(32, new char[4]);
-    assertSizeIs(40, new char[5]);
+    assertSizeIs(A + 2 * 1, new char[1]);
+    assertSizeIs(A + 2 * 4, new char[4]);
+    assertSizeIs(A + 2 * 5, new char[5]);
   }
 
   public void testIntArrays() {
-    assertSizeIs(32, new int[1]);
-    assertSizeIs(32, new int[2]);
-    assertSizeIs(40, new int[3]);
+    assertSizeIs(A + 4 * 1, new int[1]);
+    assertSizeIs(A + 4 * 2, new int[2]);
+    assertSizeIs(A + 4 * 3, new int[3]);
   }
 
   public void testLongArrays() {
-    assertSizeIs(32, new long[1]);
-    assertSizeIs(40, new long[2]);
-    assertSizeIs(48, new long[3]);
+    assertSizeIs(A + 8 * 1, new long[1]);
+    assertSizeIs(A + 8 * 2, new long[2]);
+    assertSizeIs(A + 8 * 3, new long[3]);
   }
 
   public void testObjectArrays() {
-    assertSizeIs(32, new Object[1]);
-    assertSizeIs(40, new Object[2]);
-    assertSizeIs(48, new Object[3]);
-    assertSizeIs(32, new String[1]);
-    assertSizeIs(40, new String[2]);
-    assertSizeIs(48, new String[3]);
+    assertSizeIs(A + R * 1, new Object[1]);
+    assertSizeIs(A + R * 2, new Object[2]);
+    assertSizeIs(A + R * 3, new Object[3]);
+    assertSizeIs(A + R * 1, new String[1]);
+    assertSizeIs(A + R * 2, new String[2]);
+    assertSizeIs(A + R * 3, new String[3]);
   }
 
   public static class Circular {
@@ -92,8 +112,9 @@ public class ObjectSizeCalculatorTest extends TestCase {
 
   public void testCircular() {
     Circular c1 = new Circular();
+    long size = ObjectSizeCalculator.getObjectSize(c1);
     c1.c = c1;
-    assertSizeIs(24, c1);
+    assertEquals(size, ObjectSizeCalculator.getObjectSize(c1));
   }
 
   public void testLongList() {
@@ -101,10 +122,15 @@ public class ObjectSizeCalculatorTest extends TestCase {
     for(int i = 0; i < 100000; ++i) {
       l.addLast(new Object());
     }
-    assertSizeIs(5600080, l);
+    assertSizeIs(roundTo(O + 4 + R, 8) + roundTo(O + 3 * R, 8) * 100001 +
+        roundTo(O, 8) * 100000, l);
   }
 
   private static void assertSizeIs(long size, Object o) {
-    assertEquals(size, ObjectSizeCalculator.getObjectSize(o));
+    assertEquals(roundTo(size, 8), ObjectSizeCalculator.getObjectSize(o));
+  }
+
+  private static long roundTo(long x, int multiple) {
+    return ObjectSizeCalculator.roundTo(x, multiple);
   }
 }

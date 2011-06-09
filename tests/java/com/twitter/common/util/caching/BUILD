@@ -15,7 +15,7 @@
 # ==================================================================================================
 
 from glob import glob
-from pants import *
+
 
 java_tests(name = 'caching',
   dependencies = [

@@ -22,6 +22,8 @@ package com.twitter.common.quantity;
  * of 1024 instead of 1000 as typical in metric units.  Additionally, units are divided in 2
  * hierarchies one based on bits and the other on bytes.  Thus {@link #Kb} represents kilobits; so
  * 1 Kb = 1024 bits, and {@link #KB} represents kilobytes so 1 KB = 1024 bytes or 8192 bits.
+ *
+ * @author John Sirois
  */
 public enum Data implements Unit<Data> {
   BITS(1),

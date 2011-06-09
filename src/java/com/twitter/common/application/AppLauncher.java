@@ -37,8 +37,8 @@ import com.twitter.common.args.Arg;
 import com.twitter.common.args.ArgScanner;
 import com.twitter.common.args.CmdLine;
 import com.twitter.common.args.constraints.NotNull;
+import com.twitter.common.args.parsers.EnumParser;
 import com.twitter.common.args.parsers.ListParser;
-import com.twitter.common.args.parsers.NonParameterizedTypeParser;
 
 /**
  * An application launcher that sets up a framework for pluggable binding modules.  This class
@@ -70,18 +70,8 @@ public final class AppLauncher {
 
   @CmdLine(name = "guice_stage",
            help = "Guice development stage to create injector with.",
-           parser = StageParser.class)
+           parser = EnumParser.class)
   private static final Arg<Stage> GUICE_STAGE = Arg.create(Stage.DEVELOPMENT);
-
-  // TODO(William Farner): Add a generic enum args parser to handle this.
-  public static class StageParser extends NonParameterizedTypeParser<Stage> {
-    public StageParser() {
-      super(Stage.class);
-    }
-    @Override public Stage doParse(String raw) throws IllegalArgumentException {
-      return Stage.valueOf(raw);
-    }
-  }
 
   @Inject @StartupStage private ActionController startupController;
   @Inject private Lifecycle lifecycle;

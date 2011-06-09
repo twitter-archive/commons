@@ -28,12 +28,12 @@ import com.google.inject.Module;
  */
 public abstract class AbstractApplication implements Application {
   @Override
-  public Iterable<Module> getModules() {
+  public Iterable<? extends Module> getModules() {
     return Collections.emptyList();
   }
 
   @Override
-  public Iterable<Module> getOverridingModules() {
+  public Iterable<? extends Module> getOverridingModules() {
     return Collections.emptyList();
   }
 }

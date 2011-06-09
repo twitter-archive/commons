@@ -64,6 +64,15 @@ public class ThriftCodec<T extends TBase> implements Codec<T> {
   private final Supplier<T> templateSupplier;
   private final Function<TTransport, TProtocol> protocolFactory;
 
+  public static <T extends TBase> ThriftCodec<T> create(final Class<T> thriftStructType,
+      Function<TTransport, TProtocol> protocolFactory) {
+    return new ThriftCodec<T>(MoreSuppliers.of(thriftStructType), protocolFactory);
+  }
+
+  /**
+   * @deprecated use {@link ThriftCodec#create(thriftStructType, protocolFactory) instead.
+   */
+  @Deprecated
   public ThriftCodec(final Class<T> thriftStructType,
       Function<TTransport, TProtocol> protocolFactory) {
     this(MoreSuppliers.of(thriftStructType), protocolFactory);

@@ -20,6 +20,8 @@ package com.twitter.common.quantity;
  * Represents a unit hierarchy for a given unit of measure; eg: time.  Instances represent specific
  * units from the hierarchy; eg: seconds.
  *
+ * @param <U> the type of the concrete unit implementation
+ *
  * @author John Sirois
  */
 public interface Unit<U extends Unit<U>> {

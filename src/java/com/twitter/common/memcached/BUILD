@@ -15,9 +15,14 @@
 # ==================================================================================================
 
 from glob import glob
-from pants import *
+
 
 java_library(name = 'memcached',
+  provides = artifact(
+    org = 'com.twitter.common',
+    name = 'memcached',
+    repo = pants('build-support/commons/ivy:public'),
+  ),
   dependencies = [
     pants('3rdparty:guava'),
     pants('3rdparty:spy-memcached'),

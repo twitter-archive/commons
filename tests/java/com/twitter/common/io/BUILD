@@ -15,7 +15,7 @@
 # ==================================================================================================
 
 from glob import glob
-from pants import *
+
 
 java_tests(name = 'io',
   dependencies = [
@@ -24,6 +24,7 @@ java_tests(name = 'io',
     pants('3rdparty:thrift'),
     pants('src/java/com/twitter/common/base'),
     pants('src/java/com/twitter/common/io'),
+    pants('src/java/com/twitter/common/io:json'),
     pants('src/java/com/twitter/common/io:streamer'),
     pants('src/java/com/twitter/common/io:thrift'),
     pants('src/java/com/twitter/common/thrift:testing'),

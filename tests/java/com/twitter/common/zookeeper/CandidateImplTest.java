@@ -16,8 +16,11 @@
 
 package com.twitter.common.zookeeper;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
+import com.google.common.collect.Ordering;
+
 import com.twitter.common.base.ExceptionalCommand;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
@@ -44,6 +47,7 @@ import static org.junit.Assert.assertTrue;
 public class CandidateImplTest extends BaseZooKeeperTest {
   private static final List<ACL> ACL = ZooDefs.Ids.OPEN_ACL_UNSAFE;
   private static final String SERVICE = "/twitter/services/puffin_linkhose/leader";
+  private static final Amount<Integer, Time> TIMEOUT = Amount.of(1, Time.MINUTES);
 
   private LinkedBlockingDeque<CandidateImpl> candidateBuffer;
 
@@ -95,21 +99,19 @@ public class CandidateImplTest extends BaseZooKeeperTest {
 
   @Test
   public void testOfferLeadership() throws Exception {
-    Amount<Integer, Time> timeout = Amount.of(1, Time.MINUTES);
-
-    ZooKeeperClient zkClient1 = createZkClient(timeout);
+    ZooKeeperClient zkClient1 = createZkClient(TIMEOUT);
     final CandidateImpl candidate1 = new CandidateImpl(createGroup(zkClient1)) {
       @Override public String toString() {
         return "Leader1";
       }
     };
-    ZooKeeperClient zkClient2 = createZkClient(timeout);
+    ZooKeeperClient zkClient2 = createZkClient(TIMEOUT);
     final CandidateImpl candidate2 = new CandidateImpl(createGroup(zkClient2)) {
       @Override public String toString() {
         return "Leader2";
       }
     };
-    ZooKeeperClient zkClient3 = createZkClient(timeout);
+    ZooKeeperClient zkClient3 = createZkClient(TIMEOUT);
     final CandidateImpl candidate3 = new CandidateImpl(createGroup(zkClient3)) {
       @Override public String toString() {
         return "Leader3";
@@ -157,5 +159,39 @@ public class CandidateImplTest extends BaseZooKeeperTest {
       // Passive expiration should trigger defeat.
       candidate3Reign.expectDefeated();
     }
+  }
+
+  @Test
+  public void testCustomJudge() throws Exception {
+    Function<Iterable<String>, String> judge = new Function<Iterable<String>, String>() {
+      @Override public String apply(Iterable<String> input) {
+        return Ordering.natural().max(input);
+      }
+    };
+
+    ZooKeeperClient zkClient1 = createZkClient(TIMEOUT);
+    final CandidateImpl candidate1 = new CandidateImpl(createGroup(zkClient1), judge) {
+      @Override public String toString() {
+        return "Leader1";
+      }
+    };
+    ZooKeeperClient zkClient2 = createZkClient(TIMEOUT);
+    final CandidateImpl candidate2 = new CandidateImpl(createGroup(zkClient2), judge) {
+      @Override public String toString() {
+        return "Leader2";
+      }
+    };
+
+    Reign candidate1Reign = new Reign("1", candidate1);
+    Reign candidate2Reign = new Reign("2", candidate2);
+
+    candidate1.offerLeadership(candidate1Reign);
+    assertSame(candidate1, candidateBuffer.takeLast());
+
+    Supplier<Boolean> candidate2Leader = candidate2.offerLeadership(candidate2Reign);
+    assertSame(candidate2, candidateBuffer.takeLast());
+    candidate1Reign.expectDefeated();
+    assertTrue("Since the judge picks the newest member joining a group as leader candidate 1 "
+               + "should be defeated and candidate 2 leader", candidate2Leader.get());
   }
 }

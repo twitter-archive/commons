@@ -14,13 +14,16 @@
 # limitations under the License.
 # ==================================================================================================
 
-from pants import *
-
 java_thrift_library(name = 'thrift',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'service-thrift',
     repo = pants('build-support/commons/ivy:public'),
   ),
+  sources = globs('*.thrift')
+)
+
+python_thrift_library(
+  name = 'py-thrift',
   sources = globs('*.thrift')
 )

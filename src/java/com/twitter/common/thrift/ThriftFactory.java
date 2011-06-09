@@ -119,6 +119,7 @@ public class ThriftFactory<T> {
   private Closure<Connection<TTransport, InetSocketAddress>> postCreateCallback = Closures.noop();
   private StatsProvider statsProvider = Stats.STATS_PROVIDER;
   private String serviceName;
+  private boolean sslTransport;
 
   public static <T> ThriftFactory<T> create(Class<T> serviceInterface) {
     return new ThriftFactory<T>(serviceInterface);
@@ -136,6 +137,7 @@ public class ThriftFactory<T> {
     this.framedTransport = false;
     this.monitor = new TrafficMonitor<InetSocketAddress>(serviceInterface.getName());
     this.serviceName = serviceInterface.getEnclosingClass().getSimpleName();
+    this.sslTransport = false;
   }
 
   private void checkBaseState() {
@@ -165,7 +167,7 @@ public class ThriftFactory<T> {
         createConnectionPool(backends, loadBalancer, managedThreadPool, false);
 
     return new Thrift<T>(managedThreadPool, connectionPool, loadBalancer, serviceName,
-        serviceInterface, clientFactory, false);
+        serviceInterface, clientFactory, false, sslTransport);
   }
 
   /**
@@ -187,7 +189,7 @@ public class ThriftFactory<T> {
         createConnectionPool(hostSet, loadBalancer, managedThreadPool, false);
 
     return new Thrift<T>(managedThreadPool, connectionPool, loadBalancer, serviceName,
-        serviceInterface, clientFactory, false);
+        serviceInterface, clientFactory, false, sslTransport);
   }
 
   private ManagedThreadPool createManagedThreadpool(int initialEndpointCount) {
@@ -370,7 +372,7 @@ public class ThriftFactory<T> {
 
     ThriftConnectionFactory connectionFactory = new ThriftConnectionFactory(
         backend, maxConnectionsPerEndpoint, TransportType.get(framedTransport, nonblocking),
-        socketTimeout, postCreateCallback);
+        socketTimeout, postCreateCallback, sslTransport);
 
     return new ConnectionPool<Connection<TTransport, InetSocketAddress>>(connectionFactory,
         statsProvider);
@@ -380,6 +382,11 @@ public class ThriftFactory<T> {
   public ThriftFactory<T> withClientFactory(Function<TTransport, T> clientFactory) {
     this.clientFactory = Preconditions.checkNotNull(clientFactory);
 
+    return this;
+  }
+
+  public ThriftFactory<T> withSslEnabled() {
+    this.sslTransport = true;
     return this;
   }
 

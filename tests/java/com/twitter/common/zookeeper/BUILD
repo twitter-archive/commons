@@ -14,15 +14,58 @@
 # limitations under the License.
 # ==================================================================================================
 
-from glob import glob
-from pants import *
 
-java_tests(name = 'zookeeper',
+
+MEDIUM = [
+  'DistributedLockTest.java',
+  'PartitionerTest.java',
+  'ZooKeeperClientTest.java',
+  'ZooKeeperUtilsTest.java',
+]
+
+LARGE = [
+  'CandidateImplTest.java',
+  'GroupTest.java',
+  'ServerSetImplTest.java',
+  'ZooKeeperMapTest.java',
+  'ZooKeeperNodeTest.java',
+]
+
+java_tests(name = 'small',
   dependencies = [
     pants('3rdparty:easymock'),
     pants('3rdparty:guava'),
-    pants('3rdparty:jsr305'),
     pants('3rdparty:junit'),
+    pants('3rdparty:zookeeper'),
+    pants('src/java/com/twitter/common/base'),
+    pants('src/java/com/twitter/common/collections'),
+    pants('src/java/com/twitter/common/testing'),
+    pants('src/java/com/twitter/common/zookeeper'),
+    pants('src/thrift/com/twitter/thrift'),
+  ],
+  sources = globs('*.java') - MEDIUM - LARGE
+)
+
+java_tests(name = 'medium',
+  dependencies = [
+    pants('3rdparty:guava'),
+    pants('3rdparty:junit'),
+    pants('3rdparty:zookeeper'),
+    pants('src/java/com/twitter/common/base'),
+    pants('src/java/com/twitter/common/testing'),
+    pants('src/java/com/twitter/common/zookeeper'),
+    pants('src/java/com/twitter/common/zookeeper:testing'),
+  ],
+  sources = MEDIUM
+)
+
+java_tests(name = 'large',
+  dependencies = [
+    pants('3rdparty:easymock'),
+    pants('3rdparty:guava'),
+    pants('3rdparty:junit'),
+    pants('3rdparty:thrift'),
+    pants('3rdparty:tl4j'),
     pants('3rdparty:zookeeper'),
     pants('src/java/com/twitter/common/base'),
     pants('src/java/com/twitter/common/collections'),
@@ -34,5 +77,15 @@ java_tests(name = 'zookeeper',
     pants('src/java/com/twitter/common/zookeeper:testing'),
     pants('src/thrift/com/twitter/thrift'),
   ],
-  sources = glob('*.java')
+  sources = LARGE
 )
+
+jar_library(name = 'all',
+  dependencies = [
+    pants(':small'),
+    pants(':medium'),
+    pants(':large'),
+  ]
+)
+
+jar_library(name = 'zookeeper', dependencies = [ pants(':all') ])

@@ -37,6 +37,7 @@ import org.apache.thrift.protocol.TList;
 import org.apache.thrift.protocol.TMap;
 import org.apache.thrift.protocol.TMessage;
 import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.protocol.TSet;
 import org.apache.thrift.protocol.TStruct;
 import org.apache.thrift.protocol.TType;
@@ -94,9 +95,20 @@ public class TTextProtocol extends TProtocol {
   private static final byte UNUSED_TYPE = TType.STOP;
 
   private Stack<BaseContext> contextStack;
-  private Base64 base64Encoder = new Base64(Integer.MAX_VALUE, new byte[]{});
+  private Base64 base64Encoder = new Base64();
   private JsonWriter writer;
   private JsonStreamParser parser;
+
+  /**
+   * Factory
+   */
+  public static class Factory implements TProtocolFactory {
+    @Override
+    public TProtocol getProtocol(TTransport trans) {
+      return new TTextProtocol(trans);
+    }
+  }
+
 
   /**
    * Create a parser which can read from trans, and create the output writer

@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-from pants import *
+
 
 java_library(name = 'io',
   provides = artifact(
@@ -28,6 +28,7 @@ java_library(name = 'io',
   ],
   sources = [
     'Codec.java',
+    'CompatibilityCodec.java',
     'FileUtils.java'
   ]
 )
@@ -53,4 +54,19 @@ java_library(name = 'thrift',
     pants('src/java/com/twitter/common/base'),
   ],
   sources = [ 'ThriftCodec.java' ]
+)
+
+java_library(name = 'json',
+  provides = artifact(
+    org = 'com.twitter.common',
+    name = 'io-json',
+    repo = pants('build-support/commons/ivy:public'),
+  ),
+  dependencies = [
+    pants('3rdparty:guava'),
+    pants('3rdparty:gson'),
+    pants(':io'),
+    pants('src/java/com/twitter/common/base'),
+  ],
+  sources = [ 'JsonCodec.java' ]
 )

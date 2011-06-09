@@ -16,20 +16,22 @@
 
 package com.twitter.common.thrift;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.twitter.common.base.ExceptionalFunction;
-import com.twitter.common.net.monitoring.TrafficMonitor;
-import com.twitter.common.quantity.Amount;
-import com.twitter.common.quantity.Time;
-import com.twitter.common.stats.StatImpl;
-import com.twitter.common.stats.Stats;
-import com.twitter.common.thrift.monitoring.TMonitoredProcessor;
-import com.twitter.common.thrift.monitoring.TMonitoredServerSocket;
-import com.twitter.thrift.Status;
-import com.twitter.thrift.ThriftService;
+
 import org.apache.thrift.TException;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.TProcessorFactory;
@@ -46,16 +48,16 @@ import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.transport.TTransportFactory;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.twitter.common.base.ExceptionalFunction;
+import com.twitter.common.net.monitoring.TrafficMonitor;
+import com.twitter.common.quantity.Amount;
+import com.twitter.common.quantity.Time;
+import com.twitter.common.stats.StatImpl;
+import com.twitter.common.stats.Stats;
+import com.twitter.common.thrift.monitoring.TMonitoredProcessor;
+import com.twitter.common.thrift.monitoring.TMonitoredServerSocket;
+import com.twitter.thrift.Status;
+import com.twitter.thrift.ThriftService;
 
 /**
  * Implementation of common functionality to satisfy the twitter ThriftService interface.
@@ -86,11 +88,15 @@ public abstract class ThriftServer implements ThriftService.Iface {
             options.maxWorkerThreads = setup.getNumThreads();
           }
 
-          try {
-            setup.setSocket(new ServerSocket(setup.getPort()));
-          } catch (IOException e) {
-            throw new TTransportException("Failed to create server socket on port " +
-                setup.getPort(), e);
+          // If no socket supplied with the ServerSetup, initialize one based upon
+          // supplied parameters.
+          if (setup.getSocket() == null) {
+            try {
+              setup.setSocket(new ServerSocket(setup.getPort()));
+            } catch (IOException e) {
+              throw new TTransportException("Failed to create server socket on port " +
+                  setup.getPort(), e);
+            }
           }
 
           TServerSocket unmonitoredSocket = null;
@@ -115,6 +121,9 @@ public abstract class ThriftServer implements ThriftService.Iface {
               setup.getProtoFactory(), setup.getProtoFactory(), options);
         }
       };
+  /**
+   * This field actually provides a THsHaServer (Nonblocking server which had a thread pool)
+   */
   public static final ExceptionalFunction<ServerSetup, TServer, TTransportException>
       NONBLOCKING_SERVER = new ExceptionalFunction<ServerSetup, TServer, TTransportException>() {
         @Override public TServer apply(ServerSetup setup) throws TTransportException {

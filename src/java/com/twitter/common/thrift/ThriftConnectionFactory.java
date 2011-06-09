@@ -40,6 +40,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+
 /**
  * A connection factory for thrift transport connections to a given host.  This connection factory
  * is lazy and will only create a configured maximum number of active connections - where a
@@ -82,6 +85,7 @@ public class ThriftConnectionFactory
   private final TransportType transportType;
   private final Amount<Long, Time> socketTimeout;
   private final Closure<Connection<TTransport, InetSocketAddress>> postCreateCallback;
+  private boolean sslTransport = false;
 
   private final Set<Connection<TTransport, InetSocketAddress>> activeConnections =
       Sets.newSetFromMap(
@@ -197,12 +201,13 @@ public class ThriftConnectionFactory
   public ThriftConnectionFactory(InetSocketAddress endpoint, int maxConnections,
       TransportType transportType, Amount<Long, Time> socketTimeout) {
 	  this(endpoint, maxConnections, transportType, socketTimeout,
-        Closures.<Connection<TTransport, InetSocketAddress>>noop());
+        Closures.<Connection<TTransport, InetSocketAddress>>noop(), false);
   }
 
   public ThriftConnectionFactory(InetSocketAddress endpoint, int maxConnections,
       TransportType transportType, Amount<Long, Time> socketTimeout,
-	  Closure<Connection<TTransport, InetSocketAddress>> postCreateCallback) {
+	  Closure<Connection<TTransport, InetSocketAddress>> postCreateCallback,
+	  boolean sslTransport) {
     Preconditions.checkArgument(maxConnections > 0, "maxConnections must be at least 1");
     if (socketTimeout != null) {
       Preconditions.checkArgument(socketTimeout.as(Time.MILLISECONDS) >= 0);
@@ -213,6 +218,7 @@ public class ThriftConnectionFactory
     this.transportType = transportType;
     this.socketTimeout = socketTimeout;
     this.postCreateCallback = Preconditions.checkNotNull(postCreateCallback);
+    this.sslTransport = sslTransport;
   }
 
   @Override
@@ -298,7 +304,14 @@ public class ThriftConnectionFactory
         return null;
       }
 
-      socket = new TSocket(endpoint.getHostName(), endpoint.getPort(), timeoutMillis);
+      if (sslTransport) {
+        SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        SSLSocket ssl_socket = (SSLSocket) factory.createSocket(endpoint.getHostName(), endpoint.getPort());
+        ssl_socket.setSoTimeout(timeoutMillis);
+        return new TSocket(ssl_socket);
+      } else {
+        socket = new TSocket(endpoint.getHostName(), endpoint.getPort(), timeoutMillis);
+      }
     }
 
     try {

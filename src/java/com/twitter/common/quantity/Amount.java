@@ -17,11 +17,15 @@
 package com.twitter.common.quantity;
 
 import com.google.common.base.Preconditions;
+
 import com.twitter.common.collections.Pair;
 
 /**
  * Represents a value in a unit system and facilitates unambiguous communication of amounts.
  * Instances are created via static factory {@code of(...)} methods.
+ *
+ * @param <T> the type of number the amount value is expressed in
+ * @param <U> the type of unit that this amount quantifies
  *
  * @author John Sirois
  */
@@ -86,7 +90,10 @@ public abstract class Amount<T extends Number & Comparable<T>, U extends Unit<U>
 
     @SuppressWarnings("unchecked")
     U otherUnit = (U) other.getUnit();
+    return isSameAmount(other, otherUnit);
+  }
 
+  private boolean isSameAmount(Amount<?, ?> other, U otherUnit) {
     // Compare in the more precise unit (the one with the lower multiplier).
     if (otherUnit.multiplier() > getUnit().multiplier()) {
       return getValue().equals(other.asUnit(getUnit()));
@@ -116,32 +123,64 @@ public abstract class Amount<T extends Number & Comparable<T>, U extends Unit<U>
 
   protected abstract T scale(double multiplier);
 
-  public static <U extends Unit<U>> Amount<Double, U> of(double value, U unit) {
-    return new Amount<Double, U>(value, unit) {
+  /**
+   * Creates an amount that uses a {@code double} value.
+   *
+   * @param number the number of units the returned amount should quantify
+   * @param unit the unit the returned amount is expressed in terms of
+   * @param <U> the type of unit that the returned amount quantifies
+   * @return an amount quantifying the given {@code number} of {@code unit}s
+   */
+  public static <U extends Unit<U>> Amount<Double, U> of(double number, U unit) {
+    return new Amount<Double, U>(number, unit) {
       @Override protected Double scale(double multiplier) {
         return getValue() * multiplier;
       }
     };
   }
 
-  public static <U extends Unit<U>> Amount<Float, U> of(float value, U unit) {
-    return new Amount<Float, U>(value, unit) {
+  /**
+   * Creates an amount that uses a {@code float} value.
+   *
+   * @param number the number of units the returned amount should quantify
+   * @param unit the unit the returned amount is expressed in terms of
+   * @param <U> the type of unit that the returned amount quantifies
+   * @return an amount quantifying the given {@code number} of {@code unit}s
+   */
+  public static <U extends Unit<U>> Amount<Float, U> of(float number, U unit) {
+    return new Amount<Float, U>(number, unit) {
       @Override protected Float scale(double multiplier) {
         return (float) (getValue() * multiplier);
       }
     };
   }
 
-  public static <U extends Unit<U>> Amount<Long, U> of(long value, U unit) {
-    return new Amount<Long, U>(value, unit) {
+  /**
+   * Creates an amount that uses a {@code long} value.
+   *
+   * @param number the number of units the returned amount should quantify
+   * @param unit the unit the returned amount is expressed in terms of
+   * @param <U> the type of unit that the returned amount quantifies
+   * @return an amount quantifying the given {@code number} of {@code unit}s
+   */
+  public static <U extends Unit<U>> Amount<Long, U> of(long number, U unit) {
+    return new Amount<Long, U>(number, unit) {
       @Override protected Long scale(double multiplier) {
         return (long) (getValue() * multiplier);
       }
     };
   }
 
-  public static <U extends Unit<U>> Amount<Integer, U> of(int value, U unit) {
-    return new Amount<Integer, U>(value, unit) {
+  /**
+   * Creates an amount that uses an {@code int} value.
+   *
+   * @param number the number of units the returned amount should quantify
+   * @param unit the unit the returned amount is expressed in terms of
+   * @param <U> the type of unit that the returned amount quantifies
+   * @return an amount quantifying the given {@code number} of {@code unit}s
+   */
+  public static <U extends Unit<U>> Amount<Integer, U> of(int number, U unit) {
+    return new Amount<Integer, U>(number, unit) {
       @Override protected Integer scale(double multiplier) {
         return (int) (getValue() * multiplier);
       }

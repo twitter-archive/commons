@@ -14,8 +14,6 @@
 # limitations under the License.
 # ==================================================================================================
 
-from pants import repo
-
 import os
 
 # Publicly accessible twitter maven repo that houses twitter-commons artifacts

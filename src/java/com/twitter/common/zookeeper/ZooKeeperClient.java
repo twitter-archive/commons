@@ -16,23 +16,6 @@
 
 package com.twitter.common.zookeeper;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.twitter.common.base.Command;
-import com.twitter.common.net.InetSocketAddressHelper;
-import com.twitter.common.quantity.Amount;
-import com.twitter.common.quantity.Time;
-import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.KeeperException.SessionExpiredException;
-import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.Watcher.Event.EventType;
-import org.apache.zookeeper.Watcher.Event.KeeperState;
-import org.apache.zookeeper.ZooKeeper;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Collections;
@@ -42,6 +25,26 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.KeeperException.SessionExpiredException;
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.Watcher.Event.EventType;
+import org.apache.zookeeper.Watcher.Event.KeeperState;
+import org.apache.zookeeper.ZooKeeper;
+
+import com.twitter.common.base.Command;
+import com.twitter.common.net.InetSocketAddressHelper;
+import com.twitter.common.quantity.Amount;
+import com.twitter.common.quantity.Time;
 
 /**
  * Manages a connection to a ZooKeeper cluster.
@@ -197,9 +200,10 @@ public class ZooKeeperClient {
       }
 
       if (connectionTimeout.getValue() > 0) {
-        if(!connected.await(connectionTimeout.as(Time.MILLISECONDS), TimeUnit.MILLISECONDS)) {
+        if (!connected.await(connectionTimeout.as(Time.MILLISECONDS), TimeUnit.MILLISECONDS)) {
+          close();
           throw new TimeoutException("Timed out waiting for a ZK connection after "
-                                     + sessionTimeoutMs + "ms");
+                                     + connectionTimeout);
         }
       } else {
         connected.await();
@@ -288,5 +292,10 @@ public class ZooKeeperClient {
         LOG.warning("Interrupted trying to close zooKeeper");
       }
     }
+  }
+
+  @VisibleForTesting
+  synchronized boolean isClosed() {
+    return closed;
   }
 }

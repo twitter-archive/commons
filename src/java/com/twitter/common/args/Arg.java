@@ -79,6 +79,16 @@ public class Arg<T> {
   }
 
   /**
+   * Checks whether a value has been applied to the argument (i.e., apart from the default).
+   *
+   * @return {@code true} if a value from the command line has been applied to this arg,
+   *         {@code false} otherwise.
+   */
+  public synchronized boolean hasAppliedValue() {
+    return valueApplied;
+  }
+
+  /**
    * Gets the value of the argument, without checking whether a default was available or if a
    * value was applied.
    *

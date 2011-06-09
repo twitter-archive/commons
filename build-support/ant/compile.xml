@@ -281,6 +281,8 @@ limitations under the License.
     </copy>
   </target>
 
+  <property name="javac.compilerargs" value="-encoding UTF-8 -Xlint:all -Xlint:-serial -Xlint:-path"/>
+
   <macrodef name="_compile_java">
     <attribute name="srcdir"/>
     <attribute name="includes" default="**/*"/>
@@ -288,8 +290,7 @@ limitations under the License.
     <attribute name="classpathrefid"/>
     <attribute name="deprecation" default="true"/>
     <attribute name="checkstyle" default="true"/>
-    <attribute name="compilerargs"
-               default="-encoding UTF-8 -Xlint:all -Xlint:-serial -Xlint:-path"/>
+    <attribute name="compilerargs" default="${javac.compilerargs}"/>
 
     <sequential>
       <if>
@@ -661,9 +662,25 @@ limitations under the License.
         <pathconvert refid="@{classpathrefid}"/>
       </_log>
 
-      <javadoc destdir="${javadoc.dir}" classpathref="@{classpathrefid}">
-        <fileset dir="@{srcdir}" includes="${@{includes}.javadocpattern}" excludes="**/BUILD"/>
-      </javadoc>
+      <fileset id="@{includes}.doccable"
+               dir="@{srcdir}"
+               includes="${@{includes}.javadocpattern}"
+               excludes="**/BUILD"/>
+
+      <pathconvert refid="@{includes}.doccable"
+                   property="@{includes}.isdoccable"
+                   setonempty="false"/>
+      <if>
+        <isset property="@{includes}.isdoccable"/>
+        <then>
+          <javadoc destdir="${javadoc.dir}" classpathref="@{classpathrefid}">
+            <fileset refid="@{includes}.doccable"/>
+          </javadoc>
+        </then>
+	<else>
+          <echo>skipping javadoc for ${compile.name} - no javadoc sources</echo>
+        </else>
+      </if>
     </sequential>
   </macrodef>
 

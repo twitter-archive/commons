@@ -16,17 +16,17 @@
 
 package com.twitter.common.io;
 
-import com.google.common.base.Function;
-import com.twitter.common.thrift.testing.TestThriftTypes.Struct;
+import static com.twitter.common.io.CodecTestUtilities.roundTrip;
+import static org.junit.Assert.assertEquals;
+
+import java.io.IOException;
+
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TTransport;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
+import com.google.common.base.Function;
+import com.twitter.common.thrift.testing.TestThriftTypes.Struct;
 
 /**
  * @author John Sirois
@@ -49,10 +49,8 @@ public class ThriftCodecTest {
   }
 
   private void testRoundTrip(Function<TTransport, TProtocol> protocolFactory) throws IOException {
-    Codec<Struct> codec = new ThriftCodec<Struct>(Struct.class, protocolFactory);
-    ByteArrayOutputStream sink = new ByteArrayOutputStream();
-    codec.serialize(new Struct("jake", "jones"), sink);
-    Struct struct = codec.deserialize(new ByteArrayInputStream(sink.toByteArray()));
+    Codec<Struct> codec = ThriftCodec.create(Struct.class, protocolFactory);
+    Struct struct = roundTrip(codec, new Struct("jake", "jones"));
     assertEquals("jake", struct.getName());
     assertEquals("jones", struct.getValue());
   }

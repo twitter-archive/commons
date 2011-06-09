@@ -25,7 +25,7 @@ import static com.twitter.common.base.MorePreconditions.checkNotBlank;
 
 /**
  * An {@link javax.servlet.http.HttpServlet} configuration used to mount HTTP handlers via
- * {@link com.twitter.common_internal.process.GuicedProcess#registerServlet(com.google.inject.Binder, HttpServletConfig)}.
+ * {@link Registration#registerServlet(com.google.inject.Binder, HttpServletConfig)}.
  *
  * TODO(William Farner): Move this to a more appropriate package after initial AppLauncher check-in.
  *

@@ -18,9 +18,11 @@ package com.twitter.common.quantity;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
+
 import org.junit.Test;
 
 import static com.google.common.testing.junit4.JUnitAsserts.assertNotEqual;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

@@ -14,12 +14,14 @@
 # limitations under the License.
 # ==================================================================================================
 
-from pants import *
 
-java_tests(name = 'args',
+
+java_tests(name = 'medium',
   dependencies = [
     pants('3rdparty:junit'),
     pants('src/java/com/twitter/common/args'),
   ],
-  sources = globs('*.java')
+  sources = [ 'ArgScannerTest.java' ]
 )
+
+jar_library(name = 'args', dependencies = [ pants(':medium') ])

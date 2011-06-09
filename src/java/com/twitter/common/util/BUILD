@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-from pants import *
+
 
 SYSTEM_MOCKS_SOURCES = [
   'Clock.java',

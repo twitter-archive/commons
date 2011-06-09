@@ -15,12 +15,11 @@
 # ==================================================================================================
 
 from glob import glob
-from pants import *
+
 
 java_library(name = 'objectsize',
   dependencies = [
     pants('3rdparty:guava'),
-    pants('3rdparty:jsr305'),
   ],
   sources = glob('*.java')
 )

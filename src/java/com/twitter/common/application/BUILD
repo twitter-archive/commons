@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-from pants import *
+
 
 ACTION_SOURCES = set([
     'ActionController.java',

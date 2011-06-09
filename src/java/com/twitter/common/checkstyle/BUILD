@@ -13,11 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==================================================================================================
-from pants import *
+
 
 java_library(name = 'checkstyle',
   dependencies = [
-    pants('3rdparty:antlr'),
+    pants('3rdparty:antlr2'),
     pants('3rdparty:checkstyle'),
     pants('3rdparty:commons-beanutils'),
     pants('3rdparty:guava'),

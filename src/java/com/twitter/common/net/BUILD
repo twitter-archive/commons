@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-from pants import *
+
 
 DYNAMIC_HOST_SET_SOURCES = set([ 'pool/DynamicHostSet.java' ])
 

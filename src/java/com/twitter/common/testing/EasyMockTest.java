@@ -16,18 +16,19 @@
 
 package com.twitter.common.testing;
 
-import com.google.common.base.Preconditions;
-import com.google.common.testing.TearDown;
-import com.google.common.testing.junit4.TearDownTestCase;
-import org.easymock.Capture;
-import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
-import org.junit.Before;
-
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
+
+import com.google.common.base.Preconditions;
+import com.google.common.testing.TearDown;
+import com.google.common.testing.junit4.TearDownTestCase;
+
+import org.easymock.Capture;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
+import org.junit.Before;
 
 import static org.easymock.EasyMock.createControl;
 
@@ -40,6 +41,10 @@ import static org.easymock.EasyMock.createControl;
 public abstract class EasyMockTest extends TearDownTestCase {
   protected IMocksControl control;
 
+  /**
+   * Creates an EasyMock {@link #control} for tests to use that will be automatically
+   * {@link IMocksControl#verify() verified} on tear down.
+   */
   @Before
   public final void setupEasyMock() {
     control = createControl();
