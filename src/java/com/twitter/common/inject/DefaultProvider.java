@@ -40,9 +40,11 @@ import com.google.inject.name.Names;
  *     bind(DefaultProvider.makeCustomKey(Runnable.class, "mykey")).toInstance(myCustomRunnable);
  *
  * Injection:
- *     @Inject Named("myKey") Runnable runnable;
+ *     {@literal Inject} Named("myKey") Runnable runnable;
  *
  * </pre>
+ *
+ * @param <T> the type of object this provides
  *
  * @author William Farner
  * @author John Sirois
@@ -50,6 +52,30 @@ import com.google.inject.name.Names;
 public class DefaultProvider<T> implements Provider<T> {
   private static final String DEFAULT_BINDING_KEY_SUFFIX = "_default";
   private static final String CUSTOM_BINDING_KEY_SUFFIX = "_custom";
+
+  private final Key<T> defaultProviderKey;
+  private final Key<T> customProviderKey;
+
+  private Injector injector;
+
+  public DefaultProvider(Key<T> defaultProviderKey, Key<T> customProviderKey) {
+    this.defaultProviderKey = Preconditions.checkNotNull(defaultProviderKey);
+    this.customProviderKey = Preconditions.checkNotNull(customProviderKey);
+    Preconditions.checkArgument(!defaultProviderKey.equals(customProviderKey));
+  }
+
+  @Inject
+  public void setInjector(Injector injector) {
+    this.injector = injector;
+  }
+
+  @Override
+  public T get() {
+     Preconditions.checkNotNull(injector);
+     return injector.getBindings().containsKey(customProviderKey)
+         ? injector.getInstance(customProviderKey)
+         : injector.getInstance(defaultProviderKey);
+  }
 
   /**
    * Creates a DefaultProvider and installs a new module to {@code binder}, which will serve as
@@ -139,29 +165,5 @@ public class DefaultProvider<T> implements Provider<T> {
 
   public static <T> Key<T> makeCustomKey(TypeLiteral<T> type, String rootKey) {
     return Key.get(type, makeCustomBindingName(rootKey));
-  }
-
-  private final Key<T> defaultProviderKey;
-  private final Key<T> customProviderKey;
-
-  private Injector injector;
-
-  public DefaultProvider(Key<T> defaultProviderKey, Key<T> customProviderKey) {
-    this.defaultProviderKey = Preconditions.checkNotNull(defaultProviderKey);
-    this.customProviderKey = Preconditions.checkNotNull(customProviderKey);
-    Preconditions.checkArgument(!defaultProviderKey.equals(customProviderKey));
-  }
-
-  @Inject
-  public void setInjector(Injector injector) {
-    this.injector = injector;
-  }
-
-  @Override
-  public T get() {
-     Preconditions.checkNotNull(injector);
-     return injector.getBindings().containsKey(customProviderKey)
-         ? injector.getInstance(customProviderKey)
-         : injector.getInstance(defaultProviderKey);
   }
 }

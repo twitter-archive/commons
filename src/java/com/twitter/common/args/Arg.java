@@ -33,6 +33,7 @@ public class Arg<T> {
   private T value;
   private boolean hasDefault = true;
   private boolean valueApplied = false;
+  private boolean valueObserved = false;
 
   /**
    * Creates an arg that has no default value, meaning that its value can only ever be retrieved
@@ -55,6 +56,7 @@ public class Arg<T> {
 
   synchronized void set(T value) {
     Preconditions.checkState(!valueApplied, "A value cannot be applied twice to an argument.");
+    Preconditions.checkState(!valueObserved, "A value cannot be changed after it was read.");
     valueApplied = true;
     this.value = value;
   }
@@ -62,6 +64,7 @@ public class Arg<T> {
   @VisibleForTesting
   synchronized void reset() {
     valueApplied = false;
+    valueObserved = false;
     this.value = hasDefault ? defaultValue : null;
   }
 
@@ -75,6 +78,7 @@ public class Arg<T> {
     // TODO(William Farner): This has a tendency to break bad-arg reporting by ArgScanner.  Fix.
     Preconditions.checkState(valueApplied || hasDefault,
         "A value may only be retrieved from a variable that has a default or has been set.");
+    valueObserved = true;
     return uncheckedGet();
   }
 
@@ -115,7 +119,7 @@ public class Arg<T> {
    * @param <T> Type of arg value.
    * @return A new arg.
    */
-  public static <T> Arg<T> create(T value) {
+  public static <T> Arg<T> create(@Nullable T value) {
     return new Arg<T>(value);
   }
 }

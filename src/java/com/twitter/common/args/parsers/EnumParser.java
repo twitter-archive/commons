@@ -23,16 +23,16 @@ import java.lang.reflect.Type;
  *
  * @author John Sirois
  */
-public class EnumParser extends BaseParser<Enum> {
+public class EnumParser<T extends Enum<T>> extends BaseParser<T> {
 
   public EnumParser() {
     super(Enum.class);
   }
 
   @Override
-  public Enum parse(Type type, String raw) throws IllegalArgumentException {
+  public T parse(Type type, String raw) throws IllegalArgumentException {
     @SuppressWarnings("unchecked")
-    Class<Enum> enumClass = (Class<Enum>) type;
+    Class<T> enumClass = (Class<T>) type;
     return Enum.valueOf(enumClass, raw);
   }
 }

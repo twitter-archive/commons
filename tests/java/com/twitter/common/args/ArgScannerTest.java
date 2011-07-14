@@ -23,9 +23,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,8 +39,8 @@ import com.twitter.common.args.constraints.NotNegative;
 import com.twitter.common.args.constraints.NotNull;
 import com.twitter.common.args.constraints.Positive;
 import com.twitter.common.args.constraints.Range;
-import com.twitter.common.args.parsers.EnumParser;
 import com.twitter.common.base.Command;
+import com.twitter.common.base.Function;
 import com.twitter.common.collections.Pair;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Data;
@@ -56,14 +59,14 @@ public class ArgScannerTest {
   @Before
   public void setUp() {
     // Reset args in all classes before each test.
-    for (Class cls : this.getClass().getDeclaredClasses()) {
+    for (Class<?> cls : this.getClass().getDeclaredClasses()) {
       resetArgs(cls);
     }
   }
 
   public static class StandardArgs {
     enum Optimizations { NONE, MINIMAL, ALL }
-    @CmdLine(name = "enum", help = "help", parser = EnumParser.class)
+    @CmdLine(name = "enum", help = "help")
     static final Arg<Optimizations> enumVal = Arg.create(Optimizations.MINIMAL);
     @CmdLine(name = "string", help = "help")
     static final Arg<String> stringVal = Arg.create("string");
@@ -414,13 +417,13 @@ public class ArgScannerTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testDisallowsShortNameOnArgCollision() {
-    parse(ImmutableList.<Class>of(NameClashA.class, NameClashB.class), "-string=blah");
+    parse(ImmutableList.of(NameClashA.class, NameClashB.class), "-string=blah");
   }
 
   @Test
   public void testAllowsCanonicalNameOnArgCollision() {
     // TODO(William Farner): Fix.
-    parse(ImmutableList.<Class>of(NameClashA.class, NameClashB.class),
+    parse(ImmutableList.of(NameClashA.class, NameClashB.class),
         "-" + NameClashB.class.getCanonicalName() + ".string=blah");
   }
 
@@ -431,27 +434,27 @@ public class ArgScannerTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testBadUnitType() {
-    parse(ImmutableList.<Class>of(AmountContainer.class), "-time_amount=1Mb");
+    parse(ImmutableList.of(AmountContainer.class), "-time_amount=1Mb");
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testUnrecognizedUnitType() {
-    parse(ImmutableList.<Class>of(AmountContainer.class), "-time_amount=1abcd");
+    parse(ImmutableList.of(AmountContainer.class), "-time_amount=1abcd");
   }
 
-  // TODO(William Farner): Do we want to support nested parameterized args?  If so, need to define a syntax
-  //    for that and build it in.
+  // TODO(William Farner): Do we want to support nested parameterized args?  If so, need to define a
+  // syntax for that and build it in.
   //    e.g. List<List<Integer>>, List<Pair<String, String>>
 
-  private static void testFails(Class scope, String arg, String value) {
+  private static void testFails(Class<?> scope, String arg, String value) {
     test(scope, null, true, arg, value);
   }
 
-  private static void test(Class scope, Command validate, String arg, String value) {
+  private static void test(Class<?> scope, Command validate, String arg, String value) {
     test(scope, validate, false, arg, value);
   }
 
-  private static void test(Class scope, Command validate, boolean expectFails, String arg,
+  private static void test(Class<?> scope, Command validate, boolean expectFails, String arg,
       String value) {
     String canonicalName = scope.getCanonicalName() + "." + arg;
 
@@ -480,7 +483,7 @@ public class ArgScannerTest {
     }
   }
 
-  private static void testValidate(Class scope, Command validate, boolean expectFails,
+  private static void testValidate(Class<?> scope, Command validate, boolean expectFails,
       String... args) {
     resetArgs(scope);
     IllegalArgumentException exception = null;
@@ -503,7 +506,7 @@ public class ArgScannerTest {
     resetArgs(scope);
   }
 
-  private static void resetArgs(Class scope) {
+  private static void resetArgs(Class<?> scope) {
     for (Field field : scope.getDeclaredFields()) {
       if (Arg.class.isAssignableFrom(field.getType()) && Modifier.isStatic(field.getModifiers())) {
         try {
@@ -515,17 +518,23 @@ public class ArgScannerTest {
     }
   }
 
-  private static void parse(Class scope, String... args) {
-    ArgScanner.process(ImmutableSet.copyOf(scope.getDeclaredFields()),
-        ArgScanner.mapArguments(args));
+  private static void parse(final Class<?> scope, String... args) {
+    parse(ImmutableList.of(scope), args);
   }
 
-  private static void parse(Iterable<Class> scope, String... args) {
-    ImmutableSet.Builder<Field> fields = ImmutableSet.builder();
-    for (Class cls : scope) {
-      fields.addAll(ImmutableSet.copyOf(cls.getDeclaredFields()));
-    }
+  private static final Function<Class<?>, Predicate<Field>> TO_SCOPE_PREDICATE =
+      new Function<Class<?>, Predicate<Field>>() {
+        @Override public Predicate<Field> apply(final Class<?> cls) {
+          return new Predicate<Field>() {
+            @Override public boolean apply(Field field) {
+              return field.getDeclaringClass() == cls;
+            }
+          };
+        }
+      };
 
-    ArgScanner.process(fields.build(), ArgScanner.mapArguments(args));
+  private static void parse(Iterable<? extends Class<?>> scopes, String... args) {
+    Predicate<Field> filter = Predicates.or(Iterables.transform(scopes, TO_SCOPE_PREDICATE));
+    ArgScanner.parse(filter, args);
   }
 }

@@ -30,6 +30,7 @@ import com.twitter.common.args.parsers.CharacterParser;
 import com.twitter.common.args.parsers.ClassParser;
 import com.twitter.common.args.parsers.DateParser;
 import com.twitter.common.args.parsers.DoubleParser;
+import com.twitter.common.args.parsers.EnumParser;
 import com.twitter.common.args.parsers.FileParser;
 import com.twitter.common.args.parsers.FloatParser;
 import com.twitter.common.args.parsers.InetSocketAddressParser;
@@ -64,10 +65,15 @@ public final class Parsers {
    * Gets the parser associated with a class.
    *
    * @param cls Class to get the parser for.
-   * @return The parser for {@code cls} or {@code null} if no parser was found for that type.
+   * @return The parser for {@code cls} or {@code null} if no parser was found for that type or any
+   *     of its supertypes.
    */
-  public static Parser get(Class<?> cls) {
-    return REGISTRY.get(cls);
+  static Parser get(Class<?> cls) {
+    Parser parser;
+    while (((parser = REGISTRY.get(cls)) == null) && (cls != null)) {
+      cls = cls.getSuperclass();
+    }
+    return parser;
   }
 
   /**
@@ -83,14 +89,38 @@ public final class Parsers {
     return parser;
   }
 
-  public static interface Parser<T> {
+  /**
+   * An interface to a command line argument parser.
+   *
+   * @param <T> The base class this parser can parse all subtypes of.
+   */
+  public interface Parser<T> {
+
+    /**
+     * Parses strings as arguments of a given subtype of {@code T}.
+     *
+     * @param type The target type of the parsed argument.
+     * @param raw The raw value of the argument.
+     * @return A value of the given type parsed from the raw value.
+     * @throws IllegalArgumentException if the raw value could not be parsed into a value of the
+     *     given type.
+     */
     T parse(Type type, String raw) throws IllegalArgumentException;
 
-    Class<T> getParsedClass();
+    /**
+     * Returns the root of the class hierarchy this parser handles.
+     *
+     * <p>Note that implementations that return a proper supertype class instead of T.class must
+     * be able to handle {@link #parse(java.lang.reflect.Type, String) parsing} raw values into
+     * all possible subtypes in use as command line argument types.
+     *
+     * @return The base class this parser can parse all subtypes of.
+     */
+    Class<? super T> getParsedClass();
   }
 
-  private static final Set<Class<? extends Parser<?>>> PARSER_CLASSES =
-      ImmutableSet.<Class<? extends Parser<?>>>builder()
+  private static final Set<Class<? extends Parser>> PARSER_CLASSES =
+      ImmutableSet.<Class<? extends Parser>>builder()
       .add(AmountParser.class)
       .add(BooleanParser.class)
       .add(ByteParser.class)
@@ -98,6 +128,7 @@ public final class Parsers {
       .add(ClassParser.class)
       .add(DateParser.class)
       .add(DoubleParser.class)
+      .add(EnumParser.class)
       .add(FileParser.class)
       .add(FloatParser.class)
       .add(InetSocketAddressParser.class)
@@ -117,7 +148,7 @@ public final class Parsers {
   static {
     ImmutableMap.Builder<Class<?>, Parser> registryBuilder =
       ImmutableMap.builder();
-    for (Class<? extends Parser<?>> parserClass : PARSER_CLASSES) {
+    for (Class<? extends Parser> parserClass : PARSER_CLASSES) {
       try {
         Parser parser = parserClass.newInstance();
         registryBuilder.put(parser.getParsedClass(), parser);

@@ -17,10 +17,6 @@
 # This BUILD file defines common external library dependencies used across many modules.  Modules
 # can use these jar_library deps by specifying pants('3rdparty:[name]') in their dependencies list.
 
-
-
-
-
 ###################
 # Production libs
 #
@@ -40,9 +36,17 @@ jar_library(name = 'aopalliance',
 jar_library(name = 'checkstyle',
             dependencies = [
               jar(org = 'com.puppycrawl.tools', name = 'checkstyle', rev = '5.3')
-                .exclude(org = 'com.google.collections', name = 'google-collections'),
+                .exclude(org = 'com.google.collections', name = 'google-collections')
+                .withSources(),
               # Needs this as the replacement for the excluded google-collections.
               pants(':guava'),
+            ]
+           )
+
+jar_library(name = 'cloud9',
+            dependencies = [
+              jar(org = 'edu.umd', name = 'cloud9', rev = '1.2.2').withSources()
+                .exclude(org = 'fastutil', name = 'fastutil')
             ]
            )
 
@@ -75,7 +79,10 @@ jar_library(name = 'gson',
 
 jar_library(name = 'guava',
             dependencies = [
-              jar(org = 'com.google.guava', name = 'guava', rev = 'r09').withSources(),
+              jar(
+                org = 'com.google.guava', name = 'guava', rev = 'r09',
+                apidocs = 'http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/'
+              ).withSources(),
 
               # This dependency should not need to be explicit but its currently required to work
               # around a doc generation bug (RTS-524).
@@ -85,7 +92,10 @@ jar_library(name = 'guava',
 
 jar_library(name = 'guice',
             dependencies = [
-              jar(org = 'com.google.inject', name = 'guice', rev = '3.0').withSources()
+              jar(
+                org = 'com.google.inject', name = 'guice', rev = '3.0',
+                apidocs = 'http://google-guice.googlecode.com/svn/tags/3.0/javadoc/'
+              ).withSources()
             ]
            )
 
@@ -118,20 +128,26 @@ jar_library(name = 'jsr305',
             ]
            )
 
+jar_library(name = 'lucene-analyzers',
+            dependencies = [
+              jar(org = 'org.apache.lucene', name = 'lucene-analyzers', rev = '3.0.2',
+                  apidocs = 'http://lucene.apache.org/java/3_0_2/api/all/')
+             ]
+            )
+
+jar_library(name = 'lucene-core',
+            dependencies = [
+              jar(org = 'org.apache.lucene', name = 'lucene-core', rev = '3.0.2',
+                  apidocs = 'http://lucene.apache.org/java/3_0_2/api/all/')
+            ]
+           )
+
 jar_library(name = 'ostrich',
             dependencies = [ jar(org = 'com.twitter', name = 'ostrich', rev = '2.3.6') ])
 
 jar_library(name = 'protobuf-java',
             dependencies = [
               jar(org = 'com.google.protobuf', name = 'protobuf-java', rev = '2.3.0')
-            ]
-           )
-
-jar_library(name = 'reflections',
-            dependencies = [
-              jar(org = 'org.reflections', name = 'reflections', rev = '0.9.5-RC2')
-                .exclude(org = 'ch.qos.logback', name='logback-classic')
-                .exclude(org = 'com.google.collections', name='google-collections')
             ]
            )
 
@@ -186,6 +202,9 @@ jar_library(name = 'twitter4j',
             ]
            )
 
+jar_library(name = 'twitter-text',
+            dependencies = [ jar(org = 'com.twitter', name = 'twitter-text', rev = '1.4.0') ])
+
 jar_library(name = 'visualization-datasource',
             dependencies = [
               jar(org = 'com.google.visualization', name = 'visualization-datasource', rev = '1.0.2')
@@ -195,7 +214,7 @@ jar_library(name = 'visualization-datasource',
 
 jar_library(name = 'zookeeper',
             dependencies = [
-              jar(org = 'org.apache.zookeeper', name = 'zookeeper', rev = '3.3.1').withSources()
+              jar(org = 'org.apache.zookeeper', name = 'zookeeper', rev = '3.3.3').withSources()
                 .exclude(org = 'jline')
                 .exclude(org = 'javax.jms')
                 .exclude(org = 'com.sun.jdmk')

@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+
 import javax.annotation.Nullable;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -28,6 +29,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
@@ -65,7 +67,7 @@ public class Group {
   private Predicate<String> nodeNameFilter;
 
   private final ZooKeeperClient zkClient;
-  private final List<ACL> acl;
+  private final ImmutableList<ACL> acl;
   private final String path;
   private final String nodeNamePrefix;
 
@@ -92,9 +94,9 @@ public class Group {
    * @param path the absolute persistent path that represents this group
    * @param nodeNamePrefix Node name prefix that denotes group membership.
    */
-  public Group(ZooKeeperClient zkClient, List<ACL> acl, String path, String nodeNamePrefix) {
+  public Group(ZooKeeperClient zkClient, Iterable<ACL> acl, String path, String nodeNamePrefix) {
     this.zkClient = Preconditions.checkNotNull(zkClient);
-    this.acl = Preconditions.checkNotNull(acl);
+    this.acl = ImmutableList.copyOf(acl);
     this.path = normalizePath(Preconditions.checkNotNull(path));
     this.nodeNamePrefix = MorePreconditions.checkNotBlank(nodeNamePrefix);
 
@@ -110,10 +112,10 @@ public class Group {
   }
 
   /**
-   * Equivalent to {@link #Group(ZooKeeperClient, java.util.List, String, String)} with a default
+   * Equivalent to {@link #Group(ZooKeeperClient, Iterable, String, String)} with a default
    * {@code nodeNamePrefix} of 'member_'.
    */
-  public Group(ZooKeeperClient zkClient, List<ACL> acl, String path) {
+  public Group(ZooKeeperClient zkClient, Iterable<ACL> acl, String path) {
     this(zkClient, acl, path, DEFAULT_NODE_NAME_PREFIX);
   }
 

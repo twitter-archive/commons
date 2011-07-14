@@ -31,6 +31,11 @@ import com.google.inject.name.Names;
  */
 public final class Bindings {
 
+
+  private Bindings() {
+    // utility
+  }
+
   /**
    * Equivalent to calling {@code requireBinding(binder, Key.get(required, Names.named(namedKey)))}.
    */
@@ -110,9 +115,5 @@ public final class Bindings {
         return Multibinder.newSetBinder(binder, type).addBinding();
       }
     };
-  }
-
-  private Bindings() {
-    // utility
   }
 }

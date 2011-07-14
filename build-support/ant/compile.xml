@@ -247,6 +247,20 @@ limitations under the License.
     </sequential>
   </macrodef>
 
+  <macrodef name="_create_file">
+    <attribute name="destdir"/>
+    <attribute name="path"/>
+    <attribute name="contents"/>
+
+    <sequential>
+      <_log>
+        [${compile.name}] dumping to @{destdir}/@{path}:
+        ${@{contents}}
+      </_log>
+      <concat destfile="@{destdir}/@{path}">${@{contents}}</concat>
+    </sequential>
+  </macrodef>
+
   <!--
     a hook that can be over-ridden to set up filter tokens just in time prior to resource copying
   -->
@@ -440,7 +454,7 @@ limitations under the License.
         <case value="Mac OS X">
           <propertyregex property="protoc.bin"
                          input="${os.version}"
-                         regexp="^(10\.[56])\..*$"
+                         regexp="^(10\.[567])\.?.*$"
                          select="${build-support.dir}/bin/protobuf/mac/\1/${protobuf.binary.version}/protoc"/>
         </case>
         <case value="Linux">
@@ -512,7 +526,7 @@ limitations under the License.
         <case value="Mac OS X">
           <propertyregex property="thrift.bin"
                          input="${os.version}"
-                         regexp="^(10\.[56])\..*$"
+                         regexp="^(10\.[567])\.?.*$"
                          select="${build-support.dir}/bin/thrift/mac/\1/${thrift.binary.version}/thrift"/>
         </case>
         <case value="Linux">
@@ -524,6 +538,10 @@ limitations under the License.
             <case value="x86_64">
               <property name="thrift.bin"
                         location="${build-support.dir}/bin/thrift/linux/x86_64/${thrift.binary.version}/thrift"/>
+            </case>
+            <case value="i386">
+              <property name="thrift.bin"
+                        location="${build-support.dir}/bin/thrift/linux/i386/${thrift.binary.version}/thrift"/>
             </case>
           </switch>
         </case>
@@ -602,6 +620,20 @@ limitations under the License.
                        srcdir="${java.src.dir}"
                        includes="${compile.java.sources}"
                        classpathrefid="compile.deps"/>
+      </then>
+    </if>
+
+    <!--
+      If this target produces annotation processors, add a service file last, after compiling.
+      If we did this any earlier, javac would see the file and attempt to load the uncompiled
+      apt processor.
+    -->
+    <if>
+      <isset property="${compile.processors}"/>
+      <then>
+        <_create_file destdir="${build.dir}/jvm"
+                      path="META-INF/services/javax.annotation.processing.Processor"
+                      contents="${compile.processors}"/>
       </then>
     </if>
   </target>
@@ -767,11 +799,23 @@ limitations under the License.
             <isfalse value="${is.internal.dep}"/>
           </and>
           <then>
-            <_junit>
-              <test todir="${java.io.tmpdir}" name="${test}">
-                <formatter type="plain" usefile="false"/>
-              </test>
-            </_junit>
+            <if>
+              <isset property="methods"/>
+              <then>
+                <_junit>
+                  <test todir="${java.io.tmpdir}" name="${test}" methods="${methods}">
+                    <formatter type="plain" usefile="false"/>
+                  </test>
+                </_junit>
+              </then>
+              <else>
+                <_junit>
+                  <test todir="${java.io.tmpdir}" name="${test}">
+                    <formatter type="plain" usefile="false"/>
+                  </test>
+                </_junit>
+              </else>
+            </if>
           </then>
           <else>
             <_junit>

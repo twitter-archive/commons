@@ -66,6 +66,7 @@ public class AmountTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked") // Needed because type information lost in vargs.
   public void testOrderingMixedUnits() {
     assertEquals(
         Lists.newArrayList(
@@ -81,6 +82,7 @@ public class AmountTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked") // Needed because type information lost in vargs.
   public void testOrderingSameUnits() {
     assertEquals(
         Lists.newArrayList(

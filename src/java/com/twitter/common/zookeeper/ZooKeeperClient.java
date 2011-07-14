@@ -29,7 +29,6 @@ import java.util.logging.Logger;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
@@ -42,15 +41,13 @@ import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.ZooKeeper;
 
 import com.twitter.common.base.Command;
+import com.twitter.common.base.MorePreconditions;
 import com.twitter.common.net.InetSocketAddressHelper;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
 
 /**
  * Manages a connection to a ZooKeeper cluster.
- *
- * <p>TODO(John Sirois): evaluate the need for ACLs and consider moving to zkClient:
- * http://github.com/phunt/zkclient
  *
  * @author John Sirois
  */
@@ -65,6 +62,65 @@ public class ZooKeeperClient {
     public ZooKeeperConnectionException(String message, Throwable cause) {
       super(message, cause);
     }
+  }
+
+  /**
+   * Encapsulates a user's credentials and has the ability to authenticate them through a
+   * {@link ZooKeeper} client.
+   */
+  public interface Credentials {
+
+    /**
+     * A set of {@code Credentials} that performs no authentication.
+     */
+    Credentials NONE = new Credentials() {
+      @Override public void authenticate(ZooKeeper zooKeeper) {
+        // noop
+      }
+    };
+
+    /**
+     * Authenticates these credentials against the given {@code ZooKeeper} client.
+     *
+     * @param zooKeeper the client to authenticate
+     */
+    void authenticate(ZooKeeper zooKeeper);
+  }
+
+  /**
+   * Creates a set of credentials for the zoo keeper digest authentication mechanism.
+   *
+   * @param username the username to authenticate with
+   * @param password the password to authenticate with
+   * @return a set of credentials that can be used to authenticate the zoo keeper client
+   */
+  public static Credentials digestCredentials(String username, String password) {
+    MorePreconditions.checkNotBlank(username);
+    Preconditions.checkNotNull(password);
+
+    // TODO(John Sirois): DigestAuthenticationProvider is broken - uses platform default charset
+    // (on server) and so we just have to hope here that clients are deployed in compatible jvms.
+    // Consider writing and installing a version of DigestAuthenticationProvider that controls its
+    // Charset explicitly.
+    return credentials("digest", (username + ":" + password).getBytes());
+  }
+
+  /**
+   * Creates a set of credentials for the given authentication {@code scheme}.
+   *
+   * @param scheme the scheme to authenticate with
+   * @param auth the authentication token
+   * @return a set of credentials that can be used to authenticate the zoo keeper client
+   */
+  public static Credentials credentials(final String scheme, final byte[] auth) {
+    MorePreconditions.checkNotBlank(scheme);
+    Preconditions.checkNotNull(auth);
+
+    return new Credentials() {
+      @Override public void authenticate(ZooKeeper zooKeeper) {
+        zooKeeper.addAuthInfo(scheme, auth);
+      }
+    };
   }
 
   private final class SessionState {
@@ -82,12 +138,18 @@ public class ZooKeeperClient {
   private static final Amount<Long,Time> WAIT_FOREVER = Amount.of(0L, Time.MILLISECONDS);
 
   private final int sessionTimeoutMs;
+  private final Credentials credentials;
   private final String zooKeeperServers;
   private ZooKeeper zooKeeper;
   private SessionState sessionState;
   private boolean closed = true;
 
   private final Set<Watcher> watchers = Collections.synchronizedSet(new HashSet<Watcher>());
+
+  private static Iterable<InetSocketAddress> combine(InetSocketAddress address,
+      InetSocketAddress... addresses) {
+    return ImmutableSet.<InetSocketAddress>builder().add(address).add(addresses).build();
+  }
 
   /**
    * Creates an unconnected client that will lazily attempt to connect on the first call to
@@ -99,9 +161,7 @@ public class ZooKeeperClient {
    */
   public ZooKeeperClient(Amount<Integer, Time> sessionTimeout, InetSocketAddress zooKeeperServer,
       InetSocketAddress... zooKeeperServers) {
-    this(sessionTimeout, ImmutableSet.<InetSocketAddress>builder()
-        .add(Preconditions.checkNotNull(zooKeeperServer))
-        .addAll(ImmutableList.copyOf(zooKeeperServers)).build());
+    this(sessionTimeout, combine(zooKeeperServer, zooKeeperServers));
   }
 
   /**
@@ -113,7 +173,38 @@ public class ZooKeeperClient {
    */
   public ZooKeeperClient(Amount<Integer, Time> sessionTimeout,
       Iterable<InetSocketAddress> zooKeeperServers) {
+    this(sessionTimeout, Credentials.NONE, zooKeeperServers);
+  }
+
+  /**
+   * Creates an unconnected client that will lazily attempt to connect on the first call to
+   * {@link #get()}.  All successful connections will be authenticated with the given
+   * {@code credentials}.
+   *
+   * @param sessionTimeout the ZK session timeout
+   * @param credentials the credentials to authenticate with
+   * @param zooKeeperServer the first, required ZK server
+   * @param zooKeeperServers any additional servers forming the ZK cluster
+   */
+  public ZooKeeperClient(Amount<Integer, Time> sessionTimeout, Credentials credentials,
+      InetSocketAddress zooKeeperServer, InetSocketAddress... zooKeeperServers) {
+    this(sessionTimeout, credentials, combine(zooKeeperServer, zooKeeperServers));
+  }
+
+  /**
+   * Creates an unconnected client that will lazily attempt to connect on the first call to
+   * {@link #get}.  All successful connections will be authenticated with the given
+   * {@code credentials}.
+   *
+   * @param sessionTimeout the ZK session timeout
+   * @param credentials the credentials to authenticate with
+   * @param zooKeeperServers the set of servers forming the ZK cluster
+   */
+  public ZooKeeperClient(Amount<Integer, Time> sessionTimeout, Credentials credentials,
+      Iterable<InetSocketAddress> zooKeeperServers) {
     this.sessionTimeoutMs = Preconditions.checkNotNull(sessionTimeout).as(Time.MILLISECONDS);
+    this.credentials = Preconditions.checkNotNull(credentials);
+
     Preconditions.checkNotNull(zooKeeperServers);
     Preconditions.checkArgument(!Iterables.isEmpty(zooKeeperServers),
         "Must present at least 1 ZK server");
@@ -208,6 +299,7 @@ public class ZooKeeperClient {
       } else {
         connected.await();
       }
+      credentials.authenticate(zooKeeper);
 
       sessionState = new SessionState(zooKeeper.getSessionId(), zooKeeper.getSessionPasswd());
       closed = false;

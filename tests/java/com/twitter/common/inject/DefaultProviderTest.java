@@ -22,6 +22,7 @@ import com.google.inject.Key;
 import com.google.inject.Provides;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

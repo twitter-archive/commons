@@ -17,6 +17,7 @@
 python_test_suite(name = 'all',
   dependencies = [
     pants('tests/python/twitter/common/recordio:all'),
+    pants('tests/python/twitter/common/java'),
     pants('tests/python/twitter/common/decorators'),
   ]
 )

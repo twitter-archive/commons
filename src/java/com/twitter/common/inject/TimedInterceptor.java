@@ -16,23 +16,25 @@
 
 package com.twitter.common.inject;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.MapMaker;
-import com.google.inject.Binder;
-import com.google.inject.matcher.Matchers;
-import com.twitter.common.stats.SlidingStats;
-import com.twitter.common.stats.TimeSeriesRepository;
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.lang.StringUtils;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.Map;
+
+import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.MapMaker;
+import com.google.inject.Binder;
+import com.google.inject.matcher.Matchers;
+
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.lang.StringUtils;
+
+import com.twitter.common.stats.SlidingStats;
+import com.twitter.common.stats.TimeSeriesRepository;
 
 /**
  * A method interceptor that exports timing information for methods annotated with
@@ -50,30 +52,9 @@ public final class TimedInterceptor implements MethodInterceptor {
   public @interface Timed {
 
     /**
-     * @return the base name to export timing data with; empty to use the annotated method's name
+     * The base name to export timing data with; empty to use the annotated method's name.
      */
     String value() default "";
-  }
-
-  /**
-   * Installs an interceptor in a guice {@link com.google.inject.Injector}, enabling
-   * {@literal @Timed} method interception in guice-provided instances.  Requires that a
-   * {@link TimeSeriesRepository} is bound elsewhere.
-   *
-   * @param binder a guice binder to require bindings against
-   */
-  public static void bind(Binder binder) {
-    Preconditions.checkNotNull(binder);
-
-    Bindings.requireBinding(binder, TimeSeriesRepository.class);
-
-    TimedInterceptor interceptor = new TimedInterceptor();
-    binder.requestInjection(interceptor);
-    binder.bindInterceptor(Matchers.any(), Matchers.annotatedWith(Timed.class), interceptor);
-  }
-
-  private TimedInterceptor() {
-    // preserve for guice
   }
 
   private final Map<Method, SlidingStats> stats =
@@ -82,6 +63,10 @@ public final class TimedInterceptor implements MethodInterceptor {
           return createStats(method);
         }
       });
+
+  private TimedInterceptor() {
+    // preserve for guice
+  }
 
   private SlidingStats createStats(Method method) {
     Timed timed = method.getAnnotation(Timed.class);
@@ -103,5 +88,22 @@ public final class TimedInterceptor implements MethodInterceptor {
     } finally {
       stat.accumulate(System.nanoTime() - start);
     }
+  }
+
+  /**
+   * Installs an interceptor in a guice {@link com.google.inject.Injector}, enabling
+   * {@literal @Timed} method interception in guice-provided instances.  Requires that a
+   * {@link TimeSeriesRepository} is bound elsewhere.
+   *
+   * @param binder a guice binder to require bindings against
+   */
+  public static void bind(Binder binder) {
+    Preconditions.checkNotNull(binder);
+
+    Bindings.requireBinding(binder, TimeSeriesRepository.class);
+
+    TimedInterceptor interceptor = new TimedInterceptor();
+    binder.requestInjection(interceptor);
+    binder.bindInterceptor(Matchers.any(), Matchers.annotatedWith(Timed.class), interceptor);
   }
 }

@@ -58,5 +58,7 @@ public @interface CmdLine {
    *
    * @return Custom parser for this type.
    */
-  Class<? extends Parser> parser() default Parser.class;
+  // The default is fully qualified to work around an apt bug:
+  // http://bugs.sun.com/view_bug.do?bug_id=6512707
+  Class<? extends Parser> parser() default com.twitter.common.args.Parsers.Parser.class;
 }

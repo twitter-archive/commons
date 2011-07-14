@@ -19,6 +19,6 @@ python_test_suite(name = 'all',
     pants('tests/python/twitter/pants/ant'),
     pants('tests/python/twitter/pants/base'),
     pants('tests/python/twitter/pants/targets'),
-    pants('tests/python/twitter/pants/python'),
+    pants('tests/python/twitter/pants/python:all'),
   ]
 )

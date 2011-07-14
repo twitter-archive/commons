@@ -16,10 +16,10 @@
 
 package com.twitter.common.args;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -45,13 +45,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import org.reflections.Reflections;
-import org.reflections.scanners.FieldAnnotationsScanner;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
-import org.reflections.util.FilterBuilder;
-
 import com.twitter.common.args.Parsers.Parser;
+import com.twitter.common.args.apt.Configuration;
 import com.twitter.common.args.constraints.NotNull;
 import com.twitter.common.args.constraints.Verifier;
 import com.twitter.common.base.Closure;
@@ -84,11 +79,21 @@ import static com.google.common.base.Preconditions.checkArgument;
  * As with the general argument format, spaces may be used in place of equals for boolean argument
  * assignment.
  *
- * TODO(William Farner): Make default verifier and parser classes package-private and in this package.
+ * TODO(William Farner): Make default verifier and parser classes package-private and in this
+ * package.
  *
  * @author William Farner
  */
 public class ArgScanner {
+
+  /**
+   * Indicates a problem scanning {@literal @CmdLine} arg definitions.
+   */
+  public static class ArgScanException extends RuntimeException {
+    public ArgScanException(Throwable cause) {
+      super(cause);
+    }
+  }
 
   private static final Logger LOG = Logger.getLogger(ArgScanner.class.getName());
 
@@ -110,30 +115,54 @@ public class ArgScanner {
   }
 
   /**
-   * Recursively scans a package prefix for declared arguments, and applies the provided argument
-   * values, after parsing and validating.
+   * Applies the provided argument values to all {@literal @CmdLine} {@code Arg} fields discovered
+   * on the classpath.
    *
-   * @param packagePrefix Prefix of package to scan.
-   * @param args Argument values to parse, validate, and apply.
+   * @param args Argument values to map, parse, validate, and apply.
+   * @throws ArgScanException if there was a problem loading {@literal @CmdLine} argument
+   *    definitions
    * @throws IllegalArgumentException If the arguments provided are invalid based on the declared
    *    arguments found.
    */
-  public static void parse(Iterable<String> packagePrefix, Map<String, String> args) {
-    process(scan(packagePrefix), args);
+  public static void parse(String... args) {
+    parse(Predicates.<Field>alwaysTrue(), args);
   }
 
   /**
-   * Convenience ethod to call {@link #parse(Iterable, Map)} that will handle mapping of argument
+   * Applies the provided argument values to {@literal @CmdLine} arg fields selected by the given
+   * filter after parsing and validating them.
+   *
+   * @param args Argument values to map, parse, validate, and apply.
+   * @throws ArgScanException if there was a problem loading {@literal @CmdLine} argument
+   *    definitions
+   * @throws IllegalArgumentException If the arguments provided are invalid based on the declared
+   *    arguments found.
+   *
+   * @deprecated Use {@link #parse(String...)}
+   */
+  @Deprecated
+  public static void parse(Map<String, String> args) {
+    parse(Predicates.<Field>alwaysTrue(), args);
+  }
+
+  /**
+   * Convenience method to call {@link #parse(Predicate, Map)} that will handle mapping of argument
    * keys to values.
    *
-   * @param packagePrefix Prefix of package to scan.
+   * @param filter A predicate that selects or rejects scanned {@literal @CmdLine} fields for
+   *    argument application.
    * @param args Argument values to map, parse, validate, and apply.
+   * @throws ArgScanException if there was a problem loading {@literal @CmdLine} argument
+   *    definitions
    * @throws IllegalArgumentException If the arguments provided are invalid based on the declared
    *    arguments found.
    */
-  public static void parse(Iterable<String> packagePrefix, String... args)
-      throws IllegalArgumentException {
-    parse(packagePrefix, mapArguments(args));
+  public static void parse(Predicate<Field> filter, String... args) {
+    parse(filter, mapArguments(args));
+  }
+
+  private static void parse(Predicate<Field> filter, Map<String, String> args) {
+    process(scan(filter), args);
   }
 
   // Regular expression to identify a possible dangling assignment.
@@ -305,9 +334,7 @@ public class ArgScanner {
    * @param argFields Fields to apply argument values to.
    * @param args Unparsed argument values.
    */
-  @VisibleForTesting
-  static void process(Set<Field> argFields, Map<String, String> args) {
-
+  private static void process(Iterable<Field> argFields, Map<String, String> args) {
     final Set<String> argsFailedToParse = Sets.newHashSet();
     final Set<String> argsConstraintsFailed = Sets.newHashSet();
 
@@ -351,8 +378,8 @@ public class ArgScanner {
             GET_CANONICAL_NEGATED_ARG_NAME))
         .build();
 
-    // TODO(William Farner): Make sure to disallow duplicate arg specification by short and canonical
-    //    names.
+    // TODO(William Farner): Make sure to disallow duplicate arg specification by short and
+    // canonical names.
 
     // TODO(William Farner): Support non-atomic argument constraints.  @OnlyIfSet, @OnlyIfNotSet,
     //    @ExclusiveOf to define inter-argument constraints.
@@ -434,7 +461,8 @@ public class ArgScanner {
     System.out.println(msg);
   }
 
-  private static void checkConstraints(Class<?> fieldClass, Object value, Annotation[] annotations) {
+  private static void checkConstraints(Class<?> fieldClass, Object value,
+      Annotation[] annotations) {
     for (Annotation annotation : maybeFilterNullable(fieldClass, value, annotations)) {
       verify(fieldClass, value, annotation);
     }
@@ -493,23 +521,23 @@ public class ArgScanner {
     }
   }
 
-  private static Set<Field> scan(Iterable<String> scanPackagePrefixes) {
-    FilterBuilder filterBuilder = new FilterBuilder();
-    ImmutableSet.Builder<URL> urlsBuilder = ImmutableSet.builder();
-    for (String packagePrefix : scanPackagePrefixes) {
-      filterBuilder.add(new FilterBuilder.Include(FilterBuilder.prefix(packagePrefix)));
-      urlsBuilder.addAll(ClasspathHelper.getUrlsForPackagePrefix(packagePrefix));
+  private static final Function<String, Predicate<Field>> PREFIX_TO_FILTER =
+      new Function<String, Predicate<Field>>() {
+        @Override public Predicate<Field> apply(final String packagePrefix) {
+          return new Predicate<Field>() {
+            @Override public boolean apply(Field field) {
+              return field.getDeclaringClass().getName().startsWith(packagePrefix);
+            }
+          };
+        }
+      };
+
+  private static Iterable<Field> scan(Predicate<Field> filter) {
+    try {
+      Configuration configuration = Configuration.load();
+      return Iterables.filter(configuration.fields(), filter);
+    } catch (IOException e) {
+      throw new ArgScanException(e);
     }
-    filterBuilder.add(new FilterBuilder.Exclude(".*Test"));
-
-    Set<URL> urls = urlsBuilder.build();
-    LOG.info("Scanning resource URLs: " + urls);
-
-    return new Reflections(new ConfigurationBuilder()
-        .filterInputsBy(filterBuilder)
-        .setUrls(urls)
-        .useParallelExecutor()
-        .setScanners(new FieldAnnotationsScanner()))
-        .getFieldsAnnotatedWith(CmdLine.class);
   }
 }

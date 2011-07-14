@@ -16,24 +16,28 @@
 
 package com.twitter.common.zookeeper;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Ordering;
-import com.twitter.common.base.MorePreconditions;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.data.Stat;
-
-import javax.annotation.concurrent.ThreadSafe;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.annotation.concurrent.ThreadSafe;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
+
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.ZooDefs;
+import org.apache.zookeeper.data.ACL;
+import org.apache.zookeeper.data.Stat;
+
+import com.twitter.common.base.MorePreconditions;
 
 /**
  * Distributed locking via ZooKeeper. Assuming there are N clients that all try to acquire a lock,
@@ -57,10 +61,12 @@ import java.util.logging.Logger;
 public class DistributedLockImpl implements DistributedLock {
 
   private static final Logger LOG = Logger.getLogger(DistributedLockImpl.class.getName());
+
   private final ZooKeeperClient zkClient;
   private final String lockPath;
-  private final AtomicBoolean aborted = new AtomicBoolean(false);
+  private final ImmutableList<ACL> acl;
 
+  private final AtomicBoolean aborted = new AtomicBoolean(false);
   private CountDownLatch syncPoint;
   private boolean holdsLock = false;
   private String currentId;
@@ -68,29 +74,44 @@ public class DistributedLockImpl implements DistributedLock {
   private String watchedNode;
   private LockWatcher watcher;
 
+  /**
+   * Equivalent to {@link #DistributedLockImpl(ZooKeeperClient, String, Iterable)} with a default
+   * wide open {@code acl} ({@link ZooDefs.Ids#OPEN_ACL_UNSAFE}).
+   */
   public DistributedLockImpl(ZooKeeperClient zkClient, String lockPath) {
+    this(zkClient, lockPath, ZooDefs.Ids.OPEN_ACL_UNSAFE);
+  }
+
+  /**
+   * Creates a distributed lock using the given {@code zkClient} to coordinate locking.
+   *
+   * @param zkClient The ZooKeeper client to use.
+   * @param lockPath The path used to manage the lock under.
+   * @param acl The acl to apply to newly created lock nodes.
+   */
+  public DistributedLockImpl(ZooKeeperClient zkClient, String lockPath, Iterable<ACL> acl) {
     this.zkClient = Preconditions.checkNotNull(zkClient);
     this.lockPath = MorePreconditions.checkNotBlank(lockPath);
+    this.acl = ImmutableList.copyOf(acl);
     this.syncPoint = new CountDownLatch(1);
   }
 
   private synchronized void prepare()
-      throws ZooKeeperClient.ZooKeeperConnectionException, InterruptedException, KeeperException {
+    throws ZooKeeperClient.ZooKeeperConnectionException, InterruptedException, KeeperException {
 
-      ZooKeeperUtils.ensurePath(zkClient, ZooDefs.Ids.OPEN_ACL_UNSAFE, lockPath);
-      LOG.log(Level.FINE, "Working with locking path:" + lockPath);
+    ZooKeeperUtils.ensurePath(zkClient, acl, lockPath);
+    LOG.log(Level.FINE, "Working with locking path:" + lockPath);
 
-      // Create an EPHEMERAL_SEQUENTIAL node.
-      currentNode = zkClient.get()
-          .create(lockPath + "/member_", null, ZooDefs.Ids.OPEN_ACL_UNSAFE,
-              CreateMode.EPHEMERAL_SEQUENTIAL);
+    // Create an EPHEMERAL_SEQUENTIAL node.
+    currentNode =
+        zkClient.get().create(lockPath + "/member_", null, acl, CreateMode.EPHEMERAL_SEQUENTIAL);
 
-      // We only care about our actual id since we want to compare ourselves to siblings.
-      if (currentNode.contains("/")) {
-        currentId = currentNode.substring(currentNode.lastIndexOf("/") + 1);
-      }
-      LOG.log(Level.FINE, "Received ID from zk:" + currentId);
-      this.watcher = new LockWatcher();
+    // We only care about our actual id since we want to compare ourselves to siblings.
+    if (currentNode.contains("/")) {
+      currentId = currentNode.substring(currentNode.lastIndexOf("/") + 1);
+    }
+    LOG.log(Level.FINE, "Received ID from zk:" + currentId);
+    this.watcher = new LockWatcher();
   }
 
   @Override
@@ -129,7 +150,7 @@ public class DistributedLockImpl implements DistributedLock {
       if (!success) {
         return false;
       }
-      if (!holdsLock && !success) {
+      if (!holdsLock) {
         throw new LockingException("Error, couldn't acquire the lock!");
       }
     } catch (InterruptedException e) {
@@ -264,7 +285,5 @@ public class DistributedLockImpl implements DistributedLock {
         LOG.log(Level.WARNING, String.format("Unexpected ZK event: %s", event.getType().name()));
       }
     }
-
-
   }
 }

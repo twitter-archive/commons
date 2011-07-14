@@ -372,7 +372,8 @@ classpath." />
         <module name="NoFinalizer"/>
         <module name="SuperClone"/>
         <module name="SuperFinalize"/>
-        <module name="IllegalThrows"/>
+        <!-- disallow throws Throwable unless a superclass or interface requires this -->
+        <module name="com.twitter.common.checkstyle.IllegalThrowsCheck"/>
         <module name="PackageDeclaration">
           <property name="ignoreDirectoryName" value="true"/>
         </module>

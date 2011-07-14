@@ -20,9 +20,11 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.data.ACL;
 
 import com.twitter.common.quantity.Amount;
@@ -48,6 +50,15 @@ public final class ZooKeeperUtils {
    * version number.
    */
   public static final int ANY_VERSION = -1;
+
+  /**
+   * An ACL that gives all permissions to node creators and read permissions only to everyone else.
+   */
+  public static final ImmutableList<ACL> EVERYONE_READ_CREATOR_ALL =
+      ImmutableList.<ACL>builder()
+          .addAll(Ids.CREATOR_ALL_ACL)
+          .addAll(Ids.READ_ACL_UNSAFE)
+          .build();
 
   /**
    * Returns true if the given exception indicates an error that can be resolved by retrying the

@@ -34,6 +34,7 @@ import com.twitter.common.io.FileUtils;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
 import com.twitter.common.zookeeper.ZooKeeperClient;
+import com.twitter.common.zookeeper.ZooKeeperClient.Credentials;
 
 /**
  * A helper class for starting in-process ZooKeeper server and clients.
@@ -41,13 +42,19 @@ import com.twitter.common.zookeeper.ZooKeeperClient;
  * <p>This is ONLY meant to be used for testing.
  */
 public class ZooKeeperTestServer {
-  private static final Amount<Integer, Time> DEFAULT_SESSION_TIMEOUT =
+
+  /**
+   * The default session timeout for clients created by servers constructed with
+   * {@link #ZooKeeperTestServer(int, ActionRegistry)}.
+   */
+  public static final Amount<Integer, Time> DEFAULT_SESSION_TIMEOUT =
       Amount.of(100, Time.MILLISECONDS);
 
   private final ZooKeeperServer zooKeeperServer;
   private final ActionRegistry shutdownRegistry;
   private NIOServerCnxn.Factory connectionFactory;
   private int port;
+  private final Amount<Integer, Time> defaultSessionTimeout;
 
   /**
    * @param port the port to start the zoo keeper server on - {@code 0} picks an ephemeral port
@@ -56,9 +63,23 @@ public class ZooKeeperTestServer {
    * @throws IOException if there was aproblem creating the server's database
    */
   public ZooKeeperTestServer(int port, ActionRegistry shutdownRegistry) throws IOException {
+    this(port, shutdownRegistry, DEFAULT_SESSION_TIMEOUT);
+  }
+
+  /**
+   * @param port the port to start the zoo keeper server on - {@code 0} picks an ephemeral port
+   * @param shutdownRegistry a registry that will be used to register client and server shutdown
+   *     commands.  It is up to the caller to execute the registered actions at an appropriate time.
+   * @param defaultSessionTimeout the default session timeout for clients created with
+   *     {@link #createClient()}.
+   * @throws IOException if there was aproblem creating the server's database
+   */
+  public ZooKeeperTestServer(int port, ActionRegistry shutdownRegistry,
+      Amount<Integer, Time> defaultSessionTimeout) throws IOException {
     Preconditions.checkArgument(0 <= port && port <= 0xFFFF);
     this.port = port;
     this.shutdownRegistry = Preconditions.checkNotNull(shutdownRegistry);
+    this.defaultSessionTimeout = Preconditions.checkNotNull(defaultSessionTimeout);
 
     zooKeeperServer =
         new ZooKeeperServer(new FileTxnSnapLog(createTempDir(), createTempDir()),
@@ -122,20 +143,37 @@ public class ZooKeeperTestServer {
   }
 
   /**
-   * Returns a new zookeeper client connected to the in-process zookeeper server with the
-   * {@link #DEFAULT_SESSION_TIMEOUT}.
+   * Returns a new unauthenticated zookeeper client connected to the in-process zookeeper server
+   * with the default session timeout.
    */
   public final ZooKeeperClient createClient() {
-    return createClient(DEFAULT_SESSION_TIMEOUT);
+    return createClient(defaultSessionTimeout);
   }
 
   /**
-   * Returns a new zookeeper client connected to the in-process zookeeper server with a custom
-   * {@code sessionTimeout}.
+   * Returns a new authenticated zookeeper client connected to the in-process zookeeper server with
+   * the default session timeout.
+   */
+  public final ZooKeeperClient createClient(Credentials credentials) {
+    return createClient(defaultSessionTimeout, credentials);
+  }
+
+  /**
+   * Returns a new unauthenticated zookeeper client connected to the in-process zookeeper server
+   * with a custom {@code sessionTimeout}.
    */
   public final ZooKeeperClient createClient(Amount<Integer, Time> sessionTimeout) {
-    final ZooKeeperClient client = new ZooKeeperClient(sessionTimeout, InetSocketAddress
-        .createUnresolved("127.0.0.1", port));
+    return createClient(sessionTimeout, Credentials.NONE);
+  }
+
+  /**
+   * Returns a new authenticated zookeeper client connected to the in-process zookeeper server with
+   * a custom {@code sessionTimeout}.
+   */
+  public final ZooKeeperClient createClient(Amount<Integer, Time> sessionTimeout,
+      Credentials credentials) {
+    final ZooKeeperClient client = new ZooKeeperClient(sessionTimeout, credentials,
+        InetSocketAddress.createUnresolved("127.0.0.1", port));
     shutdownRegistry.addAction(new ExceptionalCommand<InterruptedException>() {
       @Override public void execute() {
         client.close();

@@ -14,9 +14,6 @@
 # limitations under the License.
 # ==================================================================================================
 
-from glob import glob
-
-
 java_tests(name = 'util',
   dependencies = [
     pants('3rdparty:easymock'),
@@ -29,5 +26,5 @@ java_tests(name = 'util',
     pants('src/java/com/twitter/common/util'),
     pants('src/java/com/twitter/common/util:testing'),
   ],
-  sources = glob('*.java')
+  sources = globs('*.java') + globs('testing/*.java')
 )

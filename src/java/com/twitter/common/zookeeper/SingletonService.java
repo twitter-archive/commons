@@ -16,20 +16,24 @@
 
 package com.twitter.common.zookeeper;
 
+import java.net.InetSocketAddress;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.annotation.Nullable;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+
+import org.apache.zookeeper.ZooDefs;
+import org.apache.zookeeper.data.ACL;
+
 import com.twitter.common.base.ExceptionalCommand;
 import com.twitter.common.zookeeper.Candidate.Leader;
 import com.twitter.common.zookeeper.Group.JoinException;
 import com.twitter.common.zookeeper.ServerSet.EndpointStatus;
 import com.twitter.thrift.Status;
-import org.apache.zookeeper.ZooDefs;
-
-import javax.annotation.Nullable;
-import java.net.InetSocketAddress;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A service that uses master election to only allow a single instance of the server to join
@@ -46,20 +50,28 @@ public class SingletonService {
   private final Candidate candidate;
 
   /**
+   * Equivalent to {@link #SingletonService(ZooKeeperClient, String, Iterable)} with a default
+   * wide open {@code acl} ({@link ZooDefs.Ids#OPEN_ACL_UNSAFE}).
+   */
+  public SingletonService(ZooKeeperClient zkClient, String servicePath) {
+    this(zkClient, servicePath, ZooDefs.Ids.OPEN_ACL_UNSAFE);
+  }
+
+  /**
    * Creates a new singleton service, identified by {@code servicePath}.  All nodes related to the
-   * service (for both leader election and service registration) will live under the path.
-   * Internally, two ZooKeeper {@code Group}s are used to manage a singleton service - one for
-   * leader election, and another for the {@code ServerSet} where the leader's endpoints
-   * are registered.  Leadership election should guarantee that at most one instance will ever
-   * exist in the ServerSet at once.
+   * service (for both leader election and service registration) will live under the path and each
+   * node will be created with the supplied {@code acl}. Internally, two ZooKeeper {@code Group}s
+   * are used to manage a singleton service - one for leader election, and another for the
+   * {@code ServerSet} where the leader's endpoints are registered.  Leadership election should
+   * guarantee that at most one instance will ever exist in the ServerSet at once.
    *
    * @param zkClient The ZooKeeper client to use.
    * @param servicePath The path where service nodes live.
+   * @param acl The acl to apply to newly created candidate nodes and serverset nodes.
    */
-  public SingletonService(ZooKeeperClient zkClient, String servicePath) {
-    this(new ServerSetImpl(zkClient, new Group(zkClient, ZooDefs.Ids.OPEN_ACL_UNSAFE, servicePath)),
-        new CandidateImpl(new Group(zkClient, ZooDefs.Ids.OPEN_ACL_UNSAFE, servicePath,
-        LEADER_ELECT_NODE_PREFIX)));
+  public SingletonService(ZooKeeperClient zkClient, String servicePath, Iterable<ACL> acl) {
+    this(new ServerSetImpl(zkClient, new Group(zkClient, acl, servicePath)),
+        new CandidateImpl(new Group(zkClient, acl, servicePath, LEADER_ELECT_NODE_PREFIX)));
   }
 
   @VisibleForTesting

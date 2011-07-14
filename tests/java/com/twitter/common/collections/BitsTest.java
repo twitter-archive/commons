@@ -216,12 +216,14 @@ public class BitsTest {
       0x99DD3A07
   );
 
+  @SuppressWarnings("unchecked") //Needed because type information lost in vargs.
   private static final List<List<Long>> LONGS_TEST_LISTS = Arrays.asList(
       BASIC_LONGS,
       SINGLE_BIT_LONGS,
       RANDOM_LONGS
   );
 
+  @SuppressWarnings("unchecked") //Needed because type information lost in vargs.
   private static final List<List<Integer>> INTS_TEST_LISTS = Arrays.asList(
       BASIC_INTS,
       SINGLE_BIT_INTS,

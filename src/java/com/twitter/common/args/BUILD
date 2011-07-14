@@ -14,7 +14,22 @@
 # limitations under the License.
 # ==================================================================================================
 
+APT_SOURCES = globs('apt/*.java')
 
+annotation_processor(name = 'apt',
+  provides = artifact(
+    org = 'com.twitter.common',
+    name = 'args-apt',
+    repo = pants('build-support/commons/ivy:public'),
+  ),
+  dependencies = [
+    pants('3rdparty:commons-lang'),
+    pants('3rdparty:guava'),
+    pants('3rdparty:jsr305'),
+  ],
+  sources = APT_SOURCES,
+  processors = [ 'com.twitter.common.args.apt.CmdLineProcessor' ]
+)
 
 java_library(name = 'args',
   provides = artifact(
@@ -24,10 +39,10 @@ java_library(name = 'args',
   ),
   dependencies = [
     pants('3rdparty:guava'),
-    pants('3rdparty:reflections'),
+    pants(':apt'),
     pants('src/java/com/twitter/common/base'),
     pants('src/java/com/twitter/common/net:util'),
     pants('src/java/com/twitter/common/quantity'),
   ],
-  sources = rglobs('*.java'),
+  sources = rglobs('*.java') - APT_SOURCES
 )

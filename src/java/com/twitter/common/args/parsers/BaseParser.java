@@ -27,14 +27,14 @@ import com.twitter.common.args.Parsers.Parser;
  */
 public abstract class BaseParser<T> implements Parser<T> {
 
-  protected final Class<T> parsedClass;
+  protected final Class<? super T> parsedClass;
 
-  BaseParser(Class<T> parsedClass) {
+  BaseParser(Class<? super T> parsedClass) {
     this.parsedClass = Preconditions.checkNotNull(parsedClass);
   }
 
   @Override
-  public Class<T> getParsedClass() {
+  public Class<? super T> getParsedClass() {
     return parsedClass;
   }
 }

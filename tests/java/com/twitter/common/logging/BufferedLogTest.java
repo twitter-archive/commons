@@ -16,21 +16,26 @@
 
 package com.twitter.common.logging;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.MoreExecutors;
-import com.twitter.common.quantity.Amount;
-import com.twitter.common.quantity.Time;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.easymock.EasyMock.*;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.MoreExecutors;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.twitter.common.quantity.Amount;
+import com.twitter.common.quantity.Time;
 
 /**
  * Tests the BufferedLog.
@@ -56,6 +61,7 @@ public class BufferedLogTest {
   private Log<String, Boolean> wrappedLog;
 
   @Before
+  @SuppressWarnings("unchecked") // Due to createMock.
   public void setUp() {
     wrappedLog = createMock(Log.class);
 

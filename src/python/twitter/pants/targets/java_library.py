@@ -109,5 +109,6 @@ class JavaLibrary(ExportableJvmLibrary):
       resources = self.resources,
       binary_resources = self.binary_resources,
       deploy_jar = self.deployjar,
-      allsources = allsources
+      allsources = allsources,
+      processors = []
     )

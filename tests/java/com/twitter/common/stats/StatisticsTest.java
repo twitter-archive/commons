@@ -16,10 +16,12 @@
 
 package com.twitter.common.stats;
 
-import junit.framework.TestCase;
-
 import java.util.Arrays;
 import java.util.List;
+
+import junit.framework.TestCase;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * Tests the functionality of the Statistics class.
@@ -29,7 +31,7 @@ import java.util.List;
 public class StatisticsTest extends TestCase {
   private static final double ERROR_THRESHOLD = 1e-10;
 
-  private static final List<Integer> EMPTY_SET = Arrays.asList();
+  private static final List<Integer> EMPTY_SET = ImmutableList.of();
 
   private static final List<Integer> TEST_SET_A = Arrays.asList(76117373, 76167137, 75870125, 75880508, 78099974,
                                        77810738, 75763975, 78042301, 76109165, 77816921,

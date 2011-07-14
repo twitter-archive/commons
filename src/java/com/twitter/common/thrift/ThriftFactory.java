@@ -16,6 +16,21 @@
 
 package com.twitter.common.thrift;
 
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.net.InetSocketAddress;
+import java.util.Collection;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
@@ -24,6 +39,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
+import org.apache.thrift.async.TAsyncClient;
+import org.apache.thrift.async.TAsyncClientManager;
+import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.protocol.TProtocolFactory;
+import org.apache.thrift.transport.TNonblockingTransport;
+import org.apache.thrift.transport.TTransport;
+
 import com.twitter.common.base.Closure;
 import com.twitter.common.base.Closures;
 import com.twitter.common.base.MorePreconditions;
@@ -31,7 +55,7 @@ import com.twitter.common.net.loadbalancing.LeastConnectedStrategy;
 import com.twitter.common.net.loadbalancing.LoadBalancer;
 import com.twitter.common.net.loadbalancing.LoadBalancerImpl;
 import com.twitter.common.net.loadbalancing.LoadBalancingStrategy;
-import com.twitter.common.net.loadbalancing.MarkDeadStrategy;
+import com.twitter.common.net.loadbalancing.MarkDeadStrategyWithHostCheck;
 import com.twitter.common.net.loadbalancing.TrafficMonitorAdapter;
 import com.twitter.common.net.monitoring.TrafficMonitor;
 import com.twitter.common.net.pool.Connection;
@@ -50,28 +74,6 @@ import com.twitter.common.util.BackoffStrategy;
 import com.twitter.common.util.TruncatedBinaryBackoff;
 import com.twitter.common.util.concurrent.ForwardingExecutorService;
 import com.twitter.thrift.ServiceInstance;
-import org.apache.thrift.async.TAsyncClient;
-import org.apache.thrift.async.TAsyncClientManager;
-import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.protocol.TProtocolFactory;
-import org.apache.thrift.transport.TNonblockingTransport;
-import org.apache.thrift.transport.TTransport;
-
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.net.InetSocketAddress;
-import java.util.Collection;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 /**
  * A utility that provides convenience methods to build common {@link Thrift}s.
@@ -90,10 +92,11 @@ import java.util.logging.Logger;
  *   <li> At most 50 connections will be established to each host
  *      {@link #withMaxConnectionsPerEndpoint(int)}
  *   <li> Unframed transport {@link #useFramedTransport(boolean)}
- *   <li> A load balancing strategy that will mark hosts dead prefer least-connected hosts
- *      Hosts are marked dead based on the windowed error rate.  If the error rate for a host
- *      exceeds 20% over the last second, the host will be disabled for 2 seconds ascending up to
- *      10 seconds if the elevated error rate persists.
+ *   <li> A load balancing strategy that will mark hosts dead and prefer least-connected hosts.
+ *      Hosts are marked dead if the most recent connection attempt was a failure or else based on
+ *      the windowed error rate of attempted RPCs.  If the error rate for a connected host exceeds
+ *      20% over the last second, the host will be disabled for 2 seconds ascending up to 10 seconds
+ *      if the elevated error rate persists.
  *      {@link #withLoadBalancingStrategy(LoadBalancingStrategy)}
  *   <li> Statistics are reported through {@link Stats}
  *      {@link #withStatsProvider(StatsProvider)}
@@ -470,7 +473,7 @@ public class ThriftFactory<T> {
           }
     };
 
-    return new MarkDeadStrategy<InetSocketAddress>(
+    return new MarkDeadStrategyWithHostCheck<InetSocketAddress>(
         new LeastConnectedStrategy<InetSocketAddress>(), backoffFactory);
   }
 

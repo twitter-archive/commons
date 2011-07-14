@@ -14,7 +14,13 @@
 # limitations under the License.
 # ==================================================================================================
 
-
+java_tests(name = 'small',
+  dependencies = [
+    pants('3rdparty:junit'),
+    pants('src/java/com/twitter/common/args'),
+  ],
+  sources = [ 'ParsersTest.java' ]
+)
 
 java_tests(name = 'medium',
   dependencies = [
@@ -24,4 +30,11 @@ java_tests(name = 'medium',
   sources = [ 'ArgScannerTest.java' ]
 )
 
-jar_library(name = 'args', dependencies = [ pants(':medium') ])
+jar_library(name = 'all',
+  dependencies = [
+    pants(':small'),
+    pants(':medium')
+  ]
+)
+
+jar_library(name = 'args', dependencies = [ pants(':all') ])

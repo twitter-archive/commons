@@ -34,6 +34,7 @@ import static org.junit.Assert.assertThat;
 public class Iterables2Test {
 
   @Test
+  @SuppressWarnings("unchecked") // Needed because type information lost in vargs.
   public void testZipSingleIterable() {
     assertValues(Iterables2.zip(0, list(1, 2, 3, 4)),
         list(1),
@@ -44,6 +45,7 @@ public class Iterables2Test {
   }
 
   @Test
+  @SuppressWarnings("unchecked") // Needed because type information lost in vargs.
   public void testZipDefaultValue() {
     assertValues(Iterables2.zip(10, list(1, 2, 3, 4), list(1)),
         list(1, 1),
@@ -54,6 +56,7 @@ public class Iterables2Test {
   }
 
   @Test
+  @SuppressWarnings("unchecked") // Needed because type information lost in vargs.
   public void testZipNbyN() {
     assertValues(Iterables2.zip(10, list(1, 2, 3, 4), list(5, 6, 7, 8)),
         list(1, 5),
@@ -64,6 +67,7 @@ public class Iterables2Test {
   }
 
   @Test
+  @SuppressWarnings("unchecked") // Needed because type information lost in vargs.
   public void testZipEmptyIterable() {
     assertValues(Iterables2.zip(10, list(1, 2, 3, 4), Arrays.<Integer>asList()),
         list(1, 10),
@@ -74,6 +78,7 @@ public class Iterables2Test {
   }
 
   @Test
+  @SuppressWarnings("unchecked") // Needed because type information lost in vargs.
   public void testZipRemove() {
     final int DEFAULT = 10;
     Iterable<List<Integer>> meta = Iterables2.zip(DEFAULT,

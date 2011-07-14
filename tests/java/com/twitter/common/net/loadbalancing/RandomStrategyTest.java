@@ -82,6 +82,7 @@ public class RandomStrategyTest extends EasyMockTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked") // Needed because type information lost in vargs.
   public void testRandomSelection() throws ResourceExhaustedException {
     Capture<Collection<String>> capture = createCapture();
     onBackendsChosen.execute(capture(capture));

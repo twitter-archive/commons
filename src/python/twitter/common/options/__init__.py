@@ -89,9 +89,9 @@ def add(*args, **kwargs):
 # alias
 add_option = add
 
-def parse(**kwargs):
+def parse(*args, **kwargs):
   _Global.assert_not_parsed("Called options.parse() twice!")
-  _Global.VALUES, left = _Global.OPTIONS.parse_args(**kwargs)
+  _Global.VALUES, left = _Global.OPTIONS.parse_args(*args, **kwargs)
   _Global.PARSED = True
   return _Global.VALUES, left
 

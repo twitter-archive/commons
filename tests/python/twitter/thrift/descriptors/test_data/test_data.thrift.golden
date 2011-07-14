@@ -1,0 +1,584 @@
+{
+  "constants": [
+    {
+      "name": "INT32CONSTANT",
+      "typeId": "T1",
+      "value": "9853"
+    },
+    {
+      "name": "MAPCONSTANT",
+      "typeId": "T4",
+      "value": "{'hello':'world', 'goodnight':'moon'}"
+    }
+  ],
+  "enums": [
+    {
+      "elements": [
+        {
+          "name": "ADD",
+          "value": 0
+        },
+        {
+          "name": "SUBTRACT",
+          "value": 2
+        },
+        {
+          "name": "MULTIPLY",
+          "value": 3
+        },
+        {
+          "name": "DIVIDE",
+          "value": 10
+        }
+      ],
+      "name": "Operation"
+    }
+  ],
+  "exceptions": [
+    {
+      "fields": [
+        {
+          "annotations": [
+            {
+              "key": "fieldannotation",
+              "value": "foo"
+            }
+          ],
+          "identifier": 1,
+          "name": "what",
+          "typeId": "T21"
+        },
+        {
+          "identifier": 2,
+          "name": "why",
+          "typeId": "T22"
+        }
+      ],
+      "name": "InvalidOperation"
+    }
+  ],
+  "includes": [
+    {
+      "path": "shared.thrift"
+    }
+  ],
+  "namespaces": [
+    {
+      "language": "cpp",
+      "name": "tutorial"
+    },
+    {
+      "language": "java",
+      "name": "tutorial"
+    },
+    {
+      "language": "php",
+      "name": "tutorial"
+    },
+    {
+      "language": "perl",
+      "name": "tutorial"
+    },
+    {
+      "language": "smalltalk.category",
+      "name": "Thrift-Tutorial"
+    },
+    {
+      "language": "*",
+      "name": "tutorial.for.all"
+    },
+    {
+      "language": "xsd",
+      "name": "\"tutorial\""
+    }
+  ],
+  "services": [
+    {
+      "extendz": "shared.SharedService",
+      "functions": [
+        {
+          "argz": [],
+          "name": "ping"
+        },
+        {
+          "argz": [
+            {
+              "identifier": 1,
+              "name": "num1",
+              "typeId": "T24"
+            },
+            {
+              "identifier": 2,
+              "name": "num2",
+              "typeId": "T25"
+            }
+          ],
+          "name": "add",
+          "returnTypeId": "T23"
+        },
+        {
+          "argz": [
+            {
+              "identifier": 1,
+              "name": "logid",
+              "typeId": "T27"
+            },
+            {
+              "identifier": 2,
+              "name": "w",
+              "typeId": "T28"
+            }
+          ],
+          "name": "calculate",
+          "returnTypeId": "T26",
+          "throwz": [
+            {
+              "identifier": 1,
+              "name": "ouch",
+              "typeId": "T29"
+            }
+          ]
+        },
+        {
+          "argz": [],
+          "name": "zip",
+          "oneWay": true
+        }
+      ],
+      "name": "Calculator"
+    },
+    {
+      "extendz": "shared.SharedService",
+      "functions": [
+        {
+          "argz": [],
+          "name": "pingExtreme"
+        }
+      ],
+      "name": "CalculatorExtreme"
+    }
+  ],
+  "structs": [
+    {
+      "annotations": [
+        {
+          "key": "foo",
+          "value": "foo"
+        },
+        {
+          "key": "bar",
+          "value": "bar"
+        }
+      ],
+      "fields": [
+        {
+          "defaultValue": "0",
+          "identifier": 1,
+          "name": "num1",
+          "typeId": "T5"
+        },
+        {
+          "identifier": 2,
+          "name": "num2",
+          "requiredness": 0,
+          "typeId": "T6"
+        },
+        {
+          "identifier": 3,
+          "name": "op",
+          "typeId": "T7"
+        },
+        {
+          "identifier": 4,
+          "name": "comment",
+          "requiredness": 1,
+          "typeId": "T8"
+        },
+        {
+          "defaultValue": "INT32CONSTANT",
+          "identifier": 5,
+          "name": "num3",
+          "requiredness": 1,
+          "typeId": "T9"
+        }
+      ],
+      "name": "Work"
+    },
+    {
+      "fields": [
+        {
+          "defaultValue": "\"foo\"",
+          "identifier": 1,
+          "name": "foo",
+          "typeId": "T30"
+        }
+      ],
+      "name": "XsdTestStruct"
+    }
+  ],
+  "typeRegistry": {
+    "aliasToTypeId": {
+      "MyInteger": "T0"
+    },
+    "idToType": {
+      "T0": {
+        "id": "T0",
+        "simpleType": {
+          "baseType": {
+            "simpleBaseType": 3
+          }
+        }
+      },
+      "T1": {
+        "id": "T1",
+        "simpleType": {
+          "baseType": {
+            "annotations": [
+              {
+                "key": "basictypeannotation",
+                "value": "foo"
+              }
+            ],
+            "simpleBaseType": 3
+          }
+        }
+      },
+      "T10": {
+        "id": "T10",
+        "simpleType": {
+          "baseType": {
+            "annotations": [
+              {
+                "key": "foo",
+                "value": "bar"
+              }
+            ],
+            "simpleBaseType": 5
+          }
+        }
+      },
+      "T11": {
+        "id": "T11",
+        "simpleType": {
+          "baseType": {
+            "simpleBaseType": 3
+          }
+        }
+      },
+      "T12": {
+        "id": "T12",
+        "simpleType": {
+          "typeref": {
+            "typeAlias": "Work"
+          }
+        }
+      },
+      "T13": {
+        "id": "T13",
+        "simpleType": {
+          "containerType": {
+            "simpleContainerType": {
+              "setType": {
+                "elementTypeId": "T12"
+              }
+            }
+          }
+        }
+      },
+      "T14": {
+        "id": "T14",
+        "simpleType": {
+          "containerType": {
+            "simpleContainerType": {
+              "mapType": {
+                "keyTypeId": "T11",
+                "valueTypeId": "T13"
+              }
+            }
+          }
+        }
+      },
+      "T15": {
+        "id": "T15",
+        "simpleType": {
+          "containerType": {
+            "simpleContainerType": {
+              "listType": {
+                "elementTypeId": "T14"
+              }
+            }
+          }
+        }
+      },
+      "T16": {
+        "id": "T16",
+        "simpleType": {
+          "containerType": {
+            "simpleContainerType": {
+              "mapType": {
+                "keyTypeId": "T10",
+                "valueTypeId": "T15"
+              }
+            }
+          }
+        }
+      },
+      "T17": {
+        "id": "T17",
+        "simpleType": {
+          "baseType": {
+            "simpleBaseType": 0
+          }
+        }
+      },
+      "T18": {
+        "id": "T18",
+        "simpleType": {
+          "baseType": {
+            "simpleBaseType": 2
+          }
+        }
+      },
+      "T19": {
+        "id": "T19",
+        "simpleType": {
+          "baseType": {
+            "simpleBaseType": 1
+          }
+        }
+      },
+      "T2": {
+        "id": "T2",
+        "simpleType": {
+          "baseType": {
+            "simpleBaseType": 6
+          }
+        }
+      },
+      "T20": {
+        "id": "T20",
+        "simpleType": {
+          "baseType": {
+            "simpleBaseType": 7
+          }
+        }
+      },
+      "T21": {
+        "id": "T21",
+        "simpleType": {
+          "baseType": {
+            "simpleBaseType": 3
+          }
+        }
+      },
+      "T22": {
+        "id": "T22",
+        "simpleType": {
+          "baseType": {
+            "simpleBaseType": 6
+          }
+        }
+      },
+      "T23": {
+        "id": "T23",
+        "simpleType": {
+          "baseType": {
+            "simpleBaseType": 3
+          }
+        }
+      },
+      "T24": {
+        "id": "T24",
+        "simpleType": {
+          "baseType": {
+            "simpleBaseType": 3
+          }
+        }
+      },
+      "T25": {
+        "id": "T25",
+        "simpleType": {
+          "baseType": {
+            "simpleBaseType": 3
+          }
+        }
+      },
+      "T26": {
+        "id": "T26",
+        "simpleType": {
+          "baseType": {
+            "simpleBaseType": 3
+          }
+        }
+      },
+      "T27": {
+        "id": "T27",
+        "simpleType": {
+          "baseType": {
+            "simpleBaseType": 3
+          }
+        }
+      },
+      "T28": {
+        "id": "T28",
+        "simpleType": {
+          "typeref": {
+            "typeAlias": "Work"
+          }
+        }
+      },
+      "T29": {
+        "id": "T29",
+        "simpleType": {
+          "typeref": {
+            "typeAlias": "InvalidOperation"
+          }
+        }
+      },
+      "T3": {
+        "id": "T3",
+        "simpleType": {
+          "baseType": {
+            "simpleBaseType": 6
+          }
+        }
+      },
+      "T30": {
+        "id": "T30",
+        "simpleType": {
+          "baseType": {
+            "simpleBaseType": 6
+          }
+        }
+      },
+      "T31": {
+        "id": "T31",
+        "simpleType": {
+          "baseType": {
+            "simpleBaseType": 3
+          }
+        }
+      },
+      "T32": {
+        "id": "T32",
+        "simpleType": {
+          "baseType": {
+            "simpleBaseType": 0
+          }
+        }
+      },
+      "T4": {
+        "id": "T4",
+        "simpleType": {
+          "containerType": {
+            "annotations": [
+              {
+                "key": "containertypeannotation",
+                "value": "foo"
+              }
+            ],
+            "simpleContainerType": {
+              "mapType": {
+                "keyTypeId": "T2",
+                "valueTypeId": "T3"
+              }
+            }
+          }
+        }
+      },
+      "T5": {
+        "id": "T5",
+        "simpleType": {
+          "baseType": {
+            "simpleBaseType": 3
+          }
+        }
+      },
+      "T6": {
+        "id": "T6",
+        "simpleType": {
+          "baseType": {
+            "simpleBaseType": 4
+          }
+        }
+      },
+      "T7": {
+        "id": "T7",
+        "simpleType": {
+          "typeref": {
+            "typeAlias": "Operation"
+          }
+        }
+      },
+      "T8": {
+        "id": "T8",
+        "simpleType": {
+          "baseType": {
+            "simpleBaseType": 6
+          }
+        }
+      },
+      "T9": {
+        "id": "T9",
+        "simpleType": {
+          "baseType": {
+            "simpleBaseType": 3
+          }
+        }
+      }
+    }
+  },
+  "typedefs": [
+    {
+      "typeAlias": "MyInteger",
+      "typeId": "T0"
+    }
+  ],
+  "unions": [
+    {
+      "annotations": [
+        {
+          "key": "foo",
+          "value": "foo"
+        },
+        {
+          "key": "bar",
+          "value": "bar"
+        }
+      ],
+      "fields": [
+        {
+          "identifier": 1,
+          "name": "crazyWorkList",
+          "requiredness": 1,
+          "typeId": "T16"
+        },
+        {
+          "identifier": 2,
+          "name": "flag",
+          "requiredness": 1,
+          "typeId": "T17"
+        },
+        {
+          "identifier": 3,
+          "name": "short",
+          "requiredness": 1,
+          "typeId": "T18"
+        },
+        {
+          "identifier": 4,
+          "name": "tiny",
+          "requiredness": 1,
+          "typeId": "T19"
+        },
+        {
+          "identifier": 5,
+          "name": "blob",
+          "requiredness": 1,
+          "typeId": "T20"
+        }
+      ],
+      "name": "MoreWork"
+    }
+  ]
+}

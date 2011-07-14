@@ -18,6 +18,7 @@ package com.twitter.common.zookeeper.testing;
 
 import java.io.IOException;
 
+import com.google.common.base.Preconditions;
 import com.google.common.testing.TearDown;
 import com.google.common.testing.junit4.TearDownTestCase;
 
@@ -27,6 +28,7 @@ import com.twitter.common.application.ActionController;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
 import com.twitter.common.zookeeper.ZooKeeperClient;
+import com.twitter.common.zookeeper.ZooKeeperClient.Credentials;
 import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException;
 
 /**
@@ -37,7 +39,26 @@ import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException
  * @author John Sirois
  */
 public abstract class BaseZooKeeperTest extends TearDownTestCase {
+
+  private final Amount<Integer, Time> defaultSessionTimeout;
   private ZooKeeperTestServer zkTestServer;
+
+  /**
+   * Creates a test case where the test server uses its
+   * {@link ZooKeeperTestServer#DEFAULT_SESSION_TIMEOUT} for clients created without an explicit
+   * session timeout.
+   */
+  public BaseZooKeeperTest() {
+    this(ZooKeeperTestServer.DEFAULT_SESSION_TIMEOUT);
+  }
+
+  /**
+   * Creates a test case where the test server uses the given {@code defaultSessionTimeout} for
+   * clients created without an explicit session timeout.
+   */
+  public BaseZooKeeperTest(Amount<Integer, Time> defaultSessionTimeout) {
+    this.defaultSessionTimeout = Preconditions.checkNotNull(defaultSessionTimeout);
+  }
 
   @Before
   public final void setUp() throws Exception {
@@ -47,7 +68,7 @@ public abstract class BaseZooKeeperTest extends TearDownTestCase {
         shutdownRegistry.execute();
       }
     });
-    zkTestServer = new ZooKeeperTestServer(0, shutdownRegistry);
+    zkTestServer = new ZooKeeperTestServer(0, shutdownRegistry, defaultSessionTimeout);
     zkTestServer.startNetwork();
   }
 
@@ -87,18 +108,44 @@ public abstract class BaseZooKeeperTest extends TearDownTestCase {
   }
 
   /**
-   * Returns a new zookeeper client connected to the in-process zookeeper server with the
-   * default session timeout in ZooKeeperTestHelper.
+   * Returns a new unauthenticated zookeeper client connected to the in-process zookeeper server
+   * with the default session timeout.
    */
   protected final ZooKeeperClient createZkClient() {
     return zkTestServer.createClient();
   }
 
   /**
-   * Returns a new zookeeper client connected to the in-process zookeeper server with a custom
-   * {@code sessionTimeout}.
+   * Returns a new authenticated zookeeper client connected to the in-process zookeeper server with
+   * the default session timeout.
+   */
+  protected final ZooKeeperClient createZkClient(Credentials credentials) {
+    return zkTestServer.createClient(credentials);
+  }
+
+  /**
+   * Returns a new authenticated zookeeper client connected to the in-process zookeeper server with
+   * the default session timeout.  The client is authenticated in the digest authentication scheme
+   * with the given {@code username} and {@code password}.
+   */
+  protected final ZooKeeperClient createZkClient(String username, String password) {
+    return createZkClient(ZooKeeperClient.digestCredentials(username, password));
+  }
+
+  /**
+   * Returns a new unauthenticated zookeeper client connected to the in-process zookeeper server
+   * with a custom {@code sessionTimeout}.
    */
   protected final ZooKeeperClient createZkClient(Amount<Integer, Time> sessionTimeout) {
     return zkTestServer.createClient(sessionTimeout);
+  }
+
+  /**
+   * Returns a new authenticated zookeeper client connected to the in-process zookeeper server with
+   * a custom {@code sessionTimeout}.
+   */
+  protected final ZooKeeperClient createZkClient(Amount<Integer, Time> sessionTimeout,
+      Credentials credentials) {
+    return zkTestServer.createClient(sessionTimeout, credentials);
   }
 }

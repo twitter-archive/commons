@@ -20,6 +20,7 @@ jar_library(name = 'small',
   dependencies = [
     pants('3rdparty:junit'),
     pants('tests/java/com/twitter/common/application'),
+    pants('tests/java/com/twitter/common/args:small'),
     pants('tests/java/com/twitter/common/base'),
     pants('tests/java/com/twitter/common/collections'),
     pants('tests/java/com/twitter/common/inject'),
@@ -32,6 +33,7 @@ jar_library(name = 'small',
     pants('tests/java/com/twitter/common/quantity'),
     pants('tests/java/com/twitter/common/stats'),
     pants('tests/java/com/twitter/common/testing'),
+    pants('tests/java/com/twitter/common/text'),
     pants('tests/java/com/twitter/common/thrift'),
     pants('tests/java/com/twitter/common/util'),
     pants('tests/java/com/twitter/common/util/caching'),
@@ -51,7 +53,6 @@ jar_library(name = 'small',
 jar_library(name = 'medium',
   dependencies = [
     pants('tests/java/com/twitter/common/args:medium'),
-    pants('tests/java/com/twitter/common/service/registration:medium'),
     pants('tests/java/com/twitter/common/zookeeper:medium'),
   ]
 )

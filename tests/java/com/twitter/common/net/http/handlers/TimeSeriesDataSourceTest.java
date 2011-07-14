@@ -91,6 +91,7 @@ public class TimeSeriesDataSourceTest extends EasyMockTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked") // Needed because type information lost in vargs.
   public void testGetAllData() throws Exception {
     expect(timeSeriesRepo.getTimestamps()).andReturn(TIMESTAMPS);
     expect(timeSeriesRepo.get(TIME_SERIES_1)).andReturn(TS_DATA.get(TIME_SERIES_1));
@@ -112,6 +113,7 @@ public class TimeSeriesDataSourceTest extends EasyMockTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked") // Needed because type information lost in vargs.
   public void testFilterByTime() throws Exception {
     expect(timeSeriesRepo.getTimestamps()).andReturn(TIMESTAMPS);
     expect(timeSeriesRepo.get(TIME_SERIES_1)).andReturn(TS_DATA.get(TIME_SERIES_1));

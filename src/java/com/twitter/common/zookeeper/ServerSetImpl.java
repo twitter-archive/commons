@@ -20,7 +20,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -39,10 +38,8 @@ import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import org.apache.thrift.protocol.TType;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.KeeperException.NoNodeException;
 import org.apache.zookeeper.WatchedEvent;
@@ -51,6 +48,8 @@ import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 
+import com.twitter.common.args.Arg;
+import com.twitter.common.args.CmdLine;
 import com.twitter.common.base.Command;
 import com.twitter.common.base.Function;
 import com.twitter.common.base.Supplier;
@@ -76,17 +75,9 @@ import com.twitter.thrift.Status;
 public class ServerSetImpl implements ServerSet {
   private static final Logger LOG = Logger.getLogger(ServerSetImpl.class.getName());
 
-  private static final Codec<ServiceInstance> DEFAULT_CODEC =
-      // TODO: switch the order of the codecs and set the discriminator to
-      // (byte)'{' once all clients are able to understand the JSON format.
-      CompatibilityCodec.create(
-          ThriftCodec.create(ServiceInstance.class, ThriftCodec.BINARY_PROTOCOL),
-          JsonCodec.create(ServiceInstance.class, createThriftExclusingGson()), 2,
-          new Predicate<byte[]>() {
-            public boolean apply(byte[] input) {
-              return input.length < 2 || input[0] != '{' || input[1] != '\"';
-            }
-          });
+  @CmdLine(name = "serverset_encode_json",
+           help = "If true, use JSON for encoding server set information. Defaults to false (use Thrift).")
+  private static final Arg<Boolean> ENCODE_JSON = Arg.create(false);
 
   private final ZooKeeperClient zkClient;
   private final Group group;
@@ -103,11 +94,6 @@ public class ServerSetImpl implements ServerSet {
     this(zkClient, ZooDefs.Ids.OPEN_ACL_UNSAFE, path);
   }
 
-  private static Gson createThriftExclusingGson() {
-    return new GsonBuilder().setExclusionStrategies(JsonCodec.getThriftExclusionStrategy())
-        .create();
-  }
-
   /**
    * Creates a new ServerSet for the given service {@code path}.
    *
@@ -115,8 +101,8 @@ public class ServerSetImpl implements ServerSet {
    * @param acl the ACL to use for creating the persistent group path if it does not already exist
    * @param path the name-service path of the service to connect to
    */
-  public ServerSetImpl(ZooKeeperClient zkClient, List<ACL> acl, String path) {
-    this(zkClient, new Group(zkClient, acl, path), DEFAULT_CODEC);
+  public ServerSetImpl(ZooKeeperClient zkClient, Iterable<ACL> acl, String path) {
+    this(zkClient, new Group(zkClient, acl, path), createDefaultCodec());
   }
 
   /**
@@ -126,7 +112,7 @@ public class ServerSetImpl implements ServerSet {
    * @param group the server group
    */
   public ServerSetImpl(ZooKeeperClient zkClient, Group group) {
-    this(zkClient, group, DEFAULT_CODEC);
+    this(zkClient, group, createDefaultCodec());
   }
 
   /**
@@ -140,7 +126,7 @@ public class ServerSetImpl implements ServerSet {
   public ServerSetImpl(ZooKeeperClient zkClient, Group group, Codec<ServiceInstance> codec) {
     this.zkClient = Preconditions.checkNotNull(zkClient);
     this.group = Preconditions.checkNotNull(group);
-    this.codec = codec;
+    this.codec = Preconditions.checkNotNull(codec);
 
     // TODO(John Sirois): Inject the helper so that backoff strategy can be configurable.
     backoffHelper = new BackoffHelper();
@@ -419,5 +405,53 @@ public class ServerSetImpl implements ServerSet {
         monitor.onChange(serverSet);
       }
     }
+  }
+
+  private static Codec<ServiceInstance> createCodec(final boolean useJsonEncoding) {
+    final Codec<ServiceInstance> json = JsonCodec.create(ServiceInstance.class, new GsonBuilder()
+        .setExclusionStrategies(JsonCodec.getThriftExclusionStrategy()).create());
+    final Codec<ServiceInstance> thrift = ThriftCodec.create(ServiceInstance.class,
+        ThriftCodec.BINARY_PROTOCOL);
+    final Predicate<byte[]> recognizer = new Predicate<byte[]>() {
+      public boolean apply(byte[] input) {
+        return (input.length > 1 && input[0] == '{' && input[1] == '\"') == useJsonEncoding;
+      }
+    };
+
+    if (useJsonEncoding) {
+      return CompatibilityCodec.create(json, thrift, 2, recognizer);
+    }
+    return CompatibilityCodec.create(thrift, json, 2, recognizer);
+  }
+
+  /**
+   * Creates a codec for {@link ServiceInstance} objects that uses Thrift binary encoding, and can
+   * decode both Thrift and JSON encodings.
+   *
+   * @return a new codec instance.
+   */
+  public static Codec<ServiceInstance> createThriftCodec() {
+    return createCodec(false);
+  }
+
+  /**
+   * Creates a codec for {@link ServiceInstance} objects that uses JSON encoding, and can decode
+   * both Thrift and JSON encodings.
+   *
+   * @return a new codec instance.
+   */
+  public static Codec<ServiceInstance> createJsonCodec() {
+    return createCodec(true);
+  }
+
+  /**
+   * Returns a codec for {@link ServiceInstance} objects that uses either the Thrift or the JSON
+   * encoding, depending on whether the command line argument <tt>serverset_json_encofing</tt> is
+   * set to <tt>true</tt>, and can decode both Thrift and JSON encodings.
+   *
+   * @return a new codec instance.
+   */
+  public static Codec<ServiceInstance> createDefaultCodec() {
+    return createCodec(ENCODE_JSON.get());
   }
 }

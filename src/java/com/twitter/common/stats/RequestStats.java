@@ -86,6 +86,10 @@ public class RequestStats implements RequestTimer {
     return timeouts;
   }
 
+  public Percentile<Long> getPercentile() {
+    return percentile;
+  }
+
   /**
    * Accumulates a request and its latency.
    *

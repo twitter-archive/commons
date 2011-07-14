@@ -94,6 +94,7 @@ public class ClosuresTest extends EasyMockTest {
     Closure<Integer> work1 = createMock(INT_CLOSURE_CLZ);
     Closure<Integer> work2 = createMock(INT_CLOSURE_CLZ);
 
+    @SuppressWarnings("unchecked") // Needed because type information lost in vargs.
     Closure<Integer> wrapper = Closures.combine(work1, work2);
 
     work1.execute(1);
@@ -114,6 +115,7 @@ public class ClosuresTest extends EasyMockTest {
     Closure<Integer> work2 = createMock(INT_CLOSURE_CLZ);
     Closure<Integer> work3 = createMock(INT_CLOSURE_CLZ);
 
+    @SuppressWarnings("unchecked") // Needed because type information lost in vargs.
     Closure<Integer> wrapper = Closures.combine(work1, work2, work3);
 
     work1.execute(1);

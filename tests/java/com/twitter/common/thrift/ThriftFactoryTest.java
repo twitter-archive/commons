@@ -16,21 +16,9 @@
 
 package com.twitter.common.thrift;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.testing.TearDown;
-import com.google.common.testing.junit4.TearDownTestCase;
-import com.twitter.common.net.pool.DynamicHostSet;
-import com.twitter.common.thrift.ThriftFactoryTest.GoodService.AsyncIface;
-import org.apache.thrift.async.AsyncMethodCallback;
-import org.apache.thrift.async.TAsyncClient;
-import org.apache.thrift.async.TAsyncClientManager;
-import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.protocol.TProtocolFactory;
-import org.apache.thrift.transport.TNonblockingTransport;
-import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -42,9 +30,24 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.testing.TearDown;
+import com.google.common.testing.junit4.TearDownTestCase;
+
+import org.apache.thrift.async.AsyncMethodCallback;
+import org.apache.thrift.async.TAsyncClient;
+import org.apache.thrift.async.TAsyncClientManager;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.protocol.TProtocolFactory;
+import org.apache.thrift.transport.TNonblockingTransport;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.twitter.common.net.pool.DynamicHostSet;
+import com.twitter.common.thrift.ThriftFactoryTest.GoodService.AsyncIface;
+import com.twitter.thrift.ServiceInstance;
 
 /**
  * @author John Sirois
@@ -186,7 +189,8 @@ public class ThriftFactoryTest extends TearDownTestCase {
 
   @Test(expected = TResourceExhaustedException.class)
   public void testCreateEmpty() throws Exception {
-    DynamicHostSet emptyHostSet = control.createMock(DynamicHostSet.class);
+    @SuppressWarnings("unchecked")
+    DynamicHostSet<ServiceInstance> emptyHostSet = control.createMock(DynamicHostSet.class);
     final Thrift<GoodService.Iface> thrift = ThriftFactory.create(GoodService.Iface.class)
         .withMaxConnectionsPerEndpoint(1)
         .build(emptyHostSet);

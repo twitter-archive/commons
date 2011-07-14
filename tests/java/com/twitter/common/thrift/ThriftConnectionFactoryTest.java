@@ -16,16 +16,6 @@
 
 package com.twitter.common.thrift;
 
-import com.twitter.common.thrift.testing.MockTSocket;
-import com.twitter.common.net.pool.Connection;
-import com.twitter.common.net.pool.ObjectPool;
-import org.apache.thrift.transport.TTransport;
-import org.apache.thrift.transport.TTransportException;
-import org.junit.Test;
-
-import java.io.IOException;
-import java.net.InetSocketAddress;
-
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.sameInstance;
@@ -35,6 +25,18 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+
+import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.TTransportException;
+import org.hamcrest.Matcher;
+import org.junit.Test;
+
+import com.twitter.common.net.pool.Connection;
+import com.twitter.common.net.pool.ObjectPool;
+import com.twitter.common.thrift.testing.MockTSocket;
 
 /**
  * @author John Sirois
@@ -101,7 +103,10 @@ public class ThriftConnectionFactoryTest {
     Connection<TTransport, InetSocketAddress> connection3 =
         thriftConnectionFactory.create(ObjectPool.NO_TIMEOUT);
     assertOpenConnection(connection3);
-    assertThat(connection3, allOf(not(sameInstance(connection1)), not(sameInstance(connection2))));
+    @SuppressWarnings("unchecked") // Needed because type information lost in vargs.
+    Matcher<Connection<TTransport, InetSocketAddress>> matcher =
+      allOf(not(sameInstance(connection1)), not(sameInstance(connection2)));
+    assertThat(connection3, matcher);
   }
 
   @Test(expected = IllegalArgumentException.class)

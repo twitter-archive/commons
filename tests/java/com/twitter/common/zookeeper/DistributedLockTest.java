@@ -16,10 +16,10 @@
 
 package com.twitter.common.zookeeper;
 
-import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +28,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
 
 /**
  * @author Florian Leibert
@@ -113,11 +117,10 @@ public class DistributedLockTest extends BaseZooKeeperTest {
     ZooKeeperClient zk2 = createZkClient();
     ZooKeeperClient zk3 = createZkClient();
 
-
     final DistributedLock lock1 = new DistributedLockImpl(zk1, LOCK_PATH);
     final DistributedLock lock2 = new DistributedLockImpl(zk2, LOCK_PATH);
     final DistributedLock lock3 = new DistributedLockImpl(zk3, LOCK_PATH);
-    Callable<Object> t1 = new Callable() {
+    Callable<Object> t1 = new Callable<Object>() {
       @Override
       public Object call() throws InterruptedException {
         lock1.lock();
@@ -130,7 +133,7 @@ public class DistributedLockTest extends BaseZooKeeperTest {
       }
     };
 
-    Callable<Object> t2 = new Callable() {
+    Callable<Object> t2 = new Callable<Object>() {
       @Override
       public Object call() throws InterruptedException {
         lock2.lock();
@@ -143,7 +146,7 @@ public class DistributedLockTest extends BaseZooKeeperTest {
       }
     };
 
-    Callable<Object> t3 = new Callable() {
+    Callable<Object> t3 = new Callable<Object>() {
       @Override
       public Object call() throws InterruptedException {
         lock3.lock();
@@ -158,7 +161,8 @@ public class DistributedLockTest extends BaseZooKeeperTest {
 
     //TODO(Florian Leibert): remove this executors stuff and use a latch instead.
     ExecutorService ex = Executors.newCachedThreadPool();
-    ex.invokeAll(Arrays.asList(t1, t2, t3));
+    @SuppressWarnings("unchecked") List<Callable<Object>> tlist = Arrays.asList(t1, t2, t3);
+    ex.invokeAll(tlist);
     assertTrue("No Children left!", expectZkNodes(LOCK_PATH).size() == 0);
   }
 

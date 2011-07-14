@@ -20,12 +20,15 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException.ConnectionLossException;
+import org.apache.zookeeper.KeeperException.NoAuthException;
 import org.apache.zookeeper.ZooKeeper;
 import org.junit.Test;
 
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
+import com.twitter.common.zookeeper.ZooKeeperClient.Credentials;
 import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException;
 import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
 
@@ -40,6 +43,11 @@ import static org.junit.Assert.fail;
  * @author John Sirois
  */
 public class ZooKeeperClientTest extends BaseZooKeeperTest {
+
+  public ZooKeeperClientTest() {
+    super(Amount.of(1, Time.DAYS));
+  }
+
   @Test
   public void testGet() throws Exception {
     final ZooKeeperClient zkClient = createZkClient();
@@ -96,7 +104,7 @@ public class ZooKeeperClientTest extends BaseZooKeeperTest {
 
   @Test
   public void testClose() throws Exception {
-    ZooKeeperClient zkClient = createZkClient(Amount.of(1, Time.MINUTES));
+    ZooKeeperClient zkClient = createZkClient();
     zkClient.close();
 
     // Close should be idempotent
@@ -108,5 +116,44 @@ public class ZooKeeperClientTest extends BaseZooKeeperTest {
     zkClient.close();
 
     assertNotEqual(firstSessionId, zkClient.get().getSessionId());
+  }
+
+  @Test
+  public void testCredentials() throws Exception {
+    String path = "/test";
+    ZooKeeperClient authenticatedClient = createZkClient("creator", "creator");
+    assertEquals(path,
+        authenticatedClient.get().create(path, "42".getBytes(),
+            ZooKeeperUtils.EVERYONE_READ_CREATOR_ALL, CreateMode.PERSISTENT));
+
+    ZooKeeperClient unauthenticatedClient = createZkClient(Credentials.NONE);
+    assertEquals("42", getData(unauthenticatedClient, path));
+    try {
+      setData(unauthenticatedClient, path, "37");
+      fail("Expected unauthenticated write attempt to fail");
+    } catch (NoAuthException e) {
+      assertEquals("42", getData(unauthenticatedClient, path));
+    }
+
+    ZooKeeperClient nonOwnerClient = createZkClient("nonowner", "nonowner");
+    assertEquals("42", getData(nonOwnerClient, path));
+    try {
+      setData(nonOwnerClient, path, "37");
+      fail("Expected non owner write attempt to fail");
+    } catch (NoAuthException e) {
+      assertEquals("42", getData(nonOwnerClient, path));
+    }
+
+    ZooKeeperClient authenticatedClient2 = createZkClient("creator", "creator");
+    setData(authenticatedClient2, path, "37");
+    assertEquals("37", getData(authenticatedClient2, path));
+  }
+
+  private void setData(ZooKeeperClient zkClient, String path, String data) throws Exception {
+    zkClient.get().setData(path, data.getBytes(), ZooKeeperUtils.ANY_VERSION);
+  }
+
+  private String getData(ZooKeeperClient zkClient, String path) throws Exception {
+    return new String(zkClient.get().getData(path, false, null));
   }
 }

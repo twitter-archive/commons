@@ -71,14 +71,14 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
 
     shutdownNetwork();  // Make zk unavailable.
 
-    ZooKeeperMap zkMap = makeUninitializedMap(parentPath);
+    makeUninitializedMap(parentPath);
   }
 
   @Test(expected = KeeperException.class)
   public void testZooKeeperUnavailableAtInit() throws Exception {
     final String parentPath = "/twitter/path";
     ZooKeeperUtils.ensurePath(zkClient, ACL, parentPath);
-    ZooKeeperMap zkMap = makeUninitializedMap(parentPath);
+    ZooKeeperMap<String> zkMap = makeUninitializedMap(parentPath);
 
     shutdownNetwork();  // Make zk unavailable.
 
@@ -94,7 +94,7 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
 
     ZooKeeperUtils.ensurePath(zkClient, ACL, parentPath);
     zkClient.get().create(nodePath, data.getBytes(), ACL, CreateMode.PERSISTENT);
-    ZooKeeperMap zkMap = makeUninitializedMap(parentPath);
+    ZooKeeperMap<String> zkMap = makeUninitializedMap(parentPath);
 
     // Map should be empty before initialization
     assertTrue(zkMap.isEmpty());
@@ -137,8 +137,8 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
     assertTrue(zkMap.containsKey(node2));
     assertTrue(zkMap.containsValue(data1));
     assertTrue(zkMap.containsValue(data2));
-    assertEquals(ImmutableSet.of(new SimpleEntry(node1, data1),
-        new SimpleEntry(node2, data2)), zkMap.entrySet());
+    assertEquals(ImmutableSet.of(new SimpleEntry<String, String>(node1, data1),
+        new SimpleEntry<String, String>(node2, data2)), zkMap.entrySet());
     assertEquals(data1, zkMap.get(node1));
     assertEquals(data2, zkMap.get(node2));
     assertFalse(zkMap.isEmpty());

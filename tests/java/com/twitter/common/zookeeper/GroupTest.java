@@ -16,14 +16,12 @@
 
 package com.twitter.common.zookeeper;
 
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import com.google.common.collect.Iterables;
 
-import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.data.ACL;
+import org.apache.zookeeper.ZooDefs.Ids;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,7 +31,9 @@ import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
 import com.twitter.common.testing.EasyMockTest;
 import com.twitter.common.zookeeper.Group.GroupChangeListener;
+import com.twitter.common.zookeeper.Group.JoinException;
 import com.twitter.common.zookeeper.Group.Membership;
+import com.twitter.common.zookeeper.ZooKeeperClient.Credentials;
 import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
 
 import static com.google.common.testing.junit4.JUnitAsserts.assertNotEqual;
@@ -52,30 +52,47 @@ import static org.junit.Assert.fail;
  */
 public class GroupTest extends BaseZooKeeperTest {
 
-  private static final List<ACL> ACL = ZooDefs.Ids.OPEN_ACL_UNSAFE;
-
   private ZooKeeperClient zkClient;
   private Group group;
   private com.twitter.common.base.Command onLoseMembership;
-  private LinkedBlockingQueue<Iterable<String>> membershipChanges;
-  private GroupChangeListener listener;
+
+  private RecordingListener listener;
+
+  public GroupTest() {
+    super(Amount.of(1, Time.DAYS));
+  }
 
   @Before
   public void mySetUp() throws Exception {
     onLoseMembership = createMock(Command.class);
 
-    zkClient = createZkClient(Amount.of(1, Time.MINUTES));
-    group = new Group(zkClient, ACL, "/a/group");
+    zkClient = createZkClient("group", "test");
+    group = new Group(zkClient, ZooKeeperUtils.EVERYONE_READ_CREATOR_ALL, "/a/group");
 
-    membershipChanges = new LinkedBlockingQueue<Iterable<String>>();
     listener = new RecordingListener();
     group.watch(listener);
   }
 
-  private class RecordingListener implements GroupChangeListener {
+  private static class RecordingListener implements GroupChangeListener {
+    private final LinkedBlockingQueue<Iterable<String>> membershipChanges =
+        new LinkedBlockingQueue<Iterable<String>>();
+
     @Override
     public void onGroupChange(Iterable<String> memberIds) {
       membershipChanges.add(memberIds);
+    }
+
+    public Iterable<String> take() throws InterruptedException {
+      return membershipChanges.take();
+    }
+
+    public boolean isEmpty() {
+      return membershipChanges.isEmpty();
+    }
+
+    @Override
+    public String toString() {
+      return membershipChanges.toString();
     }
   }
 
@@ -166,7 +183,7 @@ public class GroupTest extends BaseZooKeeperTest {
     assertEmptyMembershipObserved();
     assertEmptyMembershipObserved(); // and again for 2nd listener
 
-    assertTrue(membershipChanges.isEmpty());
+    assertTrue(listener.isEmpty());
 
     verify(onLoseMembership);
     reset(onLoseMembership); // Turn off expectations during ZK server shutdown.
@@ -187,15 +204,15 @@ public class GroupTest extends BaseZooKeeperTest {
 
     // We should have lost our group membership and then re-gained it with a new ephemeral node.
     // We may or may-not see the intermediate state change but we must see the final state
-    Iterable<String> members = membershipChanges.take();
+    Iterable<String> members = listener.take();
     if (Iterables.isEmpty(members)) {
-      members = membershipChanges.take();
+      members = listener.take();
     }
     assertEquals(1, Iterables.size(members));
     assertNotEqual(originalMemberId, Iterables.getOnlyElement(members));
     assertNotEqual(originalMemberId, membership.getMemberId());
 
-    assertTrue(membershipChanges.isEmpty());
+    assertTrue(listener.isEmpty());
 
     verify(onLoseMembership);
     reset(onLoseMembership); // Turn off expectations during ZK server shutdown.
@@ -227,15 +244,61 @@ public class GroupTest extends BaseZooKeeperTest {
     verify(dataSupplier);
   }
 
+  @Test
+  public void testAcls() throws Exception {
+    Group securedMembership =
+        new Group(createZkClient("secured", "group"), ZooKeeperUtils.EVERYONE_READ_CREATOR_ALL,
+            "/secured/group/membership");
+
+    String memberId = securedMembership.join().getMemberId();
+
+    Group unauthenticatedObserver =
+        new Group(createZkClient(Credentials.NONE),
+            Ids.READ_ACL_UNSAFE,
+            "/secured/group/membership");
+    RecordingListener unauthenticatedListener = new RecordingListener();
+    unauthenticatedObserver.watch(unauthenticatedListener);
+
+    assertMembershipObserved(unauthenticatedListener, memberId);
+
+    try {
+      unauthenticatedObserver.join();
+      fail("Expected join exception for unauthenticated observer");
+    } catch (JoinException e) {
+      // expected
+    }
+
+    Group unauthorizedObserver =
+        new Group(createZkClient("joe", "schmoe"),
+            Ids.READ_ACL_UNSAFE,
+            "/secured/group/membership");
+    RecordingListener unauthorizedListener = new RecordingListener();
+    unauthorizedObserver.watch(unauthorizedListener);
+
+    assertMembershipObserved(unauthorizedListener, memberId);
+
+    try {
+      unauthorizedObserver.join();
+      fail("Expected join exception for unauthorized observer");
+    } catch (JoinException e) {
+      // expected
+    }
+  }
+
   private void assertEmptyMembershipObserved() throws InterruptedException {
-    Iterable<String> membershipChange = membershipChanges.take();
+    Iterable<String> membershipChange = listener.take();
     assertTrue("Expected an empty membershipChange, got: " + membershipChange + " queued: " +
-               membershipChanges,
+               listener,
         Iterables.isEmpty(membershipChange));
   }
 
   private void assertMembershipObserved(String expectedMemberId) throws InterruptedException {
-    Iterable<String> members = membershipChanges.take();
+    assertMembershipObserved(listener, expectedMemberId);
+  }
+
+  private void assertMembershipObserved(RecordingListener listener, String expectedMemberId)
+      throws InterruptedException {
+    Iterable<String> members = listener.take();
     assertEquals(1, Iterables.size(members));
     assertEquals(expectedMemberId, Iterables.getOnlyElement(members));
   }

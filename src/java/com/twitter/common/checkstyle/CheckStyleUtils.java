@@ -13,21 +13,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // =================================================================================================
+
 package com.twitter.common.checkstyle;
 
 import com.puppycrawl.tools.checkstyle.api.Check;
+import com.puppycrawl.tools.checkstyle.api.DetailAST;
+import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 
 /**
- * Utilities needed by custom checkstyle rules
+ * Utilities needed by custom checkstyle rules.
  *
  * @author Utkarsh Srivastava
  */
 public final class CheckStyleUtils {
 
-  /**
-   * Hide constructor
-   */
   private CheckStyleUtils() {
+    // utility
   }
 
   /**
@@ -36,8 +37,8 @@ public final class CheckStyleUtils {
    * bundle.
    *
    * @param parentBuiltInCheckClass The class of the built-in checkstyle rule that the custom rule
-   *                                ultimately derives from
-   * @return Path to message bundle
+   *     ultimately derives from.
+   * @return Path to message bundle.
    */
   public static String getMessageBundle(final Class<? extends Check> parentBuiltInCheckClass) {
     String parentBuiltInCheckClassName = parentBuiltInCheckClass.getName();
@@ -52,5 +53,33 @@ public final class CheckStyleUtils {
     }
     final String packageName = parentBuiltInCheckClassName.substring(0, endIndex);
     return packageName + "." + messages;
+  }
+
+  /**
+   * Checks to see if a method has the "@Override" annotation.
+   *
+   * @param aAST The AST to check.
+   * @return Whether the AST represents a method that has the annotation.
+   */
+  public static boolean isOverrideMethod(DetailAST aAST) {
+    // Need it to be a method, cannot have an override on anything else.
+    // Must also have MODIFIERS token to hold the @Override
+    if ((TokenTypes.METHOD_DEF != aAST.getType())
+        || (TokenTypes.MODIFIERS != aAST.getFirstChild().getType())) {
+      return false;
+    }
+
+    // Now loop over all nodes while they are annotations looking for
+    // an "@Override".
+    DetailAST node = aAST.getFirstChild().getFirstChild();
+    while ((null != node) && (TokenTypes.ANNOTATION == node.getType())) {
+      if ((node.getFirstChild().getType() == TokenTypes.AT)
+          && (node.getFirstChild().getNextSibling().getType() == TokenTypes.IDENT)
+          && ("Override".equals(node.getFirstChild().getNextSibling().getText()))) {
+          return true;
+      }
+      node = node.getNextSibling();
+    }
+    return false;
   }
 }

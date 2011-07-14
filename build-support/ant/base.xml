@@ -76,6 +76,8 @@ limitations under the License.
     <property name="compile.resources" value="${compile.name}.resources"/>
     <property name="compile.binary.resources" value="${compile.name}.binary.resources"/>
 
+    <property name="compile.processors" value="${compile.name}.processors"/>
+
     <property name="compile.java.tests" value="${compile.name}.java.tests"/>
     <property name="compile.scala.tests" value="${compile.name}.scala.tests"/>
     <property name="bundle.dir" value="${dist.dir}/${project.dist.name}-bundle"/>

@@ -112,13 +112,24 @@ public class StateMachine<T> {
    * @throws IllegalStateException if the current state is not the {@code expectedState}.
    */
   public void checkState(T expectedState) {
-    checkNotNull(expectedState);
+    checkState(ImmutableSet.of(expectedState));
+  }
+
+  /**
+   * Checks that the current state is one of the {@code allowedStates} and throws if it is not.
+   *
+   * @param allowedStates The allowed states.
+   * @throws IllegalStateException if the current state is not the {@code expectedState}.
+   */
+  public void checkState(Set<T> allowedStates) {
+    checkNotNull(allowedStates);
+    checkArgument(!allowedStates.isEmpty(), "At least one possible state must be provided.");
 
     readLock.lock();
     try {
-      if (currentState != expectedState) {
+      if (!allowedStates.contains(currentState)) {
         throw new IllegalStateException(
-            String.format("In state %s, expected to be in %s.", expectedState, currentState));
+            String.format("In state %s, expected to be in %s.", allowedStates, currentState));
       }
     } finally {
       readLock.unlock();

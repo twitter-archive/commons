@@ -102,6 +102,7 @@ public class LeastConnectedStrategyTest extends EasyMockTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked") // Needed because type information lost in vargs.
   public void testHandlesEqualCount() throws ResourceExhaustedException {
     BackendOfferExpectation backendOfferExpectation = new BackendOfferExpectation();
     control.replay();
