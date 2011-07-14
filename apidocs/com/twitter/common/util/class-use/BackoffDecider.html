@@ -114,15 +114,15 @@ Uses of <A HREF="../../../../../com/twitter/common/util/BackoffDecider.html" tit
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html#MarkDeadStrategy(com.twitter.common.net.loadbalancing.LoadBalancingStrategy, com.google.common.base.Function)">MarkDeadStrategy</A></B>(<A HREF="../../../../../com/twitter/common/net/loadbalancing/LoadBalancingStrategy.html" title="interface in com.twitter.common.net.loadbalancing">LoadBalancingStrategy</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>&gt;&nbsp;wrappedStrategy,
-                                 com.google.common.base.Function&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>,<A HREF="../../../../../com/twitter/common/util/BackoffDecider.html" title="class in com.twitter.common.util">BackoffDecider</A>&gt;&nbsp;backoffFactory)</CODE>
+                                 <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>,<A HREF="../../../../../com/twitter/common/util/BackoffDecider.html" title="class in com.twitter.common.util">BackoffDecider</A>&gt;&nbsp;backoffFactory)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructor that uses a default predicate host checker that always returns true.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html#MarkDeadStrategy(com.twitter.common.net.loadbalancing.LoadBalancingStrategy, com.google.common.base.Function, com.google.common.base.Predicate)">MarkDeadStrategy</A></B>(<A HREF="../../../../../com/twitter/common/net/loadbalancing/LoadBalancingStrategy.html" title="interface in com.twitter.common.net.loadbalancing">LoadBalancingStrategy</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>&gt;&nbsp;wrappedStrategy,
-                                 com.google.common.base.Function&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>,<A HREF="../../../../../com/twitter/common/util/BackoffDecider.html" title="class in com.twitter.common.util">BackoffDecider</A>&gt;&nbsp;backoffFactory,
-                                 com.google.common.base.Predicate&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>&gt;&nbsp;hostChecker)</CODE>
+                                 <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>,<A HREF="../../../../../com/twitter/common/util/BackoffDecider.html" title="class in com.twitter.common.util">BackoffDecider</A>&gt;&nbsp;backoffFactory,
+                                 <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>&gt;&nbsp;hostChecker)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a mark dead strategy with a wrapped strategy, backoff decider factory
@@ -130,7 +130,7 @@ Uses of <A HREF="../../../../../com/twitter/common/util/BackoffDecider.html" tit
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategyWithHostCheck.html#MarkDeadStrategyWithHostCheck(com.twitter.common.net.loadbalancing.LoadBalancingStrategy, com.google.common.base.Function)">MarkDeadStrategyWithHostCheck</A></B>(<A HREF="../../../../../com/twitter/common/net/loadbalancing/LoadBalancingStrategy.html" title="interface in com.twitter.common.net.loadbalancing">LoadBalancingStrategy</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategyWithHostCheck.html" title="type parameter in MarkDeadStrategyWithHostCheck">S</A>&gt;&nbsp;wrappedStrategy,
-                                                           com.google.common.base.Function&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategyWithHostCheck.html" title="type parameter in MarkDeadStrategyWithHostCheck">S</A>,<A HREF="../../../../../com/twitter/common/util/BackoffDecider.html" title="class in com.twitter.common.util">BackoffDecider</A>&gt;&nbsp;backoffFactory)</CODE>
+                                                           <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategyWithHostCheck.html" title="type parameter in MarkDeadStrategyWithHostCheck">S</A>,<A HREF="../../../../../com/twitter/common/util/BackoffDecider.html" title="class in com.twitter.common.util">BackoffDecider</A>&gt;&nbsp;backoffFactory)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a mark dead strategy with the given wrapped strategy and backoff decider factory.</TD>
@@ -171,7 +171,7 @@ Uses of <A HREF="../../../../../com/twitter/common/util/BackoffDecider.html" tit
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../../com/twitter/common/util/BackoffDecider.Builder.html" title="class in com.twitter.common.util">BackoffDecider.Builder</A></CODE></FONT></TD>
-<TD><CODE><B>BackoffDecider.Builder.</B><B><A HREF="../../../../../com/twitter/common/util/BackoffDecider.Builder.html#groupWith(java.util.Set)">groupWith</A></B>(java.util.Set&lt;<A HREF="../../../../../com/twitter/common/util/BackoffDecider.html" title="class in com.twitter.common.util">BackoffDecider</A>&gt;&nbsp;deciderGroup)</CODE>
+<TD><CODE><B>BackoffDecider.Builder.</B><B><A HREF="../../../../../com/twitter/common/util/BackoffDecider.Builder.html#groupWith(java.util.Set)">groupWith</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../com/twitter/common/util/BackoffDecider.html" title="class in com.twitter.common.util">BackoffDecider</A>&gt;&nbsp;deciderGroup)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Makes the decider a part of a group.</TD>

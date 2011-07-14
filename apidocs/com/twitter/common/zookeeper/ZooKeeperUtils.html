@@ -90,12 +90,12 @@ com.twitter.common.zookeeper</FONT>
 <BR>
 Class ZooKeeperUtils</H2>
 <PRE>
-java.lang.Object
+<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
   <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.zookeeper.ZooKeeperUtils</B>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public final class <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperUtils.html#line.37"><B>ZooKeeperUtils</B></A><DT>extends java.lang.Object</DL>
+<DT><PRE>public final class <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperUtils.html#line.39"><B>ZooKeeperUtils</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
@@ -125,11 +125,19 @@ Utilities for dealing with zoo keeper.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;java.lang.Integer,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;</CODE></FONT></TD>
+<CODE>static&nbsp;<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperUtils.html#DEFAULT_ZK_SESSION_TIMEOUT">DEFAULT_ZK_SESSION_TIMEOUT</A></B></CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An appropriate default session timeout for Twitter ZooKeeper clusters.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect">ImmutableList</A>&lt;org.apache.zookeeper.data.ACL&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperUtils.html#EVERYONE_READ_CREATOR_ALL">EVERYONE_READ_CREATOR_ALL</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An ACL that gives all permissions to node creators and read permissions only to everyone else.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -145,8 +153,8 @@ Utilities for dealing with zoo keeper.
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperUtils.html#ensurePath(com.twitter.common.zookeeper.ZooKeeperClient, java.util.List, java.lang.String)">ensurePath</A></B>(<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
-                     java.util.List&lt;org.apache.zookeeper.data.ACL&gt;&nbsp;acl,
-                     java.lang.String&nbsp;path)</CODE>
+                     <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;org.apache.zookeeper.data.ACL&gt;&nbsp;acl,
+                     <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ensures the given <code>path</code> exists in the ZK cluster accessed by <code>zkClient</code>.</TD>
@@ -164,10 +172,10 @@ Utilities for dealing with zoo keeper.
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</CODE></TD>
+<TD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -186,7 +194,7 @@ Utilities for dealing with zoo keeper.
 <A NAME="DEFAULT_ZK_SESSION_TIMEOUT"><!-- --></A><H3>
 DEFAULT_ZK_SESSION_TIMEOUT</H3>
 <PRE>
-public static final <A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;java.lang.Integer,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt; <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperUtils.html#line.44"><B>DEFAULT_ZK_SESSION_TIMEOUT</B></A></PRE>
+public static final <A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt; <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperUtils.html#line.46"><B>DEFAULT_ZK_SESSION_TIMEOUT</B></A></PRE>
 <DL>
 <DD>An appropriate default session timeout for Twitter ZooKeeper clusters.
 <P>
@@ -198,13 +206,25 @@ public static final <A HREF="../../../../com/twitter/common/quantity/Amount.html
 <A NAME="ANY_VERSION"><!-- --></A><H3>
 ANY_VERSION</H3>
 <PRE>
-public static final int <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperUtils.html#line.50"><B>ANY_VERSION</B></A></PRE>
+public static final int <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperUtils.html#line.52"><B>ANY_VERSION</B></A></PRE>
 <DL>
 <DD>The magic version number that allows any mutation to always succeed regardless of actual
  version number.
 <P>
 <DL>
 <DT><B>See Also:</B><DD><A HREF="../../../../constant-values.html#com.twitter.common.zookeeper.ZooKeeperUtils.ANY_VERSION">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="EVERYONE_READ_CREATOR_ALL"><!-- --></A><H3>
+EVERYONE_READ_CREATOR_ALL</H3>
+<PRE>
+public static final <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect">ImmutableList</A>&lt;org.apache.zookeeper.data.ACL&gt; <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperUtils.html#line.57"><B>EVERYONE_READ_CREATOR_ALL</B></A></PRE>
+<DL>
+<DD>An ACL that gives all permissions to node creators and read permissions only to everyone else.
+<P>
+<DL>
+</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
@@ -220,7 +240,7 @@ public static final int <A HREF="../../../../src-html/com/twitter/common/zookeep
 <A NAME="isRetryable(org.apache.zookeeper.KeeperException)"><!-- --></A><H3>
 isRetryable</H3>
 <PRE>
-public static boolean <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperUtils.html#line.59"><B>isRetryable</B></A>(org.apache.zookeeper.KeeperException&nbsp;e)</PRE>
+public static boolean <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperUtils.html#line.70"><B>isRetryable</B></A>(org.apache.zookeeper.KeeperException&nbsp;e)</PRE>
 <DL>
 <DD>Returns true if the given exception indicates an error that can be resolved by retrying the
  operation without modification.
@@ -235,11 +255,11 @@ public static boolean <A HREF="../../../../src-html/com/twitter/common/zookeeper
 <A NAME="ensurePath(com.twitter.common.zookeeper.ZooKeeperClient, java.util.List, java.lang.String)"><!-- --></A><H3>
 ensurePath</H3>
 <PRE>
-public static void <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperUtils.html#line.108"><B>ensurePath</B></A>(<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
-                              java.util.List&lt;org.apache.zookeeper.data.ACL&gt;&nbsp;acl,
-                              java.lang.String&nbsp;path)
+public static void <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperUtils.html#line.119"><B>ensurePath</B></A>(<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
+                              <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;org.apache.zookeeper.data.ACL&gt;&nbsp;acl,
+                              <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)
                        throws <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.ZooKeeperConnectionException.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient.ZooKeeperConnectionException</A>,
-                              java.lang.InterruptedException,
+                              <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/InterruptedException.html?is-external=true" title="class or interface in java.lang">InterruptedException</A>,
                               org.apache.zookeeper.KeeperException</PRE>
 <DL>
 <DD>Ensures the given <code>path</code> exists in the ZK cluster accessed by <code>zkClient</code>.  If the
@@ -251,7 +271,7 @@ public static void <A HREF="../../../../src-html/com/twitter/common/zookeeper/Zo
 <DT><B>Parameters:</B><DD><CODE>zkClient</CODE> - the client to use to access the ZK cluster<DD><CODE>acl</CODE> - the acl to use if creating path nodes<DD><CODE>path</CODE> - the path to ensure exists
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.ZooKeeperConnectionException.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient.ZooKeeperConnectionException</A></CODE> - if there was a problem accessing the ZK cluster
-<DD><CODE>java.lang.InterruptedException</CODE> - if we were interrupted attempting to connect to the ZK cluster
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/InterruptedException.html?is-external=true" title="class or interface in java.lang">InterruptedException</A></CODE> - if we were interrupted attempting to connect to the ZK cluster
 <DD><CODE>org.apache.zookeeper.KeeperException</CODE> - if there was a problem in ZK</DL>
 </DD>
 </DL>

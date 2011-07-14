@@ -90,7 +90,7 @@ com.twitter.common.zookeeper</FONT>
 <BR>
 Class DistributedLockImpl</H2>
 <PRE>
-java.lang.Object
+<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
   <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.zookeeper.DistributedLockImpl</B>
 </PRE>
 <DL>
@@ -98,8 +98,8 @@ java.lang.Object
 </DL>
 <HR>
 <DL>
-<DT><PRE><FONT SIZE="-1">@ThreadSafe
-</FONT>public class <A HREF="../../../../src-html/com/twitter/common/zookeeper/DistributedLockImpl.html#line.57"><B>DistributedLockImpl</B></A><DT>extends java.lang.Object<DT>implements <A HREF="../../../../com/twitter/common/zookeeper/DistributedLock.html" title="interface in com.twitter.common.zookeeper">DistributedLock</A></DL>
+<DT><PRE><FONT SIZE="-1"><A HREF="http://download.oracle.com/javase/6/docs/api/javax/annotation/concurrent.ThreadSafe.html?is-external=true" title="class or interface in javax.annotation">@ThreadSafe</A>
+</FONT>public class <A HREF="../../../../src-html/com/twitter/common/zookeeper/DistributedLockImpl.html#line.61"><B>DistributedLockImpl</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../com/twitter/common/zookeeper/DistributedLock.html" title="interface in com.twitter.common.zookeeper">DistributedLock</A></DL>
 </PRE>
 
 <P>
@@ -153,10 +153,19 @@ Distributed locking via ZooKeeper. Assuming there are N clients that all try to 
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/DistributedLockImpl.html#DistributedLockImpl(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String)">DistributedLockImpl</A></B>(<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
-                                       java.lang.String&nbsp;lockPath)</CODE>
+                                       <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;lockPath)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Equivalent to <A HREF="../../../../com/twitter/common/zookeeper/DistributedLockImpl.html#DistributedLockImpl(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String, java.lang.Iterable)"><CODE>DistributedLockImpl(ZooKeeperClient, String, Iterable)</CODE></A> with a default
+ wide open <code>acl</code> (<CODE>ZooDefs.Ids#OPEN_ACL_UNSAFE</CODE>).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/DistributedLockImpl.html#DistributedLockImpl(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String, java.lang.Iterable)">DistributedLockImpl</A></B>(<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
+                                       <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;lockPath,
+                                       <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;org.apache.zookeeper.data.ACL&gt;&nbsp;acl)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a distributed lock using the given <code>zkClient</code> to coordinate locking.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -180,7 +189,7 @@ Distributed locking via ZooKeeper. Assuming there are N clients that all try to 
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;boolean</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/DistributedLockImpl.html#tryLock(long, java.util.concurrent.TimeUnit)">tryLock</A></B>(long&nbsp;timeout,
-               java.util.concurrent.TimeUnit&nbsp;unit)</CODE>
+               <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/TimeUnit.html?is-external=true" title="class or interface in java.util.concurrent">TimeUnit</A>&nbsp;unit)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -197,10 +206,10 @@ Distributed locking via ZooKeeper. Assuming there are N clients that all try to 
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</CODE></TD>
+<TD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -219,9 +228,26 @@ Distributed locking via ZooKeeper. Assuming there are N clients that all try to 
 <A NAME="DistributedLockImpl(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String)"><!-- --></A><H3>
 DistributedLockImpl</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/zookeeper/DistributedLockImpl.html#line.71"><B>DistributedLockImpl</B></A>(<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
-                           java.lang.String&nbsp;lockPath)</PRE>
+public <A HREF="../../../../src-html/com/twitter/common/zookeeper/DistributedLockImpl.html#line.81"><B>DistributedLockImpl</B></A>(<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
+                           <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;lockPath)</PRE>
 <DL>
+<DD>Equivalent to <A HREF="../../../../com/twitter/common/zookeeper/DistributedLockImpl.html#DistributedLockImpl(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String, java.lang.Iterable)"><CODE>DistributedLockImpl(ZooKeeperClient, String, Iterable)</CODE></A> with a default
+ wide open <code>acl</code> (<CODE>ZooDefs.Ids#OPEN_ACL_UNSAFE</CODE>).
+<P>
+</DL>
+<HR>
+
+<A NAME="DistributedLockImpl(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String, java.lang.Iterable)"><!-- --></A><H3>
+DistributedLockImpl</H3>
+<PRE>
+public <A HREF="../../../../src-html/com/twitter/common/zookeeper/DistributedLockImpl.html#line.92"><B>DistributedLockImpl</B></A>(<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
+                           <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;lockPath,
+                           <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;org.apache.zookeeper.data.ACL&gt;&nbsp;acl)</PRE>
+<DL>
+<DD>Creates a distributed lock using the given <code>zkClient</code> to coordinate locking.
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>zkClient</CODE> - The ZooKeeper client to use.<DD><CODE>lockPath</CODE> - The path used to manage the lock under.<DD><CODE>acl</CODE> - The acl to apply to newly created lock nodes.</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
@@ -237,7 +263,7 @@ public <A HREF="../../../../src-html/com/twitter/common/zookeeper/DistributedLoc
 <A NAME="lock()"><!-- --></A><H3>
 lock</H3>
 <PRE>
-public void <A HREF="../../../../src-html/com/twitter/common/zookeeper/DistributedLockImpl.html#line.97"><B>lock</B></A>()
+public void <A HREF="../../../../src-html/com/twitter/common/zookeeper/DistributedLockImpl.html#line.118"><B>lock</B></A>()
           throws <A HREF="../../../../com/twitter/common/zookeeper/DistributedLock.LockingException.html" title="class in com.twitter.common.zookeeper">DistributedLock.LockingException</A></PRE>
 <DL>
 <DD><DL>
@@ -254,8 +280,8 @@ public void <A HREF="../../../../src-html/com/twitter/common/zookeeper/Distribut
 <A NAME="tryLock(long, java.util.concurrent.TimeUnit)"><!-- --></A><H3>
 tryLock</H3>
 <PRE>
-public boolean <A HREF="../../../../src-html/com/twitter/common/zookeeper/DistributedLockImpl.html#line.121"><B>tryLock</B></A>(long&nbsp;timeout,
-                       java.util.concurrent.TimeUnit&nbsp;unit)</PRE>
+public boolean <A HREF="../../../../src-html/com/twitter/common/zookeeper/DistributedLockImpl.html#line.142"><B>tryLock</B></A>(long&nbsp;timeout,
+                       <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/TimeUnit.html?is-external=true" title="class or interface in java.util.concurrent">TimeUnit</A>&nbsp;unit)</PRE>
 <DL>
 <DD><DL>
 <DT><B>Specified by:</B><DD><CODE><A HREF="../../../../com/twitter/common/zookeeper/DistributedLock.html#tryLock(long, java.util.concurrent.TimeUnit)">tryLock</A></CODE> in interface <CODE><A HREF="../../../../com/twitter/common/zookeeper/DistributedLock.html" title="interface in com.twitter.common.zookeeper">DistributedLock</A></CODE></DL>
@@ -269,7 +295,7 @@ public boolean <A HREF="../../../../src-html/com/twitter/common/zookeeper/Distri
 <A NAME="unlock()"><!-- --></A><H3>
 unlock</H3>
 <PRE>
-public void <A HREF="../../../../src-html/com/twitter/common/zookeeper/DistributedLockImpl.html#line.149"><B>unlock</B></A>()
+public void <A HREF="../../../../src-html/com/twitter/common/zookeeper/DistributedLockImpl.html#line.170"><B>unlock</B></A>()
             throws <A HREF="../../../../com/twitter/common/zookeeper/DistributedLock.LockingException.html" title="class in com.twitter.common.zookeeper">DistributedLock.LockingException</A></PRE>
 <DL>
 <DD><DL>

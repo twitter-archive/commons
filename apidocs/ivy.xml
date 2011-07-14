@@ -72,15 +72,6 @@ limitations under the License.
                 transitive="false"
     >
     </dependency>
-    <dependency org="org.reflections"
-                name="reflections"
-                rev="0.9.5-RC2"
-                conf="default"
-                transitive="false"
-    >
-      <exclude org="ch.qos.logback" module="logback-classic"/>
-      <exclude org="com.google.collections" module="google-collections"/>
-    </dependency>
     <dependency org="commons-lang"
                 name="commons-lang"
                 rev="2.4"
@@ -98,7 +89,7 @@ limitations under the License.
     <dependency org="com.puppycrawl.tools"
                 name="checkstyle"
                 rev="5.3"
-                conf="default"
+                conf="default;sources"
                 transitive="false"
     >
       <exclude org="com.google.collections" module="google-collections"/>
@@ -223,9 +214,37 @@ limitations under the License.
                 transitive="false"
     >
     </dependency>
+    <dependency org="commons-io"
+                name="commons-io"
+                rev="1.4"
+                conf="default;sources"
+                transitive="false"
+    >
+    </dependency>
+    <dependency org="org.apache.lucene"
+                name="lucene-analyzers"
+                rev="3.0.2"
+                conf="default"
+                transitive="false"
+    >
+    </dependency>
+    <dependency org="org.apache.lucene"
+                name="lucene-core"
+                rev="3.0.2"
+                conf="default"
+                transitive="false"
+    >
+    </dependency>
+    <dependency org="com.twitter"
+                name="twitter-text"
+                rev="1.4.0"
+                conf="default"
+                transitive="false"
+    >
+    </dependency>
     <dependency org="org.apache.zookeeper"
                 name="zookeeper"
-                rev="3.3.1"
+                rev="3.3.3"
                 conf="default;sources"
                 transitive="false"
     >
@@ -233,13 +252,6 @@ limitations under the License.
       <exclude org="javax.jms"/>
       <exclude org="com.sun.jdmk"/>
       <exclude org="com.sun.jmx"/>
-    </dependency>
-    <dependency org="commons-io"
-                name="commons-io"
-                rev="1.4"
-                conf="default;sources"
-                transitive="false"
-    >
     </dependency>
   </dependencies>
 </ivy-module>

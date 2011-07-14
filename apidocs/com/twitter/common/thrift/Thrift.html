@@ -90,12 +90,12 @@ com.twitter.common.thrift</FONT>
 <BR>
 Class Thrift&lt;T&gt;</H2>
 <PRE>
-java.lang.Object
+<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
   <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.thrift.Thrift&lt;T&gt;</B>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/thrift/Thrift.html#line.68"><B>Thrift&lt;T&gt;</B></A><DT>extends java.lang.Object</DL>
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/thrift/Thrift.html#line.68"><B>Thrift&lt;T&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
@@ -104,8 +104,8 @@ A generic thrift client that handles reconnection in the case of protocol errors
  with the <a href="http://github.com/fauna/thrift_client">generic ruby thrift client</a>.
 
  <p>In order to enforce call deadlines for synchronous clients, this class uses an
- <CODE>ExecutorService</CODE>.  If a custom executor is supplied, it should throw
- a subclass of <CODE>RejectedExecutionException</CODE> to signal thread resource exhaustion, in which
+ <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/ExecutorService.html?is-external=true" title="class or interface in java.util.concurrent"><CODE>ExecutorService</CODE></A>.  If a custom executor is supplied, it should throw
+ a subclass of <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/RejectedExecutionException.html?is-external=true" title="class or interface in java.util.concurrent"><CODE>RejectedExecutionException</CODE></A> to signal thread resource exhaustion, in which
  case the client will fail fast and propagate the event as a <A HREF="../../../../com/twitter/common/thrift/TResourceExhaustedException.html" title="class in com.twitter.common.thrift"><CODE>TResourceExhaustedException</CODE></A>.
 
  TODO(William Farner): Before open sourcing, look into changing the current model of wrapped proxies
@@ -170,12 +170,12 @@ A generic thrift client that handles reconnection in the case of protocol errors
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/Thrift.html#Thrift(com.twitter.common.thrift.Config, java.util.concurrent.ExecutorService, com.twitter.common.net.pool.ObjectPool, com.twitter.common.net.loadbalancing.RequestTracker, java.lang.String, java.lang.Class, com.google.common.base.Function, boolean, boolean)">Thrift</A></B>(<A HREF="../../../../com/twitter/common/thrift/Config.html" title="class in com.twitter.common.thrift">Config</A>&nbsp;config,
-             java.util.concurrent.ExecutorService&nbsp;executorService,
-             <A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,java.net.InetSocketAddress&gt;&gt;&nbsp;connectionPool,
-             <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;java.net.InetSocketAddress&gt;&nbsp;requestTracker,
-             java.lang.String&nbsp;serviceName,
-             java.lang.Class&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
-             com.google.common.base.Function&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory,
+             <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/ExecutorService.html?is-external=true" title="class or interface in java.util.concurrent">ExecutorService</A>&nbsp;executorService,
+             <A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&gt;&nbsp;connectionPool,
+             <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&nbsp;requestTracker,
+             <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;serviceName,
+             <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
+             <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory,
              boolean&nbsp;async,
              boolean&nbsp;ssl)</CODE>
 
@@ -185,24 +185,24 @@ A generic thrift client that handles reconnection in the case of protocol errors
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/Thrift.html#Thrift(com.twitter.common.thrift.Config, com.twitter.common.net.pool.ObjectPool, com.twitter.common.net.loadbalancing.RequestTracker, java.lang.String, java.lang.Class, com.google.common.base.Function, boolean, boolean)">Thrift</A></B>(<A HREF="../../../../com/twitter/common/thrift/Config.html" title="class in com.twitter.common.thrift">Config</A>&nbsp;config,
-             <A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,java.net.InetSocketAddress&gt;&gt;&nbsp;connectionPool,
-             <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;java.net.InetSocketAddress&gt;&nbsp;requestTracker,
-             java.lang.String&nbsp;serviceName,
-             java.lang.Class&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
-             com.google.common.base.Function&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory,
+             <A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&gt;&nbsp;connectionPool,
+             <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&nbsp;requestTracker,
+             <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;serviceName,
+             <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
+             <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory,
              boolean&nbsp;async,
              boolean&nbsp;ssl)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs an instance with a cached thread pool <CODE>ExecutorService</CODE>.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs an instance with a cached thread pool <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/ExecutorService.html?is-external=true" title="class or interface in java.util.concurrent"><CODE>ExecutorService</CODE></A>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/Thrift.html#Thrift(java.util.concurrent.ExecutorService, com.twitter.common.net.pool.ObjectPool, com.twitter.common.net.loadbalancing.RequestTracker, java.lang.String, java.lang.Class, com.google.common.base.Function, boolean, boolean)">Thrift</A></B>(java.util.concurrent.ExecutorService&nbsp;executorService,
-             <A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,java.net.InetSocketAddress&gt;&gt;&nbsp;connectionPool,
-             <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;java.net.InetSocketAddress&gt;&nbsp;requestTracker,
-             java.lang.String&nbsp;serviceName,
-             java.lang.Class&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
-             com.google.common.base.Function&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory,
+<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/Thrift.html#Thrift(java.util.concurrent.ExecutorService, com.twitter.common.net.pool.ObjectPool, com.twitter.common.net.loadbalancing.RequestTracker, java.lang.String, java.lang.Class, com.google.common.base.Function, boolean, boolean)">Thrift</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/ExecutorService.html?is-external=true" title="class or interface in java.util.concurrent">ExecutorService</A>&nbsp;executorService,
+             <A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&gt;&nbsp;connectionPool,
+             <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&nbsp;requestTracker,
+             <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;serviceName,
+             <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
+             <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory,
              boolean&nbsp;async,
              boolean&nbsp;ssl)</CODE>
 
@@ -210,40 +210,40 @@ A generic thrift client that handles reconnection in the case of protocol errors
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs an instance with the <A HREF="../../../../com/twitter/common/thrift/Thrift.html#DEFAULT_CONFIG"><CODE>DEFAULT_CONFIG</CODE></A>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/Thrift.html#Thrift(com.twitter.common.net.pool.ObjectPool, com.twitter.common.net.loadbalancing.RequestTracker, java.lang.String, java.lang.Class, com.google.common.base.Function)">Thrift</A></B>(<A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,java.net.InetSocketAddress&gt;&gt;&nbsp;connectionPool,
-             <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;java.net.InetSocketAddress&gt;&nbsp;requestTracker,
-             java.lang.String&nbsp;serviceName,
-             java.lang.Class&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
-             com.google.common.base.Function&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/Thrift.html#Thrift(com.twitter.common.net.pool.ObjectPool, com.twitter.common.net.loadbalancing.RequestTracker, java.lang.String, java.lang.Class, com.google.common.base.Function)">Thrift</A></B>(<A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&gt;&nbsp;connectionPool,
+             <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&nbsp;requestTracker,
+             <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;serviceName,
+             <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
+             <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs an instance with the <A HREF="../../../../com/twitter/common/thrift/Thrift.html#DEFAULT_CONFIG"><CODE>DEFAULT_CONFIG</CODE></A>, cached thread pool
- <CODE>ExecutorService</CODE>, and synchronous calls.</TD>
+ <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/ExecutorService.html?is-external=true" title="class or interface in java.util.concurrent"><CODE>ExecutorService</CODE></A>, and synchronous calls.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/Thrift.html#Thrift(com.twitter.common.net.pool.ObjectPool, com.twitter.common.net.loadbalancing.RequestTracker, java.lang.String, java.lang.Class, com.google.common.base.Function, boolean)">Thrift</A></B>(<A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,java.net.InetSocketAddress&gt;&gt;&nbsp;connectionPool,
-             <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;java.net.InetSocketAddress&gt;&nbsp;requestTracker,
-             java.lang.String&nbsp;serviceName,
-             java.lang.Class&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
-             com.google.common.base.Function&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory,
+<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/Thrift.html#Thrift(com.twitter.common.net.pool.ObjectPool, com.twitter.common.net.loadbalancing.RequestTracker, java.lang.String, java.lang.Class, com.google.common.base.Function, boolean)">Thrift</A></B>(<A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&gt;&nbsp;connectionPool,
+             <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&nbsp;requestTracker,
+             <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;serviceName,
+             <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
+             <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory,
              boolean&nbsp;async)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs an instance with the <A HREF="../../../../com/twitter/common/thrift/Thrift.html#DEFAULT_CONFIG"><CODE>DEFAULT_CONFIG</CODE></A> and cached thread pool
- <CODE>ExecutorService</CODE>.</TD>
+ <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/ExecutorService.html?is-external=true" title="class or interface in java.util.concurrent"><CODE>ExecutorService</CODE></A>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/Thrift.html#Thrift(com.twitter.common.net.pool.ObjectPool, com.twitter.common.net.loadbalancing.RequestTracker, java.lang.String, java.lang.Class, com.google.common.base.Function, boolean, boolean)">Thrift</A></B>(<A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,java.net.InetSocketAddress&gt;&gt;&nbsp;connectionPool,
-             <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;java.net.InetSocketAddress&gt;&nbsp;requestTracker,
-             java.lang.String&nbsp;serviceName,
-             java.lang.Class&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
-             com.google.common.base.Function&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory,
+<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/Thrift.html#Thrift(com.twitter.common.net.pool.ObjectPool, com.twitter.common.net.loadbalancing.RequestTracker, java.lang.String, java.lang.Class, com.google.common.base.Function, boolean, boolean)">Thrift</A></B>(<A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&gt;&nbsp;connectionPool,
+             <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&nbsp;requestTracker,
+             <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;serviceName,
+             <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
+             <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory,
              boolean&nbsp;async,
              boolean&nbsp;ssl)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs an instance with the <A HREF="../../../../com/twitter/common/thrift/Thrift.html#DEFAULT_CONFIG"><CODE>DEFAULT_CONFIG</CODE></A> and cached thread pool
- <CODE>ExecutorService</CODE>.</TD>
+ <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/ExecutorService.html?is-external=true" title="class or interface in java.util.concurrent"><CODE>ExecutorService</CODE></A>.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -291,10 +291,10 @@ A generic thrift client that handles reconnection in the case of protocol errors
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</CODE></TD>
+<TD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -365,14 +365,14 @@ public static final <A HREF="../../../../com/twitter/common/thrift/Config.html" 
 <A NAME="Thrift(com.twitter.common.net.pool.ObjectPool, com.twitter.common.net.loadbalancing.RequestTracker, java.lang.String, java.lang.Class, com.google.common.base.Function)"><!-- --></A><H3>
 Thrift</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/thrift/Thrift.html#line.127"><B>Thrift</B></A>(<A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,java.net.InetSocketAddress&gt;&gt;&nbsp;connectionPool,
-              <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;java.net.InetSocketAddress&gt;&nbsp;requestTracker,
-              java.lang.String&nbsp;serviceName,
-              java.lang.Class&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
-              com.google.common.base.Function&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory)</PRE>
+public <A HREF="../../../../src-html/com/twitter/common/thrift/Thrift.html#line.127"><B>Thrift</B></A>(<A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&gt;&nbsp;connectionPool,
+              <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&nbsp;requestTracker,
+              <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;serviceName,
+              <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
+              <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory)</PRE>
 <DL>
 <DD>Constructs an instance with the <A HREF="../../../../com/twitter/common/thrift/Thrift.html#DEFAULT_CONFIG"><CODE>DEFAULT_CONFIG</CODE></A>, cached thread pool
- <CODE>ExecutorService</CODE>, and synchronous calls.
+ <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/ExecutorService.html?is-external=true" title="class or interface in java.util.concurrent"><CODE>ExecutorService</CODE></A>, and synchronous calls.
 <P>
 <DL>
 <DT><B>See Also:</B><DD><A HREF="../../../../com/twitter/common/thrift/Thrift.html#Thrift(com.twitter.common.thrift.Config, java.util.concurrent.ExecutorService, com.twitter.common.net.pool.ObjectPool, com.twitter.common.net.loadbalancing.RequestTracker, java.lang.String, java.lang.Class, com.google.common.base.Function, boolean, boolean)"><CODE>Thrift(Config, ExecutorService, ObjectPool, RequestTracker , String, Class, Function,
@@ -383,15 +383,15 @@ public <A HREF="../../../../src-html/com/twitter/common/thrift/Thrift.html#line.
 <A NAME="Thrift(com.twitter.common.net.pool.ObjectPool, com.twitter.common.net.loadbalancing.RequestTracker, java.lang.String, java.lang.Class, com.google.common.base.Function, boolean)"><!-- --></A><H3>
 Thrift</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/thrift/Thrift.html#line.142"><B>Thrift</B></A>(<A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,java.net.InetSocketAddress&gt;&gt;&nbsp;connectionPool,
-              <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;java.net.InetSocketAddress&gt;&nbsp;requestTracker,
-              java.lang.String&nbsp;serviceName,
-              java.lang.Class&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
-              com.google.common.base.Function&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory,
+public <A HREF="../../../../src-html/com/twitter/common/thrift/Thrift.html#line.142"><B>Thrift</B></A>(<A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&gt;&nbsp;connectionPool,
+              <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&nbsp;requestTracker,
+              <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;serviceName,
+              <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
+              <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory,
               boolean&nbsp;async)</PRE>
 <DL>
 <DD>Constructs an instance with the <A HREF="../../../../com/twitter/common/thrift/Thrift.html#DEFAULT_CONFIG"><CODE>DEFAULT_CONFIG</CODE></A> and cached thread pool
- <CODE>ExecutorService</CODE>.
+ <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/ExecutorService.html?is-external=true" title="class or interface in java.util.concurrent"><CODE>ExecutorService</CODE></A>.
 <P>
 <DL>
 <DT><B>See Also:</B><DD><A HREF="../../../../com/twitter/common/thrift/Thrift.html#Thrift(com.twitter.common.thrift.Config, java.util.concurrent.ExecutorService, com.twitter.common.net.pool.ObjectPool, com.twitter.common.net.loadbalancing.RequestTracker, java.lang.String, java.lang.Class, com.google.common.base.Function, boolean, boolean)"><CODE>Thrift(Config, ExecutorService, ObjectPool, RequestTracker , String, Class, Function,
@@ -402,16 +402,16 @@ public <A HREF="../../../../src-html/com/twitter/common/thrift/Thrift.html#line.
 <A NAME="Thrift(com.twitter.common.net.pool.ObjectPool, com.twitter.common.net.loadbalancing.RequestTracker, java.lang.String, java.lang.Class, com.google.common.base.Function, boolean, boolean)"><!-- --></A><H3>
 Thrift</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/thrift/Thrift.html#line.158"><B>Thrift</B></A>(<A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,java.net.InetSocketAddress&gt;&gt;&nbsp;connectionPool,
-              <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;java.net.InetSocketAddress&gt;&nbsp;requestTracker,
-              java.lang.String&nbsp;serviceName,
-              java.lang.Class&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
-              com.google.common.base.Function&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory,
+public <A HREF="../../../../src-html/com/twitter/common/thrift/Thrift.html#line.158"><B>Thrift</B></A>(<A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&gt;&nbsp;connectionPool,
+              <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&nbsp;requestTracker,
+              <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;serviceName,
+              <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
+              <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory,
               boolean&nbsp;async,
               boolean&nbsp;ssl)</PRE>
 <DL>
 <DD>Constructs an instance with the <A HREF="../../../../com/twitter/common/thrift/Thrift.html#DEFAULT_CONFIG"><CODE>DEFAULT_CONFIG</CODE></A> and cached thread pool
- <CODE>ExecutorService</CODE>.
+ <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/ExecutorService.html?is-external=true" title="class or interface in java.util.concurrent"><CODE>ExecutorService</CODE></A>.
 <P>
 <DL>
 <DT><B>See Also:</B><DD><A HREF="../../../../com/twitter/common/thrift/Thrift.html#Thrift(com.twitter.common.thrift.Config, java.util.concurrent.ExecutorService, com.twitter.common.net.pool.ObjectPool, com.twitter.common.net.loadbalancing.RequestTracker, java.lang.String, java.lang.Class, com.google.common.base.Function, boolean, boolean)"><CODE>Thrift(Config, ExecutorService, ObjectPool, RequestTracker , String, Class, Function,
@@ -423,15 +423,15 @@ public <A HREF="../../../../src-html/com/twitter/common/thrift/Thrift.html#line.
 Thrift</H3>
 <PRE>
 public <A HREF="../../../../src-html/com/twitter/common/thrift/Thrift.html#line.173"><B>Thrift</B></A>(<A HREF="../../../../com/twitter/common/thrift/Config.html" title="class in com.twitter.common.thrift">Config</A>&nbsp;config,
-              <A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,java.net.InetSocketAddress&gt;&gt;&nbsp;connectionPool,
-              <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;java.net.InetSocketAddress&gt;&nbsp;requestTracker,
-              java.lang.String&nbsp;serviceName,
-              java.lang.Class&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
-              com.google.common.base.Function&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory,
+              <A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&gt;&nbsp;connectionPool,
+              <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&nbsp;requestTracker,
+              <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;serviceName,
+              <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
+              <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory,
               boolean&nbsp;async,
               boolean&nbsp;ssl)</PRE>
 <DL>
-<DD>Constructs an instance with a cached thread pool <CODE>ExecutorService</CODE>.
+<DD>Constructs an instance with a cached thread pool <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/ExecutorService.html?is-external=true" title="class or interface in java.util.concurrent"><CODE>ExecutorService</CODE></A>.
 <P>
 <DL>
 <DT><B>See Also:</B><DD><A HREF="../../../../com/twitter/common/thrift/Thrift.html#Thrift(com.twitter.common.thrift.Config, java.util.concurrent.ExecutorService, com.twitter.common.net.pool.ObjectPool, com.twitter.common.net.loadbalancing.RequestTracker, java.lang.String, java.lang.Class, com.google.common.base.Function, boolean, boolean)"><CODE>Thrift(Config, ExecutorService, ObjectPool, RequestTracker , String, Class, Function,
@@ -442,12 +442,12 @@ public <A HREF="../../../../src-html/com/twitter/common/thrift/Thrift.html#line.
 <A NAME="Thrift(java.util.concurrent.ExecutorService, com.twitter.common.net.pool.ObjectPool, com.twitter.common.net.loadbalancing.RequestTracker, java.lang.String, java.lang.Class, com.google.common.base.Function, boolean, boolean)"><!-- --></A><H3>
 Thrift</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/thrift/Thrift.html#line.193"><B>Thrift</B></A>(java.util.concurrent.ExecutorService&nbsp;executorService,
-              <A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,java.net.InetSocketAddress&gt;&gt;&nbsp;connectionPool,
-              <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;java.net.InetSocketAddress&gt;&nbsp;requestTracker,
-              java.lang.String&nbsp;serviceName,
-              java.lang.Class&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
-              com.google.common.base.Function&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory,
+public <A HREF="../../../../src-html/com/twitter/common/thrift/Thrift.html#line.193"><B>Thrift</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/ExecutorService.html?is-external=true" title="class or interface in java.util.concurrent">ExecutorService</A>&nbsp;executorService,
+              <A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&gt;&nbsp;connectionPool,
+              <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&nbsp;requestTracker,
+              <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;serviceName,
+              <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
+              <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory,
               boolean&nbsp;async,
               boolean&nbsp;ssl)</PRE>
 <DL>
@@ -463,12 +463,12 @@ public <A HREF="../../../../src-html/com/twitter/common/thrift/Thrift.html#line.
 Thrift</H3>
 <PRE>
 public <A HREF="../../../../src-html/com/twitter/common/thrift/Thrift.html#line.231"><B>Thrift</B></A>(<A HREF="../../../../com/twitter/common/thrift/Config.html" title="class in com.twitter.common.thrift">Config</A>&nbsp;config,
-              java.util.concurrent.ExecutorService&nbsp;executorService,
-              <A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,java.net.InetSocketAddress&gt;&gt;&nbsp;connectionPool,
-              <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;java.net.InetSocketAddress&gt;&nbsp;requestTracker,
-              java.lang.String&nbsp;serviceName,
-              java.lang.Class&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
-              com.google.common.base.Function&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory,
+              <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/ExecutorService.html?is-external=true" title="class or interface in java.util.concurrent">ExecutorService</A>&nbsp;executorService,
+              <A HREF="../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&gt;&nbsp;connectionPool,
+              <A HREF="../../../../com/twitter/common/net/loadbalancing/RequestTracker.html" title="interface in com.twitter.common.net.loadbalancing">RequestTracker</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&nbsp;requestTracker,
+              <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;serviceName,
+              <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;serviceInterface,
+              <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="type parameter in Thrift">T</A>&gt;&nbsp;clientFactory,
               boolean&nbsp;async,
               boolean&nbsp;ssl)</PRE>
 <DL>

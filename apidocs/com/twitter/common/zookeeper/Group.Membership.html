@@ -97,7 +97,7 @@ Interface Group.Membership</H2>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public static interface <A HREF="../../../../src-html/com/twitter/common/zookeeper/Group.html#line.167"><B>Group.Membership</B></A></DL>
+<DT><PRE>public static interface <A HREF="../../../../src-html/com/twitter/common/zookeeper/Group.html#line.169"><B>Group.Membership</B></A></DL>
 </PRE>
 
 <P>
@@ -127,7 +127,7 @@ Represents membership in a distributed group.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;java.lang.String</CODE></FONT></TD>
+<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/Group.Membership.html#getGroupPath()">getGroupPath</A></B>()</CODE>
 
 <BR>
@@ -135,7 +135,7 @@ Represents membership in a distributed group.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;java.lang.String</CODE></FONT></TD>
+<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/Group.Membership.html#getMemberId()">getMemberId</A></B>()</CODE>
 
 <BR>
@@ -143,7 +143,7 @@ Represents membership in a distributed group.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;java.lang.String</CODE></FONT></TD>
+<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/Group.Membership.html#getMemberPath()">getMemberPath</A></B>()</CODE>
 
 <BR>
@@ -175,7 +175,7 @@ Represents membership in a distributed group.
 <A NAME="getGroupPath()"><!-- --></A><H3>
 getGroupPath</H3>
 <PRE>
-java.lang.String <A HREF="../../../../src-html/com/twitter/common/zookeeper/Group.Membership.html#line.172"><B>getGroupPath</B></A>()</PRE>
+<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/zookeeper/Group.Membership.html#line.174"><B>getGroupPath</B></A>()</PRE>
 <DL>
 <DD>Returns the persistent ZooKeeper path that represents this group.
 <P>
@@ -188,7 +188,7 @@ java.lang.String <A HREF="../../../../src-html/com/twitter/common/zookeeper/Grou
 <A NAME="getMemberId()"><!-- --></A><H3>
 getMemberId</H3>
 <PRE>
-java.lang.String <A HREF="../../../../src-html/com/twitter/common/zookeeper/Group.Membership.html#line.178"><B>getMemberId</B></A>()</PRE>
+<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/zookeeper/Group.Membership.html#line.180"><B>getMemberId</B></A>()</PRE>
 <DL>
 <DD>Returns the id (ZooKeeper node name) of this group member.  May change over time if the
  ZooKeeper session expires.
@@ -202,7 +202,7 @@ java.lang.String <A HREF="../../../../src-html/com/twitter/common/zookeeper/Grou
 <A NAME="getMemberPath()"><!-- --></A><H3>
 getMemberPath</H3>
 <PRE>
-java.lang.String <A HREF="../../../../src-html/com/twitter/common/zookeeper/Group.Membership.html#line.184"><B>getMemberPath</B></A>()</PRE>
+<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/zookeeper/Group.Membership.html#line.186"><B>getMemberPath</B></A>()</PRE>
 <DL>
 <DD>Returns the full ZooKeeper path to this group member.  May change over time if the
  ZooKeeper session expires.
@@ -216,7 +216,7 @@ java.lang.String <A HREF="../../../../src-html/com/twitter/common/zookeeper/Grou
 <A NAME="updateMemberData()"><!-- --></A><H3>
 updateMemberData</H3>
 <PRE>
-byte[] <A HREF="../../../../src-html/com/twitter/common/zookeeper/Group.Membership.html#line.193"><B>updateMemberData</B></A>()
+byte[] <A HREF="../../../../src-html/com/twitter/common/zookeeper/Group.Membership.html#line.195"><B>updateMemberData</B></A>()
                         throws <A HREF="../../../../com/twitter/common/zookeeper/Group.UpdateException.html" title="class in com.twitter.common.zookeeper">Group.UpdateException</A></PRE>
 <DL>
 <DD>Updates the membership data synchronously using the <code>Supplier&lt;byte[]&gt;</code> passed to
@@ -234,7 +234,7 @@ byte[] <A HREF="../../../../src-html/com/twitter/common/zookeeper/Group.Membersh
 <A NAME="cancel()"><!-- --></A><H3>
 cancel</H3>
 <PRE>
-void <A HREF="../../../../src-html/com/twitter/common/zookeeper/Group.Membership.html#line.200"><B>cancel</B></A>()
+void <A HREF="../../../../src-html/com/twitter/common/zookeeper/Group.Membership.html#line.202"><B>cancel</B></A>()
             throws <A HREF="../../../../com/twitter/common/zookeeper/Group.JoinException.html" title="class in com.twitter.common.zookeeper">Group.JoinException</A></PRE>
 <DL>
 <DD>Cancels group membership by deleting the associated ZooKeeper member node.

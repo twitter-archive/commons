@@ -117,7 +117,7 @@ A generic object pool that provides object of a given type for exclusive use by 
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;java.lang.Long,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;</CODE></FONT></TD>
+<CODE>static&nbsp;<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html#NO_TIMEOUT">NO_TIMEOUT</A></B></CODE>
 
 <BR>
@@ -154,7 +154,7 @@ A generic object pool that provides object of a given type for exclusive use by 
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html" title="type parameter in ObjectPool">T</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html#get(com.twitter.common.quantity.Amount)">get</A></B>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;java.lang.Long,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;timeout)</CODE>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html#get(com.twitter.common.quantity.Amount)">get</A></B>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;timeout)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets a resource; timing out if there are none available and it takes longer than specified to
@@ -193,7 +193,7 @@ A generic object pool that provides object of a given type for exclusive use by 
 <A NAME="NO_TIMEOUT"><!-- --></A><H3>
 NO_TIMEOUT</H3>
 <PRE>
-static final <A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;java.lang.Long,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt; <A HREF="../../../../../src-html/com/twitter/common/net/pool/ObjectPool.html#line.48"><B>NO_TIMEOUT</B></A></PRE>
+static final <A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt; <A HREF="../../../../../src-html/com/twitter/common/net/pool/ObjectPool.html#line.48"><B>NO_TIMEOUT</B></A></PRE>
 <DL>
 <DD>A convenience constant representing a no timeout.
 <P>
@@ -216,7 +216,7 @@ get</H3>
 <PRE>
 <A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html" title="type parameter in ObjectPool">T</A> <A HREF="../../../../../src-html/com/twitter/common/net/pool/ObjectPool.html#line.43"><B>get</B></A>()
       throws <A HREF="../../../../../com/twitter/common/net/pool/ResourceExhaustedException.html" title="class in com.twitter.common.net.pool">ResourceExhaustedException</A>,
-             java.util.concurrent.TimeoutException</PRE>
+             <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/TimeoutException.html?is-external=true" title="class or interface in java.util.concurrent">TimeoutException</A></PRE>
 <DL>
 <DD>Gets a resource potentially blocking for as long as it takes to either create a new one or wait
  for one to be <A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html#release(T)"><CODE>released</CODE></A>.  Callers must <A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html#release(T)"><CODE>release</CODE></A>
@@ -228,7 +228,7 @@ get</H3>
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="../../../../../com/twitter/common/net/pool/ResourceExhaustedException.html" title="class in com.twitter.common.net.pool">ResourceExhaustedException</A></CODE> - if no resource could be obtained because this pool was
      exhausted
-<DD><CODE>java.util.concurrent.TimeoutException</CODE> - if we timed out while trying to fetch a resource</DL>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/TimeoutException.html?is-external=true" title="class or interface in java.util.concurrent">TimeoutException</A></CODE> - if we timed out while trying to fetch a resource</DL>
 </DD>
 </DL>
 <HR>
@@ -236,9 +236,9 @@ get</H3>
 <A NAME="get(com.twitter.common.quantity.Amount)"><!-- --></A><H3>
 get</H3>
 <PRE>
-<A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html" title="type parameter in ObjectPool">T</A> <A HREF="../../../../../src-html/com/twitter/common/net/pool/ObjectPool.html#line.62"><B>get</B></A>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;java.lang.Long,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;timeout)
+<A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html" title="type parameter in ObjectPool">T</A> <A HREF="../../../../../src-html/com/twitter/common/net/pool/ObjectPool.html#line.62"><B>get</B></A>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;timeout)
       throws <A HREF="../../../../../com/twitter/common/net/pool/ResourceExhaustedException.html" title="class in com.twitter.common.net.pool">ResourceExhaustedException</A>,
-             java.util.concurrent.TimeoutException</PRE>
+             <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/TimeoutException.html?is-external=true" title="class or interface in java.util.concurrent">TimeoutException</A></PRE>
 <DL>
 <DD>Gets a resource; timing out if there are none available and it takes longer than specified to
  create a new one or wait for one to be <A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html#release(T)"><CODE>released</CODE></A>.  Callers must
@@ -248,7 +248,7 @@ get</H3>
 <DT><B>Parameters:</B><DD><CODE>timeout</CODE> - the maximum amount of time to wait
 <DT><B>Returns:</B><DD>a resource for exclusive use by the caller
 <DT><B>Throws:</B>
-<DD><CODE>java.util.concurrent.TimeoutException</CODE> - if the specified timeout was reached before a resource became
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/TimeoutException.html?is-external=true" title="class or interface in java.util.concurrent">TimeoutException</A></CODE> - if the specified timeout was reached before a resource became
      available
 <DD><CODE><A HREF="../../../../../com/twitter/common/net/pool/ResourceExhaustedException.html" title="class in com.twitter.common.net.pool">ResourceExhaustedException</A></CODE> - if no resource could be obtained because this pool was
      exhausted</DL>

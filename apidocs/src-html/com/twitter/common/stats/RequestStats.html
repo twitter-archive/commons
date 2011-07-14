@@ -89,50 +89,54 @@
 <FONT color="green">086</FONT>        return timeouts;<a name="line.86"></a>
 <FONT color="green">087</FONT>      }<a name="line.87"></a>
 <FONT color="green">088</FONT>    <a name="line.88"></a>
-<FONT color="green">089</FONT>      /**<a name="line.89"></a>
-<FONT color="green">090</FONT>       * Accumulates a request and its latency.<a name="line.90"></a>
-<FONT color="green">091</FONT>       *<a name="line.91"></a>
-<FONT color="green">092</FONT>       * @param latencyMicros The elapsed time required to complete the request.<a name="line.92"></a>
-<FONT color="green">093</FONT>       */<a name="line.93"></a>
-<FONT color="green">094</FONT>      public void requestComplete(long latencyMicros) {<a name="line.94"></a>
-<FONT color="green">095</FONT>        requests.accumulate(latencyMicros);<a name="line.95"></a>
-<FONT color="green">096</FONT>        if (percentile != null) percentile.record(latencyMicros);<a name="line.96"></a>
-<FONT color="green">097</FONT>      }<a name="line.97"></a>
-<FONT color="green">098</FONT>    <a name="line.98"></a>
-<FONT color="green">099</FONT>      /**<a name="line.99"></a>
-<FONT color="green">100</FONT>       * Accumulates the error counter and the request counter.<a name="line.100"></a>
-<FONT color="green">101</FONT>       */<a name="line.101"></a>
-<FONT color="green">102</FONT>      public void incErrors() {<a name="line.102"></a>
-<FONT color="green">103</FONT>        requestComplete(0);<a name="line.103"></a>
-<FONT color="green">104</FONT>        errors.incrementAndGet();<a name="line.104"></a>
-<FONT color="green">105</FONT>      }<a name="line.105"></a>
-<FONT color="green">106</FONT>    <a name="line.106"></a>
-<FONT color="green">107</FONT>      /**<a name="line.107"></a>
-<FONT color="green">108</FONT>       * Accumulates the reconnect counter.<a name="line.108"></a>
-<FONT color="green">109</FONT>       */<a name="line.109"></a>
-<FONT color="green">110</FONT>      public void incReconnects() {<a name="line.110"></a>
-<FONT color="green">111</FONT>        reconnects.incrementAndGet();<a name="line.111"></a>
-<FONT color="green">112</FONT>      }<a name="line.112"></a>
-<FONT color="green">113</FONT>    <a name="line.113"></a>
-<FONT color="green">114</FONT>      /**<a name="line.114"></a>
-<FONT color="green">115</FONT>       * Accumulates the timtout counter.<a name="line.115"></a>
-<FONT color="green">116</FONT>       */<a name="line.116"></a>
-<FONT color="green">117</FONT>      public void incTimeouts() {<a name="line.117"></a>
-<FONT color="green">118</FONT>        timeouts.incrementAndGet();<a name="line.118"></a>
-<FONT color="green">119</FONT>      }<a name="line.119"></a>
-<FONT color="green">120</FONT>    <a name="line.120"></a>
-<FONT color="green">121</FONT>      public long getErrorCount() {<a name="line.121"></a>
-<FONT color="green">122</FONT>        return errors.get();<a name="line.122"></a>
+<FONT color="green">089</FONT>      public Percentile&lt;Long&gt; getPercentile() {<a name="line.89"></a>
+<FONT color="green">090</FONT>        return percentile;<a name="line.90"></a>
+<FONT color="green">091</FONT>      }<a name="line.91"></a>
+<FONT color="green">092</FONT>    <a name="line.92"></a>
+<FONT color="green">093</FONT>      /**<a name="line.93"></a>
+<FONT color="green">094</FONT>       * Accumulates a request and its latency.<a name="line.94"></a>
+<FONT color="green">095</FONT>       *<a name="line.95"></a>
+<FONT color="green">096</FONT>       * @param latencyMicros The elapsed time required to complete the request.<a name="line.96"></a>
+<FONT color="green">097</FONT>       */<a name="line.97"></a>
+<FONT color="green">098</FONT>      public void requestComplete(long latencyMicros) {<a name="line.98"></a>
+<FONT color="green">099</FONT>        requests.accumulate(latencyMicros);<a name="line.99"></a>
+<FONT color="green">100</FONT>        if (percentile != null) percentile.record(latencyMicros);<a name="line.100"></a>
+<FONT color="green">101</FONT>      }<a name="line.101"></a>
+<FONT color="green">102</FONT>    <a name="line.102"></a>
+<FONT color="green">103</FONT>      /**<a name="line.103"></a>
+<FONT color="green">104</FONT>       * Accumulates the error counter and the request counter.<a name="line.104"></a>
+<FONT color="green">105</FONT>       */<a name="line.105"></a>
+<FONT color="green">106</FONT>      public void incErrors() {<a name="line.106"></a>
+<FONT color="green">107</FONT>        requestComplete(0);<a name="line.107"></a>
+<FONT color="green">108</FONT>        errors.incrementAndGet();<a name="line.108"></a>
+<FONT color="green">109</FONT>      }<a name="line.109"></a>
+<FONT color="green">110</FONT>    <a name="line.110"></a>
+<FONT color="green">111</FONT>      /**<a name="line.111"></a>
+<FONT color="green">112</FONT>       * Accumulates the reconnect counter.<a name="line.112"></a>
+<FONT color="green">113</FONT>       */<a name="line.113"></a>
+<FONT color="green">114</FONT>      public void incReconnects() {<a name="line.114"></a>
+<FONT color="green">115</FONT>        reconnects.incrementAndGet();<a name="line.115"></a>
+<FONT color="green">116</FONT>      }<a name="line.116"></a>
+<FONT color="green">117</FONT>    <a name="line.117"></a>
+<FONT color="green">118</FONT>      /**<a name="line.118"></a>
+<FONT color="green">119</FONT>       * Accumulates the timtout counter.<a name="line.119"></a>
+<FONT color="green">120</FONT>       */<a name="line.120"></a>
+<FONT color="green">121</FONT>      public void incTimeouts() {<a name="line.121"></a>
+<FONT color="green">122</FONT>        timeouts.incrementAndGet();<a name="line.122"></a>
 <FONT color="green">123</FONT>      }<a name="line.123"></a>
 <FONT color="green">124</FONT>    <a name="line.124"></a>
-<FONT color="green">125</FONT>      public long getReconnectCount() {<a name="line.125"></a>
-<FONT color="green">126</FONT>        return reconnects.get();<a name="line.126"></a>
+<FONT color="green">125</FONT>      public long getErrorCount() {<a name="line.125"></a>
+<FONT color="green">126</FONT>        return errors.get();<a name="line.126"></a>
 <FONT color="green">127</FONT>      }<a name="line.127"></a>
 <FONT color="green">128</FONT>    <a name="line.128"></a>
-<FONT color="green">129</FONT>      public long getTimeoutCount() {<a name="line.129"></a>
-<FONT color="green">130</FONT>        return timeouts.get();<a name="line.130"></a>
+<FONT color="green">129</FONT>      public long getReconnectCount() {<a name="line.129"></a>
+<FONT color="green">130</FONT>        return reconnects.get();<a name="line.130"></a>
 <FONT color="green">131</FONT>      }<a name="line.131"></a>
-<FONT color="green">132</FONT>    }<a name="line.132"></a>
+<FONT color="green">132</FONT>    <a name="line.132"></a>
+<FONT color="green">133</FONT>      public long getTimeoutCount() {<a name="line.133"></a>
+<FONT color="green">134</FONT>        return timeouts.get();<a name="line.134"></a>
+<FONT color="green">135</FONT>      }<a name="line.135"></a>
+<FONT color="green">136</FONT>    }<a name="line.136"></a>
 
 
 

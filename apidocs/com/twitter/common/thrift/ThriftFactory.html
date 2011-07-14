@@ -90,12 +90,12 @@ com.twitter.common.thrift</FONT>
 <BR>
 Class ThriftFactory&lt;T&gt;</H2>
 <PRE>
-java.lang.Object
+<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
   <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.thrift.ThriftFactory&lt;T&gt;</B>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.105"><B>ThriftFactory&lt;T&gt;</B></A><DT>extends java.lang.Object</DL>
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.108"><B>ThriftFactory&lt;T&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
@@ -115,10 +115,11 @@ A utility that provides convenience methods to build common <A HREF="../../../..
    <li> At most 50 connections will be established to each host
       <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html#withMaxConnectionsPerEndpoint(int)"><CODE>withMaxConnectionsPerEndpoint(int)</CODE></A>
    <li> Unframed transport <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html#useFramedTransport(boolean)"><CODE>useFramedTransport(boolean)</CODE></A>
-   <li> A load balancing strategy that will mark hosts dead prefer least-connected hosts
-      Hosts are marked dead based on the windowed error rate.  If the error rate for a host
-      exceeds 20% over the last second, the host will be disabled for 2 seconds ascending up to
-      10 seconds if the elevated error rate persists.
+   <li> A load balancing strategy that will mark hosts dead and prefer least-connected hosts.
+      Hosts are marked dead if the most recent connection attempt was a failure or else based on
+      the windowed error rate of attempted RPCs.  If the error rate for a connected host exceeds
+      20% over the last second, the host will be disabled for 2 seconds ascending up to 10 seconds
+      if the elevated error rate persists.
       <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html#withLoadBalancingStrategy(com.twitter.common.net.loadbalancing.LoadBalancingStrategy)"><CODE>withLoadBalancingStrategy(LoadBalancingStrategy)</CODE></A>
    <li> Statistics are reported through <A HREF="../../../../com/twitter/common/stats/Stats.html" title="class in com.twitter.common.stats"><CODE>Stats</CODE></A>
       <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html#withStatsProvider(com.twitter.common.stats.StatsProvider)"><CODE>withStatsProvider(StatsProvider)</CODE></A>
@@ -167,7 +168,7 @@ A utility that provides convenience methods to build common <A HREF="../../../..
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="class in com.twitter.common.thrift">Thrift</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html#build(java.util.Set)">build</A></B>(java.util.Set&lt;java.net.InetSocketAddress&gt;&nbsp;backends)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html#build(java.util.Set)">build</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&nbsp;backends)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates the thrift client, and initializes connection pools.</TD>
@@ -183,7 +184,7 @@ A utility that provides convenience methods to build common <A HREF="../../../..
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="class in com.twitter.common.thrift">Thrift</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html#buildAsync(java.util.Set)">buildAsync</A></B>(java.util.Set&lt;java.net.InetSocketAddress&gt;&nbsp;backends)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html#buildAsync(java.util.Set)">buildAsync</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&nbsp;backends)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates an asynchronous thrift client that will communicate with a fixed set of backends.</TD>
@@ -198,14 +199,14 @@ A utility that provides convenience methods to build common <A HREF="../../../..
 </TR>
 </TABLE>
 </CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html#create(java.lang.Class)">create</A></B>(java.lang.Class&lt;T&gt;&nbsp;serviceInterface)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html#create(java.lang.Class)">create</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;T&gt;&nbsp;serviceInterface)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="../../../../com/twitter/common/net/monitoring/TrafficMonitor.html" title="class in com.twitter.common.net.monitoring">TrafficMonitor</A>&lt;java.net.InetSocketAddress&gt;</CODE></FONT></TD>
+<CODE>&nbsp;<A HREF="../../../../com/twitter/common/net/monitoring/TrafficMonitor.html" title="class in com.twitter.common.net.monitoring">TrafficMonitor</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html#getMonitor()">getMonitor</A></B>()</CODE>
 
 <BR>
@@ -222,7 +223,7 @@ A utility that provides convenience methods to build common <A HREF="../../../..
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html#withClientFactory(com.google.common.base.Function)">withClientFactory</A></B>(com.google.common.base.Function&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt;&nbsp;clientFactory)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html#withClientFactory(com.google.common.base.Function)">withClientFactory</A></B>(<A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt;&nbsp;clientFactory)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -230,7 +231,7 @@ A utility that provides convenience methods to build common <A HREF="../../../..
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html#withDeadConnectionRestoreInterval(com.twitter.common.quantity.Amount)">withDeadConnectionRestoreInterval</A></B>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;java.lang.Long,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;connectionRestoreInterval)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html#withDeadConnectionRestoreInterval(com.twitter.common.quantity.Amount)">withDeadConnectionRestoreInterval</A></B>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;connectionRestoreInterval)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Specifies the interval at which dead endpoint connections should be checked and revived.</TD>
@@ -238,7 +239,7 @@ A utility that provides convenience methods to build common <A HREF="../../../..
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html#withLoadBalancingStrategy(com.twitter.common.net.loadbalancing.LoadBalancingStrategy)">withLoadBalancingStrategy</A></B>(<A HREF="../../../../com/twitter/common/net/loadbalancing/LoadBalancingStrategy.html" title="interface in com.twitter.common.net.loadbalancing">LoadBalancingStrategy</A>&lt;java.net.InetSocketAddress&gt;&nbsp;strategy)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html#withLoadBalancingStrategy(com.twitter.common.net.loadbalancing.LoadBalancingStrategy)">withLoadBalancingStrategy</A></B>(<A HREF="../../../../com/twitter/common/net/loadbalancing/LoadBalancingStrategy.html" title="interface in com.twitter.common.net.loadbalancing">LoadBalancingStrategy</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&nbsp;strategy)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Specifies the load balancer to use when interacting with multiple backends.</TD>
@@ -254,7 +255,7 @@ A utility that provides convenience methods to build common <A HREF="../../../..
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html#withPostCreateCallback(com.twitter.common.base.Closure)">withPostCreateCallback</A></B>(<A HREF="../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,java.net.InetSocketAddress&gt;&gt;&nbsp;postCreateCallback)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html#withPostCreateCallback(com.twitter.common.base.Closure)">withPostCreateCallback</A></B>(<A HREF="../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&gt;&nbsp;postCreateCallback)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Specifies the callback to notify when a connection has been created.</TD>
@@ -262,7 +263,7 @@ A utility that provides convenience methods to build common <A HREF="../../../..
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html#withServiceName(java.lang.String)">withServiceName</A></B>(java.lang.String&nbsp;serviceName)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html#withServiceName(java.lang.String)">withServiceName</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;serviceName)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name to be passed to Thrift constructor, used in stats.</TD>
@@ -270,7 +271,7 @@ A utility that provides convenience methods to build common <A HREF="../../../..
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html#withSocketTimeout(com.twitter.common.quantity.Amount)">withSocketTimeout</A></B>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;java.lang.Long,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;socketTimeout)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html#withSocketTimeout(com.twitter.common.quantity.Amount)">withSocketTimeout</A></B>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;socketTimeout)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Specifies the net read/write timeout to set via SO_TIMEOUT on the thrift blocking client
@@ -296,10 +297,10 @@ A utility that provides convenience methods to build common <A HREF="../../../..
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</CODE></TD>
+<TD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -318,7 +319,7 @@ A utility that provides convenience methods to build common <A HREF="../../../..
 <A NAME="create(java.lang.Class)"><!-- --></A><H3>
 create</H3>
 <PRE>
-public static &lt;T&gt; <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.124"><B>create</B></A>(java.lang.Class&lt;T&gt;&nbsp;serviceInterface)</PRE>
+public static &lt;T&gt; <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.127"><B>create</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;T&gt;&nbsp;serviceInterface)</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -329,7 +330,7 @@ public static &lt;T&gt; <A HREF="../../../../com/twitter/common/thrift/ThriftFac
 <A NAME="getMonitor()"><!-- --></A><H3>
 getMonitor</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/net/monitoring/TrafficMonitor.html" title="class in com.twitter.common.net.monitoring">TrafficMonitor</A>&lt;java.net.InetSocketAddress&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.148"><B>getMonitor</B></A>()</PRE>
+public <A HREF="../../../../com/twitter/common/net/monitoring/TrafficMonitor.html" title="class in com.twitter.common.net.monitoring">TrafficMonitor</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.151"><B>getMonitor</B></A>()</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -340,7 +341,7 @@ public <A HREF="../../../../com/twitter/common/net/monitoring/TrafficMonitor.htm
 <A NAME="build(java.util.Set)"><!-- --></A><H3>
 build</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="class in com.twitter.common.thrift">Thrift</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.158"><B>build</B></A>(java.util.Set&lt;java.net.InetSocketAddress&gt;&nbsp;backends)</PRE>
+public <A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="class in com.twitter.common.thrift">Thrift</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.161"><B>build</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&nbsp;backends)</PRE>
 <DL>
 <DD>Creates the thrift client, and initializes connection pools.
 <P>
@@ -354,7 +355,7 @@ public <A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="class 
 <A NAME="build(com.twitter.common.net.pool.DynamicHostSet)"><!-- --></A><H3>
 build</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="class in com.twitter.common.thrift">Thrift</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.180"><B>build</B></A>(<A HREF="../../../../com/twitter/common/net/pool/DynamicHostSet.html" title="interface in com.twitter.common.net.pool">DynamicHostSet</A>&lt;ServiceInstance&gt;&nbsp;hostSet)
+public <A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="class in com.twitter.common.thrift">Thrift</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.183"><B>build</B></A>(<A HREF="../../../../com/twitter/common/net/pool/DynamicHostSet.html" title="interface in com.twitter.common.net.pool">DynamicHostSet</A>&lt;ServiceInstance&gt;&nbsp;hostSet)
                 throws <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.ThriftFactoryException.html" title="class in com.twitter.common.thrift">ThriftFactory.ThriftFactoryException</A></PRE>
 <DL>
 <DD>Creates a synchronous thrift client that will communicate with a dynamic host set.
@@ -371,7 +372,7 @@ public <A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="class 
 <A NAME="buildAsync(java.util.Set)"><!-- --></A><H3>
 buildAsync</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="class in com.twitter.common.thrift">Thrift</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.272"><B>buildAsync</B></A>(java.util.Set&lt;java.net.InetSocketAddress&gt;&nbsp;backends)
+public <A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="class in com.twitter.common.thrift">Thrift</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.275"><B>buildAsync</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&nbsp;backends)
                      throws <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.ThriftFactoryException.html" title="class in com.twitter.common.thrift">ThriftFactory.ThriftFactoryException</A></PRE>
 <DL>
 <DD>Creates an asynchronous thrift client that will communicate with a fixed set of backends.
@@ -388,7 +389,7 @@ public <A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="class 
 <A NAME="buildAsync(com.twitter.common.net.pool.DynamicHostSet)"><!-- --></A><H3>
 buildAsync</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="class in com.twitter.common.thrift">Thrift</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.294"><B>buildAsync</B></A>(<A HREF="../../../../com/twitter/common/net/pool/DynamicHostSet.html" title="interface in com.twitter.common.net.pool">DynamicHostSet</A>&lt;ServiceInstance&gt;&nbsp;hostSet)
+public <A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="class in com.twitter.common.thrift">Thrift</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.297"><B>buildAsync</B></A>(<A HREF="../../../../com/twitter/common/net/pool/DynamicHostSet.html" title="interface in com.twitter.common.net.pool">DynamicHostSet</A>&lt;ServiceInstance&gt;&nbsp;hostSet)
                      throws <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.ThriftFactoryException.html" title="class in com.twitter.common.thrift">ThriftFactory.ThriftFactoryException</A></PRE>
 <DL>
 <DD>Creates an asynchronous thrift client that will communicate with a dynamic host set.
@@ -405,7 +406,7 @@ public <A HREF="../../../../com/twitter/common/thrift/Thrift.html" title="class 
 <A NAME="withClientFactory(com.google.common.base.Function)"><!-- --></A><H3>
 withClientFactory</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.382"><B>withClientFactory</B></A>(com.google.common.base.Function&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt;&nbsp;clientFactory)</PRE>
+public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.385"><B>withClientFactory</B></A>(<A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt;&nbsp;clientFactory)</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -416,7 +417,7 @@ public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title=
 <A NAME="withSslEnabled()"><!-- --></A><H3>
 withSslEnabled</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.388"><B>withSslEnabled</B></A>()</PRE>
+public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.391"><B>withSslEnabled</B></A>()</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -427,7 +428,7 @@ public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title=
 <A NAME="withMaxConnectionsPerEndpoint(int)"><!-- --></A><H3>
 withMaxConnectionsPerEndpoint</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.399"><B>withMaxConnectionsPerEndpoint</B></A>(int&nbsp;maxConnectionsPerEndpoint)</PRE>
+public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.402"><B>withMaxConnectionsPerEndpoint</B></A>(int&nbsp;maxConnectionsPerEndpoint)</PRE>
 <DL>
 <DD>Specifies the maximum number of connections that should be made to any single endpoint.
 <P>
@@ -441,7 +442,7 @@ public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title=
 <A NAME="withDeadConnectionRestoreInterval(com.twitter.common.quantity.Amount)"><!-- --></A><H3>
 withDeadConnectionRestoreInterval</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.412"><B>withDeadConnectionRestoreInterval</B></A>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;java.lang.Long,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;connectionRestoreInterval)</PRE>
+public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.415"><B>withDeadConnectionRestoreInterval</B></A>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;connectionRestoreInterval)</PRE>
 <DL>
 <DD>Specifies the interval at which dead endpoint connections should be checked and revived.
 <P>
@@ -455,7 +456,7 @@ public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title=
 <A NAME="useFramedTransport(boolean)"><!-- --></A><H3>
 useFramedTransport</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.428"><B>useFramedTransport</B></A>(boolean&nbsp;framedTransport)</PRE>
+public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.431"><B>useFramedTransport</B></A>(boolean&nbsp;framedTransport)</PRE>
 <DL>
 <DD>Instructs the factory whether framed transport should be used.
 <P>
@@ -469,7 +470,7 @@ public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title=
 <A NAME="withLoadBalancingStrategy(com.twitter.common.net.loadbalancing.LoadBalancingStrategy)"><!-- --></A><H3>
 withLoadBalancingStrategy</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.440"><B>withLoadBalancingStrategy</B></A>(<A HREF="../../../../com/twitter/common/net/loadbalancing/LoadBalancingStrategy.html" title="interface in com.twitter.common.net.loadbalancing">LoadBalancingStrategy</A>&lt;java.net.InetSocketAddress&gt;&nbsp;strategy)</PRE>
+public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.443"><B>withLoadBalancingStrategy</B></A>(<A HREF="../../../../com/twitter/common/net/loadbalancing/LoadBalancingStrategy.html" title="interface in com.twitter.common.net.loadbalancing">LoadBalancingStrategy</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&nbsp;strategy)</PRE>
 <DL>
 <DD>Specifies the load balancer to use when interacting with multiple backends.
 <P>
@@ -483,7 +484,7 @@ public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title=
 <A NAME="withSocketTimeout(com.twitter.common.quantity.Amount)"><!-- --></A><H3>
 withSocketTimeout</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.485"><B>withSocketTimeout</B></A>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;java.lang.Long,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;socketTimeout)</PRE>
+public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.488"><B>withSocketTimeout</B></A>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;socketTimeout)</PRE>
 <DL>
 <DD>Specifies the net read/write timeout to set via SO_TIMEOUT on the thrift blocking client
  or AsyncClient.setTimeout on the thrift async client.  Defaults to the connectTimeout on
@@ -499,7 +500,7 @@ public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title=
 <A NAME="withPostCreateCallback(com.twitter.common.base.Closure)"><!-- --></A><H3>
 withPostCreateCallback</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.500"><B>withPostCreateCallback</B></A>(<A HREF="../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,java.net.InetSocketAddress&gt;&gt;&nbsp;postCreateCallback)</PRE>
+public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.503"><B>withPostCreateCallback</B></A>(<A HREF="../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;<A HREF="../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;org.apache.thrift.transport.TTransport,<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&gt;&nbsp;postCreateCallback)</PRE>
 <DL>
 <DD>Specifies the callback to notify when a connection has been created.  The callback may
  be used to make thrift calls to the connection, but must not invalidate it.
@@ -515,7 +516,7 @@ public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title=
 <A NAME="withStatsProvider(com.twitter.common.stats.StatsProvider)"><!-- --></A><H3>
 withStatsProvider</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.513"><B>withStatsProvider</B></A>(<A HREF="../../../../com/twitter/common/stats/StatsProvider.html" title="interface in com.twitter.common.stats">StatsProvider</A>&nbsp;statsProvider)</PRE>
+public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.516"><B>withStatsProvider</B></A>(<A HREF="../../../../com/twitter/common/stats/StatsProvider.html" title="interface in com.twitter.common.stats">StatsProvider</A>&nbsp;statsProvider)</PRE>
 <DL>
 <DD>Registers a custom stats provider to use to track various client stats.
 <P>
@@ -529,7 +530,7 @@ public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title=
 <A NAME="withServiceName(java.lang.String)"><!-- --></A><H3>
 withServiceName</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.525"><B>withServiceName</B></A>(java.lang.String&nbsp;serviceName)</PRE>
+public <A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="class in com.twitter.common.thrift">ThriftFactory</A>&lt;<A HREF="../../../../com/twitter/common/thrift/ThriftFactory.html" title="type parameter in ThriftFactory">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/thrift/ThriftFactory.html#line.528"><B>withServiceName</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;serviceName)</PRE>
 <DL>
 <DD>Name to be passed to Thrift constructor, used in stats.
 <P>

@@ -90,7 +90,7 @@ com.twitter.common.net.pool</FONT>
 <BR>
 Class MetaPool&lt;T,E&gt;</H2>
 <PRE>
-java.lang.Object
+<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
   <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.net.pool.MetaPool&lt;T,E&gt;</B>
 </PRE>
 <DL>
@@ -98,7 +98,7 @@ java.lang.Object
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/net/pool/MetaPool.html#line.58"><B>MetaPool&lt;T,E&gt;</B></A><DT>extends java.lang.Object<DT>implements <A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;T,E&gt;&gt;</DL>
+<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/net/pool/MetaPool.html#line.58"><B>MetaPool&lt;T,E&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;T,E&gt;&gt;</DL>
 </PRE>
 
 <P>
@@ -148,18 +148,18 @@ A connection pool that picks connections from a set of backend pools.  Backend p
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html#MetaPool(com.google.common.collect.ImmutableMap, com.twitter.common.net.loadbalancing.LoadBalancer, com.twitter.common.base.Closure, com.twitter.common.quantity.Amount)">MetaPool</A></B>(com.google.common.collect.ImmutableMap&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>,<A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">T</A>,<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt;&gt;&gt;&nbsp;backends,
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html#MetaPool(com.google.common.collect.ImmutableMap, com.twitter.common.net.loadbalancing.LoadBalancer, com.twitter.common.base.Closure, com.twitter.common.quantity.Amount)">MetaPool</A></B>(<A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ImmutableMap.html?is-external=true" title="class or interface in com.google.common.collect">ImmutableMap</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>,<A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">T</A>,<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt;&gt;&gt;&nbsp;backends,
                  <A HREF="../../../../../com/twitter/common/net/loadbalancing/LoadBalancer.html" title="interface in com.twitter.common.net.loadbalancing">LoadBalancer</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt;&nbsp;loadBalancer,
-                 <A HREF="../../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;java.util.Collection&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt;&gt;&nbsp;onBackendsChosen,
-                 <A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;java.lang.Long,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;restoreInterval)</CODE>
+                 <A HREF="../../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt;&gt;&nbsp;onBackendsChosen,
+                 <A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;restoreInterval)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a connection pool that balances connections across multiple backend pools.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html#MetaPool(com.twitter.common.net.loadbalancing.LoadBalancer, com.twitter.common.base.Closure, com.twitter.common.quantity.Amount)">MetaPool</A></B>(<A HREF="../../../../../com/twitter/common/net/loadbalancing/LoadBalancer.html" title="interface in com.twitter.common.net.loadbalancing">LoadBalancer</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt;&nbsp;loadBalancer,
-                 <A HREF="../../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;java.util.Collection&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt;&gt;&nbsp;onBackendsChosen,
-                 <A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;java.lang.Long,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;restoreInterval)</CODE>
+                 <A HREF="../../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt;&gt;&nbsp;onBackendsChosen,
+                 <A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;restoreInterval)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a connection pool with no backends.</TD>
@@ -195,7 +195,7 @@ A connection pool that picks connections from a set of backend pools.  Backend p
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">T</A>,<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html#get(com.twitter.common.quantity.Amount)">get</A></B>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;java.lang.Long,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;timeout)</CODE>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html#get(com.twitter.common.quantity.Amount)">get</A></B>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;timeout)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets a resource; timing out if there are none available and it takes longer than specified to
@@ -220,7 +220,7 @@ A connection pool that picks connections from a set of backend pools.  Backend p
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html#setBackends(java.util.Map)">setBackends</A></B>(java.util.Map&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>,<A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">T</A>,<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt;&gt;&gt;&nbsp;pools)</CODE>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html#setBackends(java.util.Map)">setBackends</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>,<A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">T</A>,<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt;&gt;&gt;&nbsp;pools)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assigns the backend pools that this pool should draw from.</TD>
@@ -237,10 +237,10 @@ A connection pool that picks connections from a set of backend pools.  Backend p
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</CODE></TD>
+<TD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -260,8 +260,8 @@ A connection pool that picks connections from a set of backend pools.  Backend p
 MetaPool</H3>
 <PRE>
 public <A HREF="../../../../../src-html/com/twitter/common/net/pool/MetaPool.html#line.76"><B>MetaPool</B></A>(<A HREF="../../../../../com/twitter/common/net/loadbalancing/LoadBalancer.html" title="interface in com.twitter.common.net.loadbalancing">LoadBalancer</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt;&nbsp;loadBalancer,
-                <A HREF="../../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;java.util.Collection&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt;&gt;&nbsp;onBackendsChosen,
-                <A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;java.lang.Long,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;restoreInterval)</PRE>
+                <A HREF="../../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt;&gt;&nbsp;onBackendsChosen,
+                <A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;restoreInterval)</PRE>
 <DL>
 <DD>Creates a connection pool with no backends.  Backends may be added post-creation by calling
  <CODE>#setBackends<ImmutableSet>()</CODE>;
@@ -276,10 +276,10 @@ public <A HREF="../../../../../src-html/com/twitter/common/net/pool/MetaPool.htm
 <A NAME="MetaPool(com.google.common.collect.ImmutableMap, com.twitter.common.net.loadbalancing.LoadBalancer, com.twitter.common.base.Closure, com.twitter.common.quantity.Amount)"><!-- --></A><H3>
 MetaPool</H3>
 <PRE>
-public <A HREF="../../../../../src-html/com/twitter/common/net/pool/MetaPool.html#line.92"><B>MetaPool</B></A>(com.google.common.collect.ImmutableMap&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>,<A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">T</A>,<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt;&gt;&gt;&nbsp;backends,
+public <A HREF="../../../../../src-html/com/twitter/common/net/pool/MetaPool.html#line.92"><B>MetaPool</B></A>(<A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ImmutableMap.html?is-external=true" title="class or interface in com.google.common.collect">ImmutableMap</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>,<A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">T</A>,<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt;&gt;&gt;&nbsp;backends,
                 <A HREF="../../../../../com/twitter/common/net/loadbalancing/LoadBalancer.html" title="interface in com.twitter.common.net.loadbalancing">LoadBalancer</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt;&nbsp;loadBalancer,
-                <A HREF="../../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;java.util.Collection&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt;&gt;&nbsp;onBackendsChosen,
-                <A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;java.lang.Long,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;restoreInterval)</PRE>
+                <A HREF="../../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt;&gt;&nbsp;onBackendsChosen,
+                <A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;restoreInterval)</PRE>
 <DL>
 <DD>Creates a connection pool that balances connections across multiple backend pools.
 <P>
@@ -302,7 +302,7 @@ public <A HREF="../../../../../src-html/com/twitter/common/net/pool/MetaPool.htm
 <A NAME="setBackends(java.util.Map)"><!-- --></A><H3>
 setBackends</H3>
 <PRE>
-public void <A HREF="../../../../../src-html/com/twitter/common/net/pool/MetaPool.html#line.111"><B>setBackends</B></A>(java.util.Map&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>,<A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">T</A>,<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt;&gt;&gt;&nbsp;pools)</PRE>
+public void <A HREF="../../../../../src-html/com/twitter/common/net/pool/MetaPool.html#line.111"><B>setBackends</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>,<A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">T</A>,<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt;&gt;&gt;&nbsp;pools)</PRE>
 <DL>
 <DD>Assigns the backend pools that this pool should draw from.
 <P>
@@ -320,7 +320,7 @@ get</H3>
 <PRE>
 public <A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">T</A>,<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt; <A HREF="../../../../../src-html/com/twitter/common/net/pool/MetaPool.html#line.160"><B>get</B></A>()
                     throws <A HREF="../../../../../com/twitter/common/net/pool/ResourceExhaustedException.html" title="class in com.twitter.common.net.pool">ResourceExhaustedException</A>,
-                           java.util.concurrent.TimeoutException</PRE>
+                           <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/TimeoutException.html?is-external=true" title="class or interface in java.util.concurrent">TimeoutException</A></PRE>
 <DL>
 <DD><B>Description copied from interface: <CODE><A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html#get()">ObjectPool</A></CODE></B></DD>
 <DD>Gets a resource potentially blocking for as long as it takes to either create a new one or wait
@@ -336,7 +336,7 @@ public <A HREF="../../../../../com/twitter/common/net/pool/Connection.html" titl
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="../../../../../com/twitter/common/net/pool/ResourceExhaustedException.html" title="class in com.twitter.common.net.pool">ResourceExhaustedException</A></CODE> - if no resource could be obtained because this pool was
      exhausted
-<DD><CODE>java.util.concurrent.TimeoutException</CODE> - if we timed out while trying to fetch a resource</DL>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/TimeoutException.html?is-external=true" title="class or interface in java.util.concurrent">TimeoutException</A></CODE> - if we timed out while trying to fetch a resource</DL>
 </DD>
 </DL>
 <HR>
@@ -344,9 +344,9 @@ public <A HREF="../../../../../com/twitter/common/net/pool/Connection.html" titl
 <A NAME="get(com.twitter.common.quantity.Amount)"><!-- --></A><H3>
 get</H3>
 <PRE>
-public <A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">T</A>,<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt; <A HREF="../../../../../src-html/com/twitter/common/net/pool/MetaPool.html#line.165"><B>get</B></A>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;java.lang.Long,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;timeout)
+public <A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">T</A>,<A HREF="../../../../../com/twitter/common/net/pool/MetaPool.html" title="type parameter in MetaPool">E</A>&gt; <A HREF="../../../../../src-html/com/twitter/common/net/pool/MetaPool.html#line.165"><B>get</B></A>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;timeout)
                     throws <A HREF="../../../../../com/twitter/common/net/pool/ResourceExhaustedException.html" title="class in com.twitter.common.net.pool">ResourceExhaustedException</A>,
-                           java.util.concurrent.TimeoutException</PRE>
+                           <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/TimeoutException.html?is-external=true" title="class or interface in java.util.concurrent">TimeoutException</A></PRE>
 <DL>
 <DD><B>Description copied from interface: <CODE><A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html#get(com.twitter.common.quantity.Amount)">ObjectPool</A></CODE></B></DD>
 <DD>Gets a resource; timing out if there are none available and it takes longer than specified to
@@ -362,7 +362,7 @@ public <A HREF="../../../../../com/twitter/common/net/pool/Connection.html" titl
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="../../../../../com/twitter/common/net/pool/ResourceExhaustedException.html" title="class in com.twitter.common.net.pool">ResourceExhaustedException</A></CODE> - if no resource could be obtained because this pool was
      exhausted
-<DD><CODE>java.util.concurrent.TimeoutException</CODE> - if the specified timeout was reached before a resource became
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/TimeoutException.html?is-external=true" title="class or interface in java.util.concurrent">TimeoutException</A></CODE> - if the specified timeout was reached before a resource became
      available</DL>
 </DD>
 </DL>

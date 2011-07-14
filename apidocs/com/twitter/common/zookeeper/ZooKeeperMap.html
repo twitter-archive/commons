@@ -90,23 +90,23 @@ com.twitter.common.zookeeper</FONT>
 <BR>
 Class ZooKeeperMap&lt;V&gt;</H2>
 <PRE>
-java.lang.Object
-  <IMG SRC="../../../../resources/inherit.gif" ALT="extended by ">com.google.common.collect.ForwardingObject
-      <IMG SRC="../../../../resources/inherit.gif" ALT="extended by ">com.google.common.collect.ForwardingMap&lt;java.lang.String,V&gt;
+<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingObject.html?is-external=true" title="class or interface in com.google.common.collect">com.google.common.collect.ForwardingObject</A>
+      <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true" title="class or interface in com.google.common.collect">com.google.common.collect.ForwardingMap</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,V&gt;
           <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.zookeeper.ZooKeeperMap&lt;V&gt;</B>
 </PRE>
 <DL>
 <DT><DT><B>Type Parameters:</B><DD><CODE>V</CODE> - the type of values this map stores</DL>
 <DL>
-<DT><B>All Implemented Interfaces:</B> <DD>java.util.Map&lt;java.lang.String,V&gt;</DD>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,V&gt;</DD>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperMap.html#line.66"><B>ZooKeeperMap&lt;V&gt;</B></A><DT>extends com.google.common.collect.ForwardingMap&lt;java.lang.String,V&gt;</DL>
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperMap.html#line.66"><B>ZooKeeperMap&lt;V&gt;</B></A><DT>extends <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true" title="class or interface in com.google.common.collect">ForwardingMap</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,V&gt;</DL>
 </PRE>
 
 <P>
-A ZooKeeper backed <CODE>Map</CODE>.  Initialized with a node path, this map represents child nodes
+A ZooKeeper backed <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util"><CODE>Map</CODE></A>.  Initialized with a node path, this map represents child nodes
  under that path as keys, with the data in those nodes as values.  This map is readonly from
  clients of this class, and only can be modified via direct zookeeper operations.
 
@@ -142,10 +142,10 @@ A ZooKeeper backed <CODE>Map</CODE>.  Initialized with a node path, this map rep
 &nbsp;<A NAME="nested_classes_inherited_from_class_java.util.Map"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Nested classes/interfaces inherited from interface java.util.Map</B></TH>
+<TH ALIGN="left"><B>Nested classes/interfaces inherited from interface java.util.<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE>java.util.Map.Entry&lt;K,V&gt;</CODE></TD>
+<TD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.Entry.html?is-external=true" title="class or interface in java.util">Map.Entry</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.Entry.html?is-external=true" title="class or interface in java.util">K</A>,<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.Entry.html?is-external=true" title="class or interface in java.util">V</A>&gt;</CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -159,7 +159,7 @@ A ZooKeeper backed <CODE>Map</CODE>.  Initialized with a node path, this map rep
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;com.google.common.base.Function&lt;byte[],byte[]&gt;</CODE></FONT></TD>
+<CODE>static&nbsp;<A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;byte[],byte[]&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html#BYTE_ARRAY_VALUES">BYTE_ARRAY_VALUES</A></B></CODE>
 
 <BR>
@@ -182,7 +182,7 @@ A ZooKeeper backed <CODE>Map</CODE>.  Initialized with a node path, this map rep
 <TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html#clear()">clear</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This map is readonly, this method throws a <CODE>UnsupportedOperationException</CODE></TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This map is readonly, this method throws a <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><CODE>UnsupportedOperationException</CODE></A></TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -195,15 +195,15 @@ A ZooKeeper backed <CODE>Map</CODE>.  Initialized with a node path, this map rep
 </TABLE>
 </CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html#create(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String, com.google.common.base.Function)">create</A></B>(<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
-             java.lang.String&nbsp;nodePath,
-             com.google.common.base.Function&lt;byte[],V&gt;&nbsp;deserializer)</CODE>
+             <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;nodePath,
+             <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;byte[],V&gt;&nbsp;deserializer)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns an initialized ZooKeeperMap.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;java.util.Map&lt;java.lang.String,<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;</CODE></FONT></TD>
+<CODE>protected &nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html#delegate()">delegate</A></B>()</CODE>
 
 <BR>
@@ -212,54 +212,54 @@ A ZooKeeper backed <CODE>Map</CODE>.  Initialized with a node path, this map rep
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html#put(java.lang.String, V)">put</A></B>(java.lang.String&nbsp;key,
+<TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html#put(java.lang.String, V)">put</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;key,
        <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&nbsp;value)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This map is readonly, this method throws a <CODE>UnsupportedOperationException</CODE></TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This map is readonly, this method throws a <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><CODE>UnsupportedOperationException</CODE></A></TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html#putAll(java.util.Map)">putAll</A></B>(java.util.Map&lt;? extends java.lang.String,? extends <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;&nbsp;m)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html#putAll(java.util.Map)">putAll</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;? extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,? extends <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;&nbsp;m)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This map is readonly, this method throws a <CODE>UnsupportedOperationException</CODE></TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This map is readonly, this method throws a <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><CODE>UnsupportedOperationException</CODE></A></TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html#remove(java.lang.Object)">remove</A></B>(java.lang.Object&nbsp;key)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html#remove(java.lang.Object)">remove</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>&nbsp;key)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This map is readonly, this method throws a <CODE>UnsupportedOperationException</CODE></TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This map is readonly, this method throws a <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><CODE>UnsupportedOperationException</CODE></A></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_com.google.common.collect.ForwardingMap"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class com.google.common.collect.ForwardingMap</B></TH>
+<TH ALIGN="left"><B>Methods inherited from class com.google.common.collect.<A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true" title="class or interface in com.google.common.collect">ForwardingMap</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE>containsKey, containsValue, entrySet, equals, get, hashCode, isEmpty, keySet, size, standardClear, standardContainsKey, standardContainsValue, standardEntrySet, standardEquals, standardHashCode, standardIsEmpty, standardKeySet, standardPutAll, standardRemove, standardToString, standardValues, values</CODE></TD>
+<TD><CODE><A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#containsKey(java.lang.Object)" title="class or interface in com.google.common.collect">containsKey</A>, <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#containsValue(java.lang.Object)" title="class or interface in com.google.common.collect">containsValue</A>, <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#entrySet()" title="class or interface in com.google.common.collect">entrySet</A>, <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#equals(java.lang.Object)" title="class or interface in com.google.common.collect">equals</A>, <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#get(java.lang.Object)" title="class or interface in com.google.common.collect">get</A>, <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#hashCode()" title="class or interface in com.google.common.collect">hashCode</A>, <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#isEmpty()" title="class or interface in com.google.common.collect">isEmpty</A>, <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#keySet()" title="class or interface in com.google.common.collect">keySet</A>, <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#size()" title="class or interface in com.google.common.collect">size</A>, <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#standardClear()" title="class or interface in com.google.common.collect">standardClear</A>, <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#standardContainsKey(java.lang.Object)" title="class or interface in com.google.common.collect">standardContainsKey</A>, <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#standardContainsValue(java.lang.Object)" title="class or interface in com.google.common.collect">standardContainsValue</A>, <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#standardEntrySet(com.google.common.base.Supplier)" title="class or interface in com.google.common.collect">standardEntrySet</A>, <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#standardEquals(java.lang.Object)" title="class or interface in com.google.common.collect">standardEquals</A>, <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#standardHashCode()" title="class or interface in com.google.common.collect">standardHashCode</A>, <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#standardIsEmpty()" title="class or interface in com.google.common.collect">standardIsEmpty</A>, <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#standardKeySet()" title="class or interface in com.google.common.collect">standardKeySet</A>, <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#standardPutAll(java.util.Map)" title="class or interface in com.google.common.collect">standardPutAll</A>, <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#standardRemove(java.lang.Object)" title="class or interface in com.google.common.collect">standardRemove</A>, <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#standardToString()" title="class or interface in com.google.common.collect">standardToString</A>, <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#standardValues()" title="class or interface in com.google.common.collect">standardValues</A>, <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#values()" title="class or interface in com.google.common.collect">values</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_com.google.common.collect.ForwardingObject"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class com.google.common.collect.ForwardingObject</B></TH>
+<TH ALIGN="left"><B>Methods inherited from class com.google.common.collect.<A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingObject.html?is-external=true" title="class or interface in com.google.common.collect">ForwardingObject</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE>toString</CODE></TD>
+<TD><CODE><A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingObject.html?is-external=true#toString()" title="class or interface in com.google.common.collect">toString</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE>clone, finalize, getClass, notify, notifyAll, wait, wait, wait</CODE></TD>
+<TD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -278,7 +278,7 @@ A ZooKeeper backed <CODE>Map</CODE>.  Initialized with a node path, this map rep
 <A NAME="BYTE_ARRAY_VALUES"><!-- --></A><H3>
 BYTE_ARRAY_VALUES</H3>
 <PRE>
-public static final com.google.common.base.Function&lt;byte[],byte[]&gt; <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperMap.html#line.72"><B>BYTE_ARRAY_VALUES</B></A></PRE>
+public static final <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;byte[],byte[]&gt; <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperMap.html#line.72"><B>BYTE_ARRAY_VALUES</B></A></PRE>
 <DL>
 <DD>Default deserializer for the constructor if you want to simply store the zookeeper byte[] data
  in this map.
@@ -301,9 +301,9 @@ public static final com.google.common.base.Function&lt;byte[],byte[]&gt; <A HREF
 create</H3>
 <PRE>
 public static &lt;V&gt; <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="class in com.twitter.common.zookeeper">ZooKeeperMap</A>&lt;V&gt; <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperMap.html#line.102"><B>create</B></A>(<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
-                                         java.lang.String&nbsp;nodePath,
-                                         com.google.common.base.Function&lt;byte[],V&gt;&nbsp;deserializer)
-                              throws java.lang.InterruptedException,
+                                         <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;nodePath,
+                                         <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;byte[],V&gt;&nbsp;deserializer)
+                              throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/InterruptedException.html?is-external=true" title="class or interface in java.lang">InterruptedException</A>,
                                      org.apache.zookeeper.KeeperException,
                                      <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.ZooKeeperConnectionException.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient.ZooKeeperConnectionException</A></PRE>
 <DL>
@@ -314,7 +314,7 @@ public static &lt;V&gt; <A HREF="../../../../com/twitter/common/zookeeper/ZooKee
 <DT><B>Parameters:</B><DD><CODE>zkClient</CODE> - a zookeeper client<DD><CODE>nodePath</CODE> - path to a node whose data will be watched<DD><CODE>deserializer</CODE> - a function that converts byte[] data from a zk node to this map's
      value type V
 <DT><B>Throws:</B>
-<DD><CODE>java.lang.InterruptedException</CODE> - if the underlying zookeeper server transaction is interrupted
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/InterruptedException.html?is-external=true" title="class or interface in java.lang">InterruptedException</A></CODE> - if the underlying zookeeper server transaction is interrupted
 <DD><CODE>KeeperException.NoNodeException</CODE> - if the given nodePath doesn't exist
 <DD><CODE>org.apache.zookeeper.KeeperException</CODE> - if the server signals an error
 <DD><CODE><A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.ZooKeeperConnectionException.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient.ZooKeeperConnectionException</A></CODE> - if there was a problem connecting to the zookeeper
@@ -326,10 +326,10 @@ public static &lt;V&gt; <A HREF="../../../../com/twitter/common/zookeeper/ZooKee
 <A NAME="delegate()"><!-- --></A><H3>
 delegate</H3>
 <PRE>
-protected java.util.Map&lt;java.lang.String,<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt; <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperMap.html#line.202"><B>delegate</B></A>()</PRE>
+protected <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt; <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperMap.html#line.202"><B>delegate</B></A>()</PRE>
 <DL>
 <DD><DL>
-<DT><B>Overrides:</B><DD><CODE>delegate</CODE> in class <CODE>com.google.common.collect.ForwardingMap&lt;java.lang.String,<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;</CODE></DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#delegate()" title="class or interface in com.google.common.collect">delegate</A></CODE> in class <CODE><A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true" title="class or interface in com.google.common.collect">ForwardingMap</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;</CODE></DL>
 </DD>
 <DD><DL>
 </DL>
@@ -342,10 +342,10 @@ clear</H3>
 <PRE>
 public void <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperMap.html#line.210"><B>clear</B></A>()</PRE>
 <DL>
-<DD>This map is readonly, this method throws a <CODE>UnsupportedOperationException</CODE>
+<DD>This map is readonly, this method throws a <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><CODE>UnsupportedOperationException</CODE></A>
 <P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE>clear</CODE> in interface <CODE>java.util.Map&lt;java.lang.String,<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE>clear</CODE> in class <CODE>com.google.common.collect.ForwardingMap&lt;java.lang.String,<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;</CODE></DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true#clear()" title="class or interface in java.util">clear</A></CODE> in interface <CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE><A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#clear()" title="class or interface in com.google.common.collect">clear</A></CODE> in class <CODE><A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true" title="class or interface in com.google.common.collect">ForwardingMap</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;</CODE></DL>
 </DD>
 <DD><DL>
 </DL>
@@ -356,13 +356,13 @@ public void <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeper
 <A NAME="put(java.lang.String,java.lang.Object)"><!-- --></A><A NAME="put(java.lang.String, V)"><!-- --></A><H3>
 put</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A> <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperMap.html#line.218"><B>put</B></A>(java.lang.String&nbsp;key,
+public <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A> <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperMap.html#line.218"><B>put</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;key,
              <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&nbsp;value)</PRE>
 <DL>
-<DD>This map is readonly, this method throws a <CODE>UnsupportedOperationException</CODE>
+<DD>This map is readonly, this method throws a <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><CODE>UnsupportedOperationException</CODE></A>
 <P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE>put</CODE> in interface <CODE>java.util.Map&lt;java.lang.String,<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE>put</CODE> in class <CODE>com.google.common.collect.ForwardingMap&lt;java.lang.String,<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;</CODE></DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true#put(K, V)" title="class or interface in java.util">put</A></CODE> in interface <CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE><A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#put(K, V)" title="class or interface in com.google.common.collect">put</A></CODE> in class <CODE><A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true" title="class or interface in com.google.common.collect">ForwardingMap</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;</CODE></DL>
 </DD>
 <DD><DL>
 </DL>
@@ -373,12 +373,12 @@ public <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" titl
 <A NAME="putAll(java.util.Map)"><!-- --></A><H3>
 putAll</H3>
 <PRE>
-public void <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperMap.html#line.226"><B>putAll</B></A>(java.util.Map&lt;? extends java.lang.String,? extends <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;&nbsp;m)</PRE>
+public void <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperMap.html#line.226"><B>putAll</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;? extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,? extends <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;&nbsp;m)</PRE>
 <DL>
-<DD>This map is readonly, this method throws a <CODE>UnsupportedOperationException</CODE>
+<DD>This map is readonly, this method throws a <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><CODE>UnsupportedOperationException</CODE></A>
 <P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE>putAll</CODE> in interface <CODE>java.util.Map&lt;java.lang.String,<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE>putAll</CODE> in class <CODE>com.google.common.collect.ForwardingMap&lt;java.lang.String,<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;</CODE></DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true#putAll(java.util.Map)" title="class or interface in java.util">putAll</A></CODE> in interface <CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE><A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#putAll(java.util.Map)" title="class or interface in com.google.common.collect">putAll</A></CODE> in class <CODE><A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true" title="class or interface in com.google.common.collect">ForwardingMap</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;</CODE></DL>
 </DD>
 <DD><DL>
 </DL>
@@ -389,12 +389,12 @@ public void <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeper
 <A NAME="remove(java.lang.Object)"><!-- --></A><H3>
 remove</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A> <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperMap.html#line.234"><B>remove</B></A>(java.lang.Object&nbsp;key)</PRE>
+public <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A> <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperMap.html#line.234"><B>remove</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>&nbsp;key)</PRE>
 <DL>
-<DD>This map is readonly, this method throws a <CODE>UnsupportedOperationException</CODE>
+<DD>This map is readonly, this method throws a <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><CODE>UnsupportedOperationException</CODE></A>
 <P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE>remove</CODE> in interface <CODE>java.util.Map&lt;java.lang.String,<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE>remove</CODE> in class <CODE>com.google.common.collect.ForwardingMap&lt;java.lang.String,<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;</CODE></DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true#remove(java.lang.Object)" title="class or interface in java.util">remove</A></CODE> in interface <CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE><A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true#remove(java.lang.Object)" title="class or interface in com.google.common.collect">remove</A></CODE> in class <CODE><A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ForwardingMap.html?is-external=true" title="class or interface in com.google.common.collect">ForwardingMap</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperMap.html" title="type parameter in ZooKeeperMap">V</A>&gt;</CODE></DL>
 </DD>
 <DD><DL>
 </DL>

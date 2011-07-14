@@ -90,7 +90,7 @@ com.twitter.common.stats</FONT>
 <BR>
 Class RequestStats</H2>
 <PRE>
-java.lang.Object
+<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
   <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.stats.RequestStats</B>
 </PRE>
 <DL>
@@ -98,7 +98,7 @@ java.lang.Object
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.30"><B>RequestStats</B></A><DT>extends java.lang.Object<DT>implements <A HREF="../../../../com/twitter/common/stats/StatsProvider.RequestTimer.html" title="interface in com.twitter.common.stats">StatsProvider.RequestTimer</A></DL>
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.30"><B>RequestStats</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../com/twitter/common/stats/StatsProvider.RequestTimer.html" title="interface in com.twitter.common.stats">StatsProvider.RequestTimer</A></DL>
 </PRE>
 
 <P>
@@ -120,14 +120,14 @@ A class to represent the statistics associated with a client connection to an ex
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/RequestStats.html#RequestStats(java.lang.String)">RequestStats</A></B>(java.lang.String&nbsp;name)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/RequestStats.html#RequestStats(java.lang.String)">RequestStats</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new request statistics object, using the default percentiles and sampling rate.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/RequestStats.html#RequestStats(java.lang.String, com.twitter.common.stats.Percentile)">RequestStats</A></B>(java.lang.String&nbsp;name,
-                         <A HREF="../../../../com/twitter/common/stats/Percentile.html" title="class in com.twitter.common.stats">Percentile</A>&lt;java.lang.Long&gt;&nbsp;percentile)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/RequestStats.html#RequestStats(java.lang.String, com.twitter.common.stats.Percentile)">RequestStats</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                         <A HREF="../../../../com/twitter/common/stats/Percentile.html" title="class in com.twitter.common.stats">Percentile</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>&gt;&nbsp;percentile)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new request statistics object using a custom percentile tracker.</TD>
@@ -152,8 +152,16 @@ A class to represent the statistics associated with a client connection to an ex
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;java.util.concurrent.atomic.AtomicLong</CODE></FONT></TD>
+<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicLong.html?is-external=true" title="class or interface in java.util.concurrent.atomic">AtomicLong</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/stats/RequestStats.html#getErrorCounter()">getErrorCounter</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../com/twitter/common/stats/Percentile.html" title="class in com.twitter.common.stats">Percentile</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/RequestStats.html#getPercentile()">getPercentile</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -168,7 +176,7 @@ A class to represent the statistics associated with a client connection to an ex
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;java.util.concurrent.atomic.AtomicLong</CODE></FONT></TD>
+<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicLong.html?is-external=true" title="class or interface in java.util.concurrent.atomic">AtomicLong</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/stats/RequestStats.html#getReconnectCounter()">getReconnectCounter</A></B>()</CODE>
 
 <BR>
@@ -192,7 +200,7 @@ A class to represent the statistics associated with a client connection to an ex
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;java.util.concurrent.atomic.AtomicLong</CODE></FONT></TD>
+<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicLong.html?is-external=true" title="class or interface in java.util.concurrent.atomic">AtomicLong</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/stats/RequestStats.html#getTimeoutCounter()">getTimeoutCounter</A></B>()</CODE>
 
 <BR>
@@ -234,10 +242,10 @@ A class to represent the statistics associated with a client connection to an ex
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</CODE></TD>
+<TD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -256,7 +264,7 @@ A class to represent the statistics associated with a client connection to an ex
 <A NAME="RequestStats(java.lang.String)"><!-- --></A><H3>
 RequestStats</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.48"><B>RequestStats</B></A>(java.lang.String&nbsp;name)</PRE>
+public <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.48"><B>RequestStats</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name)</PRE>
 <DL>
 <DD>Creates a new request statistics object, using the default percentiles and sampling rate.
 <P>
@@ -268,9 +276,9 @@ public <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#
 <A NAME="RequestStats(java.lang.String, com.twitter.common.stats.Percentile)"><!-- --></A><H3>
 RequestStats</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.58"><B>RequestStats</B></A>(java.lang.String&nbsp;name,
-                    <FONT SIZE="-1">@Nullable</FONT>
-                    <A HREF="../../../../com/twitter/common/stats/Percentile.html" title="class in com.twitter.common.stats">Percentile</A>&lt;java.lang.Long&gt;&nbsp;percentile)</PRE>
+public <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.58"><B>RequestStats</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                    <FONT SIZE="-1"><A HREF="http://download.oracle.com/javase/6/docs/api/javax/annotation/Nullable.html?is-external=true" title="class or interface in javax.annotation">@Nullable</A></FONT>
+                    <A HREF="../../../../com/twitter/common/stats/Percentile.html" title="class in com.twitter.common.stats">Percentile</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>&gt;&nbsp;percentile)</PRE>
 <DL>
 <DD>Creates a new request statistics object using a custom percentile tracker.
 <P>
@@ -305,7 +313,7 @@ public <A HREF="../../../../com/twitter/common/stats/SlidingStats.html" title="c
 <A NAME="getErrorCounter()"><!-- --></A><H3>
 getErrorCounter</H3>
 <PRE>
-public java.util.concurrent.atomic.AtomicLong <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.77"><B>getErrorCounter</B></A>()</PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicLong.html?is-external=true" title="class or interface in java.util.concurrent.atomic">AtomicLong</A> <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.77"><B>getErrorCounter</B></A>()</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -319,7 +327,7 @@ public java.util.concurrent.atomic.AtomicLong <A HREF="../../../../src-html/com/
 <A NAME="getReconnectCounter()"><!-- --></A><H3>
 getReconnectCounter</H3>
 <PRE>
-public java.util.concurrent.atomic.AtomicLong <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.81"><B>getReconnectCounter</B></A>()</PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicLong.html?is-external=true" title="class or interface in java.util.concurrent.atomic">AtomicLong</A> <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.81"><B>getReconnectCounter</B></A>()</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -333,7 +341,21 @@ public java.util.concurrent.atomic.AtomicLong <A HREF="../../../../src-html/com/
 <A NAME="getTimeoutCounter()"><!-- --></A><H3>
 getTimeoutCounter</H3>
 <PRE>
-public java.util.concurrent.atomic.AtomicLong <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.85"><B>getTimeoutCounter</B></A>()</PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicLong.html?is-external=true" title="class or interface in java.util.concurrent.atomic">AtomicLong</A> <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.85"><B>getTimeoutCounter</B></A>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getPercentile()"><!-- --></A><H3>
+getPercentile</H3>
+<PRE>
+public <A HREF="../../../../com/twitter/common/stats/Percentile.html" title="class in com.twitter.common.stats">Percentile</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>&gt; <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.89"><B>getPercentile</B></A>()</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -347,7 +369,7 @@ public java.util.concurrent.atomic.AtomicLong <A HREF="../../../../src-html/com/
 <A NAME="requestComplete(long)"><!-- --></A><H3>
 requestComplete</H3>
 <PRE>
-public void <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.94"><B>requestComplete</B></A>(long&nbsp;latencyMicros)</PRE>
+public void <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.98"><B>requestComplete</B></A>(long&nbsp;latencyMicros)</PRE>
 <DL>
 <DD>Accumulates a request and its latency.
 <P>
@@ -363,7 +385,7 @@ public void <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.
 <A NAME="incErrors()"><!-- --></A><H3>
 incErrors</H3>
 <PRE>
-public void <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.102"><B>incErrors</B></A>()</PRE>
+public void <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.106"><B>incErrors</B></A>()</PRE>
 <DL>
 <DD>Accumulates the error counter and the request counter.
 <P>
@@ -379,7 +401,7 @@ public void <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.
 <A NAME="incReconnects()"><!-- --></A><H3>
 incReconnects</H3>
 <PRE>
-public void <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.110"><B>incReconnects</B></A>()</PRE>
+public void <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.114"><B>incReconnects</B></A>()</PRE>
 <DL>
 <DD>Accumulates the reconnect counter.
 <P>
@@ -395,7 +417,7 @@ public void <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.
 <A NAME="incTimeouts()"><!-- --></A><H3>
 incTimeouts</H3>
 <PRE>
-public void <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.117"><B>incTimeouts</B></A>()</PRE>
+public void <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.121"><B>incTimeouts</B></A>()</PRE>
 <DL>
 <DD>Accumulates the timtout counter.
 <P>
@@ -411,7 +433,7 @@ public void <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.
 <A NAME="getErrorCount()"><!-- --></A><H3>
 getErrorCount</H3>
 <PRE>
-public long <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.121"><B>getErrorCount</B></A>()</PRE>
+public long <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.125"><B>getErrorCount</B></A>()</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -425,7 +447,7 @@ public long <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.
 <A NAME="getReconnectCount()"><!-- --></A><H3>
 getReconnectCount</H3>
 <PRE>
-public long <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.125"><B>getReconnectCount</B></A>()</PRE>
+public long <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.129"><B>getReconnectCount</B></A>()</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -439,7 +461,7 @@ public long <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.
 <A NAME="getTimeoutCount()"><!-- --></A><H3>
 getTimeoutCount</H3>
 <PRE>
-public long <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.129"><B>getTimeoutCount</B></A>()</PRE>
+public long <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.133"><B>getTimeoutCount</B></A>()</PRE>
 <DL>
 <DD><DL>
 </DL>

@@ -124,7 +124,7 @@ A Codec represents a reversible encoding for a given type.  Codecs are able to b
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../com/twitter/common/io/Codec.html" title="type parameter in Codec">T</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/io/Codec.html#deserialize(java.io.InputStream)">deserialize</A></B>(java.io.InputStream&nbsp;source)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/io/Codec.html#deserialize(java.io.InputStream)">deserialize</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</A>&nbsp;source)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Reads an item from the <code>source</code> stream that was written by
@@ -134,7 +134,7 @@ A Codec represents a reversible encoding for a given type.  Codecs are able to b
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/io/Codec.html#serialize(T, java.io.OutputStream)">serialize</A></B>(<A HREF="../../../../com/twitter/common/io/Codec.html" title="type parameter in Codec">T</A>&nbsp;item,
-                   java.io.OutputStream&nbsp;sink)</CODE>
+                   <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</A>&nbsp;sink)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Writes a representation of <code>item</code> to the <code>sink</code> that can be read back by
@@ -158,8 +158,8 @@ A Codec represents a reversible encoding for a given type.  Codecs are able to b
 serialize</H3>
 <PRE>
 void <A HREF="../../../../src-html/com/twitter/common/io/Codec.html#line.45"><B>serialize</B></A>(<A HREF="../../../../com/twitter/common/io/Codec.html" title="type parameter in Codec">T</A>&nbsp;item,
-               java.io.OutputStream&nbsp;sink)
-               throws java.io.IOException</PRE>
+               <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</A>&nbsp;sink)
+               throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
 <DL>
 <DD>Writes a representation of <code>item</code> to the <code>sink</code> that can be read back by
  <A HREF="../../../../com/twitter/common/io/Codec.html#deserialize(java.io.InputStream)"><CODE>deserialize(java.io.InputStream)</CODE></A>.
@@ -167,7 +167,7 @@ void <A HREF="../../../../src-html/com/twitter/common/io/Codec.html#line.45"><B>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>item</CODE> - the item to serialize<DD><CODE>sink</CODE> - the stream to write the item out to
 <DT><B>Throws:</B>
-<DD><CODE>java.io.IOException</CODE> - if there is a problem serializing the item</DL>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></CODE> - if there is a problem serializing the item</DL>
 </DD>
 </DL>
 <HR>
@@ -175,8 +175,8 @@ void <A HREF="../../../../src-html/com/twitter/common/io/Codec.html#line.45"><B>
 <A NAME="deserialize(java.io.InputStream)"><!-- --></A><H3>
 deserialize</H3>
 <PRE>
-<A HREF="../../../../com/twitter/common/io/Codec.html" title="type parameter in Codec">T</A> <A HREF="../../../../src-html/com/twitter/common/io/Codec.html#line.55"><B>deserialize</B></A>(java.io.InputStream&nbsp;source)
-              throws java.io.IOException</PRE>
+<A HREF="../../../../com/twitter/common/io/Codec.html" title="type parameter in Codec">T</A> <A HREF="../../../../src-html/com/twitter/common/io/Codec.html#line.55"><B>deserialize</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</A>&nbsp;source)
+              throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
 <DL>
 <DD>Reads an item from the <code>source</code> stream that was written by
  <A HREF="../../../../com/twitter/common/io/Codec.html#serialize(T, java.io.OutputStream)"><CODE>serialize(Object, java.io.OutputStream)</CODE></A>.
@@ -185,7 +185,7 @@ deserialize</H3>
 <DT><B>Parameters:</B><DD><CODE>source</CODE> - the stream to read an item from
 <DT><B>Returns:</B><DD>the deserialized item
 <DT><B>Throws:</B>
-<DD><CODE>java.io.IOException</CODE> - if there is a problem reading an item</DL>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></CODE> - if there is a problem reading an item</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

@@ -91,9 +91,9 @@ com.twitter.common.inject</FONT>
 Annotation Type TimedInterceptor.Timed</H2>
 <HR>
 <DL>
-<DT><PRE><FONT SIZE="-1">@Retention(value=RUNTIME)
-@Target(value=METHOD)
-</FONT>public static @interface <A HREF="../../../../src-html/com/twitter/common/inject/TimedInterceptor.html#line.50"><B>TimedInterceptor.Timed</B></A></DL>
+<DT><PRE><FONT SIZE="-1"><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/Retention.html?is-external=true" title="class or interface in java.lang.annotation">@Retention</A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/Retention.html?is-external=true#value()" title="class or interface in java.lang.annotation">value</A>=<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/RetentionPolicy.html?is-external=true#RUNTIME" title="class or interface in java.lang.annotation">RUNTIME</A>)
+<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/Target.html?is-external=true" title="class or interface in java.lang.annotation">@Target</A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/Target.html?is-external=true#value()" title="class or interface in java.lang.annotation">value</A>=<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/ElementType.html?is-external=true#METHOD" title="class or interface in java.lang.annotation">METHOD</A>)
+</FONT>public static @interface <A HREF="../../../../src-html/com/twitter/common/inject/TimedInterceptor.html#line.52"><B>TimedInterceptor.Timed</B></A></DL>
 </PRE>
 
 <P>
@@ -114,11 +114,11 @@ Marks a method as a target for timing.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;java.lang.String</CODE></FONT></TD>
+<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/inject/TimedInterceptor.Timed.html#value()">value</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The base name to export timing data with; empty to use the annotated method's name.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -126,14 +126,15 @@ Marks a method as a target for timing.
 <A NAME="value()"><!-- --></A><H3>
 value</H3>
 <PRE>
-public abstract java.lang.String <A HREF="../../../../src-html/com/twitter/common/inject/TimedInterceptor.Timed.html#line.55"><B>value</B></A></PRE>
+public abstract <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/inject/TimedInterceptor.Timed.html#line.57"><B>value</B></A></PRE>
 <DL>
+<DD>The base name to export timing data with; empty to use the annotated method's name.
+<P>
 <DD><DL>
 </DL>
 </DD>
 <DD><DL>
-
-<DT><B>Returns:</B><DD>the base name to export timing data with; empty to use the annotated method's name</DL>
+</DL>
 <DL>
 <DT><B>Default:</B><DD>""</DD>
 </DL>

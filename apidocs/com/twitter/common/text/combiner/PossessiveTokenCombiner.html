@@ -1,0 +1,285 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+PossessiveTokenCombiner
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../stylesheet.css" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="PossessiveTokenCombiner";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<script type="text/javascript">top.updateArtifact(window.location);</script><HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/PossessiveTokenCombiner.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../com/twitter/common/text/combiner/LookAheadTokenCombiner.html" title="class in com.twitter.common.text.combiner"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../com/twitter/common/text/combiner/StockTokenCombiner.html" title="class in com.twitter.common.text.combiner"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?com/twitter/common/text/combiner/PossessiveTokenCombiner.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="PossessiveTokenCombiner.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;<A HREF="#nested_classes_inherited_from_class_org.apache.lucene.util.AttributeSource">NESTED</A>&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#methods_inherited_from_class_com.twitter.common.text.combiner.ExtractorBasedTokenCombiner">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;METHOD</FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+com.twitter.common.text.combiner</FONT>
+<BR>
+Class PossessiveTokenCombiner</H2>
+<PRE>
+<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.html?is-external=true" title="class or interface in org.apache.lucene.util">org.apache.lucene.util.AttributeSource</A>
+      <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">com.twitter.common.text.token.TokenStream</A>
+          <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><A HREF="../../../../../com/twitter/common/text/token/TokenProcessor.html" title="class in com.twitter.common.text.token">com.twitter.common.text.token.TokenProcessor</A>
+              <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><A HREF="../../../../../com/twitter/common/text/combiner/ExtractorBasedTokenCombiner.html" title="class in com.twitter.common.text.combiner">com.twitter.common.text.combiner.ExtractorBasedTokenCombiner</A>
+                  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.text.combiner.PossessiveTokenCombiner</B>
+</PRE>
+<HR>
+<DL>
+<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/text/combiner/PossessiveTokenCombiner.html#line.27"><B>PossessiveTokenCombiner</B></A><DT>extends <A HREF="../../../../../com/twitter/common/text/combiner/ExtractorBasedTokenCombiner.html" title="class in com.twitter.common.text.combiner">ExtractorBasedTokenCombiner</A></DL>
+</PRE>
+
+<P>
+Combines multiple tokens denoting a possessive form (e.g., Twitter's) back into a single token.
+<P>
+
+<P>
+<HR>
+
+<P>
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+
+<A NAME="nested_class_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Nested Class Summary</B></FONT></TH>
+</TR>
+</TABLE>
+&nbsp;<A NAME="nested_classes_inherited_from_class_org.apache.lucene.util.AttributeSource"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Nested classes/interfaces inherited from class org.apache.lucene.util.<A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeSource</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.AttributeFactory.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeSource.AttributeFactory</A>, <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.State.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeSource.State</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/text/combiner/PossessiveTokenCombiner.html#PossessiveTokenCombiner(com.twitter.common.text.token.TokenStream)">PossessiveTokenCombiner</A></B>(<A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_com.twitter.common.text.combiner.ExtractorBasedTokenCombiner"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class com.twitter.common.text.combiner.<A HREF="../../../../../com/twitter/common/text/combiner/ExtractorBasedTokenCombiner.html" title="class in com.twitter.common.text.combiner">ExtractorBasedTokenCombiner</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="../../../../../com/twitter/common/text/combiner/ExtractorBasedTokenCombiner.html#incrementToken()">incrementToken</A>, <A HREF="../../../../../com/twitter/common/text/combiner/ExtractorBasedTokenCombiner.html#reset(java.lang.CharSequence)">reset</A>, <A HREF="../../../../../com/twitter/common/text/combiner/ExtractorBasedTokenCombiner.html#setExtractor(com.twitter.common.text.token.TokenStream)">setExtractor</A>, <A HREF="../../../../../com/twitter/common/text/combiner/ExtractorBasedTokenCombiner.html#setType(com.twitter.common.text.token.attribute.TokenType)">setType</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_com.twitter.common.text.token.TokenProcessor"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class com.twitter.common.text.token.<A HREF="../../../../../com/twitter/common/text/token/TokenProcessor.html" title="class in com.twitter.common.text.token">TokenProcessor</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="../../../../../com/twitter/common/text/token/TokenProcessor.html#getInputStream()">getInputStream</A>, <A HREF="../../../../../com/twitter/common/text/token/TokenProcessor.html#getInstanceOf(java.lang.Class)">getInstanceOf</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_com.twitter.common.text.token.TokenStream"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class com.twitter.common.text.token.<A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="../../../../../com/twitter/common/text/token/TokenStream.html#toStringList()">toStringList</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_org.apache.lucene.util.AttributeSource"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class org.apache.lucene.util.<A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeSource</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.html?is-external=true#addAttribute(java.lang.Class)" title="class or interface in org.apache.lucene.util">addAttribute</A>, <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.html?is-external=true#addAttributeImpl(org.apache.lucene.util.AttributeImpl)" title="class or interface in org.apache.lucene.util">addAttributeImpl</A>, <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.html?is-external=true#captureState()" title="class or interface in org.apache.lucene.util">captureState</A>, <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.html?is-external=true#clearAttributes()" title="class or interface in org.apache.lucene.util">clearAttributes</A>, <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.html?is-external=true#cloneAttributes()" title="class or interface in org.apache.lucene.util">cloneAttributes</A>, <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.html?is-external=true#equals(java.lang.Object)" title="class or interface in org.apache.lucene.util">equals</A>, <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.html?is-external=true#getAttribute(java.lang.Class)" title="class or interface in org.apache.lucene.util">getAttribute</A>, <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.html?is-external=true#getAttributeClassesIterator()" title="class or interface in org.apache.lucene.util">getAttributeClassesIterator</A>, <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.html?is-external=true#getAttributeFactory()" title="class or interface in org.apache.lucene.util">getAttributeFactory</A>, <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.html?is-external=true#getAttributeImplsIterator()" title="class or interface in org.apache.lucene.util">getAttributeImplsIterator</A>, <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.html?is-external=true#hasAttribute(java.lang.Class)" title="class or interface in org.apache.lucene.util">hasAttribute</A>, <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.html?is-external=true#hasAttributes()" title="class or interface in org.apache.lucene.util">hasAttributes</A>, <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.html?is-external=true#hashCode()" title="class or interface in org.apache.lucene.util">hashCode</A>, <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.html?is-external=true#restoreState(org.apache.lucene.util.AttributeSource.State)" title="class or interface in org.apache.lucene.util">restoreState</A>, <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.html?is-external=true#toString()" title="class or interface in org.apache.lucene.util">toString</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="PossessiveTokenCombiner(com.twitter.common.text.token.TokenStream)"><!-- --></A><H3>
+PossessiveTokenCombiner</H3>
+<PRE>
+public <A HREF="../../../../../src-html/com/twitter/common/text/combiner/PossessiveTokenCombiner.html#line.30"><B>PossessiveTokenCombiner</B></A>(<A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</PRE>
+<DL>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/PossessiveTokenCombiner.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../com/twitter/common/text/combiner/LookAheadTokenCombiner.html" title="class in com.twitter.common.text.combiner"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../com/twitter/common/text/combiner/StockTokenCombiner.html" title="class in com.twitter.common.text.combiner"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?com/twitter/common/text/combiner/PossessiveTokenCombiner.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="PossessiveTokenCombiner.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;<A HREF="#nested_classes_inherited_from_class_org.apache.lucene.util.AttributeSource">NESTED</A>&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#methods_inherited_from_class_com.twitter.common.text.combiner.ExtractorBasedTokenCombiner">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;METHOD</FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

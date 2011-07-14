@@ -90,15 +90,17 @@ com.twitter.common.inject</FONT>
 <BR>
 Class DefaultProvider&lt;T&gt;</H2>
 <PRE>
-java.lang.Object
+<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
   <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.inject.DefaultProvider&lt;T&gt;</B>
 </PRE>
+<DL>
+<DT><DT><B>Type Parameters:</B><DD><CODE>T</CODE> - the type of object this provides</DL>
 <DL>
 <DT><B>All Implemented Interfaces:</B> <DD>javax.inject.Provider&lt;T&gt;</DD>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.50"><B>DefaultProvider&lt;T&gt;</B></A><DT>extends java.lang.Object<DT>implements com.google.inject.Provider&lt;T&gt;</DL>
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.52"><B>DefaultProvider&lt;T&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Provider.html?is-external=true" title="class or interface in com.google.inject">Provider</A>&lt;T&gt;</DL>
 </PRE>
 
 <P>
@@ -114,6 +116,9 @@ Provider that has a default value which can be overridden.
      bind(DefaultProvider.makeCustomKey(Runnable.class, "mykey")).toInstance(myCustomRunnable);
 
  Injection:
+     Inject Named("myKey") Runnable runnable;
+
+ </pre>
 <P>
 
 <P>
@@ -130,8 +135,8 @@ Provider that has a default value which can be overridden.
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#DefaultProvider(com.google.inject.Key, com.google.inject.Key)">DefaultProvider</A></B>(com.google.inject.Key&lt;<A HREF="../../../../com/twitter/common/inject/DefaultProvider.html" title="type parameter in DefaultProvider">T</A>&gt;&nbsp;defaultProviderKey,
-                               com.google.inject.Key&lt;<A HREF="../../../../com/twitter/common/inject/DefaultProvider.html" title="type parameter in DefaultProvider">T</A>&gt;&nbsp;customProviderKey)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#DefaultProvider(com.google.inject.Key, com.google.inject.Key)">DefaultProvider</A></B>(<A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Key.html?is-external=true" title="class or interface in com.google.inject">Key</A>&lt;<A HREF="../../../../com/twitter/common/inject/DefaultProvider.html" title="type parameter in DefaultProvider">T</A>&gt;&nbsp;defaultProviderKey,
+                               <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Key.html?is-external=true" title="class or interface in com.google.inject">Key</A>&lt;<A HREF="../../../../com/twitter/common/inject/DefaultProvider.html" title="type parameter in DefaultProvider">T</A>&gt;&nbsp;customProviderKey)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -156,9 +161,9 @@ Provider that has a default value which can be overridden.
 </TR>
 </TABLE>
 </CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#bindOrElse(java.lang.Class, java.lang.String, com.google.inject.Binder)">bindOrElse</A></B>(java.lang.Class&lt;T&gt;&nbsp;type,
-                     java.lang.String&nbsp;exposedKey,
-                     com.google.inject.Binder&nbsp;binder)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#bindOrElse(java.lang.Class, java.lang.String, com.google.inject.Binder)">bindOrElse</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;T&gt;&nbsp;type,
+                     <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;exposedKey,
+                     <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Binder.html?is-external=true" title="class or interface in com.google.inject">Binder</A>&nbsp;binder)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Convenience method for calls to <A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#bindOrElse(com.google.inject.TypeLiteral, java.lang.String, com.google.inject.Binder)"><CODE>bindOrElse(TypeLiteral, String, Binder)</CODE></A>, that are not
@@ -174,10 +179,10 @@ Provider that has a default value which can be overridden.
 </TR>
 </TABLE>
 </CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#bindOrElse(com.google.inject.Key, com.google.inject.Key, com.google.inject.Key, com.google.inject.Binder)">bindOrElse</A></B>(com.google.inject.Key&lt;T&gt;&nbsp;customBinding,
-                     com.google.inject.Key&lt;T&gt;&nbsp;defaultBinding,
-                     com.google.inject.Key&lt;T&gt;&nbsp;exposedBinding,
-                     com.google.inject.Binder&nbsp;binder)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#bindOrElse(com.google.inject.Key, com.google.inject.Key, com.google.inject.Key, com.google.inject.Binder)">bindOrElse</A></B>(<A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Key.html?is-external=true" title="class or interface in com.google.inject">Key</A>&lt;T&gt;&nbsp;customBinding,
+                     <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Key.html?is-external=true" title="class or interface in com.google.inject">Key</A>&lt;T&gt;&nbsp;defaultBinding,
+                     <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Key.html?is-external=true" title="class or interface in com.google.inject">Key</A>&lt;T&gt;&nbsp;exposedBinding,
+                     <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Binder.html?is-external=true" title="class or interface in com.google.inject">Binder</A>&nbsp;binder)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a DefaultProvider and installs a new module to <code>binder</code>, which will serve as
@@ -193,9 +198,9 @@ Provider that has a default value which can be overridden.
 </TR>
 </TABLE>
 </CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#bindOrElse(com.google.inject.TypeLiteral, java.lang.String, com.google.inject.Binder)">bindOrElse</A></B>(com.google.inject.TypeLiteral&lt;T&gt;&nbsp;type,
-                     java.lang.String&nbsp;exposedKey,
-                     com.google.inject.Binder&nbsp;binder)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#bindOrElse(com.google.inject.TypeLiteral, java.lang.String, com.google.inject.Binder)">bindOrElse</A></B>(<A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/TypeLiteral.html?is-external=true" title="class or interface in com.google.inject">TypeLiteral</A>&lt;T&gt;&nbsp;type,
+                     <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;exposedKey,
+                     <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Binder.html?is-external=true" title="class or interface in com.google.inject">Binder</A>&nbsp;binder)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Convenience function for creating and installing a DefaultProvider.</TD>
@@ -210,32 +215,16 @@ Provider that has a default value which can be overridden.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;java.lang.String</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#makeCustomBindingKey(java.lang.String)">makeCustomBindingKey</A></B>(java.lang.String&nbsp;rootKey)</CODE>
+<CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#makeCustomBindingKey(java.lang.String)">makeCustomBindingKey</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;rootKey)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;com.google.inject.name.Named</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#makeCustomBindingName(java.lang.String)">makeCustomBindingName</A></B>(java.lang.String&nbsp;rootKey)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static
-<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
-<TR ALIGN="right" VALIGN="">
-<TD NOWRAP><FONT SIZE="-1">
-<CODE>&lt;T&gt; com.google.inject.Key&lt;T&gt;</CODE></FONT></TD>
-</TR>
-</TABLE>
-</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#makeCustomKey(java.lang.Class, java.lang.String)">makeCustomKey</A></B>(java.lang.Class&lt;T&gt;&nbsp;type,
-                           java.lang.String&nbsp;rootKey)</CODE>
+<CODE>static&nbsp;<A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/name/Named.html?is-external=true" title="class or interface in com.google.inject.name">Named</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#makeCustomBindingName(java.lang.String)">makeCustomBindingName</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;rootKey)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -246,28 +235,12 @@ Provider that has a default value which can be overridden.
 <TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
 <TR ALIGN="right" VALIGN="">
 <TD NOWRAP><FONT SIZE="-1">
-<CODE>&lt;T&gt; com.google.inject.Key&lt;T&gt;</CODE></FONT></TD>
+<CODE>&lt;T&gt; <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Key.html?is-external=true" title="class or interface in com.google.inject">Key</A>&lt;T&gt;</CODE></FONT></TD>
 </TR>
 </TABLE>
 </CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#makeCustomKey(com.google.inject.TypeLiteral, java.lang.String)">makeCustomKey</A></B>(com.google.inject.TypeLiteral&lt;T&gt;&nbsp;type,
-                           java.lang.String&nbsp;rootKey)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;java.lang.String</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#makeDefaultBindingKey(java.lang.String)">makeDefaultBindingKey</A></B>(java.lang.String&nbsp;rootKey)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;com.google.inject.name.Named</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#makeDefaultBindingName(java.lang.String)">makeDefaultBindingName</A></B>(java.lang.String&nbsp;rootKey)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#makeCustomKey(java.lang.Class, java.lang.String)">makeCustomKey</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;T&gt;&nbsp;type,
+                           <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;rootKey)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -278,12 +251,28 @@ Provider that has a default value which can be overridden.
 <TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
 <TR ALIGN="right" VALIGN="">
 <TD NOWRAP><FONT SIZE="-1">
-<CODE>&lt;T&gt; com.google.inject.Key&lt;T&gt;</CODE></FONT></TD>
+<CODE>&lt;T&gt; <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Key.html?is-external=true" title="class or interface in com.google.inject">Key</A>&lt;T&gt;</CODE></FONT></TD>
 </TR>
 </TABLE>
 </CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#makeDefaultKey(java.lang.Class, java.lang.String)">makeDefaultKey</A></B>(java.lang.Class&lt;T&gt;&nbsp;type,
-                             java.lang.String&nbsp;rootKey)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#makeCustomKey(com.google.inject.TypeLiteral, java.lang.String)">makeCustomKey</A></B>(<A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/TypeLiteral.html?is-external=true" title="class or interface in com.google.inject">TypeLiteral</A>&lt;T&gt;&nbsp;type,
+                           <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;rootKey)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#makeDefaultBindingKey(java.lang.String)">makeDefaultBindingKey</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;rootKey)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/name/Named.html?is-external=true" title="class or interface in com.google.inject.name">Named</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#makeDefaultBindingName(java.lang.String)">makeDefaultBindingName</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;rootKey)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -294,12 +283,28 @@ Provider that has a default value which can be overridden.
 <TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
 <TR ALIGN="right" VALIGN="">
 <TD NOWRAP><FONT SIZE="-1">
-<CODE>&lt;T&gt; com.google.inject.Key&lt;T&gt;</CODE></FONT></TD>
+<CODE>&lt;T&gt; <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Key.html?is-external=true" title="class or interface in com.google.inject">Key</A>&lt;T&gt;</CODE></FONT></TD>
 </TR>
 </TABLE>
 </CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#makeDefaultKey(com.google.inject.TypeLiteral, java.lang.String)">makeDefaultKey</A></B>(com.google.inject.TypeLiteral&lt;T&gt;&nbsp;type,
-                             java.lang.String&nbsp;rootKey)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#makeDefaultKey(java.lang.Class, java.lang.String)">makeDefaultKey</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;T&gt;&nbsp;type,
+                             <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;rootKey)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;T&gt; <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Key.html?is-external=true" title="class or interface in com.google.inject">Key</A>&lt;T&gt;</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#makeDefaultKey(com.google.inject.TypeLiteral, java.lang.String)">makeDefaultKey</A></B>(<A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/TypeLiteral.html?is-external=true" title="class or interface in com.google.inject">TypeLiteral</A>&lt;T&gt;&nbsp;type,
+                             <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;rootKey)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -307,7 +312,7 @@ Provider that has a default value which can be overridden.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#setInjector(com.google.inject.Injector)">setInjector</A></B>(com.google.inject.Injector&nbsp;injector)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#setInjector(com.google.inject.Injector)">setInjector</A></B>(<A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Injector.html?is-external=true" title="class or interface in com.google.inject">Injector</A>&nbsp;injector)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -316,10 +321,10 @@ Provider that has a default value which can be overridden.
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</CODE></TD>
+<TD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -338,8 +343,8 @@ Provider that has a default value which can be overridden.
 <A NAME="DefaultProvider(com.google.inject.Key, com.google.inject.Key)"><!-- --></A><H3>
 DefaultProvider</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.149"><B>DefaultProvider</B></A>(com.google.inject.Key&lt;<A HREF="../../../../com/twitter/common/inject/DefaultProvider.html" title="type parameter in DefaultProvider">T</A>&gt;&nbsp;defaultProviderKey,
-                       com.google.inject.Key&lt;<A HREF="../../../../com/twitter/common/inject/DefaultProvider.html" title="type parameter in DefaultProvider">T</A>&gt;&nbsp;customProviderKey)</PRE>
+public <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.61"><B>DefaultProvider</B></A>(<A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Key.html?is-external=true" title="class or interface in com.google.inject">Key</A>&lt;<A HREF="../../../../com/twitter/common/inject/DefaultProvider.html" title="type parameter in DefaultProvider">T</A>&gt;&nbsp;defaultProviderKey,
+                       <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Key.html?is-external=true" title="class or interface in com.google.inject">Key</A>&lt;<A HREF="../../../../com/twitter/common/inject/DefaultProvider.html" title="type parameter in DefaultProvider">T</A>&gt;&nbsp;customProviderKey)</PRE>
 <DL>
 </DL>
 
@@ -353,13 +358,45 @@ public <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.h
 </TR>
 </TABLE>
 
+<A NAME="setInjector(com.google.inject.Injector)"><!-- --></A><H3>
+setInjector</H3>
+<PRE>
+<FONT SIZE="-1"><A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Inject.html?is-external=true" title="class or interface in com.google.inject">@Inject</A>
+</FONT>public void <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.68"><B>setInjector</B></A>(<A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Injector.html?is-external=true" title="class or interface in com.google.inject">Injector</A>&nbsp;injector)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="get()"><!-- --></A><H3>
+get</H3>
+<PRE>
+public <A HREF="../../../../com/twitter/common/inject/DefaultProvider.html" title="type parameter in DefaultProvider">T</A> <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.73"><B>get</B></A>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE>javax.inject.Provider</CODE></B></DD>
+<DD>Provides a fully-constructed and injected instance of <code>T</code>.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>get</CODE> in interface <CODE>javax.inject.Provider&lt;<A HREF="../../../../com/twitter/common/inject/DefaultProvider.html" title="type parameter in DefaultProvider">T</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="bindOrElse(com.google.inject.Key, com.google.inject.Key, com.google.inject.Key, com.google.inject.Binder)"><!-- --></A><H3>
 bindOrElse</H3>
 <PRE>
-public static &lt;T&gt; void <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.64"><B>bindOrElse</B></A>(com.google.inject.Key&lt;T&gt;&nbsp;customBinding,
-                                  com.google.inject.Key&lt;T&gt;&nbsp;defaultBinding,
-                                  com.google.inject.Key&lt;T&gt;&nbsp;exposedBinding,
-                                  com.google.inject.Binder&nbsp;binder)</PRE>
+public static &lt;T&gt; void <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.90"><B>bindOrElse</B></A>(<A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Key.html?is-external=true" title="class or interface in com.google.inject">Key</A>&lt;T&gt;&nbsp;customBinding,
+                                  <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Key.html?is-external=true" title="class or interface in com.google.inject">Key</A>&lt;T&gt;&nbsp;defaultBinding,
+                                  <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Key.html?is-external=true" title="class or interface in com.google.inject">Key</A>&lt;T&gt;&nbsp;exposedBinding,
+                                  <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Binder.html?is-external=true" title="class or interface in com.google.inject">Binder</A>&nbsp;binder)</PRE>
 <DL>
 <DD>Creates a DefaultProvider and installs a new module to <code>binder</code>, which will serve as
  an indirection layer for swapping the default binding with a custom one.
@@ -376,9 +413,9 @@ public static &lt;T&gt; void <A HREF="../../../../src-html/com/twitter/common/in
 <A NAME="bindOrElse(com.google.inject.TypeLiteral, java.lang.String, com.google.inject.Binder)"><!-- --></A><H3>
 bindOrElse</H3>
 <PRE>
-public static &lt;T&gt; void <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.92"><B>bindOrElse</B></A>(com.google.inject.TypeLiteral&lt;T&gt;&nbsp;type,
-                                  java.lang.String&nbsp;exposedKey,
-                                  com.google.inject.Binder&nbsp;binder)</PRE>
+public static &lt;T&gt; void <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.118"><B>bindOrElse</B></A>(<A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/TypeLiteral.html?is-external=true" title="class or interface in com.google.inject">TypeLiteral</A>&lt;T&gt;&nbsp;type,
+                                  <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;exposedKey,
+                                  <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Binder.html?is-external=true" title="class or interface in com.google.inject">Binder</A>&nbsp;binder)</PRE>
 <DL>
 <DD>Convenience function for creating and installing a DefaultProvider.  This will use internal
  suffixes to create names for the custom and default bindings.  When bound this way, callers
@@ -397,9 +434,9 @@ public static &lt;T&gt; void <A HREF="../../../../src-html/com/twitter/common/in
 <A NAME="bindOrElse(java.lang.Class, java.lang.String, com.google.inject.Binder)"><!-- --></A><H3>
 bindOrElse</H3>
 <PRE>
-public static &lt;T&gt; void <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.108"><B>bindOrElse</B></A>(java.lang.Class&lt;T&gt;&nbsp;type,
-                                  java.lang.String&nbsp;exposedKey,
-                                  com.google.inject.Binder&nbsp;binder)</PRE>
+public static &lt;T&gt; void <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.134"><B>bindOrElse</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;T&gt;&nbsp;type,
+                                  <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;exposedKey,
+                                  <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Binder.html?is-external=true" title="class or interface in com.google.inject">Binder</A>&nbsp;binder)</PRE>
 <DL>
 <DD>Convenience method for calls to <A HREF="../../../../com/twitter/common/inject/DefaultProvider.html#bindOrElse(com.google.inject.TypeLiteral, java.lang.String, com.google.inject.Binder)"><CODE>bindOrElse(TypeLiteral, String, Binder)</CODE></A>, that are not
  binding a parameterized type.
@@ -416,7 +453,7 @@ public static &lt;T&gt; void <A HREF="../../../../src-html/com/twitter/common/in
 <A NAME="makeDefaultBindingKey(java.lang.String)"><!-- --></A><H3>
 makeDefaultBindingKey</H3>
 <PRE>
-public static java.lang.String <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.112"><B>makeDefaultBindingKey</B></A>(java.lang.String&nbsp;rootKey)</PRE>
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.138"><B>makeDefaultBindingKey</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;rootKey)</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -430,7 +467,7 @@ public static java.lang.String <A HREF="../../../../src-html/com/twitter/common/
 <A NAME="makeDefaultBindingName(java.lang.String)"><!-- --></A><H3>
 makeDefaultBindingName</H3>
 <PRE>
-public static com.google.inject.name.Named <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.116"><B>makeDefaultBindingName</B></A>(java.lang.String&nbsp;rootKey)</PRE>
+public static <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/name/Named.html?is-external=true" title="class or interface in com.google.inject.name">Named</A> <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.142"><B>makeDefaultBindingName</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;rootKey)</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -444,8 +481,8 @@ public static com.google.inject.name.Named <A HREF="../../../../src-html/com/twi
 <A NAME="makeDefaultKey(com.google.inject.TypeLiteral, java.lang.String)"><!-- --></A><H3>
 makeDefaultKey</H3>
 <PRE>
-public static &lt;T&gt; com.google.inject.Key&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.120"><B>makeDefaultKey</B></A>(com.google.inject.TypeLiteral&lt;T&gt;&nbsp;type,
-                                                          java.lang.String&nbsp;rootKey)</PRE>
+public static &lt;T&gt; <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Key.html?is-external=true" title="class or interface in com.google.inject">Key</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.146"><B>makeDefaultKey</B></A>(<A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/TypeLiteral.html?is-external=true" title="class or interface in com.google.inject">TypeLiteral</A>&lt;T&gt;&nbsp;type,
+                                        <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;rootKey)</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -459,8 +496,8 @@ public static &lt;T&gt; com.google.inject.Key&lt;T&gt; <A HREF="../../../../src-
 <A NAME="makeDefaultKey(java.lang.Class, java.lang.String)"><!-- --></A><H3>
 makeDefaultKey</H3>
 <PRE>
-public static &lt;T&gt; com.google.inject.Key&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.124"><B>makeDefaultKey</B></A>(java.lang.Class&lt;T&gt;&nbsp;type,
-                                                          java.lang.String&nbsp;rootKey)</PRE>
+public static &lt;T&gt; <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Key.html?is-external=true" title="class or interface in com.google.inject">Key</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.150"><B>makeDefaultKey</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;T&gt;&nbsp;type,
+                                        <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;rootKey)</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -474,7 +511,7 @@ public static &lt;T&gt; com.google.inject.Key&lt;T&gt; <A HREF="../../../../src-
 <A NAME="makeCustomBindingKey(java.lang.String)"><!-- --></A><H3>
 makeCustomBindingKey</H3>
 <PRE>
-public static java.lang.String <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.128"><B>makeCustomBindingKey</B></A>(java.lang.String&nbsp;rootKey)</PRE>
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.154"><B>makeCustomBindingKey</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;rootKey)</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -488,7 +525,7 @@ public static java.lang.String <A HREF="../../../../src-html/com/twitter/common/
 <A NAME="makeCustomBindingName(java.lang.String)"><!-- --></A><H3>
 makeCustomBindingName</H3>
 <PRE>
-public static com.google.inject.name.Named <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.132"><B>makeCustomBindingName</B></A>(java.lang.String&nbsp;rootKey)</PRE>
+public static <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/name/Named.html?is-external=true" title="class or interface in com.google.inject.name">Named</A> <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.158"><B>makeCustomBindingName</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;rootKey)</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -502,8 +539,8 @@ public static com.google.inject.name.Named <A HREF="../../../../src-html/com/twi
 <A NAME="makeCustomKey(java.lang.Class, java.lang.String)"><!-- --></A><H3>
 makeCustomKey</H3>
 <PRE>
-public static &lt;T&gt; com.google.inject.Key&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.136"><B>makeCustomKey</B></A>(java.lang.Class&lt;T&gt;&nbsp;type,
-                                                         java.lang.String&nbsp;rootKey)</PRE>
+public static &lt;T&gt; <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Key.html?is-external=true" title="class or interface in com.google.inject">Key</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.162"><B>makeCustomKey</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;T&gt;&nbsp;type,
+                                       <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;rootKey)</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -517,43 +554,11 @@ public static &lt;T&gt; com.google.inject.Key&lt;T&gt; <A HREF="../../../../src-
 <A NAME="makeCustomKey(com.google.inject.TypeLiteral, java.lang.String)"><!-- --></A><H3>
 makeCustomKey</H3>
 <PRE>
-public static &lt;T&gt; com.google.inject.Key&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.140"><B>makeCustomKey</B></A>(com.google.inject.TypeLiteral&lt;T&gt;&nbsp;type,
-                                                         java.lang.String&nbsp;rootKey)</PRE>
+public static &lt;T&gt; <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Key.html?is-external=true" title="class or interface in com.google.inject">Key</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.166"><B>makeCustomKey</B></A>(<A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/TypeLiteral.html?is-external=true" title="class or interface in com.google.inject">TypeLiteral</A>&lt;T&gt;&nbsp;type,
+                                       <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;rootKey)</PRE>
 <DL>
 <DD><DL>
 </DL>
-</DD>
-<DD><DL>
-</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="setInjector(com.google.inject.Injector)"><!-- --></A><H3>
-setInjector</H3>
-<PRE>
-<FONT SIZE="-1">@Inject
-</FONT>public void <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.156"><B>setInjector</B></A>(com.google.inject.Injector&nbsp;injector)</PRE>
-<DL>
-<DD><DL>
-</DL>
-</DD>
-<DD><DL>
-</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="get()"><!-- --></A><H3>
-get</H3>
-<PRE>
-public <A HREF="../../../../com/twitter/common/inject/DefaultProvider.html" title="type parameter in DefaultProvider">T</A> <A HREF="../../../../src-html/com/twitter/common/inject/DefaultProvider.html#line.161"><B>get</B></A>()</PRE>
-<DL>
-<DD><B>Description copied from interface: <CODE>javax.inject.Provider</CODE></B></DD>
-<DD>Provides a fully-constructed and injected instance of <code>T</code>.
-<P>
-<DD><DL>
-<DT><B>Specified by:</B><DD><CODE>get</CODE> in interface <CODE>javax.inject.Provider&lt;<A HREF="../../../../com/twitter/common/inject/DefaultProvider.html" title="type parameter in DefaultProvider">T</A>&gt;</CODE></DL>
 </DD>
 <DD><DL>
 </DL>

@@ -90,12 +90,12 @@ com.twitter.common.zookeeper</FONT>
 <BR>
 Class SingletonService</H2>
 <PRE>
-java.lang.Object
+<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
   <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.zookeeper.SingletonService</B>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/zookeeper/SingletonService.html#line.40"><B>SingletonService</B></A><DT>extends java.lang.Object</DL>
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/zookeeper/SingletonService.html#line.44"><B>SingletonService</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
@@ -135,7 +135,16 @@ A service that uses master election to only allow a single instance of the serve
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/SingletonService.html#SingletonService(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String)">SingletonService</A></B>(<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
-                                 java.lang.String&nbsp;servicePath)</CODE>
+                                 <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;servicePath)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Equivalent to <A HREF="../../../../com/twitter/common/zookeeper/SingletonService.html#SingletonService(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String, java.lang.Iterable)"><CODE>SingletonService(ZooKeeperClient, String, Iterable)</CODE></A> with a default
+ wide open <code>acl</code> (<CODE>ZooDefs.Ids#OPEN_ACL_UNSAFE</CODE>).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/SingletonService.html#SingletonService(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String, java.lang.Iterable)">SingletonService</A></B>(<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
+                                 <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;servicePath,
+                                 <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;org.apache.zookeeper.data.ACL&gt;&nbsp;acl)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new singleton service, identified by <code>servicePath</code>.</TD>
@@ -153,8 +162,8 @@ A service that uses master election to only allow a single instance of the serve
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/SingletonService.html#lead(java.net.InetSocketAddress, java.util.Map, Status, com.twitter.common.zookeeper.SingletonService.LeadershipListener)">lead</A></B>(java.net.InetSocketAddress&nbsp;endpoint,
-         java.util.Map&lt;java.lang.String,java.net.InetSocketAddress&gt;&nbsp;additionalEndpoints,
+<TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/SingletonService.html#lead(java.net.InetSocketAddress, java.util.Map, Status, com.twitter.common.zookeeper.SingletonService.LeadershipListener)">lead</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&nbsp;endpoint,
+         <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&nbsp;additionalEndpoints,
          Status&nbsp;status,
          <A HREF="../../../../com/twitter/common/zookeeper/SingletonService.LeadershipListener.html" title="interface in com.twitter.common.zookeeper">SingletonService.LeadershipListener</A>&nbsp;listener)</CODE>
 
@@ -165,10 +174,10 @@ A service that uses master election to only allow a single instance of the serve
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</CODE></TD>
+<TD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -187,18 +196,31 @@ A service that uses master election to only allow a single instance of the serve
 <A NAME="SingletonService(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String)"><!-- --></A><H3>
 SingletonService</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/zookeeper/SingletonService.html#line.59"><B>SingletonService</B></A>(<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
-                        java.lang.String&nbsp;servicePath)</PRE>
+public <A HREF="../../../../src-html/com/twitter/common/zookeeper/SingletonService.html#line.56"><B>SingletonService</B></A>(<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
+                        <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;servicePath)</PRE>
+<DL>
+<DD>Equivalent to <A HREF="../../../../com/twitter/common/zookeeper/SingletonService.html#SingletonService(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String, java.lang.Iterable)"><CODE>SingletonService(ZooKeeperClient, String, Iterable)</CODE></A> with a default
+ wide open <code>acl</code> (<CODE>ZooDefs.Ids#OPEN_ACL_UNSAFE</CODE>).
+<P>
+</DL>
+<HR>
+
+<A NAME="SingletonService(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String, java.lang.Iterable)"><!-- --></A><H3>
+SingletonService</H3>
+<PRE>
+public <A HREF="../../../../src-html/com/twitter/common/zookeeper/SingletonService.html#line.72"><B>SingletonService</B></A>(<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
+                        <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;servicePath,
+                        <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;org.apache.zookeeper.data.ACL&gt;&nbsp;acl)</PRE>
 <DL>
 <DD>Creates a new singleton service, identified by <code>servicePath</code>.  All nodes related to the
- service (for both leader election and service registration) will live under the path.
- Internally, two ZooKeeper <code>Group</code>s are used to manage a singleton service - one for
- leader election, and another for the <code>ServerSet</code> where the leader's endpoints
- are registered.  Leadership election should guarantee that at most one instance will ever
- exist in the ServerSet at once.
+ service (for both leader election and service registration) will live under the path and each
+ node will be created with the supplied <code>acl</code>. Internally, two ZooKeeper <code>Group</code>s
+ are used to manage a singleton service - one for leader election, and another for the
+ <code>ServerSet</code> where the leader's endpoints are registered.  Leadership election should
+ guarantee that at most one instance will ever exist in the ServerSet at once.
 <P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>zkClient</CODE> - The ZooKeeper client to use.<DD><CODE>servicePath</CODE> - The path where service nodes live.</DL>
+<DT><B>Parameters:</B><DD><CODE>zkClient</CODE> - The ZooKeeper client to use.<DD><CODE>servicePath</CODE> - The path where service nodes live.<DD><CODE>acl</CODE> - The acl to apply to newly created candidate nodes and serverset nodes.</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
@@ -214,13 +236,13 @@ public <A HREF="../../../../src-html/com/twitter/common/zookeeper/SingletonServi
 <A NAME="lead(java.net.InetSocketAddress, java.util.Map, Status, com.twitter.common.zookeeper.SingletonService.LeadershipListener)"><!-- --></A><H3>
 lead</H3>
 <PRE>
-public void <A HREF="../../../../src-html/com/twitter/common/zookeeper/SingletonService.html#line.82"><B>lead</B></A>(java.net.InetSocketAddress&nbsp;endpoint,
-                 java.util.Map&lt;java.lang.String,java.net.InetSocketAddress&gt;&nbsp;additionalEndpoints,
+public void <A HREF="../../../../src-html/com/twitter/common/zookeeper/SingletonService.html#line.94"><B>lead</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&nbsp;endpoint,
+                 <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&nbsp;additionalEndpoints,
                  Status&nbsp;status,
                  <A HREF="../../../../com/twitter/common/zookeeper/SingletonService.LeadershipListener.html" title="interface in com.twitter.common.zookeeper">SingletonService.LeadershipListener</A>&nbsp;listener)
           throws <A HREF="../../../../com/twitter/common/zookeeper/Group.WatchException.html" title="class in com.twitter.common.zookeeper">Group.WatchException</A>,
                  <A HREF="../../../../com/twitter/common/zookeeper/Group.JoinException.html" title="class in com.twitter.common.zookeeper">Group.JoinException</A>,
-                 java.lang.InterruptedException</PRE>
+                 <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/InterruptedException.html?is-external=true" title="class or interface in java.lang">InterruptedException</A></PRE>
 <DL>
 <DD>Attempts to lead the singleton service.
 <P>
@@ -229,7 +251,7 @@ public void <A HREF="../../../../src-html/com/twitter/common/zookeeper/Singleton
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="../../../../com/twitter/common/zookeeper/Group.WatchException.html" title="class in com.twitter.common.zookeeper">Group.WatchException</A></CODE> - If there was a problem watching the ZooKeeper group.
 <DD><CODE><A HREF="../../../../com/twitter/common/zookeeper/Group.JoinException.html" title="class in com.twitter.common.zookeeper">Group.JoinException</A></CODE> - If there was a problem joining the ZooKeeper group.
-<DD><CODE>java.lang.InterruptedException</CODE> - If the thread watching/joining the group was interrupted.</DL>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/InterruptedException.html?is-external=true" title="class or interface in java.lang">InterruptedException</A></CODE> - If the thread watching/joining the group was interrupted.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

@@ -90,7 +90,7 @@ com.twitter.common.net.pool</FONT>
 <BR>
 Class DynamicPool&lt;H,T,E&gt;</H2>
 <PRE>
-java.lang.Object
+<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
   <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.net.pool.DynamicPool&lt;H,T,E&gt;</B>
 </PRE>
 <DL>
@@ -100,7 +100,7 @@ java.lang.Object
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/net/pool/DynamicPool.html#line.48"><B>DynamicPool&lt;H,T,E&gt;</B></A><DT>extends java.lang.Object<DT>implements <A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;T,E&gt;&gt;</DL>
+<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/net/pool/DynamicPool.html#line.48"><B>DynamicPool&lt;H,T,E&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;T,E&gt;&gt;</DL>
 </PRE>
 
 <P>
@@ -141,12 +141,12 @@ An ObjectPool that maintains a set of connections for a set of service endpoints
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html#DynamicPool(com.twitter.common.net.pool.DynamicHostSet, com.google.common.base.Function, com.twitter.common.net.loadbalancing.LoadBalancer, com.twitter.common.base.Closure, com.twitter.common.quantity.Amount, com.google.common.base.Function, com.google.common.base.Predicate)">DynamicPool</A></B>(<A HREF="../../../../../com/twitter/common/net/pool/DynamicHostSet.html" title="interface in com.twitter.common.net.pool">DynamicHostSet</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">H</A>&gt;&nbsp;hostSet,
-                       com.google.common.base.Function&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">E</A>,<A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">T</A>,<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">E</A>&gt;&gt;&gt;&nbsp;endpointPoolFactory,
+                       <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">E</A>,<A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">T</A>,<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">E</A>&gt;&gt;&gt;&nbsp;endpointPoolFactory,
                        <A HREF="../../../../../com/twitter/common/net/loadbalancing/LoadBalancer.html" title="interface in com.twitter.common.net.loadbalancing">LoadBalancer</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">E</A>&gt;&nbsp;loadBalancer,
-                       <A HREF="../../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;java.util.Collection&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">E</A>&gt;&gt;&nbsp;onBackendsChosen,
-                       <A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;java.lang.Long,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;restoreInterval,
-                       com.google.common.base.Function&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">H</A>,<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">E</A>&gt;&nbsp;endpointExtractor,
-                       com.google.common.base.Predicate&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">H</A>&gt;&nbsp;livenessChecker)</CODE>
+                       <A HREF="../../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">E</A>&gt;&gt;&nbsp;onBackendsChosen,
+                       <A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;restoreInterval,
+                       <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">H</A>,<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">E</A>&gt;&nbsp;endpointExtractor,
+                       <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">H</A>&gt;&nbsp;livenessChecker)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new ServerSetConnectionPool and blocks on an initial read and constructions of pools
@@ -183,7 +183,7 @@ An ObjectPool that maintains a set of connections for a set of service endpoints
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">T</A>,<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">E</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html#get(com.twitter.common.quantity.Amount)">get</A></B>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;java.lang.Long,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;timeout)</CODE>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html#get(com.twitter.common.quantity.Amount)">get</A></B>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;timeout)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets a resource; timing out if there are none available and it takes longer than specified to
@@ -209,10 +209,10 @@ An ObjectPool that maintains a set of connections for a set of service endpoints
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</CODE></TD>
+<TD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -232,12 +232,12 @@ An ObjectPool that maintains a set of connections for a set of service endpoints
 DynamicPool</H3>
 <PRE>
 public <A HREF="../../../../../src-html/com/twitter/common/net/pool/DynamicPool.html#line.66"><B>DynamicPool</B></A>(<A HREF="../../../../../com/twitter/common/net/pool/DynamicHostSet.html" title="interface in com.twitter.common.net.pool">DynamicHostSet</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">H</A>&gt;&nbsp;hostSet,
-                   com.google.common.base.Function&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">E</A>,<A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">T</A>,<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">E</A>&gt;&gt;&gt;&nbsp;endpointPoolFactory,
+                   <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">E</A>,<A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html" title="interface in com.twitter.common.net.pool">ObjectPool</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">T</A>,<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">E</A>&gt;&gt;&gt;&nbsp;endpointPoolFactory,
                    <A HREF="../../../../../com/twitter/common/net/loadbalancing/LoadBalancer.html" title="interface in com.twitter.common.net.loadbalancing">LoadBalancer</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">E</A>&gt;&nbsp;loadBalancer,
-                   <A HREF="../../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;java.util.Collection&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">E</A>&gt;&gt;&nbsp;onBackendsChosen,
-                   <A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;java.lang.Long,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;restoreInterval,
-                   com.google.common.base.Function&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">H</A>,<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">E</A>&gt;&nbsp;endpointExtractor,
-                   com.google.common.base.Predicate&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">H</A>&gt;&nbsp;livenessChecker)
+                   <A HREF="../../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">E</A>&gt;&gt;&nbsp;onBackendsChosen,
+                   <A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;restoreInterval,
+                   <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">H</A>,<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">E</A>&gt;&nbsp;endpointExtractor,
+                   <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">H</A>&gt;&nbsp;livenessChecker)
             throws <A HREF="../../../../../com/twitter/common/net/pool/DynamicHostSet.MonitorException.html" title="class in com.twitter.common.net.pool">DynamicHostSet.MonitorException</A></PRE>
 <DL>
 <DD>Creates a new ServerSetConnectionPool and blocks on an initial read and constructions of pools
@@ -265,7 +265,7 @@ get</H3>
 <PRE>
 public <A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">T</A>,<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">E</A>&gt; <A HREF="../../../../../src-html/com/twitter/common/net/pool/DynamicPool.html#line.101"><B>get</B></A>()
                     throws <A HREF="../../../../../com/twitter/common/net/pool/ResourceExhaustedException.html" title="class in com.twitter.common.net.pool">ResourceExhaustedException</A>,
-                           java.util.concurrent.TimeoutException</PRE>
+                           <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/TimeoutException.html?is-external=true" title="class or interface in java.util.concurrent">TimeoutException</A></PRE>
 <DL>
 <DD><B>Description copied from interface: <CODE><A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html#get()">ObjectPool</A></CODE></B></DD>
 <DD>Gets a resource potentially blocking for as long as it takes to either create a new one or wait
@@ -281,7 +281,7 @@ public <A HREF="../../../../../com/twitter/common/net/pool/Connection.html" titl
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="../../../../../com/twitter/common/net/pool/ResourceExhaustedException.html" title="class in com.twitter.common.net.pool">ResourceExhaustedException</A></CODE> - if no resource could be obtained because this pool was
      exhausted
-<DD><CODE>java.util.concurrent.TimeoutException</CODE> - if we timed out while trying to fetch a resource</DL>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/TimeoutException.html?is-external=true" title="class or interface in java.util.concurrent">TimeoutException</A></CODE> - if we timed out while trying to fetch a resource</DL>
 </DD>
 </DL>
 <HR>
@@ -289,9 +289,9 @@ public <A HREF="../../../../../com/twitter/common/net/pool/Connection.html" titl
 <A NAME="get(com.twitter.common.quantity.Amount)"><!-- --></A><H3>
 get</H3>
 <PRE>
-public <A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">T</A>,<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">E</A>&gt; <A HREF="../../../../../src-html/com/twitter/common/net/pool/DynamicPool.html#line.106"><B>get</B></A>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;java.lang.Long,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;timeout)
+public <A HREF="../../../../../com/twitter/common/net/pool/Connection.html" title="interface in com.twitter.common.net.pool">Connection</A>&lt;<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">T</A>,<A HREF="../../../../../com/twitter/common/net/pool/DynamicPool.html" title="type parameter in DynamicPool">E</A>&gt; <A HREF="../../../../../src-html/com/twitter/common/net/pool/DynamicPool.html#line.106"><B>get</B></A>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;timeout)
                     throws <A HREF="../../../../../com/twitter/common/net/pool/ResourceExhaustedException.html" title="class in com.twitter.common.net.pool">ResourceExhaustedException</A>,
-                           java.util.concurrent.TimeoutException</PRE>
+                           <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/TimeoutException.html?is-external=true" title="class or interface in java.util.concurrent">TimeoutException</A></PRE>
 <DL>
 <DD><B>Description copied from interface: <CODE><A HREF="../../../../../com/twitter/common/net/pool/ObjectPool.html#get(com.twitter.common.quantity.Amount)">ObjectPool</A></CODE></B></DD>
 <DD>Gets a resource; timing out if there are none available and it takes longer than specified to
@@ -307,7 +307,7 @@ public <A HREF="../../../../../com/twitter/common/net/pool/Connection.html" titl
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="../../../../../com/twitter/common/net/pool/ResourceExhaustedException.html" title="class in com.twitter.common.net.pool">ResourceExhaustedException</A></CODE> - if no resource could be obtained because this pool was
      exhausted
-<DD><CODE>java.util.concurrent.TimeoutException</CODE> - if the specified timeout was reached before a resource became
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/TimeoutException.html?is-external=true" title="class or interface in java.util.concurrent">TimeoutException</A></CODE> - if the specified timeout was reached before a resource became
      available</DL>
 </DD>
 </DL>

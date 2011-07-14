@@ -134,7 +134,7 @@ Uses of <A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html
 <TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
 <TR ALIGN="right" VALIGN="">
 <TD NOWRAP><FONT SIZE="-1">
-<CODE>&lt;S,T,E extends java.lang.Exception&gt; 
+<CODE>&lt;S,T,E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; 
 <BR>
 <A HREF="../../../../../com/twitter/common/base/CallableExceptionalSupplier.html" title="class in com.twitter.common.base">CallableExceptionalSupplier</A>&lt;T,E&gt;</CODE></FONT></TD>
 </TR>
@@ -144,7 +144,7 @@ Uses of <A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html
            S&nbsp;argument)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns an <A HREF="../../../../../com/twitter/common/base/ExceptionalSupplier.html" title="interface in com.twitter.common.base"><CODE>ExceptionalSupplier</CODE></A>/<CODE>Callable</CODE> object that
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns an <A HREF="../../../../../com/twitter/common/base/ExceptionalSupplier.html" title="interface in com.twitter.common.base"><CODE>ExceptionalSupplier</CODE></A>/<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/Callable.html?is-external=true" title="class or interface in java.util.concurrent"><CODE>Callable</CODE></A> object that
  will return the result of <code>function</code> applied to <code>argument</code>.</TD>
 </TR>
 </TABLE>
@@ -189,9 +189,9 @@ Uses of <A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html
 <TH ALIGN="left" COLSPAN="2">Constructors in <A HREF="../../../../../com/twitter/common/thrift/package-summary.html">com.twitter.common.thrift</A> with parameters of type <A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/thrift/ThriftServer.html#ThriftServer(java.lang.String, java.lang.String, com.google.common.base.Supplier, com.twitter.common.base.ExceptionalFunction)">ThriftServer</A></B>(java.lang.String&nbsp;name,
-                         java.lang.String&nbsp;version,
-                         com.google.common.base.Supplier&lt;org.apache.thrift.protocol.TProtocolFactory&gt;&nbsp;protoFactorySupplier,
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/thrift/ThriftServer.html#ThriftServer(java.lang.String, java.lang.String, com.google.common.base.Supplier, com.twitter.common.base.ExceptionalFunction)">ThriftServer</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                         <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;version,
+                         <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</A>&lt;org.apache.thrift.protocol.TProtocolFactory&gt;&nbsp;protoFactorySupplier,
                          <A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;<A HREF="../../../../../com/twitter/common/thrift/ThriftServer.ServerSetup.html" title="class in com.twitter.common.thrift">ThriftServer.ServerSetup</A>,org.apache.thrift.server.TServer,org.apache.thrift.transport.TTransportException&gt;&nbsp;serverSupplier)</CODE>
 
 <BR>

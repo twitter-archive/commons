@@ -43,131 +43,133 @@
 <FONT color="green">040</FONT>     *     bind(DefaultProvider.makeCustomKey(Runnable.class, "mykey")).toInstance(myCustomRunnable);<a name="line.40"></a>
 <FONT color="green">041</FONT>     *<a name="line.41"></a>
 <FONT color="green">042</FONT>     * Injection:<a name="line.42"></a>
-<FONT color="green">043</FONT>     *     @Inject Named("myKey") Runnable runnable;<a name="line.43"></a>
+<FONT color="green">043</FONT>     *     {@literal Inject} Named("myKey") Runnable runnable;<a name="line.43"></a>
 <FONT color="green">044</FONT>     *<a name="line.44"></a>
 <FONT color="green">045</FONT>     * &lt;/pre&gt;<a name="line.45"></a>
 <FONT color="green">046</FONT>     *<a name="line.46"></a>
-<FONT color="green">047</FONT>     * @author William Farner<a name="line.47"></a>
-<FONT color="green">048</FONT>     * @author John Sirois<a name="line.48"></a>
-<FONT color="green">049</FONT>     */<a name="line.49"></a>
-<FONT color="green">050</FONT>    public class DefaultProvider&lt;T&gt; implements Provider&lt;T&gt; {<a name="line.50"></a>
-<FONT color="green">051</FONT>      private static final String DEFAULT_BINDING_KEY_SUFFIX = "_default";<a name="line.51"></a>
-<FONT color="green">052</FONT>      private static final String CUSTOM_BINDING_KEY_SUFFIX = "_custom";<a name="line.52"></a>
-<FONT color="green">053</FONT>    <a name="line.53"></a>
-<FONT color="green">054</FONT>      /**<a name="line.54"></a>
-<FONT color="green">055</FONT>       * Creates a DefaultProvider and installs a new module to {@code binder}, which will serve as<a name="line.55"></a>
-<FONT color="green">056</FONT>       * an indirection layer for swapping the default binding with a custom one.<a name="line.56"></a>
-<FONT color="green">057</FONT>       *<a name="line.57"></a>
-<FONT color="green">058</FONT>       * @param customBinding The custom binding key.<a name="line.58"></a>
-<FONT color="green">059</FONT>       * @param defaultBinding The default binding key.<a name="line.59"></a>
-<FONT color="green">060</FONT>       * @param exposedBinding The exposed binding key.<a name="line.60"></a>
-<FONT color="green">061</FONT>       * @param binder The binder to install bindings to.<a name="line.61"></a>
-<FONT color="green">062</FONT>       * @param &lt;T&gt; The type of binding to make.<a name="line.62"></a>
-<FONT color="green">063</FONT>       */<a name="line.63"></a>
-<FONT color="green">064</FONT>      public static &lt;T&gt; void bindOrElse(final Key&lt;T&gt; customBinding, final Key&lt;T&gt; defaultBinding,<a name="line.64"></a>
-<FONT color="green">065</FONT>          final Key&lt;T&gt; exposedBinding, Binder binder) {<a name="line.65"></a>
-<FONT color="green">066</FONT>        Preconditions.checkNotNull(customBinding);<a name="line.66"></a>
-<FONT color="green">067</FONT>        Preconditions.checkNotNull(defaultBinding);<a name="line.67"></a>
-<FONT color="green">068</FONT>        Preconditions.checkNotNull(exposedBinding);<a name="line.68"></a>
-<FONT color="green">069</FONT>        Preconditions.checkArgument(!customBinding.equals(defaultBinding)<a name="line.69"></a>
-<FONT color="green">070</FONT>            &amp;&amp; !customBinding.equals(exposedBinding));<a name="line.70"></a>
+<FONT color="green">047</FONT>     * @param &lt;T&gt; the type of object this provides<a name="line.47"></a>
+<FONT color="green">048</FONT>     *<a name="line.48"></a>
+<FONT color="green">049</FONT>     * @author William Farner<a name="line.49"></a>
+<FONT color="green">050</FONT>     * @author John Sirois<a name="line.50"></a>
+<FONT color="green">051</FONT>     */<a name="line.51"></a>
+<FONT color="green">052</FONT>    public class DefaultProvider&lt;T&gt; implements Provider&lt;T&gt; {<a name="line.52"></a>
+<FONT color="green">053</FONT>      private static final String DEFAULT_BINDING_KEY_SUFFIX = "_default";<a name="line.53"></a>
+<FONT color="green">054</FONT>      private static final String CUSTOM_BINDING_KEY_SUFFIX = "_custom";<a name="line.54"></a>
+<FONT color="green">055</FONT>    <a name="line.55"></a>
+<FONT color="green">056</FONT>      private final Key&lt;T&gt; defaultProviderKey;<a name="line.56"></a>
+<FONT color="green">057</FONT>      private final Key&lt;T&gt; customProviderKey;<a name="line.57"></a>
+<FONT color="green">058</FONT>    <a name="line.58"></a>
+<FONT color="green">059</FONT>      private Injector injector;<a name="line.59"></a>
+<FONT color="green">060</FONT>    <a name="line.60"></a>
+<FONT color="green">061</FONT>      public DefaultProvider(Key&lt;T&gt; defaultProviderKey, Key&lt;T&gt; customProviderKey) {<a name="line.61"></a>
+<FONT color="green">062</FONT>        this.defaultProviderKey = Preconditions.checkNotNull(defaultProviderKey);<a name="line.62"></a>
+<FONT color="green">063</FONT>        this.customProviderKey = Preconditions.checkNotNull(customProviderKey);<a name="line.63"></a>
+<FONT color="green">064</FONT>        Preconditions.checkArgument(!defaultProviderKey.equals(customProviderKey));<a name="line.64"></a>
+<FONT color="green">065</FONT>      }<a name="line.65"></a>
+<FONT color="green">066</FONT>    <a name="line.66"></a>
+<FONT color="green">067</FONT>      @Inject<a name="line.67"></a>
+<FONT color="green">068</FONT>      public void setInjector(Injector injector) {<a name="line.68"></a>
+<FONT color="green">069</FONT>        this.injector = injector;<a name="line.69"></a>
+<FONT color="green">070</FONT>      }<a name="line.70"></a>
 <FONT color="green">071</FONT>    <a name="line.71"></a>
-<FONT color="green">072</FONT>        binder.install(new AbstractModule() {<a name="line.72"></a>
-<FONT color="green">073</FONT>          @Override protected void configure() {<a name="line.73"></a>
-<FONT color="green">074</FONT>            Provider&lt;T&gt; defaultProvider = new DefaultProvider&lt;T&gt;(defaultBinding, customBinding);<a name="line.74"></a>
-<FONT color="green">075</FONT>            requestInjection(defaultProvider);<a name="line.75"></a>
-<FONT color="green">076</FONT>            bind(exposedBinding).toProvider(defaultProvider);<a name="line.76"></a>
-<FONT color="green">077</FONT>          }<a name="line.77"></a>
-<FONT color="green">078</FONT>        });<a name="line.78"></a>
-<FONT color="green">079</FONT>      }<a name="line.79"></a>
-<FONT color="green">080</FONT>    <a name="line.80"></a>
-<FONT color="green">081</FONT>      /**<a name="line.81"></a>
-<FONT color="green">082</FONT>       * Convenience function for creating and installing a DefaultProvider.  This will use internal<a name="line.82"></a>
-<FONT color="green">083</FONT>       * suffixes to create names for the custom and default bindings.  When bound this way, callers<a name="line.83"></a>
-<FONT color="green">084</FONT>       * should use one of the functions such as {@link #makeDefaultBindingKey(String)} to set default<a name="line.84"></a>
-<FONT color="green">085</FONT>       * and custom bindings.<a name="line.85"></a>
-<FONT color="green">086</FONT>       *<a name="line.86"></a>
-<FONT color="green">087</FONT>       * @param type The type of object to bind.<a name="line.87"></a>
-<FONT color="green">088</FONT>       * @param exposedKey The exposed key.<a name="line.88"></a>
-<FONT color="green">089</FONT>       * @param binder The binder to install to.<a name="line.89"></a>
-<FONT color="green">090</FONT>       * @param &lt;T&gt; The type of binding to make.<a name="line.90"></a>
-<FONT color="green">091</FONT>       */<a name="line.91"></a>
-<FONT color="green">092</FONT>      public static &lt;T&gt; void bindOrElse(TypeLiteral&lt;T&gt; type, String exposedKey, Binder binder) {<a name="line.92"></a>
-<FONT color="green">093</FONT>        bindOrElse(Key.get(type, Names.named(makeCustomBindingKey(exposedKey))),<a name="line.93"></a>
-<FONT color="green">094</FONT>            Key.get(type, Names.named(makeDefaultBindingKey(exposedKey))),<a name="line.94"></a>
-<FONT color="green">095</FONT>            Key.get(type, Names.named(exposedKey)),<a name="line.95"></a>
-<FONT color="green">096</FONT>            binder);<a name="line.96"></a>
-<FONT color="green">097</FONT>      }<a name="line.97"></a>
-<FONT color="green">098</FONT>    <a name="line.98"></a>
-<FONT color="green">099</FONT>      /**<a name="line.99"></a>
-<FONT color="green">100</FONT>       * Convenience method for calls to {@link #bindOrElse(TypeLiteral, String, Binder)}, that are not<a name="line.100"></a>
-<FONT color="green">101</FONT>       * binding a parameterized type.<a name="line.101"></a>
-<FONT color="green">102</FONT>       *<a name="line.102"></a>
-<FONT color="green">103</FONT>       * @param type The class of the object to bind.<a name="line.103"></a>
-<FONT color="green">104</FONT>       * @param exposedKey The exposed key.<a name="line.104"></a>
-<FONT color="green">105</FONT>       * @param binder The binder to install to.<a name="line.105"></a>
-<FONT color="green">106</FONT>       * @param &lt;T&gt; The type of binding to make.<a name="line.106"></a>
-<FONT color="green">107</FONT>       */<a name="line.107"></a>
-<FONT color="green">108</FONT>      public static &lt;T&gt; void bindOrElse(Class&lt;T&gt; type, String exposedKey, Binder binder) {<a name="line.108"></a>
-<FONT color="green">109</FONT>        bindOrElse(TypeLiteral.get(type), exposedKey, binder);<a name="line.109"></a>
-<FONT color="green">110</FONT>      }<a name="line.110"></a>
-<FONT color="green">111</FONT>    <a name="line.111"></a>
-<FONT color="green">112</FONT>      public static String makeDefaultBindingKey(String rootKey) {<a name="line.112"></a>
-<FONT color="green">113</FONT>        return rootKey + DEFAULT_BINDING_KEY_SUFFIX;<a name="line.113"></a>
-<FONT color="green">114</FONT>      }<a name="line.114"></a>
-<FONT color="green">115</FONT>    <a name="line.115"></a>
-<FONT color="green">116</FONT>      public static Named makeDefaultBindingName(String rootKey) {<a name="line.116"></a>
-<FONT color="green">117</FONT>        return Names.named(makeDefaultBindingKey(rootKey));<a name="line.117"></a>
-<FONT color="green">118</FONT>      }<a name="line.118"></a>
-<FONT color="green">119</FONT>    <a name="line.119"></a>
-<FONT color="green">120</FONT>      public static &lt;T&gt; Key&lt;T&gt; makeDefaultKey(TypeLiteral&lt;T&gt; type, String rootKey) {<a name="line.120"></a>
-<FONT color="green">121</FONT>        return Key.get(type, makeDefaultBindingName(rootKey));<a name="line.121"></a>
-<FONT color="green">122</FONT>      }<a name="line.122"></a>
-<FONT color="green">123</FONT>    <a name="line.123"></a>
-<FONT color="green">124</FONT>      public static &lt;T&gt; Key&lt;T&gt; makeDefaultKey(Class&lt;T&gt; type, String rootKey) {<a name="line.124"></a>
-<FONT color="green">125</FONT>        return makeDefaultKey(TypeLiteral.get(type), rootKey);<a name="line.125"></a>
-<FONT color="green">126</FONT>      }<a name="line.126"></a>
-<FONT color="green">127</FONT>    <a name="line.127"></a>
-<FONT color="green">128</FONT>      public static String makeCustomBindingKey(String rootKey) {<a name="line.128"></a>
-<FONT color="green">129</FONT>        return rootKey + CUSTOM_BINDING_KEY_SUFFIX;<a name="line.129"></a>
-<FONT color="green">130</FONT>      }<a name="line.130"></a>
-<FONT color="green">131</FONT>    <a name="line.131"></a>
-<FONT color="green">132</FONT>      public static Named makeCustomBindingName(String rootKey) {<a name="line.132"></a>
-<FONT color="green">133</FONT>        return Names.named(makeCustomBindingKey(rootKey));<a name="line.133"></a>
-<FONT color="green">134</FONT>      }<a name="line.134"></a>
-<FONT color="green">135</FONT>    <a name="line.135"></a>
-<FONT color="green">136</FONT>      public static &lt;T&gt; Key&lt;T&gt; makeCustomKey(Class&lt;T&gt; type, String rootKey) {<a name="line.136"></a>
-<FONT color="green">137</FONT>        return Key.get(type, makeCustomBindingName(rootKey));<a name="line.137"></a>
-<FONT color="green">138</FONT>      }<a name="line.138"></a>
-<FONT color="green">139</FONT>    <a name="line.139"></a>
-<FONT color="green">140</FONT>      public static &lt;T&gt; Key&lt;T&gt; makeCustomKey(TypeLiteral&lt;T&gt; type, String rootKey) {<a name="line.140"></a>
-<FONT color="green">141</FONT>        return Key.get(type, makeCustomBindingName(rootKey));<a name="line.141"></a>
-<FONT color="green">142</FONT>      }<a name="line.142"></a>
-<FONT color="green">143</FONT>    <a name="line.143"></a>
-<FONT color="green">144</FONT>      private final Key&lt;T&gt; defaultProviderKey;<a name="line.144"></a>
-<FONT color="green">145</FONT>      private final Key&lt;T&gt; customProviderKey;<a name="line.145"></a>
-<FONT color="green">146</FONT>    <a name="line.146"></a>
-<FONT color="green">147</FONT>      private Injector injector;<a name="line.147"></a>
-<FONT color="green">148</FONT>    <a name="line.148"></a>
-<FONT color="green">149</FONT>      public DefaultProvider(Key&lt;T&gt; defaultProviderKey, Key&lt;T&gt; customProviderKey) {<a name="line.149"></a>
-<FONT color="green">150</FONT>        this.defaultProviderKey = Preconditions.checkNotNull(defaultProviderKey);<a name="line.150"></a>
-<FONT color="green">151</FONT>        this.customProviderKey = Preconditions.checkNotNull(customProviderKey);<a name="line.151"></a>
-<FONT color="green">152</FONT>        Preconditions.checkArgument(!defaultProviderKey.equals(customProviderKey));<a name="line.152"></a>
-<FONT color="green">153</FONT>      }<a name="line.153"></a>
-<FONT color="green">154</FONT>    <a name="line.154"></a>
-<FONT color="green">155</FONT>      @Inject<a name="line.155"></a>
-<FONT color="green">156</FONT>      public void setInjector(Injector injector) {<a name="line.156"></a>
-<FONT color="green">157</FONT>        this.injector = injector;<a name="line.157"></a>
-<FONT color="green">158</FONT>      }<a name="line.158"></a>
-<FONT color="green">159</FONT>    <a name="line.159"></a>
-<FONT color="green">160</FONT>      @Override<a name="line.160"></a>
-<FONT color="green">161</FONT>      public T get() {<a name="line.161"></a>
-<FONT color="green">162</FONT>         Preconditions.checkNotNull(injector);<a name="line.162"></a>
-<FONT color="green">163</FONT>         return injector.getBindings().containsKey(customProviderKey)<a name="line.163"></a>
-<FONT color="green">164</FONT>             ? injector.getInstance(customProviderKey)<a name="line.164"></a>
-<FONT color="green">165</FONT>             : injector.getInstance(defaultProviderKey);<a name="line.165"></a>
-<FONT color="green">166</FONT>      }<a name="line.166"></a>
-<FONT color="green">167</FONT>    }<a name="line.167"></a>
+<FONT color="green">072</FONT>      @Override<a name="line.72"></a>
+<FONT color="green">073</FONT>      public T get() {<a name="line.73"></a>
+<FONT color="green">074</FONT>         Preconditions.checkNotNull(injector);<a name="line.74"></a>
+<FONT color="green">075</FONT>         return injector.getBindings().containsKey(customProviderKey)<a name="line.75"></a>
+<FONT color="green">076</FONT>             ? injector.getInstance(customProviderKey)<a name="line.76"></a>
+<FONT color="green">077</FONT>             : injector.getInstance(defaultProviderKey);<a name="line.77"></a>
+<FONT color="green">078</FONT>      }<a name="line.78"></a>
+<FONT color="green">079</FONT>    <a name="line.79"></a>
+<FONT color="green">080</FONT>      /**<a name="line.80"></a>
+<FONT color="green">081</FONT>       * Creates a DefaultProvider and installs a new module to {@code binder}, which will serve as<a name="line.81"></a>
+<FONT color="green">082</FONT>       * an indirection layer for swapping the default binding with a custom one.<a name="line.82"></a>
+<FONT color="green">083</FONT>       *<a name="line.83"></a>
+<FONT color="green">084</FONT>       * @param customBinding The custom binding key.<a name="line.84"></a>
+<FONT color="green">085</FONT>       * @param defaultBinding The default binding key.<a name="line.85"></a>
+<FONT color="green">086</FONT>       * @param exposedBinding The exposed binding key.<a name="line.86"></a>
+<FONT color="green">087</FONT>       * @param binder The binder to install bindings to.<a name="line.87"></a>
+<FONT color="green">088</FONT>       * @param &lt;T&gt; The type of binding to make.<a name="line.88"></a>
+<FONT color="green">089</FONT>       */<a name="line.89"></a>
+<FONT color="green">090</FONT>      public static &lt;T&gt; void bindOrElse(final Key&lt;T&gt; customBinding, final Key&lt;T&gt; defaultBinding,<a name="line.90"></a>
+<FONT color="green">091</FONT>          final Key&lt;T&gt; exposedBinding, Binder binder) {<a name="line.91"></a>
+<FONT color="green">092</FONT>        Preconditions.checkNotNull(customBinding);<a name="line.92"></a>
+<FONT color="green">093</FONT>        Preconditions.checkNotNull(defaultBinding);<a name="line.93"></a>
+<FONT color="green">094</FONT>        Preconditions.checkNotNull(exposedBinding);<a name="line.94"></a>
+<FONT color="green">095</FONT>        Preconditions.checkArgument(!customBinding.equals(defaultBinding)<a name="line.95"></a>
+<FONT color="green">096</FONT>            &amp;&amp; !customBinding.equals(exposedBinding));<a name="line.96"></a>
+<FONT color="green">097</FONT>    <a name="line.97"></a>
+<FONT color="green">098</FONT>        binder.install(new AbstractModule() {<a name="line.98"></a>
+<FONT color="green">099</FONT>          @Override protected void configure() {<a name="line.99"></a>
+<FONT color="green">100</FONT>            Provider&lt;T&gt; defaultProvider = new DefaultProvider&lt;T&gt;(defaultBinding, customBinding);<a name="line.100"></a>
+<FONT color="green">101</FONT>            requestInjection(defaultProvider);<a name="line.101"></a>
+<FONT color="green">102</FONT>            bind(exposedBinding).toProvider(defaultProvider);<a name="line.102"></a>
+<FONT color="green">103</FONT>          }<a name="line.103"></a>
+<FONT color="green">104</FONT>        });<a name="line.104"></a>
+<FONT color="green">105</FONT>      }<a name="line.105"></a>
+<FONT color="green">106</FONT>    <a name="line.106"></a>
+<FONT color="green">107</FONT>      /**<a name="line.107"></a>
+<FONT color="green">108</FONT>       * Convenience function for creating and installing a DefaultProvider.  This will use internal<a name="line.108"></a>
+<FONT color="green">109</FONT>       * suffixes to create names for the custom and default bindings.  When bound this way, callers<a name="line.109"></a>
+<FONT color="green">110</FONT>       * should use one of the functions such as {@link #makeDefaultBindingKey(String)} to set default<a name="line.110"></a>
+<FONT color="green">111</FONT>       * and custom bindings.<a name="line.111"></a>
+<FONT color="green">112</FONT>       *<a name="line.112"></a>
+<FONT color="green">113</FONT>       * @param type The type of object to bind.<a name="line.113"></a>
+<FONT color="green">114</FONT>       * @param exposedKey The exposed key.<a name="line.114"></a>
+<FONT color="green">115</FONT>       * @param binder The binder to install to.<a name="line.115"></a>
+<FONT color="green">116</FONT>       * @param &lt;T&gt; The type of binding to make.<a name="line.116"></a>
+<FONT color="green">117</FONT>       */<a name="line.117"></a>
+<FONT color="green">118</FONT>      public static &lt;T&gt; void bindOrElse(TypeLiteral&lt;T&gt; type, String exposedKey, Binder binder) {<a name="line.118"></a>
+<FONT color="green">119</FONT>        bindOrElse(Key.get(type, Names.named(makeCustomBindingKey(exposedKey))),<a name="line.119"></a>
+<FONT color="green">120</FONT>            Key.get(type, Names.named(makeDefaultBindingKey(exposedKey))),<a name="line.120"></a>
+<FONT color="green">121</FONT>            Key.get(type, Names.named(exposedKey)),<a name="line.121"></a>
+<FONT color="green">122</FONT>            binder);<a name="line.122"></a>
+<FONT color="green">123</FONT>      }<a name="line.123"></a>
+<FONT color="green">124</FONT>    <a name="line.124"></a>
+<FONT color="green">125</FONT>      /**<a name="line.125"></a>
+<FONT color="green">126</FONT>       * Convenience method for calls to {@link #bindOrElse(TypeLiteral, String, Binder)}, that are not<a name="line.126"></a>
+<FONT color="green">127</FONT>       * binding a parameterized type.<a name="line.127"></a>
+<FONT color="green">128</FONT>       *<a name="line.128"></a>
+<FONT color="green">129</FONT>       * @param type The class of the object to bind.<a name="line.129"></a>
+<FONT color="green">130</FONT>       * @param exposedKey The exposed key.<a name="line.130"></a>
+<FONT color="green">131</FONT>       * @param binder The binder to install to.<a name="line.131"></a>
+<FONT color="green">132</FONT>       * @param &lt;T&gt; The type of binding to make.<a name="line.132"></a>
+<FONT color="green">133</FONT>       */<a name="line.133"></a>
+<FONT color="green">134</FONT>      public static &lt;T&gt; void bindOrElse(Class&lt;T&gt; type, String exposedKey, Binder binder) {<a name="line.134"></a>
+<FONT color="green">135</FONT>        bindOrElse(TypeLiteral.get(type), exposedKey, binder);<a name="line.135"></a>
+<FONT color="green">136</FONT>      }<a name="line.136"></a>
+<FONT color="green">137</FONT>    <a name="line.137"></a>
+<FONT color="green">138</FONT>      public static String makeDefaultBindingKey(String rootKey) {<a name="line.138"></a>
+<FONT color="green">139</FONT>        return rootKey + DEFAULT_BINDING_KEY_SUFFIX;<a name="line.139"></a>
+<FONT color="green">140</FONT>      }<a name="line.140"></a>
+<FONT color="green">141</FONT>    <a name="line.141"></a>
+<FONT color="green">142</FONT>      public static Named makeDefaultBindingName(String rootKey) {<a name="line.142"></a>
+<FONT color="green">143</FONT>        return Names.named(makeDefaultBindingKey(rootKey));<a name="line.143"></a>
+<FONT color="green">144</FONT>      }<a name="line.144"></a>
+<FONT color="green">145</FONT>    <a name="line.145"></a>
+<FONT color="green">146</FONT>      public static &lt;T&gt; Key&lt;T&gt; makeDefaultKey(TypeLiteral&lt;T&gt; type, String rootKey) {<a name="line.146"></a>
+<FONT color="green">147</FONT>        return Key.get(type, makeDefaultBindingName(rootKey));<a name="line.147"></a>
+<FONT color="green">148</FONT>      }<a name="line.148"></a>
+<FONT color="green">149</FONT>    <a name="line.149"></a>
+<FONT color="green">150</FONT>      public static &lt;T&gt; Key&lt;T&gt; makeDefaultKey(Class&lt;T&gt; type, String rootKey) {<a name="line.150"></a>
+<FONT color="green">151</FONT>        return makeDefaultKey(TypeLiteral.get(type), rootKey);<a name="line.151"></a>
+<FONT color="green">152</FONT>      }<a name="line.152"></a>
+<FONT color="green">153</FONT>    <a name="line.153"></a>
+<FONT color="green">154</FONT>      public static String makeCustomBindingKey(String rootKey) {<a name="line.154"></a>
+<FONT color="green">155</FONT>        return rootKey + CUSTOM_BINDING_KEY_SUFFIX;<a name="line.155"></a>
+<FONT color="green">156</FONT>      }<a name="line.156"></a>
+<FONT color="green">157</FONT>    <a name="line.157"></a>
+<FONT color="green">158</FONT>      public static Named makeCustomBindingName(String rootKey) {<a name="line.158"></a>
+<FONT color="green">159</FONT>        return Names.named(makeCustomBindingKey(rootKey));<a name="line.159"></a>
+<FONT color="green">160</FONT>      }<a name="line.160"></a>
+<FONT color="green">161</FONT>    <a name="line.161"></a>
+<FONT color="green">162</FONT>      public static &lt;T&gt; Key&lt;T&gt; makeCustomKey(Class&lt;T&gt; type, String rootKey) {<a name="line.162"></a>
+<FONT color="green">163</FONT>        return Key.get(type, makeCustomBindingName(rootKey));<a name="line.163"></a>
+<FONT color="green">164</FONT>      }<a name="line.164"></a>
+<FONT color="green">165</FONT>    <a name="line.165"></a>
+<FONT color="green">166</FONT>      public static &lt;T&gt; Key&lt;T&gt; makeCustomKey(TypeLiteral&lt;T&gt; type, String rootKey) {<a name="line.166"></a>
+<FONT color="green">167</FONT>        return Key.get(type, makeCustomBindingName(rootKey));<a name="line.167"></a>
+<FONT color="green">168</FONT>      }<a name="line.168"></a>
+<FONT color="green">169</FONT>    }<a name="line.169"></a>
 
 
 

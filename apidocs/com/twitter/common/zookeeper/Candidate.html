@@ -133,7 +133,7 @@ Interface definition for becoming or querying for a ZooKeeper-based group leader
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;java.lang.String</CODE></FONT></TD>
+<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/Candidate.html#getLeaderId()">getLeaderId</A></B>()</CODE>
 
 <BR>
@@ -141,7 +141,7 @@ Interface definition for becoming or querying for a ZooKeeper-based group leader
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;com.google.common.base.Supplier&lt;java.lang.Boolean&gt;</CODE></FONT></TD>
+<CODE>&nbsp;<A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Boolean.html?is-external=true" title="class or interface in java.lang">Boolean</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/Candidate.html#offerLeadership(com.twitter.common.zookeeper.Candidate.Leader)">offerLeadership</A></B>(<A HREF="../../../../com/twitter/common/zookeeper/Candidate.Leader.html" title="interface in com.twitter.common.zookeeper">Candidate.Leader</A>&nbsp;leader)</CODE>
 
 <BR>
@@ -164,10 +164,10 @@ Interface definition for becoming or querying for a ZooKeeper-based group leader
 <A NAME="getLeaderId()"><!-- --></A><H3>
 getLeaderId</H3>
 <PRE>
-java.lang.String <A HREF="../../../../src-html/com/twitter/common/zookeeper/Candidate.html#line.41"><B>getLeaderId</B></A>()
-                             throws <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.ZooKeeperConnectionException.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient.ZooKeeperConnectionException</A>,
-                                    org.apache.zookeeper.KeeperException,
-                                    java.lang.InterruptedException</PRE>
+<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/zookeeper/Candidate.html#line.41"><B>getLeaderId</B></A>()
+                   throws <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.ZooKeeperConnectionException.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient.ZooKeeperConnectionException</A>,
+                          org.apache.zookeeper.KeeperException,
+                          <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/InterruptedException.html?is-external=true" title="class or interface in java.lang">InterruptedException</A></PRE>
 <DL>
 <DD>Returns the current group leader by querying ZooKeeper synchronously.
 <P>
@@ -177,7 +177,7 @@ java.lang.String <A HREF="../../../../src-html/com/twitter/common/zookeeper/Cand
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.ZooKeeperConnectionException.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient.ZooKeeperConnectionException</A></CODE> - if there was a problem connecting to ZooKeeper
 <DD><CODE>org.apache.zookeeper.KeeperException</CODE> - if there was a problem reading the leader information
-<DD><CODE>java.lang.InterruptedException</CODE> - if this thread is interrupted getting the leader</DL>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/InterruptedException.html?is-external=true" title="class or interface in java.lang">InterruptedException</A></CODE> - if this thread is interrupted getting the leader</DL>
 </DD>
 </DL>
 <HR>
@@ -185,10 +185,10 @@ java.lang.String <A HREF="../../../../src-html/com/twitter/common/zookeeper/Cand
 <A NAME="offerLeadership(com.twitter.common.zookeeper.Candidate.Leader)"><!-- --></A><H3>
 offerLeadership</H3>
 <PRE>
-com.google.common.base.Supplier&lt;java.lang.Boolean&gt; <A HREF="../../../../src-html/com/twitter/common/zookeeper/Candidate.html#line.78"><B>offerLeadership</B></A>(<A HREF="../../../../com/twitter/common/zookeeper/Candidate.Leader.html" title="interface in com.twitter.common.zookeeper">Candidate.Leader</A>&nbsp;leader)
-                                                                   throws <A HREF="../../../../com/twitter/common/zookeeper/Group.JoinException.html" title="class in com.twitter.common.zookeeper">Group.JoinException</A>,
-                                                                          <A HREF="../../../../com/twitter/common/zookeeper/Group.WatchException.html" title="class in com.twitter.common.zookeeper">Group.WatchException</A>,
-                                                                          java.lang.InterruptedException</PRE>
+<A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Boolean.html?is-external=true" title="class or interface in java.lang">Boolean</A>&gt; <A HREF="../../../../src-html/com/twitter/common/zookeeper/Candidate.html#line.78"><B>offerLeadership</B></A>(<A HREF="../../../../com/twitter/common/zookeeper/Candidate.Leader.html" title="interface in com.twitter.common.zookeeper">Candidate.Leader</A>&nbsp;leader)
+                                  throws <A HREF="../../../../com/twitter/common/zookeeper/Group.JoinException.html" title="class in com.twitter.common.zookeeper">Group.JoinException</A>,
+                                         <A HREF="../../../../com/twitter/common/zookeeper/Group.WatchException.html" title="class in com.twitter.common.zookeeper">Group.WatchException</A>,
+                                         <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/InterruptedException.html?is-external=true" title="class or interface in java.lang">InterruptedException</A></PRE>
 <DL>
 <DD>Offers this candidate in leadership elections for as long as the current jvm process is alive.
  Upon election, the <code>onElected</code> callback will be executed and a command that can be used
@@ -203,7 +203,7 @@ com.google.common.base.Supplier&lt;java.lang.Boolean&gt; <A HREF="../../../../sr
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="../../../../com/twitter/common/zookeeper/Group.JoinException.html" title="class in com.twitter.common.zookeeper">Group.JoinException</A></CODE> - if there was a problem joining the group
 <DD><CODE><A HREF="../../../../com/twitter/common/zookeeper/Group.WatchException.html" title="class in com.twitter.common.zookeeper">Group.WatchException</A></CODE> - if there is a problem generating the 1st group membership list
-<DD><CODE>java.lang.InterruptedException</CODE> - if interrupted waiting to join the group and determine initial
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/InterruptedException.html?is-external=true" title="class or interface in java.lang">InterruptedException</A></CODE> - if interrupted waiting to join the group and determine initial
      election results</DL>
 </DD>
 </DL>

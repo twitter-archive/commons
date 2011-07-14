@@ -88,9 +88,9 @@ DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&n
 <FONT SIZE="-1">
 com.twitter.common.io</FONT>
 <BR>
-Class SerializedFileStreamer&lt;T extends java.io.Serializable&gt;</H2>
+Class SerializedFileStreamer&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</A>&gt;</H2>
 <PRE>
-java.lang.Object
+<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
   <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.io.SerializedFileStreamer&lt;T&gt;</B>
 </PRE>
 <DL>
@@ -98,7 +98,7 @@ java.lang.Object
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/io/SerializedFileStreamer.html#line.36"><B>SerializedFileStreamer&lt;T extends java.io.Serializable&gt;</B></A><DT>extends java.lang.Object<DT>implements <A HREF="../../../../com/twitter/common/io/Streamer.html" title="interface in com.twitter.common.io">Streamer</A>&lt;T&gt;</DL>
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/io/SerializedFileStreamer.html#line.36"><B>SerializedFileStreamer&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</A>&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../com/twitter/common/io/Streamer.html" title="interface in com.twitter.common.io">Streamer</A>&lt;T&gt;</DL>
 </PRE>
 
 <P>
@@ -119,7 +119,7 @@ A streamer that reads from serialized files.
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html#SerializedFileStreamer(java.lang.Iterable)">SerializedFileStreamer</A></B>(java.lang.Iterable&lt;? extends java.io.ObjectInputStream&gt;&nbsp;inputs)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html#SerializedFileStreamer(java.lang.Iterable)">SerializedFileStreamer</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;? extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/ObjectInputStream.html?is-external=true" title="class or interface in java.io">ObjectInputStream</A>&gt;&nbsp;inputs)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a streamer that will deserialize objects of type T from a set of files in the order
@@ -138,7 +138,7 @@ A streamer that reads from serialized files.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../com/twitter/common/io/Streamer.html" title="interface in com.twitter.common.io">Streamer</A>&lt;<A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html" title="type parameter in SerializedFileStreamer">T</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html#endOn(com.google.common.base.Predicate)">endOn</A></B>(com.google.common.base.Predicate&lt;<A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html" title="type parameter in SerializedFileStreamer">T</A>&gt;&nbsp;cond)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html#endOn(com.google.common.base.Predicate)">endOn</A></B>(<A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</A>&lt;<A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html" title="type parameter in SerializedFileStreamer">T</A>&gt;&nbsp;cond)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a <code>Streamer</code> that will process the same stream as this streamer, but will stop
@@ -147,7 +147,7 @@ A streamer that reads from serialized files.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../com/twitter/common/io/Streamer.html" title="interface in com.twitter.common.io">Streamer</A>&lt;<A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html" title="type parameter in SerializedFileStreamer">T</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html#filter(com.google.common.base.Predicate)">filter</A></B>(com.google.common.base.Predicate&lt;<A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html" title="type parameter in SerializedFileStreamer">T</A>&gt;&nbsp;filter)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html#filter(com.google.common.base.Predicate)">filter</A></B>(<A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</A>&lt;<A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html" title="type parameter in SerializedFileStreamer">T</A>&gt;&nbsp;filter)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a <code>Streamer</code> that will process the same stream as this streamer, but with any
@@ -165,10 +165,10 @@ A streamer that reads from serialized files.
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</CODE></TD>
+<TD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -187,7 +187,7 @@ A streamer that reads from serialized files.
 <A NAME="SerializedFileStreamer(java.lang.Iterable)"><!-- --></A><H3>
 SerializedFileStreamer</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/io/SerializedFileStreamer.html#line.49"><B>SerializedFileStreamer</B></A>(java.lang.Iterable&lt;? extends java.io.ObjectInputStream&gt;&nbsp;inputs)</PRE>
+public <A HREF="../../../../src-html/com/twitter/common/io/SerializedFileStreamer.html#line.49"><B>SerializedFileStreamer</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;? extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/ObjectInputStream.html?is-external=true" title="class or interface in java.io">ObjectInputStream</A>&gt;&nbsp;inputs)</PRE>
 <DL>
 <DD>Returns a streamer that will deserialize objects of type T from a set of files in the order
  the files are given.
@@ -209,14 +209,14 @@ public <A HREF="../../../../src-html/com/twitter/common/io/SerializedFileStreame
 <A NAME="endOn(com.google.common.base.Predicate)"><!-- --></A><H3>
 endOn</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/io/Streamer.html" title="interface in com.twitter.common.io">Streamer</A>&lt;<A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html" title="type parameter in SerializedFileStreamer">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/io/SerializedFileStreamer.html#line.95"><B>endOn</B></A>(com.google.common.base.Predicate&lt;<A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html" title="type parameter in SerializedFileStreamer">T</A>&gt;&nbsp;cond)</PRE>
+public <A HREF="../../../../com/twitter/common/io/Streamer.html" title="interface in com.twitter.common.io">Streamer</A>&lt;<A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html" title="type parameter in SerializedFileStreamer">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/io/SerializedFileStreamer.html#line.95"><B>endOn</B></A>(<A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</A>&lt;<A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html" title="type parameter in SerializedFileStreamer">T</A>&gt;&nbsp;cond)</PRE>
 <DL>
 <DD><B>Description copied from interface: <CODE><A HREF="../../../../com/twitter/common/io/Streamer.html#endOn(com.google.common.base.Predicate)">Streamer</A></CODE></B></DD>
 <DD>Returns a <code>Streamer</code> that will process the same stream as this streamer, but will stop
  processing when encountering the first item for which <code>cond</code> is true.
 <P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../com/twitter/common/io/Streamer.html#endOn(com.google.common.base.Predicate)">endOn</A></CODE> in interface <CODE><A HREF="../../../../com/twitter/common/io/Streamer.html" title="interface in com.twitter.common.io">Streamer</A>&lt;<A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html" title="type parameter in SerializedFileStreamer">T</A> extends java.io.Serializable&gt;</CODE></DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../com/twitter/common/io/Streamer.html#endOn(com.google.common.base.Predicate)">endOn</A></CODE> in interface <CODE><A HREF="../../../../com/twitter/common/io/Streamer.html" title="interface in com.twitter.common.io">Streamer</A>&lt;<A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html" title="type parameter in SerializedFileStreamer">T</A> extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</A>&gt;</CODE></DL>
 </DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>cond</CODE> - a predicate that returns <code>false</code> as long as the stream should keep being
@@ -233,12 +233,12 @@ public void <A HREF="../../../../src-html/com/twitter/common/io/SerializedFileSt
 <DL>
 <DD><B>Description copied from interface: <CODE><A HREF="../../../../com/twitter/common/io/Streamer.html#process(com.twitter.common.base.Closure)">Streamer</A></CODE></B></DD>
 <DD>Processes a stream fully.  This may cause a database query to be executed, a file to be read
- or even just call <CODE>Iterable.iterator()</CODE> depending on the implementation.  Implementations
+ or even just call <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true#iterator()" title="class or interface in java.lang"><CODE>Iterable.iterator()</CODE></A> depending on the implementation.  Implementations
  guaranty that any resources allocated opening the stream will be closed whether or not process
  completes normally.
 <P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../com/twitter/common/io/Streamer.html#process(com.twitter.common.base.Closure)">process</A></CODE> in interface <CODE><A HREF="../../../../com/twitter/common/io/Streamer.html" title="interface in com.twitter.common.io">Streamer</A>&lt;<A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html" title="type parameter in SerializedFileStreamer">T</A> extends java.io.Serializable&gt;</CODE></DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../com/twitter/common/io/Streamer.html#process(com.twitter.common.base.Closure)">process</A></CODE> in interface <CODE><A HREF="../../../../com/twitter/common/io/Streamer.html" title="interface in com.twitter.common.io">Streamer</A>&lt;<A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html" title="type parameter in SerializedFileStreamer">T</A> extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</A>&gt;</CODE></DL>
 </DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>work</CODE> - a closure over the work to be done for each item in the stream.</DL>
@@ -249,14 +249,14 @@ public void <A HREF="../../../../src-html/com/twitter/common/io/SerializedFileSt
 <A NAME="filter(com.google.common.base.Predicate)"><!-- --></A><H3>
 filter</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/io/Streamer.html" title="interface in com.twitter.common.io">Streamer</A>&lt;<A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html" title="type parameter in SerializedFileStreamer">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/io/SerializedFileStreamer.html#line.108"><B>filter</B></A>(com.google.common.base.Predicate&lt;<A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html" title="type parameter in SerializedFileStreamer">T</A>&gt;&nbsp;filter)</PRE>
+public <A HREF="../../../../com/twitter/common/io/Streamer.html" title="interface in com.twitter.common.io">Streamer</A>&lt;<A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html" title="type parameter in SerializedFileStreamer">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/io/SerializedFileStreamer.html#line.108"><B>filter</B></A>(<A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</A>&lt;<A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html" title="type parameter in SerializedFileStreamer">T</A>&gt;&nbsp;filter)</PRE>
 <DL>
 <DD><B>Description copied from interface: <CODE><A HREF="../../../../com/twitter/common/io/Streamer.html#filter(com.google.common.base.Predicate)">Streamer</A></CODE></B></DD>
 <DD>Returns a <code>Streamer</code> that will process the same stream as this streamer, but with any
  items failing the filter to be omitted from processing.
 <P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../com/twitter/common/io/Streamer.html#filter(com.google.common.base.Predicate)">filter</A></CODE> in interface <CODE><A HREF="../../../../com/twitter/common/io/Streamer.html" title="interface in com.twitter.common.io">Streamer</A>&lt;<A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html" title="type parameter in SerializedFileStreamer">T</A> extends java.io.Serializable&gt;</CODE></DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../com/twitter/common/io/Streamer.html#filter(com.google.common.base.Predicate)">filter</A></CODE> in interface <CODE><A HREF="../../../../com/twitter/common/io/Streamer.html" title="interface in com.twitter.common.io">Streamer</A>&lt;<A HREF="../../../../com/twitter/common/io/SerializedFileStreamer.html" title="type parameter in SerializedFileStreamer">T</A> extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</A>&gt;</CODE></DL>
 </DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>filter</CODE> - a predicate that returns <code>true</code> if an item in the stream should be

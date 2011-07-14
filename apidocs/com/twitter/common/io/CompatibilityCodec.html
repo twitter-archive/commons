@@ -90,7 +90,7 @@ com.twitter.common.io</FONT>
 <BR>
 Class CompatibilityCodec&lt;T&gt;</H2>
 <PRE>
-java.lang.Object
+<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
   <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.io.CompatibilityCodec&lt;T&gt;</B>
 </PRE>
 <DL>
@@ -100,7 +100,7 @@ java.lang.Object
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/io/CompatibilityCodec.html#line.36"><B>CompatibilityCodec&lt;T&gt;</B></A><DT>extends java.lang.Object<DT>implements <A HREF="../../../../com/twitter/common/io/Codec.html" title="interface in com.twitter.common.io">Codec</A>&lt;T&gt;</DL>
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/io/CompatibilityCodec.html#line.36"><B>CompatibilityCodec&lt;T&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../com/twitter/common/io/Codec.html" title="interface in com.twitter.common.io">Codec</A>&lt;T&gt;</DL>
 </PRE>
 
 <P>
@@ -136,7 +136,7 @@ A codec that composes two codecs: a primary and a compatibility codec. It always
 <TD><CODE><B><A HREF="../../../../com/twitter/common/io/CompatibilityCodec.html#create(com.twitter.common.io.Codec, com.twitter.common.io.Codec, int, com.google.common.base.Predicate)">create</A></B>(<A HREF="../../../../com/twitter/common/io/Codec.html" title="interface in com.twitter.common.io">Codec</A>&lt;T&gt;&nbsp;primaryCodec,
              <A HREF="../../../../com/twitter/common/io/Codec.html" title="interface in com.twitter.common.io">Codec</A>&lt;T&gt;&nbsp;secondaryCodec,
              int&nbsp;prefixLength,
-             com.google.common.base.Predicate&lt;byte[]&gt;&nbsp;discriminator)</CODE>
+             <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</A>&lt;byte[]&gt;&nbsp;discriminator)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new compatibility codec instance.</TD>
@@ -144,7 +144,7 @@ A codec that composes two codecs: a primary and a compatibility codec. It always
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../com/twitter/common/io/CompatibilityCodec.html" title="type parameter in CompatibilityCodec">T</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/io/CompatibilityCodec.html#deserialize(java.io.InputStream)">deserialize</A></B>(java.io.InputStream&nbsp;source)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/io/CompatibilityCodec.html#deserialize(java.io.InputStream)">deserialize</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</A>&nbsp;source)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Reads an item from the <code>source</code> stream that was written by
@@ -154,7 +154,7 @@ A codec that composes two codecs: a primary and a compatibility codec. It always
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/io/CompatibilityCodec.html#serialize(T, java.io.OutputStream)">serialize</A></B>(<A HREF="../../../../com/twitter/common/io/CompatibilityCodec.html" title="type parameter in CompatibilityCodec">T</A>&nbsp;item,
-                   java.io.OutputStream&nbsp;sink)</CODE>
+                   <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</A>&nbsp;sink)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Writes a representation of <code>item</code> to the <code>sink</code> that can be read back by
@@ -164,10 +164,10 @@ A codec that composes two codecs: a primary and a compatibility codec. It always
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</CODE></TD>
+<TD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -189,7 +189,7 @@ create</H3>
 public static &lt;T&gt; <A HREF="../../../../com/twitter/common/io/CompatibilityCodec.html" title="class in com.twitter.common.io">CompatibilityCodec</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/io/CompatibilityCodec.html#line.65"><B>create</B></A>(<A HREF="../../../../com/twitter/common/io/Codec.html" title="interface in com.twitter.common.io">Codec</A>&lt;T&gt;&nbsp;primaryCodec,
                                                <A HREF="../../../../com/twitter/common/io/Codec.html" title="interface in com.twitter.common.io">Codec</A>&lt;T&gt;&nbsp;secondaryCodec,
                                                int&nbsp;prefixLength,
-                                               com.google.common.base.Predicate&lt;byte[]&gt;&nbsp;discriminator)</PRE>
+                                               <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</A>&lt;byte[]&gt;&nbsp;discriminator)</PRE>
 <DL>
 <DD>Creates a new compatibility codec instance.
 <P>
@@ -210,8 +210,8 @@ public static &lt;T&gt; <A HREF="../../../../com/twitter/common/io/Compatibility
 <A NAME="deserialize(java.io.InputStream)"><!-- --></A><H3>
 deserialize</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/io/CompatibilityCodec.html" title="type parameter in CompatibilityCodec">T</A> <A HREF="../../../../src-html/com/twitter/common/io/CompatibilityCodec.html#line.71"><B>deserialize</B></A>(java.io.InputStream&nbsp;source)
-              throws java.io.IOException</PRE>
+public <A HREF="../../../../com/twitter/common/io/CompatibilityCodec.html" title="type parameter in CompatibilityCodec">T</A> <A HREF="../../../../src-html/com/twitter/common/io/CompatibilityCodec.html#line.71"><B>deserialize</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</A>&nbsp;source)
+              throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
 <DL>
 <DD><B>Description copied from interface: <CODE><A HREF="../../../../com/twitter/common/io/Codec.html#deserialize(java.io.InputStream)">Codec</A></CODE></B></DD>
 <DD>Reads an item from the <code>source</code> stream that was written by
@@ -224,7 +224,7 @@ public <A HREF="../../../../com/twitter/common/io/CompatibilityCodec.html" title
 <DT><B>Parameters:</B><DD><CODE>source</CODE> - the stream to read an item from
 <DT><B>Returns:</B><DD>the deserialized item
 <DT><B>Throws:</B>
-<DD><CODE>java.io.IOException</CODE> - if there is a problem reading an item</DL>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></CODE> - if there is a problem reading an item</DL>
 </DD>
 </DL>
 <HR>
@@ -233,8 +233,8 @@ public <A HREF="../../../../com/twitter/common/io/CompatibilityCodec.html" title
 serialize</H3>
 <PRE>
 public void <A HREF="../../../../src-html/com/twitter/common/io/CompatibilityCodec.html#line.94"><B>serialize</B></A>(<A HREF="../../../../com/twitter/common/io/CompatibilityCodec.html" title="type parameter in CompatibilityCodec">T</A>&nbsp;item,
-                      java.io.OutputStream&nbsp;sink)
-               throws java.io.IOException</PRE>
+                      <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</A>&nbsp;sink)
+               throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
 <DL>
 <DD><B>Description copied from interface: <CODE><A HREF="../../../../com/twitter/common/io/Codec.html#serialize(T, java.io.OutputStream)">Codec</A></CODE></B></DD>
 <DD>Writes a representation of <code>item</code> to the <code>sink</code> that can be read back by
@@ -246,7 +246,7 @@ public void <A HREF="../../../../src-html/com/twitter/common/io/CompatibilityCod
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>item</CODE> - the item to serialize<DD><CODE>sink</CODE> - the stream to write the item out to
 <DT><B>Throws:</B>
-<DD><CODE>java.io.IOException</CODE> - if there is a problem serializing the item</DL>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></CODE> - if there is a problem serializing the item</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

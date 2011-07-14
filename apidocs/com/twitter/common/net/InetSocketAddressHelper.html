@@ -90,17 +90,17 @@ com.twitter.common.net</FONT>
 <BR>
 Class InetSocketAddressHelper</H2>
 <PRE>
-java.lang.Object
+<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
   <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.net.InetSocketAddressHelper</B>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public final class <A HREF="../../../../src-html/com/twitter/common/net/InetSocketAddressHelper.html#line.37"><B>InetSocketAddressHelper</B></A><DT>extends java.lang.Object</DL>
+<DT><PRE>public final class <A HREF="../../../../src-html/com/twitter/common/net/InetSocketAddressHelper.html#line.37"><B>InetSocketAddressHelper</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
 A utility that can parse [host]:[port] pairs or :[port] designators into instances of
- <CODE>InetSocketAddress</CODE>. The literal '*' can be specified for port as an alternative
+ <A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net"><CODE>InetSocketAddress</CODE></A>. The literal '*' can be specified for port as an alternative
  to '0' to indicate any local port.
 <P>
 
@@ -118,7 +118,7 @@ A utility that can parse [host]:[port] pairs or :[port] designators into instanc
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;com.google.common.base.Function&lt;java.net.InetSocketAddress,java.lang.String&gt;</CODE></FONT></TD>
+<CODE>static&nbsp;<A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>,<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/net/InetSocketAddressHelper.html#INET_TO_STR">INET_TO_STR</A></B></CODE>
 
 <BR>
@@ -126,12 +126,12 @@ A utility that can parse [host]:[port] pairs or :[port] designators into instanc
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;com.google.common.base.Function&lt;java.lang.String,java.net.InetSocketAddress&gt;</CODE></FONT></TD>
+<CODE>static&nbsp;<A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/net/InetSocketAddressHelper.html#STR_TO_INET">STR_TO_INET</A></B></CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A function that uses <A HREF="../../../../com/twitter/common/net/InetSocketAddressHelper.html#parse(java.lang.String)"><CODE>parse(String)</CODE></A> to map an endpoint spec to an
- <CODE>InetSocketAddress</CODE>.</TD>
+ <A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net"><CODE>InetSocketAddress</CODE></A>.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -145,15 +145,15 @@ A utility that can parse [host]:[port] pairs or :[port] designators into instanc
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;java.util.Set&lt;java.net.InetSocketAddress&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/net/InetSocketAddressHelper.html#convertToSockets(java.lang.Iterable)">convertToSockets</A></B>(java.lang.Iterable&lt;java.lang.String&gt;&nbsp;backends)</CODE>
+<CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/net/InetSocketAddressHelper.html#convertToSockets(java.lang.Iterable)">convertToSockets</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;&nbsp;backends)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Converts backend definitions (in host:port form) a set of socket addresses.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;java.net.InetSocketAddress</CODE></FONT></TD>
+<CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/net/InetSocketAddressHelper.html#getLocalAddress(int)">getLocalAddress</A></B>(int&nbsp;port)</CODE>
 
 <BR>
@@ -161,16 +161,16 @@ A utility that can parse [host]:[port] pairs or :[port] designators into instanc
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;java.net.InetSocketAddress</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/net/InetSocketAddressHelper.html#parse(java.lang.String)">parse</A></B>(java.lang.String&nbsp;value)</CODE>
+<CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/net/InetSocketAddressHelper.html#parse(java.lang.String)">parse</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;value)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Attempts to parse an endpoint spec into an InetSocketAddress.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;java.lang.String</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/net/InetSocketAddressHelper.html#toString(java.net.InetSocketAddress)">toString</A></B>(java.net.InetSocketAddress&nbsp;value)</CODE>
+<CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/net/InetSocketAddressHelper.html#toString(java.net.InetSocketAddress)">toString</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&nbsp;value)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Attempts to return a usable String given an InetSocketAddress.</TD>
@@ -179,10 +179,10 @@ A utility that can parse [host]:[port] pairs or :[port] designators into instanc
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</CODE></TD>
+<TD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -201,10 +201,10 @@ A utility that can parse [host]:[port] pairs or :[port] designators into instanc
 <A NAME="STR_TO_INET"><!-- --></A><H3>
 STR_TO_INET</H3>
 <PRE>
-public static final com.google.common.base.Function&lt;java.lang.String,java.net.InetSocketAddress&gt; <A HREF="../../../../src-html/com/twitter/common/net/InetSocketAddressHelper.html#line.43"><B>STR_TO_INET</B></A></PRE>
+public static final <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt; <A HREF="../../../../src-html/com/twitter/common/net/InetSocketAddressHelper.html#line.43"><B>STR_TO_INET</B></A></PRE>
 <DL>
 <DD>A function that uses <A HREF="../../../../com/twitter/common/net/InetSocketAddressHelper.html#parse(java.lang.String)"><CODE>parse(String)</CODE></A> to map an endpoint spec to an
- <CODE>InetSocketAddress</CODE>.
+ <A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net"><CODE>InetSocketAddress</CODE></A>.
 <P>
 <DL>
 </DL>
@@ -214,7 +214,7 @@ public static final com.google.common.base.Function&lt;java.lang.String,java.net
 <A NAME="INET_TO_STR"><!-- --></A><H3>
 INET_TO_STR</H3>
 <PRE>
-public static final com.google.common.base.Function&lt;java.net.InetSocketAddress,java.lang.String&gt; <A HREF="../../../../src-html/com/twitter/common/net/InetSocketAddressHelper.html#line.50"><B>INET_TO_STR</B></A></PRE>
+public static final <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>,<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt; <A HREF="../../../../src-html/com/twitter/common/net/InetSocketAddressHelper.html#line.50"><B>INET_TO_STR</B></A></PRE>
 <DL>
 <DL>
 </DL>
@@ -233,7 +233,7 @@ public static final com.google.common.base.Function&lt;java.net.InetSocketAddres
 <A NAME="parse(java.lang.String)"><!-- --></A><H3>
 parse</H3>
 <PRE>
-public static java.net.InetSocketAddress <A HREF="../../../../src-html/com/twitter/common/net/InetSocketAddressHelper.html#line.65"><B>parse</B></A>(java.lang.String&nbsp;value)</PRE>
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A> <A HREF="../../../../src-html/com/twitter/common/net/InetSocketAddressHelper.html#line.65"><B>parse</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;value)</PRE>
 <DL>
 <DD>Attempts to parse an endpoint spec into an InetSocketAddress.
 <P>
@@ -244,7 +244,7 @@ public static java.net.InetSocketAddress <A HREF="../../../../src-html/com/twitt
 <A NAME="toString(java.net.InetSocketAddress)"><!-- --></A><H3>
 toString</H3>
 <PRE>
-public static java.lang.String <A HREF="../../../../src-html/com/twitter/common/net/InetSocketAddressHelper.html#line.87"><B>toString</B></A>(java.net.InetSocketAddress&nbsp;value)</PRE>
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/net/InetSocketAddressHelper.html#line.87"><B>toString</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&nbsp;value)</PRE>
 <DL>
 <DD>Attempts to return a usable String given an InetSocketAddress.
 <P>
@@ -258,13 +258,13 @@ public static java.lang.String <A HREF="../../../../src-html/com/twitter/common/
 <A NAME="getLocalAddress(int)"><!-- --></A><H3>
 getLocalAddress</H3>
 <PRE>
-public static java.net.InetSocketAddress <A HREF="../../../../src-html/com/twitter/common/net/InetSocketAddressHelper.html#line.103"><B>getLocalAddress</B></A>(int&nbsp;port)
-                                                  throws java.net.UnknownHostException</PRE>
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A> <A HREF="../../../../src-html/com/twitter/common/net/InetSocketAddressHelper.html#line.103"><B>getLocalAddress</B></A>(int&nbsp;port)
+                                         throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/net/UnknownHostException.html?is-external=true" title="class or interface in java.net">UnknownHostException</A></PRE>
 <DL>
 <DD><DL>
 
 <DT><B>Throws:</B>
-<DD><CODE>java.net.UnknownHostException</CODE></DL>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/net/UnknownHostException.html?is-external=true" title="class or interface in java.net">UnknownHostException</A></CODE></DL>
 </DD>
 </DL>
 <HR>
@@ -272,7 +272,7 @@ public static java.net.InetSocketAddress <A HREF="../../../../src-html/com/twitt
 <A NAME="convertToSockets(java.lang.Iterable)"><!-- --></A><H3>
 convertToSockets</H3>
 <PRE>
-public static java.util.Set&lt;java.net.InetSocketAddress&gt; <A HREF="../../../../src-html/com/twitter/common/net/InetSocketAddressHelper.html#line.118"><B>convertToSockets</B></A>(java.lang.Iterable&lt;java.lang.String&gt;&nbsp;backends)</PRE>
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt; <A HREF="../../../../src-html/com/twitter/common/net/InetSocketAddressHelper.html#line.118"><B>convertToSockets</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;&nbsp;backends)</PRE>
 <DL>
 <DD>Converts backend definitions (in host:port form) a set of socket addresses.
 <P>

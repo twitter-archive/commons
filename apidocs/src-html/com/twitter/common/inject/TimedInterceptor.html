@@ -19,95 +19,97 @@
 <FONT color="green">016</FONT>    <a name="line.16"></a>
 <FONT color="green">017</FONT>    package com.twitter.common.inject;<a name="line.17"></a>
 <FONT color="green">018</FONT>    <a name="line.18"></a>
-<FONT color="green">019</FONT>    import com.google.common.base.Function;<a name="line.19"></a>
-<FONT color="green">020</FONT>    import com.google.common.base.Preconditions;<a name="line.20"></a>
-<FONT color="green">021</FONT>    import com.google.common.collect.MapMaker;<a name="line.21"></a>
-<FONT color="green">022</FONT>    import com.google.inject.Binder;<a name="line.22"></a>
-<FONT color="green">023</FONT>    import com.google.inject.matcher.Matchers;<a name="line.23"></a>
-<FONT color="green">024</FONT>    import com.twitter.common.stats.SlidingStats;<a name="line.24"></a>
-<FONT color="green">025</FONT>    import com.twitter.common.stats.TimeSeriesRepository;<a name="line.25"></a>
-<FONT color="green">026</FONT>    import org.aopalliance.intercept.MethodInterceptor;<a name="line.26"></a>
-<FONT color="green">027</FONT>    import org.aopalliance.intercept.MethodInvocation;<a name="line.27"></a>
-<FONT color="green">028</FONT>    import org.apache.commons.lang.StringUtils;<a name="line.28"></a>
-<FONT color="green">029</FONT>    <a name="line.29"></a>
-<FONT color="green">030</FONT>    import java.lang.annotation.ElementType;<a name="line.30"></a>
-<FONT color="green">031</FONT>    import java.lang.annotation.Retention;<a name="line.31"></a>
-<FONT color="green">032</FONT>    import java.lang.annotation.RetentionPolicy;<a name="line.32"></a>
-<FONT color="green">033</FONT>    import java.lang.annotation.Target;<a name="line.33"></a>
-<FONT color="green">034</FONT>    import java.lang.reflect.Method;<a name="line.34"></a>
-<FONT color="green">035</FONT>    import java.util.Map;<a name="line.35"></a>
-<FONT color="green">036</FONT>    <a name="line.36"></a>
-<FONT color="green">037</FONT>    /**<a name="line.37"></a>
-<FONT color="green">038</FONT>     * A method interceptor that exports timing information for methods annotated with<a name="line.38"></a>
-<FONT color="green">039</FONT>     * {@literal @Timed}.<a name="line.39"></a>
-<FONT color="green">040</FONT>     *<a name="line.40"></a>
-<FONT color="green">041</FONT>     * @author John Sirois<a name="line.41"></a>
-<FONT color="green">042</FONT>     */<a name="line.42"></a>
-<FONT color="green">043</FONT>    public final class TimedInterceptor implements MethodInterceptor {<a name="line.43"></a>
-<FONT color="green">044</FONT>    <a name="line.44"></a>
-<FONT color="green">045</FONT>      /**<a name="line.45"></a>
-<FONT color="green">046</FONT>       * Marks a method as a target for timing.<a name="line.46"></a>
-<FONT color="green">047</FONT>       */<a name="line.47"></a>
-<FONT color="green">048</FONT>      @Retention(RetentionPolicy.RUNTIME)<a name="line.48"></a>
-<FONT color="green">049</FONT>      @Target(ElementType.METHOD)<a name="line.49"></a>
-<FONT color="green">050</FONT>      public @interface Timed {<a name="line.50"></a>
-<FONT color="green">051</FONT>    <a name="line.51"></a>
-<FONT color="green">052</FONT>        /**<a name="line.52"></a>
-<FONT color="green">053</FONT>         * @return the base name to export timing data with; empty to use the annotated method's name<a name="line.53"></a>
-<FONT color="green">054</FONT>         */<a name="line.54"></a>
-<FONT color="green">055</FONT>        String value() default "";<a name="line.55"></a>
-<FONT color="green">056</FONT>      }<a name="line.56"></a>
-<FONT color="green">057</FONT>    <a name="line.57"></a>
-<FONT color="green">058</FONT>      /**<a name="line.58"></a>
-<FONT color="green">059</FONT>       * Installs an interceptor in a guice {@link com.google.inject.Injector}, enabling<a name="line.59"></a>
-<FONT color="green">060</FONT>       * {@literal @Timed} method interception in guice-provided instances.  Requires that a<a name="line.60"></a>
-<FONT color="green">061</FONT>       * {@link TimeSeriesRepository} is bound elsewhere.<a name="line.61"></a>
-<FONT color="green">062</FONT>       *<a name="line.62"></a>
-<FONT color="green">063</FONT>       * @param binder a guice binder to require bindings against<a name="line.63"></a>
-<FONT color="green">064</FONT>       */<a name="line.64"></a>
-<FONT color="green">065</FONT>      public static void bind(Binder binder) {<a name="line.65"></a>
-<FONT color="green">066</FONT>        Preconditions.checkNotNull(binder);<a name="line.66"></a>
-<FONT color="green">067</FONT>    <a name="line.67"></a>
-<FONT color="green">068</FONT>        Bindings.requireBinding(binder, TimeSeriesRepository.class);<a name="line.68"></a>
-<FONT color="green">069</FONT>    <a name="line.69"></a>
-<FONT color="green">070</FONT>        TimedInterceptor interceptor = new TimedInterceptor();<a name="line.70"></a>
-<FONT color="green">071</FONT>        binder.requestInjection(interceptor);<a name="line.71"></a>
-<FONT color="green">072</FONT>        binder.bindInterceptor(Matchers.any(), Matchers.annotatedWith(Timed.class), interceptor);<a name="line.72"></a>
-<FONT color="green">073</FONT>      }<a name="line.73"></a>
-<FONT color="green">074</FONT>    <a name="line.74"></a>
-<FONT color="green">075</FONT>      private TimedInterceptor() {<a name="line.75"></a>
-<FONT color="green">076</FONT>        // preserve for guice<a name="line.76"></a>
-<FONT color="green">077</FONT>      }<a name="line.77"></a>
-<FONT color="green">078</FONT>    <a name="line.78"></a>
-<FONT color="green">079</FONT>      private final Map&lt;Method, SlidingStats&gt; stats =<a name="line.79"></a>
-<FONT color="green">080</FONT>          new MapMaker().makeComputingMap(new Function&lt;Method, SlidingStats&gt;() {<a name="line.80"></a>
-<FONT color="green">081</FONT>            @Override public SlidingStats apply(Method method) {<a name="line.81"></a>
-<FONT color="green">082</FONT>              return createStats(method);<a name="line.82"></a>
-<FONT color="green">083</FONT>            }<a name="line.83"></a>
-<FONT color="green">084</FONT>          });<a name="line.84"></a>
-<FONT color="green">085</FONT>    <a name="line.85"></a>
-<FONT color="green">086</FONT>      private SlidingStats createStats(Method method) {<a name="line.86"></a>
-<FONT color="green">087</FONT>        Timed timed = method.getAnnotation(Timed.class);<a name="line.87"></a>
-<FONT color="green">088</FONT>        Preconditions.checkArgument(timed != null,<a name="line.88"></a>
-<FONT color="green">089</FONT>            "TimedInterceptor can only be applied to @Timed methods");<a name="line.89"></a>
-<FONT color="green">090</FONT>    <a name="line.90"></a>
-<FONT color="green">091</FONT>        String name = timed.value();<a name="line.91"></a>
-<FONT color="green">092</FONT>        String statName = !StringUtils.isEmpty(name) ? name : method.getName();<a name="line.92"></a>
-<FONT color="green">093</FONT>        return new SlidingStats(statName, "nanos");<a name="line.93"></a>
-<FONT color="green">094</FONT>      }<a name="line.94"></a>
-<FONT color="green">095</FONT>    <a name="line.95"></a>
-<FONT color="green">096</FONT>      @Override<a name="line.96"></a>
-<FONT color="green">097</FONT>      public Object invoke(MethodInvocation methodInvocation) throws Throwable {<a name="line.97"></a>
-<FONT color="green">098</FONT>        // TODO(John Sirois): consider including a SlidingRate tracking thrown exceptions<a name="line.98"></a>
-<FONT color="green">099</FONT>        SlidingStats stat = stats.get(methodInvocation.getMethod());<a name="line.99"></a>
-<FONT color="green">100</FONT>        long start = System.nanoTime();<a name="line.100"></a>
-<FONT color="green">101</FONT>        try {<a name="line.101"></a>
-<FONT color="green">102</FONT>          return methodInvocation.proceed();<a name="line.102"></a>
-<FONT color="green">103</FONT>        } finally {<a name="line.103"></a>
-<FONT color="green">104</FONT>          stat.accumulate(System.nanoTime() - start);<a name="line.104"></a>
-<FONT color="green">105</FONT>        }<a name="line.105"></a>
-<FONT color="green">106</FONT>      }<a name="line.106"></a>
-<FONT color="green">107</FONT>    }<a name="line.107"></a>
+<FONT color="green">019</FONT>    import java.lang.annotation.ElementType;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import java.lang.annotation.Retention;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import java.lang.annotation.RetentionPolicy;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import java.lang.annotation.Target;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import java.lang.reflect.Method;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import java.util.Map;<a name="line.24"></a>
+<FONT color="green">025</FONT>    <a name="line.25"></a>
+<FONT color="green">026</FONT>    import com.google.common.base.Function;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import com.google.common.base.Preconditions;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import com.google.common.collect.MapMaker;<a name="line.28"></a>
+<FONT color="green">029</FONT>    import com.google.inject.Binder;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import com.google.inject.matcher.Matchers;<a name="line.30"></a>
+<FONT color="green">031</FONT>    <a name="line.31"></a>
+<FONT color="green">032</FONT>    import org.aopalliance.intercept.MethodInterceptor;<a name="line.32"></a>
+<FONT color="green">033</FONT>    import org.aopalliance.intercept.MethodInvocation;<a name="line.33"></a>
+<FONT color="green">034</FONT>    import org.apache.commons.lang.StringUtils;<a name="line.34"></a>
+<FONT color="green">035</FONT>    <a name="line.35"></a>
+<FONT color="green">036</FONT>    import com.twitter.common.stats.SlidingStats;<a name="line.36"></a>
+<FONT color="green">037</FONT>    import com.twitter.common.stats.TimeSeriesRepository;<a name="line.37"></a>
+<FONT color="green">038</FONT>    <a name="line.38"></a>
+<FONT color="green">039</FONT>    /**<a name="line.39"></a>
+<FONT color="green">040</FONT>     * A method interceptor that exports timing information for methods annotated with<a name="line.40"></a>
+<FONT color="green">041</FONT>     * {@literal @Timed}.<a name="line.41"></a>
+<FONT color="green">042</FONT>     *<a name="line.42"></a>
+<FONT color="green">043</FONT>     * @author John Sirois<a name="line.43"></a>
+<FONT color="green">044</FONT>     */<a name="line.44"></a>
+<FONT color="green">045</FONT>    public final class TimedInterceptor implements MethodInterceptor {<a name="line.45"></a>
+<FONT color="green">046</FONT>    <a name="line.46"></a>
+<FONT color="green">047</FONT>      /**<a name="line.47"></a>
+<FONT color="green">048</FONT>       * Marks a method as a target for timing.<a name="line.48"></a>
+<FONT color="green">049</FONT>       */<a name="line.49"></a>
+<FONT color="green">050</FONT>      @Retention(RetentionPolicy.RUNTIME)<a name="line.50"></a>
+<FONT color="green">051</FONT>      @Target(ElementType.METHOD)<a name="line.51"></a>
+<FONT color="green">052</FONT>      public @interface Timed {<a name="line.52"></a>
+<FONT color="green">053</FONT>    <a name="line.53"></a>
+<FONT color="green">054</FONT>        /**<a name="line.54"></a>
+<FONT color="green">055</FONT>         * The base name to export timing data with; empty to use the annotated method's name.<a name="line.55"></a>
+<FONT color="green">056</FONT>         */<a name="line.56"></a>
+<FONT color="green">057</FONT>        String value() default "";<a name="line.57"></a>
+<FONT color="green">058</FONT>      }<a name="line.58"></a>
+<FONT color="green">059</FONT>    <a name="line.59"></a>
+<FONT color="green">060</FONT>      private final Map&lt;Method, SlidingStats&gt; stats =<a name="line.60"></a>
+<FONT color="green">061</FONT>          new MapMaker().makeComputingMap(new Function&lt;Method, SlidingStats&gt;() {<a name="line.61"></a>
+<FONT color="green">062</FONT>            @Override public SlidingStats apply(Method method) {<a name="line.62"></a>
+<FONT color="green">063</FONT>              return createStats(method);<a name="line.63"></a>
+<FONT color="green">064</FONT>            }<a name="line.64"></a>
+<FONT color="green">065</FONT>          });<a name="line.65"></a>
+<FONT color="green">066</FONT>    <a name="line.66"></a>
+<FONT color="green">067</FONT>      private TimedInterceptor() {<a name="line.67"></a>
+<FONT color="green">068</FONT>        // preserve for guice<a name="line.68"></a>
+<FONT color="green">069</FONT>      }<a name="line.69"></a>
+<FONT color="green">070</FONT>    <a name="line.70"></a>
+<FONT color="green">071</FONT>      private SlidingStats createStats(Method method) {<a name="line.71"></a>
+<FONT color="green">072</FONT>        Timed timed = method.getAnnotation(Timed.class);<a name="line.72"></a>
+<FONT color="green">073</FONT>        Preconditions.checkArgument(timed != null,<a name="line.73"></a>
+<FONT color="green">074</FONT>            "TimedInterceptor can only be applied to @Timed methods");<a name="line.74"></a>
+<FONT color="green">075</FONT>    <a name="line.75"></a>
+<FONT color="green">076</FONT>        String name = timed.value();<a name="line.76"></a>
+<FONT color="green">077</FONT>        String statName = !StringUtils.isEmpty(name) ? name : method.getName();<a name="line.77"></a>
+<FONT color="green">078</FONT>        return new SlidingStats(statName, "nanos");<a name="line.78"></a>
+<FONT color="green">079</FONT>      }<a name="line.79"></a>
+<FONT color="green">080</FONT>    <a name="line.80"></a>
+<FONT color="green">081</FONT>      @Override<a name="line.81"></a>
+<FONT color="green">082</FONT>      public Object invoke(MethodInvocation methodInvocation) throws Throwable {<a name="line.82"></a>
+<FONT color="green">083</FONT>        // TODO(John Sirois): consider including a SlidingRate tracking thrown exceptions<a name="line.83"></a>
+<FONT color="green">084</FONT>        SlidingStats stat = stats.get(methodInvocation.getMethod());<a name="line.84"></a>
+<FONT color="green">085</FONT>        long start = System.nanoTime();<a name="line.85"></a>
+<FONT color="green">086</FONT>        try {<a name="line.86"></a>
+<FONT color="green">087</FONT>          return methodInvocation.proceed();<a name="line.87"></a>
+<FONT color="green">088</FONT>        } finally {<a name="line.88"></a>
+<FONT color="green">089</FONT>          stat.accumulate(System.nanoTime() - start);<a name="line.89"></a>
+<FONT color="green">090</FONT>        }<a name="line.90"></a>
+<FONT color="green">091</FONT>      }<a name="line.91"></a>
+<FONT color="green">092</FONT>    <a name="line.92"></a>
+<FONT color="green">093</FONT>      /**<a name="line.93"></a>
+<FONT color="green">094</FONT>       * Installs an interceptor in a guice {@link com.google.inject.Injector}, enabling<a name="line.94"></a>
+<FONT color="green">095</FONT>       * {@literal @Timed} method interception in guice-provided instances.  Requires that a<a name="line.95"></a>
+<FONT color="green">096</FONT>       * {@link TimeSeriesRepository} is bound elsewhere.<a name="line.96"></a>
+<FONT color="green">097</FONT>       *<a name="line.97"></a>
+<FONT color="green">098</FONT>       * @param binder a guice binder to require bindings against<a name="line.98"></a>
+<FONT color="green">099</FONT>       */<a name="line.99"></a>
+<FONT color="green">100</FONT>      public static void bind(Binder binder) {<a name="line.100"></a>
+<FONT color="green">101</FONT>        Preconditions.checkNotNull(binder);<a name="line.101"></a>
+<FONT color="green">102</FONT>    <a name="line.102"></a>
+<FONT color="green">103</FONT>        Bindings.requireBinding(binder, TimeSeriesRepository.class);<a name="line.103"></a>
+<FONT color="green">104</FONT>    <a name="line.104"></a>
+<FONT color="green">105</FONT>        TimedInterceptor interceptor = new TimedInterceptor();<a name="line.105"></a>
+<FONT color="green">106</FONT>        binder.requestInjection(interceptor);<a name="line.106"></a>
+<FONT color="green">107</FONT>        binder.bindInterceptor(Matchers.any(), Matchers.annotatedWith(Timed.class), interceptor);<a name="line.107"></a>
+<FONT color="green">108</FONT>      }<a name="line.108"></a>
+<FONT color="green">109</FONT>    }<a name="line.109"></a>
 
 
 

@@ -123,8 +123,8 @@ Uses of <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.htm
 </TABLE>
 </CODE></FONT></TD>
 <TD><CODE><B>ZooKeeperNode.</B><B><A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperNode.html#create(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String, com.google.common.base.Function)">create</A></B>(<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
-             java.lang.String&nbsp;nodePath,
-             com.google.common.base.Function&lt;byte[],T&gt;&nbsp;deserializer)</CODE>
+             <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;nodePath,
+             <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;byte[],T&gt;&nbsp;deserializer)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns an initialized ZooKeeperNode.</TD>
@@ -140,8 +140,8 @@ Uses of <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.htm
 </TABLE>
 </CODE></FONT></TD>
 <TD><CODE><B>ZooKeeperNode.</B><B><A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperNode.html#create(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String, com.google.common.base.Function, com.twitter.common.base.Closure)">create</A></B>(<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
-             java.lang.String&nbsp;nodePath,
-             com.google.common.base.Function&lt;byte[],T&gt;&nbsp;deserializer,
+             <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;nodePath,
+             <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;byte[],T&gt;&nbsp;deserializer,
              <A HREF="../../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;T&gt;&nbsp;dataUpdateListener)</CODE>
 
 <BR>
@@ -159,8 +159,8 @@ Uses of <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.htm
 </TABLE>
 </CODE></FONT></TD>
 <TD><CODE><B>ZooKeeperMap.</B><B><A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperMap.html#create(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String, com.google.common.base.Function)">create</A></B>(<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
-             java.lang.String&nbsp;nodePath,
-             com.google.common.base.Function&lt;byte[],V&gt;&nbsp;deserializer)</CODE>
+             <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;nodePath,
+             <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;byte[],V&gt;&nbsp;deserializer)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns an initialized ZooKeeperMap.</TD>
@@ -169,8 +169,8 @@ Uses of <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.htm
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B>ZooKeeperUtils.</B><B><A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperUtils.html#ensurePath(com.twitter.common.zookeeper.ZooKeeperClient, java.util.List, java.lang.String)">ensurePath</A></B>(<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
-                     java.util.List&lt;org.apache.zookeeper.data.ACL&gt;&nbsp;acl,
-                     java.lang.String&nbsp;path)</CODE>
+                     <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;org.apache.zookeeper.data.ACL&gt;&nbsp;acl,
+                     <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ensures the given <code>path</code> exists in the ZK cluster accessed by <code>zkClient</code>.</TD>
@@ -185,33 +185,42 @@ Uses of <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.htm
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/zookeeper/DistributedLockImpl.html#DistributedLockImpl(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String)">DistributedLockImpl</A></B>(<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
-                                       java.lang.String&nbsp;lockPath)</CODE>
+                                       <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;lockPath)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Equivalent to <A HREF="../../../../../com/twitter/common/zookeeper/DistributedLockImpl.html#DistributedLockImpl(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String, java.lang.Iterable)"><CODE>DistributedLockImpl.DistributedLockImpl(ZooKeeperClient, String, Iterable)</CODE></A> with a default
+ wide open <code>acl</code> (<CODE>ZooDefs.Ids#OPEN_ACL_UNSAFE</CODE>).</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/zookeeper/Group.html#Group(com.twitter.common.zookeeper.ZooKeeperClient, java.util.List, java.lang.String)">Group</A></B>(<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
-           java.util.List&lt;org.apache.zookeeper.data.ACL&gt;&nbsp;acl,
-           java.lang.String&nbsp;path)</CODE>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/zookeeper/DistributedLockImpl.html#DistributedLockImpl(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String, java.lang.Iterable)">DistributedLockImpl</A></B>(<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
+                                       <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;lockPath,
+                                       <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;org.apache.zookeeper.data.ACL&gt;&nbsp;acl)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Equivalent to <A HREF="../../../../../com/twitter/common/zookeeper/Group.html#Group(com.twitter.common.zookeeper.ZooKeeperClient, java.util.List, java.lang.String, java.lang.String)"><CODE>Group.Group(ZooKeeperClient, java.util.List, String, String)</CODE></A> with a default
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a distributed lock using the given <code>zkClient</code> to coordinate locking.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/zookeeper/Group.html#Group(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.Iterable, java.lang.String)">Group</A></B>(<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
+           <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;org.apache.zookeeper.data.ACL&gt;&nbsp;acl,
+           <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Equivalent to <A HREF="../../../../../com/twitter/common/zookeeper/Group.html#Group(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.Iterable, java.lang.String, java.lang.String)"><CODE>Group.Group(ZooKeeperClient, Iterable, String, String)</CODE></A> with a default
  <code>nodeNamePrefix</code> of 'member_'.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/zookeeper/Group.html#Group(com.twitter.common.zookeeper.ZooKeeperClient, java.util.List, java.lang.String, java.lang.String)">Group</A></B>(<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
-           java.util.List&lt;org.apache.zookeeper.data.ACL&gt;&nbsp;acl,
-           java.lang.String&nbsp;path,
-           java.lang.String&nbsp;nodeNamePrefix)</CODE>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/zookeeper/Group.html#Group(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.Iterable, java.lang.String, java.lang.String)">Group</A></B>(<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
+           <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;org.apache.zookeeper.data.ACL&gt;&nbsp;acl,
+           <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path,
+           <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;nodeNamePrefix)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a group rooted at the given <code>path</code>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/zookeeper/Partitioner.html#Partitioner(com.twitter.common.zookeeper.ZooKeeperClient, java.util.List, java.lang.String)">Partitioner</A></B>(<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
-                       java.util.List&lt;org.apache.zookeeper.data.ACL&gt;&nbsp;acl,
-                       java.lang.String&nbsp;path)</CODE>
+                       <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;org.apache.zookeeper.data.ACL&gt;&nbsp;acl,
+                       <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs a representation of a partition group but does not join it.</TD>
@@ -232,23 +241,32 @@ Uses of <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.htm
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new ServerSet using the given service <code>group</code> and a custom <code>codec</code>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/zookeeper/ServerSetImpl.html#ServerSetImpl(com.twitter.common.zookeeper.ZooKeeperClient, java.util.List, java.lang.String)">ServerSetImpl</A></B>(<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
-                           java.util.List&lt;org.apache.zookeeper.data.ACL&gt;&nbsp;acl,
-                           java.lang.String&nbsp;path)</CODE>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/zookeeper/ServerSetImpl.html#ServerSetImpl(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.Iterable, java.lang.String)">ServerSetImpl</A></B>(<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
+                           <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;org.apache.zookeeper.data.ACL&gt;&nbsp;acl,
+                           <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new ServerSet for the given service <code>path</code>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/zookeeper/ServerSetImpl.html#ServerSetImpl(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String)">ServerSetImpl</A></B>(<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
-                           java.lang.String&nbsp;path)</CODE>
+                           <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new ServerSet using open ZooKeeper node ACLs.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/zookeeper/SingletonService.html#SingletonService(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String)">SingletonService</A></B>(<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
-                                 java.lang.String&nbsp;servicePath)</CODE>
+                                 <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;servicePath)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Equivalent to <A HREF="../../../../../com/twitter/common/zookeeper/SingletonService.html#SingletonService(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String, java.lang.Iterable)"><CODE>SingletonService.SingletonService(ZooKeeperClient, String, Iterable)</CODE></A> with a default
+ wide open <code>acl</code> (<CODE>ZooDefs.Ids#OPEN_ACL_UNSAFE</CODE>).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/zookeeper/SingletonService.html#SingletonService(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String, java.lang.Iterable)">SingletonService</A></B>(<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
+                                 <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;servicePath,
+                                 <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;org.apache.zookeeper.data.ACL&gt;&nbsp;acl)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new singleton service, identified by <code>servicePath</code>.</TD>
@@ -276,17 +294,36 @@ Uses of <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.htm
 <TD><CODE><B>ZooKeeperTestServer.</B><B><A HREF="../../../../../com/twitter/common/zookeeper/testing/ZooKeeperTestServer.html#createClient()">createClient</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a new zookeeper client connected to the in-process zookeeper server with the
- <A HREF="../../../../../com/twitter/common/zookeeper/testing/ZooKeeperTestServer.html#DEFAULT_SESSION_TIMEOUT"><CODE>ZooKeeperTestServer.DEFAULT_SESSION_TIMEOUT</CODE></A>.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a new unauthenticated zookeeper client connected to the in-process zookeeper server
+ with the default session timeout.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A></CODE></FONT></TD>
-<TD><CODE><B>ZooKeeperTestServer.</B><B><A HREF="../../../../../com/twitter/common/zookeeper/testing/ZooKeeperTestServer.html#createClient(com.twitter.common.quantity.Amount)">createClient</A></B>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;java.lang.Integer,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;sessionTimeout)</CODE>
+<TD><CODE><B>ZooKeeperTestServer.</B><B><A HREF="../../../../../com/twitter/common/zookeeper/testing/ZooKeeperTestServer.html#createClient(com.twitter.common.quantity.Amount)">createClient</A></B>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;sessionTimeout)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a new zookeeper client connected to the in-process zookeeper server with a custom
- <code>sessionTimeout</code>.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a new unauthenticated zookeeper client connected to the in-process zookeeper server
+ with a custom <code>sessionTimeout</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A></CODE></FONT></TD>
+<TD><CODE><B>ZooKeeperTestServer.</B><B><A HREF="../../../../../com/twitter/common/zookeeper/testing/ZooKeeperTestServer.html#createClient(com.twitter.common.quantity.Amount, com.twitter.common.zookeeper.ZooKeeperClient.Credentials)">createClient</A></B>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;sessionTimeout,
+                         <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.Credentials.html" title="interface in com.twitter.common.zookeeper">ZooKeeperClient.Credentials</A>&nbsp;credentials)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a new authenticated zookeeper client connected to the in-process zookeeper server with
+ a custom <code>sessionTimeout</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A></CODE></FONT></TD>
+<TD><CODE><B>ZooKeeperTestServer.</B><B><A HREF="../../../../../com/twitter/common/zookeeper/testing/ZooKeeperTestServer.html#createClient(com.twitter.common.zookeeper.ZooKeeperClient.Credentials)">createClient</A></B>(<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.Credentials.html" title="interface in com.twitter.common.zookeeper">ZooKeeperClient.Credentials</A>&nbsp;credentials)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a new authenticated zookeeper client connected to the in-process zookeeper server with
+ the default session timeout.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -294,17 +331,46 @@ Uses of <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.htm
 <TD><CODE><B>BaseZooKeeperTest.</B><B><A HREF="../../../../../com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#createZkClient()">createZkClient</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a new zookeeper client connected to the in-process zookeeper server with the
- default session timeout in ZooKeeperTestHelper.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a new unauthenticated zookeeper client connected to the in-process zookeeper server
+ with the default session timeout.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A></CODE></FONT></TD>
-<TD><CODE><B>BaseZooKeeperTest.</B><B><A HREF="../../../../../com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#createZkClient(com.twitter.common.quantity.Amount)">createZkClient</A></B>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;java.lang.Integer,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;sessionTimeout)</CODE>
+<TD><CODE><B>BaseZooKeeperTest.</B><B><A HREF="../../../../../com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#createZkClient(com.twitter.common.quantity.Amount)">createZkClient</A></B>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;sessionTimeout)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a new zookeeper client connected to the in-process zookeeper server with a custom
- <code>sessionTimeout</code>.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a new unauthenticated zookeeper client connected to the in-process zookeeper server
+ with a custom <code>sessionTimeout</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A></CODE></FONT></TD>
+<TD><CODE><B>BaseZooKeeperTest.</B><B><A HREF="../../../../../com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#createZkClient(com.twitter.common.quantity.Amount, com.twitter.common.zookeeper.ZooKeeperClient.Credentials)">createZkClient</A></B>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;sessionTimeout,
+                             <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.Credentials.html" title="interface in com.twitter.common.zookeeper">ZooKeeperClient.Credentials</A>&nbsp;credentials)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a new authenticated zookeeper client connected to the in-process zookeeper server with
+ a custom <code>sessionTimeout</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A></CODE></FONT></TD>
+<TD><CODE><B>BaseZooKeeperTest.</B><B><A HREF="../../../../../com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#createZkClient(java.lang.String, java.lang.String)">createZkClient</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;username,
+                             <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;password)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a new authenticated zookeeper client connected to the in-process zookeeper server with
+ the default session timeout.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A></CODE></FONT></TD>
+<TD><CODE><B>BaseZooKeeperTest.</B><B><A HREF="../../../../../com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#createZkClient(com.twitter.common.zookeeper.ZooKeeperClient.Credentials)">createZkClient</A></B>(<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.Credentials.html" title="interface in com.twitter.common.zookeeper">ZooKeeperClient.Credentials</A>&nbsp;credentials)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a new authenticated zookeeper client connected to the in-process zookeeper server with
+ the default session timeout.</TD>
 </TR>
 </TABLE>
 &nbsp;

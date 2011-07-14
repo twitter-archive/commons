@@ -90,6 +90,8 @@ com.twitter.common.args</FONT>
 <BR>
 Interface Parsers.Parser&lt;T&gt;</H2>
 <DL>
+<DT><DT><B>Type Parameters:</B><DD><CODE>T</CODE> - The base class this parser can parse all subtypes of.</DL>
+<DL>
 <DT><B>All Known Implementing Classes:</B> <DD><A HREF="../../../../com/twitter/common/args/parsers/AmountParser.html" title="class in com.twitter.common.args.parsers">AmountParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/BaseParser.html" title="class in com.twitter.common.args.parsers">BaseParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/BooleanParser.html" title="class in com.twitter.common.args.parsers">BooleanParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/ByteParser.html" title="class in com.twitter.common.args.parsers">ByteParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/CharacterParser.html" title="class in com.twitter.common.args.parsers">CharacterParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/ClassParser.html" title="class in com.twitter.common.args.parsers">ClassParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/DateParser.html" title="class in com.twitter.common.args.parsers">DateParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/DoubleParser.html" title="class in com.twitter.common.args.parsers">DoubleParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/EnumParser.html" title="class in com.twitter.common.args.parsers">EnumParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/FileParser.html" title="class in com.twitter.common.args.parsers">FileParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/FloatParser.html" title="class in com.twitter.common.args.parsers">FloatParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/InetSocketAddressParser.html" title="class in com.twitter.common.args.parsers">InetSocketAddressParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/IntegerParser.html" title="class in com.twitter.common.args.parsers">IntegerParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/ListParser.html" title="class in com.twitter.common.args.parsers">ListParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/LongParser.html" title="class in com.twitter.common.args.parsers">LongParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/MapParser.html" title="class in com.twitter.common.args.parsers">MapParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html" title="class in com.twitter.common.args.parsers">NonParameterizedTypeParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/NumberParser.html" title="class in com.twitter.common.args.parsers">NumberParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/PairParser.html" title="class in com.twitter.common.args.parsers">PairParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/SetParser.html" title="class in com.twitter.common.args.parsers">SetParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/ShortParser.html" title="class in com.twitter.common.args.parsers">ShortParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/StringParser.html" title="class in com.twitter.common.args.parsers">StringParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/TypeParameterizedParser.html" title="class in com.twitter.common.args.parsers">TypeParameterizedParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/UnitParser.html" title="class in com.twitter.common.args.parsers">UnitParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/URIParser.html" title="class in com.twitter.common.args.parsers">URIParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/URLParser.html" title="class in com.twitter.common.args.parsers">URLParser</A></DD>
 </DL>
 <DL>
@@ -97,8 +99,12 @@ Interface Parsers.Parser&lt;T&gt;</H2>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public static interface <A HREF="../../../../src-html/com/twitter/common/args/Parsers.html#line.86"><B>Parsers.Parser&lt;T&gt;</B></A></DL>
+<DT><PRE>public static interface <A HREF="../../../../src-html/com/twitter/common/args/Parsers.html#line.97"><B>Parsers.Parser&lt;T&gt;</B></A></DL>
 </PRE>
+
+<P>
+An interface to a command line argument parser.
+<P>
 
 <P>
 <HR>
@@ -115,20 +121,20 @@ Interface Parsers.Parser&lt;T&gt;</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;java.lang.Class&lt;<A HREF="../../../../com/twitter/common/args/Parsers.Parser.html" title="type parameter in Parsers.Parser">T</A>&gt;</CODE></FONT></TD>
+<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;? super <A HREF="../../../../com/twitter/common/args/Parsers.Parser.html" title="type parameter in Parsers.Parser">T</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/args/Parsers.Parser.html#getParsedClass()">getParsedClass</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the root of the class hierarchy this parser handles.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../com/twitter/common/args/Parsers.Parser.html" title="type parameter in Parsers.Parser">T</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/args/Parsers.Parser.html#parse(java.lang.reflect.Type, java.lang.String)">parse</A></B>(java.lang.reflect.Type&nbsp;type,
-           java.lang.String&nbsp;raw)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/args/Parsers.Parser.html#parse(java.lang.reflect.Type, java.lang.String)">parse</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type,
+           <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;raw)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Parses strings as arguments of a given subtype of <code>T</code>.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -147,14 +153,18 @@ Interface Parsers.Parser&lt;T&gt;</H2>
 <A NAME="parse(java.lang.reflect.Type, java.lang.String)"><!-- --></A><H3>
 parse</H3>
 <PRE>
-<A HREF="../../../../com/twitter/common/args/Parsers.Parser.html" title="type parameter in Parsers.Parser">T</A> <A HREF="../../../../src-html/com/twitter/common/args/Parsers.Parser.html#line.87"><B>parse</B></A>(java.lang.reflect.Type&nbsp;type,
-        java.lang.String&nbsp;raw)
-        throws java.lang.IllegalArgumentException</PRE>
+<A HREF="../../../../com/twitter/common/args/Parsers.Parser.html" title="type parameter in Parsers.Parser">T</A> <A HREF="../../../../src-html/com/twitter/common/args/Parsers.Parser.html#line.108"><B>parse</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type,
+        <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;raw)
+        throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</A></PRE>
 <DL>
+<DD>Parses strings as arguments of a given subtype of <code>T</code>.
+<P>
 <DD><DL>
-
+<DT><B>Parameters:</B><DD><CODE>type</CODE> - The target type of the parsed argument.<DD><CODE>raw</CODE> - The raw value of the argument.
+<DT><B>Returns:</B><DD>A value of the given type parsed from the raw value.
 <DT><B>Throws:</B>
-<DD><CODE>java.lang.IllegalArgumentException</CODE></DL>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - if the raw value could not be parsed into a value of the
+     given type.</DL>
 </DD>
 </DL>
 <HR>
@@ -162,10 +172,17 @@ parse</H3>
 <A NAME="getParsedClass()"><!-- --></A><H3>
 getParsedClass</H3>
 <PRE>
-java.lang.Class&lt;<A HREF="../../../../com/twitter/common/args/Parsers.Parser.html" title="type parameter in Parsers.Parser">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/args/Parsers.Parser.html#line.89"><B>getParsedClass</B></A>()</PRE>
+<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;? super <A HREF="../../../../com/twitter/common/args/Parsers.Parser.html" title="type parameter in Parsers.Parser">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/args/Parsers.Parser.html#line.119"><B>getParsedClass</B></A>()</PRE>
 <DL>
+<DD>Returns the root of the class hierarchy this parser handles.
+
+ <p>Note that implementations that return a proper supertype class instead of T.class must
+ be able to handle <A HREF="../../../../com/twitter/common/args/Parsers.Parser.html#parse(java.lang.reflect.Type, java.lang.String)"><CODE>parsing</CODE></A> raw values into
+ all possible subtypes in use as command line argument types.
+<P>
 <DD><DL>
-</DL>
+
+<DT><B>Returns:</B><DD>The base class this parser can parse all subtypes of.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

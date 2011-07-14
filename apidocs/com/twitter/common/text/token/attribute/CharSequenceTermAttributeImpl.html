@@ -1,0 +1,815 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+CharSequenceTermAttributeImpl
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../../stylesheet.css" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="CharSequenceTermAttributeImpl";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<script type="text/javascript">top.updateArtifact(window.location);</script><HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/CharSequenceTermAttributeImpl.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html" title="interface in com.twitter.common.text.token.attribute"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../com/twitter/common/text/token/attribute/PartOfSpeechAttribute.html" title="interface in com.twitter.common.text.token.attribute"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="CharSequenceTermAttributeImpl.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+com.twitter.common.text.token.attribute</FONT>
+<BR>
+Class CharSequenceTermAttributeImpl</H2>
+<PRE>
+<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">org.apache.lucene.util.AttributeImpl</A>
+      <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.text.token.attribute.CharSequenceTermAttributeImpl</B>
+</PRE>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html" title="interface in com.twitter.common.text.token.attribute">CharSequenceTermAttribute</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang">Cloneable</A>, <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/analysis/tokenattributes/TermAttribute.html?is-external=true" title="class or interface in org.apache.lucene.analysis.tokenattributes">TermAttribute</A>, <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/Attribute.html?is-external=true" title="class or interface in org.apache.lucene.util">Attribute</A></DD>
+</DL>
+<HR>
+<DL>
+<DT><PRE>public class <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.41"><B>CharSequenceTermAttributeImpl</B></A><DT>extends <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A><DT>implements <A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html" title="interface in com.twitter.common.text.token.attribute">CharSequenceTermAttribute</A>, <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/analysis/tokenattributes/TermAttribute.html?is-external=true" title="class or interface in org.apache.lucene.analysis.tokenattributes">TermAttribute</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang">Cloneable</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</A></DL>
+</PRE>
+
+<P>
+Implementation of <code>CharSequenceTermAttribute</code>. The implementation differs from Lucene's
+ <code>TermAttributeImpl</code>, which relies on an internal char[] termBuffer that can grow.
+ Extracting a token with <code>TermAttributeImpl</code> involves a copy into this buffer, and setting
+ the length of the term. In contrast, with this class, the client instead refers to
+ a span in the underlying <code>CharSequence</code> by start index (offset) and end index.
+ <p>
+ Note that this class explicitly suppresses the ability for instance to be serialized, inherited
+ via <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util"><CODE>AttributeImpl</CODE></A>.
+<P>
+
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../serialized-form.html#com.twitter.common.text.token.attribute.CharSequenceTermAttributeImpl">Serialized Form</A></DL>
+<HR>
+
+<P>
+
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#CharSequenceTermAttributeImpl()">CharSequenceTermAttributeImpl</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#clear()">clear</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#copyTo(org.apache.lucene.util.AttributeImpl)">copyTo</A></B>(<A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A>&nbsp;target)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Passing a <code>CharSequenceTermAttribute</code> instead of a <code>TermAttribute</code> will
+ obviate the construction of an extra String.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#equals(java.lang.Object)">equals</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>&nbsp;other)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#getCharSequence()">getCharSequence</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Provides access to the encapsulated <code>CharSequence</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#getLength()">getLength</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The length is the length in characters of the span referenced by this
+ <A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html" title="interface in com.twitter.common.text.token.attribute"><CODE>CharSequenceTermAttribute</CODE></A>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#getOffset()">getOffset</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The offset is the character index, with respect to the underlying CharSequence,
+ of the first character in the span referenced by this CharSequenceTermAttribute.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#getTermCharSequence()">getTermCharSequence</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the term text as a <code>CharSequence</code>, without needing to construct a
+ <code>String</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#hashCode()">hashCode</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This is largely based on <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/ArrayUtil.html?is-external=true#hashCode(char[], int, int)" title="class or interface in org.apache.lucene.util"><CODE>ArrayUtil.hashCode(char[], int, int)</CODE></A>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;char[]</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#resizeTermBuffer(int)">resizeTermBuffer</A></B>(int&nbsp;size)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#setCharSequence(java.lang.CharSequence)">setCharSequence</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;originalCharSequence)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sets the encapsulated <code>CharSequence</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#setLength(int)">setLength</A></B>(int&nbsp;length)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assigns the length to the specified value.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#setOffset(int)">setOffset</A></B>(int&nbsp;offset)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assigns the offset to the specified value.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#setTermBuffer(char[], int, int)">setTermBuffer</A></B>(char[]&nbsp;array,
+                           int&nbsp;offset,
+                           int&nbsp;length)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#setTermBuffer(java.lang.CharSequence)">setTermBuffer</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;seq)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assigns the backing <code>CharSequence</code> for this attribute to the specified <code>CharSequence</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#setTermBuffer(java.lang.CharSequence, int, int)">setTermBuffer</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;seq,
+                           int&nbsp;offset,
+                           int&nbsp;length)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assigns the backing <code>CharSequence</code> for this attribute to the specified <code>CharSequence</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#setTermBuffer(java.lang.String)">setTermBuffer</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;str)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#setTermBuffer(java.lang.String, int, int)">setTermBuffer</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;str,
+                           int&nbsp;offset,
+                           int&nbsp;length)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#setTermLength(int)">setTermLength</A></B>(int&nbsp;length)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Per the Javadoc for
+ <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/analysis/tokenattributes/TermAttribute.html?is-external=true#setTermLength(int)" title="class or interface in org.apache.lucene.analysis.tokenattributes"><CODE>TermAttribute.setTermLength(int)</CODE></A>,
+ this is supposed to only be used to truncate the buffer.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#term()">term</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;char[]</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#termBuffer()">termBuffer</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#termLength()">termLength</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#writeTerm(java.io.Writer)">writeTerm</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/io/Writer.html?is-external=true" title="class or interface in java.io">Writer</A>&nbsp;writer)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_org.apache.lucene.util.AttributeImpl"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class org.apache.lucene.util.<A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true#clone()" title="class or interface in org.apache.lucene.util">clone</A>, <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true#toString()" title="class or interface in org.apache.lucene.util">toString</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="CharSequenceTermAttributeImpl()"><!-- --></A><H3>
+CharSequenceTermAttributeImpl</H3>
+<PRE>
+public <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.41"><B>CharSequenceTermAttributeImpl</B></A>()</PRE>
+<DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="term()"><!-- --></A><H3>
+term</H3>
+<PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.51"><B>term</B></A>()</PRE>
+<DL>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/analysis/tokenattributes/TermAttribute.html?is-external=true#term()" title="class or interface in org.apache.lucene.analysis.tokenattributes">term</A></CODE> in interface <CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/analysis/tokenattributes/TermAttribute.html?is-external=true" title="class or interface in org.apache.lucene.analysis.tokenattributes">TermAttribute</A></CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="writeTerm(java.io.Writer)"><!-- --></A><H3>
+writeTerm</H3>
+<PRE>
+public void <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.55"><B>writeTerm</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/io/Writer.html?is-external=true" title="class or interface in java.io">Writer</A>&nbsp;writer)
+               throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getTermCharSequence()"><!-- --></A><H3>
+getTermCharSequence</H3>
+<PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A> <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.61"><B>getTermCharSequence</B></A>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html#getTermCharSequence()">CharSequenceTermAttribute</A></CODE></B></DD>
+<DD>Returns the term text as a <code>CharSequence</code>, without needing to construct a
+ <code>String</code>. This method is preferred over <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/analysis/tokenattributes/TermAttribute.html?is-external=true#term()" title="class or interface in org.apache.lucene.analysis.tokenattributes"><CODE>TermAttribute.term()</CODE></A>.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html#getTermCharSequence()">getTermCharSequence</A></CODE> in interface <CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html" title="interface in com.twitter.common.text.token.attribute">CharSequenceTermAttribute</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD><code>CharSequence</code> representing the term text.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setTermBuffer(java.lang.CharSequence)"><!-- --></A><H3>
+setTermBuffer</H3>
+<PRE>
+public void <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.67"><B>setTermBuffer</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;seq)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html#setTermBuffer(java.lang.CharSequence)">CharSequenceTermAttribute</A></CODE></B></DD>
+<DD>Assigns the backing <code>CharSequence</code> for this attribute to the specified <code>CharSequence</code>. The start character index is set to zero, and the end character index is set to
+ the length of the specified <code>CharSequence</code>.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html#setTermBuffer(java.lang.CharSequence)">setTermBuffer</A></CODE> in interface <CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html" title="interface in com.twitter.common.text.token.attribute">CharSequenceTermAttribute</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>seq</CODE> - <code>CharSequence</code> that will become the new underlying <code>CharSequence</code> for
+          this attribute.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setTermBuffer(java.lang.CharSequence, int, int)"><!-- --></A><H3>
+setTermBuffer</H3>
+<PRE>
+public void <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.76"><B>setTermBuffer</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;seq,
+                          int&nbsp;offset,
+                          int&nbsp;length)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html#setTermBuffer(java.lang.CharSequence, int, int)">CharSequenceTermAttribute</A></CODE></B></DD>
+<DD>Assigns the backing <code>CharSequence</code> for this attribute to the specified <code>CharSequence</code>. The start character index is set to specified offset, and the end character
+ index is set to offset plus length.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html#setTermBuffer(java.lang.CharSequence, int, int)">setTermBuffer</A></CODE> in interface <CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html" title="interface in com.twitter.common.text.token.attribute">CharSequenceTermAttribute</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>seq</CODE> - <code>CharSequence</code> that will become the new underlying <code>CharSequence</code> for
+          this attribute.<DD><CODE>offset</CODE> - character index with respect to the specified <code>CharSequence</code> that will
+          become the new start character index for this attribute.<DD><CODE>length</CODE> - this value will be added to the specified offset value, and the result will
+          become the new end character index for this attribute.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setTermBuffer(char[], int, int)"><!-- --></A><H3>
+setTermBuffer</H3>
+<PRE>
+public void <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.84"><B>setTermBuffer</B></A>(char[]&nbsp;array,
+                          int&nbsp;offset,
+                          int&nbsp;length)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/analysis/tokenattributes/TermAttribute.html?is-external=true#setTermBuffer(char[], int, int)" title="class or interface in org.apache.lucene.analysis.tokenattributes">setTermBuffer</A></CODE> in interface <CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/analysis/tokenattributes/TermAttribute.html?is-external=true" title="class or interface in org.apache.lucene.analysis.tokenattributes">TermAttribute</A></CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setTermBuffer(java.lang.String)"><!-- --></A><H3>
+setTermBuffer</H3>
+<PRE>
+public void <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.89"><B>setTermBuffer</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;str)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/analysis/tokenattributes/TermAttribute.html?is-external=true#setTermBuffer(java.lang.String)" title="class or interface in org.apache.lucene.analysis.tokenattributes">setTermBuffer</A></CODE> in interface <CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/analysis/tokenattributes/TermAttribute.html?is-external=true" title="class or interface in org.apache.lucene.analysis.tokenattributes">TermAttribute</A></CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setTermBuffer(java.lang.String, int, int)"><!-- --></A><H3>
+setTermBuffer</H3>
+<PRE>
+public void <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.94"><B>setTermBuffer</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;str,
+                          int&nbsp;offset,
+                          int&nbsp;length)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/analysis/tokenattributes/TermAttribute.html?is-external=true#setTermBuffer(java.lang.String, int, int)" title="class or interface in org.apache.lucene.analysis.tokenattributes">setTermBuffer</A></CODE> in interface <CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/analysis/tokenattributes/TermAttribute.html?is-external=true" title="class or interface in org.apache.lucene.analysis.tokenattributes">TermAttribute</A></CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="resizeTermBuffer(int)"><!-- --></A><H3>
+resizeTermBuffer</H3>
+<PRE>
+public char[] <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.99"><B>resizeTermBuffer</B></A>(int&nbsp;size)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/analysis/tokenattributes/TermAttribute.html?is-external=true#resizeTermBuffer(int)" title="class or interface in org.apache.lucene.analysis.tokenattributes">resizeTermBuffer</A></CODE> in interface <CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/analysis/tokenattributes/TermAttribute.html?is-external=true" title="class or interface in org.apache.lucene.analysis.tokenattributes">TermAttribute</A></CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setTermLength(int)"><!-- --></A><H3>
+setTermLength</H3>
+<PRE>
+public void <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.109"><B>setTermLength</B></A>(int&nbsp;length)</PRE>
+<DL>
+<DD>Per the Javadoc for
+ <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/analysis/tokenattributes/TermAttribute.html?is-external=true#setTermLength(int)" title="class or interface in org.apache.lucene.analysis.tokenattributes"><CODE>TermAttribute.setTermLength(int)</CODE></A>,
+ this is supposed to only be used to truncate the buffer.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/analysis/tokenattributes/TermAttribute.html?is-external=true#setTermLength(int)" title="class or interface in org.apache.lucene.analysis.tokenattributes">setTermLength</A></CODE> in interface <CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/analysis/tokenattributes/TermAttribute.html?is-external=true" title="class or interface in org.apache.lucene.analysis.tokenattributes">TermAttribute</A></CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="termBuffer()"><!-- --></A><H3>
+termBuffer</H3>
+<PRE>
+public char[] <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.117"><B>termBuffer</B></A>()</PRE>
+<DL>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/analysis/tokenattributes/TermAttribute.html?is-external=true#termBuffer()" title="class or interface in org.apache.lucene.analysis.tokenattributes">termBuffer</A></CODE> in interface <CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/analysis/tokenattributes/TermAttribute.html?is-external=true" title="class or interface in org.apache.lucene.analysis.tokenattributes">TermAttribute</A></CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="termLength()"><!-- --></A><H3>
+termLength</H3>
+<PRE>
+public int <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.122"><B>termLength</B></A>()</PRE>
+<DL>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/analysis/tokenattributes/TermAttribute.html?is-external=true#termLength()" title="class or interface in org.apache.lucene.analysis.tokenattributes">termLength</A></CODE> in interface <CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/analysis/tokenattributes/TermAttribute.html?is-external=true" title="class or interface in org.apache.lucene.analysis.tokenattributes">TermAttribute</A></CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="clear()"><!-- --></A><H3>
+clear</H3>
+<PRE>
+public void <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.127"><B>clear</B></A>()</PRE>
+<DL>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true#clear()" title="class or interface in org.apache.lucene.util">clear</A></CODE> in class <CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A></CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="copyTo(org.apache.lucene.util.AttributeImpl)"><!-- --></A><H3>
+copyTo</H3>
+<PRE>
+public void <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.137"><B>copyTo</B></A>(<A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A>&nbsp;target)</PRE>
+<DL>
+<DD>Passing a <code>CharSequenceTermAttribute</code> instead of a <code>TermAttribute</code> will
+ obviate the construction of an extra String.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true#copyTo(org.apache.lucene.util.AttributeImpl)" title="class or interface in org.apache.lucene.util">copyTo</A></CODE> in class <CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A></CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="equals(java.lang.Object)"><!-- --></A><H3>
+equals</H3>
+<PRE>
+public boolean <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.148"><B>equals</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>&nbsp;other)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true#equals(java.lang.Object)" title="class or interface in org.apache.lucene.util">equals</A></CODE> in class <CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A></CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="hashCode()"><!-- --></A><H3>
+hashCode</H3>
+<PRE>
+public int <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.182"><B>hashCode</B></A>()</PRE>
+<DL>
+<DD>This is largely based on <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/ArrayUtil.html?is-external=true#hashCode(char[], int, int)" title="class or interface in org.apache.lucene.util"><CODE>ArrayUtil.hashCode(char[], int, int)</CODE></A>.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true#hashCode()" title="class or interface in org.apache.lucene.util">hashCode</A></CODE> in class <CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A></CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getOffset()"><!-- --></A><H3>
+getOffset</H3>
+<PRE>
+public int <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.192"><B>getOffset</B></A>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html#getOffset()">CharSequenceTermAttribute</A></CODE></B></DD>
+<DD>The offset is the character index, with respect to the underlying CharSequence,
+ of the first character in the span referenced by this CharSequenceTermAttribute.
+ The offset may point to the end of the underlying CharSequence when length is zero.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html#getOffset()">getOffset</A></CODE> in interface <CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html" title="interface in com.twitter.common.text.token.attribute">CharSequenceTermAttribute</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the current offset</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLength()"><!-- --></A><H3>
+getLength</H3>
+<PRE>
+public int <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.197"><B>getLength</B></A>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html#getLength()">CharSequenceTermAttribute</A></CODE></B></DD>
+<DD>The length is the length in characters of the span referenced by this
+ <A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html" title="interface in com.twitter.common.text.token.attribute"><CODE>CharSequenceTermAttribute</CODE></A>.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html#getLength()">getLength</A></CODE> in interface <CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html" title="interface in com.twitter.common.text.token.attribute">CharSequenceTermAttribute</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the current length</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setOffset(int)"><!-- --></A><H3>
+setOffset</H3>
+<PRE>
+public void <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.202"><B>setOffset</B></A>(int&nbsp;offset)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html#setOffset(int)">CharSequenceTermAttribute</A></CODE></B></DD>
+<DD>Assigns the offset to the specified value.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html#setOffset(int)">setOffset</A></CODE> in interface <CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html" title="interface in com.twitter.common.text.token.attribute">CharSequenceTermAttribute</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>offset</CODE> - new value for the offset, which must be at least zero, and less
+               than or equal to the length of the underlying <code>CharSequence</code></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLength(int)"><!-- --></A><H3>
+setLength</H3>
+<PRE>
+public void <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.211"><B>setLength</B></A>(int&nbsp;length)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html#setLength(int)">CharSequenceTermAttribute</A></CODE></B></DD>
+<DD>Assigns the length to the specified value.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html#setLength(int)">setLength</A></CODE> in interface <CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html" title="interface in com.twitter.common.text.token.attribute">CharSequenceTermAttribute</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>length</CODE> - new value for the length, which must be at least zero, and at most
+               equal to the length of the underlying <code>CharSequence</code></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getCharSequence()"><!-- --></A><H3>
+getCharSequence</H3>
+<PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A> <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.220"><B>getCharSequence</B></A>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html#getCharSequence()">CharSequenceTermAttribute</A></CODE></B></DD>
+<DD>Provides access to the encapsulated <code>CharSequence</code>.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html#getCharSequence()">getCharSequence</A></CODE> in interface <CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html" title="interface in com.twitter.common.text.token.attribute">CharSequenceTermAttribute</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the underlying <code>CharSequence</code> object</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setCharSequence(java.lang.CharSequence)"><!-- --></A><H3>
+setCharSequence</H3>
+<PRE>
+public void <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.225"><B>setCharSequence</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;originalCharSequence)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html#setCharSequence(java.lang.CharSequence)">CharSequenceTermAttribute</A></CODE></B></DD>
+<DD>Sets the encapsulated <code>CharSequence</code>.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html#setCharSequence(java.lang.CharSequence)">setCharSequence</A></CODE> in interface <CODE><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html" title="interface in com.twitter.common.text.token.attribute">CharSequenceTermAttribute</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>originalCharSequence</CODE> - <code>CharSequence</code> encapsulated by this
+     <code>CharSequenceAttribute</code></DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/CharSequenceTermAttributeImpl.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html" title="interface in com.twitter.common.text.token.attribute"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../com/twitter/common/text/token/attribute/PartOfSpeechAttribute.html" title="interface in com.twitter.common.text.token.attribute"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="CharSequenceTermAttributeImpl.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

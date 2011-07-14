@@ -90,7 +90,7 @@ com.twitter.common.net.loadbalancing</FONT>
 <BR>
 Class LeastConnectedStrategy&lt;S&gt;</H2>
 <PRE>
-java.lang.Object
+<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
   <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.net.loadbalancing.LeastConnectedStrategy&lt;S&gt;</B>
 </PRE>
 <DL>
@@ -98,7 +98,7 @@ java.lang.Object
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html#line.37"><B>LeastConnectedStrategy&lt;S&gt;</B></A><DT>extends java.lang.Object</DL>
+<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html#line.37"><B>LeastConnectedStrategy&lt;S&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
@@ -193,16 +193,16 @@ A load balancer that attempts to direct load towards a backend that has the fewe
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html#offerBackends(java.util.Set, com.twitter.common.base.Closure)">offerBackends</A></B>(java.util.Set&lt;K&gt;&nbsp;offeredBackends,
-                           <A HREF="../../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;java.util.Collection&lt;K&gt;&gt;&nbsp;onBackendsChosen)</CODE>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html#offerBackends(java.util.Set, com.twitter.common.base.Closure)">offerBackends</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;K&gt;&nbsp;offeredBackends,
+                           <A HREF="../../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&lt;K&gt;&gt;&nbsp;onBackendsChosen)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Offers a set of backends that the load balancer should choose from to distribute load amongst.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;java.util.Collection&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html" title="type parameter in LeastConnectedStrategy">S</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html#onBackendsOffered(java.util.Set)">onBackendsOffered</A></B>(java.util.Set&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html" title="type parameter in LeastConnectedStrategy">S</A>&gt;&nbsp;backends)</CODE>
+<CODE>protected &nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html" title="type parameter in LeastConnectedStrategy">S</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html#onBackendsOffered(java.util.Set)">onBackendsOffered</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html" title="type parameter in LeastConnectedStrategy">S</A>&gt;&nbsp;backends)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Subclasses must override and return a collection of the backends actually chosen for use until
@@ -212,10 +212,10 @@ A load balancer that attempts to direct load towards a backend that has the fewe
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</CODE></TD>
+<TD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -251,7 +251,7 @@ public <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/Lea
 <A NAME="onBackendsOffered(java.util.Set)"><!-- --></A><H3>
 onBackendsOffered</H3>
 <PRE>
-protected java.util.Collection&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html" title="type parameter in LeastConnectedStrategy">S</A>&gt; <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html#line.87"><B>onBackendsOffered</B></A>(java.util.Set&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html" title="type parameter in LeastConnectedStrategy">S</A>&gt;&nbsp;backends)</PRE>
+protected <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html" title="type parameter in LeastConnectedStrategy">S</A>&gt; <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html#line.87"><B>onBackendsOffered</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html" title="type parameter in LeastConnectedStrategy">S</A>&gt;&nbsp;backends)</PRE>
 <DL>
 <DD>Subclasses must override and return a collection of the backends actually chosen for use until
  the next offer round.
@@ -323,8 +323,8 @@ public void <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancin
 <A NAME="offerBackends(java.util.Set, com.twitter.common.base.Closure)"><!-- --></A><H3>
 offerBackends</H3>
 <PRE>
-public final void <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/StaticLoadBalancingStrategy.html#line.36"><B>offerBackends</B></A>(java.util.Set&lt;K&gt;&nbsp;offeredBackends,
-                                <A HREF="../../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;java.util.Collection&lt;K&gt;&gt;&nbsp;onBackendsChosen)</PRE>
+public final void <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/StaticLoadBalancingStrategy.html#line.36"><B>offerBackends</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;K&gt;&nbsp;offeredBackends,
+                                <A HREF="../../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&lt;K&gt;&gt;&nbsp;onBackendsChosen)</PRE>
 <DL>
 <DD><B>Description copied from interface: <CODE><A HREF="../../../../../com/twitter/common/net/loadbalancing/LoadBalancingStrategy.html#offerBackends(java.util.Set, com.twitter.common.base.Closure)">LoadBalancingStrategy</A></CODE></B></DD>
 <DD>Offers a set of backends that the load balancer should choose from to distribute load amongst.

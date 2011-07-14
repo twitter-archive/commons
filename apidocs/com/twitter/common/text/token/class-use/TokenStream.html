@@ -1,0 +1,855 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+Uses of Class com.twitter.common.text.token.TokenStream
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../../stylesheet.css" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="Uses of Class com.twitter.common.text.token.TokenStream";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<script type="text/javascript">top.updateArtifact(window.location);</script><HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token"><FONT CLASS="NavBarFont1"><B>Class</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Use</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;PREV&nbsp;
+&nbsp;NEXT</FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?com/twitter/common/text/token//class-useTokenStream.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="TokenStream.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<CENTER>
+<H2>
+<B>Uses of Class<br>com.twitter.common.text.token.TokenStream</B></H2>
+</CENTER>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+Packages that use <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><A HREF="#com.twitter.common.text"><B>com.twitter.common.text</B></A></TD>
+<TD>&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><A HREF="#com.twitter.common.text.combiner"><B>com.twitter.common.text.combiner</B></A></TD>
+<TD>&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><A HREF="#com.twitter.common.text.detector"><B>com.twitter.common.text.detector</B></A></TD>
+<TD>&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><A HREF="#com.twitter.common.text.extractor"><B>com.twitter.common.text.extractor</B></A></TD>
+<TD>&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><A HREF="#com.twitter.common.text.filter"><B>com.twitter.common.text.filter</B></A></TD>
+<TD>&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><A HREF="#com.twitter.common.text.token"><B>com.twitter.common.text.token</B></A></TD>
+<TD>&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><A HREF="#com.twitter.common.text.tokenizer"><B>com.twitter.common.text.tokenizer</B></A></TD>
+<TD>&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+<A NAME="com.twitter.common.text"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+Uses of <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A> in <A HREF="../../../../../../com/twitter/common/text/package-summary.html">com.twitter.common.text</A></FONT></TH>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Methods in <A HREF="../../../../../../com/twitter/common/text/package-summary.html">com.twitter.common.text</A> that return <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></CODE></FONT></TD>
+<TD><CODE><B>DefaultTextTokenizer.</B><B><A HREF="../../../../../../com/twitter/common/text/DefaultTextTokenizer.html#applyDefaultChain(com.twitter.common.text.token.TokenStream)">applyDefaultChain</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;tokenizer)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></CODE></FONT></TD>
+<TD><CODE><B>DefaultTextTokenizer.</B><B><A HREF="../../../../../../com/twitter/common/text/DefaultTextTokenizer.html#getDefaultTokenStream()">getDefaultTokenStream</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns <code>TokenStream</code> to tokenize a text.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Methods in <A HREF="../../../../../../com/twitter/common/text/package-summary.html">com.twitter.common.text</A> with parameters of type <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></CODE></FONT></TD>
+<TD><CODE><B>DefaultTextTokenizer.</B><B><A HREF="../../../../../../com/twitter/common/text/DefaultTextTokenizer.html#applyDefaultChain(com.twitter.common.text.token.TokenStream)">applyDefaultChain</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;tokenizer)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+<A NAME="com.twitter.common.text.combiner"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+Uses of <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A> in <A HREF="../../../../../../com/twitter/common/text/combiner/package-summary.html">com.twitter.common.text.combiner</A></FONT></TH>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Subclasses of <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A> in <A HREF="../../../../../../com/twitter/common/text/combiner/package-summary.html">com.twitter.common.text.combiner</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/combiner/DotContractedTokenCombiner.html" title="class in com.twitter.common.text.combiner">DotContractedTokenCombiner</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Combines contracted word followed by dot/period (e.g., Mr.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/combiner/EmoticonTokenCombiner.html" title="class in com.twitter.common.text.combiner">EmoticonTokenCombiner</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Combines an emoticon (e.g., :) :-P ) back to a single token.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/combiner/ExtractorBasedTokenCombiner.html" title="class in com.twitter.common.text.combiner">ExtractorBasedTokenCombiner</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Combines multiple tokens into a single one if they define an entity identified
+ by an extractor TokenStream.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/combiner/HashtagTokenCombiner.html" title="class in com.twitter.common.text.combiner">HashtagTokenCombiner</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Combines multiple tokens denoting a hashtag back into a single token.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/combiner/LookAheadTokenCombiner.html" title="class in com.twitter.common.text.combiner">LookAheadTokenCombiner</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Combiner that looks ahead to the next token and combines it with the current token based on
+ specified conditions.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/combiner/PossessiveTokenCombiner.html" title="class in com.twitter.common.text.combiner">PossessiveTokenCombiner</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Combines multiple tokens denoting a possessive form (e.g., Twitter's) back into a single token.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/combiner/StockTokenCombiner.html" title="class in com.twitter.common.text.combiner">StockTokenCombiner</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Combines multiple tokens denoting a stock symbol (e.g., $YHOO) back into a single token.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/combiner/URLTokenCombiner.html" title="class in com.twitter.common.text.combiner">URLTokenCombiner</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Combines multiple tokens denoting a URL back into a single token.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/combiner/UserNameTokenCombiner.html" title="class in com.twitter.common.text.combiner">UserNameTokenCombiner</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Combines multiple tokens denoting a username (e.g., @keita_f) back into a single token.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Methods in <A HREF="../../../../../../com/twitter/common/text/combiner/package-summary.html">com.twitter.common.text.combiner</A> with parameters of type <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B>ExtractorBasedTokenCombiner.</B><B><A HREF="../../../../../../com/twitter/common/text/combiner/ExtractorBasedTokenCombiner.html#setExtractor(com.twitter.common.text.token.TokenStream)">setExtractor</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;extractor)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Constructors in <A HREF="../../../../../../com/twitter/common/text/combiner/package-summary.html">com.twitter.common.text.combiner</A> with parameters of type <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/combiner/DotContractedTokenCombiner.html#DotContractedTokenCombiner(com.twitter.common.text.token.TokenStream)">DotContractedTokenCombiner</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/combiner/EmoticonTokenCombiner.html#EmoticonTokenCombiner(com.twitter.common.text.token.TokenStream)">EmoticonTokenCombiner</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/combiner/ExtractorBasedTokenCombiner.html#ExtractorBasedTokenCombiner(com.twitter.common.text.token.TokenStream)">ExtractorBasedTokenCombiner</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/combiner/HashtagTokenCombiner.html#HashtagTokenCombiner(com.twitter.common.text.token.TokenStream)">HashtagTokenCombiner</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/combiner/LookAheadTokenCombiner.html#LookAheadTokenCombiner(com.twitter.common.text.token.TokenStream)">LookAheadTokenCombiner</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/combiner/PossessiveTokenCombiner.html#PossessiveTokenCombiner(com.twitter.common.text.token.TokenStream)">PossessiveTokenCombiner</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/combiner/StockTokenCombiner.html#StockTokenCombiner(com.twitter.common.text.token.TokenStream)">StockTokenCombiner</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/combiner/URLTokenCombiner.html#URLTokenCombiner(com.twitter.common.text.token.TokenStream)">URLTokenCombiner</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/combiner/UserNameTokenCombiner.html#UserNameTokenCombiner(com.twitter.common.text.token.TokenStream)">UserNameTokenCombiner</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+<A NAME="com.twitter.common.text.detector"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+Uses of <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A> in <A HREF="../../../../../../com/twitter/common/text/detector/package-summary.html">com.twitter.common.text.detector</A></FONT></TH>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Subclasses of <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A> in <A HREF="../../../../../../com/twitter/common/text/detector/package-summary.html">com.twitter.common.text.detector</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/detector/PunctuationDetector.html" title="class in com.twitter.common.text.detector">PunctuationDetector</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Updates <code>TokenTypeAttribute</code> of a token to <code>TokenType.PUNCTUATION</code>
+ if the token is identified as punctuation.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/detector/RegexDetector.html" title="class in com.twitter.common.text.detector">RegexDetector</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Updates <code>TypeAttribute</code> of a token if the term matches a given regular expression.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Constructors in <A HREF="../../../../../../com/twitter/common/text/detector/package-summary.html">com.twitter.common.text.detector</A> with parameters of type <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/detector/PunctuationDetector.Builder.html#PunctuationDetector.Builder(com.twitter.common.text.token.TokenStream)">PunctuationDetector.Builder</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/detector/PunctuationDetector.html#PunctuationDetector(com.twitter.common.text.token.TokenStream)">PunctuationDetector</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/detector/RegexDetector.Builder.html#RegexDetector.Builder(com.twitter.common.text.token.TokenStream)">RegexDetector.Builder</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/detector/RegexDetector.html#RegexDetector(com.twitter.common.text.token.TokenStream)">RegexDetector</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+<A NAME="com.twitter.common.text.extractor"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+Uses of <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A> in <A HREF="../../../../../../com/twitter/common/text/extractor/package-summary.html">com.twitter.common.text.extractor</A></FONT></TH>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Subclasses of <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A> in <A HREF="../../../../../../com/twitter/common/text/extractor/package-summary.html">com.twitter.common.text.extractor</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/extractor/EmoticonExtractor.html" title="class in com.twitter.common.text.extractor">EmoticonExtractor</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Extracts emoticons (e.g., :), :-( ) from a text.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/extractor/HashtagExtractor.html" title="class in com.twitter.common.text.extractor">HashtagExtractor</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Extracts hashtags from text, according to the canonical definition found in the
+ <code>twitter-text-java</code> library <CODE>Regex</CODE>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/extractor/RegexExtractor.html" title="class in com.twitter.common.text.extractor">RegexExtractor</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Extracts entities from text according to a given regular expression.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/extractor/URLExtractor.html" title="class in com.twitter.common.text.extractor">URLExtractor</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Extracts URLs from text, according to the canonical definition found in the <code>twitter-text-java</code> library <CODE>Regex</CODE>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/extractor/UserNameExtractor.html" title="class in com.twitter.common.text.extractor">UserNameExtractor</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Extracts user names ('@'+{username}) from text, according to the canonical definition found in
+ the <code>twitter-text-java</code> library <CODE>Regex</CODE>.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+<A NAME="com.twitter.common.text.filter"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+Uses of <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A> in <A HREF="../../../../../../com/twitter/common/text/filter/package-summary.html">com.twitter.common.text.filter</A></FONT></TH>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Subclasses of <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A> in <A HREF="../../../../../../com/twitter/common/text/filter/package-summary.html">com.twitter.common.text.filter</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/filter/PunctuationFilter.html" title="class in com.twitter.common.text.filter">PunctuationFilter</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Filters out tokens whose <code>TokenTypeAttribute</code> is <code>TokenType.PUNCTUATION</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/filter/TokenFilter.html" title="class in com.twitter.common.text.filter">TokenFilter</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Filters out tokens from a given <code>TokenStream</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/filter/TokenTypeFilter.html" title="class in com.twitter.common.text.filter">TokenTypeFilter</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Either filters out or retains tokens of a specified type(s).</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Constructors in <A HREF="../../../../../../com/twitter/common/text/filter/package-summary.html">com.twitter.common.text.filter</A> with parameters of type <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/filter/PunctuationFilter.html#PunctuationFilter(com.twitter.common.text.token.TokenStream)">PunctuationFilter</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/filter/TokenFilter.html#TokenFilter(com.twitter.common.text.token.TokenStream)">TokenFilter</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/filter/TokenTypeFilter.Builder.html#TokenTypeFilter.Builder(com.twitter.common.text.token.TokenStream)">TokenTypeFilter.Builder</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/filter/TokenTypeFilter.html#TokenTypeFilter(com.twitter.common.text.token.TokenStream)">TokenTypeFilter</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+<A NAME="com.twitter.common.text.token"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+Uses of <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A> in <A HREF="../../../../../../com/twitter/common/text/token/package-summary.html">com.twitter.common.text.token</A></FONT></TH>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Subclasses of <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A> in <A HREF="../../../../../../com/twitter/common/text/token/package-summary.html">com.twitter.common.text.token</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/LuceneTokenizer2TokenStreamWrapper.html" title="class in com.twitter.common.text.token">LuceneTokenizer2TokenStreamWrapper</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Converts a Lucene <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/analysis/Tokenizer.html?is-external=true" title="class or interface in org.apache.lucene.analysis"><CODE>Tokenizer</CODE></A> instance into <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token"><CODE>TokenStream</CODE></A> instance.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/TokenGroupStream.html" title="class in com.twitter.common.text.token">TokenGroupStream</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A <code>TokenStream</code> used to access the member of a token group created by <code>TokenGrouper</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/TokenizedCharSequenceStream.html" title="class in com.twitter.common.text.token">TokenizedCharSequenceStream</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Reproduces the result of tokenization if an input text is an instance of
+ TokenizedCharSequence.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/TokenProcessor.html" title="class in com.twitter.common.text.token">TokenProcessor</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A <code>TokenStream</code> whose input is another <code>TokenStream</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/TokenStreamAggregator.html" title="class in com.twitter.common.text.token">TokenStreamAggregator</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Aggregates the outputs of multiple <code>TokenStreams</code> into a single <code>TokenStream</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/TokenStreamDuplicator.html" title="class in com.twitter.common.text.token">TokenStreamDuplicator</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a duplicate a <code>TokenStream</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected static&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/TokenStreamDuplicator.DuplicatedTokenStream.html" title="class in com.twitter.common.text.token">TokenStreamDuplicator.DuplicatedTokenStream</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Methods in <A HREF="../../../../../../com/twitter/common/text/token/package-summary.html">com.twitter.common.text.token</A> with type parameters of type <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;T extends <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&gt; 
+<BR>
+T</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B>TokenStream.</B><B><A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html#getInstanceOf(java.lang.Class)">getInstanceOf</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;T&gt;&nbsp;cls)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Searches and returns an instance of a specified class in this TokenStream chain.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;T extends <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&gt; 
+<BR>
+T</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B>TokenProcessor.</B><B><A HREF="../../../../../../com/twitter/common/text/token/TokenProcessor.html#getInstanceOf(java.lang.Class)">getInstanceOf</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;T&gt;&nbsp;cls)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Methods in <A HREF="../../../../../../com/twitter/common/text/token/package-summary.html">com.twitter.common.text.token</A> that return <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></CODE></FONT></TD>
+<TD><CODE><B>TokenStreamDuplicator.</B><B><A HREF="../../../../../../com/twitter/common/text/token/TokenStreamDuplicator.html#duplicate()">duplicate</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a new TokenStream which provides the same
+ output as the original TokenStream.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></CODE></FONT></TD>
+<TD><CODE><B>TokenProcessor.</B><B><A HREF="../../../../../../com/twitter/common/text/token/TokenProcessor.html#getInputStream()">getInputStream</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></CODE></FONT></TD>
+<TD><CODE><B>TokenStreamAggregator.</B><B><A HREF="../../../../../../com/twitter/common/text/token/TokenStreamAggregator.html#of(com.twitter.common.text.token.TokenStream...)">of</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>...&nbsp;streams)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a <code>TokenStream</code> that aggregates the outputs of a given set of
+ <code>TokenStreams</code>.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Methods in <A HREF="../../../../../../com/twitter/common/text/token/package-summary.html">com.twitter.common.text.token</A> with parameters of type <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../com/twitter/common/text/token/TokenizedCharSequence.html" title="class in com.twitter.common.text.token">TokenizedCharSequence</A></CODE></FONT></TD>
+<TD><CODE><B>TokenizedCharSequence.</B><B><A HREF="../../../../../../com/twitter/common/text/token/TokenizedCharSequence.html#createFrom(java.lang.CharSequence, com.twitter.common.text.token.TokenStream)">createFrom</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;text,
+                     <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;tokenizer)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../../com/twitter/common/text/token/TokenizedCharSequence.html" title="class in com.twitter.common.text.token">TokenizedCharSequence</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B>TokenizedCharSequence.</B><B><A HREF="../../../../../../com/twitter/common/text/token/TokenizedCharSequence.html#createFromTokenGroupsIn(com.twitter.common.text.token.TokenStream)">createFromTokenGroupsIn</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;stream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></CODE></FONT></TD>
+<TD><CODE><B>TokenStreamAggregator.</B><B><A HREF="../../../../../../com/twitter/common/text/token/TokenStreamAggregator.html#of(com.twitter.common.text.token.TokenStream...)">of</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>...&nbsp;streams)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a <code>TokenStream</code> that aggregates the outputs of a given set of
+ <code>TokenStreams</code>.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Constructors in <A HREF="../../../../../../com/twitter/common/text/token/package-summary.html">com.twitter.common.text.token</A> with parameters of type <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/TokenizedCharSequenceStream.html#TokenizedCharSequenceStream(com.twitter.common.text.token.TokenStream)">TokenizedCharSequenceStream</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructor.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/TokenProcessor.html#TokenProcessor(com.twitter.common.text.token.TokenStream)">TokenProcessor</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs a new <code>TokenProcessor</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/TokenStream2LuceneTokenizerWrapper.html#TokenStream2LuceneTokenizerWrapper(com.twitter.common.text.token.TokenStream, java.io.Reader)">TokenStream2LuceneTokenizerWrapper</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;stream,
+                                                                     <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/Reader.html?is-external=true" title="class or interface in java.io">Reader</A>&nbsp;input)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/TokenStreamAggregator.html#TokenStreamAggregator(com.twitter.common.text.token.TokenStream...)">TokenStreamAggregator</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>...&nbsp;streams)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/TokenStreamDuplicator.DuplicatedTokenStream.html#TokenStreamDuplicator.DuplicatedTokenStream(com.twitter.common.text.token.TokenStream)">TokenStreamDuplicator.DuplicatedTokenStream</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/TokenStreamDuplicator.html#TokenStreamDuplicator(com.twitter.common.text.token.TokenStream)">TokenStreamDuplicator</A></B>(<A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs a new TokenStreamDuplicator.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+<A NAME="com.twitter.common.text.tokenizer"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+Uses of <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A> in <A HREF="../../../../../../com/twitter/common/text/tokenizer/package-summary.html">com.twitter.common.text.tokenizer</A></FONT></TH>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Subclasses of <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A> in <A HREF="../../../../../../com/twitter/common/text/tokenizer/package-summary.html">com.twitter.common.text.tokenizer</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/tokenizer/LatinTokenizer.html" title="class in com.twitter.common.text.tokenizer">LatinTokenizer</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tokenizes text written in Latin alphabets such as English, French, German.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/tokenizer/RegexTokenizer.html" title="class in com.twitter.common.text.tokenizer">RegexTokenizer</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tokenizes text based on regular expressions of word delimiters and punctuation characters.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token"><FONT CLASS="NavBarFont1"><B>Class</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Use</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;PREV&nbsp;
+&nbsp;NEXT</FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?com/twitter/common/text/token//class-useTokenStream.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="TokenStream.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>
