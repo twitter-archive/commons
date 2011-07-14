@@ -17,18 +17,19 @@
 import time
 import logging
 
-class GlogFormatter(logging.Formatter):
+class PlainFormatter(logging.Formatter):
   """
-    Format a log in Google style format:
-    [DIWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+    Format a log in a plainer style:
+    type] msg
   """
+  SCHEME = 'plain'
 
   LEVEL_MAP = {
-    logging.FATAL: 'F',
-    logging.ERROR: 'E',
-    logging.WARN:  'W',
-    logging.INFO:  'I',
-    logging.DEBUG: 'D'
+    logging.FATAL: 'FATAL',
+    logging.ERROR: 'ERROR',
+    logging.WARN:  ' WARN',
+    logging.INFO:  ' INFO',
+    logging.DEBUG: 'DEBUG'
   }
 
   def __init__(self):
@@ -36,16 +37,9 @@ class GlogFormatter(logging.Formatter):
 
   def format(self, record):
     try:
-      level = GlogFormatter.LEVEL_MAP[record.levelno]
+      level = PlainFormatter.LEVEL_MAP[record.levelno]
     except:
-      level = '?'
-    date = time.localtime(record.created)
-    date_usec = (record.created - int(record.created)) * 1e6
-    record_message = '%c%02d%02d %02d:%02d:%02d.%06d %s %s:%d] %s' % (
-       level, date.tm_mon, date.tm_mday, date.tm_hour, date.tm_min, date.tm_sec, date_usec,
-       record.process if record.process is not None else '?????',
-       record.filename,
-       record.lineno,
-       record.msg)
+      level = '?????'
+    record_message = '%s] %s' % (level, record.msg)
     record.getMessage = lambda: record_message
     return logging.Formatter.format(self, record)

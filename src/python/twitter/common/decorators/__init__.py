@@ -16,8 +16,7 @@
 
 import types
 
-import twitter.common.log
-log = twitter.common.log.get()
+from twitter.common import log
 
 def _deprecated_wrap_fn(fn, message=None):
   if not isinstance(fn, types.FunctionType):

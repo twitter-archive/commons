@@ -14,11 +14,35 @@
 # limitations under the License.
 # ==================================================================================================
 
-from glog import GlogFormatter
-from glogger import *
+import logging
 
-__all__ = (
-  GlogFormatter,
-  init,
-  get
-)
+from initialize import init
+
+try:
+  from twitter.common import app
+  app.on_initialization(
+    lambda: init(app.name()),
+    description="Logging subsystem.")
+except ImportError:
+  # Do not require twitter.common.app
+  pass
+
+debug = logging.debug
+info = logging.info
+warning = logging.warning
+error = logging.error
+fatal = logging.fatal
+
+__all__ = [
+  'debug',
+  'info',
+  'warning',
+  'error',
+  'fatal',
+
+  # only if you're not using app directly.
+  'init',
+
+  # ditto
+  'formatters'
+]

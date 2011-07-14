@@ -19,8 +19,7 @@ import types
 import struct
 import errno
 
-import twitter.common.log
-log = twitter.common.log.get()
+from twitter.common import log
 
 class RecordIO(object):
   class PrematureEndOfStream(Exception): pass

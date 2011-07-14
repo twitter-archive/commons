@@ -14,30 +14,10 @@
 # limitations under the License.
 # ==================================================================================================
 
-import os
-from zipfile import ZipFile
-
-from twitter.common import app, log, options
-from twitter.common.java.class_file import ClassFile
-
-options.set_option('log_to_stdout', 'INFO')
-
-def main(args):
-  log.debug('main got args: %s' % args)
-  for arg in args:
-    if arg.endswith('.jar'):
-      zp = ZipFile(arg)
-      for f in zp.filelist:
-        if f.filename.endswith('.class'):
-          print
-          print
-          print '%s' % f.filename,
-          foo = ClassFile(zp.read(f.filename))
-          print ' => methods:%s, interfaces:%s' % (
-            len(foo.methods()),
-            len(foo.interfaces()))
-          print foo
-      zp.close()
-
-if __name__ == '__main__':
-  app.main()
+python_library(
+  name = "app",
+  sources = rglobs('*.py'),
+  dependencies = [
+    pants('src/python/twitter/common/options')
+  ]
+)

@@ -27,7 +27,8 @@ python_binary(
   name = 'jar_inspect',
   source = ['jar_inspect.py'],
   dependencies = [
-    pants('src/python/twitter/common/options'),
+    pants('src/python/twitter/common/app'),
+    pants('src/python/twitter/common/log'),
     pants('src/python/twitter/common/java')
   ]
 )
