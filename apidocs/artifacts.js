@@ -3,7 +3,7 @@ var artifacts = {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "application", 
     "org": "com.twitter.common", 
-    "rev": "0.0.5"
+    "rev": "0.0.6"
   }, 
   "com/twitter/common/application/ActionController.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
@@ -21,13 +21,13 @@ var artifacts = {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "application", 
     "org": "com.twitter.common", 
-    "rev": "0.0.5"
+    "rev": "0.0.6"
   }, 
   "com/twitter/common/application/Application.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "application", 
     "org": "com.twitter.common", 
-    "rev": "0.0.5"
+    "rev": "0.0.6"
   }, 
   "com/twitter/common/application/Lifecycle.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
@@ -123,319 +123,319 @@ var artifacts = {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/ArgScanner.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/CmdLine.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/Constraints.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/Parsers.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/TypeUtil.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/constraints/CanRead.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/constraints/CanReadFileVerifier.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/constraints/CanWrite.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/constraints/CanWriteFileVerifier.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/constraints/Exists.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/constraints/ExistsFileVerifier.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/constraints/IsDirectory.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/constraints/IsDirectoryFileVerifier.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/constraints/NotEmpty.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/constraints/NotEmptyIterableVerifier.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/constraints/NotEmptyStringVerifier.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/constraints/NotNegative.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/constraints/NotNegativeNumberVerifier.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/constraints/NotNull.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/constraints/NotNullVerifier.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/constraints/Positive.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/constraints/PositiveNumberVerifier.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/constraints/Range.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/constraints/RangeNumberVerifier.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/constraints/ScalarVerifier.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/constraints/Verifier.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/AmountParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/BaseParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/BooleanParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/ByteParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/CharacterParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/ClassParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/DateParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/DoubleParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/EnumParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/FileParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/FloatParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/InetSocketAddressParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/IntegerParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/ListParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/LongParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/MapParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/NonParameterizedTypeParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/NumberParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/PairParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/SetParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/ShortParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/StringParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/TypeParameterizedParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/URIParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/URLParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/args/parsers/UnitParser.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "args", 
     "org": "com.twitter.common", 
-    "rev": "0.1.8"
+    "rev": "0.1.10"
   }, 
   "com/twitter/common/base/CallableExceptionalSupplier.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
@@ -969,25 +969,31 @@ var artifacts = {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "stats", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.17"
+  }, 
+  "com/twitter/common/stats/MovingWindowDelta.java": {
+    "artifactBaseUrl": "http://maven.twttr.com", 
+    "name": "stats", 
+    "org": "com.twitter.common", 
+    "rev": "0.0.17"
   }, 
   "com/twitter/common/stats/NumericStatExporter.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "stats", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.17"
   }, 
   "com/twitter/common/stats/Percentile.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "stats", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.17"
   }, 
   "com/twitter/common/stats/PipelineStats.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "stats", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.17"
   }, 
   "com/twitter/common/stats/PrintableHistogram.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
@@ -999,37 +1005,37 @@ var artifacts = {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "stats", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.17"
   }, 
   "com/twitter/common/stats/Ratio.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "stats", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.17"
   }, 
   "com/twitter/common/stats/RecordingStat.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "stats", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.17"
   }, 
   "com/twitter/common/stats/RecordingStatImpl.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "stats", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.17"
   }, 
   "com/twitter/common/stats/RequestStats.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "stats", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.17"
   }, 
   "com/twitter/common/stats/SampledStat.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "stats", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.17"
   }, 
   "com/twitter/common/stats/Significance.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
@@ -1041,7 +1047,7 @@ var artifacts = {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "stats", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.17"
   }, 
   "com/twitter/common/stats/Stat.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
@@ -1053,7 +1059,7 @@ var artifacts = {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "stats", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.17"
   }, 
   "com/twitter/common/stats/Statistics.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
@@ -1065,7 +1071,7 @@ var artifacts = {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "stats", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.17"
   }, 
   "com/twitter/common/stats/StatsProvider.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
@@ -1341,121 +1347,121 @@ var artifacts = {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "thrift", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.16"
   }, 
   "com/twitter/common/thrift/TResourceExhaustedException.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "thrift", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.16"
   }, 
   "com/twitter/common/thrift/TTimeoutException.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "thrift", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.16"
   }, 
   "com/twitter/common/thrift/TTransportConnection.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "thrift", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.16"
   }, 
   "com/twitter/common/thrift/Thrift.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "thrift", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.16"
   }, 
   "com/twitter/common/thrift/ThriftConnectionFactory.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "thrift", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.16"
   }, 
   "com/twitter/common/thrift/ThriftException.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "thrift", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.16"
   }, 
   "com/twitter/common/thrift/ThriftFactory.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "thrift", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.16"
   }, 
   "com/twitter/common/thrift/ThriftServer.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "thrift", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.16"
   }, 
   "com/twitter/common/thrift/Util.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "thrift", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.16"
   }, 
   "com/twitter/common/thrift/callers/Caller.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "thrift", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.16"
   }, 
   "com/twitter/common/thrift/callers/CallerDecorator.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "thrift", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.16"
   }, 
   "com/twitter/common/thrift/callers/DeadlineCaller.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "thrift", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.16"
   }, 
   "com/twitter/common/thrift/callers/DebugCaller.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "thrift", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.16"
   }, 
   "com/twitter/common/thrift/callers/RetryingCaller.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "thrift", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.16"
   }, 
   "com/twitter/common/thrift/callers/StatTrackingCaller.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "thrift", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.16"
   }, 
   "com/twitter/common/thrift/callers/ThriftCaller.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "thrift", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.16"
   }, 
   "com/twitter/common/thrift/monitoring/TMonitoredNonblockingServerSocket.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "thrift", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.16"
   }, 
   "com/twitter/common/thrift/monitoring/TMonitoredProcessor.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "thrift", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.16"
   }, 
   "com/twitter/common/thrift/monitoring/TMonitoredServerSocket.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "thrift", 
     "org": "com.twitter.common", 
-    "rev": "0.0.15"
+    "rev": "0.0.16"
   }, 
   "com/twitter/common/util/BackoffDecider.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
@@ -1611,79 +1617,79 @@ var artifacts = {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "zookeeper", 
     "org": "com.twitter.common", 
-    "rev": "0.0.24"
+    "rev": "0.0.25"
   }, 
   "com/twitter/common/zookeeper/CandidateImpl.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "zookeeper", 
     "org": "com.twitter.common", 
-    "rev": "0.0.24"
+    "rev": "0.0.25"
   }, 
   "com/twitter/common/zookeeper/DistributedLock.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "zookeeper", 
     "org": "com.twitter.common", 
-    "rev": "0.0.24"
+    "rev": "0.0.25"
   }, 
   "com/twitter/common/zookeeper/DistributedLockImpl.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "zookeeper", 
     "org": "com.twitter.common", 
-    "rev": "0.0.24"
+    "rev": "0.0.25"
   }, 
   "com/twitter/common/zookeeper/Group.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "zookeeper", 
     "org": "com.twitter.common", 
-    "rev": "0.0.24"
+    "rev": "0.0.25"
   }, 
   "com/twitter/common/zookeeper/Partitioner.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "zookeeper", 
     "org": "com.twitter.common", 
-    "rev": "0.0.24"
+    "rev": "0.0.25"
   }, 
   "com/twitter/common/zookeeper/ServerSet.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "zookeeper", 
     "org": "com.twitter.common", 
-    "rev": "0.0.24"
+    "rev": "0.0.25"
   }, 
   "com/twitter/common/zookeeper/ServerSetImpl.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "zookeeper", 
     "org": "com.twitter.common", 
-    "rev": "0.0.24"
+    "rev": "0.0.25"
   }, 
   "com/twitter/common/zookeeper/SingletonService.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "zookeeper", 
     "org": "com.twitter.common", 
-    "rev": "0.0.24"
+    "rev": "0.0.25"
   }, 
   "com/twitter/common/zookeeper/ZooKeeperClient.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "zookeeper", 
     "org": "com.twitter.common", 
-    "rev": "0.0.24"
+    "rev": "0.0.25"
   }, 
   "com/twitter/common/zookeeper/ZooKeeperMap.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "zookeeper", 
     "org": "com.twitter.common", 
-    "rev": "0.0.24"
+    "rev": "0.0.25"
   }, 
   "com/twitter/common/zookeeper/ZooKeeperNode.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "zookeeper", 
     "org": "com.twitter.common", 
-    "rev": "0.0.24"
+    "rev": "0.0.25"
   }, 
   "com/twitter/common/zookeeper/ZooKeeperUtils.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "zookeeper", 
     "org": "com.twitter.common", 
-    "rev": "0.0.24"
+    "rev": "0.0.25"
   }, 
   "com/twitter/common/zookeeper/testing/BaseZooKeeperTest.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
@@ -1699,5 +1705,5 @@ var artifacts = {
   }
 };
 artifacts.title = 'Twitter Commons API Docs';
-artifacts.publishDate = '07/14/2011 01:28 PM';
+artifacts.publishDate = '07/31/2011 03:53 PM';
 artifacts.hasChangelog = false;

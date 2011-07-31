@@ -138,58 +138,59 @@
 <FONT color="green">135</FONT>        Registration.registerServlet(binder(), "/contention", ContentionPrinter.class, false);<a name="line.135"></a>
 <FONT color="green">136</FONT>        Registration.registerServlet(binder(), "/graphdata", TimeSeriesDataSource.class, true);<a name="line.136"></a>
 <FONT color="green">137</FONT>        Registration.registerServlet(binder(), "/health", HealthHandler.class, true);<a name="line.137"></a>
-<FONT color="green">138</FONT>        Registration.registerServlet(binder(), "/logconfig", LogConfig.class, false);<a name="line.138"></a>
-<FONT color="green">139</FONT>        Registration.registerServlet(binder(), "/logs", LogPrinter.class, false);<a name="line.139"></a>
-<FONT color="green">140</FONT>        Registration.registerServlet(binder(), "/quitquitquit", QuitHandler.class, true);<a name="line.140"></a>
-<FONT color="green">141</FONT>        Registration.registerServlet(binder(), "/threads", ThreadStackPrinter.class, false);<a name="line.141"></a>
-<FONT color="green">142</FONT>        Registration.registerServlet(binder(), "/vars", VarsHandler.class, false);<a name="line.142"></a>
-<FONT color="green">143</FONT>    <a name="line.143"></a>
-<FONT color="green">144</FONT>        GraphViewer.registerResources(binder());<a name="line.144"></a>
-<FONT color="green">145</FONT>    <a name="line.145"></a>
-<FONT color="green">146</FONT>        requestStaticInjection(Init.class);<a name="line.146"></a>
-<FONT color="green">147</FONT>      }<a name="line.147"></a>
-<FONT color="green">148</FONT>    <a name="line.148"></a>
-<FONT color="green">149</FONT>      // TODO(William Farner): Use a global Multibinder for startup and shutdown actions to obviate the need<a name="line.149"></a>
-<FONT color="green">150</FONT>      //    for these awkward init classes.<a name="line.150"></a>
-<FONT color="green">151</FONT>      public static class Init {<a name="line.151"></a>
-<FONT color="green">152</FONT>        private static final Logger LOG = Logger.getLogger(Init.class.getName());<a name="line.152"></a>
-<FONT color="green">153</FONT>    <a name="line.153"></a>
-<FONT color="green">154</FONT>        @Inject<a name="line.154"></a>
-<FONT color="green">155</FONT>        private static void startHttpServer(<a name="line.155"></a>
-<FONT color="green">156</FONT>            @StartupStage ActionRegistry startupRegistry,<a name="line.156"></a>
-<FONT color="green">157</FONT>            @ShutdownStage ActionRegistry shutdownRegistry,<a name="line.157"></a>
-<FONT color="green">158</FONT>            final HttpServerDispatch httpServerDispatch,<a name="line.158"></a>
-<FONT color="green">159</FONT>            final Set&lt;HttpServletConfig&gt; httpServlets,<a name="line.159"></a>
-<FONT color="green">160</FONT>            final Set&lt;HttpAssetConfig&gt; httpAssets,<a name="line.160"></a>
-<FONT color="green">161</FONT>            final Injector injector) {<a name="line.161"></a>
-<FONT color="green">162</FONT>    <a name="line.162"></a>
-<FONT color="green">163</FONT>          startupRegistry.addAction(new Command() {<a name="line.163"></a>
-<FONT color="green">164</FONT>            @Override public void execute() {<a name="line.164"></a>
-<FONT color="green">165</FONT>              if (!httpServerDispatch.listen(HTTP_PORT.get())) {<a name="line.165"></a>
-<FONT color="green">166</FONT>                LOG.severe("Failed to start HTTP server, all servlets disabled.");<a name="line.166"></a>
-<FONT color="green">167</FONT>                return;<a name="line.167"></a>
-<FONT color="green">168</FONT>              }<a name="line.168"></a>
-<FONT color="green">169</FONT>    <a name="line.169"></a>
-<FONT color="green">170</FONT>              for (HttpServletConfig config : httpServlets) {<a name="line.170"></a>
-<FONT color="green">171</FONT>                HttpServlet handler = injector.getInstance(config.handlerClass);<a name="line.171"></a>
-<FONT color="green">172</FONT>                httpServerDispatch.registerHandler(config.path, handler, config.params, config.silent);<a name="line.172"></a>
-<FONT color="green">173</FONT>              }<a name="line.173"></a>
-<FONT color="green">174</FONT>    <a name="line.174"></a>
-<FONT color="green">175</FONT>              for (HttpAssetConfig config : httpAssets) {<a name="line.175"></a>
-<FONT color="green">176</FONT>                httpServerDispatch.registerHandler(config.path, config.handler, null, config.silent);<a name="line.176"></a>
-<FONT color="green">177</FONT>              }<a name="line.177"></a>
-<FONT color="green">178</FONT>            }<a name="line.178"></a>
-<FONT color="green">179</FONT>          });<a name="line.179"></a>
-<FONT color="green">180</FONT>    <a name="line.180"></a>
-<FONT color="green">181</FONT>          shutdownRegistry.addAction(new Command() {<a name="line.181"></a>
-<FONT color="green">182</FONT>            @Override public void execute() {<a name="line.182"></a>
-<FONT color="green">183</FONT>              LOG.info("Shutting down embedded http server");<a name="line.183"></a>
-<FONT color="green">184</FONT>              httpServerDispatch.stop();<a name="line.184"></a>
-<FONT color="green">185</FONT>            }<a name="line.185"></a>
-<FONT color="green">186</FONT>          });<a name="line.186"></a>
-<FONT color="green">187</FONT>        }<a name="line.187"></a>
-<FONT color="green">188</FONT>      }<a name="line.188"></a>
-<FONT color="green">189</FONT>    }<a name="line.189"></a>
+<FONT color="green">138</FONT>        Registration.registerServlet(binder(), "/healthz", HealthHandler.class, true);<a name="line.138"></a>
+<FONT color="green">139</FONT>        Registration.registerServlet(binder(), "/logconfig", LogConfig.class, false);<a name="line.139"></a>
+<FONT color="green">140</FONT>        Registration.registerServlet(binder(), "/logs", LogPrinter.class, false);<a name="line.140"></a>
+<FONT color="green">141</FONT>        Registration.registerServlet(binder(), "/quitquitquit", QuitHandler.class, true);<a name="line.141"></a>
+<FONT color="green">142</FONT>        Registration.registerServlet(binder(), "/threads", ThreadStackPrinter.class, false);<a name="line.142"></a>
+<FONT color="green">143</FONT>        Registration.registerServlet(binder(), "/vars", VarsHandler.class, false);<a name="line.143"></a>
+<FONT color="green">144</FONT>    <a name="line.144"></a>
+<FONT color="green">145</FONT>        GraphViewer.registerResources(binder());<a name="line.145"></a>
+<FONT color="green">146</FONT>    <a name="line.146"></a>
+<FONT color="green">147</FONT>        requestStaticInjection(Init.class);<a name="line.147"></a>
+<FONT color="green">148</FONT>      }<a name="line.148"></a>
+<FONT color="green">149</FONT>    <a name="line.149"></a>
+<FONT color="green">150</FONT>      // TODO(William Farner): Use a global Multibinder for startup and shutdown actions to obviate the need<a name="line.150"></a>
+<FONT color="green">151</FONT>      //    for these awkward init classes.<a name="line.151"></a>
+<FONT color="green">152</FONT>      public static class Init {<a name="line.152"></a>
+<FONT color="green">153</FONT>        private static final Logger LOG = Logger.getLogger(Init.class.getName());<a name="line.153"></a>
+<FONT color="green">154</FONT>    <a name="line.154"></a>
+<FONT color="green">155</FONT>        @Inject<a name="line.155"></a>
+<FONT color="green">156</FONT>        private static void startHttpServer(<a name="line.156"></a>
+<FONT color="green">157</FONT>            @StartupStage ActionRegistry startupRegistry,<a name="line.157"></a>
+<FONT color="green">158</FONT>            @ShutdownStage ActionRegistry shutdownRegistry,<a name="line.158"></a>
+<FONT color="green">159</FONT>            final HttpServerDispatch httpServerDispatch,<a name="line.159"></a>
+<FONT color="green">160</FONT>            final Set&lt;HttpServletConfig&gt; httpServlets,<a name="line.160"></a>
+<FONT color="green">161</FONT>            final Set&lt;HttpAssetConfig&gt; httpAssets,<a name="line.161"></a>
+<FONT color="green">162</FONT>            final Injector injector) {<a name="line.162"></a>
+<FONT color="green">163</FONT>    <a name="line.163"></a>
+<FONT color="green">164</FONT>          startupRegistry.addAction(new Command() {<a name="line.164"></a>
+<FONT color="green">165</FONT>            @Override public void execute() {<a name="line.165"></a>
+<FONT color="green">166</FONT>              if (!httpServerDispatch.listen(HTTP_PORT.get())) {<a name="line.166"></a>
+<FONT color="green">167</FONT>                LOG.severe("Failed to start HTTP server, all servlets disabled.");<a name="line.167"></a>
+<FONT color="green">168</FONT>                return;<a name="line.168"></a>
+<FONT color="green">169</FONT>              }<a name="line.169"></a>
+<FONT color="green">170</FONT>    <a name="line.170"></a>
+<FONT color="green">171</FONT>              for (HttpServletConfig config : httpServlets) {<a name="line.171"></a>
+<FONT color="green">172</FONT>                HttpServlet handler = injector.getInstance(config.handlerClass);<a name="line.172"></a>
+<FONT color="green">173</FONT>                httpServerDispatch.registerHandler(config.path, handler, config.params, config.silent);<a name="line.173"></a>
+<FONT color="green">174</FONT>              }<a name="line.174"></a>
+<FONT color="green">175</FONT>    <a name="line.175"></a>
+<FONT color="green">176</FONT>              for (HttpAssetConfig config : httpAssets) {<a name="line.176"></a>
+<FONT color="green">177</FONT>                httpServerDispatch.registerHandler(config.path, config.handler, null, config.silent);<a name="line.177"></a>
+<FONT color="green">178</FONT>              }<a name="line.178"></a>
+<FONT color="green">179</FONT>            }<a name="line.179"></a>
+<FONT color="green">180</FONT>          });<a name="line.180"></a>
+<FONT color="green">181</FONT>    <a name="line.181"></a>
+<FONT color="green">182</FONT>          shutdownRegistry.addAction(new Command() {<a name="line.182"></a>
+<FONT color="green">183</FONT>            @Override public void execute() {<a name="line.183"></a>
+<FONT color="green">184</FONT>              LOG.info("Shutting down embedded http server");<a name="line.184"></a>
+<FONT color="green">185</FONT>              httpServerDispatch.stop();<a name="line.185"></a>
+<FONT color="green">186</FONT>            }<a name="line.186"></a>
+<FONT color="green">187</FONT>          });<a name="line.187"></a>
+<FONT color="green">188</FONT>        }<a name="line.188"></a>
+<FONT color="green">189</FONT>      }<a name="line.189"></a>
+<FONT color="green">190</FONT>    }<a name="line.190"></a>
 
 
 

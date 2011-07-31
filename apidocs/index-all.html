@@ -1109,6 +1109,9 @@ Method in class com.twitter.common.net.http.handlers.<A HREF="./com/twitter/comm
 <DT><A HREF="./com/twitter/common/stats/MovingAverage.html#doSample()"><B>doSample()</B></A> - 
 Method in class com.twitter.common.stats.<A HREF="./com/twitter/common/stats/MovingAverage.html" title="class in com.twitter.common.stats">MovingAverage</A>
 <DD>&nbsp;
+<DT><A HREF="./com/twitter/common/stats/MovingWindowDelta.html#doSample()"><B>doSample()</B></A> - 
+Method in class com.twitter.common.stats.<A HREF="./com/twitter/common/stats/MovingWindowDelta.html" title="class in com.twitter.common.stats">MovingWindowDelta</A>
+<DD>&nbsp;
 <DT><A HREF="./com/twitter/common/stats/Rate.html#doSample()"><B>doSample()</B></A> - 
 Method in class com.twitter.common.stats.<A HREF="./com/twitter/common/stats/Rate.html" title="class in com.twitter.common.stats">Rate</A>
 <DD>&nbsp;
@@ -2577,7 +2580,7 @@ Method in interface com.twitter.common.net.pool.<A HREF="./com/twitter/common/ne
 <DT><A HREF="./com/twitter/common/zookeeper/ServerSetImpl.html#monitor(com.twitter.common.net.pool.DynamicHostSet.HostChangeMonitor)"><B>monitor(DynamicHostSet.HostChangeMonitor&lt;ServiceInstance&gt;)</B></A> - 
 Method in class com.twitter.common.zookeeper.<A HREF="./com/twitter/common/zookeeper/ServerSetImpl.html" title="class in com.twitter.common.zookeeper">ServerSetImpl</A>
 <DD>&nbsp;
-<DT><A HREF="./com/twitter/common/base/MorePreconditions.html" title="class in com.twitter.common.base"><B>MorePreconditions</B></A> - Class in <A HREF="./com/twitter/common/base/package-summary.html">com.twitter.common.base</A><DD>A utility helpful in concisely checking preconditions on arguments.<DT><A HREF="./com/twitter/common/base/MoreSuppliers.html" title="class in com.twitter.common.base"><B>MoreSuppliers</B></A> - Class in <A HREF="./com/twitter/common/base/package-summary.html">com.twitter.common.base</A><DD>Utility methods for working with Suppliers.<DT><A HREF="./com/twitter/common/stats/MovingAverage.html" title="class in com.twitter.common.stats"><B>MovingAverage</B></A>&lt;<A HREF="./com/twitter/common/stats/MovingAverage.html" title="type parameter in MovingAverage">T</A> extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt; - Class in <A HREF="./com/twitter/common/stats/package-summary.html">com.twitter.common.stats</A><DD>Function to compute the moving average of a time series.<DT><A HREF="./com/twitter/common/args/Parsers.html#MULTI_VALUE_SPLITTER"><B>MULTI_VALUE_SPLITTER</B></A> - 
+<DT><A HREF="./com/twitter/common/base/MorePreconditions.html" title="class in com.twitter.common.base"><B>MorePreconditions</B></A> - Class in <A HREF="./com/twitter/common/base/package-summary.html">com.twitter.common.base</A><DD>A utility helpful in concisely checking preconditions on arguments.<DT><A HREF="./com/twitter/common/base/MoreSuppliers.html" title="class in com.twitter.common.base"><B>MoreSuppliers</B></A> - Class in <A HREF="./com/twitter/common/base/package-summary.html">com.twitter.common.base</A><DD>Utility methods for working with Suppliers.<DT><A HREF="./com/twitter/common/stats/MovingAverage.html" title="class in com.twitter.common.stats"><B>MovingAverage</B></A>&lt;<A HREF="./com/twitter/common/stats/MovingAverage.html" title="type parameter in MovingAverage">T</A> extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt; - Class in <A HREF="./com/twitter/common/stats/package-summary.html">com.twitter.common.stats</A><DD>Function to compute the moving average of a time series.<DT><A HREF="./com/twitter/common/stats/MovingWindowDelta.html" title="class in com.twitter.common.stats"><B>MovingWindowDelta</B></A>&lt;<A HREF="./com/twitter/common/stats/MovingWindowDelta.html" title="type parameter in MovingWindowDelta">T</A> extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt; - Class in <A HREF="./com/twitter/common/stats/package-summary.html">com.twitter.common.stats</A><DD>Delta over the most recent k sample periods.<DT><A HREF="./com/twitter/common/args/Parsers.html#MULTI_VALUE_SPLITTER"><B>MULTI_VALUE_SPLITTER</B></A> - 
 Static variable in class com.twitter.common.args.<A HREF="./com/twitter/common/args/Parsers.html" title="class in com.twitter.common.args">Parsers</A>
 <DD>&nbsp;
 <DT><A HREF="./com/twitter/common/inject/Bindings.html#multiBinderFor(java.lang.Class)"><B>multiBinderFor(Class&lt;T&gt;)</B></A> - 
@@ -2771,6 +2774,12 @@ Static method in class com.twitter.common.stats.<A HREF="./com/twitter/common/st
 <DT><A HREF="./com/twitter/common/stats/MovingAverage.html#of(java.lang.String, com.twitter.common.stats.Stat, int)"><B>of(String, Stat&lt;T&gt;, int)</B></A> - 
 Static method in class com.twitter.common.stats.<A HREF="./com/twitter/common/stats/MovingAverage.html" title="class in com.twitter.common.stats">MovingAverage</A>
 <DD>&nbsp;
+<DT><A HREF="./com/twitter/common/stats/MovingWindowDelta.html#of(java.lang.String, com.google.common.base.Supplier, int)"><B>of(String, Supplier&lt;T&gt;, int)</B></A> - 
+Static method in class com.twitter.common.stats.<A HREF="./com/twitter/common/stats/MovingWindowDelta.html" title="class in com.twitter.common.stats">MovingWindowDelta</A>
+<DD>Create a new MovingWindowDelta instance.
+<DT><A HREF="./com/twitter/common/stats/MovingWindowDelta.html#of(java.lang.String, com.google.common.base.Supplier)"><B>of(String, Supplier&lt;T&gt;)</B></A> - 
+Static method in class com.twitter.common.stats.<A HREF="./com/twitter/common/stats/MovingWindowDelta.html" title="class in com.twitter.common.stats">MovingWindowDelta</A>
+<DD>Create a new MovingWindowDelta instance using the default window size (currently 60).
 <DT><A HREF="./com/twitter/common/stats/Rate.html#of(com.twitter.common.stats.Stat)"><B>of(Stat&lt;T&gt;)</B></A> - 
 Static method in class com.twitter.common.stats.<A HREF="./com/twitter/common/stats/Rate.html" title="class in com.twitter.common.stats">Rate</A>
 <DD>&nbsp;
@@ -2876,13 +2885,10 @@ Variable in class com.twitter.common.application.http.<A HREF="./com/twitter/com
 Static method in class com.twitter.common.args.<A HREF="./com/twitter/common/args/ArgScanner.html" title="class in com.twitter.common.args">ArgScanner</A>
 <DD>Applies the provided argument values to all @CmdLine <code>Arg</code> fields discovered
  on the classpath.
-<DT><A HREF="./com/twitter/common/args/ArgScanner.html#parse(java.util.Map)"><B>parse(Map&lt;String, String&gt;)</B></A> - 
-Static method in class com.twitter.common.args.<A HREF="./com/twitter/common/args/ArgScanner.html" title="class in com.twitter.common.args">ArgScanner</A>
-<DD><B>Deprecated.</B>&nbsp;<I>Use <A HREF="./com/twitter/common/args/ArgScanner.html#parse(java.lang.String...)"><CODE>ArgScanner.parse(String...)</CODE></A></I>
 <DT><A HREF="./com/twitter/common/args/ArgScanner.html#parse(com.google.common.base.Predicate, java.lang.String...)"><B>parse(Predicate&lt;Field&gt;, String...)</B></A> - 
 Static method in class com.twitter.common.args.<A HREF="./com/twitter/common/args/ArgScanner.html" title="class in com.twitter.common.args">ArgScanner</A>
-<DD>Convenience method to call <A HREF="./com/twitter/common/args/ArgScanner.html#parse(com.google.common.base.Predicate, java.util.Map)"><CODE>ArgScanner.parse(Predicate, Map)</CODE></A> that will handle mapping of argument
- keys to values.
+<DD>Applies the provided argument values to any @CmdLine <code>Arg</code> fields discovered
+ on the classpath and accepted by the given <code>filter</code>.
 <DT><A HREF="./com/twitter/common/args/parsers/EnumParser.html#parse(java.lang.reflect.Type, java.lang.String)"><B>parse(Type, String)</B></A> - 
 Method in class com.twitter.common.args.parsers.<A HREF="./com/twitter/common/args/parsers/EnumParser.html" title="class in com.twitter.common.args.parsers">EnumParser</A>
 <DD>&nbsp;
@@ -2922,10 +2928,13 @@ Variable in class com.twitter.common.application.http.<A HREF="./com/twitter/com
 <DT><A HREF="./com/twitter/common/application/http/HttpServletConfig.html#path"><B>path</B></A> - 
 Variable in class com.twitter.common.application.http.<A HREF="./com/twitter/common/application/http/HttpServletConfig.html" title="class in com.twitter.common.application.http">HttpServletConfig</A>
 <DD>&nbsp;
-<DT><A HREF="./com/twitter/common/stats/Percentile.html" title="class in com.twitter.common.stats"><B>Percentile</B></A>&lt;<A HREF="./com/twitter/common/stats/Percentile.html" title="type parameter in Percentile">T</A> extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt; - Class in <A HREF="./com/twitter/common/stats/package-summary.html">com.twitter.common.stats</A><DD>A stats tracker to export percentiles of inputs based on a sampling rate.<DT><A HREF="./com/twitter/common/stats/Percentile.html#Percentile(java.lang.String, float, int...)"><B>Percentile(String, float, int...)</B></A> - 
+<DT><A HREF="./com/twitter/common/stats/Percentile.html" title="class in com.twitter.common.stats"><B>Percentile</B></A>&lt;<A HREF="./com/twitter/common/stats/Percentile.html" title="type parameter in Percentile">T</A> extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt; - Class in <A HREF="./com/twitter/common/stats/package-summary.html">com.twitter.common.stats</A><DD>A stats tracker to export percentiles of inputs based on a sampling rate.<DT><A HREF="./com/twitter/common/stats/Percentile.html#Percentile(java.lang.String, float, double...)"><B>Percentile(String, float, double...)</B></A> - 
 Constructor for class com.twitter.common.stats.<A HREF="./com/twitter/common/stats/Percentile.html" title="class in com.twitter.common.stats">Percentile</A>
 <DD>Creates a new percentile tracker.
-<DT><A HREF="./com/twitter/common/stats/Percentile.html#Percentile(java.lang.String, com.twitter.common.util.Sampler, int...)"><B>Percentile(String, Sampler, int...)</B></A> - 
+<DT><A HREF="./com/twitter/common/stats/Percentile.html#Percentile(java.lang.String, com.twitter.common.util.Sampler, double...)"><B>Percentile(String, Sampler, double...)</B></A> - 
+Constructor for class com.twitter.common.stats.<A HREF="./com/twitter/common/stats/Percentile.html" title="class in com.twitter.common.stats">Percentile</A>
+<DD>Creates a new percentile tracker.
+<DT><A HREF="./com/twitter/common/stats/Percentile.html#Percentile(java.lang.String, boolean, com.twitter.common.util.Sampler, double...)"><B>Percentile(String, boolean, Sampler, double...)</B></A> - 
 Constructor for class com.twitter.common.stats.<A HREF="./com/twitter/common/stats/Percentile.html" title="class in com.twitter.common.stats">Percentile</A>
 <DD>Creates a new percentile tracker.
 <DT><A HREF="./com/twitter/common/stats/Entropy.html#perplexity()"><B>perplexity()</B></A> - 

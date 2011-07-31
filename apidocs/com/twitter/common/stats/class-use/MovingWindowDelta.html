@@ -3,7 +3,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-Uses of Class com.twitter.common.util.Sampler
+Uses of Class com.twitter.common.stats.MovingWindowDelta
 </TITLE>
 
 
@@ -13,7 +13,7 @@ Uses of Class com.twitter.common.util.Sampler
 function windowTitle()
 {
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Uses of Class com.twitter.common.util.Sampler";
+        parent.document.title="Uses of Class com.twitter.common.stats.MovingWindowDelta";
     }
 }
 </SCRIPT>
@@ -37,7 +37,7 @@ function windowTitle()
   <TR ALIGN="center" VALIGN="top">
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../com/twitter/common/util/Sampler.html" title="class in com.twitter.common.util"><FONT CLASS="NavBarFont1"><B>Class</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../com/twitter/common/stats/MovingWindowDelta.html" title="class in com.twitter.common.stats"><FONT CLASS="NavBarFont1"><B>Class</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Use</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
@@ -56,8 +56,8 @@ function windowTitle()
 &nbsp;PREV&nbsp;
 &nbsp;NEXT</FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-  <A HREF="../../../../../index.html?com/twitter/common/util//class-useSampler.html" target="_top"><B>FRAMES</B></A>  &nbsp;
-&nbsp;<A HREF="Sampler.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+  <A HREF="../../../../../index.html?com/twitter/common/stats//class-useMovingWindowDelta.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="MovingWindowDelta.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
 &nbsp;<SCRIPT type="text/javascript">
   <!--
   if(window==top) {
@@ -79,13 +79,13 @@ function windowTitle()
 <HR>
 <CENTER>
 <H2>
-<B>Uses of Class<br>com.twitter.common.util.Sampler</B></H2>
+<B>Uses of Class<br>com.twitter.common.stats.MovingWindowDelta</B></H2>
 </CENTER>
 
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
-Packages that use <A HREF="../../../../../com/twitter/common/util/Sampler.html" title="class in com.twitter.common.util">Sampler</A></FONT></TH>
+Packages that use <A HREF="../../../../../com/twitter/common/stats/MovingWindowDelta.html" title="class in com.twitter.common.stats">MovingWindowDelta</A></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><A HREF="#com.twitter.common.stats"><B>com.twitter.common.stats</B></A></TD>
@@ -98,7 +98,7 @@ Packages that use <A HREF="../../../../../com/twitter/common/util/Sampler.html" 
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
-Uses of <A HREF="../../../../../com/twitter/common/util/Sampler.html" title="class in com.twitter.common.util">Sampler</A> in <A HREF="../../../../../com/twitter/common/stats/package-summary.html">com.twitter.common.stats</A></FONT></TH>
+Uses of <A HREF="../../../../../com/twitter/common/stats/MovingWindowDelta.html" title="class in com.twitter.common.stats">MovingWindowDelta</A> in <A HREF="../../../../../com/twitter/common/stats/package-summary.html">com.twitter.common.stats</A></FONT></TH>
 </TR>
 </TABLE>
 &nbsp;
@@ -106,24 +106,44 @@ Uses of <A HREF="../../../../../com/twitter/common/util/Sampler.html" title="cla
 
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left" COLSPAN="2">Constructors in <A HREF="../../../../../com/twitter/common/stats/package-summary.html">com.twitter.common.stats</A> with parameters of type <A HREF="../../../../../com/twitter/common/util/Sampler.html" title="class in com.twitter.common.util">Sampler</A></FONT></TH>
+<TH ALIGN="left" COLSPAN="2">Methods in <A HREF="../../../../../com/twitter/common/stats/package-summary.html">com.twitter.common.stats</A> that return <A HREF="../../../../../com/twitter/common/stats/MovingWindowDelta.html" title="class in com.twitter.common.stats">MovingWindowDelta</A></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/stats/Percentile.html#Percentile(java.lang.String, boolean, com.twitter.common.util.Sampler, double...)">Percentile</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
-                     boolean&nbsp;allowFlushAfterSample,
-                     <A HREF="../../../../../com/twitter/common/util/Sampler.html" title="class in com.twitter.common.util">Sampler</A>&nbsp;sampler,
-                     double...&nbsp;percentiles)</CODE>
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt; 
+<BR>
+<A HREF="../../../../../com/twitter/common/stats/MovingWindowDelta.html" title="class in com.twitter.common.stats">MovingWindowDelta</A>&lt;T&gt;</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B>MovingWindowDelta.</B><B><A HREF="../../../../../com/twitter/common/stats/MovingWindowDelta.html#of(java.lang.String, com.google.common.base.Supplier)">of</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+     <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</A>&lt;T&gt;&nbsp;inputAccessor)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new percentile tracker.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Create a new MovingWindowDelta instance using the default window size (currently 60).</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/stats/Percentile.html#Percentile(java.lang.String, com.twitter.common.util.Sampler, double...)">Percentile</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
-                     <A HREF="../../../../../com/twitter/common/util/Sampler.html" title="class in com.twitter.common.util">Sampler</A>&nbsp;sampler,
-                     double...&nbsp;percentiles)</CODE>
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt; 
+<BR>
+<A HREF="../../../../../com/twitter/common/stats/MovingWindowDelta.html" title="class in com.twitter.common.stats">MovingWindowDelta</A>&lt;T&gt;</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B>MovingWindowDelta.</B><B><A HREF="../../../../../com/twitter/common/stats/MovingWindowDelta.html#of(java.lang.String, com.google.common.base.Supplier, int)">of</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+     <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</A>&lt;T&gt;&nbsp;inputAccessor,
+     int&nbsp;windowSize)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new percentile tracker.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Create a new MovingWindowDelta instance.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -142,7 +162,7 @@ Uses of <A HREF="../../../../../com/twitter/common/util/Sampler.html" title="cla
   <TR ALIGN="center" VALIGN="top">
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../com/twitter/common/util/Sampler.html" title="class in com.twitter.common.util"><FONT CLASS="NavBarFont1"><B>Class</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../com/twitter/common/stats/MovingWindowDelta.html" title="class in com.twitter.common.stats"><FONT CLASS="NavBarFont1"><B>Class</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Use</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
@@ -161,8 +181,8 @@ Uses of <A HREF="../../../../../com/twitter/common/util/Sampler.html" title="cla
 &nbsp;PREV&nbsp;
 &nbsp;NEXT</FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-  <A HREF="../../../../../index.html?com/twitter/common/util//class-useSampler.html" target="_top"><B>FRAMES</B></A>  &nbsp;
-&nbsp;<A HREF="Sampler.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+  <A HREF="../../../../../index.html?com/twitter/common/stats//class-useMovingWindowDelta.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="MovingWindowDelta.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
 &nbsp;<SCRIPT type="text/javascript">
   <!--
   if(window==top) {

@@ -132,418 +132,386 @@
 <FONT color="green">129</FONT>      }<a name="line.129"></a>
 <FONT color="green">130</FONT>    <a name="line.130"></a>
 <FONT color="green">131</FONT>      /**<a name="line.131"></a>
-<FONT color="green">132</FONT>       * Applies the provided argument values to {@literal @CmdLine} arg fields selected by the given<a name="line.132"></a>
-<FONT color="green">133</FONT>       * filter after parsing and validating them.<a name="line.133"></a>
+<FONT color="green">132</FONT>       * Applies the provided argument values to any {@literal @CmdLine} {@code Arg} fields discovered<a name="line.132"></a>
+<FONT color="green">133</FONT>       * on the classpath and accepted by the given {@code filter}.<a name="line.133"></a>
 <FONT color="green">134</FONT>       *<a name="line.134"></a>
-<FONT color="green">135</FONT>       * @param args Argument values to map, parse, validate, and apply.<a name="line.135"></a>
-<FONT color="green">136</FONT>       * @throws ArgScanException if there was a problem loading {@literal @CmdLine} argument<a name="line.136"></a>
-<FONT color="green">137</FONT>       *    definitions<a name="line.137"></a>
-<FONT color="green">138</FONT>       * @throws IllegalArgumentException If the arguments provided are invalid based on the declared<a name="line.138"></a>
-<FONT color="green">139</FONT>       *    arguments found.<a name="line.139"></a>
-<FONT color="green">140</FONT>       *<a name="line.140"></a>
-<FONT color="green">141</FONT>       * @deprecated Use {@link #parse(String...)}<a name="line.141"></a>
+<FONT color="green">135</FONT>       * @param filter A predicate that selects or rejects scanned {@literal @CmdLine} fields for<a name="line.135"></a>
+<FONT color="green">136</FONT>       *    argument application.<a name="line.136"></a>
+<FONT color="green">137</FONT>       * @param args Argument values to map, parse, validate, and apply.<a name="line.137"></a>
+<FONT color="green">138</FONT>       * @throws ArgScanException if there was a problem loading {@literal @CmdLine} argument<a name="line.138"></a>
+<FONT color="green">139</FONT>       *    definitions<a name="line.139"></a>
+<FONT color="green">140</FONT>       * @throws IllegalArgumentException If the arguments provided are invalid based on the declared<a name="line.140"></a>
+<FONT color="green">141</FONT>       *    arguments found.<a name="line.141"></a>
 <FONT color="green">142</FONT>       */<a name="line.142"></a>
-<FONT color="green">143</FONT>      @Deprecated<a name="line.143"></a>
-<FONT color="green">144</FONT>      public static void parse(Map&lt;String, String&gt; args) {<a name="line.144"></a>
-<FONT color="green">145</FONT>        parse(Predicates.&lt;Field&gt;alwaysTrue(), args);<a name="line.145"></a>
-<FONT color="green">146</FONT>      }<a name="line.146"></a>
-<FONT color="green">147</FONT>    <a name="line.147"></a>
-<FONT color="green">148</FONT>      /**<a name="line.148"></a>
-<FONT color="green">149</FONT>       * Convenience method to call {@link #parse(Predicate, Map)} that will handle mapping of argument<a name="line.149"></a>
-<FONT color="green">150</FONT>       * keys to values.<a name="line.150"></a>
-<FONT color="green">151</FONT>       *<a name="line.151"></a>
-<FONT color="green">152</FONT>       * @param filter A predicate that selects or rejects scanned {@literal @CmdLine} fields for<a name="line.152"></a>
-<FONT color="green">153</FONT>       *    argument application.<a name="line.153"></a>
-<FONT color="green">154</FONT>       * @param args Argument values to map, parse, validate, and apply.<a name="line.154"></a>
-<FONT color="green">155</FONT>       * @throws ArgScanException if there was a problem loading {@literal @CmdLine} argument<a name="line.155"></a>
-<FONT color="green">156</FONT>       *    definitions<a name="line.156"></a>
-<FONT color="green">157</FONT>       * @throws IllegalArgumentException If the arguments provided are invalid based on the declared<a name="line.157"></a>
-<FONT color="green">158</FONT>       *    arguments found.<a name="line.158"></a>
-<FONT color="green">159</FONT>       */<a name="line.159"></a>
-<FONT color="green">160</FONT>      public static void parse(Predicate&lt;Field&gt; filter, String... args) {<a name="line.160"></a>
-<FONT color="green">161</FONT>        parse(filter, mapArguments(args));<a name="line.161"></a>
-<FONT color="green">162</FONT>      }<a name="line.162"></a>
-<FONT color="green">163</FONT>    <a name="line.163"></a>
-<FONT color="green">164</FONT>      private static void parse(Predicate&lt;Field&gt; filter, Map&lt;String, String&gt; args) {<a name="line.164"></a>
-<FONT color="green">165</FONT>        process(scan(filter), args);<a name="line.165"></a>
-<FONT color="green">166</FONT>      }<a name="line.166"></a>
-<FONT color="green">167</FONT>    <a name="line.167"></a>
-<FONT color="green">168</FONT>      // Regular expression to identify a possible dangling assignment.<a name="line.168"></a>
-<FONT color="green">169</FONT>      // A dangling assignment occurs in two cases:<a name="line.169"></a>
-<FONT color="green">170</FONT>      //   - The command line used spaces between arg names and values, causing the name and value to<a name="line.170"></a>
-<FONT color="green">171</FONT>      //     end up in different command line arg array elements.<a name="line.171"></a>
-<FONT color="green">172</FONT>      //   - The command line is using the short form for a boolean argument,<a name="line.172"></a>
-<FONT color="green">173</FONT>      //     such as -use_feature, or -no_use_feature.<a name="line.173"></a>
-<FONT color="green">174</FONT>      private static final String DANGLING_ASSIGNMENT_RE = String.format("^-%s", ARG_NAME_RE);<a name="line.174"></a>
-<FONT color="green">175</FONT>      private static final Pattern DANGLING_ASSIGNMENT_PATTERN =<a name="line.175"></a>
-<FONT color="green">176</FONT>          Pattern.compile(DANGLING_ASSIGNMENT_RE);<a name="line.176"></a>
-<FONT color="green">177</FONT>    <a name="line.177"></a>
-<FONT color="green">178</FONT>      // Pattern to identify a full assignment, which would be disassociated from a preceding dangling<a name="line.178"></a>
-<FONT color="green">179</FONT>      // assignment.<a name="line.179"></a>
-<FONT color="green">180</FONT>      private static final Pattern ASSIGNMENT_PATTERN =<a name="line.180"></a>
-<FONT color="green">181</FONT>          Pattern.compile(String.format("%s=.+", DANGLING_ASSIGNMENT_RE));<a name="line.181"></a>
-<FONT color="green">182</FONT>    <a name="line.182"></a>
-<FONT color="green">183</FONT>      @VisibleForTesting static List&lt;String&gt; joinKeysToValues(String... args) {<a name="line.183"></a>
-<FONT color="green">184</FONT>        List&lt;String&gt; joinedArgs = Lists.newArrayList();<a name="line.184"></a>
-<FONT color="green">185</FONT>        String unmappedKey = null;<a name="line.185"></a>
-<FONT color="green">186</FONT>        for (String arg : args) {<a name="line.186"></a>
-<FONT color="green">187</FONT>          if (unmappedKey == null) {<a name="line.187"></a>
-<FONT color="green">188</FONT>            if (DANGLING_ASSIGNMENT_PATTERN.matcher(arg).matches()) {<a name="line.188"></a>
-<FONT color="green">189</FONT>              // Beginning of a possible dangling assignment.<a name="line.189"></a>
-<FONT color="green">190</FONT>              unmappedKey = arg;<a name="line.190"></a>
-<FONT color="green">191</FONT>            } else {<a name="line.191"></a>
-<FONT color="green">192</FONT>              joinedArgs.add(arg);<a name="line.192"></a>
-<FONT color="green">193</FONT>            }<a name="line.193"></a>
-<FONT color="green">194</FONT>          } else {<a name="line.194"></a>
-<FONT color="green">195</FONT>            if (ASSIGNMENT_PATTERN.matcher(arg).matches()) {<a name="line.195"></a>
-<FONT color="green">196</FONT>              // Full assignment, disassociate from dangling assignment.<a name="line.196"></a>
-<FONT color="green">197</FONT>              joinedArgs.add(unmappedKey);<a name="line.197"></a>
-<FONT color="green">198</FONT>              joinedArgs.add(arg);<a name="line.198"></a>
-<FONT color="green">199</FONT>              unmappedKey = null;<a name="line.199"></a>
-<FONT color="green">200</FONT>            } else if (DANGLING_ASSIGNMENT_PATTERN.matcher(arg).find()) {<a name="line.200"></a>
-<FONT color="green">201</FONT>              // Another dangling assignment, this could be two sequential boolean args.<a name="line.201"></a>
-<FONT color="green">202</FONT>              joinedArgs.add(unmappedKey);<a name="line.202"></a>
-<FONT color="green">203</FONT>              unmappedKey = arg;<a name="line.203"></a>
-<FONT color="green">204</FONT>            } else {<a name="line.204"></a>
-<FONT color="green">205</FONT>              // Join the dangling key with its value.<a name="line.205"></a>
-<FONT color="green">206</FONT>              joinedArgs.add(unmappedKey + "=" + arg);<a name="line.206"></a>
-<FONT color="green">207</FONT>              unmappedKey = null;<a name="line.207"></a>
-<FONT color="green">208</FONT>            }<a name="line.208"></a>
-<FONT color="green">209</FONT>          }<a name="line.209"></a>
-<FONT color="green">210</FONT>        }<a name="line.210"></a>
-<FONT color="green">211</FONT>    <a name="line.211"></a>
-<FONT color="green">212</FONT>        if (unmappedKey != null) {<a name="line.212"></a>
-<FONT color="green">213</FONT>          joinedArgs.add(unmappedKey);<a name="line.213"></a>
-<FONT color="green">214</FONT>        }<a name="line.214"></a>
-<FONT color="green">215</FONT>    <a name="line.215"></a>
-<FONT color="green">216</FONT>        return joinedArgs;<a name="line.216"></a>
-<FONT color="green">217</FONT>      }<a name="line.217"></a>
+<FONT color="green">143</FONT>      public static void parse(Predicate&lt;Field&gt; filter, String... args) {<a name="line.143"></a>
+<FONT color="green">144</FONT>        process(scan(filter), mapArguments(args));<a name="line.144"></a>
+<FONT color="green">145</FONT>      }<a name="line.145"></a>
+<FONT color="green">146</FONT>    <a name="line.146"></a>
+<FONT color="green">147</FONT>      // Regular expression to identify a possible dangling assignment.<a name="line.147"></a>
+<FONT color="green">148</FONT>      // A dangling assignment occurs in two cases:<a name="line.148"></a>
+<FONT color="green">149</FONT>      //   - The command line used spaces between arg names and values, causing the name and value to<a name="line.149"></a>
+<FONT color="green">150</FONT>      //     end up in different command line arg array elements.<a name="line.150"></a>
+<FONT color="green">151</FONT>      //   - The command line is using the short form for a boolean argument,<a name="line.151"></a>
+<FONT color="green">152</FONT>      //     such as -use_feature, or -no_use_feature.<a name="line.152"></a>
+<FONT color="green">153</FONT>      private static final String DANGLING_ASSIGNMENT_RE = String.format("^-%s", ARG_NAME_RE);<a name="line.153"></a>
+<FONT color="green">154</FONT>      private static final Pattern DANGLING_ASSIGNMENT_PATTERN =<a name="line.154"></a>
+<FONT color="green">155</FONT>          Pattern.compile(DANGLING_ASSIGNMENT_RE);<a name="line.155"></a>
+<FONT color="green">156</FONT>    <a name="line.156"></a>
+<FONT color="green">157</FONT>      // Pattern to identify a full assignment, which would be disassociated from a preceding dangling<a name="line.157"></a>
+<FONT color="green">158</FONT>      // assignment.<a name="line.158"></a>
+<FONT color="green">159</FONT>      private static final Pattern ASSIGNMENT_PATTERN =<a name="line.159"></a>
+<FONT color="green">160</FONT>          Pattern.compile(String.format("%s=.+", DANGLING_ASSIGNMENT_RE));<a name="line.160"></a>
+<FONT color="green">161</FONT>    <a name="line.161"></a>
+<FONT color="green">162</FONT>      @VisibleForTesting static List&lt;String&gt; joinKeysToValues(String... args) {<a name="line.162"></a>
+<FONT color="green">163</FONT>        List&lt;String&gt; joinedArgs = Lists.newArrayList();<a name="line.163"></a>
+<FONT color="green">164</FONT>        String unmappedKey = null;<a name="line.164"></a>
+<FONT color="green">165</FONT>        for (String arg : args) {<a name="line.165"></a>
+<FONT color="green">166</FONT>          if (unmappedKey == null) {<a name="line.166"></a>
+<FONT color="green">167</FONT>            if (DANGLING_ASSIGNMENT_PATTERN.matcher(arg).matches()) {<a name="line.167"></a>
+<FONT color="green">168</FONT>              // Beginning of a possible dangling assignment.<a name="line.168"></a>
+<FONT color="green">169</FONT>              unmappedKey = arg;<a name="line.169"></a>
+<FONT color="green">170</FONT>            } else {<a name="line.170"></a>
+<FONT color="green">171</FONT>              joinedArgs.add(arg);<a name="line.171"></a>
+<FONT color="green">172</FONT>            }<a name="line.172"></a>
+<FONT color="green">173</FONT>          } else {<a name="line.173"></a>
+<FONT color="green">174</FONT>            if (ASSIGNMENT_PATTERN.matcher(arg).matches()) {<a name="line.174"></a>
+<FONT color="green">175</FONT>              // Full assignment, disassociate from dangling assignment.<a name="line.175"></a>
+<FONT color="green">176</FONT>              joinedArgs.add(unmappedKey);<a name="line.176"></a>
+<FONT color="green">177</FONT>              joinedArgs.add(arg);<a name="line.177"></a>
+<FONT color="green">178</FONT>              unmappedKey = null;<a name="line.178"></a>
+<FONT color="green">179</FONT>            } else if (DANGLING_ASSIGNMENT_PATTERN.matcher(arg).find()) {<a name="line.179"></a>
+<FONT color="green">180</FONT>              // Another dangling assignment, this could be two sequential boolean args.<a name="line.180"></a>
+<FONT color="green">181</FONT>              joinedArgs.add(unmappedKey);<a name="line.181"></a>
+<FONT color="green">182</FONT>              unmappedKey = arg;<a name="line.182"></a>
+<FONT color="green">183</FONT>            } else {<a name="line.183"></a>
+<FONT color="green">184</FONT>              // Join the dangling key with its value.<a name="line.184"></a>
+<FONT color="green">185</FONT>              joinedArgs.add(unmappedKey + "=" + arg);<a name="line.185"></a>
+<FONT color="green">186</FONT>              unmappedKey = null;<a name="line.186"></a>
+<FONT color="green">187</FONT>            }<a name="line.187"></a>
+<FONT color="green">188</FONT>          }<a name="line.188"></a>
+<FONT color="green">189</FONT>        }<a name="line.189"></a>
+<FONT color="green">190</FONT>    <a name="line.190"></a>
+<FONT color="green">191</FONT>        if (unmappedKey != null) {<a name="line.191"></a>
+<FONT color="green">192</FONT>          joinedArgs.add(unmappedKey);<a name="line.192"></a>
+<FONT color="green">193</FONT>        }<a name="line.193"></a>
+<FONT color="green">194</FONT>    <a name="line.194"></a>
+<FONT color="green">195</FONT>        return joinedArgs;<a name="line.195"></a>
+<FONT color="green">196</FONT>      }<a name="line.196"></a>
+<FONT color="green">197</FONT>    <a name="line.197"></a>
+<FONT color="green">198</FONT>      private static final Pattern QUOTE_PATTERN = Pattern.compile("(['\"])([^\\\1]*)\\1");<a name="line.198"></a>
+<FONT color="green">199</FONT>    <a name="line.199"></a>
+<FONT color="green">200</FONT>      private static String stripQuotes(String str) {<a name="line.200"></a>
+<FONT color="green">201</FONT>        Matcher matcher = QUOTE_PATTERN.matcher(str);<a name="line.201"></a>
+<FONT color="green">202</FONT>        return matcher.matches() ? matcher.group(2) : str;<a name="line.202"></a>
+<FONT color="green">203</FONT>      }<a name="line.203"></a>
+<FONT color="green">204</FONT>    <a name="line.204"></a>
+<FONT color="green">205</FONT>      /**<a name="line.205"></a>
+<FONT color="green">206</FONT>       * Scans through args, mapping keys to values even if the arg values are 'dangling' and reside<a name="line.206"></a>
+<FONT color="green">207</FONT>       * in different array entries than the respective keys.<a name="line.207"></a>
+<FONT color="green">208</FONT>       *<a name="line.208"></a>
+<FONT color="green">209</FONT>       * @param args Arguments to build into a map.<a name="line.209"></a>
+<FONT color="green">210</FONT>       * @return Map from argument key (arg name) to value.<a name="line.210"></a>
+<FONT color="green">211</FONT>       */<a name="line.211"></a>
+<FONT color="green">212</FONT>      public static Map&lt;String, String&gt; mapArguments(String... args) {<a name="line.212"></a>
+<FONT color="green">213</FONT>        ImmutableMap.Builder&lt;String, String&gt; argMap = ImmutableMap.builder();<a name="line.213"></a>
+<FONT color="green">214</FONT>        for (String arg : joinKeysToValues(args)) {<a name="line.214"></a>
+<FONT color="green">215</FONT>          Matcher matcher = ARG_PATTERN.matcher(arg);<a name="line.215"></a>
+<FONT color="green">216</FONT>          checkArgument(matcher.matches(),<a name="line.216"></a>
+<FONT color="green">217</FONT>              String.format("Argument '%s' does not match required format -arg_name=arg_value", arg));<a name="line.217"></a>
 <FONT color="green">218</FONT>    <a name="line.218"></a>
-<FONT color="green">219</FONT>      private static final Pattern QUOTE_PATTERN = Pattern.compile("(['\"])([^\\\1]*)\\1");<a name="line.219"></a>
-<FONT color="green">220</FONT>    <a name="line.220"></a>
-<FONT color="green">221</FONT>      private static String stripQuotes(String str) {<a name="line.221"></a>
-<FONT color="green">222</FONT>        Matcher matcher = QUOTE_PATTERN.matcher(str);<a name="line.222"></a>
-<FONT color="green">223</FONT>        return matcher.matches() ? matcher.group(2) : str;<a name="line.223"></a>
-<FONT color="green">224</FONT>      }<a name="line.224"></a>
-<FONT color="green">225</FONT>    <a name="line.225"></a>
-<FONT color="green">226</FONT>      /**<a name="line.226"></a>
-<FONT color="green">227</FONT>       * Scans through args, mapping keys to values even if the arg values are 'dangling' and reside<a name="line.227"></a>
-<FONT color="green">228</FONT>       * in different array entries than the respective keys.<a name="line.228"></a>
-<FONT color="green">229</FONT>       *<a name="line.229"></a>
-<FONT color="green">230</FONT>       * @param args Arguments to build into a map.<a name="line.230"></a>
-<FONT color="green">231</FONT>       * @return Map from argument key (arg name) to value.<a name="line.231"></a>
-<FONT color="green">232</FONT>       */<a name="line.232"></a>
-<FONT color="green">233</FONT>      public static Map&lt;String, String&gt; mapArguments(String... args) {<a name="line.233"></a>
-<FONT color="green">234</FONT>        ImmutableMap.Builder&lt;String, String&gt; argMap = ImmutableMap.builder();<a name="line.234"></a>
-<FONT color="green">235</FONT>        for (String arg : joinKeysToValues(args)) {<a name="line.235"></a>
-<FONT color="green">236</FONT>          Matcher matcher = ARG_PATTERN.matcher(arg);<a name="line.236"></a>
-<FONT color="green">237</FONT>          checkArgument(matcher.matches(),<a name="line.237"></a>
-<FONT color="green">238</FONT>              String.format("Argument '%s' does not match required format -arg_name=arg_value", arg));<a name="line.238"></a>
+<FONT color="green">219</FONT>          String rawValue = matcher.group(2);<a name="line.219"></a>
+<FONT color="green">220</FONT>          // An empty string denotes that the argument was passed with no value.<a name="line.220"></a>
+<FONT color="green">221</FONT>          rawValue = rawValue == null ? "" : stripQuotes(rawValue);<a name="line.221"></a>
+<FONT color="green">222</FONT>          argMap.put(matcher.group(1), rawValue);<a name="line.222"></a>
+<FONT color="green">223</FONT>        }<a name="line.223"></a>
+<FONT color="green">224</FONT>    <a name="line.224"></a>
+<FONT color="green">225</FONT>        return argMap.build();<a name="line.225"></a>
+<FONT color="green">226</FONT>      }<a name="line.226"></a>
+<FONT color="green">227</FONT>    <a name="line.227"></a>
+<FONT color="green">228</FONT>      /**<a name="line.228"></a>
+<FONT color="green">229</FONT>       * Extracts the @Arg annotation from a Field and includes it as a pair.<a name="line.229"></a>
+<FONT color="green">230</FONT>       */<a name="line.230"></a>
+<FONT color="green">231</FONT>      private static final Function&lt;Field, Pair&lt;Field, CmdLine&gt;&gt; PAIR_WITH_ANNOTATION =<a name="line.231"></a>
+<FONT color="green">232</FONT>          new Function&lt;Field, Pair&lt;Field, CmdLine&gt;&gt;() {<a name="line.232"></a>
+<FONT color="green">233</FONT>            @Override public Pair&lt;Field, CmdLine&gt; apply(Field field) {<a name="line.233"></a>
+<FONT color="green">234</FONT>              CmdLine cmdLineDef = field.getAnnotation(CmdLine.class);<a name="line.234"></a>
+<FONT color="green">235</FONT>              Preconditions.checkNotNull(cmdLineDef, "No Arg annotation for field " + field);<a name="line.235"></a>
+<FONT color="green">236</FONT>              return Pair.of(field, cmdLineDef);<a name="line.236"></a>
+<FONT color="green">237</FONT>            }<a name="line.237"></a>
+<FONT color="green">238</FONT>          };<a name="line.238"></a>
 <FONT color="green">239</FONT>    <a name="line.239"></a>
-<FONT color="green">240</FONT>          String rawValue = matcher.group(2);<a name="line.240"></a>
-<FONT color="green">241</FONT>          // An empty string denotes that the argument was passed with no value.<a name="line.241"></a>
-<FONT color="green">242</FONT>          rawValue = rawValue == null ? "" : stripQuotes(rawValue);<a name="line.242"></a>
-<FONT color="green">243</FONT>          argMap.put(matcher.group(1), rawValue);<a name="line.243"></a>
-<FONT color="green">244</FONT>        }<a name="line.244"></a>
-<FONT color="green">245</FONT>    <a name="line.245"></a>
-<FONT color="green">246</FONT>        return argMap.build();<a name="line.246"></a>
-<FONT color="green">247</FONT>      }<a name="line.247"></a>
+<FONT color="green">240</FONT>      /**<a name="line.240"></a>
+<FONT color="green">241</FONT>       * Performs multiple checks to ensure the definition of an argument is good.<a name="line.241"></a>
+<FONT color="green">242</FONT>       */<a name="line.242"></a>
+<FONT color="green">243</FONT>      private static final Closure&lt;Pair&lt;Field, CmdLine&gt;&gt; CHECK_ARG_DEF =<a name="line.243"></a>
+<FONT color="green">244</FONT>          new Closure&lt;Pair&lt;Field, CmdLine&gt;&gt;() {<a name="line.244"></a>
+<FONT color="green">245</FONT>        @Override public void execute(Pair&lt;Field, CmdLine&gt; argDef) {<a name="line.245"></a>
+<FONT color="green">246</FONT>          checkArgument(Modifier.isStatic(argDef.getFirst().getModifiers()),<a name="line.246"></a>
+<FONT color="green">247</FONT>              "Non-static argument fields are not supported, found " + argDef.getFirst());<a name="line.247"></a>
 <FONT color="green">248</FONT>    <a name="line.248"></a>
-<FONT color="green">249</FONT>      /**<a name="line.249"></a>
-<FONT color="green">250</FONT>       * Extracts the @Arg annotation from a Field and includes it as a pair.<a name="line.250"></a>
-<FONT color="green">251</FONT>       */<a name="line.251"></a>
-<FONT color="green">252</FONT>      private static final Function&lt;Field, Pair&lt;Field, CmdLine&gt;&gt; PAIR_WITH_ANNOTATION =<a name="line.252"></a>
-<FONT color="green">253</FONT>          new Function&lt;Field, Pair&lt;Field, CmdLine&gt;&gt;() {<a name="line.253"></a>
-<FONT color="green">254</FONT>            @Override public Pair&lt;Field, CmdLine&gt; apply(Field field) {<a name="line.254"></a>
-<FONT color="green">255</FONT>              CmdLine cmdLineDef = field.getAnnotation(CmdLine.class);<a name="line.255"></a>
-<FONT color="green">256</FONT>              Preconditions.checkNotNull(cmdLineDef, "No Arg annotation for field " + field);<a name="line.256"></a>
-<FONT color="green">257</FONT>              return Pair.of(field, cmdLineDef);<a name="line.257"></a>
-<FONT color="green">258</FONT>            }<a name="line.258"></a>
-<FONT color="green">259</FONT>          };<a name="line.259"></a>
-<FONT color="green">260</FONT>    <a name="line.260"></a>
-<FONT color="green">261</FONT>      /**<a name="line.261"></a>
-<FONT color="green">262</FONT>       * Performs multiple checks to ensure the definition of an argument is good.<a name="line.262"></a>
-<FONT color="green">263</FONT>       */<a name="line.263"></a>
-<FONT color="green">264</FONT>      private static final Closure&lt;Pair&lt;Field, CmdLine&gt;&gt; CHECK_ARG_DEF =<a name="line.264"></a>
-<FONT color="green">265</FONT>          new Closure&lt;Pair&lt;Field, CmdLine&gt;&gt;() {<a name="line.265"></a>
-<FONT color="green">266</FONT>        @Override public void execute(Pair&lt;Field, CmdLine&gt; argDef) {<a name="line.266"></a>
-<FONT color="green">267</FONT>          checkArgument(Modifier.isStatic(argDef.getFirst().getModifiers()),<a name="line.267"></a>
-<FONT color="green">268</FONT>              "Non-static argument fields are not supported, found " + argDef.getFirst());<a name="line.268"></a>
-<FONT color="green">269</FONT>    <a name="line.269"></a>
-<FONT color="green">270</FONT>          String argName = argDef.getSecond().name();<a name="line.270"></a>
-<FONT color="green">271</FONT>          checkArgument(ARG_NAME_PATTERN.matcher(argName).matches(),<a name="line.271"></a>
-<FONT color="green">272</FONT>              String.format("Argument name '%s' on %s does not match required pattern %s",<a name="line.272"></a>
-<FONT color="green">273</FONT>                  argName, argDef.getFirst(), ARG_NAME_RE));<a name="line.273"></a>
-<FONT color="green">274</FONT>    <a name="line.274"></a>
-<FONT color="green">275</FONT>          checkArgument(getParser(argDef.getSecond(), argDef.getFirst()) != null,<a name="line.275"></a>
-<FONT color="green">276</FONT>              "No parser found for type " + TypeUtil.getTypeParamClass(argDef.getFirst())<a name="line.276"></a>
-<FONT color="green">277</FONT>                  + ", for arg field " + argDef.getFirst().getName());<a name="line.277"></a>
-<FONT color="green">278</FONT>        }<a name="line.278"></a>
-<FONT color="green">279</FONT>      };<a name="line.279"></a>
-<FONT color="green">280</FONT>    <a name="line.280"></a>
-<FONT color="green">281</FONT>      /**<a name="line.281"></a>
-<FONT color="green">282</FONT>       * Extracts the name from an @Arg.<a name="line.282"></a>
-<FONT color="green">283</FONT>       */<a name="line.283"></a>
-<FONT color="green">284</FONT>      private static final Function&lt;CmdLine, String&gt; GET_ARG_NAME = new Function&lt;CmdLine, String&gt;() {<a name="line.284"></a>
-<FONT color="green">285</FONT>          @Override public String apply(CmdLine cmdLine) {<a name="line.285"></a>
-<FONT color="green">286</FONT>            return cmdLine.name();<a name="line.286"></a>
-<FONT color="green">287</FONT>          }<a name="line.287"></a>
-<FONT color="green">288</FONT>        };<a name="line.288"></a>
-<FONT color="green">289</FONT>    <a name="line.289"></a>
-<FONT color="green">290</FONT>      /**<a name="line.290"></a>
-<FONT color="green">291</FONT>       * Gets the canonical name for an @Arg, based on the class containing the field it annotates.<a name="line.291"></a>
-<FONT color="green">292</FONT>       */<a name="line.292"></a>
-<FONT color="green">293</FONT>      private static final Function&lt;Pair&lt;Field, CmdLine&gt;, String&gt; GET_CANONICAL_ARG_NAME =<a name="line.293"></a>
-<FONT color="green">294</FONT>          new Function&lt;Pair&lt;Field, CmdLine&gt;, String&gt;() {<a name="line.294"></a>
-<FONT color="green">295</FONT>            @Override public String apply(Pair&lt;Field, CmdLine&gt; argDef) {<a name="line.295"></a>
-<FONT color="green">296</FONT>              return argDef.getFirst().getDeclaringClass().getCanonicalName()<a name="line.296"></a>
-<FONT color="green">297</FONT>                  + "." + argDef.getSecond().name();<a name="line.297"></a>
-<FONT color="green">298</FONT>            }<a name="line.298"></a>
-<FONT color="green">299</FONT>          };<a name="line.299"></a>
-<FONT color="green">300</FONT>    <a name="line.300"></a>
-<FONT color="green">301</FONT>      /**<a name="line.301"></a>
-<FONT color="green">302</FONT>       * Gets the canonical negated name for an @Arg.<a name="line.302"></a>
-<FONT color="green">303</FONT>       */<a name="line.303"></a>
-<FONT color="green">304</FONT>      private static final Function&lt;Pair&lt;Field, CmdLine&gt;, String&gt; GET_CANONICAL_NEGATED_ARG_NAME =<a name="line.304"></a>
-<FONT color="green">305</FONT>          new Function&lt;Pair&lt;Field, CmdLine&gt;, String&gt;() {<a name="line.305"></a>
-<FONT color="green">306</FONT>            @Override public String apply(Pair&lt;Field, CmdLine&gt; argDef) {<a name="line.306"></a>
-<FONT color="green">307</FONT>              return argDef.getFirst().getDeclaringClass().getCanonicalName()<a name="line.307"></a>
-<FONT color="green">308</FONT>                  + "." + NEGATE_BOOLEAN + argDef.getSecond().name();<a name="line.308"></a>
-<FONT color="green">309</FONT>            }<a name="line.309"></a>
-<FONT color="green">310</FONT>          };<a name="line.310"></a>
-<FONT color="green">311</FONT>    <a name="line.311"></a>
-<FONT color="green">312</FONT>      private static final Function&lt;String, String&gt; PREPEND_NEGATION = new Function&lt;String, String&gt;() {<a name="line.312"></a>
-<FONT color="green">313</FONT>        @Override public String apply(String name) {<a name="line.313"></a>
-<FONT color="green">314</FONT>          return NEGATE_BOOLEAN + name;<a name="line.314"></a>
-<FONT color="green">315</FONT>        }<a name="line.315"></a>
-<FONT color="green">316</FONT>      };<a name="line.316"></a>
-<FONT color="green">317</FONT>    <a name="line.317"></a>
-<FONT color="green">318</FONT>      private static &lt;T&gt; Set&lt;T&gt; dropCollisions(Iterable&lt;T&gt; input) {<a name="line.318"></a>
-<FONT color="green">319</FONT>        Set&lt;T&gt; copy = Sets.newHashSet();<a name="line.319"></a>
-<FONT color="green">320</FONT>        Set&lt;T&gt; collisions = Sets.newHashSet();<a name="line.320"></a>
-<FONT color="green">321</FONT>        for (T entry: input) {<a name="line.321"></a>
-<FONT color="green">322</FONT>          if (!copy.add(entry)) {<a name="line.322"></a>
-<FONT color="green">323</FONT>            collisions.add(entry);<a name="line.323"></a>
-<FONT color="green">324</FONT>          }<a name="line.324"></a>
+<FONT color="green">249</FONT>          String argName = argDef.getSecond().name();<a name="line.249"></a>
+<FONT color="green">250</FONT>          checkArgument(ARG_NAME_PATTERN.matcher(argName).matches(),<a name="line.250"></a>
+<FONT color="green">251</FONT>              String.format("Argument name '%s' on %s does not match required pattern %s",<a name="line.251"></a>
+<FONT color="green">252</FONT>                  argName, argDef.getFirst(), ARG_NAME_RE));<a name="line.252"></a>
+<FONT color="green">253</FONT>    <a name="line.253"></a>
+<FONT color="green">254</FONT>          checkArgument(getParser(argDef.getSecond(), argDef.getFirst()) != null,<a name="line.254"></a>
+<FONT color="green">255</FONT>              "No parser found for type " + TypeUtil.getTypeParamClass(argDef.getFirst())<a name="line.255"></a>
+<FONT color="green">256</FONT>                  + ", for arg field " + argDef.getFirst().getName());<a name="line.256"></a>
+<FONT color="green">257</FONT>        }<a name="line.257"></a>
+<FONT color="green">258</FONT>      };<a name="line.258"></a>
+<FONT color="green">259</FONT>    <a name="line.259"></a>
+<FONT color="green">260</FONT>      /**<a name="line.260"></a>
+<FONT color="green">261</FONT>       * Extracts the name from an @Arg.<a name="line.261"></a>
+<FONT color="green">262</FONT>       */<a name="line.262"></a>
+<FONT color="green">263</FONT>      private static final Function&lt;CmdLine, String&gt; GET_ARG_NAME = new Function&lt;CmdLine, String&gt;() {<a name="line.263"></a>
+<FONT color="green">264</FONT>          @Override public String apply(CmdLine cmdLine) {<a name="line.264"></a>
+<FONT color="green">265</FONT>            return cmdLine.name();<a name="line.265"></a>
+<FONT color="green">266</FONT>          }<a name="line.266"></a>
+<FONT color="green">267</FONT>        };<a name="line.267"></a>
+<FONT color="green">268</FONT>    <a name="line.268"></a>
+<FONT color="green">269</FONT>      /**<a name="line.269"></a>
+<FONT color="green">270</FONT>       * Gets the canonical name for an @Arg, based on the class containing the field it annotates.<a name="line.270"></a>
+<FONT color="green">271</FONT>       */<a name="line.271"></a>
+<FONT color="green">272</FONT>      private static final Function&lt;Pair&lt;Field, CmdLine&gt;, String&gt; GET_CANONICAL_ARG_NAME =<a name="line.272"></a>
+<FONT color="green">273</FONT>          new Function&lt;Pair&lt;Field, CmdLine&gt;, String&gt;() {<a name="line.273"></a>
+<FONT color="green">274</FONT>            @Override public String apply(Pair&lt;Field, CmdLine&gt; argDef) {<a name="line.274"></a>
+<FONT color="green">275</FONT>              return argDef.getFirst().getDeclaringClass().getCanonicalName()<a name="line.275"></a>
+<FONT color="green">276</FONT>                  + "." + argDef.getSecond().name();<a name="line.276"></a>
+<FONT color="green">277</FONT>            }<a name="line.277"></a>
+<FONT color="green">278</FONT>          };<a name="line.278"></a>
+<FONT color="green">279</FONT>    <a name="line.279"></a>
+<FONT color="green">280</FONT>      /**<a name="line.280"></a>
+<FONT color="green">281</FONT>       * Gets the canonical negated name for an @Arg.<a name="line.281"></a>
+<FONT color="green">282</FONT>       */<a name="line.282"></a>
+<FONT color="green">283</FONT>      private static final Function&lt;Pair&lt;Field, CmdLine&gt;, String&gt; GET_CANONICAL_NEGATED_ARG_NAME =<a name="line.283"></a>
+<FONT color="green">284</FONT>          new Function&lt;Pair&lt;Field, CmdLine&gt;, String&gt;() {<a name="line.284"></a>
+<FONT color="green">285</FONT>            @Override public String apply(Pair&lt;Field, CmdLine&gt; argDef) {<a name="line.285"></a>
+<FONT color="green">286</FONT>              return argDef.getFirst().getDeclaringClass().getCanonicalName()<a name="line.286"></a>
+<FONT color="green">287</FONT>                  + "." + NEGATE_BOOLEAN + argDef.getSecond().name();<a name="line.287"></a>
+<FONT color="green">288</FONT>            }<a name="line.288"></a>
+<FONT color="green">289</FONT>          };<a name="line.289"></a>
+<FONT color="green">290</FONT>    <a name="line.290"></a>
+<FONT color="green">291</FONT>      private static final Function&lt;String, String&gt; PREPEND_NEGATION = new Function&lt;String, String&gt;() {<a name="line.291"></a>
+<FONT color="green">292</FONT>        @Override public String apply(String name) {<a name="line.292"></a>
+<FONT color="green">293</FONT>          return NEGATE_BOOLEAN + name;<a name="line.293"></a>
+<FONT color="green">294</FONT>        }<a name="line.294"></a>
+<FONT color="green">295</FONT>      };<a name="line.295"></a>
+<FONT color="green">296</FONT>    <a name="line.296"></a>
+<FONT color="green">297</FONT>      private static &lt;T&gt; Set&lt;T&gt; dropCollisions(Iterable&lt;T&gt; input) {<a name="line.297"></a>
+<FONT color="green">298</FONT>        Set&lt;T&gt; copy = Sets.newHashSet();<a name="line.298"></a>
+<FONT color="green">299</FONT>        Set&lt;T&gt; collisions = Sets.newHashSet();<a name="line.299"></a>
+<FONT color="green">300</FONT>        for (T entry: input) {<a name="line.300"></a>
+<FONT color="green">301</FONT>          if (!copy.add(entry)) {<a name="line.301"></a>
+<FONT color="green">302</FONT>            collisions.add(entry);<a name="line.302"></a>
+<FONT color="green">303</FONT>          }<a name="line.303"></a>
+<FONT color="green">304</FONT>        }<a name="line.304"></a>
+<FONT color="green">305</FONT>    <a name="line.305"></a>
+<FONT color="green">306</FONT>        copy.removeAll(collisions);<a name="line.306"></a>
+<FONT color="green">307</FONT>        return copy;<a name="line.307"></a>
+<FONT color="green">308</FONT>      }<a name="line.308"></a>
+<FONT color="green">309</FONT>    <a name="line.309"></a>
+<FONT color="green">310</FONT>      /**<a name="line.310"></a>
+<FONT color="green">311</FONT>       * Applies argument values to fields based on their annotations.<a name="line.311"></a>
+<FONT color="green">312</FONT>       *<a name="line.312"></a>
+<FONT color="green">313</FONT>       * @param argFields Fields to apply argument values to.<a name="line.313"></a>
+<FONT color="green">314</FONT>       * @param args Unparsed argument values.<a name="line.314"></a>
+<FONT color="green">315</FONT>       */<a name="line.315"></a>
+<FONT color="green">316</FONT>      private static void process(Iterable&lt;Field&gt; argFields, Map&lt;String, String&gt; args) {<a name="line.316"></a>
+<FONT color="green">317</FONT>        final Set&lt;String&gt; argsFailedToParse = Sets.newHashSet();<a name="line.317"></a>
+<FONT color="green">318</FONT>        final Set&lt;String&gt; argsConstraintsFailed = Sets.newHashSet();<a name="line.318"></a>
+<FONT color="green">319</FONT>    <a name="line.319"></a>
+<FONT color="green">320</FONT>        final Iterable&lt;Pair&lt;Field, CmdLine&gt;&gt; argDefs =<a name="line.320"></a>
+<FONT color="green">321</FONT>            Iterables.transform(argFields, PAIR_WITH_ANNOTATION);<a name="line.321"></a>
+<FONT color="green">322</FONT>    <a name="line.322"></a>
+<FONT color="green">323</FONT>        for (Pair&lt;Field, CmdLine&gt; argDef : argDefs) {<a name="line.323"></a>
+<FONT color="green">324</FONT>          CHECK_ARG_DEF.execute(argDef);<a name="line.324"></a>
 <FONT color="green">325</FONT>        }<a name="line.325"></a>
 <FONT color="green">326</FONT>    <a name="line.326"></a>
-<FONT color="green">327</FONT>        copy.removeAll(collisions);<a name="line.327"></a>
-<FONT color="green">328</FONT>        return copy;<a name="line.328"></a>
-<FONT color="green">329</FONT>      }<a name="line.329"></a>
-<FONT color="green">330</FONT>    <a name="line.330"></a>
-<FONT color="green">331</FONT>      /**<a name="line.331"></a>
-<FONT color="green">332</FONT>       * Applies argument values to fields based on their annotations.<a name="line.332"></a>
-<FONT color="green">333</FONT>       *<a name="line.333"></a>
-<FONT color="green">334</FONT>       * @param argFields Fields to apply argument values to.<a name="line.334"></a>
-<FONT color="green">335</FONT>       * @param args Unparsed argument values.<a name="line.335"></a>
-<FONT color="green">336</FONT>       */<a name="line.336"></a>
-<FONT color="green">337</FONT>      private static void process(Iterable&lt;Field&gt; argFields, Map&lt;String, String&gt; args) {<a name="line.337"></a>
-<FONT color="green">338</FONT>        final Set&lt;String&gt; argsFailedToParse = Sets.newHashSet();<a name="line.338"></a>
-<FONT color="green">339</FONT>        final Set&lt;String&gt; argsConstraintsFailed = Sets.newHashSet();<a name="line.339"></a>
+<FONT color="green">327</FONT>        Iterable&lt;String&gt; argShortNames = Iterables.transform(argDefs,<a name="line.327"></a>
+<FONT color="green">328</FONT>            Functions.compose(GET_ARG_NAME, Pair.&lt;Field, CmdLine&gt;second()));<a name="line.328"></a>
+<FONT color="green">329</FONT>        Set&lt;String&gt; argShortNamesNoCollisions = dropCollisions(argShortNames);<a name="line.329"></a>
+<FONT color="green">330</FONT>        Set&lt;String&gt; collisionsDropped = Sets.difference(ImmutableSet.copyOf(argShortNames),<a name="line.330"></a>
+<FONT color="green">331</FONT>            argShortNamesNoCollisions);<a name="line.331"></a>
+<FONT color="green">332</FONT>        if (!collisionsDropped.isEmpty()) {<a name="line.332"></a>
+<FONT color="green">333</FONT>          LOG.warning("Found argument name collisions, args must be referenced by canonical names: "<a name="line.333"></a>
+<FONT color="green">334</FONT>              + collisionsDropped);<a name="line.334"></a>
+<FONT color="green">335</FONT>        }<a name="line.335"></a>
+<FONT color="green">336</FONT>    <a name="line.336"></a>
+<FONT color="green">337</FONT>        Predicate&lt;Pair&lt;Field, CmdLine&gt;&gt; isBoolean = Predicates.compose(<a name="line.337"></a>
+<FONT color="green">338</FONT>            Predicates.&lt;Class&gt;equalTo(Boolean.class),<a name="line.338"></a>
+<FONT color="green">339</FONT>            Functions.compose(TypeUtil.GET_TYPE_PARAM_CLASS, Pair.&lt;Field, CmdLine&gt;first()));<a name="line.339"></a>
 <FONT color="green">340</FONT>    <a name="line.340"></a>
-<FONT color="green">341</FONT>        final Iterable&lt;Pair&lt;Field, CmdLine&gt;&gt; argDefs =<a name="line.341"></a>
-<FONT color="green">342</FONT>            Iterables.transform(argFields, PAIR_WITH_ANNOTATION);<a name="line.342"></a>
+<FONT color="green">341</FONT>        final Function&lt;Pair&lt;Field, CmdLine&gt;, String&gt; getFieldArgName =<a name="line.341"></a>
+<FONT color="green">342</FONT>            Functions.compose(GET_ARG_NAME, Pair.&lt;Field, CmdLine&gt;second());<a name="line.342"></a>
 <FONT color="green">343</FONT>    <a name="line.343"></a>
-<FONT color="green">344</FONT>        for (Pair&lt;Field, CmdLine&gt; argDef : argDefs) {<a name="line.344"></a>
-<FONT color="green">345</FONT>          CHECK_ARG_DEF.execute(argDef);<a name="line.345"></a>
-<FONT color="green">346</FONT>        }<a name="line.346"></a>
-<FONT color="green">347</FONT>    <a name="line.347"></a>
-<FONT color="green">348</FONT>        Iterable&lt;String&gt; argShortNames = Iterables.transform(argDefs,<a name="line.348"></a>
-<FONT color="green">349</FONT>            Functions.compose(GET_ARG_NAME, Pair.&lt;Field, CmdLine&gt;second()));<a name="line.349"></a>
-<FONT color="green">350</FONT>        Set&lt;String&gt; argShortNamesNoCollisions = dropCollisions(argShortNames);<a name="line.350"></a>
-<FONT color="green">351</FONT>        Set&lt;String&gt; collisionsDropped = Sets.difference(ImmutableSet.copyOf(argShortNames),<a name="line.351"></a>
-<FONT color="green">352</FONT>            argShortNamesNoCollisions);<a name="line.352"></a>
-<FONT color="green">353</FONT>        if (!collisionsDropped.isEmpty()) {<a name="line.353"></a>
-<FONT color="green">354</FONT>          LOG.warning("Found argument name collisions, args must be referenced by canonical names: "<a name="line.354"></a>
-<FONT color="green">355</FONT>              + collisionsDropped);<a name="line.355"></a>
-<FONT color="green">356</FONT>        }<a name="line.356"></a>
-<FONT color="green">357</FONT>    <a name="line.357"></a>
-<FONT color="green">358</FONT>        Predicate&lt;Pair&lt;Field, CmdLine&gt;&gt; isBoolean = Predicates.compose(<a name="line.358"></a>
-<FONT color="green">359</FONT>            Predicates.&lt;Class&gt;equalTo(Boolean.class),<a name="line.359"></a>
-<FONT color="green">360</FONT>            Functions.compose(TypeUtil.GET_TYPE_PARAM_CLASS, Pair.&lt;Field, CmdLine&gt;first()));<a name="line.360"></a>
-<FONT color="green">361</FONT>    <a name="line.361"></a>
-<FONT color="green">362</FONT>        final Function&lt;Pair&lt;Field, CmdLine&gt;, String&gt; getFieldArgName =<a name="line.362"></a>
-<FONT color="green">363</FONT>            Functions.compose(GET_ARG_NAME, Pair.&lt;Field, CmdLine&gt;second());<a name="line.363"></a>
-<FONT color="green">364</FONT>    <a name="line.364"></a>
-<FONT color="green">365</FONT>        final Map&lt;String, Pair&lt;Field, CmdLine&gt;&gt; argsByName =<a name="line.365"></a>
-<FONT color="green">366</FONT>            ImmutableMap.&lt;String, Pair&lt;Field, CmdLine&gt;&gt;builder()<a name="line.366"></a>
-<FONT color="green">367</FONT>            // Map by short arg name -&gt; arg def.<a name="line.367"></a>
-<FONT color="green">368</FONT>            .putAll(Maps.uniqueIndex(Iterables.filter(argDefs,<a name="line.368"></a>
-<FONT color="green">369</FONT>                Predicates.compose(Predicates.in(argShortNamesNoCollisions), getFieldArgName)),<a name="line.369"></a>
-<FONT color="green">370</FONT>                getFieldArgName))<a name="line.370"></a>
-<FONT color="green">371</FONT>            // Map by canonical arg name -&gt; arg def.<a name="line.371"></a>
-<FONT color="green">372</FONT>            .putAll(Maps.uniqueIndex(argDefs, GET_CANONICAL_ARG_NAME))<a name="line.372"></a>
-<FONT color="green">373</FONT>            // Map by negated short arg name (for booleans)<a name="line.373"></a>
-<FONT color="green">374</FONT>            .putAll(Maps.uniqueIndex(Iterables.filter(argDefs, isBoolean),<a name="line.374"></a>
-<FONT color="green">375</FONT>                Functions.compose(PREPEND_NEGATION, getFieldArgName)))<a name="line.375"></a>
-<FONT color="green">376</FONT>            // Map by negated canonical arg name (for booleans)<a name="line.376"></a>
-<FONT color="green">377</FONT>            .putAll(Maps.uniqueIndex(Iterables.filter(argDefs, isBoolean),<a name="line.377"></a>
-<FONT color="green">378</FONT>                GET_CANONICAL_NEGATED_ARG_NAME))<a name="line.378"></a>
-<FONT color="green">379</FONT>            .build();<a name="line.379"></a>
-<FONT color="green">380</FONT>    <a name="line.380"></a>
-<FONT color="green">381</FONT>        // TODO(William Farner): Make sure to disallow duplicate arg specification by short and<a name="line.381"></a>
-<FONT color="green">382</FONT>        // canonical names.<a name="line.382"></a>
-<FONT color="green">383</FONT>    <a name="line.383"></a>
-<FONT color="green">384</FONT>        // TODO(William Farner): Support non-atomic argument constraints.  @OnlyIfSet, @OnlyIfNotSet,<a name="line.384"></a>
-<FONT color="green">385</FONT>        //    @ExclusiveOf to define inter-argument constraints.<a name="line.385"></a>
-<FONT color="green">386</FONT>    <a name="line.386"></a>
-<FONT color="green">387</FONT>        Set&lt;String&gt; recognizedArgs = Sets.intersection(argsByName.keySet(), args.keySet());<a name="line.387"></a>
-<FONT color="green">388</FONT>    <a name="line.388"></a>
-<FONT color="green">389</FONT>        for (String argName : recognizedArgs) {<a name="line.389"></a>
-<FONT color="green">390</FONT>          String argValue = args.get(argName);<a name="line.390"></a>
-<FONT color="green">391</FONT>          Field argField = argsByName.get(argName).getFirst();<a name="line.391"></a>
-<FONT color="green">392</FONT>          CmdLine annotation = argsByName.get(argName).getSecond();<a name="line.392"></a>
-<FONT color="green">393</FONT>    <a name="line.393"></a>
-<FONT color="green">394</FONT>          Object assignmentValue;<a name="line.394"></a>
-<FONT color="green">395</FONT>          try {<a name="line.395"></a>
-<FONT color="green">396</FONT>            assignmentValue = getParser(annotation, argField)<a name="line.396"></a>
-<FONT color="green">397</FONT>                .parse(TypeUtil.getTypeParam(argField), argValue);<a name="line.397"></a>
-<FONT color="green">398</FONT>          } catch (IllegalArgumentException e) {<a name="line.398"></a>
-<FONT color="green">399</FONT>            argsFailedToParse.add(argName + " - " + e.getMessage());<a name="line.399"></a>
-<FONT color="green">400</FONT>            continue;<a name="line.400"></a>
-<FONT color="green">401</FONT>          }<a name="line.401"></a>
-<FONT color="green">402</FONT>    <a name="line.402"></a>
-<FONT color="green">403</FONT>          // If the arg type is boolean, check if the command line uses the negated boolean form.<a name="line.403"></a>
-<FONT color="green">404</FONT>          if (TypeUtil.getTypeParamClass(argField) == Boolean.class) {<a name="line.404"></a>
-<FONT color="green">405</FONT>            Matcher negatedNameMatcher = NEGATED_BOOLEAN_PATTERN.matcher(argName);<a name="line.405"></a>
-<FONT color="green">406</FONT>            if (negatedNameMatcher.matches()) {<a name="line.406"></a>
-<FONT color="green">407</FONT>              String argShortName = negatedNameMatcher.group(negatedNameMatcher.groupCount());<a name="line.407"></a>
-<FONT color="green">408</FONT>              String argCanonicalName = negatedNameMatcher.groupCount() == 2 ?<a name="line.408"></a>
-<FONT color="green">409</FONT>                  negatedNameMatcher.group(1) + argShortName : null;<a name="line.409"></a>
-<FONT color="green">410</FONT>              if (Iterables.any(argsByName.keySet(),<a name="line.410"></a>
-<FONT color="green">411</FONT>                  Predicates.in(Arrays.asList(argShortName, argCanonicalName)))) {<a name="line.411"></a>
-<FONT color="green">412</FONT>                assignmentValue = (!(Boolean) assignmentValue);<a name="line.412"></a>
-<FONT color="green">413</FONT>              }<a name="line.413"></a>
-<FONT color="green">414</FONT>            }<a name="line.414"></a>
-<FONT color="green">415</FONT>          }<a name="line.415"></a>
-<FONT color="green">416</FONT>    <a name="line.416"></a>
-<FONT color="green">417</FONT>          setField(argField, assignmentValue);<a name="line.417"></a>
-<FONT color="green">418</FONT>        }<a name="line.418"></a>
-<FONT color="green">419</FONT>    <a name="line.419"></a>
-<FONT color="green">420</FONT>        Set&lt;String&gt; commandLineArgumentInfos = Sets.newTreeSet();<a name="line.420"></a>
-<FONT color="green">421</FONT>        for (Pair&lt;Field, CmdLine&gt; argDef : argDefs) {<a name="line.421"></a>
-<FONT color="green">422</FONT>          Field argField = argDef.getFirst();<a name="line.422"></a>
-<FONT color="green">423</FONT>          Arg arg = getArg(argField);<a name="line.423"></a>
-<FONT color="green">424</FONT>    <a name="line.424"></a>
-<FONT color="green">425</FONT>          commandLineArgumentInfos.add(String.format("%s (%s.%s): %s",<a name="line.425"></a>
-<FONT color="green">426</FONT>              argDef.getSecond().name(), argField.getDeclaringClass().getName(), argField.getName(),<a name="line.426"></a>
-<FONT color="green">427</FONT>              arg.uncheckedGet()));<a name="line.427"></a>
+<FONT color="green">344</FONT>        final Map&lt;String, Pair&lt;Field, CmdLine&gt;&gt; argsByName =<a name="line.344"></a>
+<FONT color="green">345</FONT>            ImmutableMap.&lt;String, Pair&lt;Field, CmdLine&gt;&gt;builder()<a name="line.345"></a>
+<FONT color="green">346</FONT>            // Map by short arg name -&gt; arg def.<a name="line.346"></a>
+<FONT color="green">347</FONT>            .putAll(Maps.uniqueIndex(Iterables.filter(argDefs,<a name="line.347"></a>
+<FONT color="green">348</FONT>                Predicates.compose(Predicates.in(argShortNamesNoCollisions), getFieldArgName)),<a name="line.348"></a>
+<FONT color="green">349</FONT>                getFieldArgName))<a name="line.349"></a>
+<FONT color="green">350</FONT>            // Map by canonical arg name -&gt; arg def.<a name="line.350"></a>
+<FONT color="green">351</FONT>            .putAll(Maps.uniqueIndex(argDefs, GET_CANONICAL_ARG_NAME))<a name="line.351"></a>
+<FONT color="green">352</FONT>            // Map by negated short arg name (for booleans)<a name="line.352"></a>
+<FONT color="green">353</FONT>            .putAll(Maps.uniqueIndex(Iterables.filter(argDefs, isBoolean),<a name="line.353"></a>
+<FONT color="green">354</FONT>                Functions.compose(PREPEND_NEGATION, getFieldArgName)))<a name="line.354"></a>
+<FONT color="green">355</FONT>            // Map by negated canonical arg name (for booleans)<a name="line.355"></a>
+<FONT color="green">356</FONT>            .putAll(Maps.uniqueIndex(Iterables.filter(argDefs, isBoolean),<a name="line.356"></a>
+<FONT color="green">357</FONT>                GET_CANONICAL_NEGATED_ARG_NAME))<a name="line.357"></a>
+<FONT color="green">358</FONT>            .build();<a name="line.358"></a>
+<FONT color="green">359</FONT>    <a name="line.359"></a>
+<FONT color="green">360</FONT>        // TODO(William Farner): Make sure to disallow duplicate arg specification by short and<a name="line.360"></a>
+<FONT color="green">361</FONT>        // canonical names.<a name="line.361"></a>
+<FONT color="green">362</FONT>    <a name="line.362"></a>
+<FONT color="green">363</FONT>        // TODO(William Farner): Support non-atomic argument constraints.  @OnlyIfSet, @OnlyIfNotSet,<a name="line.363"></a>
+<FONT color="green">364</FONT>        //    @ExclusiveOf to define inter-argument constraints.<a name="line.364"></a>
+<FONT color="green">365</FONT>    <a name="line.365"></a>
+<FONT color="green">366</FONT>        Set&lt;String&gt; recognizedArgs = Sets.intersection(argsByName.keySet(), args.keySet());<a name="line.366"></a>
+<FONT color="green">367</FONT>    <a name="line.367"></a>
+<FONT color="green">368</FONT>        for (String argName : recognizedArgs) {<a name="line.368"></a>
+<FONT color="green">369</FONT>          String argValue = args.get(argName);<a name="line.369"></a>
+<FONT color="green">370</FONT>          Field argField = argsByName.get(argName).getFirst();<a name="line.370"></a>
+<FONT color="green">371</FONT>          CmdLine annotation = argsByName.get(argName).getSecond();<a name="line.371"></a>
+<FONT color="green">372</FONT>    <a name="line.372"></a>
+<FONT color="green">373</FONT>          Object assignmentValue;<a name="line.373"></a>
+<FONT color="green">374</FONT>          try {<a name="line.374"></a>
+<FONT color="green">375</FONT>            assignmentValue = getParser(annotation, argField)<a name="line.375"></a>
+<FONT color="green">376</FONT>                .parse(TypeUtil.getTypeParam(argField), argValue);<a name="line.376"></a>
+<FONT color="green">377</FONT>          } catch (IllegalArgumentException e) {<a name="line.377"></a>
+<FONT color="green">378</FONT>            argsFailedToParse.add(argName + " - " + e.getMessage());<a name="line.378"></a>
+<FONT color="green">379</FONT>            continue;<a name="line.379"></a>
+<FONT color="green">380</FONT>          }<a name="line.380"></a>
+<FONT color="green">381</FONT>    <a name="line.381"></a>
+<FONT color="green">382</FONT>          // If the arg type is boolean, check if the command line uses the negated boolean form.<a name="line.382"></a>
+<FONT color="green">383</FONT>          if (TypeUtil.getTypeParamClass(argField) == Boolean.class) {<a name="line.383"></a>
+<FONT color="green">384</FONT>            Matcher negatedNameMatcher = NEGATED_BOOLEAN_PATTERN.matcher(argName);<a name="line.384"></a>
+<FONT color="green">385</FONT>            if (negatedNameMatcher.matches()) {<a name="line.385"></a>
+<FONT color="green">386</FONT>              String argShortName = negatedNameMatcher.group(negatedNameMatcher.groupCount());<a name="line.386"></a>
+<FONT color="green">387</FONT>              String argCanonicalName = negatedNameMatcher.groupCount() == 2 ?<a name="line.387"></a>
+<FONT color="green">388</FONT>                  negatedNameMatcher.group(1) + argShortName : null;<a name="line.388"></a>
+<FONT color="green">389</FONT>              if (Iterables.any(argsByName.keySet(),<a name="line.389"></a>
+<FONT color="green">390</FONT>                  Predicates.in(Arrays.asList(argShortName, argCanonicalName)))) {<a name="line.390"></a>
+<FONT color="green">391</FONT>                assignmentValue = (!(Boolean) assignmentValue);<a name="line.391"></a>
+<FONT color="green">392</FONT>              }<a name="line.392"></a>
+<FONT color="green">393</FONT>            }<a name="line.393"></a>
+<FONT color="green">394</FONT>          }<a name="line.394"></a>
+<FONT color="green">395</FONT>    <a name="line.395"></a>
+<FONT color="green">396</FONT>          setField(argField, assignmentValue);<a name="line.396"></a>
+<FONT color="green">397</FONT>        }<a name="line.397"></a>
+<FONT color="green">398</FONT>    <a name="line.398"></a>
+<FONT color="green">399</FONT>        Set&lt;String&gt; commandLineArgumentInfos = Sets.newTreeSet();<a name="line.399"></a>
+<FONT color="green">400</FONT>        for (Pair&lt;Field, CmdLine&gt; argDef : argDefs) {<a name="line.400"></a>
+<FONT color="green">401</FONT>          Field argField = argDef.getFirst();<a name="line.401"></a>
+<FONT color="green">402</FONT>          Arg arg = getArg(argField);<a name="line.402"></a>
+<FONT color="green">403</FONT>    <a name="line.403"></a>
+<FONT color="green">404</FONT>          commandLineArgumentInfos.add(String.format("%s (%s.%s): %s",<a name="line.404"></a>
+<FONT color="green">405</FONT>              argDef.getSecond().name(), argField.getDeclaringClass().getName(), argField.getName(),<a name="line.405"></a>
+<FONT color="green">406</FONT>              arg.uncheckedGet()));<a name="line.406"></a>
+<FONT color="green">407</FONT>    <a name="line.407"></a>
+<FONT color="green">408</FONT>          try {<a name="line.408"></a>
+<FONT color="green">409</FONT>            checkConstraints(TypeUtil.getTypeParamClass(argField), arg.uncheckedGet(),<a name="line.409"></a>
+<FONT color="green">410</FONT>                argField.getAnnotations());<a name="line.410"></a>
+<FONT color="green">411</FONT>          } catch (IllegalArgumentException e) {<a name="line.411"></a>
+<FONT color="green">412</FONT>            argsConstraintsFailed.add(argDef.getSecond().name() + " - " + e.getMessage());<a name="line.412"></a>
+<FONT color="green">413</FONT>          }<a name="line.413"></a>
+<FONT color="green">414</FONT>        }<a name="line.414"></a>
+<FONT color="green">415</FONT>        infoLog("-------------------------------------------------------------------------");<a name="line.415"></a>
+<FONT color="green">416</FONT>        infoLog("Command line argument values");<a name="line.416"></a>
+<FONT color="green">417</FONT>        for (String commandLineArgumentInfo : commandLineArgumentInfos) {<a name="line.417"></a>
+<FONT color="green">418</FONT>          infoLog(commandLineArgumentInfo);<a name="line.418"></a>
+<FONT color="green">419</FONT>        }<a name="line.419"></a>
+<FONT color="green">420</FONT>        infoLog("-------------------------------------------------------------------------");<a name="line.420"></a>
+<FONT color="green">421</FONT>    <a name="line.421"></a>
+<FONT color="green">422</FONT>        ImmutableMultimap&lt;String, String&gt; warningMessages =<a name="line.422"></a>
+<FONT color="green">423</FONT>            ImmutableMultimap.&lt;String, String&gt;builder()<a name="line.423"></a>
+<FONT color="green">424</FONT>            .putAll("Unrecognized arguments", Sets.difference(args.keySet(), argsByName.keySet()))<a name="line.424"></a>
+<FONT color="green">425</FONT>            .putAll("Failed to parse", argsFailedToParse)<a name="line.425"></a>
+<FONT color="green">426</FONT>            .putAll("Value did not meet constraints", argsConstraintsFailed)<a name="line.426"></a>
+<FONT color="green">427</FONT>            .build();<a name="line.427"></a>
 <FONT color="green">428</FONT>    <a name="line.428"></a>
-<FONT color="green">429</FONT>          try {<a name="line.429"></a>
-<FONT color="green">430</FONT>            checkConstraints(TypeUtil.getTypeParamClass(argField), arg.uncheckedGet(),<a name="line.430"></a>
-<FONT color="green">431</FONT>                argField.getAnnotations());<a name="line.431"></a>
-<FONT color="green">432</FONT>          } catch (IllegalArgumentException e) {<a name="line.432"></a>
-<FONT color="green">433</FONT>            argsConstraintsFailed.add(argDef.getSecond().name() + " - " + e.getMessage());<a name="line.433"></a>
+<FONT color="green">429</FONT>        if (!warningMessages.isEmpty()) {<a name="line.429"></a>
+<FONT color="green">430</FONT>          StringBuilder sb = new StringBuilder();<a name="line.430"></a>
+<FONT color="green">431</FONT>          for (Map.Entry&lt;String, Collection&lt;String&gt;&gt; warnings : warningMessages.asMap().entrySet()) {<a name="line.431"></a>
+<FONT color="green">432</FONT>            sb.append(warnings.getKey()).append(":\n\t").append(Joiner.on("\n\t")<a name="line.432"></a>
+<FONT color="green">433</FONT>                .join(warnings.getValue())).append("\n");<a name="line.433"></a>
 <FONT color="green">434</FONT>          }<a name="line.434"></a>
-<FONT color="green">435</FONT>        }<a name="line.435"></a>
-<FONT color="green">436</FONT>        infoLog("-------------------------------------------------------------------------");<a name="line.436"></a>
-<FONT color="green">437</FONT>        infoLog("Command line argument values");<a name="line.437"></a>
-<FONT color="green">438</FONT>        for (String commandLineArgumentInfo : commandLineArgumentInfos) {<a name="line.438"></a>
-<FONT color="green">439</FONT>          infoLog(commandLineArgumentInfo);<a name="line.439"></a>
-<FONT color="green">440</FONT>        }<a name="line.440"></a>
-<FONT color="green">441</FONT>        infoLog("-------------------------------------------------------------------------");<a name="line.441"></a>
+<FONT color="green">435</FONT>          throw new IllegalArgumentException(sb.toString());<a name="line.435"></a>
+<FONT color="green">436</FONT>        }<a name="line.436"></a>
+<FONT color="green">437</FONT>      }<a name="line.437"></a>
+<FONT color="green">438</FONT>    <a name="line.438"></a>
+<FONT color="green">439</FONT>      private static void infoLog(String msg) {<a name="line.439"></a>
+<FONT color="green">440</FONT>        System.out.println(msg);<a name="line.440"></a>
+<FONT color="green">441</FONT>      }<a name="line.441"></a>
 <FONT color="green">442</FONT>    <a name="line.442"></a>
-<FONT color="green">443</FONT>        ImmutableMultimap&lt;String, String&gt; warningMessages =<a name="line.443"></a>
-<FONT color="green">444</FONT>            ImmutableMultimap.&lt;String, String&gt;builder()<a name="line.444"></a>
-<FONT color="green">445</FONT>            .putAll("Unrecognized arguments", Sets.difference(args.keySet(), argsByName.keySet()))<a name="line.445"></a>
-<FONT color="green">446</FONT>            .putAll("Failed to parse", argsFailedToParse)<a name="line.446"></a>
-<FONT color="green">447</FONT>            .putAll("Value did not meet constraints", argsConstraintsFailed)<a name="line.447"></a>
-<FONT color="green">448</FONT>            .build();<a name="line.448"></a>
+<FONT color="green">443</FONT>      private static void checkConstraints(Class&lt;?&gt; fieldClass, Object value,<a name="line.443"></a>
+<FONT color="green">444</FONT>          Annotation[] annotations) {<a name="line.444"></a>
+<FONT color="green">445</FONT>        for (Annotation annotation : maybeFilterNullable(fieldClass, value, annotations)) {<a name="line.445"></a>
+<FONT color="green">446</FONT>          verify(fieldClass, value, annotation);<a name="line.446"></a>
+<FONT color="green">447</FONT>        }<a name="line.447"></a>
+<FONT color="green">448</FONT>      }<a name="line.448"></a>
 <FONT color="green">449</FONT>    <a name="line.449"></a>
-<FONT color="green">450</FONT>        if (!warningMessages.isEmpty()) {<a name="line.450"></a>
-<FONT color="green">451</FONT>          StringBuilder sb = new StringBuilder();<a name="line.451"></a>
-<FONT color="green">452</FONT>          for (Map.Entry&lt;String, Collection&lt;String&gt;&gt; warnings : warningMessages.asMap().entrySet()) {<a name="line.452"></a>
-<FONT color="green">453</FONT>            sb.append(warnings.getKey()).append(":\n\t").append(Joiner.on("\n\t")<a name="line.453"></a>
-<FONT color="green">454</FONT>                .join(warnings.getValue())).append("\n");<a name="line.454"></a>
-<FONT color="green">455</FONT>          }<a name="line.455"></a>
-<FONT color="green">456</FONT>          throw new IllegalArgumentException(sb.toString());<a name="line.456"></a>
-<FONT color="green">457</FONT>        }<a name="line.457"></a>
-<FONT color="green">458</FONT>      }<a name="line.458"></a>
-<FONT color="green">459</FONT>    <a name="line.459"></a>
-<FONT color="green">460</FONT>      private static void infoLog(String msg) {<a name="line.460"></a>
-<FONT color="green">461</FONT>        System.out.println(msg);<a name="line.461"></a>
-<FONT color="green">462</FONT>      }<a name="line.462"></a>
-<FONT color="green">463</FONT>    <a name="line.463"></a>
-<FONT color="green">464</FONT>      private static void checkConstraints(Class&lt;?&gt; fieldClass, Object value,<a name="line.464"></a>
-<FONT color="green">465</FONT>          Annotation[] annotations) {<a name="line.465"></a>
-<FONT color="green">466</FONT>        for (Annotation annotation : maybeFilterNullable(fieldClass, value, annotations)) {<a name="line.466"></a>
-<FONT color="green">467</FONT>          verify(fieldClass, value, annotation);<a name="line.467"></a>
-<FONT color="green">468</FONT>        }<a name="line.468"></a>
-<FONT color="green">469</FONT>      }<a name="line.469"></a>
-<FONT color="green">470</FONT>    <a name="line.470"></a>
-<FONT color="green">471</FONT>      private static Iterable&lt;Annotation&gt; maybeFilterNullable(Class&lt;?&gt; fieldClass, Object value,<a name="line.471"></a>
-<FONT color="green">472</FONT>          Annotation[] annotations) {<a name="line.472"></a>
-<FONT color="green">473</FONT>    <a name="line.473"></a>
-<FONT color="green">474</FONT>        // Apply all the normal constraint annotations<a name="line.474"></a>
-<FONT color="green">475</FONT>        if (value != null) {<a name="line.475"></a>
-<FONT color="green">476</FONT>          return Arrays.asList(annotations);<a name="line.476"></a>
-<FONT color="green">477</FONT>        }<a name="line.477"></a>
-<FONT color="green">478</FONT>    <a name="line.478"></a>
-<FONT color="green">479</FONT>        // The value is null so skip verifications unless a @NotNull was specified as a constraint<a name="line.479"></a>
-<FONT color="green">480</FONT>        for (Annotation annotation: annotations) {<a name="line.480"></a>
-<FONT color="green">481</FONT>          if (annotation instanceof NotNull) {<a name="line.481"></a>
-<FONT color="green">482</FONT>            verify(fieldClass, value, annotation); // will throw<a name="line.482"></a>
-<FONT color="green">483</FONT>          }<a name="line.483"></a>
-<FONT color="green">484</FONT>        }<a name="line.484"></a>
-<FONT color="green">485</FONT>        return ImmutableList.of();<a name="line.485"></a>
-<FONT color="green">486</FONT>      }<a name="line.486"></a>
-<FONT color="green">487</FONT>    <a name="line.487"></a>
-<FONT color="green">488</FONT>      @SuppressWarnings("unchecked")<a name="line.488"></a>
-<FONT color="green">489</FONT>      private static void verify(Class&lt;?&gt; fieldClass, Object value, Annotation annotation) {<a name="line.489"></a>
-<FONT color="green">490</FONT>        Verifier verifier = Constraints.get(fieldClass, annotation);<a name="line.490"></a>
-<FONT color="green">491</FONT>        if (verifier != null) {<a name="line.491"></a>
-<FONT color="green">492</FONT>          verifier.verify(value, annotation);<a name="line.492"></a>
-<FONT color="green">493</FONT>        }<a name="line.493"></a>
-<FONT color="green">494</FONT>      }<a name="line.494"></a>
-<FONT color="green">495</FONT>    <a name="line.495"></a>
-<FONT color="green">496</FONT>      private static Parser getParser(CmdLine cmdLine, Field argField) {<a name="line.496"></a>
-<FONT color="green">497</FONT>        Preconditions.checkArgument(argField.getType() == Arg.class,<a name="line.497"></a>
-<FONT color="green">498</FONT>            "Field is annotated with @CmdLine but is not of Arg type: " + argField);<a name="line.498"></a>
-<FONT color="green">499</FONT>        Class cls = TypeUtil.getTypeParamClass(argField);<a name="line.499"></a>
-<FONT color="green">500</FONT>    <a name="line.500"></a>
-<FONT color="green">501</FONT>        try {<a name="line.501"></a>
-<FONT color="green">502</FONT>          return cmdLine.parser() == Parser.class ? Parsers.get(cls) : cmdLine.parser().newInstance();<a name="line.502"></a>
-<FONT color="green">503</FONT>        } catch (InstantiationException e) {<a name="line.503"></a>
-<FONT color="green">504</FONT>          throw new RuntimeException("Failed to instantiate parser " + cmdLine.parser());<a name="line.504"></a>
-<FONT color="green">505</FONT>        } catch (IllegalAccessException e) {<a name="line.505"></a>
-<FONT color="green">506</FONT>          throw new RuntimeException("No access to instantiate parser " + cmdLine.parser());<a name="line.506"></a>
-<FONT color="green">507</FONT>        }<a name="line.507"></a>
-<FONT color="green">508</FONT>      }<a name="line.508"></a>
-<FONT color="green">509</FONT>    <a name="line.509"></a>
-<FONT color="green">510</FONT>      @SuppressWarnings("unchecked")<a name="line.510"></a>
-<FONT color="green">511</FONT>      private static void setField(Field field, Object value) {<a name="line.511"></a>
-<FONT color="green">512</FONT>        getArg(field).set(value);<a name="line.512"></a>
-<FONT color="green">513</FONT>      }<a name="line.513"></a>
-<FONT color="green">514</FONT>    <a name="line.514"></a>
-<FONT color="green">515</FONT>      private static Arg getArg(Field field) {<a name="line.515"></a>
-<FONT color="green">516</FONT>        field.setAccessible(true);<a name="line.516"></a>
-<FONT color="green">517</FONT>        try {<a name="line.517"></a>
-<FONT color="green">518</FONT>          return ((Arg) field.get(null));<a name="line.518"></a>
-<FONT color="green">519</FONT>        } catch (IllegalAccessException e) {<a name="line.519"></a>
-<FONT color="green">520</FONT>          throw new RuntimeException("Failed to set value for " + field);<a name="line.520"></a>
-<FONT color="green">521</FONT>        }<a name="line.521"></a>
-<FONT color="green">522</FONT>      }<a name="line.522"></a>
-<FONT color="green">523</FONT>    <a name="line.523"></a>
-<FONT color="green">524</FONT>      private static final Function&lt;String, Predicate&lt;Field&gt;&gt; PREFIX_TO_FILTER =<a name="line.524"></a>
-<FONT color="green">525</FONT>          new Function&lt;String, Predicate&lt;Field&gt;&gt;() {<a name="line.525"></a>
-<FONT color="green">526</FONT>            @Override public Predicate&lt;Field&gt; apply(final String packagePrefix) {<a name="line.526"></a>
-<FONT color="green">527</FONT>              return new Predicate&lt;Field&gt;() {<a name="line.527"></a>
-<FONT color="green">528</FONT>                @Override public boolean apply(Field field) {<a name="line.528"></a>
-<FONT color="green">529</FONT>                  return field.getDeclaringClass().getName().startsWith(packagePrefix);<a name="line.529"></a>
-<FONT color="green">530</FONT>                }<a name="line.530"></a>
-<FONT color="green">531</FONT>              };<a name="line.531"></a>
-<FONT color="green">532</FONT>            }<a name="line.532"></a>
-<FONT color="green">533</FONT>          };<a name="line.533"></a>
-<FONT color="green">534</FONT>    <a name="line.534"></a>
-<FONT color="green">535</FONT>      private static Iterable&lt;Field&gt; scan(Predicate&lt;Field&gt; filter) {<a name="line.535"></a>
-<FONT color="green">536</FONT>        try {<a name="line.536"></a>
-<FONT color="green">537</FONT>          Configuration configuration = Configuration.load();<a name="line.537"></a>
-<FONT color="green">538</FONT>          return Iterables.filter(configuration.fields(), filter);<a name="line.538"></a>
-<FONT color="green">539</FONT>        } catch (IOException e) {<a name="line.539"></a>
-<FONT color="green">540</FONT>          throw new ArgScanException(e);<a name="line.540"></a>
-<FONT color="green">541</FONT>        }<a name="line.541"></a>
-<FONT color="green">542</FONT>      }<a name="line.542"></a>
-<FONT color="green">543</FONT>    }<a name="line.543"></a>
+<FONT color="green">450</FONT>      private static Iterable&lt;Annotation&gt; maybeFilterNullable(Class&lt;?&gt; fieldClass, Object value,<a name="line.450"></a>
+<FONT color="green">451</FONT>          Annotation[] annotations) {<a name="line.451"></a>
+<FONT color="green">452</FONT>    <a name="line.452"></a>
+<FONT color="green">453</FONT>        // Apply all the normal constraint annotations<a name="line.453"></a>
+<FONT color="green">454</FONT>        if (value != null) {<a name="line.454"></a>
+<FONT color="green">455</FONT>          return Arrays.asList(annotations);<a name="line.455"></a>
+<FONT color="green">456</FONT>        }<a name="line.456"></a>
+<FONT color="green">457</FONT>    <a name="line.457"></a>
+<FONT color="green">458</FONT>        // The value is null so skip verifications unless a @NotNull was specified as a constraint<a name="line.458"></a>
+<FONT color="green">459</FONT>        for (Annotation annotation: annotations) {<a name="line.459"></a>
+<FONT color="green">460</FONT>          if (annotation instanceof NotNull) {<a name="line.460"></a>
+<FONT color="green">461</FONT>            verify(fieldClass, value, annotation); // will throw<a name="line.461"></a>
+<FONT color="green">462</FONT>          }<a name="line.462"></a>
+<FONT color="green">463</FONT>        }<a name="line.463"></a>
+<FONT color="green">464</FONT>        return ImmutableList.of();<a name="line.464"></a>
+<FONT color="green">465</FONT>      }<a name="line.465"></a>
+<FONT color="green">466</FONT>    <a name="line.466"></a>
+<FONT color="green">467</FONT>      @SuppressWarnings("unchecked")<a name="line.467"></a>
+<FONT color="green">468</FONT>      private static void verify(Class&lt;?&gt; fieldClass, Object value, Annotation annotation) {<a name="line.468"></a>
+<FONT color="green">469</FONT>        Verifier verifier = Constraints.get(fieldClass, annotation);<a name="line.469"></a>
+<FONT color="green">470</FONT>        if (verifier != null) {<a name="line.470"></a>
+<FONT color="green">471</FONT>          verifier.verify(value, annotation);<a name="line.471"></a>
+<FONT color="green">472</FONT>        }<a name="line.472"></a>
+<FONT color="green">473</FONT>      }<a name="line.473"></a>
+<FONT color="green">474</FONT>    <a name="line.474"></a>
+<FONT color="green">475</FONT>      private static Parser getParser(CmdLine cmdLine, Field argField) {<a name="line.475"></a>
+<FONT color="green">476</FONT>        Preconditions.checkArgument(argField.getType() == Arg.class,<a name="line.476"></a>
+<FONT color="green">477</FONT>            "Field is annotated with @CmdLine but is not of Arg type: " + argField);<a name="line.477"></a>
+<FONT color="green">478</FONT>        Class cls = TypeUtil.getTypeParamClass(argField);<a name="line.478"></a>
+<FONT color="green">479</FONT>    <a name="line.479"></a>
+<FONT color="green">480</FONT>        try {<a name="line.480"></a>
+<FONT color="green">481</FONT>          return cmdLine.parser() == Parser.class ? Parsers.get(cls) : cmdLine.parser().newInstance();<a name="line.481"></a>
+<FONT color="green">482</FONT>        } catch (InstantiationException e) {<a name="line.482"></a>
+<FONT color="green">483</FONT>          throw new RuntimeException("Failed to instantiate parser " + cmdLine.parser());<a name="line.483"></a>
+<FONT color="green">484</FONT>        } catch (IllegalAccessException e) {<a name="line.484"></a>
+<FONT color="green">485</FONT>          throw new RuntimeException("No access to instantiate parser " + cmdLine.parser());<a name="line.485"></a>
+<FONT color="green">486</FONT>        }<a name="line.486"></a>
+<FONT color="green">487</FONT>      }<a name="line.487"></a>
+<FONT color="green">488</FONT>    <a name="line.488"></a>
+<FONT color="green">489</FONT>      @SuppressWarnings("unchecked")<a name="line.489"></a>
+<FONT color="green">490</FONT>      private static void setField(Field field, Object value) {<a name="line.490"></a>
+<FONT color="green">491</FONT>        getArg(field).set(value);<a name="line.491"></a>
+<FONT color="green">492</FONT>      }<a name="line.492"></a>
+<FONT color="green">493</FONT>    <a name="line.493"></a>
+<FONT color="green">494</FONT>      private static Arg getArg(Field field) {<a name="line.494"></a>
+<FONT color="green">495</FONT>        field.setAccessible(true);<a name="line.495"></a>
+<FONT color="green">496</FONT>        try {<a name="line.496"></a>
+<FONT color="green">497</FONT>          return ((Arg) field.get(null));<a name="line.497"></a>
+<FONT color="green">498</FONT>        } catch (IllegalAccessException e) {<a name="line.498"></a>
+<FONT color="green">499</FONT>          throw new RuntimeException("Failed to set value for " + field);<a name="line.499"></a>
+<FONT color="green">500</FONT>        }<a name="line.500"></a>
+<FONT color="green">501</FONT>      }<a name="line.501"></a>
+<FONT color="green">502</FONT>    <a name="line.502"></a>
+<FONT color="green">503</FONT>      private static Iterable&lt;Field&gt; scan(Predicate&lt;Field&gt; filter) {<a name="line.503"></a>
+<FONT color="green">504</FONT>        try {<a name="line.504"></a>
+<FONT color="green">505</FONT>          Configuration configuration = Configuration.load();<a name="line.505"></a>
+<FONT color="green">506</FONT>          return Iterables.filter(configuration.fields(), filter);<a name="line.506"></a>
+<FONT color="green">507</FONT>        } catch (IOException e) {<a name="line.507"></a>
+<FONT color="green">508</FONT>          throw new ArgScanException(e);<a name="line.508"></a>
+<FONT color="green">509</FONT>        }<a name="line.509"></a>
+<FONT color="green">510</FONT>      }<a name="line.510"></a>
+<FONT color="green">511</FONT>    }<a name="line.511"></a>
 
 
 

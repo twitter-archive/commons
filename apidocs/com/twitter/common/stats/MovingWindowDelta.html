@@ -3,7 +3,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-MovingAverage
+MovingWindowDelta
 </TITLE>
 
 
@@ -13,7 +13,7 @@ MovingAverage
 function windowTitle()
 {
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="MovingAverage";
+        parent.document.title="MovingWindowDelta";
     }
 }
 </SCRIPT>
@@ -38,7 +38,7 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/MovingAverage.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/MovingWindowDelta.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
@@ -53,11 +53,11 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../com/twitter/common/stats/JvmStats.html" title="class in com.twitter.common.stats"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../com/twitter/common/stats/MovingWindowDelta.html" title="class in com.twitter.common.stats"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/stats/MovingAverage.html" title="class in com.twitter.common.stats"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../com/twitter/common/stats/NumericStatExporter.html" title="class in com.twitter.common.stats"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-  <A HREF="../../../../index.html?com/twitter/common/stats/MovingAverage.html" target="_top"><B>FRAMES</B></A>  &nbsp;
-&nbsp;<A HREF="MovingAverage.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+  <A HREF="../../../../index.html?com/twitter/common/stats/MovingWindowDelta.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="MovingWindowDelta.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
 &nbsp;<SCRIPT type="text/javascript">
   <!--
   if(window==top) {
@@ -88,22 +88,26 @@ DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHO
 <FONT SIZE="-1">
 com.twitter.common.stats</FONT>
 <BR>
-Class MovingAverage&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt;</H2>
+Class MovingWindowDelta&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt;</H2>
 <PRE>
 <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
   <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><A HREF="../../../../com/twitter/common/stats/StatImpl.html" title="class in com.twitter.common.stats">com.twitter.common.stats.StatImpl</A>&lt;T&gt;
-      <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.stats.MovingAverage&lt;T&gt;</B>
+      <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.stats.MovingWindowDelta&lt;T&gt;</B>
 </PRE>
 <DL>
-<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Double.html?is-external=true" title="class or interface in java.lang">Double</A>&gt;</DD>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>&gt;</DD>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/stats/MovingAverage.html#line.28"><B>MovingAverage&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt;</B></A><DT>extends <A HREF="../../../../com/twitter/common/stats/StatImpl.html" title="class in com.twitter.common.stats">StatImpl</A>&lt;T&gt;</DL>
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/stats/MovingWindowDelta.html#line.37"><B>MovingWindowDelta&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt;</B></A><DT>extends <A HREF="../../../../com/twitter/common/stats/StatImpl.html" title="class in com.twitter.common.stats">StatImpl</A>&lt;T&gt;</DL>
 </PRE>
 
 <P>
-Function to compute the moving average of a time series.
+Delta over the most recent k sample periods.
+
+ If you use this class with a counter, you can get the cumulation of counts in a sliding window.
+
+ One sample period is the time in between doSample() calls.
 <P>
 
 <P>
@@ -121,8 +125,8 @@ Function to compute the moving average of a time series.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Double.html?is-external=true" title="class or interface in java.lang">Double</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/MovingAverage.html#doSample()">doSample</A></B>()</CODE>
+<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/MovingWindowDelta.html#doSample()">doSample</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -135,14 +139,15 @@ Function to compute the moving average of a time series.
 <TD NOWRAP><FONT SIZE="-1">
 <CODE>&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt; 
 <BR>
-<A HREF="../../../../com/twitter/common/stats/MovingAverage.html" title="class in com.twitter.common.stats">MovingAverage</A>&lt;T&gt;</CODE></FONT></TD>
+<A HREF="../../../../com/twitter/common/stats/MovingWindowDelta.html" title="class in com.twitter.common.stats">MovingWindowDelta</A>&lt;T&gt;</CODE></FONT></TD>
 </TR>
 </TABLE>
 </CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/MovingAverage.html#of(com.twitter.common.stats.Stat)">of</A></B>(<A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;T&gt;&nbsp;input)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/MovingWindowDelta.html#of(java.lang.String, com.google.common.base.Supplier)">of</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+     <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</A>&lt;T&gt;&nbsp;inputAccessor)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Create a new MovingWindowDelta instance using the default window size (currently 60).</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -152,39 +157,21 @@ Function to compute the moving average of a time series.
 <TD NOWRAP><FONT SIZE="-1">
 <CODE>&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt; 
 <BR>
-<A HREF="../../../../com/twitter/common/stats/MovingAverage.html" title="class in com.twitter.common.stats">MovingAverage</A>&lt;T&gt;</CODE></FONT></TD>
+<A HREF="../../../../com/twitter/common/stats/MovingWindowDelta.html" title="class in com.twitter.common.stats">MovingWindowDelta</A>&lt;T&gt;</CODE></FONT></TD>
 </TR>
 </TABLE>
 </CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/MovingAverage.html#of(com.twitter.common.stats.Stat, int)">of</A></B>(<A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;T&gt;&nbsp;input,
+<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/MovingWindowDelta.html#of(java.lang.String, com.google.common.base.Supplier, int)">of</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+     <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</A>&lt;T&gt;&nbsp;inputAccessor,
      int&nbsp;windowSize)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static
-<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
-<TR ALIGN="right" VALIGN="">
-<TD NOWRAP><FONT SIZE="-1">
-<CODE>&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt; 
-<BR>
-<A HREF="../../../../com/twitter/common/stats/MovingAverage.html" title="class in com.twitter.common.stats">MovingAverage</A>&lt;T&gt;</CODE></FONT></TD>
-</TR>
-</TABLE>
-</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/MovingAverage.html#of(java.lang.String, com.twitter.common.stats.Stat, int)">of</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
-     <A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;T&gt;&nbsp;input,
-     int&nbsp;windowSize)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Create a new MovingWindowDelta instance.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;T</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/MovingAverage.html#read()">read</A></B>()</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/MovingWindowDelta.html#read()">read</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Retrieves the most recent value of the stat.</TD>
@@ -192,7 +179,7 @@ Function to compute the moving average of a time series.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;T</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/MovingAverage.html#sample()">sample</A></B>()</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/MovingWindowDelta.html#sample()">sample</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Called by the variable sampler when a sample is being taken.</TD>
@@ -238,38 +225,33 @@ Function to compute the moving average of a time series.
 </TR>
 </TABLE>
 
-<A NAME="of(com.twitter.common.stats.Stat)"><!-- --></A><H3>
+<A NAME="of(java.lang.String, com.google.common.base.Supplier, int)"><!-- --></A><H3>
 of</H3>
 <PRE>
-public static &lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt; <A HREF="../../../../com/twitter/common/stats/MovingAverage.html" title="class in com.twitter.common.stats">MovingAverage</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/stats/MovingAverage.html#line.45"><B>of</B></A>(<A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;T&gt;&nbsp;input)</PRE>
+public static &lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt; <A HREF="../../../../com/twitter/common/stats/MovingWindowDelta.html" title="class in com.twitter.common.stats">MovingWindowDelta</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/stats/MovingWindowDelta.html#line.66"><B>of</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                                                         <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</A>&lt;T&gt;&nbsp;inputAccessor,
+                                                         int&nbsp;windowSize)</PRE>
 <DL>
+<DD>Create a new MovingWindowDelta instance.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Type Parameters:</B><DD><CODE>T</CODE> - The type of the value.<DT><B>Parameters:</B><DD><CODE>name</CODE> - The name of the value to be tracked.<DD><CODE>inputAccessor</CODE> - The accessor of the value.<DD><CODE>windowSize</CODE> - How many sample periods shall we use to calculate delta.
+<DT><B>Returns:</B><DD>The created MovingWindowSum instance.</DL>
 </DD>
 </DL>
 <HR>
 
-<A NAME="of(com.twitter.common.stats.Stat, int)"><!-- --></A><H3>
+<A NAME="of(java.lang.String, com.google.common.base.Supplier)"><!-- --></A><H3>
 of</H3>
 <PRE>
-public static &lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt; <A HREF="../../../../com/twitter/common/stats/MovingAverage.html" title="class in com.twitter.common.stats">MovingAverage</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/stats/MovingAverage.html#line.49"><B>of</B></A>(<A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;T&gt;&nbsp;input,
-                                                     int&nbsp;windowSize)</PRE>
+public static &lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt; <A HREF="../../../../com/twitter/common/stats/MovingWindowDelta.html" title="class in com.twitter.common.stats">MovingWindowDelta</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/stats/MovingWindowDelta.html#line.79"><B>of</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                                                         <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</A>&lt;T&gt;&nbsp;inputAccessor)</PRE>
 <DL>
+<DD>Create a new MovingWindowDelta instance using the default window size (currently 60).
+<P>
 <DD><DL>
-</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="of(java.lang.String, com.twitter.common.stats.Stat, int)"><!-- --></A><H3>
-of</H3>
-<PRE>
-public static &lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt; <A HREF="../../../../com/twitter/common/stats/MovingAverage.html" title="class in com.twitter.common.stats">MovingAverage</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/stats/MovingAverage.html#line.53"><B>of</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
-                                                     <A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;T&gt;&nbsp;input,
-                                                     int&nbsp;windowSize)</PRE>
-<DL>
-<DD><DL>
-</DL>
+<DT><B>Type Parameters:</B><DD><CODE>T</CODE> - The type of the value.<DT><B>Parameters:</B><DD><CODE>name</CODE> - The name of the value to be tracked.<DD><CODE>inputAccessor</CODE> - The accessor of the value.
+<DT><B>Returns:</B><DD>The created MovingWindowSum instance.</DL>
 </DD>
 </DL>
 <HR>
@@ -277,7 +259,7 @@ public static &lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/ap
 <A NAME="doSample()"><!-- --></A><H3>
 doSample</H3>
 <PRE>
-public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Double.html?is-external=true" title="class or interface in java.lang">Double</A> <A HREF="../../../../src-html/com/twitter/common/stats/MovingAverage.html#line.59"><B>doSample</B></A>()</PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A> <A HREF="../../../../src-html/com/twitter/common/stats/MovingWindowDelta.html#line.84"><B>doSample</B></A>()</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -341,7 +323,7 @@ public T <A HREF="../../../../src-html/com/twitter/common/stats/SampledStat.html
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/MovingAverage.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/MovingWindowDelta.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
@@ -356,11 +338,11 @@ public T <A HREF="../../../../src-html/com/twitter/common/stats/SampledStat.html
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../com/twitter/common/stats/JvmStats.html" title="class in com.twitter.common.stats"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../com/twitter/common/stats/MovingWindowDelta.html" title="class in com.twitter.common.stats"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/stats/MovingAverage.html" title="class in com.twitter.common.stats"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../com/twitter/common/stats/NumericStatExporter.html" title="class in com.twitter.common.stats"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-  <A HREF="../../../../index.html?com/twitter/common/stats/MovingAverage.html" target="_top"><B>FRAMES</B></A>  &nbsp;
-&nbsp;<A HREF="MovingAverage.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+  <A HREF="../../../../index.html?com/twitter/common/stats/MovingWindowDelta.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="MovingWindowDelta.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
 &nbsp;<SCRIPT type="text/javascript">
   <!--
   if(window==top) {

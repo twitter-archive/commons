@@ -169,20 +169,12 @@ Argument scanning, parsing, and validating system.  This class is designed recur
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/args/ArgScanner.html#parse(java.util.Map)">parse</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;&nbsp;args)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>Deprecated.</B>&nbsp;<I>Use <A HREF="../../../../com/twitter/common/args/ArgScanner.html#parse(java.lang.String...)"><CODE>parse(String...)</CODE></A></I></TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/args/ArgScanner.html#parse(com.google.common.base.Predicate, java.lang.String...)">parse</A></B>(<A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>&gt;&nbsp;filter,
            <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>...&nbsp;args)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Convenience method to call <A HREF="../../../../com/twitter/common/args/ArgScanner.html#parse(com.google.common.base.Predicate, java.util.Map)"><CODE>parse(Predicate, Map)</CODE></A> that will handle mapping of argument
- keys to values.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Applies the provided argument values to any @CmdLine <code>Arg</code> fields discovered
+ on the classpath and accepted by the given <code>filter</code>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -235,36 +227,14 @@ public static void <A HREF="../../../../src-html/com/twitter/common/args/ArgScan
 </DL>
 <HR>
 
-<A NAME="parse(java.util.Map)"><!-- --></A><H3>
-parse</H3>
-<PRE>
-<FONT SIZE="-1"><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Deprecated.html?is-external=true" title="class or interface in java.lang">@Deprecated</A>
-</FONT>public static void <A HREF="../../../../src-html/com/twitter/common/args/ArgScanner.html#line.144"><B>parse</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;&nbsp;args)</PRE>
-<DL>
-<DD><B>Deprecated.</B>&nbsp;<I>Use <A HREF="../../../../com/twitter/common/args/ArgScanner.html#parse(java.lang.String...)"><CODE>parse(String...)</CODE></A></I>
-<P>
-<DD>Applies the provided argument values to @CmdLine arg fields selected by the given
- filter after parsing and validating them.
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>args</CODE> - Argument values to map, parse, validate, and apply.
-<DT><B>Throws:</B>
-<DD><CODE><A HREF="../../../../com/twitter/common/args/ArgScanner.ArgScanException.html" title="class in com.twitter.common.args">ArgScanner.ArgScanException</A></CODE> - if there was a problem loading @CmdLine argument
-    definitions
-<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - If the arguments provided are invalid based on the declared
-    arguments found.</DL>
-</DD>
-</DL>
-<HR>
-
 <A NAME="parse(com.google.common.base.Predicate, java.lang.String...)"><!-- --></A><H3>
 parse</H3>
 <PRE>
-public static void <A HREF="../../../../src-html/com/twitter/common/args/ArgScanner.html#line.160"><B>parse</B></A>(<A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>&gt;&nbsp;filter,
+public static void <A HREF="../../../../src-html/com/twitter/common/args/ArgScanner.html#line.143"><B>parse</B></A>(<A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>&gt;&nbsp;filter,
                          <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>...&nbsp;args)</PRE>
 <DL>
-<DD>Convenience method to call <A HREF="../../../../com/twitter/common/args/ArgScanner.html#parse(com.google.common.base.Predicate, java.util.Map)"><CODE>parse(Predicate, Map)</CODE></A> that will handle mapping of argument
- keys to values.
+<DD>Applies the provided argument values to any @CmdLine <code>Arg</code> fields discovered
+ on the classpath and accepted by the given <code>filter</code>.
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>filter</CODE> - A predicate that selects or rejects scanned @CmdLine fields for
@@ -281,7 +251,7 @@ public static void <A HREF="../../../../src-html/com/twitter/common/args/ArgScan
 <A NAME="mapArguments(java.lang.String...)"><!-- --></A><H3>
 mapArguments</H3>
 <PRE>
-public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt; <A HREF="../../../../src-html/com/twitter/common/args/ArgScanner.html#line.233"><B>mapArguments</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>...&nbsp;args)</PRE>
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt; <A HREF="../../../../src-html/com/twitter/common/args/ArgScanner.html#line.212"><B>mapArguments</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>...&nbsp;args)</PRE>
 <DL>
 <DD>Scans through args, mapping keys to values even if the arg values are 'dangling' and reside
  in different array entries than the respective keys.

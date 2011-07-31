@@ -224,14 +224,14 @@ limitations under the License.
     <dependency org="org.apache.lucene"
                 name="lucene-analyzers"
                 rev="3.0.2"
-                conf="default"
+                conf="default;sources"
                 transitive="false"
     >
     </dependency>
     <dependency org="org.apache.lucene"
                 name="lucene-core"
                 rev="3.0.2"
-                conf="default"
+                conf="default;sources"
                 transitive="false"
     >
     </dependency>
