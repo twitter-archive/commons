@@ -16,39 +16,31 @@
 
 package com.twitter.common.stats;
 
+import java.util.List;
+
 import com.google.common.collect.Lists;
-import org.easymock.IMocksControl;
-import org.junit.After;
+
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.easymock.EasyMock.*;
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
+import com.twitter.common.testing.EasyMockTest;
 
-import java.util.List;
+import static org.easymock.EasyMock.expect;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 /**
  * Test for MovingAverage.
  *
  * @author William Farner
  */
-public class MovingAverageTest {
-
-  private IMocksControl control;
+public class MovingAverageTest extends EasyMockTest {
 
   private Stat<Integer> input;
 
   @Before
-  @SuppressWarnings("unchecked")
   public void setUp() {
-    control = createControl();
-    input = control.createMock(Stat.class);
-  }
-
-  @After
-  public void verify() {
-    control.verify();
+    input = createMock(new Clazz<Stat<Integer>>() {});
   }
 
   @Test
@@ -66,8 +58,8 @@ public class MovingAverageTest {
   @Test
   public void testLinear() {
     runTest(
-      Lists.newArrayList( 1,    2,  3,    4,  5,    6,  7,    8,  9,   10,   11,   12,   13,   14),
-      Lists.newArrayList(1d, 1.5d, 2d, 2.5d, 3d, 3.5d, 4d, 4.5d, 5d, 5.5d, 6.5d, 7.5d, 8.5d, 9.5d));
+        Lists.newArrayList( 1,    2,  3,    4,  5,    6,  7,    8,  9,   10,   11,   12,   13),
+        Lists.newArrayList(1d, 1.5d, 2d, 2.5d, 3d, 3.5d, 4d, 4.5d, 5d, 5.5d, 6.5d, 7.5d, 8.5d));
   }
 
   @Test
@@ -77,9 +69,8 @@ public class MovingAverageTest {
         Lists.newArrayList(0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 1d, 2d, 3d, 4d, 5d));
   }
 
-  private void runTest(final List<Integer> inputs, List<Double> expectedOutputs) {
-    expect(input.getName()).andReturn("test");
-    expectLastCall().atLeastOnce();
+  private void runTest(List<Integer> inputs, List<Double> expectedOutputs) {
+    expect(input.getName()).andReturn("test").atLeastOnce();
     for (int value : inputs) {
       expect(input.read()).andReturn(value);
     }

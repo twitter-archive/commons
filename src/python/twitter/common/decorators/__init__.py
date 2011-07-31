@@ -22,7 +22,7 @@ def _deprecated_wrap_fn(fn, message=None):
   if not isinstance(fn, types.FunctionType):
     raise ValueError("@deprecated annotation requires a function!")
   def _function(*args, **kwargs):
-    log.warn("DEPRECATION WARNING: %s:%s is deprecated!  %s" % (
+    log.warning("DEPRECATION WARNING: %s:%s is deprecated!  %s" % (
       _function.__module__,
       _function.__name__,
       message if message is not None else ""))

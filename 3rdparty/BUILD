@@ -33,6 +33,14 @@ jar_library(name = 'aopalliance',
             ]
            )
 
+jar_library(name = 'cascading-core',
+            dependencies = [ jar(org = 'cascading', name = 'cascading-core', rev = '1.2.3') ]
+           )
+
+jar_library(name = 'cascading.jdbc',
+            dependencies = [ jar(org = 'r0man', name = 'cascading.jdbc', rev = '1.2') ]
+           )
+
 jar_library(name = 'checkstyle',
             dependencies = [
               jar(org = 'com.puppycrawl.tools', name = 'checkstyle', rev = '5.3')
@@ -131,14 +139,21 @@ jar_library(name = 'jsr305',
 jar_library(name = 'lucene-analyzers',
             dependencies = [
               jar(org = 'org.apache.lucene', name = 'lucene-analyzers', rev = '3.0.2',
-                  apidocs = 'http://lucene.apache.org/java/3_0_2/api/all/')
+                  apidocs = 'http://lucene.apache.org/java/3_0_2/api/all/').withSources()
              ]
             )
 
 jar_library(name = 'lucene-core',
             dependencies = [
               jar(org = 'org.apache.lucene', name = 'lucene-core', rev = '3.0.2',
-                  apidocs = 'http://lucene.apache.org/java/3_0_2/api/all/')
+                  apidocs = 'http://lucene.apache.org/java/3_0_2/api/all/').withSources()
+            ]
+           )
+
+jar_library(name = 'lucene-snowball',
+            dependencies = [
+              jar(org = 'org.apache.lucene', name = 'lucene-snowball', rev = '3.0.2',
+                  apidocs = 'http://lucene.apache.org/java/3_0_2/api/all/').withSources()
             ]
            )
 

@@ -135,6 +135,7 @@ public class HttpModule extends AbstractModule {
     Registration.registerServlet(binder(), "/contention", ContentionPrinter.class, false);
     Registration.registerServlet(binder(), "/graphdata", TimeSeriesDataSource.class, true);
     Registration.registerServlet(binder(), "/health", HealthHandler.class, true);
+    Registration.registerServlet(binder(), "/healthz", HealthHandler.class, true);
     Registration.registerServlet(binder(), "/logconfig", LogConfig.class, false);
     Registration.registerServlet(binder(), "/logs", LogPrinter.class, false);
     Registration.registerServlet(binder(), "/quitquitquit", QuitHandler.class, true);

@@ -16,12 +16,10 @@
 
 package com.twitter.common.application;
 
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -56,8 +54,6 @@ import com.twitter.common.args.constraints.NotNull;
 public final class AppLauncher {
 
   private static final Logger LOG = Logger.getLogger(AppLauncher.class.getName());
-
-  private static final String SCAN_PACKAGES_ARG = "arg_scan_packages";
 
   @NotNull
   @CmdLine(name = "app_class",
@@ -99,20 +95,8 @@ public final class AppLauncher {
   }
 
   public static void main(String[] args) throws IllegalAccessException, InstantiationException {
-    // TODO(John Sirois): follow up with a CL to kill SCAN_PACKAGES_ARG and hide
-    // ArgScanner.mapArguments at that point as well.  This will leave just 2 parse methods:
-    // ArgScanner.parse(String... args)
-    // ArgScanner.parse(Predicate<Field> filter, String... args)
-    Map<String, String> argumentMap = Maps.newHashMap(ArgScanner.mapArguments(args));
-    String argSpecifiedPackages = argumentMap.remove(SCAN_PACKAGES_ARG);
-    if (argSpecifiedPackages != null) {
-      LOG.warning(
-          String.format("Ignoring deprecated flag -%s=%s , scanning is now automatic",
-              SCAN_PACKAGES_ARG, argSpecifiedPackages));
-    }
-
     try {
-      ArgScanner.parse(argumentMap);
+      ArgScanner.parse(args);
     } catch (ArgScanException e) {
       exit("Failed to scan arguments", e);
     } catch (IllegalArgumentException e) {

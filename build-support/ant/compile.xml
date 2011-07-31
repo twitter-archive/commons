@@ -106,20 +106,20 @@ limitations under the License.
     </if>
   </target>
 
-  <macrodef name="_if_dep_modified">
-    <element name="files" implicit="false"/>
-    <element name="tasks" implicit="false"/>
+  <macrodef name="_maybe-push-local">
+    <attribute name="refid"/>
 
     <sequential>
       <uptodate property="skip.dep" value="true" targetfile="${local-artifact}">
-        <files/>
+        <srcfiles refid="@{refid}"/>
       </uptodate>
       <property name="skip.dep" value="false"/>
 
       <if>
         <isfalse value="${skip.dep}"/>
         <then>
-          <tasks/>
+          <antcall target="jar"/>
+          <antcall target="push-local"/>
         </then>
       </if>
     </sequential>
@@ -132,32 +132,12 @@ limitations under the License.
     <if>
       <isreference refid="${compile.sources}"/>
       <then>
-        <_if_dep_modified>
-          <files>
-            <srcfiles refid="${compile.sources}"/>
-          </files>
-          <tasks>
-            <antcall target="jar"/>
-            <antcall target="push-local"/>
-          </tasks>
-        </_if_dep_modified>
+        <_maybe-push-local refid="${compile.sources}"/>
       </then>
       <elseif>
-        <!--
-          TODO(jsirois): this is a hack - should be generating test jars as <artifact>-tests.jar and publishing
-          with a test classifier
-        -->
         <isreference refid="${compile.tests}"/>
         <then>
-          <_if_dep_modified>
-            <files>
-              <srcfiles refid="${compile.tests}"/>
-            </files>
-            <tasks>
-              <antcall target="tests-jar"/>
-              <antcall target="push-local"/>
-            </tasks>
-          </_if_dep_modified>
+          <_maybe-push-local refid="${compile.tests}"/>
         </then>
       </elseif>
     </if>
@@ -295,7 +275,8 @@ limitations under the License.
     </copy>
   </target>
 
-  <property name="javac.compilerargs" value="-encoding UTF-8 -Xlint:all -Xlint:-serial -Xlint:-path"/>
+  <property name="javac.compilerargs"
+            value="-encoding UTF-8 -Xlint:all -Xlint:-serial -Xlint:-path"/>
 
   <macrodef name="_compile_java">
     <attribute name="srcdir"/>
@@ -759,11 +740,12 @@ limitations under the License.
           <isfalse value="${is.internal.dep}"/>
         </and>
         <then>
-          <property name="jvmargs"
+          <property name="debugargs"
                     value="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"/>
+          <property name="jvmargs" value="${env.ANT_OPTS} ${debugargs}"/>
         </then>
         <else>
-          <property name="jvmargs" value=""/>
+          <property name="jvmargs" value="${env.ANT_OPTS}"/>
         </else>
       </if>
 
@@ -772,7 +754,6 @@ limitations under the License.
              dir="${test.basedir}"
              fork="true"
              forkmode="once"
-             maxmemory="256m"
              showoutput="false"
              failureproperty="tests.failed"
              errorproperty="tests.failed">
@@ -919,12 +900,24 @@ limitations under the License.
     </sequential>
   </macrodef>
 
-  <target name="jar" depends="test, gen-build-info">
-    <_jar contentroot="${build.dir}/jvm"/>
-  </target>
-
-  <target name="tests-jar" depends="test">
-    <_jar contentroot="${build.dir}/tests"/>
+  <target name="jar" depends="test">
+    <if>
+      <isreference refid="${compile.sources}"/>
+      <then>
+        <antcall target="gen-build-info"/>
+        <_jar contentroot="${build.dir}/jvm"/>
+      </then>
+      <elseif>
+        <!--
+          TODO(jsirois): this is a hack - should be generating test jars as <artifact>-tests.jar and
+          publishing with a test classifier
+        -->
+        <isreference refid="${compile.tests}"/>
+        <then>
+          <_jar contentroot="${build.dir}/tests"/>
+        </then>
+      </elseif>
+    </if>
   </target>
 
   <target name="_set_extra_build_info">

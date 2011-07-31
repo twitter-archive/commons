@@ -129,25 +129,8 @@ public class ArgScanner {
   }
 
   /**
-   * Applies the provided argument values to {@literal @CmdLine} arg fields selected by the given
-   * filter after parsing and validating them.
-   *
-   * @param args Argument values to map, parse, validate, and apply.
-   * @throws ArgScanException if there was a problem loading {@literal @CmdLine} argument
-   *    definitions
-   * @throws IllegalArgumentException If the arguments provided are invalid based on the declared
-   *    arguments found.
-   *
-   * @deprecated Use {@link #parse(String...)}
-   */
-  @Deprecated
-  public static void parse(Map<String, String> args) {
-    parse(Predicates.<Field>alwaysTrue(), args);
-  }
-
-  /**
-   * Convenience method to call {@link #parse(Predicate, Map)} that will handle mapping of argument
-   * keys to values.
+   * Applies the provided argument values to any {@literal @CmdLine} {@code Arg} fields discovered
+   * on the classpath and accepted by the given {@code filter}.
    *
    * @param filter A predicate that selects or rejects scanned {@literal @CmdLine} fields for
    *    argument application.
@@ -158,11 +141,7 @@ public class ArgScanner {
    *    arguments found.
    */
   public static void parse(Predicate<Field> filter, String... args) {
-    parse(filter, mapArguments(args));
-  }
-
-  private static void parse(Predicate<Field> filter, Map<String, String> args) {
-    process(scan(filter), args);
+    process(scan(filter), mapArguments(args));
   }
 
   // Regular expression to identify a possible dangling assignment.
@@ -520,17 +499,6 @@ public class ArgScanner {
       throw new RuntimeException("Failed to set value for " + field);
     }
   }
-
-  private static final Function<String, Predicate<Field>> PREFIX_TO_FILTER =
-      new Function<String, Predicate<Field>>() {
-        @Override public Predicate<Field> apply(final String packagePrefix) {
-          return new Predicate<Field>() {
-            @Override public boolean apply(Field field) {
-              return field.getDeclaringClass().getName().startsWith(packagePrefix);
-            }
-          };
-        }
-      };
 
   private static Iterable<Field> scan(Predicate<Field> filter) {
     try {

@@ -33,7 +33,7 @@ public class PercentileTest {
 
   private static final double EPSILON = 1e-6;
   private static final float SAMPLE_RATE = 100;
-  private static final int[] PERCENTILES = new int[] {10, 50, 90, 99};
+  private static final double[] PERCENTILES = new double[] {10, 50, 90, 99, 99.9, 99.99};
 
   private Percentile<Integer> percentiles;
 
@@ -44,13 +44,15 @@ public class PercentileTest {
 
   @Test
   public void testNoData() {
-    checkPercentiles(0, 0, 0, 0);
+    checkPercentiles(percentiles, 0, 0, 0, 0, 0, 0);
+    checkValuesAreFlushed(percentiles);
   }
 
   @Test
   public void testSingleValue() {
     percentiles.record(10);
-    checkPercentiles(10, 10, 10, 10);
+    checkPercentiles(percentiles, 10, 10, 10, 10, 10, 10);
+    checkValuesAreFlushed(percentiles);
   }
 
   @Test
@@ -59,25 +61,52 @@ public class PercentileTest {
       percentiles.record(10);
     }
 
-    checkPercentiles(10, 10, 10, 10);
+    checkPercentiles(percentiles, 10, 10, 10, 10, 10, 10);
+    checkValuesAreFlushed(percentiles);
   }
 
   @Test
   public void testLinear() {
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 10000; i++) {
       percentiles.record(i + 1);
     }
 
-    checkPercentiles(10, 50, 90, 99);
+    checkPercentiles(percentiles, 1000, 5000, 9000, 9900, 9990, 9999);
+    checkValuesAreFlushed(percentiles);
+  }
+
+  @Test
+  public void testNullSampler() {
+    int N = 10000;
+    Percentile<Integer> mypercentile = new Percentile<Integer>("test", true, null, PERCENTILES);
+    for (int i = 0; i < N; i++) {
+      mypercentile.record(i + 1);
+    }
+    assertThat(mypercentile.samples.size(), is(N));
+    checkPercentiles(mypercentile, 1000, 5000, 9000, 9900, 9990, 9999);
+    checkValuesAreFlushed(mypercentile);
+  }
+
+  @Test
+  public void testNoAutoFlush() {
+    int N = 10000;
+    Percentile<Integer> mypercentile = new Percentile<Integer>("test", false, null, PERCENTILES);
+    for (int i = 0; i < N; i++) {
+      mypercentile.record(i + 1);
+    }
+    assertThat(mypercentile.samples.size(), is(N));
+    checkPercentiles(mypercentile, 1000, 5000, 9000, 9900, 9990, 9999);
+    assertThat(mypercentile.samples.size(), is(N));
   }
 
   @Test
   public void testReverseLinear() {
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 10000; i++) {
       percentiles.record(i + 1);
     }
 
-    checkPercentiles(10, 50, 90, 99);
+    checkPercentiles(percentiles, 1000, 5000, 9000, 9900, 9990, 9999);
+    checkValuesAreFlushed(percentiles);
   }
 
   @Test
@@ -93,7 +122,8 @@ public class PercentileTest {
       percentiles.record(sample);
     }
 
-    checkPercentiles(100, 500, 900, 990);
+    checkPercentiles(percentiles, 100, 500, 900, 990, 999, 1000);
+    checkValuesAreFlushed(percentiles);
   }
 
   @Test
@@ -109,16 +139,18 @@ public class PercentileTest {
       percentiles.record(sample);
     }
 
-    checkPercentiles(-900, -500, -100, -10);
+    checkPercentiles(percentiles, -900, -500, -100, -10, -1, 0);
+    checkValuesAreFlushed(percentiles);
   }
 
   @Test
   public void testPercentileInterpolates() {
-    for (int i = 0; i < 101; i++) {
+    for (int i = 0; i < 9999; i++) {
       percentiles.record(i + 1);
     }
 
-    checkPercentiles(10.5, 50.5, 90.5, 99.5);
+    checkPercentiles(percentiles, 999.5, 4999.5, 8999.5, 9899.5, 9989.5, 9998.5);
+    checkValuesAreFlushed(percentiles);
   }
 
   @Test
@@ -133,25 +165,28 @@ public class PercentileTest {
     }
 
     assertThat(percentiles.samples.size(), is(Percentile.MAX_BUFFER_SIZE));
-    checkPercentiles(1, 1, 1, 1);
+    checkPercentiles(percentiles, 1, 1, 1, 1, 1, 1);
+    checkValuesAreFlushed(percentiles);
   }
 
-  private void checkPercentiles(double... values) {
+  private void checkPercentiles(Percentile<Integer> input_percentiles, double... values) {
     assertThat(values.length, is(PERCENTILES.length));
 
     for (int i = 0; i < values.length; i++) {
-      checkPercentile(PERCENTILES[i], values[i]);
+      checkPercentile(input_percentiles, PERCENTILES[i], values[i]);
     }
+  }
 
+  private void checkValuesAreFlushed(Percentile<Integer> input_percentiles, double... values) {
     // Check that the values were flushed.
     for (int i = 0; i < values.length; i++) {
-      checkPercentile(PERCENTILES[i], 0);
+      checkPercentile(input_percentiles, PERCENTILES[i], 0);
     }
-
     assertThat(percentiles.samples.isEmpty(), is(true));
   }
 
-  private void checkPercentile(int percentile, double value) {
-    assertEquals(value, percentiles.getPercentile(percentile).sample(), EPSILON);
+  private void checkPercentile(Percentile<Integer> input_percentiles,
+                               double percentile, double value) {
+    assertEquals(value, input_percentiles.getPercentile(percentile).sample(), EPSILON);
   }
 }

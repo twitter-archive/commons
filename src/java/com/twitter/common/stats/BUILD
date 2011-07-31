@@ -49,6 +49,7 @@ java_library(name = 'stats',
   ],
   sources = [
     'MovingAverage.java',
+    'MovingWindowDelta.java',
     'NumericStatExporter.java',
     'Percentile.java',
     'PipelineStats.java',

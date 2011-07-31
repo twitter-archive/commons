@@ -42,6 +42,8 @@ options {
 @header {
   from gen.twitter.thrift.descriptors import ttypes as thrift_descriptors
   from twitter.thrift.descriptors.thrift_parser_error import ThriftParserError
+
+  _global_type_id = -1
 }
 
 @init {
@@ -61,10 +63,10 @@ options {
     list.append(element)
 
   def _create_type_id_generator(self):
-    n = -1
+    global _global_type_id
     while True:
-      n += 1
-      yield 'T' + str(n)
+      _global_type_id += 1
+      yield 'T' + str(_global_type_id)
 
   def _registerType(self, location, typ):
     typ.id = self._type_id_generator.next()

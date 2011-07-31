@@ -28,6 +28,8 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 /**
  * A stats tracker to export percentiles of inputs based on a sampling rate.
  *
@@ -40,7 +42,7 @@ public class Percentile<T extends Number> {
 
   private final Sampler sampler;
 
-  private final Map<Integer, SampledStat<Double>> percentiles;
+  private final Map<Double, SampledStat<Double>> percentiles;
   @VisibleForTesting
   final LinkedList<T> samples = Lists.newLinkedList();
 
@@ -56,7 +58,7 @@ public class Percentile<T extends Number> {
    * @param samplePercent The percent of events to sample [0, 100].
    * @param percentiles The percentiles to track.
    */
-  public Percentile(String name, float samplePercent, int... percentiles) {
+  public Percentile(String name, float samplePercent, double... percentiles) {
     this(name, new Sampler(samplePercent), percentiles);
   }
 
@@ -72,20 +74,42 @@ public class Percentile<T extends Number> {
    * @param sampler The sampler to use for selecting recorded events.
    * @param percentiles The percentiles to track.
    */
-  public Percentile(String name, Sampler sampler, int... percentiles) {
+  public Percentile(String name, Sampler sampler, double... percentiles) {
+    this(name, true, sampler, percentiles);
+  }
+
+  /**
+   * Creates a new percentile tracker.
+   *
+   * A percentile tracker will randomly sample recorded events with the given sampling rate, and
+   * will automatically register variables to track the percentiles requested.
+   * When allowFlushAfterSample is set to true, once the last percentile is sampled,
+   * all recorded values are flushed in preparation for the next window; otherwise, the percentile
+   * is calculated using the moving window of the most recent values.
+   *
+   * @param name The name of the value whose percentile is being tracked.
+   * @param allowFlushAfterSample Whether tp allow auto-flush.
+   * @param sampler The sampler to use for selecting recorded events. You may set sampler to null
+   *        to sample all input.
+   * @param percentiles The percentiles to track.
+   */
+  public Percentile(String name, boolean allowFlushAfterSample,
+                    @Nullable Sampler sampler, double... percentiles) {
     MorePreconditions.checkNotBlank(name);
     Preconditions.checkNotNull(percentiles);
     Preconditions.checkArgument(percentiles.length > 0, "Must specify at least one percentile.");
 
-    this.sampler = Preconditions.checkNotNull(sampler);
+    this.sampler = sampler;
 
-    ImmutableMap.Builder<Integer, SampledStat<Double>> builder =
-        new ImmutableMap.Builder<Integer, SampledStat<Double>>();
+    ImmutableMap.Builder<Double, SampledStat<Double>> builder =
+        new ImmutableMap.Builder<Double, SampledStat<Double>>();
 
     for (int i = 0; i < percentiles.length; i++) {
       boolean sortFirst = i == 0;
-      boolean flushAfterSampling = i == percentiles.length - 1;
-      String statName = String.format("%s_%dth_percentile", name, percentiles[i]);
+      boolean flushAfterSampling = allowFlushAfterSample && (i == percentiles.length - 1);
+      String statName = String.format("%s_%s_percentile", name, percentiles[i])
+          .replace('.', '_');
+
       SampledStat<Double> stat =
           new PercentileVar(statName, percentiles[i], sortFirst, flushAfterSampling);
       Stats.export(stat);
@@ -95,17 +119,19 @@ public class Percentile<T extends Number> {
     this.percentiles = builder.build();
   }
 
+
+
   /**
    * Get the variables associated with this percentile tracker.
    *
    * @return A map from tracked percentile to the Stat corresponding to it
    */
-  public Map<Integer, ? extends Stat> getPercentiles() {
+  public Map<Double, ? extends Stat> getPercentiles() {
     return ImmutableMap.copyOf(percentiles);
   }
 
   @VisibleForTesting
-  SampledStat<Double> getPercentile(int percentile) {
+  SampledStat<Double> getPercentile(double percentile) {
     return percentiles.get(percentile);
   }
 
@@ -115,7 +141,7 @@ public class Percentile<T extends Number> {
    * @param value The value to record if it is randomly selected based on the sampling rate.
    */
   public void record(T value) {
-    if (sampler.select()) {
+    if (sampler == null || sampler.select()) {
       synchronized (samples) {
         samples.addLast(value);
 
@@ -125,11 +151,11 @@ public class Percentile<T extends Number> {
   }
 
   private class PercentileVar extends SampledStat<Double> {
-    private final int percentile;
+    private final double percentile;
     private final boolean sortFirst;
     private final boolean flushAfterSampling;
 
-    PercentileVar(String name, int percentile, boolean sortFirst, boolean flushAfterSampling) {
+    PercentileVar(String name, double percentile, boolean sortFirst, boolean flushAfterSampling) {
       super(name, 0d);
       this.percentile = percentile;
       this.sortFirst = sortFirst;
@@ -142,7 +168,7 @@ public class Percentile<T extends Number> {
         if (samples.isEmpty()) return 0d;
         if (sortFirst) Collections.sort(samples, NUMBER_COMPARATOR);
 
-        int selectIndex = ((samples.size() * percentile) / 100) - 1;
+        int selectIndex = (int) ((samples.size() * percentile) / 100) - 1;
         selectIndex = selectIndex < 0 ? 0 : selectIndex;
 
         // Whether we need to interpolate between two values to calculate the percentile.

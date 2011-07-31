@@ -80,9 +80,11 @@ class _Global:
 
 def _short_help(option, opt, value, parser):
   _Global.OPTIONS.print_help()
+  sys.exit(1)
 
 def _long_help(option, opt, value, parser):
   _Global.OPTIONS_LONG.print_help()
+  sys.exit(1)
 
 def _add_both_options(*args, **kwargs):
   _Global.OPTIONS.add_option(*args, **kwargs)
@@ -156,7 +158,6 @@ def set_option(option_name, option_value):
     raise OptionValueError("set_option values must be strings!")
 
 def set_usage(usage):
-  _Global.assert_not_parsed()
   _Global.OPTIONS.set_usage(usage)
   _Global.OPTIONS_LONG.set_usage(usage)
 

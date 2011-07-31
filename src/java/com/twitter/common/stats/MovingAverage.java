@@ -16,9 +16,9 @@
 
 package com.twitter.common.stats;
 
-import com.google.common.base.Preconditions;
-
 import java.util.concurrent.LinkedBlockingDeque;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Function to compute the moving average of a time series.

@@ -30,7 +30,7 @@ public class StockTokenCombiner extends ExtractorBasedTokenCombiner {
   private static final Pattern STOCK_SYMBOL_PATTERN =
     Pattern.compile("(?:^|" + PunctuationDetector.PUNCTUATION_REGEX
                     + "|" + PunctuationDetector.SPACE_REGEX
-                    + ")(\\$[a-zA-Z0-9]{1,6}(:[a-zA-Z0-9]{1,6})?)(?=$"
+                    + ")(\\$[a-zA-Z]{1,6}(:[a-zA-Z0-9]{1,6})?)(?=$"
                     + "|" + PunctuationDetector.SPACE_REGEX
                     + "|" + PunctuationDetector.PUNCTUATION_REGEX + ")");
 
