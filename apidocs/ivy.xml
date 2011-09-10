@@ -144,8 +144,8 @@ limitations under the License.
     >
     </dependency>
     <dependency org="spy"
-                name="memcached"
-                rev="2.4.2"
+                name="spymemcached"
+                rev="2.7.1"
                 conf="default"
                 transitive="false"
     >
