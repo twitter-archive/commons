@@ -76,10 +76,10 @@ limitations under the License.
                usepoms="true"
                root="http://google-gson.googlecode.com/svn/mavenrepo"/>
 
-      <ibiblio name="reflections"
+      <ibiblio name="couchbase"
                m2compatible="true"
                usepoms="true"
-               root="http://reflections.googlecode.com/svn/repo"/>
+               root="http://files.couchbase.com/maven2"/>
 
       <!-- support 3 styles of 3rdparty artifacts: paired with an ivy xml, paired with a pom, and a
            bare jar with no transitive dependency metadata at all -->
