@@ -115,7 +115,7 @@ public class ZooKeeperTestServer {
    * Shuts down the in-process zookeeper network server.
    */
   public final void shutdownNetwork() {
-    if (connectionFactory.isAlive()) {
+    if (connectionFactory != null && connectionFactory.isAlive()) {
       connectionFactory.shutdown();
     }
   }
