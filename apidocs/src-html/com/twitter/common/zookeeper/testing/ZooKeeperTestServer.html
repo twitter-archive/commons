@@ -118,7 +118,7 @@
 <FONT color="green">115</FONT>       * Shuts down the in-process zookeeper network server.<a name="line.115"></a>
 <FONT color="green">116</FONT>       */<a name="line.116"></a>
 <FONT color="green">117</FONT>      public final void shutdownNetwork() {<a name="line.117"></a>
-<FONT color="green">118</FONT>        if (connectionFactory.isAlive()) {<a name="line.118"></a>
+<FONT color="green">118</FONT>        if (connectionFactory != null &amp;&amp; connectionFactory.isAlive()) {<a name="line.118"></a>
 <FONT color="green">119</FONT>          connectionFactory.shutdown();<a name="line.119"></a>
 <FONT color="green">120</FONT>        }<a name="line.120"></a>
 <FONT color="green">121</FONT>      }<a name="line.121"></a>
