@@ -30,6 +30,6 @@ $PANTS doc --title="Twitter Commons API Docs" && \
   mv target/pants.doc apidocs && \
   git add apidocs && \
   git commit -m "Update Twitter Commons API Docs @ $sha" && \
-  git push origin head && \
+  git push origin HEAD && \
   git checkout $branch
 
