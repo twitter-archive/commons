@@ -59,7 +59,7 @@ import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException
  * @author John Sirois
  */
 public class Group {
-  private static final Logger LOG = Logger.getLogger(Partitioner.class.getName());
+  private static final Logger LOG = Logger.getLogger(Group.class.getName());
 
   private static final Supplier<byte[]> NO_MEMBER_DATA = Suppliers.ofInstance(null);
   private static final String DEFAULT_NODE_NAME_PREFIX = "member_";
