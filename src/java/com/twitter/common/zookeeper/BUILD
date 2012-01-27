@@ -14,30 +14,145 @@
 # limitations under the License.
 # ==================================================================================================
 
-
-
-java_library(name = 'zookeeper',
-  provides = artifact(
-    org = 'com.twitter.common',
-    name = 'zookeeper',
+def zkjar(name):
+  return artifact(
+    org = 'com.twitter.common.zookeeper',
+    name = name,
     repo = pants('build-support/commons/ivy:public'),
-  ),
+  )
+
+java_library(name = 'client',
+  provides = zkjar('client'),
   dependencies = [
+    pants('3rdparty:guava'),
+    pants('3rdparty:zookeeper'),
+    pants('src/java/com/twitter/common/base'),
+    pants('src/java/com/twitter/common/net:util'),
+    pants('src/java/com/twitter/common/quantity'),
+  ],
+  sources = [ 'ZooKeeperClient.java', 'ZooKeeperUtils.java' ]
+)
+
+java_library(name = 'node',
+  provides = zkjar('node'),
+  dependencies = [
+    pants(':client'),
     pants('3rdparty:guava'),
     pants('3rdparty:jsr305'),
     pants('3rdparty:zookeeper'),
+    pants('src/java/com/twitter/common/base'),
+    pants('src/java/com/twitter/common/util'),
+  ],
+  sources = [ 'ZooKeeperNode.java' ]
+)
+
+java_library(name = 'map',
+  provides = zkjar('map'),
+  dependencies = [
+    pants(':client'),
+    pants('3rdparty:guava'),
+    pants('3rdparty:zookeeper'),
+    pants('src/java/com/twitter/common/base'),
+    pants('src/java/com/twitter/common/util'),
+  ],
+  sources = [ 'ZooKeeperMap.java' ]
+)
+
+java_library(name = 'lock',
+  provides = zkjar('lock'),
+  dependencies = [
+    pants(':client'),
+    pants('3rdparty:guava'),
+    pants('3rdparty:jsr305'),
+    pants('3rdparty:zookeeper'),
+    pants('src/java/com/twitter/common/base'),
+  ],
+  sources = [ 'DistributedLock.java', 'DistributedLockImpl.java' ]
+)
+
+java_library(name = 'group',
+  provides = zkjar('group'),
+  dependencies = [
+    pants(':client'),
+    pants('3rdparty:guava'),
+    pants('3rdparty:jsr305'),
+    pants('3rdparty:zookeeper'),
+    pants('src/java/com/twitter/common/base'),
+    pants('src/java/com/twitter/common/util'),
+  ],
+  sources = [ 'Group.java' ]
+)
+
+java_library(name = 'partitioner',
+  provides = zkjar('partitioner'),
+  dependencies = [
+    pants(':group'),
+    pants('3rdparty:guava'),
+    pants('3rdparty:jsr305'),
+    pants('3rdparty:zookeeper'),
+  ],
+  sources = [ 'Partitioner.java' ]
+)
+
+java_library(name = 'candidate',
+  provides = zkjar('candidate'),
+  dependencies = [
+    pants(':client'),
+    pants(':group'),
+    pants('3rdparty:guava'),
+    pants('3rdparty:zookeeper'),
+    pants('src/java/com/twitter/common/base'),
+  ],
+  sources = [ 'Candidate.java', 'CandidateImpl.java' ]
+)
+
+java_library(name = 'server-set',
+  provides = zkjar('server-set'),
+  dependencies = [
+    pants(':client'),
+    pants(':group'),
+    pants('3rdparty:gson'),
+    pants('3rdparty:guava'),
+    pants('3rdparty:zookeeper'),
     pants('src/java/com/twitter/common/args'),
     pants('src/java/com/twitter/common/base'),
+    pants('src/java/com/twitter/common/io'),
     pants('src/java/com/twitter/common/io:json'),
     pants('src/java/com/twitter/common/io:thrift'),
-    pants('src/java/com/twitter/common/net:util'),
     pants('src/java/com/twitter/common/net:dynamic-host-set'),
-    pants('src/java/com/twitter/common/net:pool'),
-    pants('src/java/com/twitter/common/quantity'),
     pants('src/java/com/twitter/common/util'),
     pants('src/thrift/com/twitter/thrift'),
   ],
-  sources = globs('*.java'),
+  sources = [ 'ServerSet.java', 'ServerSetImpl.java' ]
+)
+
+java_library(name = 'singleton-service',
+  provides = zkjar('singleton-service'),
+  dependencies = [
+    pants(':candidate'),
+    pants(':client'),
+    pants(':server-set'),
+    pants('3rdparty:guava'),
+    pants('3rdparty:jsr305'),
+    pants('3rdparty:zookeeper'),
+    pants('src/thrift/com/twitter/thrift'),
+  ],
+  sources = [ 'SingletonService.java' ]
+)
+
+# TODO(John Sirois): A legacy convenience target - adjust users and remove
+jar_library(name = 'zookeeper',
+  dependencies = [
+    pants(':candidate'),
+    pants(':client'),
+    pants(':group'),
+    pants(':lock'),
+    pants(':map'),
+    pants(':node'),
+    pants(':partitioner'),
+    pants(':server-set'),
+    pants(':singleton-service'),
+  ]
 )
 
 java_library(name = 'testing',
