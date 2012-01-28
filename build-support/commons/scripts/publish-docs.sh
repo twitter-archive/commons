@@ -23,7 +23,7 @@ ref=$(git symbolic-ref HEAD)
 branch=${ref#refs/heads/}
 sha=$(git rev-list HEAD| head -1)
 
-$PANTS doc --title="Twitter Commons API Docs" && \
+$PANTS doc --title="Twitter Commons API Docs" --ignore-failure && \
   git checkout gh-pages && \
   git pull && \
   rm -r apidocs && \
