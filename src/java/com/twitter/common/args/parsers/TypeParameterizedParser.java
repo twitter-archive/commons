@@ -19,6 +19,8 @@ package com.twitter.common.args.parsers;
 import java.lang.reflect.Type;
 import java.util.List;
 
+import com.twitter.common.args.Parser;
+import com.twitter.common.args.ParserOracle;
 import com.twitter.common.args.TypeUtil;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -26,44 +28,41 @@ import static com.google.common.base.Preconditions.checkArgument;
 /**
  * Parser that makes implementation of parsers for parameterized types simpler.
  *
- * This only works for top-level parameters.  Behavior is undefined for nested parameterized types.
- * For example, this will handle {@code Map<String, Integer>} fine but will not handle
- * {@code Map<String, List<String>}.
+ * @param <T> The raw type this parser can parse.
  *
  * @author William Farner
  */
-public abstract class TypeParameterizedParser<T> extends BaseParser<T> {
+public abstract class TypeParameterizedParser<T> implements Parser<T> {
 
   private final int typeParamCount;
 
   /**
    * Creates a new type parameterized parser.
    *
-   * @param parsedClass The parsed class.
    * @param typeParamCount Strict number of type parameters to allow on the assigned type.
    */
-  TypeParameterizedParser(Class<T> parsedClass, int typeParamCount) {
-    super(parsedClass);
+  TypeParameterizedParser(int typeParamCount) {
     this.typeParamCount = typeParamCount;
   }
 
   /**
    * Performs the actual parsing.
    *
+   * @param parserOracle The registered parserOracle for delegation.
    * @param raw The raw value to parse.
-   * @param paramParsers Parser classes for the parameter types, in the same order as the type
-   *    parameters.
+   * @param typeParams The captured actual type parameters for {@code T}.
    * @return The parsed value.
    * @throws IllegalArgumentException If the value could not be parsed.
    */
-  abstract T doParse(String raw, List<Class<?>> paramParsers) throws IllegalArgumentException;
+  abstract T doParse(ParserOracle parserOracle, String raw, List<Type> typeParams)
+      throws IllegalArgumentException;
 
-  @Override public T parse(Type type, String raw) {
-    List<Class<?>> typeParamClasses = TypeUtil.getTypeParamClasses(type);
-    checkArgument(typeParamClasses.size() == typeParamCount, String.format(
+  @Override public T parse(ParserOracle parserOracle, Type type, String raw) {
+    List<Type> typeParams = TypeUtil.getTypeParams(type);
+    checkArgument(typeParams.size() == typeParamCount, String.format(
         "Expected %d type parameters for %s but got %d",
-        typeParamCount, type, typeParamClasses.size()));
+        typeParamCount, type, typeParams.size()));
 
-    return doParse(raw, typeParamClasses);
+    return doParse(parserOracle, raw, typeParams);
   }
 }

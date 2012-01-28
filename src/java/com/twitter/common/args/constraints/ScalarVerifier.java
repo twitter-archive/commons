@@ -18,6 +18,8 @@ package com.twitter.common.args.constraints;
 
 import java.lang.annotation.Annotation;
 
+import com.twitter.common.args.Verifier;
+
 /**
  * Partial verifier implementation to simplify implementation of scalar verifiers. A scalar
  * verifier is one that requires no information other than the object in order to operate.

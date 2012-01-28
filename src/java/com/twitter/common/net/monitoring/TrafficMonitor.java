@@ -16,27 +16,30 @@
 
 package com.twitter.common.net.monitoring;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.MapMaker;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.twitter.common.base.MorePreconditions;
-import com.twitter.common.quantity.Amount;
-import com.twitter.common.quantity.Time;
-import com.twitter.common.net.loadbalancing.RequestTracker;
-import com.twitter.common.util.Clock;
-
-import javax.annotation.concurrent.GuardedBy;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
+import javax.annotation.concurrent.GuardedBy;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
+import com.twitter.common.base.MorePreconditions;
+import com.twitter.common.net.loadbalancing.RequestTracker;
+import com.twitter.common.quantity.Amount;
+import com.twitter.common.quantity.Time;
+import com.twitter.common.util.Clock;
 
 /**
  * Monitors activity on established connections between two hosts.  This can be used for a server
@@ -53,7 +56,7 @@ public class TrafficMonitor<K> implements ConnectionMonitor<K>, RequestTracker<K
   static final Amount<Long, Time> DEFAULT_GC_INTERVAL = Amount.of(5L, Time.MINUTES);
 
   @GuardedBy("this")
-  private final Map<K, TrafficInfo> trafficInfos;
+  private final LoadingCache<K, TrafficInfo> trafficInfos;
 
   private final String serviceName;
   private final Amount<Long, Time> gcInterval;
@@ -103,8 +106,10 @@ public class TrafficMonitor<K> implements ConnectionMonitor<K>, RequestTracker<K
     Preconditions.checkArgument(gcInterval.getValue() > 0, "GC interval must be > zero.");
     this.gcInterval = gcInterval;
 
-    trafficInfos = new MapMaker().makeComputingMap(new Function<K, TrafficInfo>() {
-      @Override public TrafficInfo apply(K key) { return new TrafficInfo(key); }
+    trafficInfos = CacheBuilder.newBuilder().build(new CacheLoader<K, TrafficInfo>() {
+      @Override public TrafficInfo load(K key) {
+        return new TrafficInfo(key);
+      }
     });
 
     Runnable gc = new Runnable() {
@@ -142,21 +147,21 @@ public class TrafficMonitor<K> implements ConnectionMonitor<K>, RequestTracker<K
    * @return A map from the host key type to information about that host.
    */
   public synchronized Map<K, TrafficInfo> getTrafficInfo() {
-    return ImmutableMap.copyOf(trafficInfos);
+    return ImmutableMap.copyOf(trafficInfos.asMap());
   }
 
   @Override
   public synchronized void connected(K key) {
     Preconditions.checkNotNull(key);
 
-    trafficInfos.get(key).incConnections();
+    trafficInfos.getUnchecked(key).incConnections();
   }
 
   @Override
   public synchronized void released(K key) {
     Preconditions.checkNotNull(key);
 
-    TrafficInfo info = trafficInfos.get(key);
+    TrafficInfo info = trafficInfos.getUnchecked(key);
 
     Preconditions.checkState(info.getConnectionCount() > 0, "Double release detected!");
     info.decConnections();
@@ -167,12 +172,12 @@ public class TrafficMonitor<K> implements ConnectionMonitor<K>, RequestTracker<K
     Preconditions.checkNotNull(key);
 
     lifetimeRequests.incrementAndGet();
-    trafficInfos.get(key).addResult(result);
+    trafficInfos.getUnchecked(key).addResult(result);
   }
 
   @VisibleForTesting
   synchronized void gc() {
-    Iterables.removeIf(trafficInfos.entrySet(),
+    Iterables.removeIf(trafficInfos.asMap().entrySet(),
         new Predicate<Map.Entry<K, TrafficInfo>>() {
           @Override public boolean apply(Map.Entry<K, TrafficInfo> clientInfo) {
             if (clientInfo.getValue().connections.get() > 0) return false;

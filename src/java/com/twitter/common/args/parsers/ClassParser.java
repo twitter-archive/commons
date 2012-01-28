@@ -16,21 +16,34 @@
 
 package com.twitter.common.args.parsers;
 
+import java.lang.reflect.Type;
+import java.util.List;
+
+import com.google.common.base.Preconditions;
+
+import com.twitter.common.args.ArgParser;
+import com.twitter.common.args.ParserOracle;
+import com.twitter.common.args.TypeUtil;
+
 /**
  * Class parser.
  *
  * @author William Farner
  */
-public class ClassParser extends NonParameterizedTypeParser<Class> {
+@ArgParser
+public class ClassParser extends TypeParameterizedParser<Class> {
 
   public ClassParser() {
-    super(Class.class);
+    super(1);
   }
 
   @Override
-  public Class doParse(String raw) {
+  public Class doParse(ParserOracle parserOracle, String raw, final List<Type> typeParams) {
+    Class<?> rawClassType = TypeUtil.getRawType(typeParams.get(0));
     try {
-      return Class.forName(raw);
+      Class<?> actualClass = Class.forName(raw);
+      Preconditions.checkArgument(rawClassType.isAssignableFrom(actualClass));
+      return actualClass;
     } catch (ClassNotFoundException e) {
       throw new IllegalArgumentException("Could not find class " + raw);
     }

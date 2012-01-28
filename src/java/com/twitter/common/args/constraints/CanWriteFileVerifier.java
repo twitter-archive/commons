@@ -17,6 +17,9 @@
 package com.twitter.common.args.constraints;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
+
+import com.twitter.common.args.VerifierFor;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -25,9 +28,15 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * @author William Farner
  */
+@VerifierFor(CanWrite.class)
 public class CanWriteFileVerifier extends ScalarVerifier<File> {
   @Override
   void verify(File value) {
     checkArgument(value.canWrite(), "File must be writable.");
+  }
+
+  @Override
+  public String toString(Class<File> argType, Annotation annotation) {
+    return "file must be writeable";
   }
 }

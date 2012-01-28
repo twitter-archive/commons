@@ -14,8 +14,6 @@
 # limitations under the License.
 # ==================================================================================================
 
-
-
 DYNAMIC_HOST_SET_SOURCES = set([ 'pool/DynamicHostSet.java' ])
 
 URL_RESOLVER_SOURCES = set([

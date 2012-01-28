@@ -16,17 +16,15 @@
 
 package com.twitter.common.args.parsers;
 
+import com.twitter.common.args.ArgParser;
+
 /**
  * String parser.
  *
  * @author William Farner
  */
+@ArgParser
 public class StringParser extends NonParameterizedTypeParser<String> {
-
-  public StringParser() {
-    super(String.class);
-  }
-
   @Override
   public String doParse(String raw) {
     return raw;

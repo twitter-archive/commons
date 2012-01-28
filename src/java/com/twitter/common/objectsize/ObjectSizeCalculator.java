@@ -27,11 +27,12 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.collect.MapMaker;
+import com.google.common.base.Preconditions;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Sets;
 
 /**
@@ -50,30 +51,113 @@ import com.google.common.collect.Sets;
  * @author Attila Szegedi
  */
 public class ObjectSizeCalculator {
-  private static final MemoryLayoutSpecification LAYOUT_SPEC =
-      getEffectiveMemoryLayoutSpecification();
+
+  /**
+   * Describes constant memory overheads for various constructs in a JVM implementation.
+   */
+  public interface MemoryLayoutSpecification {
+
+    /**
+     * Returns the fixed overhead of an array of any type or length in this JVM.
+     *
+     * @return the fixed overhead of an array.
+     */
+    int getArrayHeaderSize();
+
+    /**
+     * Returns the fixed overhead of for any {@link Object} subclass in this JVM.
+     *
+     * @return the fixed overhead of any object.
+     */
+    int getObjectHeaderSize();
+
+    /**
+     * Returns the quantum field size for a field owned by an object in this JVM.
+     *
+     * @return the quantum field size for an object.
+     */
+    int getObjectPadding();
+
+    /**
+     * Returns the fixed size of an object reference in this JVM.
+     *
+     * @return the size of all object references.
+     */
+    int getReferenceSize();
+
+    /**
+     * Returns the quantum field size for a field owned by one of an object's ancestor superclasses
+     * in this JVM.
+     *
+     * @return the quantum field size for a superclass field.
+     */
+    int getSuperclassFieldPadding();
+  }
+
+  private static class CurrentLayout {
+    private static final MemoryLayoutSpecification SPEC =
+        getEffectiveMemoryLayoutSpecification();
+  }
+
+  /**
+   * Given an object, returns the total allocated size, in bytes, of the object
+   * and all other objects reachable from it.  Attempts to to detect the current JVM memory layout,
+   * but may fail with {@link UnsupportedOperationException};
+   *
+   * @param obj the object; can be null. Passing in a {@link java.lang.Class} object doesn't do
+   *          anything special, it measures the size of all objects
+   *          reachable through it (which will include its class loader, and by
+   *          extension, all other Class objects loaded by
+   *          the same loader, and all the parent class loaders). It doesn't provide the
+   *          size of the static fields in the JVM class that the Class object
+   *          represents.
+   * @return the total allocated size of the object and all other objects it
+   *         retains.
+   * @throws UnsupportedOperationException if the current vm memory layout cannot be detected.
+   */
+  public static long getObjectSize(Object obj) throws UnsupportedOperationException {
+    return obj == null ? 0 : new ObjectSizeCalculator(CurrentLayout.SPEC).calculateObjectSize(obj);
+  }
+
   // Fixed object header size for arrays.
-  private static final int ARRAY_HEADER_SIZE = LAYOUT_SPEC.getArrayHeaderSize();
+  private final int arrayHeaderSize;
   // Fixed object header size for non-array objects.
-  private static final int OBJECT_HEADER_SIZE =
-      LAYOUT_SPEC.getObjectHeaderSize();
+  private final int objectHeaderSize;
   // Padding for the object size - if the object size is not an exact multiple
-  // of this, it is padded to the next multiple. All currently supported JVMs
-  // use 8.
-  private static final int OBJECT_PADDING = 8;
+  // of this, it is padded to the next multiple.
+  private final int objectPadding;
   // Size of reference (pointer) fields.
-  private static final int REFERENCE_SIZE = LAYOUT_SPEC.getReferenceSize();
+  private final int referenceSize;
   // Padding for the fields of superclass before fields of subclasses are
   // added.
-  private static final int SUPERCLASS_FIELD_PADDING =
-      LAYOUT_SPEC.getSuperclassFieldPadding();
+  private final int superclassFieldPadding;
 
-  private static final ConcurrentMap<Class<?>, ClassSizeInfo> classSizeInfos =
-      new MapMaker().makeComputingMap(new Function<Class<?>, ClassSizeInfo>() {
-        public ClassSizeInfo apply(Class<?> clazz) {
+  private final LoadingCache<Class<?>, ClassSizeInfo> classSizeInfos =
+      CacheBuilder.newBuilder().build(new CacheLoader<Class<?>, ClassSizeInfo>() {
+        public ClassSizeInfo load(Class<?> clazz) {
           return new ClassSizeInfo(clazz);
         }
       });
+
+
+  private final Set<Object> alreadyVisited = Sets.newIdentityHashSet();
+  private final Deque<Object> pending = new ArrayDeque<Object>(16 * 1024);
+  private long size;
+
+  /**
+   * Creates an object size calculator that can calculate object sizes for a given
+   * {@code memoryLayoutSpecification}.
+   *
+   * @param memoryLayoutSpecification a description of the JVM memory layout.
+   */
+  public ObjectSizeCalculator(MemoryLayoutSpecification memoryLayoutSpecification) {
+    Preconditions.checkNotNull(memoryLayoutSpecification);
+    arrayHeaderSize = memoryLayoutSpecification.getArrayHeaderSize();
+    objectHeaderSize = memoryLayoutSpecification.getObjectHeaderSize();
+    objectPadding = memoryLayoutSpecification.getObjectPadding();
+    referenceSize = memoryLayoutSpecification.getReferenceSize();
+    superclassFieldPadding = memoryLayoutSpecification.getSuperclassFieldPadding();
+  }
 
   /**
    * Given an object, returns the total allocated size, in bytes, of the object
@@ -89,28 +173,21 @@ public class ObjectSizeCalculator {
    * @return the total allocated size of the object and all other objects it
    *         retains.
    */
-  public static long getObjectSize(Object obj) {
-    return obj == null ? 0 : new ObjectSizeCalculator().getObjectSizeInternal(
-        obj);
-  }
-
-  private final Set<Object> alreadyVisited = Sets.newIdentityHashSet();
-  private final Deque<Object> pending = new ArrayDeque<Object>(16 * 1024);
-  private long size;
-
-  private ObjectSizeCalculator() {
-    // Clients use getObjectSize(Object obj)
-  }
-
-  private long getObjectSizeInternal(Object obj) {
+  public synchronized long calculateObjectSize(Object obj) {
     // Breadth-first traversal instead of naive depth-first with recursive
     // implementation, so we don't blow the stack traversing long linked lists.
-    for (;;) {
-      visit(obj);
-      if (pending.isEmpty()) {
-        return size;
+    try {
+      for (;;) {
+        visit(obj);
+        if (pending.isEmpty()) {
+          return size;
+        }
+        obj = pending.removeFirst();
       }
-      obj = pending.removeFirst();
+    } finally {
+      alreadyVisited.clear();
+      pending.clear();
+      size = 0;
     }
   }
 
@@ -126,7 +203,7 @@ public class ObjectSizeCalculator {
       if (clazz.isArray()) {
         visitArray(obj);
       } else {
-        classSizeInfos.get(clazz).visit(obj, this);
+        classSizeInfos.getUnchecked(clazz).visit(obj, this);
       }
     }
   }
@@ -137,7 +214,7 @@ public class ObjectSizeCalculator {
     if (componentType.isPrimitive()) {
       increaseByArraySize(length, getPrimitiveFieldSize(componentType));
     } else {
-      increaseByArraySize(length, REFERENCE_SIZE);
+      increaseByArraySize(length, referenceSize);
       // If we didn't use an ArrayElementsVisitor, we would be enqueueing every
       // element of the array here instead. For large arrays, it would
       // tremendously enlarge the queue. In essence, we're compressing it into
@@ -160,8 +237,7 @@ public class ObjectSizeCalculator {
   }
 
   private void increaseByArraySize(int length, long elementSize) {
-    increaseSize(roundTo(ARRAY_HEADER_SIZE + length * elementSize,
-        OBJECT_PADDING));
+    increaseSize(roundTo(arrayHeaderSize + length * elementSize, objectPadding));
   }
 
   private static class ArrayElementsVisitor {
@@ -195,7 +271,7 @@ public class ObjectSizeCalculator {
     return ((x + multiple - 1) / multiple) * multiple;
   }
 
-  private static class ClassSizeInfo {
+  private class ClassSizeInfo {
     // Padded fields + header size
     private final long objectSize;
     // Only the fields size - used to calculate the subclasses' memory
@@ -216,19 +292,17 @@ public class ObjectSizeCalculator {
         } else {
           f.setAccessible(true);
           referenceFields.add(f);
-          fieldsSize += REFERENCE_SIZE;
+          fieldsSize += referenceSize;
         }
       }
       final Class<?> superClass = clazz.getSuperclass();
       if (superClass != null) {
-        final ClassSizeInfo superClassInfo = classSizeInfos.get(superClass);
-        fieldsSize += roundTo(superClassInfo.fieldsSize,
-            SUPERCLASS_FIELD_PADDING);
+        final ClassSizeInfo superClassInfo = classSizeInfos.getUnchecked(superClass);
+        fieldsSize += roundTo(superClassInfo.fieldsSize, superclassFieldPadding);
         referenceFields.addAll(Arrays.asList(superClassInfo.referenceFields));
       }
       this.fieldsSize = fieldsSize;
-      this.objectSize = roundTo(OBJECT_HEADER_SIZE + fieldsSize,
-          OBJECT_PADDING);
+      this.objectSize = roundTo(objectHeaderSize + fieldsSize, objectPadding);
       this.referenceFields = referenceFields.toArray(
           new Field[referenceFields.size()]);
     }
@@ -269,17 +343,8 @@ public class ObjectSizeCalculator {
         type.getName());
   }
 
-  private abstract static class MemoryLayoutSpecification {
-    abstract int getArrayHeaderSize();
-
-    abstract int getObjectHeaderSize();
-
-    abstract int getReferenceSize();
-
-    abstract int getSuperclassFieldPadding();
-  }
-
-  private static MemoryLayoutSpecification getEffectiveMemoryLayoutSpecification() {
+  @VisibleForTesting
+  static MemoryLayoutSpecification getEffectiveMemoryLayoutSpecification() {
     final String vmName = System.getProperty("java.vm.name");
     if (vmName == null || !vmName.startsWith("Java HotSpot(TM) ")) {
       throw new UnsupportedOperationException(
@@ -290,19 +355,19 @@ public class ObjectSizeCalculator {
     if ("32".equals(dataModel)) {
       // Running with 32-bit data model
       return new MemoryLayoutSpecification() {
-        int getArrayHeaderSize() {
+        @Override public int getArrayHeaderSize() {
           return 12;
         }
-
-        int getObjectHeaderSize() {
+        @Override public int getObjectHeaderSize() {
           return 8;
         }
-
-        int getReferenceSize() {
+        @Override public int getObjectPadding() {
+          return 8;
+        }
+        @Override public int getReferenceSize() {
           return 4;
         }
-
-        int getSuperclassFieldPadding() {
+        @Override public int getSuperclassFieldPadding() {
           return 4;
         }
       };
@@ -323,19 +388,19 @@ public class ObjectSizeCalculator {
         // HotSpot 17.0 and above use compressed OOPs below 30GB of RAM total
         // for all memory pools (yes, including code cache).
         return new MemoryLayoutSpecification() {
-          int getArrayHeaderSize() {
+          @Override public int getArrayHeaderSize() {
             return 16;
           }
-
-          int getObjectHeaderSize() {
+          @Override public int getObjectHeaderSize() {
             return 12;
           }
-
-          int getReferenceSize() {
+          @Override public int getObjectPadding() {
+            return 8;
+          }
+          @Override public int getReferenceSize() {
             return 4;
           }
-
-          int getSuperclassFieldPadding() {
+          @Override public int getSuperclassFieldPadding() {
             return 4;
           }
         };
@@ -344,41 +409,21 @@ public class ObjectSizeCalculator {
 
     // In other cases, it's a 64-bit uncompressed OOPs object model
     return new MemoryLayoutSpecification() {
-      int getArrayHeaderSize() {
+      @Override public int getArrayHeaderSize() {
         return 24;
       }
-
-      int getObjectHeaderSize() {
+      @Override public int getObjectHeaderSize() {
         return 16;
       }
-
-      int getReferenceSize() {
+      @Override public int getObjectPadding() {
         return 8;
       }
-
-      int getSuperclassFieldPadding() {
+      @Override public int getReferenceSize() {
+        return 8;
+      }
+      @Override public int getSuperclassFieldPadding() {
         return 8;
       }
     };
-  }
-
-  @VisibleForTesting
-  static int getArrayHeaderSize() {
-    return ARRAY_HEADER_SIZE;
-  }
-
-  @VisibleForTesting
-  static int getObjectHeaderSize() {
-    return OBJECT_HEADER_SIZE;
-  }
-
-  @VisibleForTesting
-  static int getReferenceSize() {
-    return REFERENCE_SIZE;
-  }
-
-  @VisibleForTesting
-  static int getSuperclassFieldPadding() {
-    return SUPERCLASS_FIELD_PADDING;
   }
 }

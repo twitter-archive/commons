@@ -14,7 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
-"""BUILD files can use the full python language.  They define modules that can have targets executed
+"""
+BUILD files can use the full python language.  They define modules that can have targets executed
 against. Modules are created by calling functions exposed by the pants library that define modules.
 For example, to define a module that is a java library, we can invoke pants.java_library(...).
 
@@ -38,8 +39,6 @@ report an error.
 Currently pants uses ant to implement the tasks available for a module.  In practice this means
 that pants will generate a build.xml/ivy.xml pair and pass any additional arguments along to ant."""
 
-
-
 java_library(name = 'base',
   provides = artifact(
     org = 'com.twitter.common',
@@ -49,6 +48,8 @@ java_library(name = 'base',
   dependencies = [
     pants('3rdparty:commons-lang'),
     pants('3rdparty:guava'),
+    pants('src/java/com/twitter/common/quantity'),
+    pants('src/java/com/twitter/common/util:system-mocks'),
   ],
   sources = globs('*.java'),
 )

@@ -17,6 +17,22 @@ limitations under the License.
 =================================================================================================
 -->
 
+<!--
+jar.main.class => META-INF/MANIFEST.MF
+
+project.dist.name <- get extra contents here, + name jar as such
+
+project.jar.name
+compile.jar.name <- abuse,ml for dup deployjar targets, rename jar
+
+project.dist.dir <- get extra contents here
+project.dist.dir.additional <- get extra contents here[s]
+
+legacy.zip.layout
+
+project.dist.version <- no effect?
+test.basedir
+-->
 <project name="compile"
          xmlns:ivy="antlib:org.apache.ivy.ant"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -47,7 +63,8 @@ limitations under the License.
     <!-- default the ivysettings file if not already set by the invoking build -->
     <property name="ivy.settings.file" value="${build-support.dir}/ivy/ivysettings.xml"/>
     <ivy:settings file="${ivy.settings.file}"/>
-
+    <!-- get settings out of ivy file even if ivy resolve isn't done -->
+    <ivy:info file="${ivy.dep.file}"/>
     <echo>Using ivy lock strategy: ${ivy.lock.strategy}</echo>
   </target>
 
@@ -143,7 +160,13 @@ limitations under the License.
     </if>
   </target>
 
-  <target name="resolve-internal" depends="ivy-configure" if="ivy.dep.file">
+  <target name="check-local-libs">
+    <condition property="${compile.name}.use.local.libs">
+      <available file="${basedir}/libs"/>
+    </condition>
+  </target>
+
+  <target name="resolve-internal" depends="ivy-configure, check-local-libs" if="ivy.dep.file" unless="${compile.name}.use.local.libs">
     <echo>
       [${compile.name}] resolving dependencies
     </echo>
@@ -158,7 +181,7 @@ limitations under the License.
 
   <target name="resolve" depends="resolve-internal, publish-dependent-modules" if="ivy.dep.file"/>
 
-  <target name="resolve-all" depends="ivy-configure, publish-dependent-modules" if="ivy.dep.file">
+  <target name="resolve-all" depends="ivy-configure, publish-dependent-modules" if="ivy.dep.file" unless="${compile.name}.use.local.libs">
     <ivy:resolve log="download-only" file="${ivy.dep.file}"/>
   </target>
 
@@ -171,9 +194,38 @@ limitations under the License.
     <ivy:report dot="true" todir="${reports.dir}/ivy"/>
   </target>
 
-  <target name="maybe-configure-ivy-classpaths" depends="resolve" if="ivy.dep.file">
+  <target name="maybe-configure-ivy-classpaths-from-cache" unless="${compile.name}.use.local.libs">
     <ivy:cachepath pathid="${compile.name}.libs" conf="default" type="${ivy.jar.types}"/>
     <ivy:cachepath pathid="${compile.name}.testlibs" conf="test" type="${ivy.jar.types}"/>
+  </target>
+
+  <macrodef name="_make_path">
+    <attribute name="id"/>
+    <element name="body" implicit="true"/>
+    <sequential>
+      <path id="@{id}">
+        <body/>
+      </path>
+    </sequential>
+  </macrodef>
+
+  <target name="maybe-configure-ivy-classpaths-from-libs" if="${compile.name}.use.local.libs">
+    <echo message="configuring dependencies from ${basedir}/libs and ${basedir}/dependency_target_dirs.txt"/>
+
+    <_make_path id="${compile.name}.libs">
+      <fileset dir="${basedir}/libs/default">
+        <include name="*.jar"/>
+      </fileset>
+      <dirset dir="${root.dir}/target" includesfile="${basedir}/dependency_target_dirs.txt"/>
+    </_make_path>
+    <_make_path id="${compile.name}.testlibs">
+      <fileset dir="${basedir}/libs/test">
+        <include name="*.jar"/>
+      </fileset>
+    </_make_path>
+  </target>
+
+  <target name="maybe-configure-ivy-classpaths" depends="resolve, maybe-configure-ivy-classpaths-from-cache, maybe-configure-ivy-classpaths-from-libs" if="ivy.dep.file">
   </target>
 
   <target name="initdeps" depends="maybe-configure-ivy-classpaths">
@@ -193,9 +245,13 @@ limitations under the License.
   </target>
 
   <target name="clean-all">
-    <delete dir="${dist.dir}"/>
-    <delete dir="${build-support.dir}/ivy/internal-repo"/>
-    <delete dir="${root.dir}/target"/>
+    <delete failonerror="false" includeemptydirs="true">
+      <fileset dir="${dist.dir}" includes="**/*"/>
+      <fileset dir="${root.dir}/target" includes="**/*"/>
+      <fileset dir="${build-support.dir}/ivy/internal-repo" includes="**/*"/>
+      <fileset dir="${ivy.cache.dir}/internal" includes="**/*"/>
+      <fileset dir="${ivy.cache.dir}" includes="internal-*"/>
+    </delete>
   </target>
 
   <patternset id="patternset.resources">
@@ -231,13 +287,17 @@ limitations under the License.
     <attribute name="destdir"/>
     <attribute name="path"/>
     <attribute name="contents"/>
+    <element name="other" implicit="true" optional="true"/>
 
     <sequential>
       <_log>
         [${compile.name}] dumping to @{destdir}/@{path}:
         ${@{contents}}
       </_log>
-      <concat destfile="@{destdir}/@{path}">${@{contents}}</concat>
+      <concat destfile="@{destdir}/@{path}">
+        ${@{contents}}
+        <other/>
+      </concat>
     </sequential>
   </macrodef>
 
@@ -274,6 +334,38 @@ limitations under the License.
       </fileset>
     </copy>
   </target>
+
+  <macrodef name="_get_libs">
+    <attribute name="profile"/>
+    <sequential>
+      <local name="profile.dir"/>
+      <property name="profile.dir" value="${build-support.profiles.dir}/@{profile}.libs"/>
+      <mkdir dir="${profile.dir}"/>
+
+      <local name="profile.checked"/>
+      <uptodate property="profile.checked" targetfile="${profile.dir}.checked">
+        <srcfiles dir="${profile.dir}" includes="*.jar"/>
+      </uptodate>
+
+      <if>
+        <not><isset property="profile.checked"/></not>
+        <then>
+          <ivy:settings file="${build-support.dir}/ivy/ivysettings.xml"/>
+          <ivy:resolve conf="default"
+                       type="${ivy.jar.types}"
+                       log="default"
+                       file="${build-support.profiles.dir}/@{profile}.ivy.xml"/>
+          <ivy:retrieve conf="default"
+                        type="${ivy.jar.types}"
+                        log="download-only"
+                        sync="true"
+                        symlink="true"
+                        pattern="${profile.dir}/[artifact]-[revision](-[classifier]).[ext]"/>
+          <touch file="${profile.dir}.checked"/>
+        </then>
+      </if>
+    </sequential>
+  </macrodef>
 
   <property name="javac.compilerargs"
             value="-encoding UTF-8 -Xlint:all -Xlint:-serial -Xlint:-path"/>
@@ -325,29 +417,44 @@ limitations under the License.
         <compilerarg line="@{compilerargs}"/>
         <classpath refid="@{classpathrefid}"/>
       </javac>
+      <local name="sources.checked"/>
+      <uptodate property="sources.checked" targetfile="@{destdir}.${compile.name}.checked">
+        <srcfiles dir="@{srcdir}" includes="${@{includes}.srcpattern}"/>
+      </uptodate>
+
       <if>
         <and>
           <isfalse value="${skip.checkstyle}"/>
           <istrue value="@{checkstyle}"/>
         </and>
         <then>
-          <property name="checkstyle.conf.dir" value="${build-support.dir}/checkstyle"/>
+          <if>
+            <isset property="sources.checked"/>
+            <then>
+              <echo message="checkstyle is up to date"/>
+            </then>
+            <else>
+              <property name="checkstyle.conf.dir" value="${build-support.dir}/checkstyle"/>
 
-          <path id="checkstyle.classpath">
-            <path refid="@{classpathrefid}"/>
-            <pathelement path="@{destdir}"/>
-            <pathelement path="${antlib.dir}/checkstyle-custom-checks.jar"/>
-          </path>
+              <_get_libs profile="checkstyle"/>
+              <path id="checkstyle.classpath">
+                <fileset dir="${build-support.profiles.dir}/checkstyle.libs"/>
+                <path refid="@{classpathrefid}"/>
+                <pathelement path="@{destdir}"/>
+              </path>
 
-          <!-- we compiled some custom checkers, so they
-          will be in checkstyle.classpath, along with checkstyle.jar
-          and its dependencies -->
-          <taskdef resource="checkstyletask.properties" classpathref="checkstyle.classpath"/>
+              <!-- we compiled some custom checkers, so they
+                   will be in checkstyle.classpath, along with checkstyle.jar
+                   and its dependencies -->
+              <taskdef resource="checkstyletask.properties" classpathref="checkstyle.classpath"/>
 
-          <checkstyle config="${checkstyle.conf.dir}/coding_style.xml"
-                      classpathref="checkstyle.classpath">
-            <fileset dir="@{srcdir}" includes="${@{includes}.srcpattern}"/>
-          </checkstyle>
+              <checkstyle config="${checkstyle.conf.dir}/coding_style.xml"
+                          classpathref="checkstyle.classpath">
+                <fileset dir="@{srcdir}" includes="${@{includes}.srcpattern}"/>
+              </checkstyle>
+              <touch file="@{destdir}.${compile.name}.checked"/>
+            </else>
+          </if>
         </then>
       </if>
     </sequential>
@@ -384,10 +491,12 @@ limitations under the License.
         <pathconvert refid="@{classpathrefid}"/>
       </_log>
 
+      <local name="profile"/>
+      <property name="profile" value="scala-compile-${scala.version}"/>
+      <_get_libs profile="${profile}"/>
       <taskdef resource="scala/tools/ant/antlib.xml">
         <classpath>
-          <pathelement path="${antlib.dir}/scala-compiler-2.8.1.jar"/>
-          <pathelement path="${antlib.dir}/scala-library-2.8.1.jar"/>
+          <fileset dir="${build-support.profiles.dir}/${profile}.libs"/>
         </classpath>
       </taskdef>
 
@@ -404,7 +513,7 @@ limitations under the License.
                unchecked="on"
                deprecation="on"
                addparams="@{compilerargs}"
-               scalacdebugging="false"
+               scalacdebugging="${verbose}"
                force="false">
             <classpath refid="@{classpathrefid}"/>
           </fsc>
@@ -417,7 +526,7 @@ limitations under the License.
                   unchecked="on"
                   deprecation="on"
                   addparams="@{compilerargs}"
-                  scalacdebugging="false"
+                  scalacdebugging="${verbose}"
                   force="false">
             <classpath refid="@{classpathrefid}"/>
           </scalac>
@@ -614,14 +723,24 @@ limitations under the License.
       <then>
         <_create_file destdir="${build.dir}/jvm"
                       path="META-INF/services/javax.annotation.processing.Processor"
-                      contents="${compile.processors}"/>
+                      contents="${compile.processors}">
+          <filterchain>
+            <!-- trim leading and trailing space -->
+            <deletecharacters chars="\t "/>
+
+            <!-- do not include blank lines -->
+            <linecontainsregexp negate="true">
+              <regexp pattern="^$"/>
+            </linecontainsregexp>
+          </filterchain>
+        </_create_file>
       </then>
     </if>
   </target>
 
   <target name="compile-tests" depends="compile, _copy-test-resources">
     <path id="compile.testdeps">
-      <pathelement path="${build.dir}/jvm"/>
+      <pathelement path="${build.dir}/tests"/>
       <path refid="${compile.libs}"/>
       <path refid="${compile.testlibs}"/>
     </path>
@@ -734,6 +853,7 @@ limitations under the License.
     <element name="testspec" implicit="true" optional="false"/>
 
     <sequential>
+      <property name="jvm.common.args" value="${env.ANT_OPTS}"/>
       <if>
         <and>
           <isset property="debug"/>
@@ -742,13 +862,17 @@ limitations under the License.
         <then>
           <property name="debugargs"
                     value="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"/>
-          <property name="jvmargs" value="${env.ANT_OPTS} ${debugargs}"/>
+          <property name="jvmargs" value="${jvm.common.args} ${debugargs}"/>
         </then>
         <else>
-          <property name="jvmargs" value="${env.ANT_OPTS}"/>
+          <property name="jvmargs" value="${jvm.common.args}"/>
         </else>
       </if>
 
+      <_get_libs profile="junit"/>
+      <path id="junit.java.cp">
+        <fileset dir="${build-support.profiles.dir}/junit.libs"/>
+      </path>
       <junit printsummary="true"
              haltonfailure="true"
              dir="${test.basedir}"
@@ -763,6 +887,7 @@ limitations under the License.
           <pathelement path="${build.dir}/tests"/>
           <path refid="${compile.libs}"/>
           <path refid="${compile.testlibs}"/>
+          <path refid="junit.java.cp"/>
         </classpath>
         <jvmarg line="${jvmargs}"/>
         <testspec/>
@@ -834,6 +959,13 @@ limitations under the License.
           </else>
         </if>
 
+        <local name="profile"/>
+        <property name="profile" value="scala-specs-${scala.version}"/>
+        <_get_libs profile="${profile}"/>
+        <path id="specs.scala.cp">
+          <fileset dir="${build-support.profiles.dir}/${profile}.libs"/>
+        </path>
+
         <if>
           <and>
             <isset property="test"/>
@@ -849,6 +981,7 @@ limitations under the License.
                 <pathelement path="${build.dir}/tests"/>
                 <path refid="${compile.libs}"/>
                 <path refid="${compile.testlibs}"/>
+                <path refid="specs.scala.cp"/>
               </classpath>
               <jvmarg value="-Xmx2g"/>
               <jvmarg line="${jvmargs}"/>
@@ -871,6 +1004,7 @@ limitations under the License.
                   fork="true"
                   failonerror="true">
               <classpath>
+                <path refid="specs.scala.cp"/>
                 <pathelement path="${build.dir}/jvm"/>
                 <pathelement path="${build.dir}/tests"/>
                 <path refid="${compile.libs}"/>

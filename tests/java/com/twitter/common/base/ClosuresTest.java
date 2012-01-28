@@ -57,19 +57,21 @@ public class ClosuresTest extends EasyMockTest {
     workFunction.apply(1);
   }
 
+  static class Thrown extends RuntimeException { }
+
   @Test
   public void testApplyThrows() throws IOException {
     ExceptionalClosure<Integer, IOException> work = createMock(EXC_INT_CLOSURE_CLZ);
     work.execute(1);
-    IOException ioException = new IOException();
-    EasyMock.expectLastCall().andThrow(ioException);
+    RuntimeException runtimeException = new Thrown();
+    EasyMock.expectLastCall().andThrow(runtimeException);
     control.replay();
 
     Function<Integer, Void> workFunction = Closures.asFunction(work);
     try {
       workFunction.apply(1);
-    } catch (RuntimeException e) {
-      assertSame(ioException, e.getCause());
+    } catch (Thrown e) {
+      assertSame(runtimeException, e);
     }
   }
 
@@ -77,14 +79,14 @@ public class ClosuresTest extends EasyMockTest {
   public void testApplyThrowsTransparent() throws IOException {
     Closure<Integer> work = createMock(INT_CLOSURE_CLZ);
     work.execute(1);
-    RuntimeException runtimeException = new IllegalArgumentException();
+    RuntimeException runtimeException = new Thrown();
     EasyMock.expectLastCall().andThrow(runtimeException);
     control.replay();
 
     Function<Integer, Void> workFunction = Closures.asFunction(work);
     try {
       workFunction.apply(1);
-    } catch (RuntimeException e) {
+    } catch (Thrown e) {
       assertSame(runtimeException, e);
     }
   }
@@ -119,37 +121,37 @@ public class ClosuresTest extends EasyMockTest {
     Closure<Integer> wrapper = Closures.combine(work1, work2, work3);
 
     work1.execute(1);
-    expectLastCall().andThrow(new RuntimeException());
+    expectLastCall().andThrow(new Thrown());
 
     work1.execute(2);
     work2.execute(2);
-    expectLastCall().andThrow(new RuntimeException());
+    expectLastCall().andThrow(new Thrown());
 
     work1.execute(3);
     work2.execute(3);
     work3.execute(3);
-    expectLastCall().andThrow(new RuntimeException());
+    expectLastCall().andThrow(new Thrown());
 
     control.replay();
 
     try {
       wrapper.execute(1);
       fail("Should have thrown.");
-    } catch (RuntimeException e) {
+    } catch (Thrown e) {
       // Expected.
     }
 
     try {
       wrapper.execute(2);
       fail("Should have thrown.");
-    } catch (RuntimeException e) {
+    } catch (Thrown e) {
       // Expected.
     }
 
     try {
       wrapper.execute(3);
       fail("Should have thrown.");
-    } catch (RuntimeException e) {
+    } catch (Thrown e) {
       // Expected.
     }
   }

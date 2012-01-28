@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectOutputStream;
 
-import org.apache.lucene.analysis.tokenattributes.TermAttributeImpl;
 import org.junit.Test;
 
 public class CharSequenceTermAttributeImplTest {
@@ -56,12 +55,6 @@ public class CharSequenceTermAttributeImplTest {
 
     att.setOffset(1);
     assertTerm("est", 1, 3);
-
-    att.setTermLength(4); // does nothing
-    assertTerm("est", 1, 3);
-
-    att.setTermLength(2);
-    assertTerm("es", 1, 2);
 
     att.clear();
     assertTerm("", 0, 0);
@@ -98,28 +91,11 @@ public class CharSequenceTermAttributeImplTest {
     att.setLength(4);
     assertEquals(4, att.getLength());
     try {
-      att.term();
+      att.getTermCharSequence();
       fail("Expected a StringIndexOutOfBoundsException");
-    } catch (StringIndexOutOfBoundsException e) {
+    } catch (IndexOutOfBoundsException e) {
       // expected because, even though the offset and length are both individually valid, the span
       // defined by them is not completely contained within the underlying CharSequence.
-    }
-  }
-
-  @Test
-  public void testUnsupportedOperations() {
-    try {
-      att.resizeTermBuffer(3);
-      fail("Expected an UnsupportedOperationException");
-    } catch (UnsupportedOperationException e) {
-      // expected
-    }
-
-    try {
-      att.termBuffer();
-      fail("Expected an UnsupportedOperationException");
-    } catch (UnsupportedOperationException e) {
-      // expected
     }
   }
 
@@ -132,12 +108,6 @@ public class CharSequenceTermAttributeImplTest {
 
     assertCharSequence("test");
     assertTerm("test", 0, 4);
-
-    TermAttributeImpl termAtt = new TermAttributeImpl();
-    otherAtt.copyTo(termAtt);
-
-    assertEquals("test", termAtt.term());
-    assertEquals(4, termAtt.termLength());
   }
 
   @Test
@@ -162,13 +132,33 @@ public class CharSequenceTermAttributeImplTest {
     otherAtt.setTermBuffer(test, 1, 3);
     assertInequality(otherAtt); // different offset
 
-    assertInequality(new TermAttributeImpl()); // different offset
     assertFalse(att.equals(null));
     assertEquality(att);
   }
 
+  @Test
+  public void testHashCode() {
+    CharSequence test = "This is for test.";
+    att.setTermBuffer(test);
+    int hashCode = att.hashCode();
+
+    att.setOffset(2);
+    att.setLength(3);
+    assertTrue(hashCode != att.hashCode());
+
+    att.setOffset(0);
+    att.setLength(test.length());
+    assertTrue(hashCode == att.hashCode());
+
+    att.setTermBuffer(test, 2, 3);
+    assertTrue(hashCode != att.hashCode());
+
+    att.setTermBuffer(test, 0, test.length());
+    assertTrue(hashCode == att.hashCode());
+  }
+
   private void assertTerm(String term, int offset, int length) {
-    assertEquals(term, att.term());
+    assertEquals(term, att.getTermString());
     assertEquals(offset, att.getOffset());
     assertEquals(length, att.getLength());
   }

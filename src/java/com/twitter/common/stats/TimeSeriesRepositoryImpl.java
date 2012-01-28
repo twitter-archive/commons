@@ -16,29 +16,30 @@
 
 package com.twitter.common.stats;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.MapMaker;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
-import com.twitter.common.base.Command;
-import com.twitter.common.collections.BoundedQueue;
-import com.twitter.common.application.ActionRegistry;
-import com.twitter.common.quantity.Amount;
-import com.twitter.common.quantity.Time;
-import com.twitter.common.util.Clock;
-
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+
+import com.twitter.common.application.ShutdownRegistry;
+import com.twitter.common.base.Command;
+import com.twitter.common.collections.BoundedQueue;
+import com.twitter.common.quantity.Amount;
+import com.twitter.common.quantity.Time;
+import com.twitter.common.util.Clock;
 
 /**
  * A simple in-memory repository for exported variables.
@@ -64,7 +65,7 @@ public class TimeSeriesRepositoryImpl implements TimeSeriesRepository {
   private final SlidingStats scrapeDuration = new SlidingStats("variable_scrape", "micros");
 
   // We store TimeSeriesImpl, which allows us to add samples.
-  private final Map<String, TimeSeriesImpl> timeSeries;
+  private final LoadingCache<String, TimeSeriesImpl> timeSeries;
   private final BoundedQueue<Number> timestamps;
 
   private final Amount<Long, Time> samplePeriod;
@@ -83,9 +84,9 @@ public class TimeSeriesRepositoryImpl implements TimeSeriesRepository {
     Preconditions.checkArgument(retainedSampleLimit > 0,
         "Sample retention period must be greater than sample period.");
 
-    timeSeries = new MapMaker().makeComputingMap(
-        new Function<String, TimeSeriesImpl>() {
-          @Override public TimeSeriesImpl apply(final String name) {
+    timeSeries = CacheBuilder.newBuilder().build(
+        new CacheLoader<String, TimeSeriesImpl>() {
+          @Override public TimeSeriesImpl load(final String name) {
             TimeSeriesImpl timeSeries = new TimeSeriesImpl(name);
 
             // Backfill so we have data for pre-accumulated timestamps.
@@ -108,7 +109,7 @@ public class TimeSeriesRepositoryImpl implements TimeSeriesRepository {
    *
    */
   @Override
-  public void start(ActionRegistry shutdownRegistry) {
+  public void start(ShutdownRegistry shutdownRegistry) {
     Preconditions.checkNotNull(shutdownRegistry);
     Preconditions.checkNotNull(samplePeriod);
     Preconditions.checkArgument(samplePeriod.getValue() > 0);
@@ -147,7 +148,7 @@ public class TimeSeriesRepositoryImpl implements TimeSeriesRepository {
 
     long startNanos = clock.nowNanos();
     for (RecordingStat<? extends Number> var : Stats.getNumericVariables()) {
-      timeSeries.get(var.getName()).addSample(var.sample());
+      timeSeries.getUnchecked(var.getName()).addSample(var.sample());
     }
     scrapeDuration.accumulate(
         Amount.of(clock.nowNanos() - startNanos, Time.NANOSECONDS).as(Time.MICROSECONDS));
@@ -155,13 +156,13 @@ public class TimeSeriesRepositoryImpl implements TimeSeriesRepository {
 
   @Override
   public synchronized Set<String> getAvailableSeries() {
-    return ImmutableSet.copyOf(timeSeries.keySet());
+    return ImmutableSet.copyOf(timeSeries.asMap().keySet());
   }
 
   @Override
   public synchronized TimeSeries get(String name) {
-    if (!timeSeries.containsKey(name)) return null;
-    return timeSeries.get(name);
+    if (!timeSeries.asMap().containsKey(name)) return null;
+    return timeSeries.getUnchecked(name);
   }
 
   @Override

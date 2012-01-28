@@ -16,9 +16,9 @@
 
 package com.twitter.common.stats;
 
-import com.twitter.common.application.ActionRegistry;
-
 import java.util.Set;
+
+import com.twitter.common.application.ShutdownRegistry;
 
 /**
  * A repository for time series data.
@@ -33,7 +33,7 @@ public interface TimeSeriesRepository {
    * @param shutdownRegistry An action registry that the repository can use to register a shutdown
    *    for the sampler.
    */
-  public void start(ActionRegistry shutdownRegistry);
+  public void start(ShutdownRegistry shutdownRegistry);
 
   /**
    * Fetches the names of all available time series.

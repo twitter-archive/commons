@@ -20,13 +20,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import com.google.common.base.Function;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.MapMaker;
 
 /**
  * Utility functions for dealing with iterables.
@@ -51,9 +52,11 @@ public final class Iterables2 {
     private final T defaultValue;
 
     private List<Iterator<T>> iterators = null;
-    private final Map<Iterator<T>, Boolean> overflowing = new MapMaker().makeComputingMap(
-        new Function<Iterator<T>, Boolean>() {
-          @Override public Boolean apply(Iterator<T> iterator) { return false; }
+    private final LoadingCache<Iterator<T>, Boolean> overflowing = CacheBuilder.newBuilder().build(
+        new CacheLoader<Iterator<T>, Boolean>() {
+          @Override public Boolean load(Iterator<T> iterator) {
+            return false;
+          }
         });
 
     ZippingIterator(Iterable<Iterable<T>> iterables, T defaultValue) {
@@ -90,7 +93,7 @@ public final class Iterables2 {
         if (it.hasNext()) {
           data.add(it.next());
         } else {
-          overflowing.put(it, true);
+          overflowing.asMap().put(it, true);
           data.add(defaultValue);
         }
       }
@@ -101,7 +104,7 @@ public final class Iterables2 {
     @Override public void remove() {
       init();
       for (Iterator<T> it : iterators) {
-        if (!overflowing.get(it)) {
+        if (!overflowing.getUnchecked(it)) {
           it.remove();
         }
       }

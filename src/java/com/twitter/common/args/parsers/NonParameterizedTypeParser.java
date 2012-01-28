@@ -18,21 +18,15 @@ package com.twitter.common.args.parsers;
 
 import java.lang.reflect.Type;
 
+import com.twitter.common.args.Parser;
+import com.twitter.common.args.ParserOracle;
+
 /**
  * Base class for parsers of types that are not parameterized.
  *
  * @author William Farner
  */
-public abstract class NonParameterizedTypeParser<T> extends BaseParser<T> {
-
-  /**
-   * Creates a new non-parmeterized type parser that parses {@code parsedClass}.
-   *
-   * @param parsedClass Class of the parsed type.
-   */
-  public NonParameterizedTypeParser(Class<T> parsedClass) {
-    super(parsedClass);
-  }
+public abstract class NonParameterizedTypeParser<T> implements Parser<T> {
 
   /**
    * Performs the parsing of the raw string.
@@ -44,7 +38,7 @@ public abstract class NonParameterizedTypeParser<T> extends BaseParser<T> {
   public abstract T doParse(String raw) throws IllegalArgumentException;
 
   @Override
-  public T parse(Type type, String raw) throws IllegalArgumentException {
+  public T parse(ParserOracle parserOracle, Type type, String raw) throws IllegalArgumentException {
     return doParse(raw);
   }
 }

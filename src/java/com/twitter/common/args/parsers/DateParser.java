@@ -20,19 +20,18 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.twitter.common.args.ArgParser;
+
 /**
  * Date parser.
  *
  * @author William Farner
  */
+@ArgParser
 public class DateParser extends NonParameterizedTypeParser<Date> {
 
   private static final String FORMAT = "MM/dd/yyyy HH:mm";
   private static final SimpleDateFormat SIMPLE_FORMAT = new SimpleDateFormat(FORMAT);
-
-  public DateParser() {
-    super(Date.class);
-  }
 
   @Override
   public Date doParse(String raw) {

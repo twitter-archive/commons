@@ -24,7 +24,8 @@ import com.google.common.testing.junit4.TearDownTestCase;
 
 import org.junit.Before;
 
-import com.twitter.common.application.ActionController;
+import com.twitter.common.application.ShutdownRegistry;
+import com.twitter.common.application.ShutdownRegistry.ShutdownRegistryImpl;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
 import com.twitter.common.zookeeper.ZooKeeperClient;
@@ -62,7 +63,7 @@ public abstract class BaseZooKeeperTest extends TearDownTestCase {
 
   @Before
   public final void setUp() throws Exception {
-    final ActionController shutdownRegistry = new ActionController();
+    final ShutdownRegistryImpl shutdownRegistry = new ShutdownRegistryImpl();
     addTearDown(new TearDown() {
       @Override public void tearDown() {
         shutdownRegistry.execute();

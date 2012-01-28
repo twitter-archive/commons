@@ -71,6 +71,18 @@ public class UrlTokenizerUtil {
     return domainParts;
   }
 
+  public static boolean isTLD(final String url, boolean reversed) {
+    if (url == null) return false;
+    String[] domainParts = url.split("\\.");
+    if (domainParts.length == 1) {
+      return true;
+    } else if (domainParts.length == 2) {
+      return TWO_PART_TLDS.contains(
+        Pair.of(domainParts[reversed ? 1 : 0], domainParts[reversed ? 0 : 1]));
+    }
+    return false;
+  }
+
   /*
    * These come from http://www.surbl.org/two-level-tlds as of 05/12/2010.  Be very careful about
    * changing this list, because it can screw up our ability to query historical data depending on

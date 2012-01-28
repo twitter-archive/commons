@@ -20,8 +20,6 @@ import java.util.regex.Pattern;
 
 import com.google.common.base.Preconditions;
 
-import org.apache.lucene.analysis.tokenattributes.TermAttribute;
-
 import com.twitter.common.text.token.TokenProcessor;
 import com.twitter.common.text.token.TokenStream;
 import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;
@@ -33,7 +31,6 @@ import com.twitter.common.text.token.attribute.TokenTypeAttribute;
  */
 public class RegexDetector extends TokenProcessor {
   private CharSequenceTermAttribute inputCharSeqTermAttr;
-  private TermAttribute inputTermAttr;
   private TokenTypeAttribute typeAttr;
 
   private Pattern regexPattern;
@@ -41,13 +38,7 @@ public class RegexDetector extends TokenProcessor {
 
   protected RegexDetector(TokenStream inputStream) {
     super(inputStream);
-    if (inputStream.hasAttribute(CharSequenceTermAttribute.class)) {
-      inputCharSeqTermAttr = inputStream.getAttribute(CharSequenceTermAttribute.class);
-      inputTermAttr = null;
-    } else {
-      inputTermAttr = inputStream.getAttribute(TermAttribute.class);
-      inputCharSeqTermAttr = null;
-    }
+    inputCharSeqTermAttr = inputStream.getAttribute(CharSequenceTermAttribute.class);
     typeAttr = addAttribute(TokenTypeAttribute.class);
   }
 
@@ -69,12 +60,7 @@ public class RegexDetector extends TokenProcessor {
     clearAttributes();
     restoreState(inputStream.captureState());
 
-    CharSequence term;
-    if (inputCharSeqTermAttr != null) {
-      term = inputCharSeqTermAttr.getTermCharSequence();
-    } else {
-      term = inputTermAttr.term();
-    }
+    CharSequence term = inputCharSeqTermAttr.getTermCharSequence();
     if (regexPattern.matcher(term).matches()) {
       typeAttr.setType(type);
     }

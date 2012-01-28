@@ -16,6 +16,8 @@
 
 package com.twitter.common.args.parsers;
 
+import com.twitter.common.args.ArgParser;
+
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
@@ -23,12 +25,8 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * @author William Farner
  */
+@ArgParser
 public class CharacterParser extends NonParameterizedTypeParser<Character> {
-
-  public CharacterParser() {
-    super(Character.class);
-  }
-
   @Override
   public Character doParse(String raw) {
     checkArgument(raw.length() == 1,

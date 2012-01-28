@@ -84,7 +84,6 @@ public class SubsetStrategyTest extends EasyMockTest {
   public void testForwardsOnlySubsetRequests() {
     Capture<Set<String>> backendCapture = createCapture();
     wrappedStrategy.offerBackends(capture(backendCapture), eq(onBackendsChosen));
-    wrappedStrategy.connectionReturned((String) anyObject());
 
     control.replay();
 
@@ -93,7 +92,7 @@ public class SubsetStrategyTest extends EasyMockTest {
     Set<String> backends = backendCapture.getValue();
     assertThat(backends.size(), is(2));
 
-    // One backend should have been unused, makes sure the appropriate calls are forwarded for it.
+    // One backend should have been unused, makes sure the appropriate calls are ignored for it.
     String unusedBackend = Iterables.getOnlyElement(Sets.difference(allBackends, backends));
     subsetStrategy.addRequestResult(unusedBackend, RequestResult.SUCCESS, 0L);
     subsetStrategy.addConnectResult(unusedBackend, ConnectionResult.FAILED, 0L);

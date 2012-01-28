@@ -21,8 +21,6 @@ import java.util.regex.Pattern;
 
 import com.google.common.base.Preconditions;
 
-import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
-
 import com.twitter.common.text.token.TokenStream;
 import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;
 
@@ -32,7 +30,6 @@ import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;
 public class RegexExtractor extends TokenStream {
   private final CharSequenceTermAttribute charSeqTermAtt =
     addAttribute(CharSequenceTermAttribute.class);
-  private final OffsetAttribute offsetAtt = addAttribute(OffsetAttribute.class);
 
   private Pattern regexPattern;
   private int startGroup = 0;
@@ -122,7 +119,6 @@ public class RegexExtractor extends TokenStream {
       clearAttributes();
       charSeqTermAtt.setOffset(start);
       charSeqTermAtt.setLength(end - start);
-      offsetAtt.setOffset(start, end);
 
       return true;
     } else {

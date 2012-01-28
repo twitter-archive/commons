@@ -16,8 +16,13 @@
 
 // Author: jsirois
 
+// TODO(wickman)  Fix uses of this in python+science!  Especially expertsearch
+//  This should be aliased against twitter.thrift or twitter.common.service, or
+//  wherever the python service discovery stack lands.
+
 namespace java com.twitter.thrift
 namespace rb Twitter.Thrift
+namespace py gen.twitter.thrift.endpoint
 
 /*
  * Represents the status of a service.

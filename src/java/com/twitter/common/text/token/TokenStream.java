@@ -21,9 +21,6 @@ import java.util.List;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-import org.apache.lucene.analysis.tokenattributes.TermAttribute;
-import org.apache.lucene.util.Attribute;
-import org.apache.lucene.util.AttributeImpl;
 import org.apache.lucene.util.AttributeSource;
 
 import com.twitter.common.text.example.TokenizerUsageExample;
@@ -47,19 +44,8 @@ public abstract class TokenStream extends AttributeSource {
   /**
    * Constructs a {@code TokenStream} using the default attribute factory.
    */
-  protected TokenStream() {
-    super(new AttributeFactory() {
-      @Override
-      public AttributeImpl createAttributeInstance(Class<? extends Attribute> attClass) {
-        // TermAttribute.class will map to the same instance of
-        // CharSequenceTermAttributeImpl that CharSequenceTermAttribute.class maps to.
-        if (attClass == TermAttribute.class) {
-          return DEFAULT_ATTRIBUTE_FACTORY.createAttributeInstance(CharSequenceTermAttribute.class);
-        } else {
-          return DEFAULT_ATTRIBUTE_FACTORY.createAttributeInstance(attClass);
-        }
-      }
-    });
+  public TokenStream() {
+    super();
   }
 
   /**
@@ -108,13 +94,7 @@ public abstract class TokenStream extends AttributeSource {
       CharSequenceTermAttribute termAttr = getAttribute(CharSequenceTermAttribute.class);
 
       while (incrementToken()) {
-        tokens.add(termAttr.term());
-      }
-    } else if (hasAttribute(TermAttribute.class)) {
-      TermAttribute termAttr = getAttribute(TermAttribute.class);
-
-      while (incrementToken()) {
-        tokens.add(termAttr.term());
+        tokens.add(termAttr.getTermString());
       }
     } else {
       throw new UnsupportedOperationException("This instance does not support toStringList()"

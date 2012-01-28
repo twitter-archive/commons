@@ -16,12 +16,16 @@
 
 package com.twitter.common.net;
 
-import com.google.common.collect.Lists;
-import org.junit.Test;
-
+import java.util.Arrays;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
+import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Adam Samet
@@ -68,5 +72,26 @@ public class UrlTokenizerUtilTest {
     assertEquals(list3, UrlTokenizerUtil.getReversedDomainParts(url3, 4));
     list3.add("");
     assertEquals(list3, UrlTokenizerUtil.getReversedDomainParts(url3, 5));
+
+    assertEquals(Arrays.asList("co.jp", "google"),
+                 UrlTokenizerUtil.getReversedDomainParts("news.google.co.jp", 2));
+    assertEquals(Arrays.asList("co.jp", "google"),
+                 UrlTokenizerUtil.getReversedDomainParts("news.google.co.jp", 2));
+    assertEquals(Arrays.asList("com", "google"),
+                 UrlTokenizerUtil.getReversedDomainParts("news.google.com", 2));
+    assertEquals(Arrays.asList("com", "google", "news"),
+                 UrlTokenizerUtil.getReversedDomainParts("news.google.com", 3));
+  }
+
+  @Test
+  public void testIsTLD() throws Exception {
+    assertTrue(UrlTokenizerUtil.isTLD("com.cn", false));
+    assertTrue(UrlTokenizerUtil.isTLD("com", false));
+    assertTrue(UrlTokenizerUtil.isTLD("co.jp", false));
+    assertTrue(UrlTokenizerUtil.isTLD("co.uk", false));
+    assertTrue(UrlTokenizerUtil.isTLD("uk.co", true));
+    assertTrue(UrlTokenizerUtil.isTLD("cn.com", true));
+    assertFalse(UrlTokenizerUtil.isTLD("google.co.uk", false));
+    assertFalse(UrlTokenizerUtil.isTLD("google.jp", false));
   }
 }

@@ -31,10 +31,30 @@ jar_library(name = 'aopalliance',
             dependencies = [
               jar(org = 'aopalliance', name = 'aopalliance', rev = '1.0').withSources()
             ]
-           )
+          )
+
+jar_library(name = 'args4j',
+           dependencies = [ jar(org = 'args4j', name = 'args4j', rev = '2.0.10') ])
+
 
 jar_library(name = 'cascading-core',
             dependencies = [ jar(org = 'cascading', name = 'cascading-core', rev = '1.2.3') ]
+           )
+
+jar_library(name = 'cascading2-core',
+            dependencies = [ jar(org = 'cascading', name = 'cascading-core', rev = '2.0.0-wip-165') ]
+           )
+
+jar_library(name = 'cascading2-local',
+            dependencies = [ jar(org = 'cascading', name = 'cascading-local', rev = '2.0.0-wip-165') ]
+           )
+
+jar_library(name = 'cascading2-hadoop',
+            dependencies = [ jar(org = 'cascading', name = 'cascading-hadoop', rev = '2.0.0-wip-165') ]
+           )
+
+jar_library(name = 'cascading2-test',
+            dependencies = [ jar(org = 'cascading', name = 'cascading-test', rev = '2.0.0-wip-154') ]
            )
 
 jar_library(name = 'cascading.jdbc',
@@ -43,7 +63,7 @@ jar_library(name = 'cascading.jdbc',
 
 jar_library(name = 'checkstyle',
             dependencies = [
-              jar(org = 'com.puppycrawl.tools', name = 'checkstyle', rev = '5.3')
+              jar(org = 'com.puppycrawl.tools', name = 'checkstyle', rev = '5.5')
                 .exclude(org = 'com.google.collections', name = 'google-collections')
                 .withSources(),
               # Needs this as the replacement for the excluded google-collections.
@@ -72,7 +92,7 @@ jar_library(name = 'commons-codec',
 
 jar_library(name = 'commons-io',
             dependencies = [
-              jar(org = 'commons-io', name = 'commons-io', rev = '1.4').withSources()
+              jar(org = 'commons-io', name = 'commons-io', rev = '2.1').withSources()
             ]
            )
 
@@ -82,14 +102,34 @@ jar_library(name = 'commons-lang',
             ]
            )
 
+jar_library(name = 'commons-logging',
+            dependencies = [
+              jar(org = 'commons-logging', name = 'commons-logging', rev = '1.1.1'),
+            ]
+           )
+
+# common rev for all com.twitter%finagle* artifacts
+FINAGLE_REV = '1.9.12'
+
+jar_library(name = 'finagle-core',
+            dependencies = [ jar(org = 'com.twitter', name = 'finagle-core', rev = FINAGLE_REV),
+                             pants(':util-core'),
+                           ])
+
+jar_library(name = 'finagle-http',
+            dependencies = [ jar(org = 'com.twitter', name = 'finagle-http', rev = FINAGLE_REV) ])
+
+jar_library(name = 'finagle-thrift',
+            dependencies = [ jar(org = 'com.twitter', name = 'finagle-thrift', rev = FINAGLE_REV) ])
+
 jar_library(name = 'gson',
             dependencies = [ jar(org = 'com.google.code.gson', name = 'gson', rev = '1.6') ])
 
 jar_library(name = 'guava',
             dependencies = [
               jar(
-                org = 'com.google.guava', name = 'guava', rev = 'r09',
-                apidocs = 'http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/'
+                org = 'com.google.guava', name = 'guava', rev = '11.0.1',
+                apidocs = 'http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/'
               ).withSources(),
 
               # This dependency should not need to be explicit but its currently required to work
@@ -121,8 +161,8 @@ jar_library(name = 'guice-servlet',
             ]
            )
 
-jar_library(name = 'hamcrest-core',
-            dependencies = [ jar(org = 'org.hamcrest', name = 'hamcrest-core', rev = '1.2') ])
+jar_library(name = 'hsqldb',
+            dependencies = [ jar(org = 'hsqldb', name = 'hsqldb', rev = '1.8.0.10') ])
 
 jar_library(name = 'jetty',
             dependencies = [
@@ -130,9 +170,19 @@ jar_library(name = 'jetty',
             ]
            )
 
+jar_library(name = 'json-simple',
+            dependencies = [
+              jar(org = 'com.googlecode.json-simple', name = 'json-simple', rev = '1.1')])
+
 jar_library(name = 'jsr305',
             dependencies = [
               jar(org = 'com.google.code.findbugs', name = 'jsr305', rev = '1.3.9')
+            ]
+           )
+
+jar_library(name = 'kryo-serializers',
+            dependencies = [
+              jar(org = 'de.javakaffee', name = 'kryo-serializers', rev = '0.9')
             ]
            )
 
@@ -160,11 +210,14 @@ jar_library(name = 'lucene-snowball',
 jar_library(name = 'ostrich',
             dependencies = [ jar(org = 'com.twitter', name = 'ostrich', rev = '2.3.6') ])
 
-jar_library(name = 'protobuf-java',
+jar_library(name = 'protobuf-2.3.0',
             dependencies = [
               jar(org = 'com.google.protobuf', name = 'protobuf-java', rev = '2.3.0')
             ]
            )
+
+jar_library(name = 'protobuf-java',
+            dependencies = [ pants(':protobuf-2.3.0') ])
 
 jar_library(name = 'scala-library',
             dependencies = [
@@ -191,7 +244,10 @@ jar_library(name = 'slf4j-jdk14',
            )
 
 jar_library(name = 'spy-memcached',
-            dependencies = [ jar(org = 'spy', name = 'spymemcached', rev = '2.7.1') ])
+            dependencies = [
+              jar(org = 'spy', name = 'spymemcached', rev = '2.7.1').withSources()
+            ]
+           )
 
 jar_library(name = 'stringtemplate',
             dependencies = [
@@ -199,13 +255,33 @@ jar_library(name = 'stringtemplate',
             ]
            )
 
-jar_library(name = 'thrift-0.5',
+jar_library(name = 'libthrift-0.5.0',
             dependencies = [
               jar(org = 'org.apache.thrift', name = 'libthrift', rev = '0.5.0'),
+            ]
+           )
+
+jar_library(name = 'thrift-0.5',
+            dependencies = [
+              pants(':libthrift-0.5.0'),
               pants(':slf4j-api'),
               pants(':slf4j-jdk14'), # need a concrete slf4j backend at runtime
             ]
            )
+
+jar_library(name = 'thrift-0.5.0-finagle',
+            dependencies = [
+              pants(':libthrift-0.5.0'),
+              pants(':commons-lang'),
+              pants(':slf4j-api'),
+
+              # finagle thrift extra deps
+              pants(':finagle-core'),
+              pants(':finagle-thrift'),
+              pants(':util'),
+            ]
+           )
+
 
 jar_library(name = 'thrift',
             dependencies = [ pants(':thrift-0.5') ])
@@ -220,6 +296,20 @@ jar_library(name = 'twitter4j',
 jar_library(name = 'twitter-text',
             dependencies = [ jar(org = 'com.twitter', name = 'twitter-text', rev = '1.4.0') ])
 
+jar_library(name = 'twitter-search-common',
+            dependencies = [ jar(org = 'com.twitter.search', name = 'common' , rev = '1.5.2.2') ])
+
+# common rev for all com.twitter%util* artifacts
+UTIL_REV = '1.8.18'
+jar_library(name = 'util',
+            dependencies = [ jar(org = 'com.twitter', name = 'util', rev = UTIL_REV) ])
+
+jar_library(name = 'util-core',
+            dependencies = [ jar(org = 'com.twitter', name = 'util-core', rev = UTIL_REV) ])
+
+jar_library(name = 'vertica',
+            dependencies = [ jar(org = 'com.vertica', name = 'vertica', rev = '4.1.2') ])
+
 jar_library(name = 'visualization-datasource',
             dependencies = [
               jar(org = 'com.google.visualization', name = 'visualization-datasource', rev = '1.0.2')
@@ -229,11 +319,17 @@ jar_library(name = 'visualization-datasource',
 
 jar_library(name = 'zookeeper',
             dependencies = [
-              jar(org = 'org.apache.zookeeper', name = 'zookeeper', rev = '3.3.3').withSources()
+              jar(org = 'org.apache.zookeeper', name = 'zookeeper', rev = '3.3.4').withSources()
                 .exclude(org = 'jline')
                 .exclude(org = 'javax.jms')
                 .exclude(org = 'com.sun.jdmk')
                 .exclude(org = 'com.sun.jmx')
+            ]
+           )
+
+jar_library(name = 'twadoop',
+            dependencies = [
+              jar(org ='com.twitter.twadoop', name='twadoop', rev = '1.0')
             ]
            )
 
@@ -247,14 +343,27 @@ jar_library(name = 'easymock',
 jar_library(name = 'mockito',
             dependencies = [ jar(org = 'org.mockito', name = 'mockito-all', rev = '1.8.4') ])
 
-jar_library(name = 'junit',
-            dependencies = [ jar(org = 'junit', name = 'junit', rev = '4.8.2').withSources() ])
+jar_library(name = 'hamcrest-core',
+            dependencies = [ jar(org = 'org.hamcrest', name = 'hamcrest-core', rev = '1.2') ])
 
-jar_library(name = 'specs',
+jar_library(name = 'junit',
+            dependencies = [
+              jar(org = 'junit', name = 'junit-dep', rev = '4.10').withSources(),
+              pants(':hamcrest-core')
+            ]
+           )
+
+jar_library(name = 'specs_2.8',
             dependencies = [
               jar(org = 'org.scala-tools.testing', name = 'specs_2.8.0', rev = '1.6.5')
             ]
            )
+jar_library(name = 'specs_2.9',
+            dependencies = [
+              jar(org = 'org.scala-tools.testing', name = 'specs_2.9.1', rev = '1.6.9')
+            ]
+           )
+jar_library(name = 'specs', dependencies = [ pants(':specs_2.8') ])
 
 jar_library(name = 'tl4j',
             dependencies = [

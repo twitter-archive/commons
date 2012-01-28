@@ -16,17 +16,15 @@
 
 package com.twitter.common.args.parsers;
 
+import com.twitter.common.args.ArgParser;
+
 /**
  * Integer parser.
  *
  * @author William Farner
  */
+@ArgParser
 public class IntegerParser extends NumberParser<Integer> {
-
-  public IntegerParser() {
-    super(Integer.class);
-  }
-
   @Override
   Integer parseNumber(String raw) {
     return Integer.parseInt(raw);

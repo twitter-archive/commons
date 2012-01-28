@@ -16,17 +16,15 @@
 
 package com.twitter.common.args.parsers;
 
+import com.twitter.common.args.ArgParser;
+
 /**
  * Byte parser.
  *
  * @author William Farner
  */
+@ArgParser
 public class ByteParser extends NumberParser<Byte> {
-
-  public ByteParser() {
-    super(Byte.class);
-  }
-
   @Override
   Byte parseNumber(String raw) {
     return Byte.parseByte(raw);

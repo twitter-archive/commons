@@ -16,8 +16,6 @@
 
 package com.twitter.common.text.combiner;
 
-import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
-
 import com.twitter.common.text.token.TokenProcessor;
 import com.twitter.common.text.token.TokenStream;
 import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;
@@ -36,8 +34,6 @@ public abstract class LookAheadTokenCombiner extends TokenProcessor {
   private final CharSequenceTermAttribute termAttr;
   private final TokenTypeAttribute typeAttr;
 
-  private final OffsetAttribute offsetAttr;
-
   private State nextState = null;
 
   public LookAheadTokenCombiner(TokenStream inputStream) {
@@ -47,7 +43,6 @@ public abstract class LookAheadTokenCombiner extends TokenProcessor {
 
     termAttr = getAttribute(CharSequenceTermAttribute.class);
     typeAttr = getAttribute(TokenTypeAttribute.class);
-    offsetAttr = getAttribute(OffsetAttribute.class);
   }
 
   @Override
@@ -74,7 +69,6 @@ public abstract class LookAheadTokenCombiner extends TokenProcessor {
         if (canBeCombinedWithPreviousToken(term)) {
           // combine
           termAttr.setLength(termAttr.getLength() + term.length());
-          offsetAttr.setOffset(offsetAttr.startOffset(), offsetAttr.endOffset() + term.length());
           typeAttr.setType(type);
 
           nextState = null;

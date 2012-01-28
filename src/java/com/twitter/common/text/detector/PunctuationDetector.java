@@ -22,23 +22,24 @@ import com.google.common.base.Preconditions;
 
 import com.twitter.common.text.token.TokenStream;
 import com.twitter.common.text.token.attribute.TokenType;
-import com.twitter.regex.Spaces;
 
 /**
  * Updates {@code TokenTypeAttribute} of a token to {@code TokenType.PUNCTUATION}
  * if the token is identified as punctuation.
  */
 public class PunctuationDetector extends RegexDetector {
-  public static final String SPACE_REGEX = "[" + Spaces.getCharacterClass() + "\\s&&[^\\n]]";
-  public static final String PUNCTUATION_REGEX = "[\"\',.?!;:()@#&\\\\/*<>\\[\\]{}|=+\\-\\^%$`~"
-    + "\u3001-\u3003\u3008-\u3011\u3014-\u301f\uff01-\uff02\uff06-\uff09\uff0c\uff0e\uff1a-\uff1f"
-    + "\uff5c\uffe8\u30fb\uff65\u22c5\u2219\u2022\u00b7\u0387\\p{InMiscellaneousSymbols}\\p{InGeometricShapes}\\n]";
+  // Newlines in tweets function as punctuation
+  private static final String SPACE_EXCEPTIONS = "\\n\\r";
+  public static final String SPACE_CHAR_CLASS = "\\p{C}\\p{Z}&&[^" + SPACE_EXCEPTIONS + "]";
+  public static final String SPACE_REGEX = "[" + SPACE_CHAR_CLASS + "]";
 
-  private static final Pattern DEFAULT_PUNCTUATION_REGEX = Pattern.compile(PUNCTUATION_REGEX);
+  public static final String PUNCTUATION_CHAR_CLASS = "\\p{P}\\p{M}\\p{S}" + SPACE_EXCEPTIONS;
+  public static final String PUNCTUATION_REGEX = "[" + PUNCTUATION_CHAR_CLASS + "]";
+  private static final Pattern DEFAULT_PUNCTUATION_PATTERN = Pattern.compile(PUNCTUATION_REGEX);
 
   protected PunctuationDetector(TokenStream inputStream) {
     super(inputStream);
-    setRegexPattern(DEFAULT_PUNCTUATION_REGEX);
+    setRegexPattern(DEFAULT_PUNCTUATION_PATTERN);
     setType(TokenType.PUNCTUATION);
   }
 

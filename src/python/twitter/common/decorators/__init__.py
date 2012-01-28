@@ -16,6 +16,7 @@
 
 import types
 
+# TODO(wickman)  Make this a loosely coupled dependency with try/except
 from twitter.common import log
 
 def _deprecated_wrap_fn(fn, message=None):

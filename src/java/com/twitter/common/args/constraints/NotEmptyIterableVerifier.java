@@ -16,7 +16,11 @@
 
 package com.twitter.common.args.constraints;
 
+import java.lang.annotation.Annotation;
+
 import com.google.common.collect.Iterables;
+
+import com.twitter.common.args.VerifierFor;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -25,9 +29,15 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * @author William Farner
  */
+@VerifierFor(NotEmpty.class)
 public class NotEmptyIterableVerifier extends ScalarVerifier<Iterable<?>> {
   @Override
   void verify(Iterable<?> value) {
     checkArgument(!Iterables.isEmpty(value), "Value must not be empty.");
+  }
+
+  @Override
+  public String toString(Class<Iterable<?>> argType, Annotation annotation) {
+    return "must have at least 1 item";
   }
 }

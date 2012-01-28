@@ -16,14 +16,6 @@
 
 package com.twitter.common.thrift.callers;
 
-import com.google.common.base.Throwables;
-import com.twitter.common.quantity.Amount;
-import com.twitter.common.quantity.Time;
-import com.twitter.common.thrift.TResourceExhaustedException;
-import com.twitter.common.thrift.TTimeoutException;
-import org.apache.thrift.async.AsyncMethodCallback;
-
-import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
@@ -32,6 +24,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeoutException;
+
+import javax.annotation.Nullable;
+
+import com.google.common.base.Throwables;
+
+import org.apache.thrift.async.AsyncMethodCallback;
+
+import com.twitter.common.quantity.Amount;
+import com.twitter.common.quantity.Time;
+import com.twitter.common.thrift.TResourceExhaustedException;
+import com.twitter.common.thrift.TTimeoutException;
 
 /**
  * A caller that imposes a time deadline on the underlying caller.  If the underlying calls fail
@@ -82,7 +85,7 @@ public class DeadlineCaller extends CallerDecorator {
         result.cancel(true);
         throw new TTimeoutException(e);
       } catch (ExecutionException e) {
-        throw Throwables.throwCause(e, false);
+        throw e.getCause();
       }
     } catch (RejectedExecutionException e) {
       throw new TResourceExhaustedException(e);

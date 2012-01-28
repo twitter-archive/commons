@@ -20,12 +20,10 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
-import java.io.Writer;
 import java.nio.CharBuffer;
 
 import com.google.common.base.Preconditions;
 
-import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 import org.apache.lucene.util.AttributeImpl;
 
 /**
@@ -39,23 +37,13 @@ import org.apache.lucene.util.AttributeImpl;
  * via {@link AttributeImpl}.
  */
 public class CharSequenceTermAttributeImpl extends AttributeImpl
-  implements CharSequenceTermAttribute, TermAttribute, Cloneable, Serializable {
+  implements CharSequenceTermAttribute, Cloneable, Serializable {
   private static final long serialVersionUID = 0L;
 
   private CharSequence charSequence = "";
   private int offset = 0;
   private int length = 0;
-  private int hashCode = -1;
-
-  @Override
-  public String term() {
-    return charSequence.subSequence(offset, offset + length).toString();
-  }
-
-  public void writeTerm(Writer writer) throws IOException {
-    Preconditions.checkNotNull(writer);
-    writer.append(charSequence, offset, offset + length);
-  }
+  private int hashCode = 0;
 
   @Override
   public CharSequence getTermCharSequence() {
@@ -64,12 +52,16 @@ public class CharSequenceTermAttributeImpl extends AttributeImpl
   }
 
   @Override
+  public String getTermString() {
+    return charSequence.subSequence(offset, offset + length).toString();
+  }
+
+  @Override
   public void setTermBuffer(CharSequence seq) {
     Preconditions.checkNotNull(seq);
     charSequence = seq;
     setOffset(0);
     setLength(seq.length());
-    hashCode = 0;
   }
 
   @Override
@@ -77,50 +69,6 @@ public class CharSequenceTermAttributeImpl extends AttributeImpl
     charSequence = seq;
     setOffset(offset);
     setLength(length);
-    hashCode = 0;
-  }
-
-  @Override
-  public void setTermBuffer(char[] array, int offset, int length) {
-    setTermBuffer(CharBuffer.wrap(array), offset, length);
-  }
-
-  @Override
-  public void setTermBuffer(String str) {
-    setTermBuffer((CharSequence) str);
-  }
-
-  @Override
-  public void setTermBuffer(String str, int offset, int length) {
-    setTermBuffer((CharSequence) str, offset, length);
-  }
-
-  @Override
-  public char[] resizeTermBuffer(int size) {
-    throw new UnsupportedOperationException("The term buffer is read-only.");
-  }
-
-  /**
-   * Per the Javadoc for
-   * {@link org.apache.lucene.analysis.tokenattributes.TermAttribute#setTermLength(int)},
-   * this is supposed to only be used to truncate the buffer.
-   */
-  @Override
-  public void setTermLength(int length) {
-    Preconditions.checkArgument(length > 0);
-    if (length < getLength()) {
-      setLength(length);
-    }
-  }
-
-  @Override
-  public char[] termBuffer() {
-    throw new UnsupportedOperationException("The term buffer is read-only: see getCharSequence");
-  }
-
-  @Override
-  public int termLength() {
-    return getLength();
   }
 
   @Override
@@ -138,9 +86,6 @@ public class CharSequenceTermAttributeImpl extends AttributeImpl
     if (target instanceof CharSequenceTermAttribute) {
       CharSequenceTermAttribute attr = (CharSequenceTermAttribute) target;
       attr.setTermBuffer(charSequence, offset, length);
-    } else {
-      TermAttribute attr = (TermAttribute) target;
-      attr.setTermBuffer(charSequence.toString());
     }
   }
 
@@ -205,6 +150,7 @@ public class CharSequenceTermAttributeImpl extends AttributeImpl
           + charSequence.length() + ", which is the length of the underlying CharSequence.");
     }
     this.offset = offset;
+    this.hashCode = 0;
   }
 
   @Override
@@ -214,6 +160,7 @@ public class CharSequenceTermAttributeImpl extends AttributeImpl
           + charSequence.length() + ", which is the length of the underlying CharSequence.");
     }
     this.length = length;
+    this.hashCode = 0;
   }
 
   @Override

@@ -25,8 +25,6 @@ limitations under the License.
   <target name="initprops">
     <fail unless="compile.name"/>
 
-    <property name="ivy.jar.types" value="jar,bundle"/>
-
     <property name="build.dir" value="${root.dir}/target/${compile.name}"/>
     <property name="reports.dir" value="${build.dir}/reports"/>
     <property name="junit.reports.dir" value="${reports.dir}/junit"/>

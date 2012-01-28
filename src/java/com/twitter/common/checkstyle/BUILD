@@ -16,6 +16,11 @@
 
 
 java_library(name = 'checkstyle',
+  provides = artifact(
+    org = 'com.twitter.common',
+    name = 'checkstyle',
+    repo = pants('build-support/commons/ivy:public'),
+  ),
   dependencies = [
     pants('3rdparty:antlr2'),
     pants('3rdparty:checkstyle'),
@@ -23,6 +28,4 @@ java_library(name = 'checkstyle',
     pants('3rdparty:guava'),
   ],
   sources = globs('*.java'),
-  deployjar = True,
-  buildflags = [ '-Dcompile.deploy-jar.name=checkstyle-custom-checks' ],
 )

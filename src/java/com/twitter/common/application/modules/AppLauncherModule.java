@@ -21,12 +21,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import com.twitter.common.application.ActionRegistry;
-import com.twitter.common.application.StartupStage;
-import com.twitter.common.base.Command;
 import com.twitter.common.util.BuildInfo;
 
 /**
@@ -42,28 +38,12 @@ public class AppLauncherModule extends AbstractModule {
   @Override
   protected void configure() {
     bind(BuildInfo.class).in(Singleton.class);
-
-    // Bind the default uncaught exception handler.
-    UncaughtExceptionHandler exceptionHandler = new UncaughtExceptionHandler() {
-      @Override public void uncaughtException(Thread t, Throwable e) {
-        LOG.log(Level.SEVERE, "Uncaught exception from " + t, e);
-      }
-    };
-    bind(UncaughtExceptionHandler.class).toInstance(exceptionHandler);
-
-    requestStaticInjection(Init.class);
+    bind(UncaughtExceptionHandler.class).to(LoggingExceptionHandler.class);
   }
 
-  public static class Init {
-    @Inject
-    private static void applyUncaughtExceptionHandler(
-        @StartupStage ActionRegistry startupRegistry,
-        final UncaughtExceptionHandler uncaughtExceptionHandler) {
-      startupRegistry.addAction(new Command() {
-        @Override public void execute() {
-          Thread.setDefaultUncaughtExceptionHandler(uncaughtExceptionHandler);
-        }
-      });
+  public static class LoggingExceptionHandler implements UncaughtExceptionHandler {
+    @Override public void uncaughtException(Thread t, Throwable e) {
+      LOG.log(Level.SEVERE, "Uncaught exception from " + t, e);
     }
   }
 }

@@ -161,11 +161,7 @@ limitations under the License.
           <!-- Allow tags for runtime exceptions that are not explicitly declared -->
           <property name="allowUndeclaredRTE" value="true" />
         </module>
-        <module name="JavadocType">
-          <!-- Require something resembling 'FirstName LastName', allowing for
-               other formats (hyphenated names, middle initial, etc). -->
-          <property name="authorFormat" value="^[A-Z].+ [A-Z].+$"/>
-        </module>
+        <module name="JavadocType"/>
         <!-- <module name="JavadocVariable"/> -->
         <module name="JavadocStyle">
           <property name="checkFirstSentence" value="false"/>
@@ -325,6 +321,9 @@ limitations under the License.
           <property name="ignoreConstructorParameter" value="true"/>
           <property name="ignoreSetter" value="true"/>
         </module>
+        <!-- Checks for catch of overly general exception classes like
+             RuntimeException, Exception, Throwable, etc. -->
+        <module name="IllegalCatch"/>
         <!-- disallow calling constructors on these classes
              calling factories is the only way to create these objects
         -->

@@ -16,6 +16,8 @@
 
 package com.twitter.common.base;
 
+import com.google.common.collect.ImmutableList;
+
 /**
  * Utility functions for working with exceptional functions.
  *
@@ -40,5 +42,32 @@ public final class ExceptionalFunctions {
         return function.apply(argument);
       }
     };
+  }
+
+  /**
+   * Returns an ExceptionalFunction that is a composition of multiple ExceptionalFunctions.
+   */
+  public static <T, E extends Exception> ExceptionalFunction<T, T, E> compose(
+      final Iterable<ExceptionalFunction<T, T, E>> functions) {
+    return new ExceptionalFunction<T, T, E>() {
+      @Override public T apply(T input) throws E {
+        T result = input;
+        for (ExceptionalFunction<T, T, E> f : functions) {
+          result = f.apply(result);
+        }
+        return result;
+      }
+    };
+  }
+
+  /**
+   * Returns a List of ExceptionalFunctions from variable number of ExceptionalFunctions.
+   */
+  public static <T, E extends Exception> ExceptionalFunction<T, T, E> compose(
+      ExceptionalFunction<T, T, E> function, ExceptionalFunction<T, T, E>... functions) {
+    return compose(ImmutableList.<ExceptionalFunction<T, T, E>>builder()
+        .add(function)
+        .add(functions)
+        .build());
   }
 }

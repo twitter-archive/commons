@@ -1,5 +1,3 @@
-## {{{ http://code.activestate.com/recipes/496795/ (r5)
-#! /usr/bin/env python
 # ==================================================================================================
 # Copyright 2011 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
@@ -16,319 +14,99 @@
 # limitations under the License.
 # ==================================================================================================
 
-"""
-A Python replacement for java.util.Properties class
-This is modelled as closely as possible to the Java original.
-
-Created - Anand B Pillai <abpillai@gmail.com>
-"""
-
-import sys,os
 import re
-import time
-
-class IllegalArgumentException(Exception):
-
-    def __init__(self, lineno, msg):
-        self.lineno = lineno
-        self.msg = msg
-
-    def __str__(self):
-        s='Exception at line number %d => %s' % (self.lineno, self.msg)
-        return s
 
 class Properties(object):
-    """ A Python replacement for java.util.Properties """
+  """
+    A Python reader for java.util.Properties formatted data as oulined here:
+    http://download.oracle.com/javase/6/docs/api/java/util/Properties.html#load(java.io.Reader)
+  """
 
-    def __init__(self, props=None):
+  @staticmethod
+  def load(data):
+    """
+      Loads properties from an open stream or the contents of a string and returns a dict of the
+      parsed property data.
+    """
 
-        # Note: We don't take a default properties object
-        # as argument yet
+    if hasattr(data, 'read') and callable(data.read):
+      contents = data.read()
+    elif isinstance(data, basestring):
+      contents = data
+    else:
+      raise TypeError('Can only process data from a string or a readable object, given: %s' % data)
 
-        # Dictionary of properties.
-        self._props = {}
-        # Dictionary of properties with 'pristine' keys
-        # This is used for dumping the properties to a file
-        # using the 'store' method
-        self._origprops = {}
+    return Properties._parse(contents.splitlines())
 
-        # Dictionary mapping keys from property
-        # dictionary to pristine dictionary
-        self._keymap = {}
 
-        self.othercharre = re.compile(r'(?<!\\)(\s*\=)|(?<!\\)(\s*\:)')
-        self.othercharre2 = re.compile(r'(\s*\=)|(\s*\:)')
-        self.bspacere = re.compile(r'\\(?!\s$)')
+  # An unescaped '=' or ':' forms an explicit separator
+  _EXPLICIT_KV_SEP = re.compile(r'(?<!\\)[=:]')
 
-    def __str__(self):
-        s='{'
-        for key,value in self._props.items():
-            s = ''.join((s,key,'=',value,', '))
 
-        s=''.join((s[:-2],'}'))
-        return s
-
-    def __parse(self, lines):
-        """ Parse a list of lines and create
-        an internal property dictionary """
-
-        # Every line in the file must consist of either a comment
-        # or a key-value pair. A key-value pair is a line consisting
-        # of a key which is a combination of non-white space characters
-        # The separator character between key-value pairs is a '=',
-        # ':' or a whitespace character not including the newline.
-        # If the '=' or ':' characters are found, in the line, even
-        # keys containing whitespace chars are allowed.
-
-        # A line with only a key according to the rules above is also
-        # fine. In such case, the value is considered as the empty string.
-        # In order to include characters '=' or ':' in a key or value,
-        # they have to be properly escaped using the backslash character.
-
-        # Some examples of valid key-value pairs:
-        #
-        # key     value
-        # key=value
-        # key:value
-        # key     value1,value2,value3
-        # key     value1,value2,value3 \
-        #         value4, value5
-        # key
-        # This key= this value
-        # key = value1 value2 value3
-
-        # Any line that starts with a '#' is considerered a comment
-        # and skipped. Also any trailing or preceding whitespaces
-        # are removed from the key/value.
-
-        # This is a line parser. It parses the
-        # contents like by line.
-
-        lineno=0
-        i = iter(lines)
-
-        for line in i:
-            lineno += 1
-            line = line.strip()
-            # Skip null lines
-            if not line: continue
-            # Skip lines which are comments
-            if line[0] == '#': continue
-            # Some flags
-            escaped=False
-            # Position of first separation char
-            sepidx = -1
-            # A flag for performing wspace re check
-            flag = 0
-            # Check for valid space separation
-            # First obtain the max index to which we
-            # can search.
-            m = self.othercharre.search(line)
-            if m:
-                first, last = m.span()
-                start, end = 0, first
-                flag = 1
-                wspacere = re.compile(r'(?<![\\\=\:])(\s)')
+  @staticmethod
+  def _parse(lines):
+    def coalesce_lines():
+      line_iter = iter(lines)
+      try:
+        buffer = ''
+        while True:
+          line = line_iter.next()
+          if line.strip().endswith('\\'):
+            # Continuation.
+            buffer += line.strip()[:-1]
+          else:
+            if buffer:
+              # Continuation join, preserve left hand ws (could be a kv separator)
+              buffer += line.rstrip()
             else:
-                if self.othercharre2.search(line):
-                    # Check if either '=' or ':' is present
-                    # in the line. If they are then it means
-                    # they are preceded by a backslash.
+              # Plain old line
+              buffer = line.strip()
 
-                    # This means, we need to modify the
-                    # wspacere a bit, not to look for
-                    # : or = characters.
-                    wspacere = re.compile(r'(?<![\\])(\s)')
-                start, end = 0, len(line)
+            try:
+              yield buffer
+            finally:
+              buffer = ''
+      except StopIteration:
+        pass
 
-            m2 = wspacere.search(line, start, end)
-            if m2:
-                # print 'Space match=>',line
-                # Means we need to split by space.
-                first, last = m2.span()
-                sepidx = first
-            elif m:
-                # print 'Other match=>',line
-                # No matching wspace char found, need
-                # to split by either '=' or ':'
-                first, last = m.span()
-                sepidx = last - 1
-                # print line[sepidx]
+    def normalize(atom):
+      return re.sub(r'\\([:=\s])', r'\1', atom.strip())
 
-
-            # If the last character is a backslash
-            # it has to be preceded by a space in which
-            # case the next line is read as part of the
-            # same property
-            while line[-1] == '\\':
-                # Read next line
-                nextline = i.next()
-                nextline = nextline.strip()
-                lineno += 1
-                # This line will become part of the value
-                line = line[:-1] + nextline
-
-            # Now split to key,value according to separation char
-            if sepidx != -1:
-                key, value = line[:sepidx], line[sepidx+1:]
-            else:
-                key,value = line,''
-
-            self.processPair(key, value)
-
-    def processPair(self, key, value):
-        """ Process a (key, value) pair """
-
-        oldkey = key
-        oldvalue = value
-
-        # Create key intelligently
-        keyparts = self.bspacere.split(key)
-        # print keyparts
-
-        strippable = False
-        lastpart = keyparts[-1]
-
-        if lastpart.find('\\ ') != -1:
-            keyparts[-1] = lastpart.replace('\\','')
-
-        # If no backspace is found at the end, but empty
-        # space is found, strip it
-        elif lastpart and lastpart[-1] == ' ':
-            strippable = True
-
-        key = ''.join(keyparts)
-        if strippable:
-            key = key.strip()
-            oldkey = oldkey.strip()
-
-        oldvalue = self.unescape(oldvalue)
-        value = self.unescape(value)
-
-        self._props[key] = value.strip()
-
-        # Check if an entry exists in pristine keys
-        if self._keymap.has_key(key):
-            oldkey = self._keymap.get(key)
-            self._origprops[oldkey] = oldvalue.strip()
+    def parse_line(line):
+      if line and not (line.startswith('#') or line.startswith('!')):
+        match = Properties._EXPLICIT_KV_SEP.search(line)
+        if match:
+          return normalize(line[:match.start()]), normalize(line[match.end():])
         else:
-            self._origprops[oldkey] = oldvalue.strip()
-            # Store entry in keymap
-            self._keymap[key] = oldkey
+          space_sep = line.find(' ')
+          if space_sep == -1:
+            return normalize(line), ''
+          else:
+            return normalize(line[:space_sep]), normalize(line[space_sep:])
 
-    def escape(self, value):
+    props = {}
+    for line in coalesce_lines():
+      kv_pair = parse_line(line)
+      if kv_pair:
+        key, value = kv_pair
+        props[key] = value
+    return props
 
-        # Java escapes the '=' and ':' in the value
-        # string with backslashes in the store method.
-        # So let us do the same.
-        newvalue = value.replace(':','\:')
-        newvalue = newvalue.replace('=','\=')
+  @staticmethod
+  def dump(props, output):
+    """Dumps a dict of properties to the specified open stream or file path."""
+    def escape(token):
+      return re.sub(r'([=:\s])', r'\\\1', token)
 
-        return newvalue
+    def write(out):
+      for k, v in props.items():
+        out.write('%s=%s\n' % (escape(str(k)), escape(str(v))))
 
-    def unescape(self, value):
+    if hasattr(output, 'write') and callable(output.write):
+      write(output)
+    elif isinstance(output, basestring):
+      with open(output, 'w+a') as out:
+        write(out)
+    else:
+      raise TypeError('Can only dump data to a path or a writable object, given: %s' % output)
 
-        # Reverse of escape
-        newvalue = value.replace('\:',':')
-        newvalue = newvalue.replace('\=','=')
-
-        return newvalue
-
-    def load(self, stream):
-        """ Load properties from an open file stream """
-
-        # For the time being only accept file input streams
-        if type(stream) is not file:
-            raise TypeError,'Argument should be a file object!'
-        # Check for the opened mode
-        if stream.mode != 'r':
-            raise ValueError,'Stream should be opened in read-only mode!'
-
-        try:
-            lines = stream.readlines()
-            self.__parse(lines)
-        except IOError, e:
-            raise
-
-    def getProperty(self, key):
-        """ Return a property for the given key """
-
-        return self._props.get(key,'')
-
-    def setProperty(self, key, value):
-        """ Set the property for the given key """
-
-        if type(key) is str and type(value) is str:
-            self.processPair(key, value)
-        else:
-            raise TypeError,'both key and value should be strings!'
-
-    def propertyNames(self):
-        """ Return an iterator over all the keys of the property
-        dictionary, i.e the names of the properties """
-
-        return self._props.keys()
-
-    def list(self, out=sys.stdout):
-        """ Prints a listing of the properties to the
-        stream 'out' which defaults to the standard output """
-
-        out.write('-- listing properties --\n')
-        for key,value in self._props.items():
-            out.write(''.join((key,'=',value,'\n')))
-
-    def store(self, out, header=""):
-        """ Write the properties list to the stream 'out' along
-        with the optional 'header' """
-
-        if out.mode[0] != 'w':
-            raise ValueError,'Steam should be opened in write mode!'
-
-        try:
-            out.write(''.join(('#',header,'\n')))
-            # Write timestamp
-            tstamp = time.strftime('%a %b %d %H:%M:%S %Z %Y', time.localtime())
-            out.write(''.join(('#',tstamp,'\n')))
-            # Write properties from the pristine dictionary
-            for prop, val in self._origprops.items():
-                out.write(''.join((prop,'=',self.escape(val),'\n')))
-
-            out.close()
-        except IOError, e:
-            raise
-
-    def getPropertyDict(self):
-        return self._props
-
-    def __getitem__(self, name):
-        """ To support direct dictionary like access """
-
-        return self.getProperty(name)
-
-    def __setitem__(self, name, value):
-        """ To support direct dictionary like access """
-
-        self.setProperty(name, value)
-
-    def __getattr__(self, name):
-        """ For attributes not found in self, redirect
-        to the properties dictionary """
-
-        try:
-            return self.__dict__[name]
-        except KeyError:
-            if hasattr(self._props,name):
-                return getattr(self._props, name)
-
-if __name__=="__main__":
-    p = Properties()
-    p.load(open('test2.properties'))
-    p.list()
-    print p
-    print p.items()
-    print p['name3']
-    p['name3'] = 'changed = value'
-    print p['name3']
-    p['new key'] = 'new value'
-    p.store(open('test2.properties','w'))
-## end of http://code.activestate.com/recipes/496795/ }}}

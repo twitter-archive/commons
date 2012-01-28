@@ -17,9 +17,11 @@
 package com.twitter.common.args;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -29,28 +31,34 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nullable;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 
-import com.twitter.common.args.Parsers.Parser;
+import com.twitter.common.args.Args.ArgumentInfo;
+import com.twitter.common.args.Args.OptionInfo;
+import com.twitter.common.args.Args.PositionalInfo;
 import com.twitter.common.args.apt.Configuration;
 import com.twitter.common.args.constraints.NotNull;
-import com.twitter.common.args.constraints.Verifier;
-import com.twitter.common.base.Closure;
 import com.twitter.common.collections.Pair;
+import com.twitter.common.reflect.TypeToken;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -84,7 +92,21 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * @author William Farner
  */
-public class ArgScanner {
+public final class ArgScanner {
+
+  private static final Function<OptionInfo, CmdLine> GET_CMD_LINE =
+      new Function<OptionInfo, CmdLine>() {
+        @Override public CmdLine apply(OptionInfo optionInfo) {
+          return optionInfo.cmdLine;
+        }
+      };
+
+  private static final Function<OptionInfo, Field> GET_FIELD =
+      new Function<OptionInfo, Field>() {
+        @Override public Field apply(OptionInfo optionInfo) {
+          return optionInfo.field;
+        }
+      };
 
   /**
    * Indicates a problem scanning {@literal @CmdLine} arg definitions.
@@ -110,8 +132,24 @@ public class ArgScanner {
   private static final Pattern ARG_PATTERN =
       Pattern.compile(String.format("-(%s)(?:(?:=| +)(.*))?", ARG_NAME_RE));
 
-  private ArgScanner() {
-    // Utility.
+  private final PrintStream out;
+
+  /**
+   * Equivalent to calling {@link #ArgScanner(PrintStream)} passing {@link System#out}.
+   */
+  public ArgScanner() {
+    this(System.out);
+  }
+
+  /**
+   * Creates a new ArgScanner that prints help on arg parse failure or when help is requested to
+   * {@code out} or else prints applied argument information to {@code out} when parsing is
+   * successful.
+   *
+   * @param out An output stream to write help and parsed argument info to.
+   */
+  public ArgScanner(PrintStream out) {
+    this.out = Preconditions.checkNotNull(out);
   }
 
   /**
@@ -119,13 +157,15 @@ public class ArgScanner {
    * on the classpath.
    *
    * @param args Argument values to map, parse, validate, and apply.
+   * @return {@code true} if the given {@code args} were successfully applied to their corresponding
+   *     {@link Arg} fields.
    * @throws ArgScanException if there was a problem loading {@literal @CmdLine} argument
    *    definitions
    * @throws IllegalArgumentException If the arguments provided are invalid based on the declared
    *    arguments found.
    */
-  public static void parse(String... args) {
-    parse(Predicates.<Field>alwaysTrue(), args);
+  public boolean parse(Iterable<String> args) {
+    return parse(ArgFilters.SELECT_ALL, args);
   }
 
   /**
@@ -135,13 +175,28 @@ public class ArgScanner {
    * @param filter A predicate that selects or rejects scanned {@literal @CmdLine} fields for
    *    argument application.
    * @param args Argument values to map, parse, validate, and apply.
+   * @return {@code true} if the given {@code args} were successfully applied to their corresponding
+   *     {@link Arg} fields.
    * @throws ArgScanException if there was a problem loading {@literal @CmdLine} argument
    *    definitions
    * @throws IllegalArgumentException If the arguments provided are invalid based on the declared
    *    arguments found.
    */
-  public static void parse(Predicate<Field> filter, String... args) {
-    process(scan(filter), mapArguments(args));
+  public boolean parse(Predicate<Field> filter, Iterable<String> args) {
+    Configuration configuration = load();
+    ArgumentInfo argumentInfo = Args.fromConfiguration(configuration, filter);
+    ParserOracle parserOracle = Parsers.fromConfiguration(configuration);
+    Verifiers verifiers = Verifiers.fromConfiguration(configuration);
+    Pair<ImmutableMap<String, String>, List<String>> results = mapArguments(args);
+    return process(parserOracle, verifiers, argumentInfo, results.getFirst(), results.getSecond());
+  }
+
+  private Configuration load() {
+    try {
+      return Configuration.load();
+    } catch (IOException e) {
+      throw new ArgScanException(e);
+    }
   }
 
   // Regular expression to identify a possible dangling assignment.
@@ -159,7 +214,7 @@ public class ArgScanner {
   private static final Pattern ASSIGNMENT_PATTERN =
       Pattern.compile(String.format("%s=.+", DANGLING_ASSIGNMENT_RE));
 
-  @VisibleForTesting static List<String> joinKeysToValues(String... args) {
+  @VisibleForTesting static List<String> joinKeysToValues(Iterable<String> args) {
     List<String> joinedArgs = Lists.newArrayList();
     String unmappedKey = null;
     for (String arg : args) {
@@ -207,55 +262,57 @@ public class ArgScanner {
    * in different array entries than the respective keys.
    *
    * @param args Arguments to build into a map.
-   * @return Map from argument key (arg name) to value.
+   * @return A map from argument key (arg name) to value paired with a list of any leftover
+   *     positional arguments.
    */
-  public static Map<String, String> mapArguments(String... args) {
-    ImmutableMap.Builder<String, String> argMap = ImmutableMap.builder();
-    for (String arg : joinKeysToValues(args)) {
-      Matcher matcher = ARG_PATTERN.matcher(arg);
-      checkArgument(matcher.matches(),
-          String.format("Argument '%s' does not match required format -arg_name=arg_value", arg));
+  private static Pair<ImmutableMap<String, String>, List<String>> mapArguments(
+      Iterable<String> args) {
 
-      String rawValue = matcher.group(2);
-      // An empty string denotes that the argument was passed with no value.
-      rawValue = rawValue == null ? "" : stripQuotes(rawValue);
-      argMap.put(matcher.group(1), rawValue);
+    ImmutableMap.Builder<String, String> argMap = ImmutableMap.builder();
+    List<String> positionalArgs = Lists.newArrayList();
+    for (String arg : joinKeysToValues(args)) {
+      if (!arg.startsWith("-")) {
+        positionalArgs.add(arg);
+      } else {
+        Matcher matcher = ARG_PATTERN.matcher(arg);
+        checkArgument(matcher.matches(),
+            String.format("Argument '%s' does not match required format -arg_name=arg_value", arg));
+
+        String rawValue = matcher.group(2);
+        // An empty string denotes that the argument was passed with no value.
+        rawValue = rawValue == null ? "" : stripQuotes(rawValue);
+        argMap.put(matcher.group(1), rawValue);
+      }
     }
 
-    return argMap.build();
+    return Pair.of(argMap.build(), positionalArgs);
   }
 
-  /**
-   * Extracts the @Arg annotation from a Field and includes it as a pair.
-   */
-  private static final Function<Field, Pair<Field, CmdLine>> PAIR_WITH_ANNOTATION =
-      new Function<Field, Pair<Field, CmdLine>>() {
-        @Override public Pair<Field, CmdLine> apply(Field field) {
-          CmdLine cmdLineDef = field.getAnnotation(CmdLine.class);
-          Preconditions.checkNotNull(cmdLineDef, "No Arg annotation for field " + field);
-          return Pair.of(field, cmdLineDef);
-        }
-      };
+  private static final ImmutableSet<String> HELP_ARGS = ImmutableSet.of("h", "help");
 
-  /**
-   * Performs multiple checks to ensure the definition of an argument is good.
-   */
-  private static final Closure<Pair<Field, CmdLine>> CHECK_ARG_DEF =
-      new Closure<Pair<Field, CmdLine>>() {
-    @Override public void execute(Pair<Field, CmdLine> argDef) {
-      checkArgument(Modifier.isStatic(argDef.getFirst().getModifiers()),
-          "Non-static argument fields are not supported, found " + argDef.getFirst());
+  // TODO(John Sirois): Support these checks at compile time.
+  private static void checkArgDef(ParserOracle parserOracle, Field field, CmdLine cmdLine) {
+    checkArgDef(parserOracle, field, cmdLine.parser());
 
-      String argName = argDef.getSecond().name();
-      checkArgument(ARG_NAME_PATTERN.matcher(argName).matches(),
-          String.format("Argument name '%s' on %s does not match required pattern %s",
-              argName, argDef.getFirst(), ARG_NAME_RE));
+    String argName = cmdLine.name();
+    checkArgument(!HELP_ARGS.contains(argName),
+        String.format("Argument name '%s' is reserved for builtin argument help", argName));
+    checkArgument(ARG_NAME_PATTERN.matcher(argName).matches(),
+        String.format("Argument name '%s' on %s does not match required pattern %s",
+            argName, field, ARG_NAME_RE));
+  }
 
-      checkArgument(getParser(argDef.getSecond(), argDef.getFirst()) != null,
-          "No parser found for type " + TypeUtil.getTypeParamClass(argDef.getFirst())
-              + ", for arg field " + argDef.getFirst().getName());
-    }
-  };
+  // TODO(John Sirois): Support these checks at compile time.
+  private static void checkArgDef(ParserOracle parserOracle, Field field,
+      Class<? extends Parser> custom) {
+
+    checkArgument(Modifier.isStatic(field.getModifiers()),
+        "Non-static argument fields are not supported, found " + field);
+
+    checkArgument(getParser(parserOracle, custom, field) != null,
+        "No parser found for type " + TypeUtil.getTypeParamClass(field)
+            + ", for arg field " + field.getName());
+  }
 
   /**
    * Extracts the name from an @Arg.
@@ -269,22 +326,22 @@ public class ArgScanner {
   /**
    * Gets the canonical name for an @Arg, based on the class containing the field it annotates.
    */
-  private static final Function<Pair<Field, CmdLine>, String> GET_CANONICAL_ARG_NAME =
-      new Function<Pair<Field, CmdLine>, String>() {
-        @Override public String apply(Pair<Field, CmdLine> argDef) {
-          return argDef.getFirst().getDeclaringClass().getCanonicalName()
-              + "." + argDef.getSecond().name();
+  private static final Function<OptionInfo, String> GET_CANONICAL_ARG_NAME =
+      new Function<OptionInfo, String>() {
+        @Override public String apply(OptionInfo optionInfo) {
+          return optionInfo.field.getDeclaringClass().getCanonicalName()
+              + "." + optionInfo.cmdLine.name();
         }
       };
 
   /**
    * Gets the canonical negated name for an @Arg.
    */
-  private static final Function<Pair<Field, CmdLine>, String> GET_CANONICAL_NEGATED_ARG_NAME =
-      new Function<Pair<Field, CmdLine>, String>() {
-        @Override public String apply(Pair<Field, CmdLine> argDef) {
-          return argDef.getFirst().getDeclaringClass().getCanonicalName()
-              + "." + NEGATE_BOOLEAN + argDef.getSecond().name();
+  private static final Function<OptionInfo, String> GET_CANONICAL_NEGATED_ARG_NAME =
+      new Function<OptionInfo, String>() {
+        @Override public String apply(OptionInfo optionInfo) {
+          return optionInfo.field.getDeclaringClass().getCanonicalName()
+              + "." + NEGATE_BOOLEAN + optionInfo.cmdLine.name();
         }
       };
 
@@ -307,25 +364,47 @@ public class ArgScanner {
     return copy;
   }
 
+  private static final Function<OptionInfo, String> GET_FIELD_ARG_NAME =
+      Functions.compose(GET_ARG_NAME, GET_CMD_LINE);
+
   /**
    * Applies argument values to fields based on their annotations.
    *
-   * @param argFields Fields to apply argument values to.
+   * @param parserOracle ParserOracle available to parse raw args with.
+   * @param verifiers Verifiers available to verify argument constraints with.
+   * @param argumentInfo Fields to apply argument values to.
    * @param args Unparsed argument values.
+   * @param positionalArgs The unparsed positional arguments.
+   * @return {@code true} if the given {@code args} were successfully applied to their
+   *     corresponding {@link com.twitter.common.args.Arg} fields.
    */
-  private static void process(Iterable<Field> argFields, Map<String, String> args) {
+  private boolean process(final ParserOracle parserOracle, Verifiers verifiers,
+      ArgumentInfo argumentInfo, Map<String, String> args,
+      List<String> positionalArgs) {
+
+    if (!Sets.intersection(args.keySet(), HELP_ARGS).isEmpty()) {
+      printHelp(verifiers, argumentInfo);
+      return false;
+    }
+
+    Optional<PositionalInfo> positionalInfo = argumentInfo.positionalInfo;
+    checkArgument(positionalInfo.isPresent() || positionalArgs.isEmpty(),
+        "Positional arguments have been supplied but there is no Arg annotated to received them.");
+    if (positionalInfo.isPresent()) {
+      PositionalInfo info = positionalInfo.get();
+      checkArgDef(parserOracle, info.field, info.positional.parser());
+    }
+
+    Iterable<OptionInfo> optionInfos = argumentInfo.optionInfos;
+    for (OptionInfo optionInfo : optionInfos) {
+      checkArgDef(parserOracle, optionInfo.field, optionInfo.cmdLine);
+    }
+
     final Set<String> argsFailedToParse = Sets.newHashSet();
     final Set<String> argsConstraintsFailed = Sets.newHashSet();
 
-    final Iterable<Pair<Field, CmdLine>> argDefs =
-        Iterables.transform(argFields, PAIR_WITH_ANNOTATION);
-
-    for (Pair<Field, CmdLine> argDef : argDefs) {
-      CHECK_ARG_DEF.execute(argDef);
-    }
-
-    Iterable<String> argShortNames = Iterables.transform(argDefs,
-        Functions.compose(GET_ARG_NAME, Pair.<Field, CmdLine>second()));
+    Iterable<String> argShortNames = Iterables.transform(optionInfos,
+        Functions.compose(GET_ARG_NAME, GET_CMD_LINE));
     Set<String> argShortNamesNoCollisions = dropCollisions(argShortNames);
     Set<String> collisionsDropped = Sets.difference(ImmutableSet.copyOf(argShortNames),
         argShortNamesNoCollisions);
@@ -334,26 +413,23 @@ public class ArgScanner {
           + collisionsDropped);
     }
 
-    Predicate<Pair<Field, CmdLine>> isBoolean = Predicates.compose(
+    Predicate<OptionInfo> isBoolean = Predicates.compose(
         Predicates.<Class>equalTo(Boolean.class),
-        Functions.compose(TypeUtil.GET_TYPE_PARAM_CLASS, Pair.<Field, CmdLine>first()));
+        Functions.compose(TypeUtil.GET_TYPE_PARAM_CLASS, GET_FIELD));
 
-    final Function<Pair<Field, CmdLine>, String> getFieldArgName =
-        Functions.compose(GET_ARG_NAME, Pair.<Field, CmdLine>second());
-
-    final Map<String, Pair<Field, CmdLine>> argsByName =
-        ImmutableMap.<String, Pair<Field, CmdLine>>builder()
+    final Map<String, OptionInfo> argsByName =
+        ImmutableMap.<String, OptionInfo>builder()
         // Map by short arg name -> arg def.
-        .putAll(Maps.uniqueIndex(Iterables.filter(argDefs,
-            Predicates.compose(Predicates.in(argShortNamesNoCollisions), getFieldArgName)),
-            getFieldArgName))
+        .putAll(Maps.uniqueIndex(Iterables.filter(optionInfos,
+            Predicates.compose(Predicates.in(argShortNamesNoCollisions), GET_FIELD_ARG_NAME)),
+                               GET_FIELD_ARG_NAME))
         // Map by canonical arg name -> arg def.
-        .putAll(Maps.uniqueIndex(argDefs, GET_CANONICAL_ARG_NAME))
+        .putAll(Maps.uniqueIndex(optionInfos, GET_CANONICAL_ARG_NAME))
         // Map by negated short arg name (for booleans)
-        .putAll(Maps.uniqueIndex(Iterables.filter(argDefs, isBoolean),
-            Functions.compose(PREPEND_NEGATION, getFieldArgName)))
+        .putAll(Maps.uniqueIndex(Iterables.filter(optionInfos, isBoolean),
+            Functions.compose(PREPEND_NEGATION, GET_FIELD_ARG_NAME)))
         // Map by negated canonical arg name (for booleans)
-        .putAll(Maps.uniqueIndex(Iterables.filter(argDefs, isBoolean),
+        .putAll(Maps.uniqueIndex(Iterables.filter(optionInfos, isBoolean),
             GET_CANONICAL_NEGATED_ARG_NAME))
         .build();
 
@@ -367,13 +443,15 @@ public class ArgScanner {
 
     for (String argName : recognizedArgs) {
       String argValue = args.get(argName);
-      Field argField = argsByName.get(argName).getFirst();
-      CmdLine annotation = argsByName.get(argName).getSecond();
+      OptionInfo optionInfo = argsByName.get(argName);
+      Field argField = optionInfo.field;
+      Class<? extends Parser> parser = optionInfo.cmdLine.parser();
 
       Object assignmentValue;
       try {
-        assignmentValue = getParser(annotation, argField)
-            .parse(TypeUtil.getTypeParam(argField), argValue);
+        assignmentValue =
+            getParser(parserOracle, parser, argField)
+                .parse(parserOracle, TypeUtil.getTypeParam(argField), argValue);
       } catch (IllegalArgumentException e) {
         argsFailedToParse.add(argName + " - " + e.getMessage());
         continue;
@@ -396,28 +474,54 @@ public class ArgScanner {
       setField(argField, assignmentValue);
     }
 
+    if (positionalInfo.isPresent()) {
+      PositionalInfo info = positionalInfo.get();
+      final Field argField = info.field;
+      Class<? extends Parser> custom = info.positional.parser();
+
+      // We're trying to extract T 2 levels down in: Arg<List<T>>
+      final Type elementType = TypeToken.extractTypeToken(TypeUtil.getTypeParam(argField));
+
+      final Parser<?> parser = getParser(parserOracle, custom, TypeUtil.getRawType(elementType));
+      List<?> assignmentValue = Lists.newArrayList(Iterables.transform(positionalArgs,
+          new Function<String, Object>() {
+            @Override public Object apply(String argValue) {
+              return parser.parse(parserOracle, elementType, argValue);
+            }
+          }));
+
+      setField(argField, assignmentValue);
+    }
+
     Set<String> commandLineArgumentInfos = Sets.newTreeSet();
-    for (Pair<Field, CmdLine> argDef : argDefs) {
-      Field argField = argDef.getFirst();
+
+    Iterable<Pair<String, Field>> argFields = Iterables.transform(optionInfos,
+        new Function<OptionInfo, Pair<String, Field>>() {
+          @Override public Pair<String, Field> apply(OptionInfo optionInfo) {
+            return Pair.of(optionInfo.cmdLine.name(), optionInfo.field);
+          }
+        });
+    if (positionalInfo.isPresent()){
+      PositionalInfo info = positionalInfo.get();
+      argFields = Iterables.concat(argFields,
+          ImmutableList.of(Pair.of("[positional args]", info.field)));
+    }
+
+    for (Pair<String, Field> argInfo : argFields) {
+      Field argField = argInfo.getSecond();
       Arg arg = getArg(argField);
 
       commandLineArgumentInfos.add(String.format("%s (%s.%s): %s",
-          argDef.getSecond().name(), argField.getDeclaringClass().getName(), argField.getName(),
+          argInfo.getFirst(), argField.getDeclaringClass().getName(), argField.getName(),
           arg.uncheckedGet()));
 
       try {
-        checkConstraints(TypeUtil.getTypeParamClass(argField), arg.uncheckedGet(),
+        checkConstraints(verifiers, TypeUtil.getTypeParamClass(argField), arg.uncheckedGet(),
             argField.getAnnotations());
       } catch (IllegalArgumentException e) {
-        argsConstraintsFailed.add(argDef.getSecond().name() + " - " + e.getMessage());
+        argsConstraintsFailed.add(argInfo.getFirst() + " - " + e.getMessage());
       }
     }
-    infoLog("-------------------------------------------------------------------------");
-    infoLog("Command line argument values");
-    for (String commandLineArgumentInfo : commandLineArgumentInfos) {
-      infoLog(commandLineArgumentInfo);
-    }
-    infoLog("-------------------------------------------------------------------------");
 
     ImmutableMultimap<String, String> warningMessages =
         ImmutableMultimap.<String, String>builder()
@@ -427,6 +531,7 @@ public class ArgScanner {
         .build();
 
     if (!warningMessages.isEmpty()) {
+      printHelp(verifiers, argumentInfo);
       StringBuilder sb = new StringBuilder();
       for (Map.Entry<String, Collection<String>> warnings : warningMessages.asMap().entrySet()) {
         sb.append(warnings.getKey()).append(":\n\t").append(Joiner.on("\n\t")
@@ -434,21 +539,117 @@ public class ArgScanner {
       }
       throw new IllegalArgumentException(sb.toString());
     }
+
+    infoLog("-------------------------------------------------------------------------");
+    infoLog("Command line argument values");
+    for (String commandLineArgumentInfo : commandLineArgumentInfos) {
+      infoLog(commandLineArgumentInfo);
+    }
+    infoLog("-------------------------------------------------------------------------");
+    return true;
   }
 
-  private static void infoLog(String msg) {
-    System.out.println(msg);
+  private static final Function<String,String> ARG_NAME_TO_FLAG = new Function<String, String>() {
+    @Override public String apply(String argName) {
+      return "-" + argName;
+    }
+  };
+
+  public static final Ordering<OptionInfo> ORDER_BY_NAME =
+      Ordering.natural().onResultOf(GET_FIELD_ARG_NAME);
+
+  private void printHelp(Verifiers verifiers, ArgumentInfo argumentInfo) {
+    ImmutableList.Builder<String> requiredHelps = ImmutableList.builder();
+    ImmutableList.Builder<String> optionalHelps = ImmutableList.builder();
+    for (OptionInfo optionInfo : ORDER_BY_NAME.immutableSortedCopy(argumentInfo.optionInfos)) {
+      Field field = optionInfo.field;
+      CmdLine cmdLine = optionInfo.cmdLine;
+      Arg arg = getArg(field);
+      Object defaultValue = arg.uncheckedGet();
+      ImmutableList<String> constraints = collectConstraints(verifiers, field);
+      String help = formatHelp(cmdLine, field, constraints, defaultValue);
+      if (!arg.hasDefault()) {
+        requiredHelps.add(help);
+      } else {
+        optionalHelps.add(help);
+      }
+    }
+
+    infoLog("-------------------------------------------------------------------------");
+    infoLog(String.format("%s to print this help message",
+        Joiner.on(" or ").join(Iterables.transform(HELP_ARGS, ARG_NAME_TO_FLAG))));
+    Optional<PositionalInfo> positionalInfo = argumentInfo.positionalInfo;
+    if (positionalInfo.isPresent()) {
+      infoLog("\nPositional args:");
+      PositionalInfo info = positionalInfo.get();
+      Field field = info.field;
+      Arg arg = getArg(field);
+      Object defaultValue = arg.uncheckedGet();
+      ImmutableList<String> constraints = collectConstraints(verifiers, field);
+      infoLog(String.format("%s%s\n\t%s\n\t(%s.%s)",
+                            defaultValue != null ? "default " + defaultValue : "",
+                            Iterables.isEmpty(constraints)
+                                ? ""
+                                : " [" + Joiner.on(", ").join(constraints) + "]",
+                            info.positional.help(),
+                            field.getDeclaringClass().getName(),
+                            field.getName()));
+    }
+    ImmutableList<String> required = requiredHelps.build();
+    if (!required.isEmpty()) {
+      infoLog("\nRequired flags:"); // yes - this should actually throw!
+      infoLog(Joiner.on('\n').join(required));
+    }
+    ImmutableList<String> optional = optionalHelps.build();
+    if (!optional.isEmpty()) {
+      infoLog("\nOptional flags:");
+      infoLog(Joiner.on('\n').join(optional));
+    }
+    infoLog("-------------------------------------------------------------------------");
   }
 
-  private static void checkConstraints(Class<?> fieldClass, Object value,
+  private ImmutableList<String> collectConstraints(Verifiers verifiers, Field field) {
+    Builder<String> constraints = ImmutableList.builder();
+    for (Annotation annotation : field.getAnnotations()) {
+      Class<?> argType = TypeUtil.getTypeParamClass(field);
+      @SuppressWarnings("unchecked")
+      Verifier verifier = verifiers.get(argType, annotation);
+      if (verifier != null) {
+        @SuppressWarnings("unchecked")
+        String constraint = verifier.toString(argType, annotation);
+        constraints.add(constraint);
+      }
+    }
+    return constraints.build();
+  }
+
+  private String formatHelp(CmdLine cmdLine, Field field, Iterable<String> constraints,
+                            @Nullable Object defaultValue) {
+
+    return String.format("-%s%s%s\n\t%s\n\t(%s.%s)",
+                         cmdLine.name(),
+                         defaultValue != null ? "=" + defaultValue : "",
+                         Iterables.isEmpty(constraints)
+                             ? ""
+                             : " [" + Joiner.on(", ").join(constraints) + "]",
+                         cmdLine.help(),
+                         field.getDeclaringClass().getName(),
+                         field.getName());
+  }
+
+  private void infoLog(String msg) {
+    out.println(msg);
+  }
+
+  private void checkConstraints(Verifiers verifiers, Class<?> fieldClass, Object value,
       Annotation[] annotations) {
-    for (Annotation annotation : maybeFilterNullable(fieldClass, value, annotations)) {
-      verify(fieldClass, value, annotation);
+    for (Annotation annotation : maybeFilterNullable(verifiers, fieldClass, value, annotations)) {
+      verify(verifiers, fieldClass, value, annotation);
     }
   }
 
-  private static Iterable<Annotation> maybeFilterNullable(Class<?> fieldClass, Object value,
-      Annotation[] annotations) {
+  private Iterable<Annotation> maybeFilterNullable(Verifiers verifiers, Class<?> fieldClass,
+      Object value, Annotation[] annotations) {
 
     // Apply all the normal constraint annotations
     if (value != null) {
@@ -458,31 +659,37 @@ public class ArgScanner {
     // The value is null so skip verifications unless a @NotNull was specified as a constraint
     for (Annotation annotation: annotations) {
       if (annotation instanceof NotNull) {
-        verify(fieldClass, value, annotation); // will throw
+        verify(verifiers, fieldClass, value, annotation); // will throw
       }
     }
     return ImmutableList.of();
   }
 
   @SuppressWarnings("unchecked")
-  private static void verify(Class<?> fieldClass, Object value, Annotation annotation) {
-    Verifier verifier = Constraints.get(fieldClass, annotation);
+  private void verify(Verifiers verifiers, Class<?> fieldClass, Object value,
+      Annotation annotation) {
+    Verifier verifier = verifiers.get(fieldClass, annotation);
     if (verifier != null) {
       verifier.verify(value, annotation);
     }
   }
 
-  private static Parser getParser(CmdLine cmdLine, Field argField) {
-    Preconditions.checkArgument(argField.getType() == Arg.class,
-        "Field is annotated with @CmdLine but is not of Arg type: " + argField);
-    Class cls = TypeUtil.getTypeParamClass(argField);
+  private static Parser<?> getParser(ParserOracle parserOracle, Class<? extends Parser> custom,
+      Field argField) {
 
+    Preconditions.checkArgument(argField.getType() == Arg.class,
+        "Field is annotated for argument parsing but is not of Arg type: " + argField);
+    return getParser(parserOracle, custom, TypeUtil.getTypeParamClass(argField));
+  }
+
+  private static Parser<?> getParser(ParserOracle parserOracle, Class<? extends Parser> custom,
+      Class<?> cls) {
     try {
-      return cmdLine.parser() == Parser.class ? Parsers.get(cls) : cmdLine.parser().newInstance();
+      return (custom == Parser.class) ? parserOracle.get(cls) : custom.newInstance();
     } catch (InstantiationException e) {
-      throw new RuntimeException("Failed to instantiate parser " + cmdLine.parser());
+      throw new RuntimeException("Failed to instantiate parser " + custom);
     } catch (IllegalAccessException e) {
-      throw new RuntimeException("No access to instantiate parser " + cmdLine.parser());
+      throw new RuntimeException("No access to instantiate parser " + custom);
     }
   }
 
@@ -497,15 +704,6 @@ public class ArgScanner {
       return ((Arg) field.get(null));
     } catch (IllegalAccessException e) {
       throw new RuntimeException("Failed to set value for " + field);
-    }
-  }
-
-  private static Iterable<Field> scan(Predicate<Field> filter) {
-    try {
-      Configuration configuration = Configuration.load();
-      return Iterables.filter(configuration.fields(), filter);
-    } catch (IOException e) {
-      throw new ArgScanException(e);
     }
   }
 }

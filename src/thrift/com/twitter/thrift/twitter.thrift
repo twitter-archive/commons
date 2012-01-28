@@ -16,7 +16,7 @@
 
 namespace java com.twitter.thrift
 namespace rb Twitter.Thrift
-namespace py science.thrift
+namespace py gen.twitter.thrift
 
 include "endpoint.thrift"
 

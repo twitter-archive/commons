@@ -24,8 +24,6 @@ import java.util.regex.Pattern;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
-
 import com.twitter.common.text.token.TokenStream;
 import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;
 import com.twitter.common.text.token.attribute.TokenType;
@@ -44,13 +42,11 @@ public class RegexTokenizer extends TokenStream {
   private int tokenIndex = 0;
 
   private CharSequenceTermAttribute termAttr;
-  private OffsetAttribute offsetAttr;
   private TokenTypeAttribute typeAttr;
 
   // please use Builder instead.
   protected RegexTokenizer() {
     termAttr = addAttribute(CharSequenceTermAttribute.class);
-    offsetAttr = addAttribute(OffsetAttribute.class);
     typeAttr = addAttribute(TokenTypeAttribute.class);
   }
 
@@ -76,7 +72,6 @@ public class RegexTokenizer extends TokenStream {
 
     termAttr.setOffset(token.position());
     termAttr.setLength(token.limit() - token.position());
-    offsetAttr.setOffset(token.position(), token.limit());
     typeAttr.setType(tokenTypes.get(tokenIndex));
 
     tokenIndex++;

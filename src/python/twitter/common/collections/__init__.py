@@ -17,7 +17,9 @@
 __author__ = 'John Sirois'
 
 from orderedset import OrderedSet
+from ordereddict import OrderedDict
 
 __all__ = (
   OrderedSet,
+  OrderedDict
 )

@@ -27,7 +27,7 @@ import org.apache.zookeeper.server.ZooKeeperServer;
 import org.apache.zookeeper.server.ZooKeeperServer.BasicDataTreeBuilder;
 import org.apache.zookeeper.server.persistence.FileTxnSnapLog;
 
-import com.twitter.common.application.ActionRegistry;
+import com.twitter.common.application.ShutdownRegistry;
 import com.twitter.common.base.Command;
 import com.twitter.common.base.ExceptionalCommand;
 import com.twitter.common.io.FileUtils;
@@ -45,13 +45,13 @@ public class ZooKeeperTestServer {
 
   /**
    * The default session timeout for clients created by servers constructed with
-   * {@link #ZooKeeperTestServer(int, ActionRegistry)}.
+   * {@link #ZooKeeperTestServer(int, ShutdownRegistry)}.
    */
   public static final Amount<Integer, Time> DEFAULT_SESSION_TIMEOUT =
       Amount.of(100, Time.MILLISECONDS);
 
-  private final ZooKeeperServer zooKeeperServer;
-  private final ActionRegistry shutdownRegistry;
+  protected final ZooKeeperServer zooKeeperServer;
+  private final ShutdownRegistry shutdownRegistry;
   private NIOServerCnxn.Factory connectionFactory;
   private int port;
   private final Amount<Integer, Time> defaultSessionTimeout;
@@ -62,7 +62,7 @@ public class ZooKeeperTestServer {
    *     commands.  It is up to the caller to execute the registered actions at an appropriate time.
    * @throws IOException if there was aproblem creating the server's database
    */
-  public ZooKeeperTestServer(int port, ActionRegistry shutdownRegistry) throws IOException {
+  public ZooKeeperTestServer(int port, ShutdownRegistry shutdownRegistry) throws IOException {
     this(port, shutdownRegistry, DEFAULT_SESSION_TIMEOUT);
   }
 
@@ -74,7 +74,7 @@ public class ZooKeeperTestServer {
    *     {@link #createClient()}.
    * @throws IOException if there was aproblem creating the server's database
    */
-  public ZooKeeperTestServer(int port, ActionRegistry shutdownRegistry,
+  public ZooKeeperTestServer(int port, ShutdownRegistry shutdownRegistry,
       Amount<Integer, Time> defaultSessionTimeout) throws IOException {
     Preconditions.checkArgument(0 <= port && port <= 0xFFFF);
     this.port = port;

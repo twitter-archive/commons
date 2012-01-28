@@ -15,175 +15,192 @@
 # ==================================================================================================
 
 """
-  Twitter's wrapper around the optparse module.
+  Twitter's wrapper around the optparse module for doing more stateless builder-style
+  options parsing.
 
-  Typical usage (from module):
+  Typical usage:
+
     from twitter.common import options
-    options.add("-q", "--quiet",
-                action="store_false", dest="verbose", default=True,
-                help="don't print status messages to stdout")
 
-    def my_function():
-      opts = options.values()
-      if opts.verbose:
-        print 'LOOOOOOLLOLOLOL'
-
-  From __main__ script:
-    from twitter.common import options
-    options.add(...)
-    options.add(...)
-
-    def main(argv):
-      options.parse()
-
-  All options are stored in a global options registry, and are grouped by
-  the module from which they were added (and displayed as such in --help.)
-
-  options.parse() must be called before modules can use options.values().
-  options.values() will raise an exception if called before options.parse()
-  by the __main__ module.  this is to prevent parsing before all options
-  have been registered.
-
-  For more help on options formatting, see the optparse module.
+    base_parser = options.parser()
+    my_opts = [
+      options.Option(...),
+      options.Option(...)
+    ]
+    my_foo_opts = [
+      options.Option(...),
+      options.Option(...)
+    ]
+    group = base_parser.new_group('foo')
+    group.add_option(*my_foo_opts)
+    parser = base_parser
+             .options(my_opts)
+             .groups([group])
+             .interspersed_arguments(True)
+             .usage("blah blah blah"))
+    values, rargs = parser.parse()
 """
 
 __author__ = 'Brian Wickman'
 
+import copy
 import sys
 import inspect
 import types
 
-from optparse import OptionParser, OptionValueError
+from optparse import (
+  OptionParser,
+  OptionValueError,
+  Option,
+  OptionGroup,
+  Values,
+  NO_DEFAULT
+)
 
-class OptionsHaveNotBeenParsedException(Exception): pass
-class OptionsAreFrozenException(Exception): pass
-class OptionsInternalErrorException(Exception): pass
+def parser():
+  return TwitterOptionParser()
 
-class _Global:
-  OPTIONS = OptionParser(add_help_option=False)
-  OPTIONS_LONG = OptionParser(add_help_option=False)
-  VALUES = None
-  OVERRIDES = {}
-  ARGUMENTS = None
-  GROUPS = {}
-  PARSED = False
+def new_group(name):
+  return TwitterOptionGroup(name)
 
-  @staticmethod
-  def assert_not_parsed(msg=""):
-    if _Global.PARSED:
-      raise OptionsAreFrozenException(msg)
-
-  @staticmethod
-  def warn_if_parsed(msg=""):
-    if _Global.PARSED:
-      print >> sys.stderr, 'Warning: calling options.parse multiple times!'
-
-def _short_help(option, opt, value, parser):
-  _Global.OPTIONS.print_help()
-  sys.exit(1)
-
-def _long_help(option, opt, value, parser):
-  _Global.OPTIONS_LONG.print_help()
-  sys.exit(1)
-
-def _add_both_options(*args, **kwargs):
-  _Global.OPTIONS.add_option(*args, **kwargs)
-  _Global.OPTIONS_LONG.add_option(*args, **kwargs)
-
-_add_both_options(
-  "-h", "--help", "--short-help",
-  action="callback",
-  callback=_short_help,
-  help="show this help message and exit.")
-
-_add_both_options(
-  "--long-help",
-  action="callback",
-  callback=_long_help,
-  help="show options from all registered modules, not just the __main__ module.")
-
-def _find_calling_module():
-  stack = inspect.stack()
-  for fr_n in range(len(stack)):
-    if '__name__' in stack[fr_n][0].f_locals:
-      return stack[fr_n][0].f_locals['__name__']
-  raise OptionsInternalErrorException("Unable to interpret stack frame from logging module.")
-
-def add(*args, **kwargs):
-  _Global.assert_not_parsed("Cannot add new options after option.parse() has been called!")
-  adding_module = _find_calling_module()
-  if adding_module == '__main__':
-    _Global.OPTIONS.add_option(*args, **kwargs)
-    _Global.OPTIONS_LONG.add_option(*args, **kwargs)
-  else:
-    adding_module = 'From module %s' % adding_module
-    if adding_module not in _Global.GROUPS:
-      _Global.GROUPS[adding_module] = _Global.OPTIONS_LONG.add_option_group(adding_module)
-    _Global.GROUPS[adding_module].add_option(*args, **kwargs)
-
-# alias
-add_option = add
-
-def parse(args=None):
-  _Global.warn_if_parsed()
-
-  args_to_parse = []
-  if args is None:
-    args_to_parse.extend(sys.argv[1:])
-  args_to_parse.extend('--%s=%s' % (k,v) for (k,v) in _Global.OVERRIDES.items())
-  _Global.VALUES, _Global.ARGUMENTS = _Global.OPTIONS_LONG.parse_args(
-    args=args_to_parse, values=_Global.VALUES)
-  _Global.PARSED = True
-  return _Global.VALUES, _Global.ARGUMENTS
-
-# alias
-parse_args = parse
-
-def values():
-  if not _Global.PARSED:
-    raise OptionsHaveNotBeenParsedException("options.parse() has not been called!")
-  return _Global.VALUES
-
-def arguments():
-  if not _Global.PARSED:
-    raise OptionsHaveNotBeenParsedException("options.parse() has not been called!")
-  return _Global.ARGUMENTS
-
-def set_option(option_name, option_value):
-  if isinstance(option_value, types.StringTypes) and isinstance(option_name, types.StringTypes):
-    if option_name in _Global.OVERRIDES:
-      print >> sys.stderr, "WARNING: Calling set_option(%s) multiple times!" % option_name
-    _Global.OVERRIDES[option_name] = option_value
-  else:
-    raise OptionValueError("set_option values must be strings!")
-
-def set_usage(usage):
-  _Global.OPTIONS.set_usage(usage)
-  _Global.OPTIONS_LONG.set_usage(usage)
-
-def help(*args, **kwargs):
-  _Global.OPTIONS.print_help(*args, **kwargs)
-
-def longhelp(*args, **kwargs):
-  _Global.OPTIONS_LONG.print_help(*args, **kwargs)
-
-# alias
-print_help = help
+group = new_group
 
 __all__ = [
-  'add',
-  'add_option',
-  'parse',
-  'parse_args',
-  'values',
-  'arguments',
-  'set_option',
-  'set_usage',
-  'help',
-  'longhelp',
-  'print_help',
-  'OptionsHaveNotBeenParsedException',
-  'OptionsAreFrozenException',
-  'OptionsInternalErrorException',
-  'OptionValueError',
+  'parser',
+  'new_group',
+  'group', # alias for new_group
+  'Option',
+  'Values'
 ]
+
+class TwitterOptionGroup(object):
+  def __init__(self, name):
+    self._name = name
+    self._option_list = []
+
+  def add_option(self, *option):
+    self._option_list.extend(option)
+
+  def prepend_option(self, *option):
+    self._option_list = list(option) + self._option_list
+
+  def options(self):
+    return self._option_list
+
+  def name(self):
+    return self._name
+
+  @staticmethod
+  def format_help(group, header=None):
+    pass
+
+class TwitterOptionParser(object):
+  """
+    Wrapper for builder-style stateless options parsing.
+  """
+
+  class InvalidParameters(Exception): pass
+  class InvalidArgument(Exception): pass
+
+  ATTRS = [ '_interspersed_arguments', '_usage', '_options', '_groups', '_values' ]
+
+  def __init__(self):
+    self._interspersed_arguments = False
+    self._usage = ""
+    self._options = []
+    self._groups = []
+    self._values = Values()
+
+  def interspersed_arguments(self, i_a=None):
+    """ Enable/disable interspersed arguments. """
+    if i_a is None:
+      return self._interspersed_arguments
+    me = self._copy()
+    me._interspersed_arguments = i_a
+    return me
+
+  def usage(self, new_usage=None):
+    """ Get/set usage. """
+    if new_usage is None:
+      return self._usage
+    me = self._copy()
+    me._usage = new_usage
+    return me
+
+  def options(self, merge_options=None):
+    """ Get/add options. """
+    if merge_options is None:
+      return self._options
+    me = self._copy()
+    me._options.extend(merge_options)
+    return me
+
+  def groups(self, merge_groups=None):
+    """ Get/add groups. """
+    if merge_groups is None:
+      return self._groups
+    me = self._copy()
+    me._groups.extend(merge_groups)
+    return me
+
+  def values(self, merge_values=None):
+    """ Get/update default/parsed values. """
+    if merge_values is None:
+      return self._values
+    me = self._copy()
+    TwitterOptionParser._merge_values(me._values, merge_values)
+    return me
+
+  @staticmethod
+  def _merge_values(values1, values2):
+    for attr in values2.__dict__:
+      if getattr(values2, attr) != NO_DEFAULT:
+        setattr(values1, attr, getattr(values2, attr))
+
+  def _copy(self):
+    c = TwitterOptionParser()
+    for attr in TwitterOptionParser.ATTRS:
+      setattr(c, attr, copy.deepcopy(getattr(self, attr)))
+    return c
+
+  def _init_parser(self):
+    parser = OptionParser(add_help_option=False, usage=self.usage())
+    parser.allow_interspersed_args = self.interspersed_arguments()
+    for op in self.options():
+      parser.add_option(copy.deepcopy(op))
+    for gr in self.groups():
+      real_group = parser.add_option_group(gr.name())
+      for op in gr.options():
+        real_group.add_option(copy.deepcopy(op))
+    return parser
+
+  # There is enough special-casing that we're doing to muck with the optparse
+  # module that it might be worthwhile in writing our own, sigh.
+  def parse(self, argv=None):
+    """ Parse argv.  If argv=None, use sys.argv[1:]. """
+    parser = self._init_parser()
+    inherit_values = copy.deepcopy(self.values())
+    if isinstance(inherit_values, dict):
+      inherit_values = Values(inherit_values)
+    if argv is None:
+      argv = sys.argv[1:]
+    values, leftover = parser.parse_args(args=argv)
+    for attr in copy.copy(values.__dict__):
+      if getattr(values, attr) is None:
+        delattr(values, attr)
+    TwitterOptionParser._merge_values(inherit_values, values)
+    return inherit_values, leftover
+
+  def print_help(self):
+    parser = self._init_parser()
+    parser.print_help()
+
+  def error(self, message):
+    parser = self._init_parser()
+    parser.error(message)
+
+  def __enter__(self):
+    return self
+
+  def __exit__(self, *args):
+    return False

@@ -14,8 +14,6 @@
 # limitations under the License.
 # ==================================================================================================
 
-
-
 import os
 
 java_tests(name = 'testing',
@@ -23,16 +21,10 @@ java_tests(name = 'testing',
     pants('3rdparty:easymock'),
     pants('3rdparty:guava'),
     pants('3rdparty:junit'),
+    pants('3rdparty:tl4j'),
     pants('src/java/com/twitter/common/testing'),
+    pants('src/java/com/twitter/common/testing:action'),
   ],
-  sources = [ 'EasyMockTestTest.java' ],
+  sources = [ 'EasyMockTestTest.java', 'TearDownRegistryTest.java' ],
 )
 
-java_tests(name = 'test-basedir-test',
-  dependencies = [
-    pants('3rdparty:guava'),
-    pants('3rdparty:junit'),
-  ],
-  sources = [ 'TestBasedirTest.java' ],
-  buildflags = [ '-Dtest.basedir=%s' % os.path.dirname(__file__) ]
-)

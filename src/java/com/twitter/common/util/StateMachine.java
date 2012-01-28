@@ -212,6 +212,99 @@ public class StateMachine<T> {
   }
 
   /**
+   * A state and its allowed transitions (if any) and (optional) callback.
+   *
+   * @param <T> State type.
+   */
+  public static class Rule<T> {
+    private final T from;
+    private final Set<T> to;
+    private final Closure<Transition<T>> callback;
+
+    private Rule(T from) {
+      this(from, ImmutableSet.<T>of());
+    }
+
+    private Rule(T from, Set<T> to) {
+      this(from, to, Closures.<Transition<T>>noop());
+    }
+
+    private Rule(T from, Set<T> to, Closure<Transition<T>> callback) {
+      this.from = checkNotNull(from);
+      this.to = checkNotNull(to);
+      this.callback = checkNotNull(callback);
+    }
+
+    /**
+     * Associates a callback to be triggered after any attempt to transition from this state is
+     * made.
+     *
+     * @param callback Callback to signal.
+     * @return A new rule that is identical to this rule, but with the provided
+     *     callback
+     */
+    public Rule<T> withCallback(Closure<Transition<T>> callback) {
+      return new Rule<T>(from, to, callback);
+    }
+
+    /**
+     * A helper class when building a transition rule, to define the allowed transitions.
+     *
+     * @param <T> State type.
+     */
+    public static class AllowedTransition<T> {
+      private final Rule<T> rule;
+
+      private AllowedTransition(Rule<T> rule) {
+        this.rule = rule;
+      }
+
+      /**
+       * Associates a single allowed transition with this state.
+       *
+       * @param state Allowed transition state.
+       * @return A new rule that identical to the original, but only allowing a transition to the
+       *     provided state.
+       */
+      public Rule<T> to(T state) {
+        return new Rule<T>(rule.from, ImmutableSet.<T>of(state), rule.callback);
+      }
+
+      /**
+       * Associates multiple transitions with this state.
+       *
+       * @param state An allowed transition state.
+       * @param additionalStates Additional states that may be transitioned to.
+       * @return A new rule that identical to the original, but only allowing a transition to the
+       *     provided states.
+       */
+      public Rule<T> to(T state, T... additionalStates) {
+        return new Rule<T>(rule.from, ImmutableSet.copyOf(Lists.asList(state, additionalStates)));
+      }
+
+      /**
+       * Allows no transitions to be performed from this state.
+       *
+       * @return The original rule.
+       */
+      public Rule<T> noTransitions() {
+        return rule;
+      }
+    }
+
+    /**
+     * Creates a new transition rule.
+     *
+     * @param state State to create and associate transitions with.
+     * @param <T> State type.
+     * @return A new transition rule builder.
+     */
+    public static <T> AllowedTransition<T> from(T state) {
+      return new AllowedTransition<T>(new Rule<T>(state));
+    }
+  }
+
+  /**
    * Builder to create a state machine.
    *
    * @param <T>
@@ -237,6 +330,16 @@ public class StateMachine<T> {
       checkNotNull(state);
       initialState = state;
       return this;
+    }
+
+    /**
+     * Adds a state and its allowed transitions.
+     *
+     * @param rule The state and transition rule to add.
+     * @return A reference to the builder.
+     */
+    public Builder<T> addState(Rule<T> rule) {
+      return addState(rule.callback, rule.from, rule.to);
     }
 
     /**
@@ -278,17 +381,6 @@ public class StateMachine<T> {
       Preconditions.checkArgument(Iterables.all(states, Predicates.notNull()));
 
       return addState(callback, state, states);
-    }
-
-    /**
-     * Adds a state with no transitions.
-     *
-     * @param callback Callback to notify of any transition attempted from the state.
-     * @param state State to add.
-     * @return A reference to the builder.
-     */
-    public Builder<T> addState(Closure<Transition<T>> callback, T state) {
-      return addState(callback, state, ImmutableSet.<T>of());
     }
 
     /**

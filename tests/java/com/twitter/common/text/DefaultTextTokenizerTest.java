@@ -68,6 +68,13 @@ public class DefaultTextTokenizerTest {
         ImmutableList.of("This", "has", "a", "comma", ",", "and", "also", "period", "."));
   }
 
+  @Test
+  public void testCombinesContractionsAndTitles() {
+    testTokenizerString(tokenizerWithoutPunctuation,
+        "Sam's first Penguin test, thanks to Mr. Fujii",
+        ImmutableList.of("Sam's", "first", "Penguin", "test", "thanks", "to", "Mr.", "Fujii"));
+  }
+
   private void testTokenizerString(DefaultTextTokenizer tokenizer, String text,
       List<String> expected) {
     List<String> tokens = tokenizer.tokenizeToStrings(text);

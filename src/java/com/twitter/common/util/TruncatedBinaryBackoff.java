@@ -26,29 +26,52 @@ import com.twitter.common.quantity.Time;
 public class TruncatedBinaryBackoff implements BackoffStrategy {
   private final long initialBackoffMs;
   private final long maxBackoffIntervalMs;
+  private final boolean stopAtMax;
+
+  private volatile boolean stop = false;
 
   /**
    * Creates a new TruncatedBinaryBackoff that will start by backing off for {@code initialBackoff}
    * and then backoff of twice as long each time its called until reaching the {@code maxBackoff} at
-   * which point it will always wait for that amount of time.
+   * which point shouldContinue() will return false and any future backoffs will always wait for
+   * that amount of time.
    *
    * @param initialBackoff the intial amount of time to backoff
    * @param maxBackoff the maximum amount of time to backoff
+   * @param stopAtMax whether shouldContinue() returns false when the max is reached
    */
   public TruncatedBinaryBackoff(Amount<Long, Time> initialBackoff,
-      Amount<Long, Time> maxBackoff) {
+      Amount<Long, Time> maxBackoff, boolean stopAtMax) {
     Preconditions.checkNotNull(initialBackoff);
     Preconditions.checkNotNull(maxBackoff);
     Preconditions.checkArgument(initialBackoff.getValue() > 0);
     Preconditions.checkArgument(maxBackoff.compareTo(initialBackoff) >= 0);
     initialBackoffMs = initialBackoff.as(Time.MILLISECONDS);
     maxBackoffIntervalMs = maxBackoff.as(Time.MILLISECONDS);
+    this.stopAtMax = stopAtMax;
+  }
+
+  /**
+   * Same as main constructor, but this will always return true from shouldContinue().
+   *
+   * @param initialBackoff the intial amount of time to backoff
+   * @param maxBackoff the maximum amount of time to backoff
+   */
+  public TruncatedBinaryBackoff(Amount<Long, Time> initialBackoff, Amount<Long, Time> maxBackoff) {
+    this(initialBackoff, maxBackoff, false);
   }
 
   @Override
   public long calculateBackoffMs(long lastBackoffMs) {
     Preconditions.checkArgument(lastBackoffMs >= 0);
-    return (lastBackoffMs == 0) ? initialBackoffMs
+    long backoff = (lastBackoffMs == 0) ? initialBackoffMs
         : Math.min(maxBackoffIntervalMs, lastBackoffMs * 2);
+    stop = stop || (stopAtMax && (backoff >= maxBackoffIntervalMs));
+    return backoff;
+  }
+
+  @Override
+  public boolean shouldContinue() {
+    return !stop;
   }
 }

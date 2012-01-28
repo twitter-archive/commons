@@ -45,7 +45,7 @@ class ClassConstant(ConstantBase):
     self._name_index = u2(data[1:3]).get()
 
   def __call__(self, constants):
-    return '%s' % javaify(constants[self._name_index].bytes())
+    return str(constants[self._name_index].bytes())
 
 class FieldrefConstant(ConstantBase):
   """
@@ -59,6 +59,11 @@ class FieldrefConstant(ConstantBase):
   def __init__(self, data):
     self._tag, self._class_index, self._name_and_type_index = self.parse(data)
 
+  def __call__(self, constants):
+    return '%s.%s' % (
+      constants[self._class_index](constants),
+      constants[self._name_and_type_index](constants))
+
 class MethodrefConstant(ConstantBase):
   """
     u1 tag
@@ -71,6 +76,11 @@ class MethodrefConstant(ConstantBase):
   def __init__(self, data):
     self._tag, self._class_index, self._name_and_type_index = self.parse(data)
 
+  def __call__(self, constants):
+    return '%s.%s' % (
+      constants[self._class_index](constants),
+      constants[self._name_and_type_index](constants))
+
 class InterfaceMethodrefConstant(ConstantBase):
   """
     u1 tag
@@ -82,6 +92,11 @@ class InterfaceMethodrefConstant(ConstantBase):
 
   def __init__(self, data):
     self._tag, self._class_index, self._name_and_type_index = self.parse(data)
+
+  def __call__(self, constants):
+    return '%s.%s' % (
+      constants[self._class_index](constants),
+      constants[self._name_and_type_index](constants))
 
 class StringConstant(ConstantBase):
   """
@@ -148,6 +163,11 @@ class NameAndTypeConstant(ConstantBase):
 
   def size(self):
     return u1.size() + u2.size() + u2.size()
+
+  def __call__(self, constants):
+    return '%s.%s' % (
+      constants[self._name_index].bytes(),
+      constants[self._descriptor_index].bytes())
 
 class Utf8Constant(ConstantBase):
   """

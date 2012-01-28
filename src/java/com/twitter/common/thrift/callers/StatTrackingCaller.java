@@ -16,20 +16,24 @@
 
 package com.twitter.common.thrift.callers;
 
-import com.google.common.base.Function;
-import com.google.common.collect.MapMaker;
+import java.lang.reflect.Method;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import javax.annotation.Nullable;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+
+import org.apache.thrift.async.AsyncMethodCallback;
+
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
 import com.twitter.common.stats.StatsProvider;
+import com.twitter.common.stats.StatsProvider.RequestTimer;
 import com.twitter.common.thrift.TResourceExhaustedException;
 import com.twitter.common.thrift.TTimeoutException;
-import org.apache.thrift.async.AsyncMethodCallback;
-
-import javax.annotation.Nullable;
-import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * A caller that exports statistics about calls made to the wrapped caller.
@@ -41,9 +45,9 @@ public class StatTrackingCaller extends CallerDecorator {
   private final StatsProvider statsProvider;
   private final String serviceName;
 
-  private final Map<Method, StatsProvider.RequestTimer> stats =
-      new MapMaker().makeComputingMap(new Function<Method, StatsProvider.RequestTimer>() {
-        @Override public StatsProvider.RequestTimer apply(Method method) {
+  private final LoadingCache<Method, RequestTimer> stats =
+      CacheBuilder.newBuilder().build(new CacheLoader<Method, RequestTimer>() {
+        @Override public RequestTimer load(Method method) {
           // Thrift does not support overloads - so just the name disambiguates all calls.
           return statsProvider.makeRequestTimer(serviceName + "_" + method.getName());
         }
@@ -68,7 +72,7 @@ public class StatTrackingCaller extends CallerDecorator {
   @Override
   public Object call(Method method, Object[] args, @Nullable AsyncMethodCallback callback,
       @Nullable Amount<Long, Time> connectTimeoutOverride) throws Throwable {
-    final StatsProvider.RequestTimer requestStats = stats.get(method);
+    final RequestTimer requestStats = stats.get(method);
     final long startTime = System.nanoTime();
 
     ResultCapture capture = new ResultCapture() {

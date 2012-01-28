@@ -110,6 +110,24 @@ public final class MorePreconditions {
   }
 
   /**
+   * Checks that an int falls within a specified range, inclusive
+   *
+   * @param argument argument to validate.
+   * @param minimum minimum possible valid value for the argument.
+   * @param maximum maximum possible valid value for the argument.
+   * @param message the message template for validation exception messages where %s serves as the
+   *                sole argument placeholder.
+   * @return the argument if it is valid.
+   * @throws IllegalArgumentException if the argument falls outside of the specified range.
+   */
+  public static int checkArgumentRange(int argument, int minimum, int maximum,
+      String message) {
+    Preconditions.checkArgument(minimum <= argument, message, argument);
+    Preconditions.checkArgument(argument <= maximum, message, argument);
+    return argument;
+  }
+
+  /**
    * Checks that at least one of the specified arguments is true.
    *
    * @param message the message for validation exception messages.

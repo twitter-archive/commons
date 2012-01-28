@@ -141,6 +141,10 @@ class RecordIO(object):
       blob = fp.read(4)
       if len(blob) == 0:
         log.debug("%s has no data (cur offset = %d)" % (fp.name, fp.tell()))
+        # Reset EOF
+        # TODO(wickman)  Should we also do this in the PrematureEndOfStream case before
+        # raising, or rely upon the exception handler to take care of that for us?
+        fp.seek(fp.tell())
         return None
       if len(blob) != 4:
         raise RecordIO.PrematureEndOfStream("Expected 4 bytes, got %d" % len(blob))

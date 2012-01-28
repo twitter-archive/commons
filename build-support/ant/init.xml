@@ -35,11 +35,13 @@ limitations under the License.
   <property environment="env"/>
 
   <property name="build-support.dir" value="${root.dir}/build-support"/>
+  <property name="build-support.profiles.dir" value="${build-support.dir}/profiles"/>
 
   <property name="ant.dir" value="${build-support.dir}/ant"/>
   <property name="antlib.dir" value="${build-support.dir}/antlib"/>
   <property name="ant.publish.file" value="${build-support.dir}/commons/ant/publish.xml"/>
 
+  <property name="ivy.jar.types" value="jar,bundle"/>
   <property name="ivysettings.file" value="${build-support.dir}/commons/ivy/ivysettings.xml"/>
   <property name="ivy.internal-repo.dir" value="${build-support.dir}/ivy/internal-repo"/>
 
@@ -60,18 +62,15 @@ limitations under the License.
   <property name="java.src.dir" value="${src.dir}/java"/>
   <property name="java.test.dir" value="${test.dir}/java"/>
 
+  <!-- default the scala stack runtime -->
+  <property name="scala.version" value="2.8.1"/>
+  <property name="specs.name" value="specs_2.8.0"/>
+  <property name="specs.version" value="1.6.5"/>
+
   <property name="scala.src.dir" value="${src.dir}/scala"/>
   <property name="scala.test.dir" value="${test.dir}/scala"/>
 
   <property name="resource.dir" value="${src.dir}/resources"/>
-
-  <property name="protobuf.version" value="2.3.0"/>
-  <property name="protobuf.binary.version" value="${protobuf.version}"/>
-  <property name="protobuf.library.version" value="${protobuf.version}"/>
-
-  <property name="thrift.version" value="0.5.0"/>
-  <property name="thrift.binary.version" value="${thrift.version}"/>
-  <property name="thrift.library.version" value="${thrift.version}"/>
 
   <!--
     supports the pre-pants zip layout for projects that use zip for deploys and have monit

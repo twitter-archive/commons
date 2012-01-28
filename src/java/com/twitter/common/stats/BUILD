@@ -14,8 +14,6 @@
 # limitations under the License.
 # ==================================================================================================
 
-
-
 java_library(name = 'stats-provider',
   provides = artifact(
     org = 'com.twitter.common',
@@ -48,6 +46,7 @@ java_library(name = 'stats',
     pants('src/java/com/twitter/common/util:sampler'),
   ],
   sources = [
+    'Elapsed.java',
     'MovingAverage.java',
     'MovingWindowDelta.java',
     'NumericStatExporter.java',
@@ -107,12 +106,14 @@ java_library(name = 'util',
   ),
   dependencies = [
     pants('3rdparty:guava'),
+    pants('src/java/com/twitter/common/util:util'),
   ],
   sources = [
     'CounterMap.java',
     'CounterMapWithTopKey.java',
     'Entropy.java',
     'PrintableHistogram.java',
+    'ReservoirSampler.java',
     'Significance.java',
     'Statistics.java',
   ],

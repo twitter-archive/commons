@@ -26,6 +26,7 @@ import com.twitter.common.base.ExceptionalSupplier;
 import com.twitter.common.base.Supplier;
 import com.twitter.common.testing.EasyMockTest;
 import com.twitter.common.util.StateMachine.Transition;
+import com.twitter.common.util.StateMachine.Rule;
 
 import org.junit.Test;
 
@@ -69,7 +70,7 @@ public class StateMachineTest extends EasyMockTest {
 
     try {
       StateMachine.<String>builder(NAME)
-          .addState(A, B)
+          .addState(Rule.from(A).to(B))
           .build();
       fail();
     } catch (IllegalStateException e) {
@@ -83,9 +84,9 @@ public class StateMachineTest extends EasyMockTest {
 
     StateMachine<String> fsm = StateMachine.<String>builder(NAME)
         .initialState(A)
-        .addState(A, B)
-        .addState(B, C)
-        .addState(C, D)
+        .addState(Rule.from(A).to(B))
+        .addState(Rule.from(B).to(C))
+        .addState(Rule.from(C).to(D))
         .build();
 
     assertThat(fsm.getState(), is(A));
@@ -100,9 +101,9 @@ public class StateMachineTest extends EasyMockTest {
 
     StateMachine<String> fsm = StateMachine.<String>builder(NAME)
         .initialState(A)
-        .addState(A, B)
-        .addState(B, C)
-        .addState(C, B, D)
+        .addState(Rule.from(A).to(B))
+        .addState(Rule.from(B).to(C))
+        .addState(Rule.from(C).to(B, D))
         .build();
 
     assertThat(fsm.getState(), is(A));
@@ -121,8 +122,8 @@ public class StateMachineTest extends EasyMockTest {
 
     StateMachine<String> fsm = StateMachine.<String>builder(NAME)
         .initialState(A)
-        .addState(A, B)
-        .addState(B, C)
+        .addState(Rule.from(A).to(B))
+        .addState(Rule.from(B).to(C))
         .build();
 
     assertThat(fsm.getState(), is(A));
@@ -137,8 +138,8 @@ public class StateMachineTest extends EasyMockTest {
 
     StateMachine<String> fsm = StateMachine.<String>builder(NAME)
         .initialState(A)
-        .addState(A, B)
-        .addState(B, C)
+        .addState(Rule.from(A).to(B))
+        .addState(Rule.from(B).to(C))
         .build();
 
     assertThat(fsm.getState(), is(A));
@@ -153,7 +154,7 @@ public class StateMachineTest extends EasyMockTest {
 
     StateMachine<String> fsm = StateMachine.<String>builder(NAME)
         .initialState(A)
-        .addState(A, A)
+        .addState(Rule.from(A).to(A))
         .build();
 
     assertThat(fsm.getState(), is(A));
@@ -167,7 +168,7 @@ public class StateMachineTest extends EasyMockTest {
 
     StateMachine<String> fsm = StateMachine.<String>builder(NAME)
         .initialState(A)
-        .addState(A, B)
+        .addState(Rule.from(A).to(B))
         .build();
 
     assertThat(fsm.getState(), is(A));
@@ -181,7 +182,7 @@ public class StateMachineTest extends EasyMockTest {
 
     StateMachine<String> stateMachine = StateMachine.<String>builder(NAME)
         .initialState(A)
-        .addState(A, B)
+        .addState(Rule.from(A).to(B))
         .build();
     stateMachine.checkState(A);
     stateMachine.transition(B);
@@ -194,7 +195,7 @@ public class StateMachineTest extends EasyMockTest {
 
     StateMachine.<String>builder(NAME)
         .initialState(A)
-        .addState(A, B)
+        .addState(Rule.from(A).to(B))
         .build()
         .checkState(B);
   }
@@ -205,7 +206,7 @@ public class StateMachineTest extends EasyMockTest {
 
     StateMachine<String> stateMachine = StateMachine.<String>builder(NAME)
         .initialState(A)
-        .addState(A, B)
+        .addState(Rule.from(A).to(B))
         .build();
 
     int amount = stateMachine.doInState(A, new Supplier<Integer>() {
@@ -358,10 +359,10 @@ public class StateMachineTest extends EasyMockTest {
 
     StateMachine<String> machine = StateMachine.<String>builder(NAME)
         .initialState(A)
-        .addState(fromA, A, B)
-        .addState(fromB, B, C, D)
-        .addState(C, B)
-        .addState(D)
+        .addState(Rule.from(A).to(B).withCallback(fromA))
+        .addState(Rule.from(B).to(C, D).withCallback(fromB))
+        .addState(Rule.from(C).to(B))
+        .addState(Rule.from(D).noTransitions())
         .onAnyTransition(anyTransition)
         .throwOnBadTransition(false)
         .build();
@@ -384,9 +385,12 @@ public class StateMachineTest extends EasyMockTest {
 
     StateMachine<String> machine = StateMachine.<String>builder(NAME)
         .initialState(A)
-        .addState(Closures.filter(Transition.to(B), aToBHandler), A, B, C)
-        .addState(Closures.filter(Transition.to(B), impossibleHandler), B, A)
-        .addState(C)
+        .addState(Rule
+            .from(A).to(B, C)
+            .withCallback(Closures.filter(Transition.to(B), aToBHandler)))
+        .addState(Rule.from(B).to(A)
+            .withCallback(Closures.filter(Transition.to(B), impossibleHandler)))
+        .addState(Rule.from(C).noTransitions())
         .build();
 
     machine.transition(B);

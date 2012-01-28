@@ -15,14 +15,18 @@
 # ==================================================================================================
 
 import logging
-
 from initialize import init
 
 try:
   from twitter.common import app
-  app.on_initialization(
-    lambda: init(app.name()),
-    description="Logging subsystem.")
+
+  class LoggingSubsystem(app.Module):
+    def __init__(self):
+      app.Module.__init__(self, __name__, description="Logging subsystem.")
+    def setup_function(self):
+      init(app.name())
+
+  app.register_module(LoggingSubsystem())
 except ImportError:
   # Do not require twitter.common.app
   pass
@@ -30,15 +34,37 @@ except ImportError:
 debug = logging.debug
 info = logging.info
 warning = logging.warning
+warn = logging.warning
 error = logging.error
 fatal = logging.fatal
+log = logging.log
+logger = logging.getLogger
+
+DEBUG = logging.DEBUG
+INFO = logging.INFO
+WARNING = logging.WARNING
+WARN = logging.WARN
+ERROR = logging.ERROR
+FATAL = logging.FATAL
 
 __all__ = [
+  # directives
   'debug',
   'info',
   'warning',
+  'warn', # alias
   'error',
   'fatal',
+  'log',
+  'logger',
+
+  # levels
+  'DEBUG',
+  'INFO',
+  'WARNING',
+  'WARN',
+  'ERROR',
+  'FATAL',
 
   # only if you're not using app directly.
   'init',

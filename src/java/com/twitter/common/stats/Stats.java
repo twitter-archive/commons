@@ -16,6 +16,7 @@
 
 package com.twitter.common.stats;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -27,6 +28,7 @@ import java.util.regex.Pattern;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
+import com.google.common.cache.Cache;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 
@@ -57,7 +59,7 @@ public class Stats {
     return NOT_NAME_CHAR.matcher(name).replaceAll("_");
   }
 
-  private static String validateName(String name) {
+  static String validateName(String name) {
     String normalized = normalizeName(name);
     if (!name.equals(normalized)) {
       LOG.warning("Invalid stat name " + name + " exported as " + normalized);
@@ -176,7 +178,7 @@ public class Stats {
    * @param longVar The variable to export.
    * @return A reference to the {@link AtomicLong} provided.
    */
-  public static AtomicLong export(final String name, final AtomicLong longVar) {
+  public static AtomicLong export(String name, final AtomicLong longVar) {
     export(new StatImpl<Long>(name) {
       @Override public Long read() { return longVar.get(); }
     });
@@ -192,6 +194,48 @@ public class Stats {
    */
   public static AtomicLong exportLong(String name) {
     return export(name, new AtomicLong());
+  }
+
+  /**
+   * Exports a metric that tracks the size of a collection.
+   *
+   * @param name Name of the stat to export.
+   * @param collection Collection whose size should be tracked.
+   */
+  public static void exportSize(String name, final Collection<?> collection) {
+    export(new StatImpl<Integer>(name) {
+      @Override public Integer read() {
+        return collection.size();
+      }
+    });
+  }
+
+  /**
+   * Exports a metric that tracks the size of a map.
+   *
+   * @param name Name of the stat to export.
+   * @param map Map whose size should be tracked.
+   */
+  public static void exportSize(String name, final Map<?, ?> map) {
+    export(new StatImpl<Integer>(name) {
+      @Override public Integer read() {
+        return map.size();
+      }
+    });
+  }
+
+  /**
+   * Exports a metric that tracks the size of a cache.
+   *
+   * @param name Name of the stat to export.
+   * @param cache Cache whose size should be tracked.
+   */
+  public static void exportSize(String name, final Cache<?, ?> cache) {
+    export(new StatImpl<Long>(name) {
+      @Override public Long read() {
+        return cache.size();
+      }
+    });
   }
 
   /**
@@ -219,7 +263,7 @@ public class Stats {
    *
    * @return An iterable of all registered stats.
    */
-  public static Iterable<? extends Stat> getVariables() {
+  public static Iterable<Stat> getVariables() {
     synchronized(VAR_MAP) {
       return ImmutableList.copyOf(VAR_MAP.values());
     }

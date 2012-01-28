@@ -20,11 +20,12 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.logging.Logger;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
+
+import com.twitter.common.base.Command;
 
 /**
  * Application lifecycle manager, which coordinates orderly shutdown of an application.  This class
- * is responsible for executing shutodwn commands, and can also be used to allow threads to await
+ * is responsible for executing shutdown commands, and can also be used to allow threads to await
  * application shutdown.
  *
  * @author William Farner
@@ -35,15 +36,15 @@ public class Lifecycle {
 
   // Monitor and state for suspending and terminating execution.
   private final Object waitMonitor = new Object();
-  private volatile boolean destroyed = false;
+  private boolean destroyed = false;
 
-  private final ActionController shutdownController;
+  private final Command shutdownRegistry;
 
   @Inject
-  public Lifecycle(@ShutdownStage ActionController shutdownController,
+  public Lifecycle(@ShutdownStage Command shutdownRegistry,
       UncaughtExceptionHandler exceptionHandler) {
 
-    this.shutdownController = shutdownController;
+    this.shutdownRegistry = shutdownRegistry;
     Thread.setDefaultUncaughtExceptionHandler(exceptionHandler);
   }
 
@@ -56,7 +57,9 @@ public class Lifecycle {
    *
    */
   public final boolean isAlive() {
-    return !destroyed;
+    synchronized (waitMonitor) {
+      return !destroyed;
+    }
   }
 
   /**
@@ -82,11 +85,13 @@ public class Lifecycle {
    * Initiates an orderly shutdown of the lifecycle's registered shutdown hooks.
    */
   public final void shutdown() {
-    LOG.info("Shutting down application");
-    shutdownController.execute();
-    destroyed = true;
     synchronized (waitMonitor) {
-      waitMonitor.notifyAll();
+      if (!destroyed) {
+        destroyed = true;
+        LOG.info("Shutting down application");
+        shutdownRegistry.execute();
+        waitMonitor.notifyAll();
+      }
     }
   }
 }

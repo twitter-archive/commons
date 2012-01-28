@@ -19,6 +19,7 @@ package com.twitter.common.application.modules;
 import java.io.File;
 import java.util.logging.Logger;
 
+import com.google.common.base.Preconditions;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -29,6 +30,7 @@ import com.twitter.common.args.CmdLine;
 import com.twitter.common.args.constraints.CanRead;
 import com.twitter.common.args.constraints.Exists;
 import com.twitter.common.args.constraints.IsDirectory;
+import com.twitter.common.base.Command;
 import com.twitter.common.logging.LogUtil;
 import com.twitter.common.net.http.handlers.LogPrinter;
 import com.twitter.common.stats.StatImpl;
@@ -70,7 +72,7 @@ public class LogModule extends AbstractModule {
     // Bind the default log directory.
     bind(File.class).annotatedWith(Names.named(LogPrinter.LOG_DIR_KEY)).toInstance(getLogDir());
 
-    requestStaticInjection(Init.class);
+    LifecycleModule.bindStartupAction(binder(), ExportLogDir.class);
   }
 
   private File getLogDir() {
@@ -82,9 +84,14 @@ public class LogModule extends AbstractModule {
     return logDir;
   }
 
-  public static class Init {
-    @Inject
-    public static void exportLogDir(@Named(LogPrinter.LOG_DIR_KEY) final File logDir) {
+  public static final class ExportLogDir implements Command {
+    private final File logDir;
+
+    @Inject ExportLogDir(@Named(LogPrinter.LOG_DIR_KEY) final File logDir) {
+      this.logDir = Preconditions.checkNotNull(logDir);
+    }
+
+    @Override public void execute() {
       Stats.exportStatic(new StatImpl<String>("logging_dir") {
         @Override public String read() {
           return logDir.getAbsolutePath();

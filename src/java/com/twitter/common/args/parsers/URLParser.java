@@ -19,17 +19,15 @@ package com.twitter.common.args.parsers;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import com.twitter.common.args.ArgParser;
+
 /**
  * URL parser.
  *
  * @author William Farner
  */
+@ArgParser
 public class URLParser extends NonParameterizedTypeParser<URL> {
-
-  public URLParser() {
-    super(URL.class);
-  }
-
   @Override
   public URL doParse(String raw) {
     try {

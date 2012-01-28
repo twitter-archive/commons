@@ -19,6 +19,8 @@ package com.twitter.common.stats;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+
 import com.twitter.common.collections.Pair;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
@@ -98,10 +100,7 @@ public class Rate<T extends Number> extends SampledStat<Double> {
 
     Builder(String name, final T input) {
       this.name = name;
-
-      inputAccessor = new Supplier<T>() {
-        @Override public T get() { return input; }
-      };
+      inputAccessor = Suppliers.ofInstance(input);
     }
 
     Builder(final Stat<T> input) {

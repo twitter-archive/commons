@@ -16,15 +16,15 @@
 
 package com.twitter.common.thrift.callers;
 
-import com.google.common.base.Function;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.MapMaker;
 import com.twitter.common.stats.StatsProvider;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.easymock.EasyMock.expect;
@@ -121,9 +121,9 @@ public class RetryingCallerTest extends AbstractCallerTest {
     return new NullPointerException();
   }
 
-  private Map<Method, AtomicLong> memoizeGetCounter = new MapMaker().makeComputingMap(
-      new Function<Method, AtomicLong>() {
-        @Override public AtomicLong apply(Method method) {
+  private Cache<Method, AtomicLong> memoizeGetCounter = CacheBuilder.newBuilder().build(
+      new CacheLoader<Method, AtomicLong>() {
+        @Override public AtomicLong load(Method method) {
           AtomicLong atomicLong = new AtomicLong();
           expect(statsProvider.makeCounter("test_" + method.getName() + "_retries"))
               .andReturn(atomicLong);

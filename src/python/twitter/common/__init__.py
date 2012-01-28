@@ -14,4 +14,4 @@
 # limitations under the License.
 # ==================================================================================================
 
-__author__ = 'John Sirois'
+__author__ = 'John Sirois, Brian Wickman'

@@ -23,8 +23,10 @@ java_library(name = 'io',
     repo = pants('build-support/commons/ivy:public'),
   ),
   dependencies = [
+    pants('3rdparty:commons-io'),
     pants('3rdparty:commons-lang'),
     pants('3rdparty:guava'),
+    pants('src/java/com/twitter/common/base'),
   ],
   sources = [
     'Codec.java',

@@ -17,10 +17,10 @@
 import os
 from zipfile import ZipFile
 
-from twitter.common import app, log, options
+from twitter.common import app, log
 from twitter.common.java.class_file import ClassFile
 
-options.set_option('log_to_stdout', 'INFO')
+app.set_option('log_to_stdout', 'INFO')
 
 def main(args):
   log.debug('main got args: %s' % args)
@@ -39,5 +39,4 @@ def main(args):
           print foo
       zp.close()
 
-if __name__ == '__main__':
-  app.main()
+app.main()

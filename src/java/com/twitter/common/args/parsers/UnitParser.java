@@ -21,11 +21,9 @@ import java.util.Map;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 
+import com.twitter.common.args.ArgParser;
 import com.twitter.common.quantity.Data;
 import com.twitter.common.quantity.Time;
 import com.twitter.common.quantity.Unit;
@@ -38,13 +36,12 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * @author William Farner
  */
+@ArgParser
 public class UnitParser extends NonParameterizedTypeParser<Unit> {
 
   private final Map<String, Unit> unitValues;
 
   public UnitParser() {
-    super(Unit.class);
-
     unitValues = Maps.uniqueIndex(
         ImmutableList.<Unit>builder().add(Time.values()).add(Data.values()).build(),
         Functions.toStringFunction());

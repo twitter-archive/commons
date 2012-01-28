@@ -20,15 +20,14 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
+import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
-import com.twitter.common.application.ActionRegistry;
-import com.twitter.common.application.ShutdownStage;
-import com.twitter.common.application.StartupStage;
+import com.twitter.common.application.ShutdownRegistry;
 import com.twitter.common.args.Arg;
 import com.twitter.common.args.CmdLine;
 import com.twitter.common.base.Closure;
@@ -45,8 +44,7 @@ import com.twitter.common.stats.NumericStatExporter;
  *
  * Bindings required by this module:
  * <ul>
- *   <li>{@code @StartupStage ActionRegistry} - Startup action registry.
- *   <li>{@code @ShutdownStage ActionRegistry} - Shutdown hook registry.
+ *   <li>{@code @ShutdownStage ShutdownRegistry} - Shutdown action registry.
  * </ul>
  *
  * @author William Farner
@@ -60,27 +58,31 @@ public class StatsExportModule extends AbstractModule {
 
   @Override
   protected void configure() {
-    requireBinding(Key.get(new TypeLiteral<Closure<Map<String, ? extends Number>>>() {}));
-    requestStaticInjection(Init.class);
+    requireBinding(Key.get(new TypeLiteral<Closure<Map<String, ? extends Number>>>() { }));
+    LifecycleModule.bindStartupAction(binder(), StartCuckooExporter.class);
   }
 
-  static class Init {
-    @Inject private static void startExporter(
-        Closure<Map<String, ? extends Number>> statSink,
-        @StartupStage ActionRegistry startupRegistry,
-        @ShutdownStage final ActionRegistry shutdownRegistry) {
+  public static final class StartCuckooExporter implements Command {
 
+    private final Closure<Map<String, ? extends Number>> statSink;
+    private final ShutdownRegistry shutdownRegistry;
+
+    @Inject StartCuckooExporter(
+        Closure<Map<String, ? extends Number>> statSink,
+        ShutdownRegistry shutdownRegistry) {
+
+      this.statSink = Preconditions.checkNotNull(statSink);
+      this.shutdownRegistry = Preconditions.checkNotNull(shutdownRegistry);
+    }
+
+    @Override public void execute() {
       ThreadFactory threadFactory =
           new ThreadFactoryBuilder().setNameFormat("CuckooExporter-%d").setDaemon(true).build();
 
       final NumericStatExporter exporter = new NumericStatExporter(statSink,
           Executors.newScheduledThreadPool(1, threadFactory), EXPORT_INTERVAL.get());
 
-      startupRegistry.addAction(new Command() {
-        @Override public void execute() {
-          exporter.start(shutdownRegistry);
-        }
-      });
+      exporter.start(shutdownRegistry);
     }
   }
 }

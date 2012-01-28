@@ -16,17 +16,15 @@
 
 package com.twitter.common.args.parsers;
 
+import com.twitter.common.args.ArgParser;
+
 /**
  * Float parser.
  *
  * @author William Farner
  */
+@ArgParser
 public class FloatParser extends NumberParser<Float> {
-
-  public FloatParser() {
-    super(Float.class);
-  }
-
   @Override
   Float parseNumber(String raw) {
     return Float.parseFloat(raw);

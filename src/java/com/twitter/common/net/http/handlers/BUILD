@@ -14,8 +14,6 @@
 # limitations under the License.
 # ==================================================================================================
 
-
-
 TEXT_SOURCES = [ 'TextResponseHandler.java' ]
 
 STRING_TEMPLATE_SOURCES = [ 'StringTemplateServlet.java' ]
@@ -60,6 +58,7 @@ java_library(name = 'handlers',
   ),
   dependencies = [
     pants('3rdparty:commons-codec'),
+    pants('3rdparty:gson'),
     pants('3rdparty:guava'),
     pants('3rdparty:guice'),
     pants('3rdparty:servlet-api'),

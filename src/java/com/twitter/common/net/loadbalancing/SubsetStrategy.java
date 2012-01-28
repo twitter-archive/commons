@@ -71,7 +71,9 @@ public class SubsetStrategy<S> implements LoadBalancingStrategy<S> {
 
   @Override
   public void connectionReturned(S backendKey) {
-    wrapped.connectionReturned(backendKey);
+    if (backendSubset.contains(backendKey)) {
+      wrapped.connectionReturned(backendKey);
+    }
   }
 
   @Override

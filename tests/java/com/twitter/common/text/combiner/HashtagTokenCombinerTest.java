@@ -25,7 +25,6 @@ import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableList;
 
-import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,18 +37,16 @@ import com.twitter.common.text.token.attribute.TokenTypeAttribute;
 public class HashtagTokenCombinerTest {
   private TokenStream stream;
   private CharSequenceTermAttribute termAttr;
-  private OffsetAttribute offsetAttr;
   private TokenTypeAttribute typeAttr;
 
   @Before
   public void setup() {
     stream = new HashtagTokenCombiner(
         // This toknizes text into alphabet-only, number-only tokens
-        // and '#', '_'. This simulates how MeCab tokenizes hashtags.
+        // and '#', '_'.
         new RegexExtractor.Builder().setRegexPattern(
             Pattern.compile("([0-9]+|[a-zA-Z]+|\\p{InKatakana}+|#|_)")).build());
     termAttr = stream.getAttribute(CharSequenceTermAttribute.class);
-    offsetAttr = stream.getAttribute(OffsetAttribute.class);
     typeAttr = stream.getAttribute(TokenTypeAttribute.class);
   }
 
@@ -96,9 +93,7 @@ public class HashtagTokenCombinerTest {
   private void verify(List<String> tokens, boolean[] isHashtag) {
     for (int i = 0; i < tokens.size(); i++) {
       assertTrue(stream.incrementToken());
-      assertEquals(tokens.get(i), termAttr.term());
-      assertEquals(termAttr.getOffset(), offsetAttr.startOffset());
-      assertEquals(termAttr.getOffset() + termAttr.getLength(), offsetAttr.endOffset());
+      assertEquals(tokens.get(i), termAttr.getTermString());
       assertEquals(isHashtag[i], TokenType.HASHTAG.equals(typeAttr.getType()));
     }
     assertFalse(stream.incrementToken());

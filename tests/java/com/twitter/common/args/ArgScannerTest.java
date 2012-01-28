@@ -16,6 +16,12 @@
 
 package com.twitter.common.args;
 
+import java.io.File;
+import java.io.PrintStream;
+import java.io.Serializable;
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -23,12 +29,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Ranges;
+import com.google.common.io.NullOutputStream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,16 +48,24 @@ import com.twitter.common.args.constraints.NotNegative;
 import com.twitter.common.args.constraints.NotNull;
 import com.twitter.common.args.constraints.Positive;
 import com.twitter.common.args.constraints.Range;
+import com.twitter.common.args.parsers.NonParameterizedTypeParser;
 import com.twitter.common.base.Command;
 import com.twitter.common.base.Function;
+import com.twitter.common.base.MorePreconditions;
 import com.twitter.common.collections.Pair;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Data;
 import com.twitter.common.quantity.Time;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -90,6 +107,11 @@ public class ArgScannerTest {
     static Arg<Amount<Long, Time>> timeAmount = Arg.create(Amount.of(1L, Time.SECONDS));
     @CmdLine(name = "data_amount", help = "help")
     static Arg<Amount<Long, Data>> dataAmount = Arg.create(Amount.of(1L, Data.MB));
+    @CmdLine(name = "range", help = "help")
+    static Arg<com.google.common.collect.Range<Integer>> range = Arg.create(Ranges.closed(1, 5));
+    @Positional(help = "help")
+    static final Arg<List<Amount<Long, Time>>> positional =
+        Arg.<List<Amount<Long, Time>>>create(ImmutableList.<Amount<Long, Time>>of());
   }
 
   @Test
@@ -178,6 +200,102 @@ public class ArgScannerTest {
           }
         },
         "data_amount", "1Gb");
+    test(StandardArgs.class,
+        new Command() {
+          @Override public void execute() {
+            assertThat(StandardArgs.range.get(), is(Ranges.closed(1, 5)));
+          }
+        },
+        "range", "1-5");
+
+    resetArgs(StandardArgs.class);
+    assertTrue(parse(StandardArgs.class, "1mins", "2secs"));
+    assertEquals(ImmutableList.builder()
+        .add(Amount.of(60L, Time.SECONDS))
+        .add(Amount.of(2L, Time.SECONDS)).build(), StandardArgs.positional.get());
+  }
+
+  public static class Name {
+    private final String name;
+
+    public Name(String name) {
+      this.name = MorePreconditions.checkNotBlank(name);
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    @Override
+    public int hashCode() {
+      return this.name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      return (obj instanceof Name) && name.equals(((Name) obj).name);
+    }
+  }
+
+  @ArgParser
+  public static class NameParser extends NonParameterizedTypeParser<Name> {
+    @Override public Name doParse(String raw) {
+      return new Name(raw);
+    }
+  }
+
+  public static class MeaningOfLife {
+    private final Long answer;
+
+    public MeaningOfLife(Long answer) {
+      this.answer = Preconditions.checkNotNull(answer);
+    }
+
+    @Override
+    public int hashCode() {
+      return this.answer.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      return (obj instanceof MeaningOfLife) && answer.equals(((MeaningOfLife) obj).answer);
+    }
+  }
+
+  public static class Monty extends NonParameterizedTypeParser<MeaningOfLife> {
+    @Override public MeaningOfLife doParse(String raw) {
+      return new MeaningOfLife(42L);
+    }
+  }
+
+  public static class CustomArgs {
+    @CmdLine(name = "custom1", help = "help")
+    static final Arg<Name> nameVal = Arg.create(new Name("jim"));
+
+    @CmdLine(name = "custom2", help = "help", parser = Monty.class)
+    static final Arg<MeaningOfLife> meaningVal = Arg.create(new MeaningOfLife(13L));
+  }
+
+  @Test
+  public void testCustomArgs() {
+    test(CustomArgs.class,
+        new Command() {
+          @Override public void execute() {
+            assertThat(CustomArgs.nameVal.get(), is(new Name("jane")));
+          }
+        }, "custom1", "jane");
+    test(CustomArgs.class,
+        new Command() {
+          @Override public void execute() {
+            assertThat(CustomArgs.meaningVal.get(), is(new MeaningOfLife(42L)));
+          }
+        }, "custom2", "jim");
+  }
+
+  @Test
+  public void testHelp() {
+    assertFalse(parse(StandardArgs.class, "-h"));
+    assertFalse(parse(StandardArgs.class, "-help"));
   }
 
   @Test
@@ -217,6 +335,8 @@ public class ArgScannerTest {
     static final Arg<Pair<String, String>> stringStringPair = Arg.create(null);
     @CmdLine(name = "intIntPair", help = "help")
     static final Arg<Pair<Integer, Integer>> intIntPair = Arg.create(null);
+    @CmdLine(name = "stringTimeAmountPair", help = "help")
+    static final Arg<Pair<String, Amount<Long, Time>>> stringTimeAmountPair = Arg.create(null);
   }
 
   @Test
@@ -297,9 +417,106 @@ public class ArgScannerTest {
           }
         },
         "intIntPair", "10    ,20");
+    test(CollectionArgs.class,
+        new Command() {
+          @Override public void execute() {
+            assertThat(CollectionArgs.stringTimeAmountPair.get(),
+                       is(Pair.of("fred", Amount.of(42L, Time.MINUTES))));
+          }
+        },
+        "stringTimeAmountPair", "fred    ,42mins");
+    test(CollectionArgs.class,
+        new Command() {
+          @Override public void execute() {
+            CollectionArgs.stringTimeAmountPair.get();
+          }
+        },
+        true, "stringTimeAmountPair", "george,1MB");
+
+  }
+
+  static class Serializable1 implements Serializable { }
+  static class Serializable2 implements Serializable { }
+
+  public static class WildcardArgs {
+    @CmdLine(name = "class", help = "help")
+    static Arg<? extends Class<? extends Serializable>> clazz = Arg.create(Serializable1.class);
+    @CmdLine(name = "classList1", help = "help")
+    static final Arg<List<Class<? extends Serializable>>> classList1 = Arg.create(null);
+    @CmdLine(name = "classList2", help = "help")
+    static final Arg<List<? extends Class<? extends Serializable>>> classList2 = Arg.create(null);
+  }
+
+  @Test
+  public void testWildcardArgs() {
+    test(WildcardArgs.class,
+        new Command() {
+          @Override public void execute() {
+            assertSame(Serializable2.class, WildcardArgs.clazz.get());
+          }
+        },
+        "class", Serializable2.class.getName());
+
+    test(WildcardArgs.class,
+        new Command() {
+          @Override public void execute() {
+            WildcardArgs.clazz.get();
+          }
+        },
+        true, "class", Runnable.class.getName());
+
+    test(WildcardArgs.class,
+        new Command() {
+          @Override public void execute() {
+            assertEquals(ImmutableList.of(Serializable1.class, Serializable2.class),
+                         WildcardArgs.classList1.get());
+          }
+        },
+        "classList1", Serializable1.class.getName() + "," + Serializable2.class.getName());
+
+    test(WildcardArgs.class,
+        new Command() {
+          @Override public void execute() {
+            assertEquals(ImmutableList.of(Serializable2.class), WildcardArgs.classList2.get());
+          }
+        },
+        "classList2", Serializable2.class.getName());
+
+    test(WildcardArgs.class,
+        new Command() {
+          @Override public void execute() {
+            WildcardArgs.classList2.get();
+          }
+        },
+        true, "classList2", Serializable1.class.getName() + "," + Runnable.class.getName());
+  }
+
+  @Target(FIELD)
+  @Retention(RUNTIME)
+  public static @interface Equals {
+    String value();
+  }
+
+  @VerifierFor(Equals.class)
+  public static class SameName implements Verifier<Name> {
+    @Override
+    public void verify(Name value, Annotation annotation) {
+      Preconditions.checkArgument(getValue(annotation).equals(value.getName()));
+    }
+
+    @Override
+    public String toString(Class<Name> argType, Annotation annotation) {
+      return "name = " + getValue(annotation);
+    }
+
+    private String getValue(Annotation annotation) {
+      return ((Equals) annotation).value();
+    }
   }
 
   public static class VerifyArgs {
+    @Equals("jake") @CmdLine(name = "custom", help = "help")
+    static final Arg<Name> customVal = Arg.create(new Name("jake"));
     @NotEmpty @CmdLine(name = "string", help = "help")
     static final Arg<String> stringVal = Arg.create("string");
     @NotEmpty @CmdLine(name = "optional_string", help = "help")
@@ -327,6 +544,7 @@ public class ArgScannerTest {
         },
         "string", "newstring");
 
+    testFails(VerifyArgs.class, "custom", "jane");
     testFails(VerifyArgs.class, "string", "");
     testFails(VerifyArgs.class, "optional_string", "");
     testFails(VerifyArgs.class, "int", "0");
@@ -344,38 +562,38 @@ public class ArgScannerTest {
 
   @Test
   public void testJoinKeysToValues() {
-    assertThat(ArgScanner.joinKeysToValues(""), is(Arrays.asList("")));
-    assertThat(ArgScanner.joinKeysToValues("-a", "b", "-c", "-d"),
+    assertThat(ArgScanner.joinKeysToValues(Arrays.asList("")), is(Arrays.asList("")));
+    assertThat(ArgScanner.joinKeysToValues(Arrays.asList("-a", "b", "-c", "-d")),
         is(Arrays.asList("-a=b", "-c", "-d")));
-    assertThat(ArgScanner.joinKeysToValues("-a='b'", "-c", "-d", "'e'"),
+    assertThat(ArgScanner.joinKeysToValues(Arrays.asList("-a='b'", "-c", "-d", "'e'")),
         is(Arrays.asList("-a='b'", "-c", "-d='e'")));
-    assertThat(ArgScanner.joinKeysToValues("-a=-b", "c", "-d", "\"e\""),
+    assertThat(ArgScanner.joinKeysToValues(Arrays.asList("-a=-b", "c", "-d", "\"e\"")),
         is(Arrays.asList("-a=-b", "c", "-d=\"e\"")));
   }
 
-  public static class NonStaticArg {
-    @CmdLine(name = "string", help = "help")
-    final Arg<String> string = Arg.create();
+  public static class ShortHelpArg {
+    @CmdLine(name = "h", help = "help")
+    static final Arg<String> shortHelp = Arg.create("string");
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testFailsNonStatic() {
-    parse(NonStaticArg.class, "-string=str");
+  public void testShortHelpReserved() {
+    parse(ShortHelpArg.class);
   }
 
-  public static class NonArgArg {
-    @CmdLine(name = "string", help = "help")
-    static final String string = "string";
+  public static class LongHelpArg {
+    @CmdLine(name = "help", help = "help")
+    static final Arg<String> longHelp = Arg.create("string");
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testFailsNonArgArg() {
-    parse(NonArgArg.class, "-string=str");
+  public void testLongHelpReserved() {
+    parse(LongHelpArg.class);
   }
 
   public static class DuplicateNames {
-    @CmdLine(name = "string", help = "help") static String string1 = null;
-    @CmdLine(name = "string", help = "help") static String string2 = null;
+    @CmdLine(name = "string", help = "help") static Arg<String> string1 = Arg.create();
+    @CmdLine(name = "string", help = "help") static Arg<String> string2 = Arg.create();
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -442,6 +660,67 @@ public class ArgScannerTest {
     parse(ImmutableList.of(AmountContainer.class), "-time_amount=1abcd");
   }
 
+  static class Main1 {
+    @Positional(help = "help")
+    static final Arg<List<String>> names = Arg.create(null);
+  }
+
+  static class Main2 {
+    @Positional(help = "help")
+    static final Arg<List<List<String>>> rosters = Arg.create(null);
+  }
+
+  static class Main3 {
+    @Positional(help = "help")
+    static final Arg<List<Double>> percentiles = Arg.create(null);
+
+    @Positional(help = "help")
+    static final Arg<List<File>> files = Arg.create(null);
+  }
+
+  private void resetMainArgs() {
+    resetArgs(Main1.class);
+    resetArgs(Main2.class);
+    resetArgs(Main3.class);
+  }
+
+  @Test
+  public void testMultiplePositionalsFails() {
+    // Indivdually these should work.
+
+    resetMainArgs();
+    assertTrue(parse(Main1.class, "jack,jill", "laurel,hardy"));
+    assertEquals(ImmutableList.of("jack,jill", "laurel,hardy"),
+        ImmutableList.copyOf(Main1.names.get()));
+
+    resetMainArgs();
+    assertTrue(parse(Main2.class, "jack,jill", "laurel,hardy"));
+    assertEquals(
+        ImmutableList.of(
+            ImmutableList.of("jack", "jill"),
+            ImmutableList.of("laurel", "hardy")),
+        ImmutableList.copyOf(Main2.rosters.get()));
+
+    // But if combined in the same class or across classes the @Positional is ambiguous and we
+    // should fail fast.
+
+    resetMainArgs();
+    try {
+      parse(ImmutableList.of(Main1.class, Main2.class), "jack,jill", "laurel,hardy");
+      fail("Expected more than 1 in-scope @Positional Arg List to trigger a failure.");
+    } catch (IllegalArgumentException e) {
+      // expected
+    }
+
+    resetMainArgs();
+    try {
+      parse(Main3.class, "50", "90", "99", "99.9");
+      fail("Expected more than 1 in-scope @Positional Arg List to trigger a failure.");
+    } catch (IllegalArgumentException e) {
+      // expected
+    }
+  }
+
   // TODO(William Farner): Do we want to support nested parameterized args?  If so, need to define a
   // syntax for that and build it in.
   //    e.g. List<List<Integer>>, List<Pair<String, String>>
@@ -488,7 +767,7 @@ public class ArgScannerTest {
     resetArgs(scope);
     IllegalArgumentException exception = null;
     try {
-      parse(scope, args);
+      assertTrue(parse(scope, args));
     } catch (IllegalArgumentException e) {
       exception = e;
     }
@@ -518,8 +797,8 @@ public class ArgScannerTest {
     }
   }
 
-  private static void parse(final Class<?> scope, String... args) {
-    parse(ImmutableList.of(scope), args);
+  private static boolean parse(final Class<?> scope, String... args) {
+    return parse(ImmutableList.of(scope), args);
   }
 
   private static final Function<Class<?>, Predicate<Field>> TO_SCOPE_PREDICATE =
@@ -533,8 +812,9 @@ public class ArgScannerTest {
         }
       };
 
-  private static void parse(Iterable<? extends Class<?>> scopes, String... args) {
+  private static boolean parse(Iterable<? extends Class<?>> scopes, String... args) {
     Predicate<Field> filter = Predicates.or(Iterables.transform(scopes, TO_SCOPE_PREDICATE));
-    ArgScanner.parse(filter, args);
+    PrintStream devNull = new PrintStream(new NullOutputStream());
+    return new ArgScanner(devNull).parse(filter, Arrays.asList(args));
   }
 }

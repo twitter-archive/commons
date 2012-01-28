@@ -29,41 +29,57 @@ limitations under the License.
       <arg value="HEAD"/>
     </exec>
 
-    <exec executable="git" outputproperty="git.tagstring">
-      <arg value="describe"/>
-    </exec>
+    <property name="git.infofile" value="${root.dir}/.pants.d/${git.revision}.gitinfo"/>
     <if>
-      <contains string="${git.tagstring}" substring="cannot"/>
+      <available file="${git.infofile}"/>
       <then>
-        <property name="git.tag" value="none"/>
+        <property file="${git.infofile}"/>
       </then>
       <else>
-        <property name="git.tag" value="${git.tagstring}"/>
-      </else>
-    </if>
+        <exec executable="git" outputproperty="git.tagstring">
+          <arg value="describe"/>
+        </exec>
+        <if>
+          <contains string="${git.tagstring}" substring="cannot"/>
+          <then>
+            <property name="git.tag" value="none"/>
+          </then>
+          <else>
+            <property name="git.tag" value="${git.tagstring}"/>
+          </else>
+        </if>
 
-    <exec executable="git">
-      <arg value="ls-remote"/>
-      <arg value="--heads"/>
-      <arg value="origin"/>
-      <redirector outputproperty="git.branchstring">
-        <outputfilterchain>
-          <linecontains>
-            <contains value="${git.revision}"/>
-          </linecontains>
-          <tokenfilter>
-            <replaceregex pattern="^[^\t]+\trefs/heads/(.*)$" replace="\1"/>
-          </tokenfilter>
-        </outputfilterchain>
-      </redirector>
-    </exec>
-    <if>
-      <length string="${git.branchstring}" trim="true" length="0"/>
-      <then>
-        <property name="git.branchname" value="${git.revision}"/>
-      </then>
-      <else>
-        <property name="git.branchname" value="${git.branchstring}"/>
+        <exec executable="git">
+          <arg value="ls-remote"/>
+          <arg value="--heads"/>
+          <arg value="origin"/>
+          <redirector outputproperty="git.branchstring">
+            <outputfilterchain>
+              <linecontains>
+                <contains value="${git.revision}"/>
+              </linecontains>
+              <tokenfilter>
+                <replaceregex pattern="^[^\t]+\trefs/heads/(.*)$" replace="\1"/>
+              </tokenfilter>
+            </outputfilterchain>
+          </redirector>
+        </exec>
+        <if>
+          <length string="${git.branchstring}" trim="true" length="0"/>
+          <then>
+            <property name="git.branchname" value="${git.revision}"/>
+          </then>
+          <else>
+            <property name="git.branchname" value="${git.branchstring}"/>
+          </else>
+        </if>
+        <propertyfile file="${git.infofile}">
+          <entry key="git.revision" value="${git.revision}"/>
+          <entry key="git.branchname" value="${git.branchname}"/>
+          <entry key="git.branchstring" value="${git.branchstring}"/>
+          <entry key="git.tag" value="${git.tag}"/>
+          <entry key="git.tagstring" value="${git.tagstring}"/>
+        </propertyfile>
       </else>
     </if>
 

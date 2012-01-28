@@ -21,7 +21,6 @@ import java.util.Map;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
-import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.util.AttributeSource;
 
 import com.twitter.common.text.token.TokenProcessor;
@@ -38,7 +37,6 @@ public class ExtractorBasedTokenCombiner extends TokenProcessor {
   private final CharSequenceTermAttribute termAttr;
   private final CharSequenceTermAttribute inputTermAttr;
   private final TokenTypeAttribute typeAttr;
-  private final OffsetAttribute offsetAttr;
 
   private TokenStream extractor = null;
   private CharSequenceTermAttribute extractorTermAttr;
@@ -54,7 +52,6 @@ public class ExtractorBasedTokenCombiner extends TokenProcessor {
     super(inputStream);
     Preconditions.checkArgument(hasAttribute(CharSequenceTermAttribute.class));
     termAttr = getAttribute(CharSequenceTermAttribute.class);
-    offsetAttr = getAttribute(OffsetAttribute.class);
     typeAttr = addAttribute(TokenTypeAttribute.class);
     inputTermAttr = inputStream.getAttribute(CharSequenceTermAttribute.class);
   }
@@ -116,7 +113,6 @@ public class ExtractorBasedTokenCombiner extends TokenProcessor {
         if (currentEndOffset == endOffset) {
           //found it!
           termAttr.setLength(endOffset - startOffset);
-          offsetAttr.setOffset(startOffset, endOffset);
           if (type != null) {
             typeAttr.setType(type);
           }

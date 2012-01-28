@@ -17,6 +17,13 @@
 package com.twitter.common.args.constraints;
 
 import java.lang.annotation.Annotation;
+import java.math.BigDecimal;
+
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+
+import com.twitter.common.args.Verifier;
+import com.twitter.common.args.VerifierFor;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -25,12 +32,11 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * @author William Farner
  */
+@VerifierFor(Range.class)
 public class RangeNumberVerifier implements Verifier<Number> {
   @Override
   public void verify(Number value, Annotation annotation) {
-    checkArgument(annotation instanceof Range, "Annotation is not a range: " + annotation);
-
-    Range range = (Range) annotation;
+    Range range = getRange(annotation);
 
     checkArgument(range.lower() < range.upper(),
         "Range lower bound must be greater than upper bound.");
@@ -38,5 +44,34 @@ public class RangeNumberVerifier implements Verifier<Number> {
     double dblValue = value.doubleValue();
     checkArgument(dblValue >= range.lower() && dblValue <= range.upper(),
         String.format("Value must be in range [%f, %f]", range.lower(), range.upper()));
+  }
+
+  @Override
+  public String toString(Class<Number> argType, Annotation annotation) {
+    Range range = getRange(annotation);
+
+    Function<Number, Number> converter;
+    if (Float.class.isAssignableFrom(argType)
+        || Double.class.isAssignableFrom(argType)
+        || BigDecimal.class.isAssignableFrom(argType)) {
+
+      converter = Functions.identity();
+    } else {
+      converter = new Function<Number, Number>() {
+        @Override public Number apply(Number item) {
+          return item.longValue();
+        }
+      };
+    }
+
+    return String.format("must be >= %s and <= %s",
+                         converter.apply(range.lower()),
+                         converter.apply(range.upper()));
+  }
+
+  private Range getRange(Annotation annotation) {
+    checkArgument(annotation instanceof Range, "Annotation is not a range: " + annotation);
+
+    return (Range) annotation;
   }
 }

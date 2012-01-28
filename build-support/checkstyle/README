@@ -7,9 +7,8 @@ pants('src/java/com/twitter/common/checkstyle') to its dependencies list.  This 
 place the rule you are fixing or developing early on the checkstyle classpath.
 2.) Code your rule and run the test target until the rule works in the way you
 want.
-3.) Remove the dependency you added in 1.) and create a new checkstyle jar:
-$ ./pants src/java/com/twitter/common/checkstyle dist
-$ cp dist/checkstyle-custom-checks.jar build-support/antlib/
-4.) send out a review with your rule changes/additions and the updated
-build-support/antlib/checkstyle-custom-checks.jar
+3.) send out a review with your rule changes/additions
+4.) When you get ship it, submit and push a new checkstyle jar then update
+build-support/profiles/checkstyle-5.5.ivy.xml with the new custom check jar revision and send
+another review.
 

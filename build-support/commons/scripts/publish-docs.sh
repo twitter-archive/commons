@@ -16,8 +16,8 @@
 # ==================================================================================================
 
 MY_DIR=$(dirname $0)
-BUILD_ROOT=$MY_DIR/../../..
-PANTS=$BUILD_ROOT/pants
+PANTS_BUILD_ROOT=$MY_DIR/../../..
+PANTS=$PANTS_BUILD_ROOT/pants
 
 ref=$(git symbolic-ref HEAD)
 branch=${ref#refs/heads/}

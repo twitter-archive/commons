@@ -24,7 +24,6 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,7 +36,6 @@ import com.twitter.common.text.tokenizer.LatinTokenizer;
 public class EmoticonTokenCombinerTest {
   private TokenStream stream;
   private CharSequenceTermAttribute termAttr;
-  private OffsetAttribute offsetAttr;
   private TokenTypeAttribute typeAttr;
 
   @Before
@@ -45,7 +43,6 @@ public class EmoticonTokenCombinerTest {
     stream = new EmoticonTokenCombiner(
         new LatinTokenizer.Builder().setKeepPunctuation(true).build());
     termAttr = stream.getAttribute(CharSequenceTermAttribute.class);
-    offsetAttr = stream.getAttribute(OffsetAttribute.class);
     typeAttr = stream.getAttribute(TokenTypeAttribute.class);
   }
 
@@ -73,9 +70,7 @@ public class EmoticonTokenCombinerTest {
   private void verify(List<String> tokens, TokenType... types) {
     for(int i = 0; i < tokens.size(); i++) {
       assertTrue(stream.incrementToken());
-      assertEquals(tokens.get(i), termAttr.term());
-      assertEquals(termAttr.getOffset(), offsetAttr.startOffset());
-      assertEquals(termAttr.getOffset() + termAttr.getLength(), offsetAttr.endOffset());
+      assertEquals(tokens.get(i), termAttr.getTermString());
       assertEquals(types[i], typeAttr.getType());
     }
     assertFalse(stream.incrementToken());

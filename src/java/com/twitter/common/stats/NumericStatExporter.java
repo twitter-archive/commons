@@ -21,12 +21,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import javax.annotation.Nullable;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 
-import com.twitter.common.application.ActionRegistry;
+import com.twitter.common.application.ShutdownRegistry;
 import com.twitter.common.base.Closure;
 import com.twitter.common.base.Command;
 import com.twitter.common.quantity.Amount;
@@ -75,7 +73,7 @@ public class NumericStatExporter {
    *
    * @param shutdownRegistry Shutdown hook registry to allow the exporter to cleanly halt.
    */
-  public void start(ActionRegistry shutdownRegistry) {
+  public void start(ShutdownRegistry shutdownRegistry) {
     long intervalSecs = exportInterval.as(Time.SECONDS);
     executor.scheduleAtFixedRate(exporter, intervalSecs, intervalSecs, TimeUnit.SECONDS);
 
@@ -88,7 +86,7 @@ public class NumericStatExporter {
 
   /**
    * Stops the stat exporter.  Once stopped, it may be started again by calling
-   * {@link #start(ActionRegistry)}.
+   * {@link #start(ShutdownRegistry)}.
    */
   public void stop() {
     try {

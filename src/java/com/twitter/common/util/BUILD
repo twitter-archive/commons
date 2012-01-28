@@ -14,8 +14,6 @@
 # limitations under the License.
 # ==================================================================================================
 
-
-
 SYSTEM_MOCKS_SOURCES = [
   'Clock.java',
   'Random.java',
@@ -41,6 +39,20 @@ java_library(name = 'logging',
   sources = globs('logging/*.java'),
 )
 
+java_library(name = 'executor-service-shutdown',
+  provides = artifact(
+    org = 'com.twitter.common',
+    name = 'util-executor-service-shutdown',
+    repo = pants('build-support/commons/ivy:public'),
+  ),
+  dependencies = [
+    pants('3rdparty:guava'),
+    pants('src/java/com/twitter/common/base'),
+    pants('src/java/com/twitter/common/quantity'),
+  ],
+  sources = [ 'concurrent/ExecutorServiceShutdown.java' ],
+)
+
 java_library(name = 'util',
   provides = artifact(
     org = 'com.twitter.common',
@@ -48,12 +60,14 @@ java_library(name = 'util',
     repo = pants('build-support/commons/ivy:public'),
   ),
   dependencies = [
+    pants(':executor-service-shutdown'),
     pants('3rdparty:commons-lang'),
     pants('3rdparty:guava'),
     pants('3rdparty:jsr305'),
     # TODO(William Farner): Untangle this false dependency, there are likely people relying
     #   on the util target just to get logging - fix.
     pants(':logging'),
+    pants('src/java/com/twitter/common/base'),
     pants('src/java/com/twitter/common/collections'),
     pants('src/java/com/twitter/common/quantity'),
     pants('src/java/com/twitter/common/stats'),

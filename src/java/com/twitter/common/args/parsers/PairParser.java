@@ -16,38 +16,45 @@
 
 package com.twitter.common.args.parsers;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
+import com.twitter.common.args.ArgParser;
+import com.twitter.common.args.Parser;
+import com.twitter.common.args.ParserOracle;
 import com.twitter.common.args.Parsers;
-import com.twitter.common.args.Parsers.Parser;
+import com.twitter.common.args.TypeUtil;
 import com.twitter.common.collections.Pair;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.twitter.common.args.Parsers.checkedGet;
 
 /**
  * Pair parser.
  *
  * @author William Farner
  */
+@ArgParser
 public class PairParser extends TypeParameterizedParser<Pair> {
 
   public PairParser() {
-    super(Pair.class, 2);
+    super(2);
   }
 
   @Override
-  Pair doParse(String raw, List<Class<?>> paramParsers) {
-    final Parser leftParser = checkedGet(paramParsers.get(0));
-    final Parser rightParser = checkedGet(paramParsers.get(1));
+  Pair doParse(ParserOracle parserOracle, String raw, List<Type> typeParams) {
+    Type leftType = typeParams.get(0);
+    Parser leftParser = parserOracle.get(TypeUtil.getRawType(leftType));
+
+    Type rightType = typeParams.get(1);
+    Parser rightParser = parserOracle.get(TypeUtil.getRawType(rightType));
 
     List<String> parts = ImmutableList.copyOf(Parsers.MULTI_VALUE_SPLITTER.split(raw));
     checkArgument(parts.size() == 2,
         "Only two values may be specified for a pair, you gave " + parts.size());
 
-    return Pair.of(leftParser.parse(null, parts.get(0)),
-        rightParser.parse(null, parts.get(1)));
+    return Pair.of(leftParser.parse(parserOracle, leftType, parts.get(0)),
+                   rightParser.parse(parserOracle, rightType, parts.get(1)));
   }
 }

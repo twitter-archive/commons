@@ -29,4 +29,11 @@ public interface BackoffStrategy {
    * @return the amount of time in milliseconds to back off before retrying the operation
    */
   long calculateBackoffMs(long lastBackoffMs);
+
+  /**
+   * Returns whether to continue backing off.
+   *
+   * @return whether to continue backing off
+   */
+  boolean shouldContinue();
 }

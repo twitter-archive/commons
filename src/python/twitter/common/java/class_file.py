@@ -16,11 +16,14 @@
 
 from java_types import *
 from class_flags import ClassFlags
-from constant import Constant, LongConstant, DoubleConstant, ClassConstant
+from constant import (
+  Constant, LongConstant, DoubleConstant, ClassConstant,
+  FieldrefConstant, InterfaceMethodrefConstant, MethodrefConstant)
 from field_info import FieldInfo
 from method_info import MethodInfo
 from attribute_info import Attribute
 from signature_parser import PackageSpecifier
+from hashlib import md5
 
 class ClassDecoders:
   @staticmethod
@@ -82,19 +85,31 @@ class ClassDecoders:
 class ClassFile(object):
   """Wrapper for a .class file.
   """
+
+  _LINKAGE_CONSTANT_TYPES = (
+    FieldrefConstant,
+    InterfaceMethodrefConstant,
+    MethodrefConstant)
+
   def __init__(self, data):
     self._data = data
     self._decode()
     self._track_dependencies()
 
+  def _linkage_constants(self):
+    return [
+      c for c in self._constant_pool
+      if isinstance(c, self._LINKAGE_CONSTANT_TYPES)]
+
+  def linkage_signature(self):
+    cs = [c(self._constant_pool) for c in self._linkage_constants()]
+    m = md5()
+    m.update('\n'.join(sorted(cs)))
+    return m.hexdigest()
+
   def _track_dependencies(self):
-    self._external_references = set()
-    this = self._this_class(self._constant_pool)
-    for constant in self._constant_pool:
-      if isinstance(constant, ClassConstant):
-        name = constant(self._constant_pool)
-        if name != this and not name.startswith('java.lang.'):
-          self._external_references.add(name)
+    self._external_references = set(
+      c(self._constant_pool) for c in self._linkage_constants())
 
   @staticmethod
   def from_fp(fp):
@@ -199,4 +214,5 @@ class ClassFile(object):
       output.append("external references: ")
       for ref in self._external_references:
         output.append("  %s" % ref)
+    output.append("linkage signature: \n  %s" % self.linkage_signature())
     return '\n'.join(output)

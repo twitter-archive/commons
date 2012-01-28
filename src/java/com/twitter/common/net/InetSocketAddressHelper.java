@@ -18,6 +18,7 @@ package com.twitter.common.net;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
@@ -44,6 +45,23 @@ public final class InetSocketAddressHelper {
       new Function<String, InetSocketAddress>() {
         @Override public InetSocketAddress apply(String value) {
           return parse(value);
+        }
+      };
+
+  /**
+   * A function that uses {@link #getLocalAddress(int)} to map a local port number to an
+   * {@link InetSocketAddress}.
+   * If an {@link UnknownHostException} is thrown, it will be propagated as a
+   * {@link RuntimeException}.
+   */
+  public static final Function<Integer, InetSocketAddress> INT_TO_INET =
+      new Function<Integer, InetSocketAddress>() {
+        @Override public InetSocketAddress apply(Integer port) {
+          try {
+            return getLocalAddress(port);
+          } catch (UnknownHostException e) {
+            throw Throwables.propagate(e);
+          }
         }
       };
 

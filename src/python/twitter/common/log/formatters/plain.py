@@ -14,7 +14,6 @@
 # limitations under the License.
 # ==================================================================================================
 
-import time
 import logging
 
 class PlainFormatter(logging.Formatter):

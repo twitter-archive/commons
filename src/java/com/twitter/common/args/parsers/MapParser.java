@@ -16,6 +16,7 @@
 
 package com.twitter.common.args.parsers;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
@@ -23,31 +24,37 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+import com.twitter.common.args.ArgParser;
+import com.twitter.common.args.Parser;
+import com.twitter.common.args.ParserOracle;
 import com.twitter.common.args.Parsers;
-import com.twitter.common.args.Parsers.Parser;
+import com.twitter.common.args.TypeUtil;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.twitter.common.args.Parsers.checkedGet;
 
 /**
  * Map parser.
  *
  * @author William Farner
  */
+@ArgParser
 public class MapParser extends TypeParameterizedParser<Map> {
 
-  private static final Splitter KEY_VALUE_SPLITTER = Splitter.on("=")
-      .trimResults().omitEmptyStrings();
+  private static final Splitter KEY_VALUE_SPLITTER =
+      Splitter.on("=").trimResults().omitEmptyStrings();
 
   public MapParser() {
-    super(Map.class, 2);
+    super(2);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  Map doParse(String raw, List<Class<?>> paramParsers) {
-    final Parser keyParser = checkedGet(paramParsers.get(0));
-    final Parser valueParser = checkedGet(paramParsers.get(1));
+  Map doParse(ParserOracle parserOracle, String raw, List<Type> typeParams) {
+    Type keyType = typeParams.get(0);
+    Parser keyParser = parserOracle.get(TypeUtil.getRawType(keyType));
+
+    Type valueType = typeParams.get(1);
+    Parser valueParser = parserOracle.get(TypeUtil.getRawType(valueType));
 
     ImmutableMap.Builder map = ImmutableMap.builder();
     for (String keyAndValue : Parsers.MULTI_VALUE_SPLITTER.split(raw)) {
@@ -55,7 +62,8 @@ public class MapParser extends TypeParameterizedParser<Map> {
       checkArgument(fields.size() == 2,
           "Failed to parse key/value pair " + keyAndValue);
 
-      map.put(keyParser.parse(null, fields.get(0)), valueParser.parse(null, fields.get(1)));
+      map.put(keyParser.parse(parserOracle, keyType, fields.get(0)),
+              valueParser.parse(parserOracle, valueType, fields.get(1)));
     }
 
     return map.build();

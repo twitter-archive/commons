@@ -16,28 +16,32 @@
 
 package com.twitter.common.thrift.callers;
 
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Logger;
+
+import javax.annotation.Nullable;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.MapMaker;
+
+import org.apache.thrift.async.AsyncMethodCallback;
+
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
 import com.twitter.common.stats.StatsProvider;
 import com.twitter.common.thrift.TResourceExhaustedException;
-import org.apache.thrift.async.AsyncMethodCallback;
-
-import javax.annotation.Nullable;
-import java.lang.reflect.Method;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Logger;
 
 /**
 * A caller that will retry calls to the wrapped caller.
@@ -80,9 +84,9 @@ public class RetryingCaller extends CallerDecorator {
     this.debug = debug;
   }
 
-  private final Map<Method, AtomicLong> stats =
-      new MapMaker().makeComputingMap(new Function<Method, AtomicLong>() {
-        @Override public AtomicLong apply(Method method) {
+  private final LoadingCache<Method, AtomicLong> stats =
+      CacheBuilder.newBuilder().build(new CacheLoader<Method, AtomicLong>() {
+        @Override public AtomicLong load(Method method) {
           // Thrift does not support overloads - so just the name disambiguates all calls.
           return statsProvider.makeCounter(serviceName + "_" + method.getName() + "_retries");
         }
@@ -183,12 +187,12 @@ public class RetryingCaller extends CallerDecorator {
   }
 
   private boolean isRetryable(Throwable throwable) {
-    return isRetryable.get(throwable.getClass());
+    return isRetryable.getUnchecked(throwable.getClass());
   }
 
-  private final Map<Class<? extends Throwable>, Boolean> isRetryable =
-      new MapMaker().makeComputingMap(new Function<Class<? extends Throwable>, Boolean>() {
-        @Override public Boolean apply(Class<? extends Throwable> exceptionClass) {
+  private final LoadingCache<Class<? extends Throwable>, Boolean> isRetryable =
+      CacheBuilder.newBuilder().build(new CacheLoader<Class<? extends Throwable>, Boolean>() {
+        @Override public Boolean load(Class<? extends Throwable> exceptionClass) {
           return isRetryable(exceptionClass);
         }
       });

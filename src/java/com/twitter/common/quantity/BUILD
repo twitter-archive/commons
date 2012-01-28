@@ -14,8 +14,6 @@
 # limitations under the License.
 # ==================================================================================================
 
-
-
 java_library(name = 'quantity',
   provides = artifact(
     org = 'com.twitter.common',

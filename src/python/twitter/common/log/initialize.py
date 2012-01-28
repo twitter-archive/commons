@@ -42,9 +42,13 @@ import sys
 import time
 import logging
 import getpass
+import errno
+from socket import gethostname
 
 from formatters import glog, plain
 from .options import LogOptions
+
+from twitter.common.dirutil import safe_mkdir
 
 class GenericFilter(logging.Filter):
   def __init__(self, levelfn=lambda record_level: True):
@@ -74,31 +78,69 @@ class ProxyFormatter(logging.Formatter):
       raise ProxyFormatter.UnknownSchemeException("Unknown logging scheme: %s" % scheme)
     return ProxyFormatter._SCHEME_TO_FORMATTER[scheme].format(record)
 
-_FILTER_TYPES = [
-  logging.DEBUG,
-  logging.INFO,
-  logging.WARN,
-  logging.ERROR,
-  logging.FATAL
-]
+_FILTER_TYPES = {
+  logging.DEBUG: 'DEBUG',
+  logging.INFO: 'INFO',
+  logging.WARN: 'WARNING',
+  logging.ERROR: 'ERROR',
+  logging.FATAL: 'FATAL' # strangely python logging transaltes this to CRITICAL
+}
 
-def _setup_disk_logging(filename):
+def _safe_setup_link(link_filename, real_filename):
+  """
+    Create a symlink from link_filename to real_filename.
+  """
+  if os.path.exists(link_filename):
+    try:
+      os.unlink(link_filename)
+    except OSError:
+      pass
+  try:
+    os.symlink(real_filename, link_filename)
+  except OSError:
+    pass
+
+def _setup_disk_logging(filebase):
   handlers = []
   logroot = LogOptions.log_dir()
+  safe_mkdir(logroot)
+  now = time.localtime()
 
   def gen_filter(level):
     return GenericFilter(
       lambda record_level: record_level == level and level >= LogOptions.disk_log_level())
 
-  for filter_type in _FILTER_TYPES:
+  def gen_link_filename(filebase, level):
+    return '%(filebase)s.%(level)s' % {
+      'filebase': filebase,
+      'level': level,
+    }
+
+  hostname = gethostname()
+  username = getpass.getuser()
+  pid = os.getpid()
+  datestring = time.strftime('%Y%m%d-%H%M%S', time.localtime())
+  def gen_verbose_filename(filebase, level):
+    return '%(filebase)s.%(hostname)s.%(user)s.log.%(level)s.%(date)s.%(pid)s' % {
+      'filebase': filebase,
+      'hostname': hostname,
+      'user': username,
+      'level': level,
+      'date': datestring,
+      'pid': pid
+    }
+
+  for filter_type, filter_name in _FILTER_TYPES.items():
     formatter = ProxyFormatter(LogOptions.disk_log_scheme)
     filter = gen_filter(filter_type)
-    logfile = os.path.join(logroot, filename)
-    logfile = '.'.join([logfile, getpass.getuser(), logging.getLevelName(filter_type)])
-    file_handler = logging.FileHandler(logfile)
+    full_filebase = os.path.join(logroot, filebase)
+    logfile_link = gen_link_filename(full_filebase, filter_name)
+    logfile_full = gen_verbose_filename(full_filebase, filter_name)
+    file_handler = logging.FileHandler(logfile_full)
     file_handler.setFormatter(formatter)
     file_handler.addFilter(filter)
     handlers.append(file_handler)
+    _safe_setup_link(logfile_link, logfile_full)
   return handlers
 
 def _setup_stdout_logging():

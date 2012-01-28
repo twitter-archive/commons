@@ -76,17 +76,9 @@ public class TimeSeriesRepositoryImplTest {
     expect(statD.getName()).andReturn("statD");
     expectLastCall().atLeastOnce();
 
-    expect(statB.getName()).andReturn("statB");
-    expectLastCall().atLeastOnce();
     expect(statB.read()).andReturn(1);
-    expect(statA.getName()).andReturn("statA");
-    expectLastCall().atLeastOnce();
     expect(statA.read()).andReturn(2);
-    expect(statC.getName()).andReturn("statC");
-    expectLastCall().atLeastOnce();
     expect(statC.read()).andReturn(3);
-    expect(statD.getName()).andReturn("statD");
-    expectLastCall().atLeastOnce();
     expect(statD.read()).andReturn(4);
 
     control.replay();

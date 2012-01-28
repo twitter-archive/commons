@@ -24,15 +24,6 @@ package com.twitter.common.args.parsers;
 public abstract class NumberParser<T extends Number> extends NonParameterizedTypeParser<T> {
 
   /**
-   * Creates a new number parser.
-   *
-   * @param cls Class that the parser parses into, used to show useful error messages.
-   */
-  NumberParser(Class<T> cls) {
-    super(cls);
-  }
-
-  /**
    * Performs the actual parsing of the value into the target type.
    *
    * @param raw Raw value to parse.
@@ -47,8 +38,7 @@ public abstract class NumberParser<T extends Number> extends NonParameterizedTyp
     try {
       return parseNumber(raw);
     } catch (NumberFormatException e) {
-      throw new IllegalArgumentException(String.format("Invalid %s value: " + e.getMessage(),
-          parsedClass.getSimpleName()));
+      throw new IllegalArgumentException(String.format("Invalid value: " + e.getMessage()));
     }
   }
 }

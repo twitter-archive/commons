@@ -21,11 +21,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.util.Map;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.inject.Binder;
 import com.google.inject.matcher.Matchers;
 
@@ -57,9 +57,9 @@ public final class TimedInterceptor implements MethodInterceptor {
     String value() default "";
   }
 
-  private final Map<Method, SlidingStats> stats =
-      new MapMaker().makeComputingMap(new Function<Method, SlidingStats>() {
-        @Override public SlidingStats apply(Method method) {
+  private final LoadingCache<Method, SlidingStats> stats =
+      CacheBuilder.newBuilder().build(new CacheLoader<Method, SlidingStats>() {
+        @Override public SlidingStats load(Method method) {
           return createStats(method);
         }
       });

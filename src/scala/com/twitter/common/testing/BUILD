@@ -14,9 +14,12 @@
 # limitations under the License.
 # ==================================================================================================
 
-
-
 scala_library(name = 'explicit-specs-runner',
+  provides = artifact(
+    org = 'com.twitter.common',
+    name = 'specs-testing',
+    repo = pants('build-support/commons/ivy:public'),
+  ),
   dependencies = [
     pants('3rdparty:specs'),
   ],

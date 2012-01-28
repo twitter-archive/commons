@@ -13,8 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==================================================================================================
-
-
+from twitter.pants import artifact, globs, pants, java_library, jvm_binary
 
 java_library(name = 'testing',
   dependencies = [
@@ -22,6 +21,47 @@ java_library(name = 'testing',
     pants('3rdparty:guava'),
     pants('3rdparty:junit'),
     pants('3rdparty:tl4j'),
+    pants('src/java/com/twitter/common/reflect'),
   ],
-  sources = globs('*.java')
+  sources = [ 'EasyMockTest.java' ]
+)
+
+java_library(name = 'action',
+  dependencies = [
+    pants('3rdparty:guava'),
+    pants('3rdparty:tl4j'),
+    pants('src/java/com/twitter/common/application:action'),
+    pants('src/java/com/twitter/common/base'),
+  ],
+  sources = [ 'TearDownRegistry.java' ]
+)
+
+java_library(name = 'junit-runner',
+  provides = artifact(
+    org = 'com.twitter.common',
+    name = 'junit-runner',
+    repo = pants('build-support/commons/ivy:public'),
+  ),
+  dependencies = [
+    pants('3rdparty:commons-lang'),
+    pants('3rdparty:guava'),
+    pants('3rdparty:junit'),
+    pants('src/java/com/twitter/common/application'),
+    pants('src/java/com/twitter/common/args'),
+    pants('src/java/com/twitter/common/base'),
+    pants('src/java/com/twitter/common/quantity'),
+  ],
+  sources = globs('runner/*.java')
+).with_description("""
+  A replacement for org.junit.runner.JUnitCore.main that adds:
+  + support for running individual test methods using [classname]#[methodname]
+  + support for stderr and stdout redirection for tests
+  + support for ant style junit-report xml output
+""")
+
+jvm_binary(name = 'junit-runner-main',
+  main = 'com.twitter.common.testing.runner.JUnitConsoleRunner',
+  dependencies = [
+    pants(":junit-runner")
+  ]
 )

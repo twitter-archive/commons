@@ -16,6 +16,8 @@
 
 package com.twitter.common.stats;
 
+import com.google.common.base.Preconditions;
+
 /**
  * A convenience class to wrap a {@link RecordingStat}.
  *
@@ -23,14 +25,16 @@ package com.twitter.common.stats;
  */
 class RecordingStatImpl<T extends Number> implements RecordingStat<T> {
   private final Stat<T> recorded;
+  private final String name;
 
   public RecordingStatImpl(Stat<T> recorded) {
-    this.recorded = recorded;
+    this.recorded = Preconditions.checkNotNull(recorded);
+    this.name = Stats.validateName(recorded.getName());
   }
 
   @Override
   public String getName() {
-    return recorded.getName();
+    return name;
   }
 
   @Override

@@ -15,6 +15,30 @@
 # ==================================================================================================
 
 APT_SOURCES = globs('apt/*.java')
+CORE_SOURCES = [
+ 'Arg.java',
+ 'ArgParser.java',
+ 'CmdLine.java',
+ 'Parser.java',
+ 'ParserOracle.java',
+ 'Positional.java',
+ 'Verifier.java',
+ 'VerifierFor.java',
+]
+DURATION_PARSER = ['parsers/TimeDurationParser.java']
+
+annotation_processor(name = 'core',
+  provides = artifact(
+    org = 'com.twitter.common',
+    name = 'args-core',
+    repo = pants('build-support/commons/ivy:public'),
+  ),
+  dependencies = [
+    pants('3rdparty:guava'),
+    pants('3rdparty:jsr305'),
+  ],
+  sources = CORE_SOURCES,
+)
 
 annotation_processor(name = 'apt',
   provides = artifact(
@@ -23,6 +47,7 @@ annotation_processor(name = 'apt',
     repo = pants('build-support/commons/ivy:public'),
   ),
   dependencies = [
+    pants(':core'),
     pants('3rdparty:commons-lang'),
     pants('3rdparty:guava'),
     pants('3rdparty:jsr305'),
@@ -38,11 +63,27 @@ java_library(name = 'args',
     repo = pants('build-support/commons/ivy:public'),
   ),
   dependencies = [
-    pants('3rdparty:guava'),
     pants(':apt'),
+    pants(':core'),
+    pants('3rdparty:guava'),
     pants('src/java/com/twitter/common/base'),
     pants('src/java/com/twitter/common/net:util'),
     pants('src/java/com/twitter/common/quantity'),
+    pants('src/java/com/twitter/common/reflect'),
   ],
-  sources = rglobs('*.java') - APT_SOURCES
+  sources = rglobs('*.java') - APT_SOURCES - CORE_SOURCES - DURATION_PARSER
+)
+
+java_library(name = 'duration_parser',
+  provides = artifact(
+    org = 'com.twitter.common',
+    name = 'args-duration-parser',
+    repo = pants('build-support/commons/ivy:public'),
+  ),
+  dependencies = [
+    pants(':args'),
+    pants('3rdparty:util-core'),
+    pants('src/java/com/twitter/common/reflect'),
+  ],
+  sources = DURATION_PARSER
 )

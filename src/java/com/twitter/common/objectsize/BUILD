@@ -18,6 +18,11 @@ from glob import glob
 
 
 java_library(name = 'objectsize',
+  provides = artifact(
+    org = 'com.twitter.common',
+    name = 'objectsize',
+    repo = pants('build-support/commons/ivy:public'),
+  ),
   dependencies = [
     pants('3rdparty:guava'),
   ],

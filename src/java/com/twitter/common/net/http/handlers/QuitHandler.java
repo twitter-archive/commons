@@ -59,8 +59,13 @@ public class QuitHandler extends HttpServlet {
   }
 
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-      throws ServletException, IOException {
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    resp.getWriter().println("WARNING - quitting via HTTP GET is deprecated, please POST instead!");
+    doPost(req, resp);
+  }
+
+  @Override
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     LOG.info(String.format("Received quit HTTP signal from %s (%s)",
         req.getRemoteAddr(), req.getRemoteHost()));
 

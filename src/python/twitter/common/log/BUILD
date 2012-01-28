@@ -18,7 +18,7 @@ python_library(
   name = "log",
   sources = rglobs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/app'),
-    pants('src/python/twitter/common/options')
+    pants('src/python/twitter/common/options'),
+    pants('src/python/twitter/common/dirutil'),
   ]
 )

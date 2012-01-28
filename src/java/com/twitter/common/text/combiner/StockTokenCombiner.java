@@ -27,7 +27,7 @@ import com.twitter.common.text.token.attribute.TokenType;
  * Combines multiple tokens denoting a stock symbol (e.g., $YHOO) back into a single token.
  */
 public class StockTokenCombiner extends ExtractorBasedTokenCombiner {
-  private static final Pattern STOCK_SYMBOL_PATTERN =
+  public static final Pattern STOCK_SYMBOL_PATTERN =
     Pattern.compile("(?:^|" + PunctuationDetector.PUNCTUATION_REGEX
                     + "|" + PunctuationDetector.SPACE_REGEX
                     + ")(\\$[a-zA-Z]{1,6}(:[a-zA-Z0-9]{1,6})?)(?=$"

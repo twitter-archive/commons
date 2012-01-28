@@ -16,18 +16,22 @@
 
 package com.twitter.common.stats;
 
-import com.google.common.collect.ImmutableList;
-import com.twitter.common.quantity.Amount;
-import com.twitter.common.quantity.Data;
-import com.twitter.common.quantity.Time;
-
 import java.lang.management.ClassLoadingMXBean;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
 import java.lang.management.OperatingSystemMXBean;
-import java.util.Arrays;
+import java.lang.management.RuntimeMXBean;
+import java.lang.management.ThreadMXBean;
+
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+
+import com.google.common.collect.Iterables;
+import com.twitter.common.quantity.Amount;
+import com.twitter.common.quantity.Data;
+import com.twitter.common.quantity.Time;
 
 /**
  * Convenience class to export statistics about the JVM.
@@ -77,19 +81,29 @@ public class JvmStats {
               }).withName("process_cpu_cores_utilized").withScaleFactor(SECS_PER_NANO).build())
           .build());
     }
+    if (osMbean instanceof com.sun.management.UnixOperatingSystemMXBean) {
+      final com.sun.management.UnixOperatingSystemMXBean unixOsMbean =
+          (com.sun.management.UnixOperatingSystemMXBean) osMbean;
+
+      Stats.exportAll(ImmutableList.<Stat<? extends Number>>builder()
+          .add(new StatImpl<Long>("process_max_fd_count") {
+            @Override public Long read() { return unixOsMbean.getMaxFileDescriptorCount(); }
+          }).add(new StatImpl<Long>("process_open_fd_count") {
+            @Override public Long read() { return unixOsMbean.getOpenFileDescriptorCount(); }
+          }).build());
+    }
 
     final Runtime runtime = Runtime.getRuntime();
     final ClassLoadingMXBean classLoadingBean = ManagementFactory.getClassLoadingMXBean();
-    final MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
-    final MemoryUsage heapUsage = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
-    final MemoryUsage nonHeapUsage = ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage();
+    MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
+    final MemoryUsage heapUsage = memoryBean.getHeapMemoryUsage();
+    final MemoryUsage nonHeapUsage = memoryBean.getNonHeapMemoryUsage();
+    final ThreadMXBean threads = ManagementFactory.getThreadMXBean();
+    final RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
 
     Stats.exportAll(ImmutableList.<Stat<? extends Number>>builder()
       .add(new StatImpl<Long>("jvm_time_ms") {
         @Override public Long read() { return System.currentTimeMillis(); }
-      })
-      .add(new StatImpl<Integer>("jvm_threads_active") {
-        @Override public Integer read() { return Thread.activeCount(); }
       })
       .add(new StatImpl<Integer>("jvm_available_processors") {
         @Override public Integer read() { return runtime.availableProcessors(); }
@@ -149,19 +163,60 @@ public class JvmStats {
         @Override public Long read() { return nonHeapUsage.getMax() / BYTES_PER_MB; }
       })
       .add(new StatImpl<Long>("jvm_uptime_secs") {
-        @Override public Long read() {
-          return ManagementFactory.getRuntimeMXBean().getUptime() / 1000;
-        }
+        @Override public Long read() { return runtimeMXBean.getUptime() / 1000; }
       })
       .add(new StatImpl<Double>("system_load_avg") {
         @Override public Double read() { return osMbean.getSystemLoadAverage(); }
       })
-    .build());
+      .add(new StatImpl<Integer>("jvm_threads_peak") {
+        @Override public Integer read() { return threads.getPeakThreadCount(); }
+      })
+      .add(new StatImpl<Long>("jvm_threads_started") {
+        @Override public Long read() { return threads.getTotalStartedThreadCount(); }
+      })
+      .add(new StatImpl<Integer>("jvm_threads_daemon") {
+        @Override public Integer read() { return threads.getDaemonThreadCount(); }
+      })
+      .add(new StatImpl<Integer>("jvm_threads_active") {
+        @Override public Integer read() { return threads.getThreadCount(); }
+      })
+      .build());
+
+    // Export per memory pool gc time and cycle count like Ostrich
+    // This is based on code in Bridcage: https://cgit.twitter.biz/birdcage/tree/ \
+    // ostrich/src/main/scala/com/twitter/ostrich/stats/StatsCollection.scala
+    Stats.exportAll(Iterables.transform(ManagementFactory.getGarbageCollectorMXBeans(),
+        new Function<GarbageCollectorMXBean, Stat<? extends Number>>(){
+          @Override
+          public Stat<? extends Number> apply(final GarbageCollectorMXBean gcMXBean) {
+            return new StatImpl<Long>(
+                "jvm_gc_" + Stats.normalizeName(gcMXBean.getName()) + "_collection_count") {
+              @Override public Long read() {
+                return gcMXBean.getCollectionCount();
+              }
+            };
+          }
+        }
+    ));
+
+    Stats.exportAll(Iterables.transform(ManagementFactory.getGarbageCollectorMXBeans(),
+        new Function<GarbageCollectorMXBean, Stat<? extends Number>>(){
+          @Override
+          public Stat<? extends Number> apply(final GarbageCollectorMXBean gcMXBean) {
+            return new StatImpl<Long>(
+                "jvm_gc_" + Stats.normalizeName(gcMXBean.getName()) + "_collection_time_ms") {
+              @Override public Long read() {
+                return gcMXBean.getCollectionTime();
+              }
+            };
+          }
+        }
+    ));
 
     Stats.exportString(
         new StatImpl<String>("jvm_input_arguments") {
           @Override public String read() {
-            return ManagementFactory.getRuntimeMXBean().getInputArguments().toString();
+            return runtimeMXBean.getInputArguments().toString();
           }
         }
     );

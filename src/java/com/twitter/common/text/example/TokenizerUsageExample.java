@@ -18,7 +18,6 @@ package com.twitter.common.text.example;
 
 import java.util.Iterator;
 
-import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.util.Attribute;
 
 import com.twitter.common.text.DefaultTextTokenizer;
@@ -76,14 +75,10 @@ public class TokenizerUsageExample {
         CharSequenceTermAttribute termAttribute = stream
             .getAttribute(CharSequenceTermAttribute.class);
 
-        // OffsetAttribute holds indexes into the original String that the current token occupies.
-        // The startOffset is character position is inclusive, the endOffset is exclusive.
-        OffsetAttribute offsetAttribute = stream.getAttribute(OffsetAttribute.class);
-
         // TokenTypeAttribute holds, as you'd expect, the type of the token.
         TokenTypeAttribute typeAttribute = stream.getAttribute(TokenTypeAttribute.class);
         System.out.println(String.format("token %2d (%3d, %3d) type: %12s, token: '%s'",
-                tokenCnt, offsetAttribute.startOffset(), offsetAttribute.endOffset(),
+                tokenCnt, termAttribute.getOffset(), termAttribute.getLength() - termAttribute.getOffset(),
                 typeAttribute.getType().name, termAttribute.getTermCharSequence()));
         tokenCnt++;
       }

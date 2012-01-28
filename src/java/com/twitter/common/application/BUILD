@@ -14,13 +14,13 @@
 # limitations under the License.
 # ==================================================================================================
 
-
-
 ACTION_SOURCES = set([
-    'ActionController.java',
-    'ActionRegistry.java',
     'Lifecycle.java',
+    'LocalServiceRegistry.java',
+    'ServiceLauncher.java',
+    'ShutdownRegistry.java',
     'ShutdownStage.java',
+    'StartupRegistry.java',
     'StartupStage.java',
 ])
 
@@ -34,6 +34,7 @@ java_library(name = 'action',
     pants('3rdparty:guava'),
     pants('3rdparty:guice'),
     pants('src/java/com/twitter/common/base'),
+    pants('src/java/com/twitter/common/net:util'),
   ],
   sources = ACTION_SOURCES
 )

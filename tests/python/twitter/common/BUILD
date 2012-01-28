@@ -16,8 +16,19 @@
 
 python_test_suite(name = 'all',
   dependencies = [
-    pants('tests/python/twitter/common/recordio:all'),
-    pants('tests/python/twitter/common/java'),
+    pants('tests/python/twitter/common/app'),
+    pants('tests/python/twitter/common/config'),
+    pants('tests/python/twitter/common/contextutil'),
     pants('tests/python/twitter/common/decorators'),
+    pants('tests/python/twitter/common/http'),
+    pants('tests/python/twitter/common/java'),
+    pants('tests/python/twitter/common/lang'),
+    pants('tests/python/twitter/common/metrics'),
+    pants('tests/python/twitter/common/options'),
+    pants('tests/python/twitter/common/python'),
+    pants('tests/python/twitter/common/quantity'),
+    pants('tests/python/twitter/common/recordio:all'),
+    pants('tests/python/twitter/common/resourcepool'),
+    pants('tests/python/twitter/common/util'),
   ]
 )

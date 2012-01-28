@@ -18,14 +18,20 @@ java_tests(name = 'small',
   dependencies = [
     pants('3rdparty:junit'),
     pants('src/java/com/twitter/common/args'),
+    pants('src/java/com/twitter/common/args:apt'),
+    pants('src/java/com/twitter/common/args:duration_parser'),
   ],
-  sources = [ 'ParsersTest.java' ]
+  sources = rglobs('argfilterstest/*.java') + [ 'ArgFiltersTest.java', 'ParsersTest.java' ]
+           + rglobs('parsers/*.java')
 )
 
 java_tests(name = 'medium',
   dependencies = [
     pants('3rdparty:junit'),
     pants('src/java/com/twitter/common/args'),
+    pants('src/java/com/twitter/common/base'),
+    pants('src/java/com/twitter/common/net:util'),
+    pants('src/java/com/twitter/common/quantity'),
   ],
   sources = [ 'ArgScannerTest.java' ]
 )

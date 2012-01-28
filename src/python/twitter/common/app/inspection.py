@@ -14,12 +14,15 @@
 # limitations under the License.
 # ==================================================================================================
 
+import os
 import sys
 import inspect
 
 class Inspection(object):
+  class InternalError(Exception): pass
+
   @staticmethod
-  def _find_main_from_caller():
+  def find_main_from_caller():
     stack = inspect.stack()[1:]
     for fr_n in range(len(stack)):
       if 'main' in stack[fr_n][0].f_locals:
@@ -27,7 +30,7 @@ class Inspection(object):
     return None
 
   @staticmethod
-  def _print_stack_locals(out=sys.stderr):
+  def print_stack_locals(out=sys.stderr):
     stack = inspect.stack()[1:]
     for fr_n in range(len(stack)):
       print >> out, '--- frame %s ---\n' % fr_n
@@ -36,9 +39,47 @@ class Inspection(object):
           key, stack[fr_n][0].f_locals[key])
 
   @staticmethod
-  def _find_main_module():
+  def find_main_module():
     stack = inspect.stack()[1:]
     for fr_n in range(len(stack)):
       if 'main' in stack[fr_n][0].f_locals:
         return stack[fr_n][0].f_locals['__name__']
     return None
+
+  @staticmethod
+  def get_main_locals():
+    stack = inspect.stack()[1:]
+    for fr_n in range(len(stack)):
+      if '__name__' in stack[fr_n][0].f_locals and (
+          stack[fr_n][0].f_locals['__name__'] == '__main__'):
+        return stack[fr_n][0].f_locals
+    return {}
+
+  @staticmethod
+  def find_calling_module():
+    stack = inspect.stack()
+    for fr_n in range(len(stack)):
+      if '__name__' in stack[fr_n][0].f_locals:
+        return stack[fr_n][0].f_locals['__name__']
+    raise Inspection.InternalError("Unable to interpret stack frame!")
+
+  @staticmethod
+  def find_application_name():
+    __entry_point__ = None
+    locals = Inspection.get_main_locals()
+    if locals.has_key('__file__') and locals['__file__'] is not None:
+      __entry_point__ = locals['__file__']
+    elif locals.has_key('__loader__'):
+      from zipimport import zipimporter
+      from pkgutil import ImpLoader
+      if isinstance(locals['__loader__'], zipimporter):
+        # assuming it ends in .zip or .egg, it may be of package format, so
+        # foo-version-py2.6-arch.egg, so split off anything after '-'.
+        __entry_point__ = os.path.basename(locals['__loader__'].archive)
+        __entry_point__ = __entry_point__.split('-')[0].split('.')[0]
+      elif isinstance(locals['__loader__'], ImpLoader):
+        __entry_point__ = locals['__loader__'].get_filename()
+    else:
+      __entry_point__ = '__interpreter__'
+    app_name = os.path.basename(__entry_point__)
+    return app_name.split('.')[0]

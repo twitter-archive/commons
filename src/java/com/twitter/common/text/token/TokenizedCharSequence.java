@@ -25,8 +25,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
-
 import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;
 import com.twitter.common.text.token.attribute.PartOfSpeechAttribute;
 import com.twitter.common.text.token.attribute.TokenGroupAttribute;
@@ -247,7 +245,7 @@ public class TokenizedCharSequence implements CharSequence {
   public static final TokenizedCharSequence createFrom(CharSequence text,
       TokenStream tokenizer) {
     tokenizer.reset(text);
-    OffsetAttribute offsetAttr = tokenizer.getAttribute(OffsetAttribute.class);
+    CharSequenceTermAttribute termAttr = tokenizer.getAttribute(CharSequenceTermAttribute.class);
     TokenTypeAttribute typeAttr = tokenizer.getAttribute(TokenTypeAttribute.class);
     PartOfSpeechAttribute posAttr = null;
     if (tokenizer.hasAttribute(PartOfSpeechAttribute.class)) {
@@ -256,8 +254,7 @@ public class TokenizedCharSequence implements CharSequence {
 
     TokenizedCharSequence.Builder builder = new TokenizedCharSequence.Builder(text);
     while (tokenizer.incrementToken()) {
-      builder.addToken(offsetAttr.startOffset(),
-            offsetAttr.endOffset() - offsetAttr.startOffset(),
+      builder.addToken(termAttr.getOffset(), termAttr.getLength(),
             typeAttr.getType(),
             posAttr == null ? Token.DEFAULT_PART_OF_SPEECH : posAttr.getPOS());
     }
@@ -267,7 +264,6 @@ public class TokenizedCharSequence implements CharSequence {
 
   public static final List<TokenizedCharSequence> createFromTokenGroupsIn(
       TokenStream stream) {
-    OffsetAttribute offsetAttr = stream.getAttribute(OffsetAttribute.class);
     CharSequenceTermAttribute termAttr = stream.getAttribute(CharSequenceTermAttribute.class);
     TokenGroupAttribute groupAttr = stream.getAttribute(TokenGroupAttribute.class);
 
@@ -276,12 +272,12 @@ public class TokenizedCharSequence implements CharSequence {
       Builder builder = new Builder(termAttr.getTermCharSequence());
 
       TokenStream groupStream = groupAttr.getTokenGroupStream();
-      OffsetAttribute groupOffsetAttr = groupStream.getAttribute(OffsetAttribute.class);
+      CharSequenceTermAttribute groupTermAttr = groupStream.getAttribute(CharSequenceTermAttribute.class);
       TokenTypeAttribute typeAttr = groupStream.getAttribute(TokenTypeAttribute.class);
 
       while (groupStream.incrementToken()) {
-        builder.addToken(groupOffsetAttr.startOffset() - offsetAttr.startOffset(),
-                         groupOffsetAttr.endOffset() - groupOffsetAttr.startOffset(),
+        builder.addToken(groupTermAttr.getOffset() - termAttr.getOffset(),
+                         groupTermAttr.getLength(),
                          typeAttr.getType());
       }
 

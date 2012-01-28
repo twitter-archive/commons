@@ -16,9 +16,13 @@
 
 package com.twitter.common.args;
 
+import com.google.common.collect.ImmutableMap;
+
+import org.junit.Before;
 import org.junit.Test;
 
-import com.twitter.common.args.Parsers.Parser;
+import com.twitter.common.args.parsers.PairParser;
+import com.twitter.common.args.parsers.StringParser;
 import com.twitter.common.collections.Pair;
 
 import static org.junit.Assert.assertNotNull;
@@ -30,20 +34,33 @@ import static org.junit.Assert.assertSame;
  */
 public class ParsersTest {
 
+  private Parsers defaultParsers;
+
+  @Before
+  public void setUp() {
+    defaultParsers =
+        new Parsers(ImmutableMap.<Class<?>, Parser<?>>of(
+            String.class, new StringParser(),
+            Pair.class, new PairParser()));
+  }
+
   @Test
   public void testParseTypeFamily() {
-    assertNotNull(Parsers.get(String.class));
+    assertNotNull(defaultParsers.get(String.class));
 
     class Credentials extends Pair<String, String> {
       public Credentials(String first, String second) {
         super(first, second);
       }
     }
-    Parser parser = Parsers.get(Credentials.class);
+    Parser parser = defaultParsers.get(Credentials.class);
     assertNotNull(parser);
-    assertSame(parser, Parsers.get(Pair.class));
+    assertSame(parser, defaultParsers.get(Pair.class));
+  }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testNoParser() {
     class NoParserForMe {}
-    assertNull(Parsers.get(NoParserForMe.class));
+    assertNull(defaultParsers.get(NoParserForMe.class));
   }
 }

@@ -16,36 +16,40 @@
 
 package com.twitter.common.args.parsers;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
+import com.twitter.common.args.ArgParser;
+import com.twitter.common.args.Parser;
+import com.twitter.common.args.ParserOracle;
 import com.twitter.common.args.Parsers;
-import com.twitter.common.args.Parsers.Parser;
-
-import static com.twitter.common.args.Parsers.checkedGet;
+import com.twitter.common.args.TypeUtil;
 
 /**
  * List parser.
  *
  * @author William Farner
  */
+@ArgParser
 public class ListParser extends TypeParameterizedParser<List> {
 
   public ListParser() {
-    super(List.class, 1);
+    super(1);
   }
 
   @Override
-  List doParse(String raw, List<Class<?>> paramParsers) {
-    final Parser parser = checkedGet(paramParsers.get(0));
+  List doParse(final ParserOracle parserOracle, String raw, final List<Type> typeParams) {
+    final Type listType = typeParams.get(0);
+    final Parser parser = parserOracle.get(TypeUtil.getRawType(listType));
 
     return ImmutableList.copyOf(Iterables.transform(Parsers.MULTI_VALUE_SPLITTER.split(raw),
         new Function<String, Object>() {
           @Override public Object apply(String raw) {
-            return parser.parse(null, raw);
+            return parser.parse(parserOracle, listType, raw);
           }
         }));
   }

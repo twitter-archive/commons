@@ -29,15 +29,19 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.base.Throwables;
-import com.google.common.collect.ComputationException;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.google.gson.GsonBuilder;
 
 import org.apache.zookeeper.KeeperException;
@@ -258,7 +262,7 @@ public class ServerSetImpl implements ServerSet {
 
     public void watch() throws WatchException, InterruptedException {
       zkClient.registerExpirationHandler(new Command() {
-        @Override public void execute() throws RuntimeException {
+        @Override public void execute() {
           // Servers may have changed Status while we were disconnected from ZooKeeper, check and
           // re-register our node watches.
           rebuildServerSet();
@@ -284,6 +288,21 @@ public class ServerSetImpl implements ServerSet {
               break;
             case NodeDataChanged:
               notifyNodeChange(event.getPath());
+              break;
+            case NodeCreated:
+              // This watcher is only applied to ephemeral sequential server set member nodes we
+              // already know the path of (ie: the ephemeral sequential exists and we're told about
+              // this by reading children).  Its not clear how we can get a NodeCreated event for a
+              // node we already know about - but this appears to occur in the wild.  Firing a
+              // change here is safe even if the event path does not represent a server set member.
+              // The node de-serializer will throw ServiceInstanceFetchException in this case and
+              // these exceptions are logged and filtered out of member sets.
+              notifyNodeChange(event.getPath());
+
+              // TODO(John Sirois): inject a Statsprovider and track these events in a stat
+              LOG.warning("Unexpected NodeCreated event while watching service node: " +
+                  event.getPath());
+
               break;
             default:
               LOG.severe("Unexpected event watching service node: " + event);
@@ -332,63 +351,64 @@ public class ServerSetImpl implements ServerSet {
       }
     }
 
-    private final Map<String, ServiceInstance> servicesByMemberId = new MapMaker()
-        .makeComputingMap(new Function<String, ServiceInstance>() {
-          @Override public ServiceInstance apply(String memberId) {
+    private final LoadingCache<String, ServiceInstance> servicesByMemberId =
+        CacheBuilder.newBuilder().build(new CacheLoader<String, ServiceInstance>() {
+          @Override public ServiceInstance load(String memberId) {
             return getServiceInstance(group.getMemberPath(memberId));
           }
         });
 
     private void rebuildServerSet() {
-      Set<String> memberIds = ImmutableSet.copyOf(servicesByMemberId.keySet());
-      servicesByMemberId.clear();
+      Set<String> memberIds = ImmutableSet.copyOf(servicesByMemberId.asMap().keySet());
+      servicesByMemberId.invalidateAll();
       notifyGroupChange(memberIds);
     }
 
     private void notifyNodeChange(String changedPath) {
       // Invalidate the associated ServiceInstance to trigger a fetch on group notify.
       String memberId = invalidateNodePath(changedPath);
-      notifyGroupChange(Iterables.concat(servicesByMemberId.keySet(), ImmutableList.of(memberId)));
+      notifyGroupChange(
+          Iterables.concat(servicesByMemberId.asMap().keySet(), ImmutableList.of(memberId)));
     }
 
     private String invalidateNodePath(String deletedPath) {
       String memberId = group.getMemberId(deletedPath);
-      servicesByMemberId.remove(memberId);
+      servicesByMemberId.invalidate(memberId);
       return memberId;
     }
 
-    private synchronized void notifyGroupChange(Iterable<String> memberIds) {
-      Set<String> currentMemberIds = ImmutableSet.copyOf(memberIds);
-      Set<String> oldMemberIds = servicesByMemberId.keySet();
-
-      // Ignore no-op state changes except for the 1st when we've seen no group yet.
-      if ((serverSet == null) || !currentMemberIds.equals(oldMemberIds)) {
-        SetView<String> deletedMemberIds = Sets.difference(oldMemberIds, currentMemberIds);
-        oldMemberIds.removeAll(deletedMemberIds);
-
-        SetView<String> unchangedMemberIds = Sets.intersection(oldMemberIds, currentMemberIds);
-        ImmutableSet.Builder<ServiceInstance> services = ImmutableSet.builder();
-        for (String unchangedMemberId : unchangedMemberIds) {
-          services.add(servicesByMemberId.get(unchangedMemberId));
-        }
-
-        // TODO(John Sirois): consider parallelizing fetches
-        SetView<String> newMemberIds = Sets.difference(currentMemberIds, oldMemberIds);
-        for (String newMemberId : newMemberIds) {
-          // This get will trigger a fetch
-          try {
-            services.add(servicesByMemberId.get(newMemberId));
-          } catch (ComputationException e) {
-            Throwable cause = e.getCause();
-            if (!(cause instanceof ServiceInstanceDeletedException)) {
-              Throwables.propagateIfInstanceOf(cause, ServiceInstanceFetchException.class);
-              throw new IllegalStateException(
-                  "Unexpected error fetching member data for: " + newMemberId, e);
+    private final Function<String, ServiceInstance> MAYBE_FETCH_NODE =
+        new Function<String, ServiceInstance>() {
+          @Override public ServiceInstance apply(String memberId) {
+            // This get will trigger a fetch
+            try {
+              return servicesByMemberId.getUnchecked(memberId);
+            } catch (UncheckedExecutionException e) {
+              Throwable cause = e.getCause();
+              if (!(cause instanceof ServiceInstanceDeletedException)) {
+                Throwables.propagateIfInstanceOf(cause, ServiceInstanceFetchException.class);
+                throw new IllegalStateException(
+                    "Unexpected error fetching member data for: " + memberId, e);
+              }
+              return null;
             }
           }
-        }
+        };
 
-        notifyServerSetChange(services.build());
+    private synchronized void notifyGroupChange(Iterable<String> memberIds) {
+      ImmutableSet<String> newMemberIds = ImmutableSortedSet.copyOf(memberIds);
+      Set<String> existingMemberIds = servicesByMemberId.asMap().keySet();
+
+      // Ignore no-op state changes except for the 1st when we've seen no group yet.
+      if ((serverSet == null) || !newMemberIds.equals(existingMemberIds)) {
+        SetView<String> deletedMemberIds = Sets.difference(existingMemberIds, newMemberIds);
+        // Implicit removal from servicesByMemberId.
+        existingMemberIds.removeAll(ImmutableSet.copyOf(deletedMemberIds));
+
+        Iterable<ServiceInstance> serviceInstances = Iterables.filter(
+            Iterables.transform(newMemberIds, MAYBE_FETCH_NODE), Predicates.notNull());
+
+        notifyServerSetChange(ImmutableSet.copyOf(serviceInstances));
       }
     }
 

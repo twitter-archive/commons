@@ -16,12 +16,8 @@
 
 __author__ = 'John Sirois'
 
-from properties import (
-  IllegalArgumentException,
-  Properties,
-)
+from properties import Properties
 
 __all__ = (
-  IllegalArgumentException,
   Properties
 )

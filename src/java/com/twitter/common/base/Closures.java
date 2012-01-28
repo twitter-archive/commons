@@ -49,6 +49,7 @@ public final class Closures {
   public static <T> Function<T, Void> asFunction(final ExceptionalClosure<T, ?> closure) {
     checkNotNull(closure);
 
+    // CHECKSTYLE:OFF IllegalCatch
     return new Function<T, Void>() {
       @Override public Void apply(T item) {
         try {
@@ -59,6 +60,7 @@ public final class Closures {
         return null;
       }
     };
+    // CHECKSTYLE:ON IllegalCatch
   }
 
   /**

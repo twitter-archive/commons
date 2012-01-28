@@ -18,17 +18,15 @@ package com.twitter.common.args.parsers;
 
 import java.io.File;
 
+import com.twitter.common.args.ArgParser;
+
 /**
  * File parser.
  *
  * @author William Farner
  */
+@ArgParser
 public class FileParser extends NonParameterizedTypeParser<File> {
-
-  public FileParser() {
-    super(File.class);
-  }
-
   @Override
   public File doParse(String raw) {
     return new File(raw);

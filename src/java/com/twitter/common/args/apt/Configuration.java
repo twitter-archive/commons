@@ -21,9 +21,9 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -38,6 +38,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.io.CharStreams;
 import com.google.common.io.InputSupplier;
@@ -45,6 +46,7 @@ import com.google.common.io.LineProcessor;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * Loads and stores {@literal @CmdLine} configuration data.
@@ -57,49 +59,49 @@ public class Configuration {
    * Indicates a problem reading stored {@literal @CmdLine} arg configuration data.
    */
   public static class ConfigurationException extends RuntimeException {
-    public ConfigurationException(String message) {
-      super(message);
+    public ConfigurationException(String message, Object... args) {
+      super(String.format(message, args));
     }
     public ConfigurationException(Throwable cause) {
       super(cause);
     }
   }
 
-  private static class FieldInfo {
-    private static final CharMatcher IDENTIFIER_START =
-        CharMatcher.forPredicate(new Predicate<Character>() {
-          @Override public boolean apply(Character c) {
-            return Character.isJavaIdentifierStart(c);
-          }
-        });
+  private static final CharMatcher IDENTIFIER_START =
+      CharMatcher.forPredicate(new Predicate<Character>() {
+        @Override public boolean apply(Character c) {
+          return Character.isJavaIdentifierStart(c);
+        }
+      });
 
-    private static final CharMatcher IDENTIFIER_REST =
-        CharMatcher.forPredicate(new Predicate<Character>() {
-          @Override public boolean apply(Character c) {
-            return Character.isJavaIdentifierPart(c);
-          }
-        });
+  private static final CharMatcher IDENTIFIER_REST =
+      CharMatcher.forPredicate(new Predicate<Character>() {
+        @Override public boolean apply(Character c) {
+          return Character.isJavaIdentifierPart(c);
+        }
+      });
 
-    private static String checkValidIdentifier(String identifier, boolean compound) {
-      Preconditions.checkNotNull(identifier);
+  private static String checkValidIdentifier(String identifier, boolean compound) {
+    Preconditions.checkNotNull(identifier);
 
-      String trimmed = identifier.trim();
-      Preconditions.checkArgument(!trimmed.isEmpty(), "Invalid identifier: '%s'", identifier);
+    String trimmed = identifier.trim();
+    Preconditions.checkArgument(!trimmed.isEmpty(), "Invalid identifier: '%s'", identifier);
 
-      String[] parts = compound ? trimmed.split("\\.") : new String[] { trimmed };
-      for (String part : parts) {
-        Preconditions.checkArgument(
-            IDENTIFIER_REST.matchesAllOf(IDENTIFIER_START.trimLeadingFrom(part)),
-            "Invalid identifier: '%s'", identifier);
-      }
-
-      return trimmed;
+    String[] parts = compound ? trimmed.split("\\.") : new String[] { trimmed };
+    for (String part : parts) {
+      Preconditions.checkArgument(
+          IDENTIFIER_REST.matchesAllOf(IDENTIFIER_START.trimLeadingFrom(part)),
+          "Invalid identifier: '%s'", identifier);
     }
 
-    final String className;
-    final String fieldName;
+    return trimmed;
+  }
 
-    FieldInfo(String className, String fieldName) {
+  public static final class ArgInfo {
+    public final String className;
+    public final String fieldName;
+
+    public ArgInfo(String className, String fieldName) {
       this.className = checkValidIdentifier(className, true);
       this.fieldName = checkValidIdentifier(fieldName, false);
     }
@@ -110,11 +112,11 @@ public class Configuration {
         return true;
       }
 
-      if (!(obj instanceof FieldInfo)) {
+      if (!(obj instanceof ArgInfo)) {
         return false;
       }
 
-      FieldInfo other = (FieldInfo) obj;
+      ArgInfo other = (ArgInfo) obj;
 
       return new EqualsBuilder()
           .append(className, other.className)
@@ -129,21 +131,146 @@ public class Configuration {
           .append(fieldName)
           .toHashCode();
     }
+
+    @Override public String toString() {
+      return new ToStringBuilder(this)
+          .append("className", className)
+          .append("fieldName", fieldName)
+          .toString();
+    }
+  }
+
+  public static final class ParserInfo {
+    public final String parsedType;
+    public final String parserClass;
+
+    public ParserInfo(String parsedType, String parserClass) {
+      this.parsedType = checkValidIdentifier(parsedType, true);
+      this.parserClass = checkValidIdentifier(parserClass, true);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
+      }
+
+      if (!(obj instanceof ParserInfo)) {
+        return false;
+      }
+
+      ParserInfo other = (ParserInfo) obj;
+
+      return new EqualsBuilder()
+          .append(parsedType, other.parsedType)
+          .append(parserClass, other.parserClass)
+          .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+      return new HashCodeBuilder()
+          .append(parsedType)
+          .append(parserClass)
+          .toHashCode();
+    }
+
+    @Override public String toString() {
+      return new ToStringBuilder(this)
+          .append("parsedType", parsedType)
+          .append("parserClass", parserClass)
+          .toString();
+    }
+  }
+
+  public static final class VerifierInfo {
+    public final String verifiedType;
+    public final String verifyingAnnotation;
+    public final String verifierClass;
+
+    public VerifierInfo(String verifiedType, String verifyingAnnotation, String verifierClass) {
+      this.verifiedType = checkValidIdentifier(verifiedType, true);
+      this.verifyingAnnotation = checkValidIdentifier(verifyingAnnotation, true);
+      this.verifierClass = checkValidIdentifier(verifierClass, true);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
+      }
+
+      if (!(obj instanceof VerifierInfo)) {
+        return false;
+      }
+
+      VerifierInfo other = (VerifierInfo) obj;
+
+      return new EqualsBuilder()
+          .append(verifiedType, other.verifiedType)
+          .append(verifyingAnnotation, other.verifyingAnnotation)
+          .append(verifierClass, other.verifierClass)
+          .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+      return new HashCodeBuilder()
+          .append(verifiedType)
+          .append(verifyingAnnotation)
+          .append(verifierClass)
+          .toHashCode();
+    }
+
+    @Override public String toString() {
+      return new ToStringBuilder(this)
+          .append("verifiedType", verifiedType)
+          .append("verifyingAnnotation", verifyingAnnotation)
+          .append("verifierClass", verifierClass)
+          .toString();
+    }
   }
 
   static class Builder {
-    private final Set<FieldInfo> infos = Sets.newHashSet();
+    private final Set<ArgInfo> positionalInfos = Sets.newHashSet();
+    private final Set<ArgInfo> argInfos = Sets.newHashSet();
+    private final Set<ParserInfo> parserInfos = Sets.newHashSet();
+    private final Set<VerifierInfo> verifierInfos = Sets.newHashSet();
 
     public boolean isEmpty() {
-      return infos.isEmpty();
+      return positionalInfos.isEmpty()
+          && argInfos.isEmpty()
+          && parserInfos.isEmpty()
+          && verifierInfos.isEmpty();
     }
 
-    public void addCmdLineArg(String className, String fieldName) {
-      infos.add(new FieldInfo(className, fieldName));
+    void addPositionalInfo(ArgInfo positionalInfo) {
+      positionalInfos.add(positionalInfo);
     }
 
-    public Configuration build() {
-      return new Configuration(infos);
+    void addCmdLineArg(ArgInfo argInfo) {
+      argInfos.add(argInfo);
+    }
+
+    void addParser(ParserInfo parserInfo) {
+      parserInfos.add(parserInfo);
+    }
+
+    public void addParser(String parserForType, String parserType) {
+      addParser(new ParserInfo(parserForType, parserType));
+    }
+
+    void addVerifier(VerifierInfo verifierInfo) {
+      verifierInfos.add(verifierInfo);
+    }
+
+    public void addVerifier(String verifierForType, String annotationType, String verifierType) {
+      addVerifier(new VerifierInfo(verifierForType, annotationType, verifierType));
+    }
+
+    public Configuration build(Configuration configuration) {
+      return new Configuration(ImmutableList.<URL>of(), configuration.nextResourceIndex + 1,
+          positionalInfos, argInfos, parserInfos, verifierInfos);
     }
   }
 
@@ -170,14 +297,29 @@ public class Configuration {
   private static final Function<URL, InputSupplier<? extends Reader>> URL_TO_READER =
       Functions.compose(INPUT_TO_READER, URL_TO_INPUT);
 
-  static final String DEFAULT_RESOURCE_PACKAGE =
-      Configuration.class.getPackage().getName();
-  static final String DEFAULT_RESOURCE_NAME = "cmdline.arg.fields.txt";
-  static final String DEFAULT_RESOURCE_PATH =
-      String.format("%s/%s", DEFAULT_RESOURCE_PACKAGE.replace('.', '/'), DEFAULT_RESOURCE_NAME);
-  private static final String FIELD_NAME_SEPARATOR = " ";
+  static final String DEFAULT_RESOURCE_PACKAGE = Configuration.class.getPackage().getName();
+  private static final String DEFAULT_RESOURCE_NAME = "cmdline.arg.info.txt";
 
   private static final Logger LOG = Logger.getLogger(Configuration.class.getName());
+
+  private static String getResourceName(int index) {
+    return String.format("%s.%s", DEFAULT_RESOURCE_NAME, index);
+  }
+
+  private static String getResourcePath(int index) {
+    return String.format("%s/%s", DEFAULT_RESOURCE_PACKAGE.replace('.', '/'),
+        getResourceName(index));
+  }
+
+  static class ConfigurationResources {
+    final int nextResourceIndex;
+    final Iterator<URL> resources;
+
+    private ConfigurationResources(int nextResourceIndex, Iterator<URL> resources) {
+      this.nextResourceIndex = nextResourceIndex;
+      this.resources = resources;
+    }
+  }
 
   /**
    * Loads the {@literal @CmdLine} argument configuration data stored in the classpath.
@@ -187,79 +329,195 @@ public class Configuration {
    * @throws IOException if the configuration data can not be read from the classpath.
    */
   public static Configuration load() throws ConfigurationException, IOException {
-    List<URL> configs =
-        ImmutableList.copyOf(Iterators.forEnumeration(
-            Configuration.class.getClassLoader().getResources(DEFAULT_RESOURCE_PATH)));
-    LOG.info("Loading @CmdLine config from :" + configs);
-    return load(CharStreams.join(Iterables.transform(configs, URL_TO_READER)));
+    ConfigurationResources allResources = getAllResources();
+    List<URL> configs = ImmutableList.copyOf(allResources.resources);
+    if (configs.isEmpty()) {
+      LOG.info("No @CmdLine arg configs found on the classpath");
+    } else {
+      LOG.info("Loading @CmdLine config from: " + configs);
+    }
+    return load(allResources.nextResourceIndex, configs);
+  }
+
+  private static ConfigurationResources getAllResources() throws IOException {
+    Iterator<URL> allResources = getResources(0); // Try for a main
+    for (int nextResourceIndex = 1; /* until no resources */; nextResourceIndex++) {
+      Iterator<URL> resources = getResources(nextResourceIndex);
+      if (resources.hasNext()) {
+        allResources = Iterators.concat(allResources, resources);
+      } else {
+        return new ConfigurationResources(nextResourceIndex, allResources);
+      }
+    }
+  }
+
+  private static Iterator<URL> getResources(int index) throws IOException {
+    return Iterators.forEnumeration(
+        Configuration.class.getClassLoader().getResources(getResourcePath(index)));
   }
 
   private static class ConfigurationParser implements LineProcessor<Configuration> {
-    private final ImmutableList.Builder<FieldInfo> infoBuilder = ImmutableList.builder();
+    private final ImmutableList.Builder<ArgInfo> positionalInfo = ImmutableList.builder();
+    private final ImmutableList.Builder<ArgInfo> fieldInfoBuilder = ImmutableList.builder();
+    private final ImmutableList.Builder<ParserInfo> parserInfoBuilder = ImmutableList.builder();
+    private final ImmutableList.Builder<VerifierInfo> verifierInfoBuilder = ImmutableList.builder();
 
+    private final Iterable<URL> resources;
+    final int nextIndex;
     int lineNumber = 0;
+
+    private ConfigurationParser(Iterable<URL> resources, int nextIndex) {
+      this.resources = resources;
+      this.nextIndex = nextIndex;
+    }
 
     @Override
     public boolean processLine(String line) throws IOException {
       ++lineNumber;
-      String fieldId = line.trim();
-      if (!fieldId.isEmpty() && !fieldId.startsWith("#")) {
-        String[] parts = fieldId.split(FIELD_NAME_SEPARATOR);
-        if (parts.length != 2) {
-          throw new ConfigurationException("Invalid fieldId: " + fieldId + " @" + lineNumber);
+      line = line.trim();
+      if (!line.isEmpty() && !line.startsWith("#")) {
+        List<String> parts = Lists.newArrayList(line.split(" "));
+        if (parts.size() < 1) {
+          throw new ConfigurationException("Invalid line: %s @%d", line, lineNumber);
         }
-        infoBuilder.add(new FieldInfo(parts[0], parts[1]));
+
+        String type = parts.remove(0);
+        if ("positional".equals(type)) {
+          if (parts.size() != 2) {
+            throw new ConfigurationException("Invalid positional line: %s @%d", line, lineNumber);
+          }
+          positionalInfo.add(new ArgInfo(parts.get(0), parts.get(1)));
+        } else if ("field".equals(type)) {
+          if (parts.size() != 2) {
+            throw new ConfigurationException("Invalid field line: %s @%d", line, lineNumber);
+          }
+          fieldInfoBuilder.add(new ArgInfo(parts.get(0), parts.get(1)));
+        } else if ("parser".equals(type)) {
+          if (parts.size() != 2) {
+            throw new ConfigurationException("Invalid parser line: %s @%d", line, lineNumber);
+          }
+          parserInfoBuilder.add(new ParserInfo(parts.get(0), parts.get(1)));
+        } else if ("verifier".equals(type)) {
+          if (parts.size() != 3) {
+            throw new ConfigurationException("Invalid verifier line: %s @%d", line, lineNumber);
+          }
+          verifierInfoBuilder.add(new VerifierInfo(parts.get(0), parts.get(1), parts.get(2)));
+        } else {
+          LOG.warning(String.format("Did not recognize entry type %s for line: %s @%d",
+              type, line, lineNumber));
+        }
       }
       return true;
     }
 
     @Override
     public Configuration getResult() {
-      return new Configuration(infoBuilder.build());
+      return new Configuration(resources, nextIndex, positionalInfo.build(),
+          fieldInfoBuilder.build(), parserInfoBuilder.build(), verifierInfoBuilder.build());
     }
   }
 
-  private static Configuration load(InputSupplier<Reader> input)
+  private static Configuration load(int nextIndex, List<URL> configs)
       throws ConfigurationException, IOException {
-    return CharStreams.readLines(input, new ConfigurationParser());
+    InputSupplier<Reader> input = CharStreams.join(Iterables.transform(configs, URL_TO_READER));
+    return CharStreams.readLines(input, new ConfigurationParser(configs, nextIndex));
   }
 
-  private static final Function<FieldInfo, Field> INFO_TO_FIELD =
-      new Function<FieldInfo, Field>() {
-        @Override public Field apply(FieldInfo info) {
-          try {
-            return Class.forName(info.className).getDeclaredField(info.fieldName);
-          } catch (NoSuchFieldException e) {
-            throw new ConfigurationException(e);
-          } catch (ClassNotFoundException e) {
-            throw new ConfigurationException(e);
-          }
-        }
-      };
+  private final Iterable<URL> resources;
+  private int nextResourceIndex;
+  private final ImmutableSet<ArgInfo> positionalInfos;
+  private final ImmutableSet<ArgInfo> cmdLineInfos;
+  private final ImmutableSet<ParserInfo> parserInfos;
+  private final ImmutableSet<VerifierInfo> verifierInfos;
 
-  private final ImmutableSet<FieldInfo> infos;
+  private Configuration(Iterable<URL> resources, int nextResourceIndex,
+      Iterable<ArgInfo> positionalInfos, Iterable<ArgInfo> cmdLineInfos,
+      Iterable<ParserInfo> parserInfos, Iterable<VerifierInfo> verifierInfos) {
+    this.resources = resources;
+    this.nextResourceIndex = nextResourceIndex;
+    this.positionalInfos = ImmutableSet.copyOf(positionalInfos);
+    this.cmdLineInfos = ImmutableSet.copyOf(cmdLineInfos);
+    this.parserInfos = ImmutableSet.copyOf(parserInfos);
+    this.verifierInfos = ImmutableSet.copyOf(verifierInfos);
+  }
 
-  private Configuration(Iterable<FieldInfo> infos) {
-    this.infos = ImmutableSet.copyOf(infos);
+  public boolean isEmpty() {
+    return positionalInfos.isEmpty()
+        && cmdLineInfos.isEmpty()
+        && parserInfos.isEmpty()
+        && verifierInfos.isEmpty();
   }
 
   /**
-   * Returns all the {@literal @CmdLine} annotated fields on the classpath.
+   * Returns the field info for the sole {@literal @Positional} annotated field on the classpath,
+   * if any.
    *
-   * @return All the {@literal @CmdLine} annotated fields.
-   * @throws ConfigurationException if {@literal @CmdLine} annotated fields cannot be located.
+   * @return The field info for the {@literal @Positional} annotated field if any.
    */
-  public Iterable<Field> fields() throws ConfigurationException {
-    return Iterables.transform(infos, INFO_TO_FIELD);
+  public Iterable<ArgInfo> positionalInfo() {
+    return positionalInfos;
+  }
+
+  /**
+   * Returns the field info for all the {@literal @CmdLine} annotated fields on the classpath.
+   *
+   * @return The field info for all the {@literal @CmdLine} annotated fields.
+   */
+  public Iterable<ArgInfo> optionInfo() {
+    return cmdLineInfos;
+  }
+
+  /**
+   * Returns the parser info for all the {@literal @ArgParser} annotated parsers on the classpath.
+   *
+   * @return The parser info for all the {@literal @ArgParser} annotated parsers.
+   */
+  public Iterable<ParserInfo> parserInfo() {
+    return parserInfos;
+  }
+
+  /**
+   * Returns the verifier info for all the {@literal @VerifierFor} annotated verifiers on the
+   * classpath.
+   *
+   * @return The verifier info for all the {@literal @VerifierFor} annotated verifiers.
+   */
+  public Iterable<VerifierInfo> verifierInfo() {
+    return verifierInfos;
+  }
+
+  static String mainResourceName() {
+    return getResourceName(0);
+  }
+
+  String nextResourceName() {
+    return getResourceName(nextResourceIndex);
   }
 
   void store(Writer output, String message) {
     PrintWriter writer = new PrintWriter(output);
     writer.printf("# %s\n", new Date());
     writer.printf("# %s\n ", message);
+
     writer.println();
-    for (FieldInfo info : infos) {
-      writer.printf("%s%s%s\n", info.className, FIELD_NAME_SEPARATOR, info.fieldName);
+    for (ArgInfo info : positionalInfos) {
+      writer.printf("positional %s %s\n", info.className, info.fieldName);
+    }
+
+    writer.println();
+    for (ArgInfo info : cmdLineInfos) {
+      writer.printf("field %s %s\n", info.className, info.fieldName);
+    }
+
+    writer.println();
+    for (ParserInfo info : parserInfos) {
+      writer.printf("parser %s %s\n", info.parsedType, info.parserClass);
+    }
+
+    writer.println();
+    for (VerifierInfo info : verifierInfos) {
+      writer.printf("verifier %s %s %s\n",
+          info.verifiedType, info.verifyingAnnotation, info.verifierClass);
     }
   }
 }

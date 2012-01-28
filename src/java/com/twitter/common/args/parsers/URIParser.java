@@ -19,17 +19,15 @@ package com.twitter.common.args.parsers;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import com.twitter.common.args.ArgParser;
+
 /**
  * URI parser.
  *
  * @author William Farner
  */
+@ArgParser
 public class URIParser extends NonParameterizedTypeParser<URI> {
-
-  public URIParser() {
-    super(URI.class);
-  }
-
   @Override
   public URI doParse(String raw) {
     try {

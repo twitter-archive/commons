@@ -16,8 +16,6 @@
 
 package com.twitter.common.text.token;
 
-import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
-
 import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;
 import com.twitter.common.text.token.attribute.PartOfSpeechAttribute;
 import com.twitter.common.text.token.attribute.TokenTypeAttribute;
@@ -31,7 +29,6 @@ public class TokenizedCharSequenceStream extends TokenStream {
   private final TokenStream inputStream;
 
   private final CharSequenceTermAttribute termAttr;
-  private final OffsetAttribute offsetAttr;
   private final TokenTypeAttribute typeAttr;
   private final PartOfSpeechAttribute posAttr;
 
@@ -50,7 +47,6 @@ public class TokenizedCharSequenceStream extends TokenStream {
 
     this.inputStream = inputStream;
     termAttr = addAttribute(CharSequenceTermAttribute.class);
-    offsetAttr = addAttribute(OffsetAttribute.class);
     typeAttr = addAttribute(TokenTypeAttribute.class);
     if (hasAttribute(PartOfSpeechAttribute.class)) {
       posAttr = getAttribute(PartOfSpeechAttribute.class);
@@ -66,7 +62,6 @@ public class TokenizedCharSequenceStream extends TokenStream {
   public TokenizedCharSequenceStream() {
     this.inputStream = null;
     termAttr = addAttribute(CharSequenceTermAttribute.class);
-    offsetAttr = addAttribute(OffsetAttribute.class);
     typeAttr = addAttribute(TokenTypeAttribute.class);
     posAttr = addAttribute(PartOfSpeechAttribute.class);
   }
@@ -94,7 +89,6 @@ public class TokenizedCharSequenceStream extends TokenStream {
 
     termAttr.setOffset(token.getOffset());
     termAttr.setLength(token.getLength());
-    offsetAttr.setOffset(token.getOffset(), token.getOffset() + token.getLength());
     typeAttr.setType(token.getType());
     if (posAttr != null) {
       posAttr.setPOS(token.getPartOfSpeech());

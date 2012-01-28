@@ -16,16 +16,6 @@
 
 package com.twitter.common.memcached;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import net.spy.memcached.AddrUtil;
-import net.spy.memcached.BinaryConnectionFactory;
-import net.spy.memcached.DefaultConnectionFactory;
-import net.spy.memcached.MemcachedClient;
-import net.spy.memcached.MemcachedNode;
-import net.spy.memcached.NodeLocator;
-
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,6 +24,18 @@ import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
+import net.spy.memcached.AddrUtil;
+import net.spy.memcached.BinaryConnectionFactory;
+import net.spy.memcached.DefaultConnectionFactory;
+import net.spy.memcached.MemcachedClient;
+import net.spy.memcached.MemcachedNode;
+import net.spy.memcached.NodeLocator;
+import net.spy.memcached.vbucket.config.Config;
 
 /**
  * Helper class for creating a memcached client.
@@ -113,13 +115,13 @@ public class Memcached {
    * Node locator for kestrel. This issues requests to a random node.
    */
   private static class KestrelNodeLocator implements NodeLocator {
-    private final List<MemcachedNode> nodes;
+    private final List<MemcachedNode> nodes = Lists.newArrayList();
     private final Random rand = new Random();
 
     public KestrelNodeLocator(List<MemcachedNode> nodes) {
       Preconditions.checkNotNull(nodes);
       Preconditions.checkState(nodes.size() > 0);
-      this.nodes = nodes;
+      updateNodes(nodes);
     }
 
     @Override
@@ -142,6 +144,16 @@ public class Memcached {
     @Override
     public NodeLocator getReadonlyCopy() {
       return new KestrelNodeLocator(nodes);
+    }
+
+    @Override
+    public void updateLocator(List<MemcachedNode> memcachedNodes, Config config) {
+      updateNodes(memcachedNodes);
+    }
+
+    private void updateNodes(Collection<MemcachedNode> nodes) {
+      this.nodes.clear();
+      this.nodes.addAll(nodes);
     }
   }
 }

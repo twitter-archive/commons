@@ -16,11 +16,17 @@
 
 package com.twitter.common.net.http.handlers;
 
-import com.google.common.collect.Lists;
-import com.twitter.common.stats.Stat;
-import com.twitter.common.stats.Stats;
-
 import javax.servlet.http.HttpServletRequest;
+
+import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Supplier;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+
+import com.twitter.common.stats.Stat;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -31,15 +37,28 @@ import java.util.List;
  */
 public class VarsHandler extends TextResponseHandler {
 
+  private static final Function<Stat, String> VAR_PRINTER = new Function<Stat, String>() {
+    @Override public String apply(Stat stat) {
+      return stat.getName() + " " + stat.read();
+    }
+  };
+
+  private final Supplier<Iterable<Stat>> statSupplier;
+
+  /**
+   * Creates a new handler that will report stats from the provided supplier.
+   *
+   * @param statSupplier Stats supplier.
+   */
+  @Inject
+  VarsHandler(Supplier<Iterable<Stat>> statSupplier) {
+    this.statSupplier = Preconditions.checkNotNull(statSupplier);
+  }
+
   @Override
   public Iterable<String> getLines(HttpServletRequest request) {
-    List<String> lines = Lists.newArrayList();
-    for (Stat var : Stats.getVariables()) {
-      lines.add(var.getName() + " " + var.read());
-    }
-
+    List<String> lines = Lists.newArrayList(Iterables.transform(statSupplier.get(), VAR_PRINTER));
     Collections.sort(lines);
-
     return lines;
   }
 }

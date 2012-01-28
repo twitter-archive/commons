@@ -81,7 +81,7 @@ public abstract class StringTemplateServlet extends HttpServlet {
   }
 
   protected final void writeTemplate(HttpServletResponse response,
-      ExceptionalClosure<StringTemplate, ?> parameterSetter) throws IOException {
+        ExceptionalClosure<StringTemplate, ?> parameterSetter) throws IOException {
     writeTemplate(response, CONTENT_TYPE_TEXT_HTML, HttpServletResponse.SC_OK, parameterSetter);
   }
 

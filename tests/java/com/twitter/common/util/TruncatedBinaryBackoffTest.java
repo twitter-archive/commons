@@ -21,6 +21,8 @@ import com.twitter.common.quantity.Time;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author John Sirois
@@ -68,5 +70,24 @@ public class TruncatedBinaryBackoffTest {
     assertEquals(4, backoff.calculateBackoffMs(2));
     assertEquals(6, backoff.calculateBackoffMs(4));
     assertEquals(6, backoff.calculateBackoffMs(8));
+  }
+
+  @Test
+  public void testCalculateBackoffStop() {
+    TruncatedBinaryBackoff backoff =
+        new TruncatedBinaryBackoff(Amount.of(1L, Time.MILLISECONDS),
+            Amount.of(6L, Time.MILLISECONDS), true);
+
+    assertTrue(backoff.shouldContinue());
+    assertEquals(1, backoff.calculateBackoffMs(0));
+    assertTrue(backoff.shouldContinue());
+    assertEquals(2, backoff.calculateBackoffMs(1));
+    assertTrue(backoff.shouldContinue());
+    assertEquals(4, backoff.calculateBackoffMs(2));
+    assertTrue(backoff.shouldContinue());
+    assertEquals(6, backoff.calculateBackoffMs(4));
+    assertFalse(backoff.shouldContinue());
+    assertEquals(6, backoff.calculateBackoffMs(8));
+    assertFalse(backoff.shouldContinue());
   }
 }

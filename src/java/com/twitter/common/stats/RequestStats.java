@@ -109,6 +109,16 @@ public class RequestStats implements RequestTimer {
   }
 
   /**
+   * Accumulates the error counter, the request counter and the request latency.
+   *
+   * @param latencyMicros The elapsed time before the error occurred.
+   */
+  public void incErrors(long latencyMicros) {
+    requestComplete(latencyMicros);
+    errors.incrementAndGet();
+  }
+
+  /**
    * Accumulates the reconnect counter.
    */
   public void incReconnects() {

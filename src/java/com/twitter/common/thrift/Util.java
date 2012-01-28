@@ -119,8 +119,16 @@ public class Util {
     for (Map.Entry<? extends TFieldIdEnum, FieldMetaData> entry :
         FieldMetaData.getStructMetaDataMap(t.getClass()).entrySet()) {
       @SuppressWarnings("unchecked")
-      Object value = t.getFieldValue(entry.getKey());
-      fields.add(tabs(depth) + entry.getValue().fieldName + ": " + printValue(value, depth));
+      boolean fieldSet = t.isSet(entry.getKey());
+      String strValue;
+      if (fieldSet) {
+        @SuppressWarnings("unchecked")
+        Object value = t.getFieldValue(entry.getKey());
+        strValue = printValue(value, depth);
+      } else {
+        strValue = "not set";
+      }
+      fields.add(tabs(depth) + entry.getValue().fieldName + ": " + strValue);
     }
 
     return Joiner.on("\n").join(fields);

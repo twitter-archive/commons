@@ -16,6 +16,10 @@
 
 package com.twitter.common.args.constraints;
 
+import java.lang.annotation.Annotation;
+
+import com.twitter.common.args.VerifierFor;
+
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
@@ -23,9 +27,15 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * @author William Farner
  */
+@VerifierFor(NotNull.class)
 public class NotNullVerifier extends ScalarVerifier<Object> {
   @Override
   void verify(Object value) {
     checkArgument(value != null, "Value must not be null.");
+  }
+
+  @Override
+  public String toString(Class<Object> argType, Annotation annotation) {
+    return "not null";
   }
 }

@@ -16,17 +16,15 @@
 
 package com.twitter.common.args.parsers;
 
+import com.twitter.common.args.ArgParser;
+
 /**
  * Short parser.
  *
  * @author William Farner
  */
+@ArgParser
 public class ShortParser extends NumberParser<Short> {
-
-  public ShortParser() {
-    super(Short.class);
-  }
-
   @Override
   Short parseNumber(String raw) {
     return Short.parseShort(raw);

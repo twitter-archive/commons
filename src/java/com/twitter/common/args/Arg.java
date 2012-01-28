@@ -68,6 +68,10 @@ public class Arg<T> {
     this.value = hasDefault ? defaultValue : null;
   }
 
+  public boolean hasDefault() {
+    return hasDefault;
+  }
+
   /**
    * Gets the value of the argument.  If a value has not yet been applied to the argument, or the
    * argument did not provide a default value, {@link IllegalStateException} will be thrown.

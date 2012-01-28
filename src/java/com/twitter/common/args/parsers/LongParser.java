@@ -16,17 +16,15 @@
 
 package com.twitter.common.args.parsers;
 
+import com.twitter.common.args.ArgParser;
+
 /**
  * Long parser.
  *
  * @author William Farner
  */
+@ArgParser
 public class LongParser extends NumberParser<Long> {
-
-  public LongParser() {
-    super(Long.class);
-  }
-
   @Override
   Long parseNumber(String raw) {
     return Long.parseLong(raw);

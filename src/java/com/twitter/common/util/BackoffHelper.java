@@ -27,8 +27,7 @@ import java.util.logging.Logger;
 /**
  * A utility for dealing with backoffs of retryable actions.
  *
- * <p>TODO(John Sirois): investigate synergies with BackoffDecider & also consider options for a timeout
- * and/or a maximum number of retries.
+ * <p>TODO(John Sirois): investigate synergies with BackoffDecider.
  *
  * @author John Sirois
  */
@@ -61,6 +60,25 @@ public class BackoffHelper {
   }
 
   /**
+   * Creates a new BackoffHelper that uses truncated binary backoff starting at the given
+   * {@code initialBackoff} and maxing out at the given {@code maxBackoff}. This will either:
+   * <ul>
+   *   <li>{@code stopAtMax == true} : throw {@code BackoffExpiredException} when maxBackoff is
+   *   reached</li>
+   *   <li>{@code stopAtMax == false} : continue backing off with maxBackoff</li>
+   * </ul>
+   *
+   * @param initialBackoff the initial amount of time to back off
+   * @param maxBackoff the maximum amount of time to back off
+   * @param stopAtMax if true, this will throw {@code BackoffStoppedException} when the max backoff is
+   * reached
+   */
+  public BackoffHelper(Amount<Long, Time> initialBackoff, Amount<Long, Time> maxBackoff,
+      boolean stopAtMax) {
+    this(new TruncatedBinaryBackoff(initialBackoff, maxBackoff, stopAtMax));
+  }
+
+  /**
    * Creates a BackoffHelper that uses the given {@code backoffStrategy} to calculate backoffs
    * between retries.
    *
@@ -81,10 +99,11 @@ public class BackoffHelper {
    *
    * @param task the retryable task to execute until success
    * @throws InterruptedException if interrupted while waiting for the task to execute successfully
+   * @throws BackoffStoppedException if the backoff stopped unsuccessfully
    * @throws E if the task throws
    */
   public <E extends Exception> void doUntilSuccess(final ExceptionalSupplier<Boolean, E> task)
-      throws InterruptedException, E {
+      throws InterruptedException, BackoffStoppedException, E {
     doUntilResult(new ExceptionalSupplier<Boolean, E>() {
       @Override public Boolean get() throws E {
         Boolean result = task.get();
@@ -100,18 +119,19 @@ public class BackoffHelper {
    * @param task the retryable task to execute until success
    * @return the result of the successfully executed task
    * @throws InterruptedException if interrupted while waiting for the task to execute successfully
+   * @throws BackoffStoppedException if the backoff stopped unsuccessfully
    * @throws E if the task throws
    */
   public <T, E extends Exception> T doUntilResult(ExceptionalSupplier<T, E> task)
-      throws InterruptedException, E {
+      throws InterruptedException, BackoffStoppedException, E {
     T result = task.get(); // give an immediate try
     return (result != null) ? result : retryWork(task);
   }
 
   private <T, E extends Exception> T retryWork(ExceptionalSupplier<T, E> work)
-      throws E, InterruptedException {
+      throws E, InterruptedException, BackoffStoppedException {
     long currentBackoffMs = 0;
-    while (true) {
+    while (backoffStrategy.shouldContinue()) {
       currentBackoffMs = backoffStrategy.calculateBackoffMs(currentBackoffMs);
       LOG.fine("Operation failed, backing off for " + currentBackoffMs + "ms");
       clock.waitFor(currentBackoffMs);
@@ -120,6 +140,16 @@ public class BackoffHelper {
       if (result != null) {
         return result;
       }
+    }
+    throw new BackoffStoppedException(String.format("Backoff stopped without succeeding."));
+  }
+
+  /**
+   * Occurs after the backoff strategy should stop.
+   */
+  public static class BackoffStoppedException extends RuntimeException {
+    public BackoffStoppedException(String msg) {
+      super(msg);
     }
   }
 }

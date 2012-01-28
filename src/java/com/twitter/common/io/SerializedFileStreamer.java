@@ -16,17 +16,18 @@
 
 package com.twitter.common.io;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.twitter.common.base.Closure;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+
+import com.twitter.common.base.Closure;
 
 /**
  * A streamer that reads from serialized files.
@@ -60,10 +61,10 @@ public class SerializedFileStreamer<T extends Serializable> implements Streamer<
       while ((o = inputStream.readObject()) != null) {
         try {
           T t = (T) o;
-          if (endCondition.apply(t)) {
-            break;
-          }
           if (filter.apply(t)) {
+            if (endCondition.apply(t)) {
+              break;
+            }
             work.execute(t);
             ++count;
           }

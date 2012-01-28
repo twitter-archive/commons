@@ -27,7 +27,7 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Binding annotation used for the startup controller/registry.
+ * Binding annotation used for the startup registry.
  */
 @BindingAnnotation
 @Target({FIELD, PARAMETER, METHOD}) @Retention(RUNTIME)

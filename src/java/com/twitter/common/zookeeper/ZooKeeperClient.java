@@ -26,6 +26,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -77,6 +79,14 @@ public class ZooKeeperClient {
       @Override public void authenticate(ZooKeeper zooKeeper) {
         // noop
       }
+
+      @Override public String scheme() {
+        return null;
+      }
+
+      @Override public byte[] authToken() {
+        return null;
+      }
     };
 
     /**
@@ -85,6 +95,23 @@ public class ZooKeeperClient {
      * @param zooKeeper the client to authenticate
      */
     void authenticate(ZooKeeper zooKeeper);
+
+    /**
+     * Returns the authentication scheme these credentials are for.
+     *
+     * @return the scheme these credentials are for or {@code null} if no authentication is
+     *     intended.
+     */
+    @Nullable
+    String scheme();
+
+    /**
+     * Returns the authentication token.
+     *
+     * @return the authentication token or {@code null} if no authentication is intended.
+     */
+    @Nullable
+    byte[] authToken();
   }
 
   /**
@@ -109,16 +136,24 @@ public class ZooKeeperClient {
    * Creates a set of credentials for the given authentication {@code scheme}.
    *
    * @param scheme the scheme to authenticate with
-   * @param auth the authentication token
+   * @param authToken the authentication token
    * @return a set of credentials that can be used to authenticate the zoo keeper client
    */
-  public static Credentials credentials(final String scheme, final byte[] auth) {
+  public static Credentials credentials(final String scheme, final byte[] authToken) {
     MorePreconditions.checkNotBlank(scheme);
-    Preconditions.checkNotNull(auth);
+    Preconditions.checkNotNull(authToken);
 
     return new Credentials() {
       @Override public void authenticate(ZooKeeper zooKeeper) {
-        zooKeeper.addAuthInfo(scheme, auth);
+        zooKeeper.addAuthInfo(scheme, authToken);
+      }
+
+      @Override public String scheme() {
+        return scheme;
+      }
+
+      @Override public byte[] authToken() {
+        return authToken;
       }
     };
   }

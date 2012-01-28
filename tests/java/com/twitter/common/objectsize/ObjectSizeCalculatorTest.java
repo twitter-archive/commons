@@ -18,17 +18,51 @@ package com.twitter.common.objectsize;
 
 import java.util.LinkedList;
 
+import org.junit.Before;
+
+import com.twitter.common.objectsize.ObjectSizeCalculator.MemoryLayoutSpecification;
+
 import junit.framework.TestCase;
 
 /**
  * @author Attila Szegedi
- *
  */
 public class ObjectSizeCalculatorTest extends TestCase {
-  private static int A = ObjectSizeCalculator.getArrayHeaderSize();
-  private static int O = ObjectSizeCalculator.getObjectHeaderSize();
-  private static int R = ObjectSizeCalculator.getReferenceSize();
-  private static int S = ObjectSizeCalculator.getSuperclassFieldPadding();
+
+  private int A;
+  private int O;
+  private int R;
+  private int S;
+  private ObjectSizeCalculator objectSizeCalculator;
+
+  @Before
+  public void setUp() {
+    MemoryLayoutSpecification memoryLayoutSpecification =
+        new MemoryLayoutSpecification() {
+          @Override public int getArrayHeaderSize() {
+            return 16;
+          }
+          @Override public int getObjectHeaderSize() {
+            return 12;
+          }
+          @Override public int getObjectPadding() {
+            return 8;
+          }
+          @Override public int getReferenceSize() {
+            return 4;
+          }
+          @Override public int getSuperclassFieldPadding() {
+            return 4;
+          }
+        };
+
+    A = memoryLayoutSpecification.getArrayHeaderSize();
+    O = memoryLayoutSpecification.getObjectHeaderSize();
+    R = memoryLayoutSpecification.getReferenceSize();
+    S = memoryLayoutSpecification.getSuperclassFieldPadding();
+
+    objectSizeCalculator = new ObjectSizeCalculator(memoryLayoutSpecification);
+  }
 
   public void testRounding() {
     assertEquals(0, roundTo(0, 8));
@@ -112,12 +146,19 @@ public class ObjectSizeCalculatorTest extends TestCase {
 
   public void testCircular() {
     Circular c1 = new Circular();
-    long size = ObjectSizeCalculator.getObjectSize(c1);
+    long size = objectSizeCalculator.calculateObjectSize(c1);
     c1.c = c1;
-    assertEquals(size, ObjectSizeCalculator.getObjectSize(c1));
+    assertEquals(size, objectSizeCalculator.calculateObjectSize(c1));
   }
 
   public void testLongList() {
+    // TODO(John Sirois): Fails under a 64-bit uncompressed OOPs memory layout of:
+    // arrayHeaderSize = 24
+    // objectHeaderSize = 16
+    // objectPadding = 8
+    // referenceSize = 8
+    // auperclassFieldPadding = 8
+
     LinkedList<Object> l = new LinkedList<Object>();
     for(int i = 0; i < 100000; ++i) {
       l.addLast(new Object());
@@ -126,8 +167,8 @@ public class ObjectSizeCalculatorTest extends TestCase {
         roundTo(O, 8) * 100000, l);
   }
 
-  private static void assertSizeIs(long size, Object o) {
-    assertEquals(roundTo(size, 8), ObjectSizeCalculator.getObjectSize(o));
+  private void assertSizeIs(long size, Object o) {
+    assertEquals(roundTo(size, 8), objectSizeCalculator.calculateObjectSize(o));
   }
 
   private static long roundTo(long x, int multiple) {

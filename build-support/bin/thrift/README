@@ -2,6 +2,4 @@ This directory hierarchy contains thrift binaries compiled for the various
 platforms supported by the repo.
 
 NOTE: The '0.5.0-finagle' version of the binary is a special one that can
-generate thrift interfaces used by Finagle. Anyone who uses Finagle's thrift
-support needs to point their build targets to use that binary, via the
-thrift.binary.version build flag.
+generate thrift interfaces used by Finagle.

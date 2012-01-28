@@ -29,9 +29,9 @@ import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 
-import com.twitter.common.application.ActionRegistry;
-import com.twitter.common.application.ShutdownStage;
-import com.twitter.common.application.StartupStage;
+import com.twitter.common.application.LocalServiceRegistry;
+import com.twitter.common.application.modules.LifecycleModule.RegisteringServiceLauncher;
+import com.twitter.common.application.ShutdownRegistry;
 import com.twitter.common.application.http.DefaultQuitHandler;
 import com.twitter.common.application.http.GraphViewer;
 import com.twitter.common.application.http.HttpAssetConfig;
@@ -54,6 +54,9 @@ import com.twitter.common.net.http.handlers.StringTemplateServlet.CacheTemplates
 import com.twitter.common.net.http.handlers.ThreadStackPrinter;
 import com.twitter.common.net.http.handlers.TimeSeriesDataSource;
 import com.twitter.common.net.http.handlers.VarsHandler;
+import com.twitter.common.net.http.handlers.VarsJsonHandler;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Binding module for injections related to the HTTP server and the default set of servlets.
@@ -114,8 +117,7 @@ public class HttpModule extends AbstractModule {
   @Override
   protected void configure() {
     requireBinding(Injector.class);
-    requireBinding(Key.get(ActionRegistry.class, StartupStage.class));
-    requireBinding(Key.get(ActionRegistry.class, ShutdownStage.class));
+    requireBinding(ShutdownRegistry.class);
 
     // Bind the default abort, quit, and health check handlers.
     bind(Key.get(Runnable.class, Names.named(AbortHandler.ABORT_HANDLER_KEY)))
@@ -141,50 +143,70 @@ public class HttpModule extends AbstractModule {
     Registration.registerServlet(binder(), "/quitquitquit", QuitHandler.class, true);
     Registration.registerServlet(binder(), "/threads", ThreadStackPrinter.class, false);
     Registration.registerServlet(binder(), "/vars", VarsHandler.class, false);
+    Registration.registerServlet(binder(), "/vars.json", VarsJsonHandler.class, false);
 
     GraphViewer.registerResources(binder());
 
-    requestStaticInjection(Init.class);
+    LifecycleModule.bindServiceLauncher(binder(),
+        HttpServerLauncher.PORT_NAME, HttpServerLauncher.class);
   }
 
-  // TODO(William Farner): Use a global Multibinder for startup and shutdown actions to obviate the need
-  //    for these awkward init classes.
-  public static class Init {
-    private static final Logger LOG = Logger.getLogger(Init.class.getName());
+  public static final class HttpServerLauncher
+      extends RegisteringServiceLauncher<RuntimeException> {
+    private static final String PORT_NAME = "http";
 
-    @Inject
-    private static void startHttpServer(
-        @StartupStage ActionRegistry startupRegistry,
-        @ShutdownStage ActionRegistry shutdownRegistry,
-        final HttpServerDispatch httpServerDispatch,
-        final Set<HttpServletConfig> httpServlets,
-        final Set<HttpAssetConfig> httpAssets,
-        final Injector injector) {
+    private final HttpServerDispatch httpServer;
+    private final Set<HttpServletConfig> httpServlets;
+    private final Set<HttpAssetConfig> httpAssets;
+    private final Injector injector;
+    private final ShutdownRegistry shutdownRegistry;
 
-      startupRegistry.addAction(new Command() {
-        @Override public void execute() {
-          if (!httpServerDispatch.listen(HTTP_PORT.get())) {
-            LOG.severe("Failed to start HTTP server, all servlets disabled.");
-            return;
-          }
+    @Inject HttpServerLauncher(
+        LocalServiceRegistry serviceRegistry,
+        HttpServerDispatch httpServer,
+        Set<HttpServletConfig> httpServlets,
+        Set<HttpAssetConfig> httpAssets,
+        Injector injector,
+        ShutdownRegistry shutdownRegistry) {
+      super(serviceRegistry);
+      this.httpServer = checkNotNull(httpServer);
+      this.httpServlets = checkNotNull(httpServlets);
+      this.httpAssets = checkNotNull(httpAssets);
+      this.injector = checkNotNull(injector);
+      this.shutdownRegistry = checkNotNull(shutdownRegistry);
+    }
 
-          for (HttpServletConfig config : httpServlets) {
-            HttpServlet handler = injector.getInstance(config.handlerClass);
-            httpServerDispatch.registerHandler(config.path, handler, config.params, config.silent);
-          }
+    @Override public String getPortName() {
+      return PORT_NAME;
+    }
 
-          for (HttpAssetConfig config : httpAssets) {
-            httpServerDispatch.registerHandler(config.path, config.handler, null, config.silent);
-          }
-        }
-      });
+    @Override public boolean isPrimaryService() {
+      return false;
+    }
+
+    @Override public int launchAndGetPort() {
+      if (!httpServer.listen(HTTP_PORT.get())) {
+        throw new IllegalStateException("Failed to start HTTP server, all servlets disabled.");
+      }
 
       shutdownRegistry.addAction(new Command() {
         @Override public void execute() {
           LOG.info("Shutting down embedded http server");
-          httpServerDispatch.stop();
+          httpServer.stop();
         }
       });
+
+      for (HttpServletConfig config : httpServlets) {
+        HttpServlet handler = injector.getInstance(config.handlerClass);
+        httpServer.registerHandler(config.path, handler, config.params, config.silent);
+      }
+
+      for (HttpAssetConfig config : httpAssets) {
+        httpServer.registerHandler(config.path, config.handler, null, config.silent);
+      }
+
+      return httpServer.getPort();
     }
   }
 }
+

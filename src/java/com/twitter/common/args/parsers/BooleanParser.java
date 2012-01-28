@@ -16,17 +16,15 @@
 
 package com.twitter.common.args.parsers;
 
+import com.twitter.common.args.ArgParser;
+
 /**
  * Boolean parser.
  *
  * @author William Farner
  */
+@ArgParser
 public class BooleanParser extends NonParameterizedTypeParser<Boolean> {
-
-  public BooleanParser() {
-    super(Boolean.class);
-  }
-
   @Override
   public Boolean doParse(String raw) {
     // Magic boolean syntax, no argument value means true.

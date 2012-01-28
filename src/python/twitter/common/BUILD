@@ -19,9 +19,10 @@ python_library(
   dependencies = [
     pants('src/python/twitter/common/collections'),
     pants('src/python/twitter/common/config'),
+    pants('src/python/twitter/common/contextutil'),
     pants('src/python/twitter/common/decorators'),
-    pants('src/python/twitter/common/log'),
-    pants('src/python/twitter/common/options'),
-    pants('src/python/twitter/common/recordio')
+    pants('src/python/twitter/common/dirutil'),
+    pants('src/python/twitter/common/lang'),
+    pants('src/python/twitter/common/quantity'),
   ]
 )

@@ -16,29 +16,6 @@
 
 package com.twitter.common.zookeeper;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
-import com.google.common.testing.TearDown;
-import com.twitter.common.net.pool.DynamicHostSet;
-import com.twitter.common.thrift.TResourceExhaustedException;
-import com.twitter.common.thrift.Thrift;
-import com.twitter.common.thrift.ThriftFactory;
-import com.twitter.common.thrift.ThriftFactory.ThriftFactoryException;
-import com.twitter.common.zookeeper.Group.JoinException;
-import com.twitter.common.zookeeper.ServerSet.EndpointStatus;
-import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
-import com.twitter.thrift.Endpoint;
-import com.twitter.thrift.ServiceInstance;
-import com.twitter.thrift.Status;
-import org.apache.thrift.protocol.TProtocol;
-import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.data.ACL;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -51,10 +28,33 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
+import com.google.common.testing.TearDown;
+
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.zookeeper.ZooDefs;
+import org.apache.zookeeper.data.ACL;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.twitter.common.net.pool.DynamicHostSet;
+import com.twitter.common.thrift.TResourceExhaustedException;
+import com.twitter.common.thrift.Thrift;
+import com.twitter.common.thrift.ThriftFactory;
+import com.twitter.common.thrift.ThriftFactory.ThriftFactoryException;
+import com.twitter.common.zookeeper.Group.JoinException;
+import com.twitter.common.zookeeper.ServerSet.EndpointStatus;
+import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
+import com.twitter.thrift.Endpoint;
+import com.twitter.thrift.ServiceInstance;
+import com.twitter.thrift.Status;
+
+import static org.junit.Assert.*;
 
 /**
  *
@@ -92,8 +92,7 @@ public class ServerSetImplTest extends BaseZooKeeperTest {
 
     ServerSetImpl server = createServerSet();
     EndpointStatus status = server.join(InetSocketAddress.createUnresolved("foo", 1234),
-        ImmutableMap.of("http-admin", InetSocketAddress.createUnresolved("foo", 8080)),
-        Status.ALIVE);
+        makePortMap("http-admin", 8080), Status.ALIVE);
 
     ServiceInstance serviceInstance = new ServiceInstance(new Endpoint("foo", 1234),
         ImmutableMap.of("http-admin", new Endpoint("foo", 8080)), Status.ALIVE);
@@ -156,6 +155,46 @@ public class ServerSetImplTest extends BaseZooKeeperTest {
     assertChangeFiredEmpty();
 
     assertTrue(serverSetBuffer.isEmpty());
+  }
+
+  @Test
+  public void testOrdering() throws Exception {
+    ServerSetImpl client = createServerSet();
+    client.monitor(serverSetMonitor);
+    assertChangeFiredEmpty();
+
+    Map<String, InetSocketAddress> server1Ports = makePortMap("http-admin1", 8080);
+    Map<String, InetSocketAddress> server2Ports = makePortMap("http-admin2", 8081);
+    Map<String, InetSocketAddress> server3Ports = makePortMap("http-admin3", 8082);
+
+    ServerSetImpl server1 = createServerSet();
+    ServerSetImpl server2 = createServerSet();
+    ServerSetImpl server3 = createServerSet();
+
+    ServiceInstance instance1 = new ServiceInstance(new Endpoint("foo", 1000),
+        ImmutableMap.of("http-admin1", new Endpoint("foo", 8080)), Status.ALIVE);
+    ServiceInstance instance2 = new ServiceInstance(new Endpoint("foo", 1001),
+        ImmutableMap.of("http-admin2", new Endpoint("foo", 8081)), Status.ALIVE);
+    ServiceInstance instance3 = new ServiceInstance(new Endpoint("foo", 1002),
+        ImmutableMap.of("http-admin3", new Endpoint("foo", 8082)), Status.ALIVE);
+
+    EndpointStatus status1 = server1.join(InetSocketAddress.createUnresolved("foo", 1000),
+        server1Ports, Status.ALIVE);
+    assertEquals(ImmutableList.of(instance1), ImmutableList.copyOf(serverSetBuffer.take()));
+
+    EndpointStatus status2 = server2.join(InetSocketAddress.createUnresolved("foo", 1001),
+        server2Ports, Status.ALIVE);
+    assertEquals(ImmutableList.of(instance1, instance2),
+        ImmutableList.copyOf(serverSetBuffer.take()));
+
+    EndpointStatus status3 = server3.join(InetSocketAddress.createUnresolved("foo", 1002),
+        server3Ports, Status.ALIVE);
+    assertEquals(ImmutableList.of(instance1, instance2, instance3),
+        ImmutableList.copyOf(serverSetBuffer.take()));
+
+    status2.update(Status.DEAD);
+    assertEquals(ImmutableList.of(instance1, instance3),
+        ImmutableList.copyOf(serverSetBuffer.take()));
   }
 
   //TODO(Jake Mannix) move this test method to ServerSetConnectionPoolTest, which should be renamed to
@@ -221,6 +260,10 @@ public class ServerSetImplTest extends BaseZooKeeperTest {
       }
     });
     return thrift.create();
+  }
+
+  private static Map<String, InetSocketAddress> makePortMap(String name, int port) {
+    return ImmutableMap.of(name, InetSocketAddress.createUnresolved("foo", port));
   }
 
   public static class Service {

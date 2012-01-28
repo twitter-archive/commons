@@ -16,25 +16,6 @@
 
 package com.twitter.common.net;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Functions;
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.ListenableFutureTask;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.twitter.common.base.ExceptionalFunction;
-import com.twitter.common.net.UrlResolver.ResolvedUrl.EndState;
-import com.twitter.common.quantity.Amount;
-import com.twitter.common.quantity.Time;
-import com.twitter.common.stats.PrintableHistogram;
-import com.twitter.common.util.BackoffStrategy;
-import com.twitter.common.util.Clock;
-import com.twitter.common.util.TruncatedBinaryBackoff;
-import com.twitter.common.util.caching.Cache;
-import com.twitter.common.util.caching.LRUCache;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -47,7 +28,29 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.annotation.Nullable;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Functions;
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ListenableFutureTask;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
+import com.twitter.common.base.ExceptionalFunction;
+import com.twitter.common.net.UrlResolver.ResolvedUrl.EndState;
+import com.twitter.common.quantity.Amount;
+import com.twitter.common.quantity.Time;
+import com.twitter.common.stats.PrintableHistogram;
+import com.twitter.common.util.BackoffStrategy;
+import com.twitter.common.util.Clock;
+import com.twitter.common.util.TruncatedBinaryBackoff;
+import com.twitter.common.util.caching.Cache;
+import com.twitter.common.util.caching.LRUCache;
 
 /**
  * Class to aid in resolving URLs by following redirects, which can optionally be performed
@@ -175,7 +178,7 @@ public class UrlResolver {
       return null;
     }
     final ListenableFutureTask<ResolvedUrl> future =
-        new ListenableFutureTask<ResolvedUrl>(
+        ListenableFutureTask.create(
           new Callable<ResolvedUrl>() {
             @Override public ResolvedUrl call() {
               return resolveUrl(url);

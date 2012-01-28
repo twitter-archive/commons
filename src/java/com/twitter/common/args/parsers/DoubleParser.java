@@ -16,17 +16,15 @@
 
 package com.twitter.common.args.parsers;
 
+import com.twitter.common.args.ArgParser;
+
 /**
  * Double parser.
  *
  * @author William Farner
  */
+@ArgParser
 public class DoubleParser extends NumberParser<Double> {
-
-  public DoubleParser() {
-    super(Double.class);
-  }
-
   @Override
   Double parseNumber(String raw) {
     return Double.parseDouble(raw);

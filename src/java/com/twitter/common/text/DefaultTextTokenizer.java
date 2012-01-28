@@ -16,36 +16,20 @@
 
 package com.twitter.common.text;
 
-import java.util.List;
-
-import com.google.common.base.Preconditions;
-
-import com.twitter.common.text.combiner.DotContractedTokenCombiner;
-import com.twitter.common.text.combiner.EmoticonTokenCombiner;
-import com.twitter.common.text.combiner.HashtagTokenCombiner;
-import com.twitter.common.text.combiner.PossessiveTokenCombiner;
-import com.twitter.common.text.combiner.StockTokenCombiner;
-import com.twitter.common.text.combiner.URLTokenCombiner;
-import com.twitter.common.text.combiner.UserNameTokenCombiner;
+import com.twitter.common.text.combiner.*;
 import com.twitter.common.text.example.TokenizerUsageExample;
 import com.twitter.common.text.filter.PunctuationFilter;
 import com.twitter.common.text.token.TokenStream;
-import com.twitter.common.text.token.TokenizedCharSequence;
-import com.twitter.common.text.token.TokenizedCharSequenceStream;
-import com.twitter.common.text.tokenizer.LatinTokenizer;
 
 /**
  * Default implementation of a tokenizer for processing tweets. For sample usage, please consult
  * annotated code example in {@link TokenizerUsageExample}.
  */
-public class DefaultTextTokenizer {
-  private TokenStream tokenizationStream =
-      new TokenizedCharSequenceStream(applyDefaultChain(new LatinTokenizer.Builder().build()));
-
+public class DefaultTextTokenizer extends TextTokenizer {
   // use Builder.
   private DefaultTextTokenizer() { }
 
-  public static final TokenStream applyDefaultChain(TokenStream tokenizer) {
+  public TokenStream applyDefaultChain(TokenStream tokenizer) {
     return
       // combine stock symbol
       new StockTokenCombiner(
@@ -54,46 +38,13 @@ public class DefaultTextTokenizer {
           // combine Mr/Mrs/Dr/Inc + .
           new DotContractedTokenCombiner(
             // combine possessive form (e.g., apple's)
-            new PossessiveTokenCombiner(
+            new PossessiveContractionTokenCombiner(
               // combine URL
               new URLTokenCombiner(
                 // combine # + hashtag
                 new HashtagTokenCombiner(
                   // combine @ + user name
                   new UserNameTokenCombiner(tokenizer)))))));
-  }
-
-  /**
-   * Returns {@code TokenStream} to tokenize a text.
-   *
-   * @return {@code TokenStream} to tokenize the text
-   */
-  public TokenStream getDefaultTokenStream() {
-    return tokenizationStream;
-  }
-
-  /**
-   * Tokenizes a {@code CharSequence}, and returns a {@code TokenizedCharSequence} as a result.
-   *
-   * @param input text to be tokenized
-   * @return {@code TokenizedCharSequence} instance
-   */
-  public TokenizedCharSequence tokenize(CharSequence input) {
-    Preconditions.checkNotNull(input);
-    return TokenizedCharSequence.createFrom(input, getDefaultTokenStream());
-  }
-
-  /**
-   * Tokenizes a {@code CharSequence} into a list of Strings.
-   *
-   * @param input text to be tokenized
-   * @return a list of tokens as String objects
-   */
-  public List<String> tokenizeToStrings(CharSequence input) {
-    Preconditions.checkNotNull(input);
-    TokenStream tokenizer = getDefaultTokenStream();
-    tokenizer.reset(input);
-    return tokenizer.toStringList();
   }
 
   /**
@@ -116,10 +67,8 @@ public class DefaultTextTokenizer {
 
     public DefaultTextTokenizer build() {
       if (!keepPunctuation) {
-        tokenizer.tokenizationStream =
-            new PunctuationFilter(tokenizer.tokenizationStream);
+        tokenizer.tokenizationStream = new PunctuationFilter(tokenizer.tokenizationStream);
       }
-
       return tokenizer;
     }
   }

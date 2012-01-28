@@ -18,19 +18,20 @@ package com.twitter.common.args.parsers;
 
 import java.lang.reflect.Type;
 
+import com.twitter.common.args.ArgParser;
+import com.twitter.common.args.Parser;
+import com.twitter.common.args.ParserOracle;
+
 /**
  * An {@link Enum} parser that matches enum values via {@link Enum#valueOf(Class, String)}.
  *
  * @author John Sirois
  */
-public class EnumParser<T extends Enum<T>> extends BaseParser<T> {
-
-  public EnumParser() {
-    super(Enum.class);
-  }
+@ArgParser
+public class EnumParser<T extends Enum<T>> implements Parser<T> {
 
   @Override
-  public T parse(Type type, String raw) throws IllegalArgumentException {
+  public T parse(ParserOracle parserOracle, Type type, String raw) throws IllegalArgumentException {
     @SuppressWarnings("unchecked")
     Class<T> enumClass = (Class<T>) type;
     return Enum.valueOf(enumClass, raw);

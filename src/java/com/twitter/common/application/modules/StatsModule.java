@@ -18,27 +18,28 @@ package com.twitter.common.application.modules;
 
 import java.util.logging.Logger;
 
+import com.google.common.base.Supplier;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
-import com.google.inject.Key;
 import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 
-import com.twitter.common.application.ActionRegistry;
-import com.twitter.common.application.ShutdownStage;
-import com.twitter.common.application.StartupStage;
+import com.twitter.common.application.ShutdownRegistry;
 import com.twitter.common.args.Arg;
 import com.twitter.common.args.CmdLine;
 import com.twitter.common.base.Command;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
 import com.twitter.common.stats.JvmStats;
+import com.twitter.common.stats.Stat;
 import com.twitter.common.stats.StatImpl;
 import com.twitter.common.stats.Stats;
 import com.twitter.common.stats.TimeSeriesRepository;
 import com.twitter.common.stats.TimeSeriesRepositoryImpl;
 import com.twitter.common.util.BuildInfo;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Binding module for injections related to the in-process stats system.
@@ -51,8 +52,7 @@ import com.twitter.common.util.BuildInfo;
  *
  * Bindings required by this module:
  * <ul>
- *   <li>{@code @StartupStage ActionRegistry} - Startup action registry.
- *   <li>{@code @ShutdownStage ActionRegistry} - Shutdown hook registry.
+ *   <li>{@code ShutdownRegistry} - Shutdown hook registry.
  *   <li>{@code BuildInfo} - Build information for the application.
  * </ul>
  *
@@ -69,10 +69,13 @@ public class StatsModule extends AbstractModule {
   private static final Arg<Amount<Long, Time>> RETENTION_PERIOD =
       Arg.create(Amount.of(1L, Time.HOURS));
 
+  public static Amount<Long, Time> getSamplingInterval() {
+    return SAMPLING_INTERVAL.get();
+  }
+
   @Override
   protected void configure() {
-    requireBinding(Key.get(ActionRegistry.class, StartupStage.class));
-    requireBinding(Key.get(ActionRegistry.class, ShutdownStage.class));
+    requireBinding(ShutdownRegistry.class);
     requireBinding(BuildInfo.class);
 
     // Bindings for TimeSeriesRepositoryImpl.
@@ -84,33 +87,45 @@ public class StatsModule extends AbstractModule {
         .toInstance(SAMPLING_INTERVAL.get());
     bind(TimeSeriesRepository.class).to(TimeSeriesRepositoryImpl.class).in(Singleton.class);
 
-    requestStaticInjection(Init.class);
+    bind(new TypeLiteral<Supplier<Iterable<Stat>>>() {}).toInstance(
+        new Supplier<Iterable<Stat>>() {
+          @Override public Iterable<Stat> get() {
+            return Stats.getVariables();
+          }
+        }
+    );
+
+    LifecycleModule.bindStartupAction(binder(), StartStatPoller.class);
   }
 
-  static class Init {
-    private static final Logger LOG = Logger.getLogger(Init.class.getName());
+  public static final class StartStatPoller implements Command {
+    private static final Logger LOG = Logger.getLogger(StartStatPoller.class.getName());
+    private final ShutdownRegistry shutdownRegistry;
+    private final BuildInfo buildInfo;
+    private final TimeSeriesRepository timeSeriesRepository;
 
-    @Inject
-    private static void startStatsSystem(
-        @StartupStage ActionRegistry startupRegistry,
-        @ShutdownStage final ActionRegistry shutdownRegistry,
-        final BuildInfo buildInfo,
-        final TimeSeriesRepository timeSeriesRepository) {
-      startupRegistry.addAction(new Command() {
-        @Override public void execute() throws RuntimeException {
-          LOG.info("Build information: " + buildInfo.getProperties());
-          for (final BuildInfo.Key key : BuildInfo.Key.values()) {
-            Stats.exportString(new StatImpl<String>(Stats.normalizeName(key.value)) {
-              @Override public String read() {
-                return buildInfo.getProperties().getProperty(key.value);
-              }
-            });
+    @Inject StartStatPoller(
+        ShutdownRegistry shutdownRegistry,
+        BuildInfo buildInfo,
+        TimeSeriesRepository timeSeriesRepository) {
+
+      this.shutdownRegistry = checkNotNull(shutdownRegistry);
+      this.buildInfo = checkNotNull(buildInfo);
+      this.timeSeriesRepository = checkNotNull(timeSeriesRepository);
+    }
+
+    @Override public void execute() {
+      LOG.info("Build information: " + buildInfo.getProperties());
+      for (final BuildInfo.Key key : BuildInfo.Key.values()) {
+        Stats.exportString(new StatImpl<String>(Stats.normalizeName(key.value)) {
+          @Override public String read() {
+            return buildInfo.getProperties().getProperty(key.value);
           }
+        });
+      }
 
-          JvmStats.export();
-          timeSeriesRepository.start(shutdownRegistry);
-        }
-      });
+      JvmStats.export();
+      timeSeriesRepository.start(shutdownRegistry);
     }
   }
 }

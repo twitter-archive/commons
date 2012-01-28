@@ -22,9 +22,9 @@ package com.twitter.common.stats;
  *
  * @author William Farner
  */
-abstract class SampledStat<T extends Number> extends StatImpl<T> implements RecordingStat<T> {
+public abstract class SampledStat<T extends Number> extends StatImpl<T> implements RecordingStat<T> {
 
-  private T prevValue;
+  private volatile T prevValue;
 
   public SampledStat(String name, T defaultValue) {
     super(name);

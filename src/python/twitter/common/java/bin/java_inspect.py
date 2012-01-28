@@ -16,13 +16,14 @@
 
 import os
 
-from twitter.common import options
+from twitter.common import app
 from twitter.common.java.class_file import ClassFile
 
-if __name__ == '__main__':
-  values, args = options.parse()
+def main(args):
   for arg in args:
     cf = ClassFile.from_file(arg)
     print os.path.abspath(arg)
     print cf
     print
+
+app.main()

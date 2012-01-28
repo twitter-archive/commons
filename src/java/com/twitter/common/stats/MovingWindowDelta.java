@@ -44,7 +44,7 @@ public class MovingWindowDelta<T extends Number> extends SampledStat<Long> {
   private MovingWindowDelta(String name, Supplier<T> inputAccessor, int windowSize) {
     super(name, 0l);
 
-    Preconditions.checkArgument(windowSize > 1);
+    Preconditions.checkArgument(windowSize >= 1);
     Preconditions.checkNotNull(inputAccessor);
     MorePreconditions.checkNotBlank(name);
 

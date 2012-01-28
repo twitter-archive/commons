@@ -24,11 +24,29 @@ overridden locally before calling log.init().
 import logging
 import optparse
 
-from twitter.common import options
+from collections import namedtuple
+DefaultLogOpts = namedtuple('DefaultLogOpts',
+  ' '.join(['twitter_common_log_stdout_log_level',
+            'twitter_common_log_disk_log_level',
+            'twitter_common_log_log_dir']))
+_DEFAULT_LOG_OPTS = DefaultLogOpts(
+  twitter_common_log_stdout_log_level='NONE',
+  twitter_common_log_disk_log_level='INFO',
+  twitter_common_log_log_dir='/var/tmp')
+
+try:
+  from twitter.common import app
+  HAVE_APP=True
+except ImportError:
+  class AppDefaultProxy(object):
+    def get_options(self):
+      return _DEFAULT_LOG_OPTS
+  app = AppDefaultProxy()
+  HAVE_APP=False
 
 class LogOptionsException(Exception): pass
 
-class LogOptions:
+class LogOptions(object):
   _LOG_LEVELS = {
     'DEBUG': logging.DEBUG,
     'INFO':  logging.INFO,
@@ -92,7 +110,7 @@ class LogOptions:
       Get the current stdout_log_level (in logging units specified by logging module.)
     """
     if LogOptions._STDOUT_LOG_LEVEL is None:
-      LogOptions.set_stdout_log_level(options.values().twitter_common_log_stdout_log_level)
+      LogOptions.set_stdout_log_level(app.get_options().twitter_common_log_stdout_log_level)
     return LogOptions._STDOUT_LOG_LEVEL
 
   @staticmethod
@@ -101,7 +119,7 @@ class LogOptions:
       Get the current stdout log scheme.
     """
     if LogOptions._STDOUT_LOG_SCHEME is None:
-      LogOptions.set_stdout_log_level(options.values().twitter_common_log_stdout_log_level)
+      LogOptions.set_stdout_log_level(app.get_options().twitter_common_log_stdout_log_level)
     return LogOptions._STDOUT_LOG_SCHEME
 
   @staticmethod
@@ -118,7 +136,7 @@ class LogOptions:
       Get the current disk_log_level (in logging units specified by logging module.)
     """
     if LogOptions._DISK_LOG_LEVEL is None:
-      LogOptions.set_disk_log_level(options.values().twitter_common_log_disk_log_level)
+      LogOptions.set_disk_log_level(app.get_options().twitter_common_log_disk_log_level)
     return LogOptions._DISK_LOG_LEVEL
 
   @staticmethod
@@ -127,7 +145,7 @@ class LogOptions:
       Get the current disk log scheme.
     """
     if LogOptions._DISK_LOG_SCHEME is None:
-      LogOptions.set_disk_log_level(options.values().twitter_common_log_stdout_log_level)
+      LogOptions.set_disk_log_level(app.get_options().twitter_common_log_disk_log_level)
     return LogOptions._DISK_LOG_SCHEME
 
   @staticmethod
@@ -144,7 +162,7 @@ class LogOptions:
       Get the current directory into which logs will be written.
     """
     if LogOptions._LOG_DIR is None:
-      LogOptions._LOG_DIR = options.values().twitter_common_log_log_dir
+      LogOptions._LOG_DIR = app.get_options().twitter_common_log_log_dir
     return LogOptions._LOG_DIR
 
   @staticmethod
@@ -153,6 +171,7 @@ class LogOptions:
       LogOptions.set_disk_log_level(value)
     except LogOptionsException, e:
       raise optparse.OptionValueError('Failed to parse option: %s' % e)
+    parser.values.twitter_common_log_disk_log_level = value
 
   @staticmethod
   def _stdout_options_callback(option, opt, value, parser):
@@ -160,6 +179,7 @@ class LogOptions:
       LogOptions.set_stdout_log_level(value)
     except LogOptionsException, e:
       raise optparse.OptionValueError('Failed to parse option: %s' % e)
+    parser.values.twitter_common_log_stdout_log_level = value
 
 _LOGGING_HELP = \
 """The level at which to log to %%s [default: %%%%default].
@@ -167,27 +187,28 @@ Takes either LEVEL or scheme:LEVEL, where LEVEL is one
 of %s and scheme is one of %s.
 """ % (repr(LogOptions._LOG_LEVELS.keys()), repr(LogOptions._LOG_SCHEMES))
 
-options.add('--log_to_stdout',
-            callback=LogOptions._stdout_options_callback,
-            default='NONE',
-            type='string',
-            action='callback',
-            metavar='[scheme:]LEVEL',
-            dest='twitter_common_log_stdout_log_level',
-            help=_LOGGING_HELP % 'stdout')
+if HAVE_APP:
+  app.add_option('--log_to_stdout',
+              callback=LogOptions._stdout_options_callback,
+              default=_DEFAULT_LOG_OPTS.twitter_common_log_stdout_log_level,
+              type='string',
+              action='callback',
+              metavar='[scheme:]LEVEL',
+              dest='twitter_common_log_stdout_log_level',
+              help=_LOGGING_HELP % 'stdout')
 
-options.add('--log_to_disk',
-            callback=LogOptions._disk_options_callback,
-            default='INFO',
-            type='string',
-            action='callback',
-            metavar='[scheme:]LEVEL',
-            dest='twitter_common_log_disk_log_level',
-            help=_LOGGING_HELP % 'disk')
+  app.add_option('--log_to_disk',
+              callback=LogOptions._disk_options_callback,
+              default=_DEFAULT_LOG_OPTS.twitter_common_log_disk_log_level,
+              type='string',
+              action='callback',
+              metavar='[scheme:]LEVEL',
+              dest='twitter_common_log_disk_log_level',
+              help=_LOGGING_HELP % 'disk')
 
-options.add('--log_dir',
-            type='string',
-            default='/var/tmp',
-            metavar='DIR',
-            dest='twitter_common_log_log_dir',
-            help="The directory into which log files will be generated [default: %default].")
+  app.add_option('--log_dir',
+              type='string',
+              default=_DEFAULT_LOG_OPTS.twitter_common_log_log_dir,
+              metavar='DIR',
+              dest='twitter_common_log_log_dir',
+              help="The directory into which log files will be generated [default: %default].")

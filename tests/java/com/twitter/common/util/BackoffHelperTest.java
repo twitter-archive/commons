@@ -18,6 +18,8 @@ package com.twitter.common.util;
 
 import com.twitter.common.base.ExceptionalSupplier;
 import com.twitter.common.base.Supplier;
+import com.twitter.common.testing.EasyMockTest;
+
 import org.easymock.IMocksControl;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,27 +33,24 @@ import static org.junit.Assert.*;
 /**
  * @author John Sirois
  */
-public class BackoffHelperTest {
-  private IMocksControl control;
+public class BackoffHelperTest extends EasyMockTest {
   private Clock clock;
   private BackoffStrategy backoffStrategy;
   private BackoffHelper backoffHelper;
 
   @Before
   public void setUp() {
-    control = createControl();
-
-    clock = control.createMock(Clock.class);
-    backoffStrategy = control.createMock(BackoffStrategy.class);
+    clock = createMock(Clock.class);
+    backoffStrategy = createMock(BackoffStrategy.class);
     backoffHelper = new BackoffHelper(clock, backoffStrategy);
   }
 
   @Test
-  public void testDoUntilSuccess() throws InterruptedException {
-    @SuppressWarnings("unchecked")
-    Supplier<Boolean> task = control.createMock(Supplier.class);
+  public void testDoUntilSuccess() throws Exception {
+    Supplier<Boolean> task = createMock(new Clazz<Supplier<Boolean>>() { });
 
     expect(task.get()).andReturn(false);
+    expect(backoffStrategy.shouldContinue()).andReturn(true);
     expect(backoffStrategy.calculateBackoffMs(0)).andReturn(42L);
     clock.waitFor(42L);
     expect(task.get()).andReturn(true);
@@ -64,14 +63,15 @@ public class BackoffHelperTest {
   }
 
   @Test
-  public void testDoUntilResult() throws InterruptedException {
-    @SuppressWarnings("unchecked")
-    Supplier<String> task = control.createMock(Supplier.class);
+  public void testDoUntilResult() throws Exception {
+    Supplier<String> task = createMock(new Clazz<Supplier<String>>() { });
 
     expect(task.get()).andReturn(null);
+    expect(backoffStrategy.shouldContinue()).andReturn(true);
     expect(backoffStrategy.calculateBackoffMs(0)).andReturn(42L);
     clock.waitFor(42L);
     expect(task.get()).andReturn(null);
+    expect(backoffStrategy.shouldContinue()).andReturn(true);
     expect(backoffStrategy.calculateBackoffMs(42L)).andReturn(37L);
     clock.waitFor(37L);
     expect(task.get()).andReturn("jake");
@@ -84,9 +84,9 @@ public class BackoffHelperTest {
   }
 
   @Test
-  public void testDoUntilResultTransparentException() throws InterruptedException, IOException {
-    @SuppressWarnings("unchecked")
-    ExceptionalSupplier<String, IOException> task = control.createMock(ExceptionalSupplier.class);
+  public void testDoUntilResultTransparentException() throws Exception {
+    ExceptionalSupplier<String, IOException> task =
+        createMock(new Clazz<ExceptionalSupplier<String, IOException>>() { });
 
     IOException thrown = new IOException();
     expect(task.get()).andThrow(thrown);
@@ -104,9 +104,60 @@ public class BackoffHelperTest {
   }
 
   @Test
-  public void testDoUntilSuccessTransparentException() throws InterruptedException, IOException {
-    @SuppressWarnings("unchecked")
-    Supplier<Boolean> task = control.createMock(Supplier.class);
+  public void testDoUntilResultMaxSuccess() throws Exception {
+    Supplier<String> task = createMock(new Clazz<Supplier<String>>() { });
+
+    BackoffHelper maxBackoffHelper = new BackoffHelper(clock, backoffStrategy);
+
+    expect(task.get()).andReturn(null);
+    expect(backoffStrategy.shouldContinue()).andReturn(true);
+    expect(backoffStrategy.calculateBackoffMs(0)).andReturn(42L);
+    clock.waitFor(42L);
+    expect(task.get()).andReturn(null);
+    expect(backoffStrategy.shouldContinue()).andReturn(true);
+    expect(backoffStrategy.calculateBackoffMs(42L)).andReturn(37L);
+    clock.waitFor(37L);
+    expect(task.get()).andReturn("jake");
+
+    control.replay();
+
+    assertEquals("jake", maxBackoffHelper.doUntilResult(task));
+
+    control.verify();
+  }
+
+  @Test
+  public void testDoUntilResultMaxReached() throws Exception {
+    Supplier<String> task = createMock(new Clazz<Supplier<String>>() { });
+
+    BackoffHelper maxBackoffHelper = new BackoffHelper(clock, backoffStrategy);
+
+    expect(task.get()).andReturn(null);
+    expect(backoffStrategy.shouldContinue()).andReturn(true);
+    expect(backoffStrategy.calculateBackoffMs(0)).andReturn(42L);
+    clock.waitFor(42L);
+    expect(task.get()).andReturn(null);
+    expect(backoffStrategy.shouldContinue()).andReturn(true);
+    expect(backoffStrategy.calculateBackoffMs(42L)).andReturn(37L);
+    clock.waitFor(37L);
+    expect(task.get()).andReturn(null);
+    expect(backoffStrategy.shouldContinue()).andReturn(false);
+
+    control.replay();
+
+    try {
+      maxBackoffHelper.doUntilResult(task);
+      fail("Expected max retry failure");
+    } catch (BackoffHelper.BackoffStoppedException e) {
+      // expected
+    }
+
+    control.verify();
+  }
+
+  @Test
+  public void testDoUntilSuccessTransparentException() throws Exception {
+    Supplier<Boolean> task = createMock(new Clazz<Supplier<Boolean>>() { });
 
     IllegalArgumentException thrown = new IllegalArgumentException();
     expect(task.get()).andThrow(thrown);

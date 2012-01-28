@@ -18,6 +18,7 @@ package com.twitter.common.args.parsers;
 
 import java.net.InetSocketAddress;
 
+import com.twitter.common.args.ArgParser;
 import com.twitter.common.net.InetSocketAddressHelper;
 
 /**
@@ -25,12 +26,8 @@ import com.twitter.common.net.InetSocketAddressHelper;
  *
  * @author William Farner
  */
+@ArgParser
 public class InetSocketAddressParser extends NonParameterizedTypeParser<InetSocketAddress> {
-
-  public InetSocketAddressParser() {
-    super(InetSocketAddress.class);
-  }
-
   @Override
   public InetSocketAddress doParse(String raw) {
     return InetSocketAddressHelper.parse(raw);

@@ -30,6 +30,8 @@ import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.junit.Before;
 
+import com.twitter.common.reflect.TypeToken;
+
 import static org.easymock.EasyMock.createControl;
 
 /**
@@ -68,20 +70,14 @@ public abstract class EasyMockTest extends TearDownTestCase {
    * A class meant to be sub-classed in order to capture a generic type literal value.  To capture
    * the type of a {@code List<String>} you would use: {@code new Clazz<List<String>>() {}}
    */
-  public abstract static class Clazz<T> {
+  public abstract static class Clazz<T> extends TypeToken {
     Class<T> getRawType() {
-      // This is us.
-      ParameterizedType clazz = (ParameterizedType) this.getClass().getGenericSuperclass();
-
-      // This is the T their subclass froze for us.
-      Type capturedType = clazz.getActualTypeArguments()[0];
-
       @SuppressWarnings("unchecked")
-      Class<T> rawType = (Class<T>) getRawType(capturedType);
+      Class<T> rawType = (Class<T>) findRawType();
       return rawType;
     }
 
-    private Class<?> getRawType(Type type) {
+    private Class<?> findRawType() {
       if (type instanceof Class<?>) { // Plain old
         return (Class<?>) type;
 

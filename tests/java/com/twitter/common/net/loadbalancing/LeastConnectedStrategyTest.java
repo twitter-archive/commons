@@ -16,17 +16,18 @@
 
 package com.twitter.common.net.loadbalancing;
 
-import com.google.common.collect.Sets;
-import com.twitter.common.base.Closure;
-import com.twitter.common.testing.EasyMockTest;
-import com.twitter.common.net.pool.ResourceExhaustedException;
-import com.twitter.common.net.loadbalancing.LoadBalancingStrategy.ConnectionResult;
+import java.util.Collection;
+
+import com.google.common.collect.ImmutableSet;
+
 import org.easymock.Capture;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Collection;
-import java.util.Set;
+import com.twitter.common.base.Closure;
+import com.twitter.common.net.loadbalancing.LoadBalancingStrategy.ConnectionResult;
+import com.twitter.common.net.pool.ResourceExhaustedException;
+import com.twitter.common.testing.EasyMockTest;
 
 import static org.easymock.EasyMock.capture;
 import static org.hamcrest.CoreMatchers.anyOf;
@@ -102,7 +103,7 @@ public class LeastConnectedStrategyTest extends EasyMockTest {
   }
 
   @Test
-  @SuppressWarnings("unchecked") // Needed because type information lost in vargs.
+  @SuppressWarnings("unchecked") // Needed because type information lost in varargs.
   public void testHandlesEqualCount() throws ResourceExhaustedException {
     BackendOfferExpectation backendOfferExpectation = new BackendOfferExpectation();
     control.replay();
@@ -131,14 +132,14 @@ public class LeastConnectedStrategyTest extends EasyMockTest {
   }
 
   @Test
-  public void testUsesAllBackends() throws ResourceExhaustedException {
+  public void testUsesAllBackends_success() throws ResourceExhaustedException {
     BackendOfferExpectation backendOfferExpectation = new BackendOfferExpectation();
     control.replay();
 
-    Set<String> allBackends = Sets.newHashSet(BACKEND_1, BACKEND_2, BACKEND_3);
+    ImmutableSet<String> allBackends = ImmutableSet.of(BACKEND_1, BACKEND_2, BACKEND_3);
     backendOfferExpectation.offerBackends(allBackends);
 
-    Set<String> usedBackends = Sets.newHashSet();
+    ImmutableSet.Builder<String> usedBackends = ImmutableSet.builder();
     for (int i = 0; i < allBackends.size(); i++) {
       String backend = leastCon.nextBackend();
       usedBackends.add(backend);
@@ -146,7 +147,47 @@ public class LeastConnectedStrategyTest extends EasyMockTest {
       disconnect(backend, 1);
     }
 
-    assertThat(usedBackends, is(allBackends));
+    assertThat(usedBackends.build(), is(allBackends));
+  }
+
+  @Test
+  public void UsesAllBackends_mixed() throws ResourceExhaustedException {
+    BackendOfferExpectation backendOfferExpectation = new BackendOfferExpectation();
+    control.replay();
+
+    backendOfferExpectation.offerBackends(BACKEND_1, BACKEND_2, BACKEND_3, BACKEND_4);
+
+    connect(BACKEND_1, ConnectionResult.FAILED, 1);
+    assertThat(leastCon.nextBackend(), is(BACKEND_2));
+
+    connect(BACKEND_2, ConnectionResult.FAILED, 1);
+    assertThat(leastCon.nextBackend(), is(BACKEND_3));
+
+    connect(BACKEND_3, 1);
+    assertThat(leastCon.nextBackend(), is(BACKEND_4));
+
+    connect(BACKEND_4, 1);
+
+    // Now we should rotate around to the front and give the connection failure another try.
+    assertThat(leastCon.nextBackend(), is(BACKEND_1));
+  }
+
+  @Test
+  public void testUsesAllBackends_failure() throws ResourceExhaustedException {
+    BackendOfferExpectation backendOfferExpectation = new BackendOfferExpectation();
+    control.replay();
+
+    ImmutableSet<String> allBackends = ImmutableSet.of(BACKEND_1, BACKEND_2, BACKEND_3);
+    backendOfferExpectation.offerBackends(allBackends);
+
+    ImmutableSet.Builder<String> usedBackends = ImmutableSet.builder();
+    for (int i = 0; i < allBackends.size(); i++) {
+      String backend = leastCon.nextBackend();
+      usedBackends.add(backend);
+      connect(backend, ConnectionResult.FAILED, 1);
+    }
+
+    assertThat(usedBackends.build(), is(allBackends));
   }
 
   @Test
@@ -163,6 +204,7 @@ public class LeastConnectedStrategyTest extends EasyMockTest {
     assertThat(leastCon.nextBackend(), is(BACKEND_2));
   }
 
+  @Test
   public void testNoNegativeCounts() throws ResourceExhaustedException {
     BackendOfferExpectation backendOfferExpectation = new BackendOfferExpectation();
     control.replay();
@@ -211,8 +253,12 @@ public class LeastConnectedStrategyTest extends EasyMockTest {
   }
 
   private void connect(String backend, int count) {
+    connect(backend, ConnectionResult.SUCCESS, count);
+  }
+
+  private void connect(String backend, ConnectionResult result, int count) {
     for (int i = 0; i < count; i++) {
-      leastCon.addConnectResult(backend, ConnectionResult.SUCCESS, 0L);
+      leastCon.addConnectResult(backend, result, 0L);
     }
   }
 
@@ -230,15 +276,15 @@ public class LeastConnectedStrategyTest extends EasyMockTest {
       onBackendsChosen.execute(capture(chosenBackends));
     }
 
-    void offerBackends(String ... backends) {
-      offerBackends(Sets.newHashSet(backends));
+    void offerBackends(String... backends) {
+      offerBackends(ImmutableSet.copyOf(backends));
     }
 
-    void offerBackends(Set<String> backends) {
+    void offerBackends(ImmutableSet<String> backends) {
       leastCon.offerBackends(backends, onBackendsChosen);
 
       assertTrue(chosenBackends.hasCaptured());
-      assertEquals(backends, Sets.newHashSet(chosenBackends.getValue()));
+      assertEquals(backends, ImmutableSet.copyOf(chosenBackends.getValue()));
     }
   }
 }

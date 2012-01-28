@@ -16,9 +16,16 @@
 
 package com.twitter.common.application;
 
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
@@ -30,10 +37,12 @@ import com.google.inject.util.Modules;
 import com.twitter.common.application.modules.AppLauncherModule;
 import com.twitter.common.application.modules.LifecycleModule;
 import com.twitter.common.args.Arg;
+import com.twitter.common.args.ArgFilters;
 import com.twitter.common.args.ArgScanner;
 import com.twitter.common.args.ArgScanner.ArgScanException;
 import com.twitter.common.args.CmdLine;
 import com.twitter.common.args.constraints.NotNull;
+import com.twitter.common.base.ExceptionalCommand;
 
 /**
  * An application launcher that sets up a framework for pluggable binding modules.  This class
@@ -55,8 +64,9 @@ public final class AppLauncher {
 
   private static final Logger LOG = Logger.getLogger(AppLauncher.class.getName());
 
+  private static final String APP_CLASS_NAME = "app_class";
   @NotNull
-  @CmdLine(name = "app_class",
+  @CmdLine(name = APP_CLASS_NAME,
            help = "Fully-qualified name of the application class, which must implement Runnable.")
   private static final Arg<Class<? extends Application>> APP_CLASS = Arg.create();
 
@@ -64,20 +74,33 @@ public final class AppLauncher {
            help = "Guice development stage to create injector with.")
   private static final Arg<Stage> GUICE_STAGE = Arg.create(Stage.DEVELOPMENT);
 
-  @Inject @StartupStage private ActionController startupController;
+  private static final Predicate<Field> SELECT_APP_CLASS =
+      ArgFilters.selectCmdLineArg(AppLauncher.class, APP_CLASS_NAME);
+
+  @Inject @StartupStage private ExceptionalCommand startupCommand;
   @Inject private Lifecycle lifecycle;
 
   private void run(Application application) {
-    configureInjection(application);
-
-    LOG.info("Executing startup actions.");
-    startupController.execute();
-
     try {
-      application.run();
+      configureInjection(application);
+
+      LOG.info("Executing startup actions.");
+      try {
+        startupCommand.execute();
+      } catch (Exception e) {
+        LOG.log(Level.SEVERE, "Startup action failed, quitting.", e);
+        throw Throwables.propagate(e);
+      }
+
+      try {
+        application.run();
+      } finally {
+        LOG.info("Application run() exited.");
+      }
     } finally {
-      LOG.info("Application run() exited.");
-      lifecycle.shutdown();
+      if (lifecycle != null) {
+        lifecycle.shutdown();
+      }
     }
   }
 
@@ -94,16 +117,80 @@ public final class AppLauncher {
     injector.injectMembers(application);
   }
 
-  public static void main(String[] args) throws IllegalAccessException, InstantiationException {
+  public static void main(String... args) throws IllegalAccessException, InstantiationException {
+    // TODO(John Sirois): Support a META-INF/MANIFEST.MF App-Class attribute to allow java -jar
+    parseArgs(ArgFilters.SELECT_ALL, Arrays.asList(args));
+    new AppLauncher().run(APP_CLASS.get().newInstance());
+  }
+
+  /**
+   * A convenience for main wrappers.  Equivalent to:
+   * <pre>
+   *   AppLauncher.launch(appClass, ArgFilters.SELECT_ALL, Arrays.asList(args));
+   * </pre>
+   *
+   * @param appClass The application class to instantiate and launch.
+   * @param args The command line arguments to parse.
+   * @see ArgFilters
+   */
+  public static void launch(Class<? extends Application> appClass, String... args) {
+    launch(appClass, ArgFilters.SELECT_ALL, Arrays.asList(args));
+  }
+
+  /**
+   * A convenience for main wrappers.  Equivalent to:
+   * <pre>
+   *   AppLauncher.launch(appClass, argFilter, Arrays.asList(args));
+   * </pre>
+   *
+   * @param appClass The application class to instantiate and launch.
+   * @param argFilter A filter that selects the {@literal @CmdLine} {@link Arg}s to enable for
+   *     parsing.
+   * @param args The command line arguments to parse.
+   * @see ArgFilters
+   */
+  public static void launch(Class<? extends Application> appClass, Predicate<Field> argFilter,
+      String... args) {
+    launch(appClass, argFilter, Arrays.asList(args));
+  }
+
+  /**
+   * Used to launch an application with a restricted set of {@literal @CmdLine} {@link Arg}s
+   * considered for parsing.  This is useful if the classpath includes annotated fields you do not
+   * wish arguments to be parsed for.
+   *
+   * @param appClass The application class to instantiate and launch.
+   * @param argFilter A filter that selects the {@literal @CmdLine} {@link Arg}s to enable for
+   *     parsing.
+   * @param args The command line arguments to parse.
+   * @see ArgFilters
+   */
+  public static void launch(Class<? extends Application> appClass, Predicate<Field> argFilter,
+      List<String> args) {
+    Preconditions.checkNotNull(appClass);
+    Preconditions.checkNotNull(argFilter);
+    Preconditions.checkNotNull(args);
+
+    parseArgs(Predicates.<Field>and(Predicates.not(SELECT_APP_CLASS), argFilter), args);
     try {
-      ArgScanner.parse(args);
+      new AppLauncher().run(appClass.newInstance());
+    } catch (InstantiationException e) {
+      throw new IllegalStateException(e);
+    } catch (IllegalAccessException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  private static void parseArgs(Predicate<Field> filter, List<String> args) {
+    try {
+      if (!new ArgScanner().parse(filter, args)) {
+        System.exit(0);
+      }
     } catch (ArgScanException e) {
       exit("Failed to scan arguments", e);
     } catch (IllegalArgumentException e) {
       exit("Failed to apply arguments", e);
     }
-
-    new AppLauncher().run(APP_CLASS.get().newInstance());
   }
 
   private static void exit(String message, Exception error) {

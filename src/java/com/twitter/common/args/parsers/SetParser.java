@@ -16,6 +16,7 @@
 
 package com.twitter.common.args.parsers;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Set;
 
@@ -23,30 +24,33 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
+import com.twitter.common.args.ArgParser;
+import com.twitter.common.args.Parser;
+import com.twitter.common.args.ParserOracle;
 import com.twitter.common.args.Parsers;
-import com.twitter.common.args.Parsers.Parser;
-
-import static com.twitter.common.args.Parsers.checkedGet;
+import com.twitter.common.args.TypeUtil;
 
 /**
  * Set parser.
  *
  * @author William Farner
  */
+@ArgParser
 public class SetParser extends TypeParameterizedParser<Set> {
 
   public SetParser() {
-    super(Set.class, 1);
+    super(1);
   }
 
   @Override
-  Set doParse(String raw, List<Class<?>> paramParsers) {
-    final Parser parser = checkedGet(paramParsers.get(0));
+  Set doParse(final ParserOracle parserOracle, String raw, List<Type> typeParams) {
+    final Type setType = typeParams.get(0);
+    final Parser parser = parserOracle.get(TypeUtil.getRawType(setType));
 
     return ImmutableSet.copyOf(Iterables.transform(Parsers.MULTI_VALUE_SPLITTER.split(raw),
         new Function<String, Object>() {
           @Override public Object apply(String raw) {
-            return parser.parse(null, raw);
+            return parser.parse(parserOracle, setType, raw);
           }
         }));
   }
