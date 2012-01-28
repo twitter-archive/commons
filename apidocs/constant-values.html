@@ -227,10 +227,28 @@ com.twitter.*</FONT></TH>
 <TH ALIGN="left" COLSPAN="3">com.twitter.common.text.detector.<A HREF="com/twitter/common/text/detector/PunctuationDetector.html" title="class in com.twitter.common.text.detector">PunctuationDetector</A></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<A NAME="com.twitter.common.text.detector.PunctuationDetector.PUNCTUATION_CHAR_CLASS"><!-- --></A><TD ALIGN="right"><FONT SIZE="-1">
+<CODE>public&nbsp;static&nbsp;final&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD ALIGN="left"><CODE><A HREF="com/twitter/common/text/detector/PunctuationDetector.html#PUNCTUATION_CHAR_CLASS">PUNCTUATION_CHAR_CLASS</A></CODE></TD>
+<TD ALIGN="right"><CODE>"\\p{P}\\p{M}\\p{S}\\n\\r"</CODE></TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <A NAME="com.twitter.common.text.detector.PunctuationDetector.PUNCTUATION_REGEX"><!-- --></A><TD ALIGN="right"><FONT SIZE="-1">
 <CODE>public&nbsp;static&nbsp;final&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD ALIGN="left"><CODE><A HREF="com/twitter/common/text/detector/PunctuationDetector.html#PUNCTUATION_REGEX">PUNCTUATION_REGEX</A></CODE></TD>
-<TD ALIGN="right"><CODE>"[\"\',.?!;:()@#&amp;\\\\/*&lt;&gt;\\[\\]{}|=+\\-\\^%$`~\u3001-\u3003\u3008-\u3011\u3014-\u301f\uff01-\uff02\uff06-\uff09\uff0c\uff0e\uff1a-\uff1f\uff5c\uffe8\u30fb\uff65\u22c5\u2219\u2022\u00b7\u0387\\p{InMiscellaneousSymbols}\\p{InGeometricShapes}\\n]"</CODE></TD>
+<TD ALIGN="right"><CODE>"[\\p{P}\\p{M}\\p{S}\\n\\r]"</CODE></TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<A NAME="com.twitter.common.text.detector.PunctuationDetector.SPACE_CHAR_CLASS"><!-- --></A><TD ALIGN="right"><FONT SIZE="-1">
+<CODE>public&nbsp;static&nbsp;final&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD ALIGN="left"><CODE><A HREF="com/twitter/common/text/detector/PunctuationDetector.html#SPACE_CHAR_CLASS">SPACE_CHAR_CLASS</A></CODE></TD>
+<TD ALIGN="right"><CODE>"\\p{C}\\p{Z}&amp;&amp;[^\\n\\r]"</CODE></TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<A NAME="com.twitter.common.text.detector.PunctuationDetector.SPACE_REGEX"><!-- --></A><TD ALIGN="right"><FONT SIZE="-1">
+<CODE>public&nbsp;static&nbsp;final&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD ALIGN="left"><CODE><A HREF="com/twitter/common/text/detector/PunctuationDetector.html#SPACE_REGEX">SPACE_REGEX</A></CODE></TD>
+<TD ALIGN="right"><CODE>"[\\p{C}\\p{Z}&amp;&amp;[^\\n\\r]]"</CODE></TD>
 </TR>
 </FONT></TD>
 </TR>

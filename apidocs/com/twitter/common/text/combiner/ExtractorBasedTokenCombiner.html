@@ -97,11 +97,11 @@ Class ExtractorBasedTokenCombiner</H2>
               <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.text.combiner.ExtractorBasedTokenCombiner</B>
 </PRE>
 <DL>
-<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../../../../com/twitter/common/text/combiner/EmoticonTokenCombiner.html" title="class in com.twitter.common.text.combiner">EmoticonTokenCombiner</A>, <A HREF="../../../../../com/twitter/common/text/combiner/HashtagTokenCombiner.html" title="class in com.twitter.common.text.combiner">HashtagTokenCombiner</A>, <A HREF="../../../../../com/twitter/common/text/combiner/PossessiveTokenCombiner.html" title="class in com.twitter.common.text.combiner">PossessiveTokenCombiner</A>, <A HREF="../../../../../com/twitter/common/text/combiner/StockTokenCombiner.html" title="class in com.twitter.common.text.combiner">StockTokenCombiner</A>, <A HREF="../../../../../com/twitter/common/text/combiner/URLTokenCombiner.html" title="class in com.twitter.common.text.combiner">URLTokenCombiner</A>, <A HREF="../../../../../com/twitter/common/text/combiner/UserNameTokenCombiner.html" title="class in com.twitter.common.text.combiner">UserNameTokenCombiner</A></DD>
+<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../../../../com/twitter/common/text/combiner/EmoticonTokenCombiner.html" title="class in com.twitter.common.text.combiner">EmoticonTokenCombiner</A>, <A HREF="../../../../../com/twitter/common/text/combiner/HashtagTokenCombiner.html" title="class in com.twitter.common.text.combiner">HashtagTokenCombiner</A>, <A HREF="../../../../../com/twitter/common/text/combiner/PossessiveContractionTokenCombiner.html" title="class in com.twitter.common.text.combiner">PossessiveContractionTokenCombiner</A>, <A HREF="../../../../../com/twitter/common/text/combiner/PunctuationExceptionCombiner.html" title="class in com.twitter.common.text.combiner">PunctuationExceptionCombiner</A>, <A HREF="../../../../../com/twitter/common/text/combiner/StockTokenCombiner.html" title="class in com.twitter.common.text.combiner">StockTokenCombiner</A>, <A HREF="../../../../../com/twitter/common/text/combiner/URLTokenCombiner.html" title="class in com.twitter.common.text.combiner">URLTokenCombiner</A>, <A HREF="../../../../../com/twitter/common/text/combiner/UserNameTokenCombiner.html" title="class in com.twitter.common.text.combiner">UserNameTokenCombiner</A></DD>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/text/combiner/ExtractorBasedTokenCombiner.html#line.37"><B>ExtractorBasedTokenCombiner</B></A><DT>extends <A HREF="../../../../../com/twitter/common/text/token/TokenProcessor.html" title="class in com.twitter.common.text.token">TokenProcessor</A></DL>
+<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/text/combiner/ExtractorBasedTokenCombiner.html#line.36"><B>ExtractorBasedTokenCombiner</B></A><DT>extends <A HREF="../../../../../com/twitter/common/text/token/TokenProcessor.html" title="class in com.twitter.common.text.token">TokenProcessor</A></DL>
 </PRE>
 
 <P>
@@ -243,7 +243,7 @@ Combines multiple tokens into a single one if they define an entity identified
 <A NAME="ExtractorBasedTokenCombiner(com.twitter.common.text.token.TokenStream)"><!-- --></A><H3>
 ExtractorBasedTokenCombiner</H3>
 <PRE>
-public <A HREF="../../../../../src-html/com/twitter/common/text/combiner/ExtractorBasedTokenCombiner.html#line.53"><B>ExtractorBasedTokenCombiner</B></A>(<A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</PRE>
+public <A HREF="../../../../../src-html/com/twitter/common/text/combiner/ExtractorBasedTokenCombiner.html#line.51"><B>ExtractorBasedTokenCombiner</B></A>(<A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</PRE>
 <DL>
 </DL>
 
@@ -260,7 +260,7 @@ public <A HREF="../../../../../src-html/com/twitter/common/text/combiner/Extract
 <A NAME="setExtractor(com.twitter.common.text.token.TokenStream)"><!-- --></A><H3>
 setExtractor</H3>
 <PRE>
-protected void <A HREF="../../../../../src-html/com/twitter/common/text/combiner/ExtractorBasedTokenCombiner.html#line.62"><B>setExtractor</B></A>(<A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;extractor)</PRE>
+protected void <A HREF="../../../../../src-html/com/twitter/common/text/combiner/ExtractorBasedTokenCombiner.html#line.59"><B>setExtractor</B></A>(<A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;extractor)</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -271,7 +271,7 @@ protected void <A HREF="../../../../../src-html/com/twitter/common/text/combiner
 <A NAME="setType(com.twitter.common.text.token.attribute.TokenType)"><!-- --></A><H3>
 setType</H3>
 <PRE>
-protected void <A HREF="../../../../../src-html/com/twitter/common/text/combiner/ExtractorBasedTokenCombiner.html#line.67"><B>setType</B></A>(<A HREF="../../../../../com/twitter/common/text/token/attribute/TokenType.html" title="enum in com.twitter.common.text.token.attribute">TokenType</A>&nbsp;type)</PRE>
+protected void <A HREF="../../../../../src-html/com/twitter/common/text/combiner/ExtractorBasedTokenCombiner.html#line.64"><B>setType</B></A>(<A HREF="../../../../../com/twitter/common/text/token/attribute/TokenType.html" title="enum in com.twitter.common.text.token.attribute">TokenType</A>&nbsp;type)</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -282,7 +282,7 @@ protected void <A HREF="../../../../../src-html/com/twitter/common/text/combiner
 <A NAME="reset(java.lang.CharSequence)"><!-- --></A><H3>
 reset</H3>
 <PRE>
-public void <A HREF="../../../../../src-html/com/twitter/common/text/combiner/ExtractorBasedTokenCombiner.html#line.72"><B>reset</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;input)</PRE>
+public void <A HREF="../../../../../src-html/com/twitter/common/text/combiner/ExtractorBasedTokenCombiner.html#line.69"><B>reset</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;input)</PRE>
 <DL>
 <DD><B>Description copied from class: <CODE><A HREF="../../../../../com/twitter/common/text/token/TokenStream.html#reset(java.lang.CharSequence)">TokenStream</A></CODE></B></DD>
 <DD>Resets this <code>TokenStream</code> (and also downstream tokens if they exist) to parse a new
@@ -300,7 +300,7 @@ public void <A HREF="../../../../../src-html/com/twitter/common/text/combiner/Ex
 <A NAME="incrementToken()"><!-- --></A><H3>
 incrementToken</H3>
 <PRE>
-public boolean <A HREF="../../../../../src-html/com/twitter/common/text/combiner/ExtractorBasedTokenCombiner.html#line.86"><B>incrementToken</B></A>()</PRE>
+public boolean <A HREF="../../../../../src-html/com/twitter/common/text/combiner/ExtractorBasedTokenCombiner.html#line.83"><B>incrementToken</B></A>()</PRE>
 <DL>
 <DD><B>Description copied from class: <CODE><A HREF="../../../../../com/twitter/common/text/token/TokenStream.html#incrementToken()">TokenStream</A></CODE></B></DD>
 <DD>Consumers call this method to advance the stream to the next token.

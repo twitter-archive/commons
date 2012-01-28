@@ -30,7 +30,7 @@
 <FONT color="green">027</FONT>     * Combines multiple tokens denoting a stock symbol (e.g., $YHOO) back into a single token.<a name="line.27"></a>
 <FONT color="green">028</FONT>     */<a name="line.28"></a>
 <FONT color="green">029</FONT>    public class StockTokenCombiner extends ExtractorBasedTokenCombiner {<a name="line.29"></a>
-<FONT color="green">030</FONT>      private static final Pattern STOCK_SYMBOL_PATTERN =<a name="line.30"></a>
+<FONT color="green">030</FONT>      public static final Pattern STOCK_SYMBOL_PATTERN =<a name="line.30"></a>
 <FONT color="green">031</FONT>        Pattern.compile("(?:^|" + PunctuationDetector.PUNCTUATION_REGEX<a name="line.31"></a>
 <FONT color="green">032</FONT>                        + "|" + PunctuationDetector.SPACE_REGEX<a name="line.32"></a>
 <FONT color="green">033</FONT>                        + ")(\\$[a-zA-Z]{1,6}(:[a-zA-Z0-9]{1,6})?)(?=$"<a name="line.33"></a>

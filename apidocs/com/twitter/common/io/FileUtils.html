@@ -54,7 +54,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../com/twitter/common/io/CompatibilityCodec.html" title="class in com.twitter.common.io"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../com/twitter/common/io/JsonCodec.html" title="class in com.twitter.common.io"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/io/FileUtils.Temporary.html" title="class in com.twitter.common.io"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/io/FileUtils.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="FileUtils.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -74,9 +74,9 @@ function windowTitle()
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
 </TABLE>
 <A NAME="skip-navbar_top"></A>
@@ -95,7 +95,7 @@ Class FileUtils</H2>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public final class <A HREF="../../../../src-html/com/twitter/common/io/FileUtils.html#line.29"><B>FileUtils</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public final class <A HREF="../../../../src-html/com/twitter/common/io/FileUtils.html#line.35"><B>FileUtils</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
@@ -106,7 +106,41 @@ Utility methods for working with files and directories.
 <HR>
 
 <P>
+<!-- ======== NESTED CLASS SUMMARY ======== -->
 
+<A NAME="nested_class_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Nested Class Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/io/FileUtils.Temporary.html" title="class in com.twitter.common.io">FileUtils.Temporary</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A utility for creating and working with temporary files and directories.</TD>
+</TR>
+</TABLE>
+&nbsp;<!-- =========== FIELD SUMMARY =========== -->
+
+<A NAME="field_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Field Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../com/twitter/common/io/FileUtils.Temporary.html" title="class in com.twitter.common.io">FileUtils.Temporary</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/io/FileUtils.html#SYSTEM_TMP">SYSTEM_TMP</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A temporary based at the default system temporary directory.</TD>
+</TR>
+</TABLE>
+&nbsp;
 <!-- ========== METHOD SUMMARY =========== -->
 
 <A NAME="method_summary"><!-- --></A>
@@ -136,6 +170,27 @@ Utility methods for working with files and directories.
 &nbsp;
 <P>
 
+<!-- ============ FIELD DETAIL =========== -->
+
+<A NAME="field_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Field Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="SYSTEM_TMP"><!-- --></A><H3>
+SYSTEM_TMP</H3>
+<PRE>
+public static final <A HREF="../../../../com/twitter/common/io/FileUtils.Temporary.html" title="class in com.twitter.common.io">FileUtils.Temporary</A> <A HREF="../../../../src-html/com/twitter/common/io/FileUtils.html#line.182"><B>SYSTEM_TMP</B></A></PRE>
+<DL>
+<DD>A temporary based at the default system temporary directory.
+<P>
+<DL>
+</DL>
+</DL>
+
 <!-- ============ METHOD DETAIL ========== -->
 
 <A NAME="method_detail"><!-- --></A>
@@ -149,12 +204,15 @@ Utility methods for working with files and directories.
 <A NAME="createTempDir()"><!-- --></A><H3>
 createTempDir</H3>
 <PRE>
-public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</A> <A HREF="../../../../src-html/com/twitter/common/io/FileUtils.html#line.35"><B>createTempDir</B></A>()</PRE>
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</A> <A HREF="../../../../src-html/com/twitter/common/io/FileUtils.html#line.190"><B>createTempDir</B></A>()</PRE>
 <DL>
 <DD>Returns a new empty temporary directory.
 <P>
 <DD><DL>
-</DL>
+
+<DT><B>Returns:</B><DD>a file representing the newly created directory.
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</A></CODE> - if a new temporary directory could not be created</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
@@ -189,7 +247,7 @@ public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/File
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../com/twitter/common/io/CompatibilityCodec.html" title="class in com.twitter.common.io"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../com/twitter/common/io/JsonCodec.html" title="class in com.twitter.common.io"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/io/FileUtils.Temporary.html" title="class in com.twitter.common.io"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/io/FileUtils.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="FileUtils.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -209,9 +267,9 @@ public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/File
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
 </TABLE>
 <A NAME="skip-navbar_bottom"></A>

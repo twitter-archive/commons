@@ -91,22 +91,26 @@ Class Hierarchy
 <UL>
 <LI TYPE="circle">java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang"><B>Object</B></A><UL>
 <LI TYPE="circle">com.twitter.common.application.<A HREF="../../../../com/twitter/common/application/AbstractApplication.html" title="class in com.twitter.common.application"><B>AbstractApplication</B></A> (implements com.twitter.common.application.<A HREF="../../../../com/twitter/common/application/Application.html" title="interface in com.twitter.common.application">Application</A>)
-<LI TYPE="circle">com.twitter.common.application.<A HREF="../../../../com/twitter/common/application/ActionController.html" title="class in com.twitter.common.application"><B>ActionController</B></A> (implements com.twitter.common.application.<A HREF="../../../../com/twitter/common/application/ActionRegistry.html" title="interface in com.twitter.common.application">ActionRegistry</A>)
-<LI TYPE="circle">com.twitter.common.application.<A HREF="../../../../com/twitter/common/application/AppLauncher.html" title="class in com.twitter.common.application"><B>AppLauncher</B></A><LI TYPE="circle">com.twitter.common.application.<A HREF="../../../../com/twitter/common/application/Lifecycle.html" title="class in com.twitter.common.application"><B>Lifecycle</B></A></UL>
+<LI TYPE="circle">com.twitter.common.application.<A HREF="../../../../com/twitter/common/application/AppLauncher.html" title="class in com.twitter.common.application"><B>AppLauncher</B></A><LI TYPE="circle">com.twitter.common.application.<A HREF="../../../../com/twitter/common/application/Lifecycle.html" title="class in com.twitter.common.application"><B>Lifecycle</B></A><LI TYPE="circle">com.twitter.common.application.<A HREF="../../../../com/twitter/common/application/LocalServiceRegistry.html" title="class in com.twitter.common.application"><B>LocalServiceRegistry</B></A><LI TYPE="circle">com.twitter.common.application.<A HREF="../../../../com/twitter/common/application/ShutdownRegistry.ShutdownRegistryImpl.html" title="class in com.twitter.common.application"><B>ShutdownRegistry.ShutdownRegistryImpl</B></A> (implements com.twitter.common.base.<A HREF="../../../../com/twitter/common/base/Command.html" title="interface in com.twitter.common.base">Command</A>, com.twitter.common.application.<A HREF="../../../../com/twitter/common/application/ShutdownRegistry.html" title="interface in com.twitter.common.application">ShutdownRegistry</A>)
+<LI TYPE="circle">com.twitter.common.application.<A HREF="../../../../com/twitter/common/application/StartupRegistry.html" title="class in com.twitter.common.application"><B>StartupRegistry</B></A> (implements com.twitter.common.base.<A HREF="../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&lt;E&gt;)
+</UL>
 </UL>
 <H2>
 Interface Hierarchy
 </H2>
 <UL>
-<LI TYPE="circle">com.twitter.common.application.<A HREF="../../../../com/twitter/common/application/ActionRegistry.html" title="interface in com.twitter.common.application"><B>ActionRegistry</B></A><LI TYPE="circle">java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang"><B>Runnable</B></A><UL>
+<LI TYPE="circle">com.twitter.common.base.<A HREF="../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base"><B>ExceptionalCommand</B></A>&lt;E&gt;<UL>
+<LI TYPE="circle">com.twitter.common.application.<A HREF="../../../../com/twitter/common/application/ServiceLauncher.html" title="interface in com.twitter.common.application"><B>ServiceLauncher</B></A>&lt;E&gt;</UL>
+<LI TYPE="circle">java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang"><B>Runnable</B></A><UL>
 <LI TYPE="circle">com.twitter.common.application.<A HREF="../../../../com/twitter/common/application/Application.html" title="interface in com.twitter.common.application"><B>Application</B></A></UL>
-</UL>
+<LI TYPE="circle">com.twitter.common.application.<A HREF="../../../../com/twitter/common/application/ShutdownRegistry.html" title="interface in com.twitter.common.application"><B>ShutdownRegistry</B></A></UL>
 <H2>
 Annotation Type Hierarchy
 </H2>
 <UL>
-<LI TYPE="circle">com.twitter.common.application.<A HREF="../../../../com/twitter/common/application/StartupStage.html" title="annotation in com.twitter.common.application"><B>StartupStage</B></A> (implements java.lang.annotation.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/Annotation.html?is-external=true" title="class or interface in java.lang.annotation">Annotation</A>)
 <LI TYPE="circle">com.twitter.common.application.<A HREF="../../../../com/twitter/common/application/ShutdownStage.html" title="annotation in com.twitter.common.application"><B>ShutdownStage</B></A> (implements java.lang.annotation.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/Annotation.html?is-external=true" title="class or interface in java.lang.annotation">Annotation</A>)
+<LI TYPE="circle">com.twitter.common.application.<A HREF="../../../../com/twitter/common/application/LocalServiceRegistry.Port.html" title="annotation in com.twitter.common.application"><B>LocalServiceRegistry.Port</B></A> (implements java.lang.annotation.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/Annotation.html?is-external=true" title="class or interface in java.lang.annotation">Annotation</A>)
+<LI TYPE="circle">com.twitter.common.application.<A HREF="../../../../com/twitter/common/application/StartupStage.html" title="annotation in com.twitter.common.application"><B>StartupStage</B></A> (implements java.lang.annotation.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/Annotation.html?is-external=true" title="class or interface in java.lang.annotation">Annotation</A>)
 </UL>
 <HR>
 

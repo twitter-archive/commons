@@ -1,0 +1,129 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    package com.twitter.common.metrics;<a name="line.1"></a>
+<FONT color="green">002</FONT>    <a name="line.2"></a>
+<FONT color="green">003</FONT>    import java.util.Map;<a name="line.3"></a>
+<FONT color="green">004</FONT>    import java.util.concurrent.atomic.AtomicLong;<a name="line.4"></a>
+<FONT color="green">005</FONT>    <a name="line.5"></a>
+<FONT color="green">006</FONT>    import com.google.common.annotations.VisibleForTesting;<a name="line.6"></a>
+<FONT color="green">007</FONT>    import com.google.common.collect.ImmutableMap;<a name="line.7"></a>
+<FONT color="green">008</FONT>    import com.google.common.collect.Maps;<a name="line.8"></a>
+<FONT color="green">009</FONT>    <a name="line.9"></a>
+<FONT color="green">010</FONT>    /**<a name="line.10"></a>
+<FONT color="green">011</FONT>     * Root metric registry.<a name="line.11"></a>
+<FONT color="green">012</FONT>     */<a name="line.12"></a>
+<FONT color="green">013</FONT>    public class Metrics implements MetricRegistry, MetricProvider {<a name="line.13"></a>
+<FONT color="green">014</FONT>    <a name="line.14"></a>
+<FONT color="green">015</FONT>      private static final Metrics ROOT = new Metrics();<a name="line.15"></a>
+<FONT color="green">016</FONT>    <a name="line.16"></a>
+<FONT color="green">017</FONT>      private final Map&lt;String, Gauge&gt; metrics = Maps.newConcurrentMap();<a name="line.17"></a>
+<FONT color="green">018</FONT>    <a name="line.18"></a>
+<FONT color="green">019</FONT>      @VisibleForTesting<a name="line.19"></a>
+<FONT color="green">020</FONT>      Metrics() {<a name="line.20"></a>
+<FONT color="green">021</FONT>        // Package private.<a name="line.21"></a>
+<FONT color="green">022</FONT>      }<a name="line.22"></a>
+<FONT color="green">023</FONT>    <a name="line.23"></a>
+<FONT color="green">024</FONT>      /**<a name="line.24"></a>
+<FONT color="green">025</FONT>       * Returns a handle to the root metric registry.<a name="line.25"></a>
+<FONT color="green">026</FONT>       *<a name="line.26"></a>
+<FONT color="green">027</FONT>       * @return Root metric registry.<a name="line.27"></a>
+<FONT color="green">028</FONT>       */<a name="line.28"></a>
+<FONT color="green">029</FONT>      public static Metrics root() {<a name="line.29"></a>
+<FONT color="green">030</FONT>        return ROOT;<a name="line.30"></a>
+<FONT color="green">031</FONT>      }<a name="line.31"></a>
+<FONT color="green">032</FONT>    <a name="line.32"></a>
+<FONT color="green">033</FONT>      @Override<a name="line.33"></a>
+<FONT color="green">034</FONT>      public MetricRegistry scope(String name) {<a name="line.34"></a>
+<FONT color="green">035</FONT>        return new ScopedMetrics(name, this);<a name="line.35"></a>
+<FONT color="green">036</FONT>      }<a name="line.36"></a>
+<FONT color="green">037</FONT>    <a name="line.37"></a>
+<FONT color="green">038</FONT>      @Override<a name="line.38"></a>
+<FONT color="green">039</FONT>      public &lt;T extends Number&gt; void register(Gauge&lt;T&gt; gauge) {<a name="line.39"></a>
+<FONT color="green">040</FONT>        // TODO(wfarner): Define a policy for handling collisions.<a name="line.40"></a>
+<FONT color="green">041</FONT>        metrics.put(gauge.getName(), gauge);<a name="line.41"></a>
+<FONT color="green">042</FONT>      }<a name="line.42"></a>
+<FONT color="green">043</FONT>    <a name="line.43"></a>
+<FONT color="green">044</FONT>      @Override<a name="line.44"></a>
+<FONT color="green">045</FONT>      public AtomicLong registerLong(String name) {<a name="line.45"></a>
+<FONT color="green">046</FONT>        final AtomicLong gauge = new AtomicLong();<a name="line.46"></a>
+<FONT color="green">047</FONT>        register(new AbstractGauge&lt;Long&gt;(name) {<a name="line.47"></a>
+<FONT color="green">048</FONT>          @Override public Long read() {<a name="line.48"></a>
+<FONT color="green">049</FONT>            return gauge.get();<a name="line.49"></a>
+<FONT color="green">050</FONT>          }<a name="line.50"></a>
+<FONT color="green">051</FONT>        });<a name="line.51"></a>
+<FONT color="green">052</FONT>        return gauge;<a name="line.52"></a>
+<FONT color="green">053</FONT>      }<a name="line.53"></a>
+<FONT color="green">054</FONT>    <a name="line.54"></a>
+<FONT color="green">055</FONT>      @Override<a name="line.55"></a>
+<FONT color="green">056</FONT>      public Map&lt;String, Number&gt; sample() {<a name="line.56"></a>
+<FONT color="green">057</FONT>        ImmutableMap.Builder&lt;String, Number&gt; samples = ImmutableMap.builder();<a name="line.57"></a>
+<FONT color="green">058</FONT>        for (Map.Entry&lt;String, Gauge&gt; metric : metrics.entrySet()) {<a name="line.58"></a>
+<FONT color="green">059</FONT>          samples.put(metric.getKey(), metric.getValue().read());<a name="line.59"></a>
+<FONT color="green">060</FONT>        }<a name="line.60"></a>
+<FONT color="green">061</FONT>        return samples.build();<a name="line.61"></a>
+<FONT color="green">062</FONT>      }<a name="line.62"></a>
+<FONT color="green">063</FONT>    }<a name="line.63"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

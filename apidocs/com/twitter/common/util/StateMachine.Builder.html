@@ -100,7 +100,7 @@ Class StateMachine.Builder&lt;T&gt;</H2>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public static class <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.html#line.219"><B>StateMachine.Builder&lt;T&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public static class <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.html#line.312"><B>StateMachine.Builder&lt;T&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
@@ -139,15 +139,6 @@ Builder to create a state machine.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="class in com.twitter.common.util">StateMachine.Builder</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html#addState(com.twitter.common.base.Closure, T)">addState</A></B>(<A HREF="../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="class in com.twitter.common.util">StateMachine.Transition</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt;&gt;&nbsp;callback,
-                 <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&nbsp;state)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Adds a state with no transitions.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="class in com.twitter.common.util">StateMachine.Builder</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html#addState(com.twitter.common.base.Closure, T, java.util.Set)">addState</A></B>(<A HREF="../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="class in com.twitter.common.util">StateMachine.Transition</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt;&gt;&nbsp;callback,
                  <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&nbsp;state,
                  <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt;&nbsp;transitionStates)</CODE>
@@ -164,6 +155,14 @@ Builder to create a state machine.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Varargs version of <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html#addState(com.twitter.common.base.Closure, T, java.util.Set)"><CODE>addState(com.twitter.common.base.Closure, Object, java.util.Set)</CODE></A>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="class in com.twitter.common.util">StateMachine.Builder</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html#addState(com.twitter.common.util.StateMachine.Rule)">addState</A></B>(<A HREF="../../../../com/twitter/common/util/StateMachine.Rule.html" title="class in com.twitter.common.util">StateMachine.Rule</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt;&nbsp;rule)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Adds a state and its allowed transitions.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -242,7 +241,7 @@ Builder to create a state machine.
 <A NAME="StateMachine.Builder(java.lang.String)"><!-- --></A><H3>
 StateMachine.Builder</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Builder.html#line.226"><B>StateMachine.Builder</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name)</PRE>
+public <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Builder.html#line.319"><B>StateMachine.Builder</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name)</PRE>
 <DL>
 </DL>
 
@@ -259,7 +258,7 @@ public <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Builde
 <A NAME="initialState(java.lang.Object)"><!-- --></A><A NAME="initialState(T)"><!-- --></A><H3>
 initialState</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="class in com.twitter.common.util">StateMachine.Builder</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Builder.html#line.236"><B>initialState</B></A>(<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&nbsp;state)</PRE>
+public <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="class in com.twitter.common.util">StateMachine.Builder</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Builder.html#line.329"><B>initialState</B></A>(<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&nbsp;state)</PRE>
 <DL>
 <DD>Sets the initial state for the state machine.
 <P>
@@ -270,10 +269,24 @@ public <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" t
 </DL>
 <HR>
 
+<A NAME="addState(com.twitter.common.util.StateMachine.Rule)"><!-- --></A><H3>
+addState</H3>
+<PRE>
+public <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="class in com.twitter.common.util">StateMachine.Builder</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Builder.html#line.341"><B>addState</B></A>(<A HREF="../../../../com/twitter/common/util/StateMachine.Rule.html" title="class in com.twitter.common.util">StateMachine.Rule</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt;&nbsp;rule)</PRE>
+<DL>
+<DD>Adds a state and its allowed transitions.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>rule</CODE> - The state and transition rule to add.
+<DT><B>Returns:</B><DD>A reference to the builder.</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="addState(com.twitter.common.base.Closure,java.lang.Object,java.util.Set)"><!-- --></A><A NAME="addState(com.twitter.common.base.Closure, T, java.util.Set)"><!-- --></A><H3>
 addState</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="class in com.twitter.common.util">StateMachine.Builder</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Builder.html#line.252"><B>addState</B></A>(<A HREF="../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="class in com.twitter.common.util">StateMachine.Transition</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt;&gt;&nbsp;callback,
+public <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="class in com.twitter.common.util">StateMachine.Builder</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Builder.html#line.355"><B>addState</B></A>(<A HREF="../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="class in com.twitter.common.util">StateMachine.Transition</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt;&gt;&nbsp;callback,
                                         <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&nbsp;state,
                                         <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt;&nbsp;transitionStates)</PRE>
 <DL>
@@ -291,7 +304,7 @@ public <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" t
 <A NAME="addState(com.twitter.common.base.Closure,java.lang.Object,java.lang.Object[])"><!-- --></A><A NAME="addState(com.twitter.common.base.Closure, T, T...)"><!-- --></A><H3>
 addState</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="class in com.twitter.common.util">StateMachine.Builder</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Builder.html#line.275"><B>addState</B></A>(<A HREF="../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="class in com.twitter.common.util">StateMachine.Transition</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt;&gt;&nbsp;callback,
+public <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="class in com.twitter.common.util">StateMachine.Builder</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Builder.html#line.378"><B>addState</B></A>(<A HREF="../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="class in com.twitter.common.util">StateMachine.Transition</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt;&gt;&nbsp;callback,
                                         <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&nbsp;state,
                                         <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>...&nbsp;transitionStates)</PRE>
 <DL>
@@ -304,25 +317,10 @@ public <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" t
 </DL>
 <HR>
 
-<A NAME="addState(com.twitter.common.base.Closure,java.lang.Object)"><!-- --></A><A NAME="addState(com.twitter.common.base.Closure, T)"><!-- --></A><H3>
-addState</H3>
-<PRE>
-public <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="class in com.twitter.common.util">StateMachine.Builder</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Builder.html#line.290"><B>addState</B></A>(<A HREF="../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="class in com.twitter.common.util">StateMachine.Transition</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt;&gt;&nbsp;callback,
-                                        <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&nbsp;state)</PRE>
-<DL>
-<DD>Adds a state with no transitions.
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>callback</CODE> - Callback to notify of any transition attempted from the state.<DD><CODE>state</CODE> - State to add.
-<DT><B>Returns:</B><DD>A reference to the builder.</DL>
-</DD>
-</DL>
-<HR>
-
 <A NAME="addState(java.lang.Object,java.lang.Object[])"><!-- --></A><A NAME="addState(T, T...)"><!-- --></A><H3>
 addState</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="class in com.twitter.common.util">StateMachine.Builder</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Builder.html#line.303"><B>addState</B></A>(<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&nbsp;state,
+public <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="class in com.twitter.common.util">StateMachine.Builder</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Builder.html#line.395"><B>addState</B></A>(<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&nbsp;state,
                                         <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>...&nbsp;transitionStates)</PRE>
 <DL>
 <DD>Adds a state and its allowed transitions.
@@ -339,7 +337,7 @@ public <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" t
 <A NAME="onAnyTransition(com.twitter.common.base.Closure)"><!-- --></A><H3>
 onAnyTransition</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="class in com.twitter.common.util">StateMachine.Builder</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Builder.html#line.319"><B>onAnyTransition</B></A>(<A HREF="../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="class in com.twitter.common.util">StateMachine.Transition</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt;&gt;&nbsp;handler)</PRE>
+public <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="class in com.twitter.common.util">StateMachine.Builder</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Builder.html#line.411"><B>onAnyTransition</B></A>(<A HREF="../../../../com/twitter/common/base/Closure.html" title="interface in com.twitter.common.base">Closure</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="class in com.twitter.common.util">StateMachine.Transition</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt;&gt;&nbsp;handler)</PRE>
 <DL>
 <DD>Adds a callback to be executed for every state transition, including invalid transitions
  that are attempted.
@@ -354,7 +352,7 @@ public <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" t
 <A NAME="logTransitions()"><!-- --></A><H3>
 logTransitions</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="class in com.twitter.common.util">StateMachine.Builder</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Builder.html#line.329"><B>logTransitions</B></A>()</PRE>
+public <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="class in com.twitter.common.util">StateMachine.Builder</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Builder.html#line.421"><B>logTransitions</B></A>()</PRE>
 <DL>
 <DD>Adds a log message for every state transition that is attempted.
 <P>
@@ -368,7 +366,7 @@ public <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" t
 <A NAME="throwOnBadTransition(boolean)"><!-- --></A><H3>
 throwOnBadTransition</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="class in com.twitter.common.util">StateMachine.Builder</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Builder.html#line.345"><B>throwOnBadTransition</B></A>(boolean&nbsp;throwOnBadTransition)</PRE>
+public <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="class in com.twitter.common.util">StateMachine.Builder</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Builder.html#line.437"><B>throwOnBadTransition</B></A>(boolean&nbsp;throwOnBadTransition)</PRE>
 <DL>
 <DD>Allows the caller to specify whether <A HREF="../../../../com/twitter/common/util/StateMachine.IllegalStateTransitionException.html" title="class in com.twitter.common.util"><CODE>StateMachine.IllegalStateTransitionException</CODE></A> should be thrown
  when a bad state transition is attempted (the default behavior).
@@ -384,7 +382,7 @@ public <A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" t
 <A NAME="build()"><!-- --></A><H3>
 build</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/util/StateMachine.html" title="class in com.twitter.common.util">StateMachine</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Builder.html#line.355"><B>build</B></A>()</PRE>
+public <A HREF="../../../../com/twitter/common/util/StateMachine.html" title="class in com.twitter.common.util">StateMachine</A>&lt;<A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="type parameter in StateMachine.Builder">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/util/StateMachine.Builder.html#line.447"><B>build</B></A>()</PRE>
 <DL>
 <DD>Builds the state machine.
 <P>

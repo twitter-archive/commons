@@ -98,7 +98,7 @@ Class ServerSetImpl</H2>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.html#line.75"><B>ServerSetImpl</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../com/twitter/common/zookeeper/ServerSet.html" title="interface in com.twitter.common.zookeeper">ServerSet</A></DL>
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.html#line.79"><B>ServerSetImpl</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../com/twitter/common/zookeeper/ServerSet.html" title="interface in com.twitter.common.zookeeper">ServerSet</A></DL>
 </PRE>
 
 <P>
@@ -260,7 +260,7 @@ Implementation of <A HREF="../../../../com/twitter/common/zookeeper/ServerSet.ht
 <A NAME="ServerSetImpl(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.String)"><!-- --></A><H3>
 ServerSetImpl</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.html#line.93"><B>ServerSetImpl</B></A>(<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
+public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.html#line.97"><B>ServerSetImpl</B></A>(<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
                      <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</PRE>
 <DL>
 <DD>Creates a new ServerSet using open ZooKeeper node ACLs.
@@ -273,7 +273,7 @@ public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.
 <A NAME="ServerSetImpl(com.twitter.common.zookeeper.ZooKeeperClient, java.lang.Iterable, java.lang.String)"><!-- --></A><H3>
 ServerSetImpl</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.html#line.104"><B>ServerSetImpl</B></A>(<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
+public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.html#line.108"><B>ServerSetImpl</B></A>(<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
                      <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;org.apache.zookeeper.data.ACL&gt;&nbsp;acl,
                      <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</PRE>
 <DL>
@@ -287,7 +287,7 @@ public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.
 <A NAME="ServerSetImpl(com.twitter.common.zookeeper.ZooKeeperClient, com.twitter.common.zookeeper.Group)"><!-- --></A><H3>
 ServerSetImpl</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.html#line.114"><B>ServerSetImpl</B></A>(<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
+public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.html#line.118"><B>ServerSetImpl</B></A>(<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
                      <A HREF="../../../../com/twitter/common/zookeeper/Group.html" title="class in com.twitter.common.zookeeper">Group</A>&nbsp;group)</PRE>
 <DL>
 <DD>Creates a new ServerSet using the given service <code>group</code>.
@@ -300,7 +300,7 @@ public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.
 <A NAME="ServerSetImpl(com.twitter.common.zookeeper.ZooKeeperClient, com.twitter.common.zookeeper.Group, com.twitter.common.io.Codec)"><!-- --></A><H3>
 ServerSetImpl</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.html#line.126"><B>ServerSetImpl</B></A>(<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
+public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.html#line.130"><B>ServerSetImpl</B></A>(<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient,
                      <A HREF="../../../../com/twitter/common/zookeeper/Group.html" title="class in com.twitter.common.zookeeper">Group</A>&nbsp;group,
                      <A HREF="../../../../com/twitter/common/io/Codec.html" title="interface in com.twitter.common.io">Codec</A>&lt;ServiceInstance&gt;&nbsp;codec)</PRE>
 <DL>
@@ -324,7 +324,7 @@ public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.
 <A NAME="join(java.net.InetSocketAddress, java.util.Map, Status)"><!-- --></A><H3>
 join</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/zookeeper/ServerSet.EndpointStatus.html" title="interface in com.twitter.common.zookeeper">ServerSet.EndpointStatus</A> <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.html#line.141"><B>join</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&nbsp;endpoint,
+public <A HREF="../../../../com/twitter/common/zookeeper/ServerSet.EndpointStatus.html" title="interface in com.twitter.common.zookeeper">ServerSet.EndpointStatus</A> <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.html#line.145"><B>join</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&nbsp;endpoint,
                                      <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&nbsp;additionalEndpoints,
                                      Status&nbsp;status)
                               throws <A HREF="../../../../com/twitter/common/zookeeper/Group.JoinException.html" title="class in com.twitter.common.zookeeper">Group.JoinException</A>,
@@ -349,7 +349,7 @@ public <A HREF="../../../../com/twitter/common/zookeeper/ServerSet.EndpointStatu
 <A NAME="monitor(com.twitter.common.net.pool.DynamicHostSet.HostChangeMonitor)"><!-- --></A><H3>
 monitor</H3>
 <PRE>
-public void <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.html#line.165"><B>monitor</B></A>(<A HREF="../../../../com/twitter/common/net/pool/DynamicHostSet.HostChangeMonitor.html" title="interface in com.twitter.common.net.pool">DynamicHostSet.HostChangeMonitor</A>&lt;ServiceInstance&gt;&nbsp;monitor)
+public void <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.html#line.169"><B>monitor</B></A>(<A HREF="../../../../com/twitter/common/net/pool/DynamicHostSet.HostChangeMonitor.html" title="interface in com.twitter.common.net.pool">DynamicHostSet.HostChangeMonitor</A>&lt;ServiceInstance&gt;&nbsp;monitor)
              throws <A HREF="../../../../com/twitter/common/net/pool/DynamicHostSet.MonitorException.html" title="class in com.twitter.common.net.pool">DynamicHostSet.MonitorException</A></PRE>
 <DL>
 <DD><B>Description copied from interface: <CODE><A HREF="../../../../com/twitter/common/net/pool/DynamicHostSet.html#monitor(com.twitter.common.net.pool.DynamicHostSet.HostChangeMonitor)">DynamicHostSet</A></CODE></B></DD>
@@ -372,7 +372,7 @@ public void <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSet
 <A NAME="createThriftCodec()"><!-- --></A><H3>
 createThriftCodec</H3>
 <PRE>
-public static <A HREF="../../../../com/twitter/common/io/Codec.html" title="interface in com.twitter.common.io">Codec</A>&lt;ServiceInstance&gt; <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.html#line.433"><B>createThriftCodec</B></A>()</PRE>
+public static <A HREF="../../../../com/twitter/common/io/Codec.html" title="interface in com.twitter.common.io">Codec</A>&lt;ServiceInstance&gt; <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.html#line.453"><B>createThriftCodec</B></A>()</PRE>
 <DL>
 <DD>Creates a codec for <CODE>ServiceInstance</CODE> objects that uses Thrift binary encoding, and can
  decode both Thrift and JSON encodings.
@@ -390,7 +390,7 @@ public static <A HREF="../../../../com/twitter/common/io/Codec.html" title="inte
 <A NAME="createJsonCodec()"><!-- --></A><H3>
 createJsonCodec</H3>
 <PRE>
-public static <A HREF="../../../../com/twitter/common/io/Codec.html" title="interface in com.twitter.common.io">Codec</A>&lt;ServiceInstance&gt; <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.html#line.443"><B>createJsonCodec</B></A>()</PRE>
+public static <A HREF="../../../../com/twitter/common/io/Codec.html" title="interface in com.twitter.common.io">Codec</A>&lt;ServiceInstance&gt; <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.html#line.463"><B>createJsonCodec</B></A>()</PRE>
 <DL>
 <DD>Creates a codec for <CODE>ServiceInstance</CODE> objects that uses JSON encoding, and can decode
  both Thrift and JSON encodings.
@@ -408,7 +408,7 @@ public static <A HREF="../../../../com/twitter/common/io/Codec.html" title="inte
 <A NAME="createDefaultCodec()"><!-- --></A><H3>
 createDefaultCodec</H3>
 <PRE>
-public static <A HREF="../../../../com/twitter/common/io/Codec.html" title="interface in com.twitter.common.io">Codec</A>&lt;ServiceInstance&gt; <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.html#line.454"><B>createDefaultCodec</B></A>()</PRE>
+public static <A HREF="../../../../com/twitter/common/io/Codec.html" title="interface in com.twitter.common.io">Codec</A>&lt;ServiceInstance&gt; <A HREF="../../../../src-html/com/twitter/common/zookeeper/ServerSetImpl.html#line.474"><B>createDefaultCodec</B></A>()</PRE>
 <DL>
 <DD>Returns a codec for <CODE>ServiceInstance</CODE> objects that uses either the Thrift or the JSON
  encoding, depending on whether the command line argument <tt>serverset_json_encofing</tt> is

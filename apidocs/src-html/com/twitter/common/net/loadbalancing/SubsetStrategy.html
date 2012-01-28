@@ -74,23 +74,25 @@
 <FONT color="green">071</FONT>    <a name="line.71"></a>
 <FONT color="green">072</FONT>      @Override<a name="line.72"></a>
 <FONT color="green">073</FONT>      public void connectionReturned(S backendKey) {<a name="line.73"></a>
-<FONT color="green">074</FONT>        wrapped.connectionReturned(backendKey);<a name="line.74"></a>
-<FONT color="green">075</FONT>      }<a name="line.75"></a>
-<FONT color="green">076</FONT>    <a name="line.76"></a>
-<FONT color="green">077</FONT>      @Override<a name="line.77"></a>
-<FONT color="green">078</FONT>      public void addRequestResult(S requestKey, RequestResult result, long requestTimeNanos) {<a name="line.78"></a>
-<FONT color="green">079</FONT>        Preconditions.checkNotNull(requestKey);<a name="line.79"></a>
-<FONT color="green">080</FONT>    <a name="line.80"></a>
-<FONT color="green">081</FONT>        if (backendSubset.contains(requestKey)) {<a name="line.81"></a>
-<FONT color="green">082</FONT>          wrapped.addRequestResult(requestKey, result, requestTimeNanos);<a name="line.82"></a>
-<FONT color="green">083</FONT>        }<a name="line.83"></a>
-<FONT color="green">084</FONT>      }<a name="line.84"></a>
-<FONT color="green">085</FONT>    <a name="line.85"></a>
-<FONT color="green">086</FONT>      @Override<a name="line.86"></a>
-<FONT color="green">087</FONT>      public S nextBackend() throws ResourceExhaustedException {<a name="line.87"></a>
-<FONT color="green">088</FONT>        return wrapped.nextBackend();<a name="line.88"></a>
-<FONT color="green">089</FONT>      }<a name="line.89"></a>
-<FONT color="green">090</FONT>    }<a name="line.90"></a>
+<FONT color="green">074</FONT>        if (backendSubset.contains(backendKey)) {<a name="line.74"></a>
+<FONT color="green">075</FONT>          wrapped.connectionReturned(backendKey);<a name="line.75"></a>
+<FONT color="green">076</FONT>        }<a name="line.76"></a>
+<FONT color="green">077</FONT>      }<a name="line.77"></a>
+<FONT color="green">078</FONT>    <a name="line.78"></a>
+<FONT color="green">079</FONT>      @Override<a name="line.79"></a>
+<FONT color="green">080</FONT>      public void addRequestResult(S requestKey, RequestResult result, long requestTimeNanos) {<a name="line.80"></a>
+<FONT color="green">081</FONT>        Preconditions.checkNotNull(requestKey);<a name="line.81"></a>
+<FONT color="green">082</FONT>    <a name="line.82"></a>
+<FONT color="green">083</FONT>        if (backendSubset.contains(requestKey)) {<a name="line.83"></a>
+<FONT color="green">084</FONT>          wrapped.addRequestResult(requestKey, result, requestTimeNanos);<a name="line.84"></a>
+<FONT color="green">085</FONT>        }<a name="line.85"></a>
+<FONT color="green">086</FONT>      }<a name="line.86"></a>
+<FONT color="green">087</FONT>    <a name="line.87"></a>
+<FONT color="green">088</FONT>      @Override<a name="line.88"></a>
+<FONT color="green">089</FONT>      public S nextBackend() throws ResourceExhaustedException {<a name="line.89"></a>
+<FONT color="green">090</FONT>        return wrapped.nextBackend();<a name="line.90"></a>
+<FONT color="green">091</FONT>      }<a name="line.91"></a>
+<FONT color="green">092</FONT>    }<a name="line.92"></a>
 
 
 

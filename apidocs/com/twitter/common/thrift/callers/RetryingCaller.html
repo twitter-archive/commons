@@ -98,7 +98,7 @@ Class RetryingCaller</H2>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/thrift/callers/RetryingCaller.html#line.47"><B>RetryingCaller</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/thrift/callers/RetryingCaller.html#line.51"><B>RetryingCaller</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
@@ -160,7 +160,7 @@ A caller that will retry calls to the wrapped caller.
                              <A HREF="../../../../../com/twitter/common/stats/StatsProvider.html" title="interface in com.twitter.common.stats">StatsProvider</A>&nbsp;statsProvider,
                              <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;serviceName,
                              int&nbsp;retries,
-                             <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ImmutableSet.html?is-external=true" title="class or interface in com.google.common.collect">ImmutableSet</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;? extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt;&gt;&nbsp;retryableExceptions,
+                             <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/collect/ImmutableSet.html?is-external=true" title="class or interface in com.google.common.collect">ImmutableSet</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;? extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt;&gt;&nbsp;retryableExceptions,
                              boolean&nbsp;debug)</CODE>
 
 <BR>
@@ -226,7 +226,7 @@ A caller that will retry calls to the wrapped caller.
 <A NAME="NONBLOCKING_TIMEOUT"><!-- --></A><H3>
 NONBLOCKING_TIMEOUT</H3>
 <PRE>
-public static final <A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt; <A HREF="../../../../../src-html/com/twitter/common/thrift/callers/RetryingCaller.html#line.51"><B>NONBLOCKING_TIMEOUT</B></A></PRE>
+public static final <A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt; <A HREF="../../../../../src-html/com/twitter/common/thrift/callers/RetryingCaller.html#line.55"><B>NONBLOCKING_TIMEOUT</B></A></PRE>
 <DL>
 <DL>
 </DL>
@@ -245,12 +245,12 @@ public static final <A HREF="../../../../../com/twitter/common/quantity/Amount.h
 <A NAME="RetryingCaller(com.twitter.common.thrift.callers.Caller, boolean, com.twitter.common.stats.StatsProvider, java.lang.String, int, com.google.common.collect.ImmutableSet, boolean)"><!-- --></A><H3>
 RetryingCaller</H3>
 <PRE>
-public <A HREF="../../../../../src-html/com/twitter/common/thrift/callers/RetryingCaller.html#line.72"><B>RetryingCaller</B></A>(<A HREF="../../../../../com/twitter/common/thrift/callers/Caller.html" title="interface in com.twitter.common.thrift.callers">Caller</A>&nbsp;decoratedCall,
+public <A HREF="../../../../../src-html/com/twitter/common/thrift/callers/RetryingCaller.html#line.76"><B>RetryingCaller</B></A>(<A HREF="../../../../../com/twitter/common/thrift/callers/Caller.html" title="interface in com.twitter.common.thrift.callers">Caller</A>&nbsp;decoratedCall,
                       boolean&nbsp;async,
                       <A HREF="../../../../../com/twitter/common/stats/StatsProvider.html" title="interface in com.twitter.common.stats">StatsProvider</A>&nbsp;statsProvider,
                       <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;serviceName,
                       int&nbsp;retries,
-                      <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/collect/ImmutableSet.html?is-external=true" title="class or interface in com.google.common.collect">ImmutableSet</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;? extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt;&gt;&nbsp;retryableExceptions,
+                      <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/collect/ImmutableSet.html?is-external=true" title="class or interface in com.google.common.collect">ImmutableSet</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;? extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt;&gt;&nbsp;retryableExceptions,
                       boolean&nbsp;debug)</PRE>
 <DL>
 <DD>Creates a new retrying caller. The retrying caller will attempt to call invoked methods on the
@@ -274,7 +274,7 @@ public <A HREF="../../../../../src-html/com/twitter/common/thrift/callers/Retryi
 <A NAME="call(java.lang.reflect.Method, java.lang.Object[], org.apache.thrift.async.AsyncMethodCallback, com.twitter.common.quantity.Amount)"><!-- --></A><H3>
 call</H3>
 <PRE>
-public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A> <A HREF="../../../../../src-html/com/twitter/common/thrift/callers/RetryingCaller.html#line.91"><B>call</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Method.html?is-external=true" title="class or interface in java.lang.reflect">Method</A>&nbsp;method,
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A> <A HREF="../../../../../src-html/com/twitter/common/thrift/callers/RetryingCaller.html#line.95"><B>call</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Method.html?is-external=true" title="class or interface in java.lang.reflect">Method</A>&nbsp;method,
                    <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>[]&nbsp;args,
                    <FONT SIZE="-1"><A HREF="http://download.oracle.com/javase/6/docs/api/javax/annotation/Nullable.html?is-external=true" title="class or interface in javax.annotation">@Nullable</A></FONT>
                    org.apache.thrift.async.AsyncMethodCallback&nbsp;callback,

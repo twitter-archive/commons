@@ -54,7 +54,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../com/twitter/common/stats/Ratio.html" title="class in com.twitter.common.stats"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../com/twitter/common/stats/Significance.html" title="class in com.twitter.common.stats"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/stats/ReservoirSampler.html" title="class in com.twitter.common.stats"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/stats/RequestStats.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="RequestStats.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -213,6 +213,14 @@ A class to represent the statistics associated with a client connection to an ex
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Accumulates the error counter and the request counter.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/RequestStats.html#incErrors(long)">incErrors</A></B>(long&nbsp;latencyMicros)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Accumulates the error counter, the request counter and the request latency.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -398,10 +406,26 @@ public void <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.
 </DL>
 <HR>
 
+<A NAME="incErrors(long)"><!-- --></A><H3>
+incErrors</H3>
+<PRE>
+public void <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.116"><B>incErrors</B></A>(long&nbsp;latencyMicros)</PRE>
+<DL>
+<DD>Accumulates the error counter, the request counter and the request latency.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>latencyMicros</CODE> - The elapsed time before the error occurred.</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="incReconnects()"><!-- --></A><H3>
 incReconnects</H3>
 <PRE>
-public void <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.114"><B>incReconnects</B></A>()</PRE>
+public void <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.124"><B>incReconnects</B></A>()</PRE>
 <DL>
 <DD>Accumulates the reconnect counter.
 <P>
@@ -417,7 +441,7 @@ public void <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.
 <A NAME="incTimeouts()"><!-- --></A><H3>
 incTimeouts</H3>
 <PRE>
-public void <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.121"><B>incTimeouts</B></A>()</PRE>
+public void <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.131"><B>incTimeouts</B></A>()</PRE>
 <DL>
 <DD>Accumulates the timtout counter.
 <P>
@@ -433,7 +457,7 @@ public void <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.
 <A NAME="getErrorCount()"><!-- --></A><H3>
 getErrorCount</H3>
 <PRE>
-public long <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.125"><B>getErrorCount</B></A>()</PRE>
+public long <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.135"><B>getErrorCount</B></A>()</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -447,7 +471,7 @@ public long <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.
 <A NAME="getReconnectCount()"><!-- --></A><H3>
 getReconnectCount</H3>
 <PRE>
-public long <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.129"><B>getReconnectCount</B></A>()</PRE>
+public long <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.139"><B>getReconnectCount</B></A>()</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -461,7 +485,7 @@ public long <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.
 <A NAME="getTimeoutCount()"><!-- --></A><H3>
 getTimeoutCount</H3>
 <PRE>
-public long <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.133"><B>getTimeoutCount</B></A>()</PRE>
+public long <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.html#line.143"><B>getTimeoutCount</B></A>()</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -502,7 +526,7 @@ public long <A HREF="../../../../src-html/com/twitter/common/stats/RequestStats.
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../com/twitter/common/stats/Ratio.html" title="class in com.twitter.common.stats"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../com/twitter/common/stats/Significance.html" title="class in com.twitter.common.stats"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/stats/ReservoirSampler.html" title="class in com.twitter.common.stats"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/stats/RequestStats.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="RequestStats.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;

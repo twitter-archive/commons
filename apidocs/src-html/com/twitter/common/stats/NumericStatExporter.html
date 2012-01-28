@@ -24,102 +24,100 @@
 <FONT color="green">021</FONT>    import java.util.concurrent.TimeUnit;<a name="line.21"></a>
 <FONT color="green">022</FONT>    import java.util.logging.Logger;<a name="line.22"></a>
 <FONT color="green">023</FONT>    <a name="line.23"></a>
-<FONT color="green">024</FONT>    import javax.annotation.Nullable;<a name="line.24"></a>
-<FONT color="green">025</FONT>    <a name="line.25"></a>
-<FONT color="green">026</FONT>    import com.google.common.base.Function;<a name="line.26"></a>
-<FONT color="green">027</FONT>    import com.google.common.collect.Maps;<a name="line.27"></a>
-<FONT color="green">028</FONT>    <a name="line.28"></a>
-<FONT color="green">029</FONT>    import com.twitter.common.application.ActionRegistry;<a name="line.29"></a>
-<FONT color="green">030</FONT>    import com.twitter.common.base.Closure;<a name="line.30"></a>
-<FONT color="green">031</FONT>    import com.twitter.common.base.Command;<a name="line.31"></a>
-<FONT color="green">032</FONT>    import com.twitter.common.quantity.Amount;<a name="line.32"></a>
-<FONT color="green">033</FONT>    import com.twitter.common.quantity.Time;<a name="line.33"></a>
+<FONT color="green">024</FONT>    import com.google.common.base.Function;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import com.google.common.collect.Maps;<a name="line.25"></a>
+<FONT color="green">026</FONT>    <a name="line.26"></a>
+<FONT color="green">027</FONT>    import com.twitter.common.application.ShutdownRegistry;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import com.twitter.common.base.Closure;<a name="line.28"></a>
+<FONT color="green">029</FONT>    import com.twitter.common.base.Command;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import com.twitter.common.quantity.Amount;<a name="line.30"></a>
+<FONT color="green">031</FONT>    import com.twitter.common.quantity.Time;<a name="line.31"></a>
+<FONT color="green">032</FONT>    <a name="line.32"></a>
+<FONT color="green">033</FONT>    import static com.google.common.base.Preconditions.checkNotNull;<a name="line.33"></a>
 <FONT color="green">034</FONT>    <a name="line.34"></a>
-<FONT color="green">035</FONT>    import static com.google.common.base.Preconditions.checkNotNull;<a name="line.35"></a>
-<FONT color="green">036</FONT>    <a name="line.36"></a>
-<FONT color="green">037</FONT>    /**<a name="line.37"></a>
-<FONT color="green">038</FONT>     * Stat exporter that extracts numeric {@link Stat}s from the {@link Stats} system, and exports them<a name="line.38"></a>
-<FONT color="green">039</FONT>     * via a caller-defined sink.<a name="line.39"></a>
-<FONT color="green">040</FONT>     *<a name="line.40"></a>
-<FONT color="green">041</FONT>     * @author William Farner<a name="line.41"></a>
-<FONT color="green">042</FONT>     */<a name="line.42"></a>
-<FONT color="green">043</FONT>    public class NumericStatExporter {<a name="line.43"></a>
+<FONT color="green">035</FONT>    /**<a name="line.35"></a>
+<FONT color="green">036</FONT>     * Stat exporter that extracts numeric {@link Stat}s from the {@link Stats} system, and exports them<a name="line.36"></a>
+<FONT color="green">037</FONT>     * via a caller-defined sink.<a name="line.37"></a>
+<FONT color="green">038</FONT>     *<a name="line.38"></a>
+<FONT color="green">039</FONT>     * @author William Farner<a name="line.39"></a>
+<FONT color="green">040</FONT>     */<a name="line.40"></a>
+<FONT color="green">041</FONT>    public class NumericStatExporter {<a name="line.41"></a>
+<FONT color="green">042</FONT>    <a name="line.42"></a>
+<FONT color="green">043</FONT>      private static final Logger LOG = Logger.getLogger(NumericStatExporter.class.getName());<a name="line.43"></a>
 <FONT color="green">044</FONT>    <a name="line.44"></a>
-<FONT color="green">045</FONT>      private static final Logger LOG = Logger.getLogger(NumericStatExporter.class.getName());<a name="line.45"></a>
-<FONT color="green">046</FONT>    <a name="line.46"></a>
-<FONT color="green">047</FONT>      private final ScheduledExecutorService executor;<a name="line.47"></a>
-<FONT color="green">048</FONT>      private final Amount&lt;Long, Time&gt; exportInterval;<a name="line.48"></a>
+<FONT color="green">045</FONT>      private final ScheduledExecutorService executor;<a name="line.45"></a>
+<FONT color="green">046</FONT>      private final Amount&lt;Long, Time&gt; exportInterval;<a name="line.46"></a>
+<FONT color="green">047</FONT>    <a name="line.47"></a>
+<FONT color="green">048</FONT>      private final Runnable exporter;<a name="line.48"></a>
 <FONT color="green">049</FONT>    <a name="line.49"></a>
-<FONT color="green">050</FONT>      private final Runnable exporter;<a name="line.50"></a>
-<FONT color="green">051</FONT>    <a name="line.51"></a>
-<FONT color="green">052</FONT>      /**<a name="line.52"></a>
-<FONT color="green">053</FONT>       * Creates a new numeric stat exporter that will export to the specified sink.<a name="line.53"></a>
-<FONT color="green">054</FONT>       *<a name="line.54"></a>
-<FONT color="green">055</FONT>       * @param exportSink Consumes stats.<a name="line.55"></a>
-<FONT color="green">056</FONT>       * @param executor Executor to handle export thread.<a name="line.56"></a>
-<FONT color="green">057</FONT>       * @param exportInterval Export period.<a name="line.57"></a>
-<FONT color="green">058</FONT>       */<a name="line.58"></a>
-<FONT color="green">059</FONT>      public NumericStatExporter(final Closure&lt;Map&lt;String, ? extends Number&gt;&gt; exportSink,<a name="line.59"></a>
-<FONT color="green">060</FONT>          ScheduledExecutorService executor, Amount&lt;Long, Time&gt; exportInterval) {<a name="line.60"></a>
-<FONT color="green">061</FONT>        checkNotNull(exportSink);<a name="line.61"></a>
-<FONT color="green">062</FONT>        this.executor = checkNotNull(executor);<a name="line.62"></a>
-<FONT color="green">063</FONT>        this.exportInterval = checkNotNull(exportInterval);<a name="line.63"></a>
-<FONT color="green">064</FONT>    <a name="line.64"></a>
-<FONT color="green">065</FONT>        exporter = new Runnable() {<a name="line.65"></a>
-<FONT color="green">066</FONT>          @Override public void run() {<a name="line.66"></a>
-<FONT color="green">067</FONT>            exportSink.execute(Maps.transformValues(<a name="line.67"></a>
-<FONT color="green">068</FONT>                Maps.uniqueIndex(Stats.getNumericVariables(), GET_NAME), READ_STAT));<a name="line.68"></a>
-<FONT color="green">069</FONT>          }<a name="line.69"></a>
-<FONT color="green">070</FONT>        };<a name="line.70"></a>
-<FONT color="green">071</FONT>      }<a name="line.71"></a>
-<FONT color="green">072</FONT>    <a name="line.72"></a>
-<FONT color="green">073</FONT>      /**<a name="line.73"></a>
-<FONT color="green">074</FONT>       * Starts the stat exporter.<a name="line.74"></a>
-<FONT color="green">075</FONT>       *<a name="line.75"></a>
-<FONT color="green">076</FONT>       * @param shutdownRegistry Shutdown hook registry to allow the exporter to cleanly halt.<a name="line.76"></a>
-<FONT color="green">077</FONT>       */<a name="line.77"></a>
-<FONT color="green">078</FONT>      public void start(ActionRegistry shutdownRegistry) {<a name="line.78"></a>
-<FONT color="green">079</FONT>        long intervalSecs = exportInterval.as(Time.SECONDS);<a name="line.79"></a>
-<FONT color="green">080</FONT>        executor.scheduleAtFixedRate(exporter, intervalSecs, intervalSecs, TimeUnit.SECONDS);<a name="line.80"></a>
-<FONT color="green">081</FONT>    <a name="line.81"></a>
-<FONT color="green">082</FONT>        shutdownRegistry.addAction(new Command() {<a name="line.82"></a>
-<FONT color="green">083</FONT>          @Override public void execute() {<a name="line.83"></a>
-<FONT color="green">084</FONT>            stop();<a name="line.84"></a>
-<FONT color="green">085</FONT>          }<a name="line.85"></a>
-<FONT color="green">086</FONT>        });<a name="line.86"></a>
-<FONT color="green">087</FONT>      }<a name="line.87"></a>
-<FONT color="green">088</FONT>    <a name="line.88"></a>
-<FONT color="green">089</FONT>      /**<a name="line.89"></a>
-<FONT color="green">090</FONT>       * Stops the stat exporter.  Once stopped, it may be started again by calling<a name="line.90"></a>
-<FONT color="green">091</FONT>       * {@link #start(ActionRegistry)}.<a name="line.91"></a>
-<FONT color="green">092</FONT>       */<a name="line.92"></a>
-<FONT color="green">093</FONT>      public void stop() {<a name="line.93"></a>
-<FONT color="green">094</FONT>        try {<a name="line.94"></a>
-<FONT color="green">095</FONT>          if (!executor.awaitTermination(1, TimeUnit.SECONDS)) {<a name="line.95"></a>
-<FONT color="green">096</FONT>            executor.shutdownNow();<a name="line.96"></a>
-<FONT color="green">097</FONT>            if (!executor.awaitTermination(1, TimeUnit.SECONDS)) {<a name="line.97"></a>
-<FONT color="green">098</FONT>              LOG.severe("Failed to stop stat exporter.");<a name="line.98"></a>
-<FONT color="green">099</FONT>            }<a name="line.99"></a>
-<FONT color="green">100</FONT>          }<a name="line.100"></a>
-<FONT color="green">101</FONT>        } catch (InterruptedException e) {<a name="line.101"></a>
-<FONT color="green">102</FONT>          executor.shutdownNow();<a name="line.102"></a>
-<FONT color="green">103</FONT>          Thread.currentThread().interrupt();<a name="line.103"></a>
-<FONT color="green">104</FONT>        }<a name="line.104"></a>
-<FONT color="green">105</FONT>      }<a name="line.105"></a>
-<FONT color="green">106</FONT>    <a name="line.106"></a>
-<FONT color="green">107</FONT>      public static final Function&lt;Stat&lt;?&gt;, String&gt; GET_NAME = new Function&lt;Stat&lt;?&gt;, String&gt;() {<a name="line.107"></a>
-<FONT color="green">108</FONT>        @Override public String apply(Stat&lt;?&gt; stat) {<a name="line.108"></a>
-<FONT color="green">109</FONT>          return stat.getName();<a name="line.109"></a>
-<FONT color="green">110</FONT>        }<a name="line.110"></a>
-<FONT color="green">111</FONT>      };<a name="line.111"></a>
-<FONT color="green">112</FONT>    <a name="line.112"></a>
-<FONT color="green">113</FONT>      public static final Function&lt;Stat&lt;? extends Number&gt;, Number&gt; READ_STAT =<a name="line.113"></a>
-<FONT color="green">114</FONT>          new Function&lt;Stat&lt;? extends Number&gt;, Number&gt;() {<a name="line.114"></a>
-<FONT color="green">115</FONT>            @Override public Number apply(Stat&lt;? extends Number&gt; stat) {<a name="line.115"></a>
-<FONT color="green">116</FONT>              return stat.read();<a name="line.116"></a>
-<FONT color="green">117</FONT>            }<a name="line.117"></a>
-<FONT color="green">118</FONT>          };<a name="line.118"></a>
-<FONT color="green">119</FONT>    }<a name="line.119"></a>
+<FONT color="green">050</FONT>      /**<a name="line.50"></a>
+<FONT color="green">051</FONT>       * Creates a new numeric stat exporter that will export to the specified sink.<a name="line.51"></a>
+<FONT color="green">052</FONT>       *<a name="line.52"></a>
+<FONT color="green">053</FONT>       * @param exportSink Consumes stats.<a name="line.53"></a>
+<FONT color="green">054</FONT>       * @param executor Executor to handle export thread.<a name="line.54"></a>
+<FONT color="green">055</FONT>       * @param exportInterval Export period.<a name="line.55"></a>
+<FONT color="green">056</FONT>       */<a name="line.56"></a>
+<FONT color="green">057</FONT>      public NumericStatExporter(final Closure&lt;Map&lt;String, ? extends Number&gt;&gt; exportSink,<a name="line.57"></a>
+<FONT color="green">058</FONT>          ScheduledExecutorService executor, Amount&lt;Long, Time&gt; exportInterval) {<a name="line.58"></a>
+<FONT color="green">059</FONT>        checkNotNull(exportSink);<a name="line.59"></a>
+<FONT color="green">060</FONT>        this.executor = checkNotNull(executor);<a name="line.60"></a>
+<FONT color="green">061</FONT>        this.exportInterval = checkNotNull(exportInterval);<a name="line.61"></a>
+<FONT color="green">062</FONT>    <a name="line.62"></a>
+<FONT color="green">063</FONT>        exporter = new Runnable() {<a name="line.63"></a>
+<FONT color="green">064</FONT>          @Override public void run() {<a name="line.64"></a>
+<FONT color="green">065</FONT>            exportSink.execute(Maps.transformValues(<a name="line.65"></a>
+<FONT color="green">066</FONT>                Maps.uniqueIndex(Stats.getNumericVariables(), GET_NAME), READ_STAT));<a name="line.66"></a>
+<FONT color="green">067</FONT>          }<a name="line.67"></a>
+<FONT color="green">068</FONT>        };<a name="line.68"></a>
+<FONT color="green">069</FONT>      }<a name="line.69"></a>
+<FONT color="green">070</FONT>    <a name="line.70"></a>
+<FONT color="green">071</FONT>      /**<a name="line.71"></a>
+<FONT color="green">072</FONT>       * Starts the stat exporter.<a name="line.72"></a>
+<FONT color="green">073</FONT>       *<a name="line.73"></a>
+<FONT color="green">074</FONT>       * @param shutdownRegistry Shutdown hook registry to allow the exporter to cleanly halt.<a name="line.74"></a>
+<FONT color="green">075</FONT>       */<a name="line.75"></a>
+<FONT color="green">076</FONT>      public void start(ShutdownRegistry shutdownRegistry) {<a name="line.76"></a>
+<FONT color="green">077</FONT>        long intervalSecs = exportInterval.as(Time.SECONDS);<a name="line.77"></a>
+<FONT color="green">078</FONT>        executor.scheduleAtFixedRate(exporter, intervalSecs, intervalSecs, TimeUnit.SECONDS);<a name="line.78"></a>
+<FONT color="green">079</FONT>    <a name="line.79"></a>
+<FONT color="green">080</FONT>        shutdownRegistry.addAction(new Command() {<a name="line.80"></a>
+<FONT color="green">081</FONT>          @Override public void execute() {<a name="line.81"></a>
+<FONT color="green">082</FONT>            stop();<a name="line.82"></a>
+<FONT color="green">083</FONT>          }<a name="line.83"></a>
+<FONT color="green">084</FONT>        });<a name="line.84"></a>
+<FONT color="green">085</FONT>      }<a name="line.85"></a>
+<FONT color="green">086</FONT>    <a name="line.86"></a>
+<FONT color="green">087</FONT>      /**<a name="line.87"></a>
+<FONT color="green">088</FONT>       * Stops the stat exporter.  Once stopped, it may be started again by calling<a name="line.88"></a>
+<FONT color="green">089</FONT>       * {@link #start(ShutdownRegistry)}.<a name="line.89"></a>
+<FONT color="green">090</FONT>       */<a name="line.90"></a>
+<FONT color="green">091</FONT>      public void stop() {<a name="line.91"></a>
+<FONT color="green">092</FONT>        try {<a name="line.92"></a>
+<FONT color="green">093</FONT>          if (!executor.awaitTermination(1, TimeUnit.SECONDS)) {<a name="line.93"></a>
+<FONT color="green">094</FONT>            executor.shutdownNow();<a name="line.94"></a>
+<FONT color="green">095</FONT>            if (!executor.awaitTermination(1, TimeUnit.SECONDS)) {<a name="line.95"></a>
+<FONT color="green">096</FONT>              LOG.severe("Failed to stop stat exporter.");<a name="line.96"></a>
+<FONT color="green">097</FONT>            }<a name="line.97"></a>
+<FONT color="green">098</FONT>          }<a name="line.98"></a>
+<FONT color="green">099</FONT>        } catch (InterruptedException e) {<a name="line.99"></a>
+<FONT color="green">100</FONT>          executor.shutdownNow();<a name="line.100"></a>
+<FONT color="green">101</FONT>          Thread.currentThread().interrupt();<a name="line.101"></a>
+<FONT color="green">102</FONT>        }<a name="line.102"></a>
+<FONT color="green">103</FONT>      }<a name="line.103"></a>
+<FONT color="green">104</FONT>    <a name="line.104"></a>
+<FONT color="green">105</FONT>      public static final Function&lt;Stat&lt;?&gt;, String&gt; GET_NAME = new Function&lt;Stat&lt;?&gt;, String&gt;() {<a name="line.105"></a>
+<FONT color="green">106</FONT>        @Override public String apply(Stat&lt;?&gt; stat) {<a name="line.106"></a>
+<FONT color="green">107</FONT>          return stat.getName();<a name="line.107"></a>
+<FONT color="green">108</FONT>        }<a name="line.108"></a>
+<FONT color="green">109</FONT>      };<a name="line.109"></a>
+<FONT color="green">110</FONT>    <a name="line.110"></a>
+<FONT color="green">111</FONT>      public static final Function&lt;Stat&lt;? extends Number&gt;, Number&gt; READ_STAT =<a name="line.111"></a>
+<FONT color="green">112</FONT>          new Function&lt;Stat&lt;? extends Number&gt;, Number&gt;() {<a name="line.112"></a>
+<FONT color="green">113</FONT>            @Override public Number apply(Stat&lt;? extends Number&gt; stat) {<a name="line.113"></a>
+<FONT color="green">114</FONT>              return stat.read();<a name="line.114"></a>
+<FONT color="green">115</FONT>            }<a name="line.115"></a>
+<FONT color="green">116</FONT>          };<a name="line.116"></a>
+<FONT color="green">117</FONT>    }<a name="line.117"></a>
 
 
 

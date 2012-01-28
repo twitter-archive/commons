@@ -62,22 +62,27 @@
 <FONT color="green">059</FONT>      }<a name="line.59"></a>
 <FONT color="green">060</FONT>    <a name="line.60"></a>
 <FONT color="green">061</FONT>      @Override<a name="line.61"></a>
-<FONT color="green">062</FONT>      protected void doGet(HttpServletRequest req, HttpServletResponse resp)<a name="line.62"></a>
-<FONT color="green">063</FONT>          throws ServletException, IOException {<a name="line.63"></a>
-<FONT color="green">064</FONT>        LOG.info(String.format("Received quit HTTP signal from %s (%s)",<a name="line.64"></a>
-<FONT color="green">065</FONT>            req.getRemoteAddr(), req.getRemoteHost()));<a name="line.65"></a>
+<FONT color="green">062</FONT>      protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {<a name="line.62"></a>
+<FONT color="green">063</FONT>        resp.getWriter().println("WARNING - quitting via HTTP GET is deprecated, please POST instead!");<a name="line.63"></a>
+<FONT color="green">064</FONT>        doPost(req, resp);<a name="line.64"></a>
+<FONT color="green">065</FONT>      }<a name="line.65"></a>
 <FONT color="green">066</FONT>    <a name="line.66"></a>
-<FONT color="green">067</FONT>        resp.setContentType("text/plain");<a name="line.67"></a>
-<FONT color="green">068</FONT>        PrintWriter writer = resp.getWriter();<a name="line.68"></a>
-<FONT color="green">069</FONT>        try {<a name="line.69"></a>
-<FONT color="green">070</FONT>          writer.println("Notifying quit listener.");<a name="line.70"></a>
-<FONT color="green">071</FONT>          writer.close();<a name="line.71"></a>
-<FONT color="green">072</FONT>          new Thread(quitListener).start();<a name="line.72"></a>
-<FONT color="green">073</FONT>        } catch (Exception e) {<a name="line.73"></a>
-<FONT color="green">074</FONT>          LOG.log(Level.WARNING, "Quit failed.", e);<a name="line.74"></a>
-<FONT color="green">075</FONT>        }<a name="line.75"></a>
-<FONT color="green">076</FONT>      }<a name="line.76"></a>
-<FONT color="green">077</FONT>    }<a name="line.77"></a>
+<FONT color="green">067</FONT>      @Override<a name="line.67"></a>
+<FONT color="green">068</FONT>      protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {<a name="line.68"></a>
+<FONT color="green">069</FONT>        LOG.info(String.format("Received quit HTTP signal from %s (%s)",<a name="line.69"></a>
+<FONT color="green">070</FONT>            req.getRemoteAddr(), req.getRemoteHost()));<a name="line.70"></a>
+<FONT color="green">071</FONT>    <a name="line.71"></a>
+<FONT color="green">072</FONT>        resp.setContentType("text/plain");<a name="line.72"></a>
+<FONT color="green">073</FONT>        PrintWriter writer = resp.getWriter();<a name="line.73"></a>
+<FONT color="green">074</FONT>        try {<a name="line.74"></a>
+<FONT color="green">075</FONT>          writer.println("Notifying quit listener.");<a name="line.75"></a>
+<FONT color="green">076</FONT>          writer.close();<a name="line.76"></a>
+<FONT color="green">077</FONT>          new Thread(quitListener).start();<a name="line.77"></a>
+<FONT color="green">078</FONT>        } catch (Exception e) {<a name="line.78"></a>
+<FONT color="green">079</FONT>          LOG.log(Level.WARNING, "Quit failed.", e);<a name="line.79"></a>
+<FONT color="green">080</FONT>        }<a name="line.80"></a>
+<FONT color="green">081</FONT>      }<a name="line.81"></a>
+<FONT color="green">082</FONT>    }<a name="line.82"></a>
 
 
 

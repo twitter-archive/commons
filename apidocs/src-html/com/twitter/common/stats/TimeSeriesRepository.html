@@ -19,9 +19,9 @@
 <FONT color="green">016</FONT>    <a name="line.16"></a>
 <FONT color="green">017</FONT>    package com.twitter.common.stats;<a name="line.17"></a>
 <FONT color="green">018</FONT>    <a name="line.18"></a>
-<FONT color="green">019</FONT>    import com.twitter.common.application.ActionRegistry;<a name="line.19"></a>
+<FONT color="green">019</FONT>    import java.util.Set;<a name="line.19"></a>
 <FONT color="green">020</FONT>    <a name="line.20"></a>
-<FONT color="green">021</FONT>    import java.util.Set;<a name="line.21"></a>
+<FONT color="green">021</FONT>    import com.twitter.common.application.ShutdownRegistry;<a name="line.21"></a>
 <FONT color="green">022</FONT>    <a name="line.22"></a>
 <FONT color="green">023</FONT>    /**<a name="line.23"></a>
 <FONT color="green">024</FONT>     * A repository for time series data.<a name="line.24"></a>
@@ -36,7 +36,7 @@
 <FONT color="green">033</FONT>       * @param shutdownRegistry An action registry that the repository can use to register a shutdown<a name="line.33"></a>
 <FONT color="green">034</FONT>       *    for the sampler.<a name="line.34"></a>
 <FONT color="green">035</FONT>       */<a name="line.35"></a>
-<FONT color="green">036</FONT>      public void start(ActionRegistry shutdownRegistry);<a name="line.36"></a>
+<FONT color="green">036</FONT>      public void start(ShutdownRegistry shutdownRegistry);<a name="line.36"></a>
 <FONT color="green">037</FONT>    <a name="line.37"></a>
 <FONT color="green">038</FONT>      /**<a name="line.38"></a>
 <FONT color="green">039</FONT>       * Fetches the names of all available time series.<a name="line.39"></a>

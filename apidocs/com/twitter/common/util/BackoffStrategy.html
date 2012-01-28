@@ -53,7 +53,7 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../com/twitter/common/util/BackoffHelper.html" title="class in com.twitter.common.util"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../com/twitter/common/util/BackoffHelper.BackoffStoppedException.html" title="class in com.twitter.common.util"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../com/twitter/common/util/BuildInfo.html" title="class in com.twitter.common.util"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/util/BackoffStrategy.html" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -122,6 +122,14 @@ Encapsulates a strategy for backing off from an operation that repeatedly fails.
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Calculates the amount of time to backoff from an operation.</TD>
 </TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/util/BackoffStrategy.html#shouldContinue()">shouldContinue</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns whether to continue backing off.</TD>
+</TR>
 </TABLE>
 &nbsp;
 <P>
@@ -147,6 +155,20 @@ long <A HREF="../../../../src-html/com/twitter/common/util/BackoffStrategy.html#
 <DT><B>Parameters:</B><DD><CODE>lastBackoffMs</CODE> - the last used backoff in milliseconds where 0 signifies no backoff has
      been performed yet
 <DT><B>Returns:</B><DD>the amount of time in milliseconds to back off before retrying the operation</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="shouldContinue()"><!-- --></A><H3>
+shouldContinue</H3>
+<PRE>
+boolean <A HREF="../../../../src-html/com/twitter/common/util/BackoffStrategy.html#line.38"><B>shouldContinue</B></A>()</PRE>
+<DL>
+<DD>Returns whether to continue backing off.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>whether to continue backing off</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
@@ -180,7 +202,7 @@ long <A HREF="../../../../src-html/com/twitter/common/util/BackoffStrategy.html#
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../com/twitter/common/util/BackoffHelper.html" title="class in com.twitter.common.util"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../com/twitter/common/util/BackoffHelper.BackoffStoppedException.html" title="class in com.twitter.common.util"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../com/twitter/common/util/BuildInfo.html" title="class in com.twitter.common.util"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/util/BackoffStrategy.html" target="_top"><B>FRAMES</B></A>  &nbsp;

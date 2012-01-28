@@ -32,7 +32,14 @@
 <FONT color="green">029</FONT>       * @return the amount of time in milliseconds to back off before retrying the operation<a name="line.29"></a>
 <FONT color="green">030</FONT>       */<a name="line.30"></a>
 <FONT color="green">031</FONT>      long calculateBackoffMs(long lastBackoffMs);<a name="line.31"></a>
-<FONT color="green">032</FONT>    }<a name="line.32"></a>
+<FONT color="green">032</FONT>    <a name="line.32"></a>
+<FONT color="green">033</FONT>      /**<a name="line.33"></a>
+<FONT color="green">034</FONT>       * Returns whether to continue backing off.<a name="line.34"></a>
+<FONT color="green">035</FONT>       *<a name="line.35"></a>
+<FONT color="green">036</FONT>       * @return whether to continue backing off<a name="line.36"></a>
+<FONT color="green">037</FONT>       */<a name="line.37"></a>
+<FONT color="green">038</FONT>      boolean shouldContinue();<a name="line.38"></a>
+<FONT color="green">039</FONT>    }<a name="line.39"></a>
 
 
 

@@ -24,11 +24,11 @@
 <FONT color="green">021</FONT>    import java.lang.annotation.RetentionPolicy;<a name="line.21"></a>
 <FONT color="green">022</FONT>    import java.lang.annotation.Target;<a name="line.22"></a>
 <FONT color="green">023</FONT>    import java.lang.reflect.Method;<a name="line.23"></a>
-<FONT color="green">024</FONT>    import java.util.Map;<a name="line.24"></a>
-<FONT color="green">025</FONT>    <a name="line.25"></a>
-<FONT color="green">026</FONT>    import com.google.common.base.Function;<a name="line.26"></a>
-<FONT color="green">027</FONT>    import com.google.common.base.Preconditions;<a name="line.27"></a>
-<FONT color="green">028</FONT>    import com.google.common.collect.MapMaker;<a name="line.28"></a>
+<FONT color="green">024</FONT>    <a name="line.24"></a>
+<FONT color="green">025</FONT>    import com.google.common.base.Preconditions;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import com.google.common.cache.CacheBuilder;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import com.google.common.cache.CacheLoader;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import com.google.common.cache.LoadingCache;<a name="line.28"></a>
 <FONT color="green">029</FONT>    import com.google.inject.Binder;<a name="line.29"></a>
 <FONT color="green">030</FONT>    import com.google.inject.matcher.Matchers;<a name="line.30"></a>
 <FONT color="green">031</FONT>    <a name="line.31"></a>
@@ -60,9 +60,9 @@
 <FONT color="green">057</FONT>        String value() default "";<a name="line.57"></a>
 <FONT color="green">058</FONT>      }<a name="line.58"></a>
 <FONT color="green">059</FONT>    <a name="line.59"></a>
-<FONT color="green">060</FONT>      private final Map&lt;Method, SlidingStats&gt; stats =<a name="line.60"></a>
-<FONT color="green">061</FONT>          new MapMaker().makeComputingMap(new Function&lt;Method, SlidingStats&gt;() {<a name="line.61"></a>
-<FONT color="green">062</FONT>            @Override public SlidingStats apply(Method method) {<a name="line.62"></a>
+<FONT color="green">060</FONT>      private final LoadingCache&lt;Method, SlidingStats&gt; stats =<a name="line.60"></a>
+<FONT color="green">061</FONT>          CacheBuilder.newBuilder().build(new CacheLoader&lt;Method, SlidingStats&gt;() {<a name="line.61"></a>
+<FONT color="green">062</FONT>            @Override public SlidingStats load(Method method) {<a name="line.62"></a>
 <FONT color="green">063</FONT>              return createStats(method);<a name="line.63"></a>
 <FONT color="green">064</FONT>            }<a name="line.64"></a>
 <FONT color="green">065</FONT>          });<a name="line.65"></a>

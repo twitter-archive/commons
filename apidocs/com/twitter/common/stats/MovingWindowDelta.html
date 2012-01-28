@@ -92,14 +92,15 @@ Class MovingWindowDelta&lt;T extends <A HREF="http://download.oracle.com/javase/
 <PRE>
 <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
   <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><A HREF="../../../../com/twitter/common/stats/StatImpl.html" title="class in com.twitter.common.stats">com.twitter.common.stats.StatImpl</A>&lt;T&gt;
-      <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.stats.MovingWindowDelta&lt;T&gt;</B>
+      <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><A HREF="../../../../com/twitter/common/stats/SampledStat.html" title="class in com.twitter.common.stats">com.twitter.common.stats.SampledStat</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>&gt;
+          <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.stats.MovingWindowDelta&lt;T&gt;</B>
 </PRE>
 <DL>
 <DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>&gt;</DD>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/stats/MovingWindowDelta.html#line.37"><B>MovingWindowDelta&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt;</B></A><DT>extends <A HREF="../../../../com/twitter/common/stats/StatImpl.html" title="class in com.twitter.common.stats">StatImpl</A>&lt;T&gt;</DL>
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/stats/MovingWindowDelta.html#line.37"><B>MovingWindowDelta&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt;</B></A><DT>extends <A HREF="../../../../com/twitter/common/stats/SampledStat.html" title="class in com.twitter.common.stats">SampledStat</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>&gt;</DL>
 </PRE>
 
 <P>
@@ -144,7 +145,7 @@ Delta over the most recent k sample periods.
 </TABLE>
 </CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/stats/MovingWindowDelta.html#of(java.lang.String, com.google.common.base.Supplier)">of</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
-     <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</A>&lt;T&gt;&nbsp;inputAccessor)</CODE>
+     <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</A>&lt;T&gt;&nbsp;inputAccessor)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Create a new MovingWindowDelta instance using the default window size (currently 60).</TD>
@@ -162,27 +163,20 @@ Delta over the most recent k sample periods.
 </TABLE>
 </CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/stats/MovingWindowDelta.html#of(java.lang.String, com.google.common.base.Supplier, int)">of</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
-     <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</A>&lt;T&gt;&nbsp;inputAccessor,
+     <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</A>&lt;T&gt;&nbsp;inputAccessor,
      int&nbsp;windowSize)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Create a new MovingWindowDelta instance.</TD>
 </TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;T</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/MovingWindowDelta.html#read()">read</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Retrieves the most recent value of the stat.</TD>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_com.twitter.common.stats.SampledStat"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class com.twitter.common.stats.<A HREF="../../../../com/twitter/common/stats/SampledStat.html" title="class in com.twitter.common.stats">SampledStat</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;T</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/MovingWindowDelta.html#sample()">sample</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Called by the variable sampler when a sample is being taken.</TD>
+<TD><CODE><A HREF="../../../../com/twitter/common/stats/SampledStat.html#read()">read</A>, <A HREF="../../../../com/twitter/common/stats/SampledStat.html#sample()">sample</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_com.twitter.common.stats.StatImpl"><!-- --></A>
@@ -229,7 +223,7 @@ Delta over the most recent k sample periods.
 of</H3>
 <PRE>
 public static &lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt; <A HREF="../../../../com/twitter/common/stats/MovingWindowDelta.html" title="class in com.twitter.common.stats">MovingWindowDelta</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/stats/MovingWindowDelta.html#line.66"><B>of</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
-                                                         <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</A>&lt;T&gt;&nbsp;inputAccessor,
+                                                         <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</A>&lt;T&gt;&nbsp;inputAccessor,
                                                          int&nbsp;windowSize)</PRE>
 <DL>
 <DD>Create a new MovingWindowDelta instance.
@@ -245,7 +239,7 @@ public static &lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/ap
 of</H3>
 <PRE>
 public static &lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt; <A HREF="../../../../com/twitter/common/stats/MovingWindowDelta.html" title="class in com.twitter.common.stats">MovingWindowDelta</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/stats/MovingWindowDelta.html#line.79"><B>of</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
-                                                         <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</A>&lt;T&gt;&nbsp;inputAccessor)</PRE>
+                                                         <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</A>&lt;T&gt;&nbsp;inputAccessor)</PRE>
 <DL>
 <DD>Create a new MovingWindowDelta instance using the default window size (currently 60).
 <P>
@@ -262,49 +256,10 @@ doSample</H3>
 public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A> <A HREF="../../../../src-html/com/twitter/common/stats/MovingWindowDelta.html#line.84"><B>doSample</B></A>()</PRE>
 <DL>
 <DD><DL>
-</DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../com/twitter/common/stats/SampledStat.html#doSample()">doSample</A></CODE> in class <CODE><A HREF="../../../../com/twitter/common/stats/SampledStat.html" title="class in com.twitter.common.stats">SampledStat</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>&gt;</CODE></DL>
 </DD>
 <DD><DL>
 </DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="sample()"><!-- --></A><H3>
-sample</H3>
-<PRE>
-public final T <A HREF="../../../../src-html/com/twitter/common/stats/SampledStat.html#line.37"><B>sample</B></A>()</PRE>
-<DL>
-<DD>Called by the variable sampler when a sample is being taken.  Only calls to this method should
- be used to store variable history.
-
- Note - if the sampling of this value depends on other variables, it is imperative that those
- variables values are updated first (and available via <A HREF="../../../../com/twitter/common/stats/Stat.html#read()"><CODE>Stat.read()</CODE></A>.
-<P>
-<DD><DL>
-</DL>
-</DD>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>A new sample of the variable.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="read()"><!-- --></A><H3>
-read</H3>
-<PRE>
-public T <A HREF="../../../../src-html/com/twitter/common/stats/SampledStat.html#line.43"><B>read</B></A>()</PRE>
-<DL>
-<DD><B>Description copied from interface: <CODE><A HREF="../../../../com/twitter/common/stats/Stat.html#read()">Stat</A></CODE></B></DD>
-<DD>Retrieves the most recent value of the stat.
-<P>
-<DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../com/twitter/common/stats/Stat.html#read()">read</A></CODE> in interface <CODE><A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt;</CODE></DL>
-</DD>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>The most recent value.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

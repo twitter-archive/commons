@@ -122,7 +122,7 @@ A memcached value transcoder that can transcode for a given thrift type.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../com/twitter/common/memcached/ThriftTranscoder.html#ThriftTranscoder(java.lang.Class, com.google.common.base.Function)">ThriftTranscoder</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;<A HREF="../../../../com/twitter/common/memcached/ThriftTranscoder.html" title="type parameter in ThriftTranscoder">T</A>&gt;&nbsp;thriftStructType,
-                                 <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;org.apache.thrift.transport.TTransport,org.apache.thrift.protocol.TProtocol&gt;&nbsp;encoder)</CODE>
+                                 <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;org.apache.thrift.transport.TTransport,org.apache.thrift.protocol.TProtocol&gt;&nbsp;encoder)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -143,7 +143,7 @@ A memcached value transcoder that can transcode for a given thrift type.
 <TD><CODE><B><A HREF="../../../../com/twitter/common/memcached/ThriftTranscoder.html#asyncDecode(net.spy.memcached.CachedData)">asyncDecode</A></B>(net.spy.memcached.CachedData&nbsp;cachedData)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Should the transcoder be run asyncronously.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -151,7 +151,7 @@ A memcached value transcoder that can transcode for a given thrift type.
 <TD><CODE><B><A HREF="../../../../com/twitter/common/memcached/ThriftTranscoder.html#decode(net.spy.memcached.CachedData)">decode</A></B>(net.spy.memcached.CachedData&nbsp;cachedData)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Decode the cached object into the object it represents.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -159,7 +159,7 @@ A memcached value transcoder that can transcode for a given thrift type.
 <TD><CODE><B><A HREF="../../../../com/twitter/common/memcached/ThriftTranscoder.html#encode(T)">encode</A></B>(<A HREF="../../../../com/twitter/common/memcached/ThriftTranscoder.html" title="type parameter in ThriftTranscoder">T</A>&nbsp;thriftStruct)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Encode the given object for storage.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -167,7 +167,7 @@ A memcached value transcoder that can transcode for a given thrift type.
 <TD><CODE><B><A HREF="../../../../com/twitter/common/memcached/ThriftTranscoder.html#getMaxSize()">getMaxSize</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get the maximum size of objects handled by this transcoder.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -214,7 +214,7 @@ net.spy.memcached.transcoders.Transcoder&lt;T&gt;</CODE></FONT></TD>
 ThriftTranscoder</H3>
 <PRE>
 public <A HREF="../../../../src-html/com/twitter/common/memcached/ThriftTranscoder.html#line.59"><B>ThriftTranscoder</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;<A HREF="../../../../com/twitter/common/memcached/ThriftTranscoder.html" title="type parameter in ThriftTranscoder">T</A>&gt;&nbsp;thriftStructType,
-                        <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;org.apache.thrift.transport.TTransport,org.apache.thrift.protocol.TProtocol&gt;&nbsp;encoder)</PRE>
+                        <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;org.apache.thrift.transport.TTransport,org.apache.thrift.protocol.TProtocol&gt;&nbsp;encoder)</PRE>
 <DL>
 <DL>
 <DT><B>Parameters:</B><DD><CODE>thriftStructType</CODE> - the type to transcode<DD><CODE>encoder</CODE> - a factory that can produce a transport for a given protocol</DL>
@@ -253,11 +253,15 @@ encode</H3>
 <PRE>
 public net.spy.memcached.CachedData <A HREF="../../../../src-html/com/twitter/common/memcached/ThriftTranscoder.html#line.64"><B>encode</B></A>(<A HREF="../../../../com/twitter/common/memcached/ThriftTranscoder.html" title="type parameter in ThriftTranscoder">T</A>&nbsp;thriftStruct)</PRE>
 <DL>
+<DD><B>Description copied from interface: <CODE>net.spy.memcached.transcoders.Transcoder</CODE></B></DD>
+<DD>Encode the given object for storage.
+<P>
 <DD><DL>
 <DT><B>Specified by:</B><DD><CODE>encode</CODE> in interface <CODE>net.spy.memcached.transcoders.Transcoder&lt;<A HREF="../../../../com/twitter/common/memcached/ThriftTranscoder.html" title="type parameter in ThriftTranscoder">T</A> extends org.apache.thrift.TBase&gt;</CODE></DL>
 </DD>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>thriftStruct</CODE> - the object
+<DT><B>Returns:</B><DD>the CachedData representing what should be sent</DL>
 </DD>
 </DL>
 <HR>
@@ -267,11 +271,15 @@ decode</H3>
 <PRE>
 public <A HREF="../../../../com/twitter/common/memcached/ThriftTranscoder.html" title="type parameter in ThriftTranscoder">T</A> <A HREF="../../../../src-html/com/twitter/common/memcached/ThriftTranscoder.html#line.77"><B>decode</B></A>(net.spy.memcached.CachedData&nbsp;cachedData)</PRE>
 <DL>
+<DD><B>Description copied from interface: <CODE>net.spy.memcached.transcoders.Transcoder</CODE></B></DD>
+<DD>Decode the cached object into the object it represents.
+<P>
 <DD><DL>
 <DT><B>Specified by:</B><DD><CODE>decode</CODE> in interface <CODE>net.spy.memcached.transcoders.Transcoder&lt;<A HREF="../../../../com/twitter/common/memcached/ThriftTranscoder.html" title="type parameter in ThriftTranscoder">T</A> extends org.apache.thrift.TBase&gt;</CODE></DL>
 </DD>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>cachedData</CODE> - the data
+<DT><B>Returns:</B><DD>the return value</DL>
 </DD>
 </DL>
 <HR>
@@ -281,11 +289,15 @@ asyncDecode</H3>
 <PRE>
 public boolean <A HREF="../../../../src-html/com/twitter/common/memcached/ThriftTranscoder.html#line.91"><B>asyncDecode</B></A>(net.spy.memcached.CachedData&nbsp;cachedData)</PRE>
 <DL>
+<DD><B>Description copied from interface: <CODE>net.spy.memcached.transcoders.Transcoder</CODE></B></DD>
+<DD>Should the transcoder be run asyncronously.
+<P>
 <DD><DL>
 <DT><B>Specified by:</B><DD><CODE>asyncDecode</CODE> in interface <CODE>net.spy.memcached.transcoders.Transcoder&lt;<A HREF="../../../../com/twitter/common/memcached/ThriftTranscoder.html" title="type parameter in ThriftTranscoder">T</A> extends org.apache.thrift.TBase&gt;</CODE></DL>
 </DD>
 <DD><DL>
-</DL>
+
+<DT><B>Returns:</B><DD>True if the CachedData should be decoded Asyncronously</DL>
 </DD>
 </DL>
 <HR>
@@ -295,6 +307,9 @@ getMaxSize</H3>
 <PRE>
 public int <A HREF="../../../../src-html/com/twitter/common/memcached/ThriftTranscoder.html#line.96"><B>getMaxSize</B></A>()</PRE>
 <DL>
+<DD><B>Description copied from interface: <CODE>net.spy.memcached.transcoders.Transcoder</CODE></B></DD>
+<DD>Get the maximum size of objects handled by this transcoder.
+<P>
 <DD><DL>
 <DT><B>Specified by:</B><DD><CODE>getMaxSize</CODE> in interface <CODE>net.spy.memcached.transcoders.Transcoder&lt;<A HREF="../../../../com/twitter/common/memcached/ThriftTranscoder.html" title="type parameter in ThriftTranscoder">T</A> extends org.apache.thrift.TBase&gt;</CODE></DL>
 </DD>

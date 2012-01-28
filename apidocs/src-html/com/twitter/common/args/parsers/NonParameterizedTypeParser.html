@@ -21,36 +21,30 @@
 <FONT color="green">018</FONT>    <a name="line.18"></a>
 <FONT color="green">019</FONT>    import java.lang.reflect.Type;<a name="line.19"></a>
 <FONT color="green">020</FONT>    <a name="line.20"></a>
-<FONT color="green">021</FONT>    /**<a name="line.21"></a>
-<FONT color="green">022</FONT>     * Base class for parsers of types that are not parameterized.<a name="line.22"></a>
-<FONT color="green">023</FONT>     *<a name="line.23"></a>
-<FONT color="green">024</FONT>     * @author William Farner<a name="line.24"></a>
-<FONT color="green">025</FONT>     */<a name="line.25"></a>
-<FONT color="green">026</FONT>    public abstract class NonParameterizedTypeParser&lt;T&gt; extends BaseParser&lt;T&gt; {<a name="line.26"></a>
-<FONT color="green">027</FONT>    <a name="line.27"></a>
-<FONT color="green">028</FONT>      /**<a name="line.28"></a>
-<FONT color="green">029</FONT>       * Creates a new non-parmeterized type parser that parses {@code parsedClass}.<a name="line.29"></a>
-<FONT color="green">030</FONT>       *<a name="line.30"></a>
-<FONT color="green">031</FONT>       * @param parsedClass Class of the parsed type.<a name="line.31"></a>
-<FONT color="green">032</FONT>       */<a name="line.32"></a>
-<FONT color="green">033</FONT>      public NonParameterizedTypeParser(Class&lt;T&gt; parsedClass) {<a name="line.33"></a>
-<FONT color="green">034</FONT>        super(parsedClass);<a name="line.34"></a>
-<FONT color="green">035</FONT>      }<a name="line.35"></a>
-<FONT color="green">036</FONT>    <a name="line.36"></a>
-<FONT color="green">037</FONT>      /**<a name="line.37"></a>
-<FONT color="green">038</FONT>       * Performs the parsing of the raw string.<a name="line.38"></a>
-<FONT color="green">039</FONT>       *<a name="line.39"></a>
-<FONT color="green">040</FONT>       * @param raw Value to parse.<a name="line.40"></a>
-<FONT color="green">041</FONT>       * @return The parsed value.<a name="line.41"></a>
-<FONT color="green">042</FONT>       * @throws IllegalArgumentException If the value could not be parsed into the target type.<a name="line.42"></a>
-<FONT color="green">043</FONT>       */<a name="line.43"></a>
-<FONT color="green">044</FONT>      public abstract T doParse(String raw) throws IllegalArgumentException;<a name="line.44"></a>
-<FONT color="green">045</FONT>    <a name="line.45"></a>
-<FONT color="green">046</FONT>      @Override<a name="line.46"></a>
-<FONT color="green">047</FONT>      public T parse(Type type, String raw) throws IllegalArgumentException {<a name="line.47"></a>
-<FONT color="green">048</FONT>        return doParse(raw);<a name="line.48"></a>
-<FONT color="green">049</FONT>      }<a name="line.49"></a>
-<FONT color="green">050</FONT>    }<a name="line.50"></a>
+<FONT color="green">021</FONT>    import com.twitter.common.args.Parser;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import com.twitter.common.args.ParserOracle;<a name="line.22"></a>
+<FONT color="green">023</FONT>    <a name="line.23"></a>
+<FONT color="green">024</FONT>    /**<a name="line.24"></a>
+<FONT color="green">025</FONT>     * Base class for parsers of types that are not parameterized.<a name="line.25"></a>
+<FONT color="green">026</FONT>     *<a name="line.26"></a>
+<FONT color="green">027</FONT>     * @author William Farner<a name="line.27"></a>
+<FONT color="green">028</FONT>     */<a name="line.28"></a>
+<FONT color="green">029</FONT>    public abstract class NonParameterizedTypeParser&lt;T&gt; implements Parser&lt;T&gt; {<a name="line.29"></a>
+<FONT color="green">030</FONT>    <a name="line.30"></a>
+<FONT color="green">031</FONT>      /**<a name="line.31"></a>
+<FONT color="green">032</FONT>       * Performs the parsing of the raw string.<a name="line.32"></a>
+<FONT color="green">033</FONT>       *<a name="line.33"></a>
+<FONT color="green">034</FONT>       * @param raw Value to parse.<a name="line.34"></a>
+<FONT color="green">035</FONT>       * @return The parsed value.<a name="line.35"></a>
+<FONT color="green">036</FONT>       * @throws IllegalArgumentException If the value could not be parsed into the target type.<a name="line.36"></a>
+<FONT color="green">037</FONT>       */<a name="line.37"></a>
+<FONT color="green">038</FONT>      public abstract T doParse(String raw) throws IllegalArgumentException;<a name="line.38"></a>
+<FONT color="green">039</FONT>    <a name="line.39"></a>
+<FONT color="green">040</FONT>      @Override<a name="line.40"></a>
+<FONT color="green">041</FONT>      public T parse(ParserOracle parserOracle, Type type, String raw) throws IllegalArgumentException {<a name="line.41"></a>
+<FONT color="green">042</FONT>        return doParse(raw);<a name="line.42"></a>
+<FONT color="green">043</FONT>      }<a name="line.43"></a>
+<FONT color="green">044</FONT>    }<a name="line.44"></a>
 
 
 

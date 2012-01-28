@@ -95,6 +95,10 @@ Package com.twitter.common.util
 <TD>An abstraction of the system clock.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/util/CommandExecutor.html" title="interface in com.twitter.common.util">CommandExecutor</A></B></TD>
+<TD>Asynchronous executor of enqueued tasks in a rate limited manner.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/util/Random.html" title="interface in com.twitter.common.util">Random</A></B></TD>
 <TD>An interface to define the common functionality that is required for generating random values.</TD>
 </TR>
@@ -142,6 +146,11 @@ Package com.twitter.common.util
 <TD>Common methods for parsing configs.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/util/QueueDrainer.html" title="class in com.twitter.common.util">QueueDrainer&lt;T extends Runnable&gt;</A></B></TD>
+<TD>Joins a task queue with an executor service, to add control over when
+ tasks are actually made available for execution.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/util/Random.SystemRandom.html" title="class in com.twitter.common.util">Random.SystemRandom</A></B></TD>
 <TD>A Random that wraps a java.util.Random.</TD>
 </TR>
@@ -152,6 +161,15 @@ Package com.twitter.common.util
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/util/RangeNormalizer.html" title="class in com.twitter.common.util">RangeNormalizer</A></B></TD>
 <TD>Generic range normalizer class.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/util/RateLimitedCommandExecutor.html" title="class in com.twitter.common.util">RateLimitedCommandExecutor</A></B></TD>
+<TD>CommandExecutor that invokes <code>queueDrainer</code> with a best-effort
+ mechanism to execute with a fixed interval between requests of <code>intervalBetweenRequests</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/util/RetryingRunnable.html" title="class in com.twitter.common.util">RetryingRunnable&lt;E extends Exception&gt;</A></B></TD>
+<TD>A runnable task that is retried in a user-configurable fashion.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/util/Sampler.html" title="class in com.twitter.common.util">Sampler</A></B></TD>
@@ -172,6 +190,14 @@ Package com.twitter.common.util
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/util/StateMachine.Builder.html" title="class in com.twitter.common.util">StateMachine.Builder&lt;T&gt;</A></B></TD>
 <TD>Builder to create a state machine.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/util/StateMachine.Rule.html" title="class in com.twitter.common.util">StateMachine.Rule&lt;T&gt;</A></B></TD>
+<TD>A state and its allowed transitions (if any) and (optional) callback.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/util/StateMachine.Rule.AllowedTransition.html" title="class in com.twitter.common.util">StateMachine.Rule.AllowedTransition&lt;T&gt;</A></B></TD>
+<TD>A helper class when building a transition rule, to define the allowed transitions.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/util/StateMachine.Transition.html" title="class in com.twitter.common.util">StateMachine.Transition&lt;T&gt;</A></B></TD>
@@ -212,6 +238,10 @@ Package com.twitter.common.util
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Exception Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/util/BackoffHelper.BackoffStoppedException.html" title="class in com.twitter.common.util">BackoffHelper.BackoffStoppedException</A></B></TD>
+<TD>Occurs after the backoff strategy should stop.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/util/StateMachine.IllegalStateTransitionException.html" title="class in com.twitter.common.util">StateMachine.IllegalStateTransitionException</A></B></TD>

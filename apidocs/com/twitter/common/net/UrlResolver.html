@@ -95,7 +95,7 @@ Class UrlResolver</H2>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.html#line.58"><B>UrlResolver</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.html#line.61"><B>UrlResolver</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
@@ -233,7 +233,7 @@ Class to aid in resolving URLs by following redirects, which can optionally be p
 <A NAME="UrlResolver(int, int, com.twitter.common.net.ProxyConfig)"><!-- --></A><H3>
 UrlResolver</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.html#line.130"><B>UrlResolver</B></A>(int&nbsp;maxRedirects,
+public <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.html#line.133"><B>UrlResolver</B></A>(int&nbsp;maxRedirects,
                    int&nbsp;threadPoolSize,
                    <FONT SIZE="-1"><A HREF="http://download.oracle.com/javase/6/docs/api/javax/annotation/Nullable.html?is-external=true" title="class or interface in javax.annotation">@Nullable</A></FONT>
                    <A HREF="../../../../com/twitter/common/net/ProxyConfig.html" title="interface in com.twitter.common.net">ProxyConfig</A>&nbsp;proxyConfig)</PRE>
@@ -250,7 +250,7 @@ public <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.html#lin
 <A NAME="UrlResolver(int, int)"><!-- --></A><H3>
 UrlResolver</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.html#line.136"><B>UrlResolver</B></A>(int&nbsp;maxRedirects,
+public <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.html#line.139"><B>UrlResolver</B></A>(int&nbsp;maxRedirects,
                    int&nbsp;threadPoolSize)</PRE>
 <DL>
 </DL>
@@ -268,7 +268,7 @@ public <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.html#lin
 <A NAME="resolveUrlAsync(java.lang.String, com.twitter.common.net.UrlResolver.ResolvedUrlHandler)"><!-- --></A><H3>
 resolveUrlAsync</H3>
 <PRE>
-public <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent">Future</A>&lt;<A HREF="../../../../com/twitter/common/net/UrlResolver.ResolvedUrl.html" title="class in com.twitter.common.net">UrlResolver.ResolvedUrl</A>&gt; <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.html#line.167"><B>resolveUrlAsync</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;url,
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent">Future</A>&lt;<A HREF="../../../../com/twitter/common/net/UrlResolver.ResolvedUrl.html" title="class in com.twitter.common.net">UrlResolver.ResolvedUrl</A>&gt; <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.html#line.170"><B>resolveUrlAsync</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;url,
                                                        <A HREF="../../../../com/twitter/common/net/UrlResolver.ResolvedUrlHandler.html" title="interface in com.twitter.common.net">UrlResolver.ResolvedUrlHandler</A>&nbsp;handler)</PRE>
 <DL>
 <DD><DL>
@@ -280,7 +280,7 @@ public <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurren
 <A NAME="reset()"><!-- --></A><H3>
 reset</H3>
 <PRE>
-public void <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.html#line.206"><B>reset</B></A>()</PRE>
+public void <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.html#line.209"><B>reset</B></A>()</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -291,7 +291,7 @@ public void <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.htm
 <A NAME="clearAsyncTasks(int)"><!-- --></A><H3>
 clearAsyncTasks</H3>
 <PRE>
-public void <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.html#line.226"><B>clearAsyncTasks</B></A>(int&nbsp;waitSeconds)</PRE>
+public void <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.html#line.229"><B>clearAsyncTasks</B></A>(int&nbsp;waitSeconds)</PRE>
 <DL>
 <DD>Terminates the thread pool, waiting at most <code>waitSeconds</code> for active threads to complete.
  After this method is called, no more URLs may be submitted for resolution.
@@ -305,7 +305,7 @@ public void <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.htm
 <A NAME="resolveUrl(java.lang.String)"><!-- --></A><H3>
 resolveUrl</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/net/UrlResolver.ResolvedUrl.html" title="class in com.twitter.common.net">UrlResolver.ResolvedUrl</A> <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.html#line.260"><B>resolveUrl</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;url)</PRE>
+public <A HREF="../../../../com/twitter/common/net/UrlResolver.ResolvedUrl.html" title="class in com.twitter.common.net">UrlResolver.ResolvedUrl</A> <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.html#line.263"><B>resolveUrl</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;url)</PRE>
 <DL>
 <DD>Resolves a URL synchronously.
 <P>
@@ -319,7 +319,7 @@ public <A HREF="../../../../com/twitter/common/net/UrlResolver.ResolvedUrl.html"
 <A NAME="toString()"><!-- --></A><H3>
 toString</H3>
 <PRE>
-public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.html#line.359"><B>toString</B></A>()</PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.html#line.362"><B>toString</B></A>()</PRE>
 <DL>
 <DD><DL>
 <DT><B>Overrides:</B><DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</A></CODE> in class <CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></CODE></DL>

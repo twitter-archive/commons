@@ -141,6 +141,15 @@ Utility methods to help with url tokenization.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Given an url host, tokenizes the host parts by dot, reverses them, and pads (with "") or
  truncates up to numParts pieces.</TD>
 </TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/net/UrlTokenizerUtil.html#isTLD(java.lang.String, boolean)">isTLD</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;url,
+           boolean&nbsp;reversed)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
@@ -196,6 +205,18 @@ public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Li
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>host</CODE> - A url host<DD><CODE>numParts</CODE> - The number of host parts to return.
 <DT><B>Returns:</B><DD>The reversed and tokenized list of host parts from host.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isTLD(java.lang.String, boolean)"><!-- --></A><H3>
+isTLD</H3>
+<PRE>
+public static boolean <A HREF="../../../../src-html/com/twitter/common/net/UrlTokenizerUtil.html#line.74"><B>isTLD</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;url,
+                            boolean&nbsp;reversed)</PRE>
+<DL>
+<DD><DL>
+</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

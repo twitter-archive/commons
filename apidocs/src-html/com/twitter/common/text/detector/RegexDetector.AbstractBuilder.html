@@ -23,108 +23,94 @@
 <FONT color="green">020</FONT>    <a name="line.20"></a>
 <FONT color="green">021</FONT>    import com.google.common.base.Preconditions;<a name="line.21"></a>
 <FONT color="green">022</FONT>    <a name="line.22"></a>
-<FONT color="green">023</FONT>    import org.apache.lucene.analysis.tokenattributes.TermAttribute;<a name="line.23"></a>
-<FONT color="green">024</FONT>    <a name="line.24"></a>
-<FONT color="green">025</FONT>    import com.twitter.common.text.token.TokenProcessor;<a name="line.25"></a>
-<FONT color="green">026</FONT>    import com.twitter.common.text.token.TokenStream;<a name="line.26"></a>
-<FONT color="green">027</FONT>    import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;<a name="line.27"></a>
-<FONT color="green">028</FONT>    import com.twitter.common.text.token.attribute.TokenType;<a name="line.28"></a>
-<FONT color="green">029</FONT>    import com.twitter.common.text.token.attribute.TokenTypeAttribute;<a name="line.29"></a>
-<FONT color="green">030</FONT>    <a name="line.30"></a>
-<FONT color="green">031</FONT>    /**<a name="line.31"></a>
-<FONT color="green">032</FONT>     * Updates {@code TypeAttribute} of a token if the term matches a given regular expression.<a name="line.32"></a>
-<FONT color="green">033</FONT>     */<a name="line.33"></a>
-<FONT color="green">034</FONT>    public class RegexDetector extends TokenProcessor {<a name="line.34"></a>
-<FONT color="green">035</FONT>      private CharSequenceTermAttribute inputCharSeqTermAttr;<a name="line.35"></a>
-<FONT color="green">036</FONT>      private TermAttribute inputTermAttr;<a name="line.36"></a>
-<FONT color="green">037</FONT>      private TokenTypeAttribute typeAttr;<a name="line.37"></a>
+<FONT color="green">023</FONT>    import com.twitter.common.text.token.TokenProcessor;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import com.twitter.common.text.token.TokenStream;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import com.twitter.common.text.token.attribute.TokenType;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import com.twitter.common.text.token.attribute.TokenTypeAttribute;<a name="line.27"></a>
+<FONT color="green">028</FONT>    <a name="line.28"></a>
+<FONT color="green">029</FONT>    /**<a name="line.29"></a>
+<FONT color="green">030</FONT>     * Updates {@code TypeAttribute} of a token if the term matches a given regular expression.<a name="line.30"></a>
+<FONT color="green">031</FONT>     */<a name="line.31"></a>
+<FONT color="green">032</FONT>    public class RegexDetector extends TokenProcessor {<a name="line.32"></a>
+<FONT color="green">033</FONT>      private CharSequenceTermAttribute inputCharSeqTermAttr;<a name="line.33"></a>
+<FONT color="green">034</FONT>      private TokenTypeAttribute typeAttr;<a name="line.34"></a>
+<FONT color="green">035</FONT>    <a name="line.35"></a>
+<FONT color="green">036</FONT>      private Pattern regexPattern;<a name="line.36"></a>
+<FONT color="green">037</FONT>      private TokenType type;<a name="line.37"></a>
 <FONT color="green">038</FONT>    <a name="line.38"></a>
-<FONT color="green">039</FONT>      private Pattern regexPattern;<a name="line.39"></a>
-<FONT color="green">040</FONT>      private TokenType type;<a name="line.40"></a>
-<FONT color="green">041</FONT>    <a name="line.41"></a>
-<FONT color="green">042</FONT>      protected RegexDetector(TokenStream inputStream) {<a name="line.42"></a>
-<FONT color="green">043</FONT>        super(inputStream);<a name="line.43"></a>
-<FONT color="green">044</FONT>        if (inputStream.hasAttribute(CharSequenceTermAttribute.class)) {<a name="line.44"></a>
-<FONT color="green">045</FONT>          inputCharSeqTermAttr = inputStream.getAttribute(CharSequenceTermAttribute.class);<a name="line.45"></a>
-<FONT color="green">046</FONT>          inputTermAttr = null;<a name="line.46"></a>
-<FONT color="green">047</FONT>        } else {<a name="line.47"></a>
-<FONT color="green">048</FONT>          inputTermAttr = inputStream.getAttribute(TermAttribute.class);<a name="line.48"></a>
-<FONT color="green">049</FONT>          inputCharSeqTermAttr = null;<a name="line.49"></a>
-<FONT color="green">050</FONT>        }<a name="line.50"></a>
-<FONT color="green">051</FONT>        typeAttr = addAttribute(TokenTypeAttribute.class);<a name="line.51"></a>
-<FONT color="green">052</FONT>      }<a name="line.52"></a>
-<FONT color="green">053</FONT>    <a name="line.53"></a>
-<FONT color="green">054</FONT>      protected void setRegexPattern(Pattern regex) {<a name="line.54"></a>
-<FONT color="green">055</FONT>        this.regexPattern = regex;<a name="line.55"></a>
-<FONT color="green">056</FONT>      }<a name="line.56"></a>
-<FONT color="green">057</FONT>    <a name="line.57"></a>
-<FONT color="green">058</FONT>      protected void setType(TokenType type) {<a name="line.58"></a>
-<FONT color="green">059</FONT>        this.type = type;<a name="line.59"></a>
-<FONT color="green">060</FONT>      }<a name="line.60"></a>
-<FONT color="green">061</FONT>    <a name="line.61"></a>
-<FONT color="green">062</FONT>      @Override<a name="line.62"></a>
-<FONT color="green">063</FONT>      public boolean incrementToken() {<a name="line.63"></a>
-<FONT color="green">064</FONT>        TokenStream inputStream = getInputStream();<a name="line.64"></a>
-<FONT color="green">065</FONT>    <a name="line.65"></a>
-<FONT color="green">066</FONT>        if (!inputStream.incrementToken()) {<a name="line.66"></a>
-<FONT color="green">067</FONT>          return false;<a name="line.67"></a>
-<FONT color="green">068</FONT>        }<a name="line.68"></a>
-<FONT color="green">069</FONT>        clearAttributes();<a name="line.69"></a>
-<FONT color="green">070</FONT>        restoreState(inputStream.captureState());<a name="line.70"></a>
-<FONT color="green">071</FONT>    <a name="line.71"></a>
-<FONT color="green">072</FONT>        CharSequence term;<a name="line.72"></a>
-<FONT color="green">073</FONT>        if (inputCharSeqTermAttr != null) {<a name="line.73"></a>
-<FONT color="green">074</FONT>          term = inputCharSeqTermAttr.getTermCharSequence();<a name="line.74"></a>
-<FONT color="green">075</FONT>        } else {<a name="line.75"></a>
-<FONT color="green">076</FONT>          term = inputTermAttr.term();<a name="line.76"></a>
-<FONT color="green">077</FONT>        }<a name="line.77"></a>
-<FONT color="green">078</FONT>        if (regexPattern.matcher(term).matches()) {<a name="line.78"></a>
-<FONT color="green">079</FONT>          typeAttr.setType(type);<a name="line.79"></a>
-<FONT color="green">080</FONT>        }<a name="line.80"></a>
-<FONT color="green">081</FONT>    <a name="line.81"></a>
-<FONT color="green">082</FONT>        return true;<a name="line.82"></a>
-<FONT color="green">083</FONT>      }<a name="line.83"></a>
+<FONT color="green">039</FONT>      protected RegexDetector(TokenStream inputStream) {<a name="line.39"></a>
+<FONT color="green">040</FONT>        super(inputStream);<a name="line.40"></a>
+<FONT color="green">041</FONT>        inputCharSeqTermAttr = inputStream.getAttribute(CharSequenceTermAttribute.class);<a name="line.41"></a>
+<FONT color="green">042</FONT>        typeAttr = addAttribute(TokenTypeAttribute.class);<a name="line.42"></a>
+<FONT color="green">043</FONT>      }<a name="line.43"></a>
+<FONT color="green">044</FONT>    <a name="line.44"></a>
+<FONT color="green">045</FONT>      protected void setRegexPattern(Pattern regex) {<a name="line.45"></a>
+<FONT color="green">046</FONT>        this.regexPattern = regex;<a name="line.46"></a>
+<FONT color="green">047</FONT>      }<a name="line.47"></a>
+<FONT color="green">048</FONT>    <a name="line.48"></a>
+<FONT color="green">049</FONT>      protected void setType(TokenType type) {<a name="line.49"></a>
+<FONT color="green">050</FONT>        this.type = type;<a name="line.50"></a>
+<FONT color="green">051</FONT>      }<a name="line.51"></a>
+<FONT color="green">052</FONT>    <a name="line.52"></a>
+<FONT color="green">053</FONT>      @Override<a name="line.53"></a>
+<FONT color="green">054</FONT>      public boolean incrementToken() {<a name="line.54"></a>
+<FONT color="green">055</FONT>        TokenStream inputStream = getInputStream();<a name="line.55"></a>
+<FONT color="green">056</FONT>    <a name="line.56"></a>
+<FONT color="green">057</FONT>        if (!inputStream.incrementToken()) {<a name="line.57"></a>
+<FONT color="green">058</FONT>          return false;<a name="line.58"></a>
+<FONT color="green">059</FONT>        }<a name="line.59"></a>
+<FONT color="green">060</FONT>        clearAttributes();<a name="line.60"></a>
+<FONT color="green">061</FONT>        restoreState(inputStream.captureState());<a name="line.61"></a>
+<FONT color="green">062</FONT>    <a name="line.62"></a>
+<FONT color="green">063</FONT>        CharSequence term = inputCharSeqTermAttr.getTermCharSequence();<a name="line.63"></a>
+<FONT color="green">064</FONT>        if (regexPattern.matcher(term).matches()) {<a name="line.64"></a>
+<FONT color="green">065</FONT>          typeAttr.setType(type);<a name="line.65"></a>
+<FONT color="green">066</FONT>        }<a name="line.66"></a>
+<FONT color="green">067</FONT>    <a name="line.67"></a>
+<FONT color="green">068</FONT>        return true;<a name="line.68"></a>
+<FONT color="green">069</FONT>      }<a name="line.69"></a>
+<FONT color="green">070</FONT>    <a name="line.70"></a>
+<FONT color="green">071</FONT>      public static class Builder extends AbstractBuilder&lt;RegexDetector, Builder&gt; {<a name="line.71"></a>
+<FONT color="green">072</FONT>        public Builder(TokenStream inputStream) {<a name="line.72"></a>
+<FONT color="green">073</FONT>          super(new RegexDetector(inputStream));<a name="line.73"></a>
+<FONT color="green">074</FONT>        }<a name="line.74"></a>
+<FONT color="green">075</FONT>      }<a name="line.75"></a>
+<FONT color="green">076</FONT>    <a name="line.76"></a>
+<FONT color="green">077</FONT>      public abstract static class<a name="line.77"></a>
+<FONT color="green">078</FONT>          AbstractBuilder&lt;N extends RegexDetector, T extends AbstractBuilder&lt;N, T&gt;&gt; {<a name="line.78"></a>
+<FONT color="green">079</FONT>        private final N detector;<a name="line.79"></a>
+<FONT color="green">080</FONT>    <a name="line.80"></a>
+<FONT color="green">081</FONT>        protected AbstractBuilder(N detector) {<a name="line.81"></a>
+<FONT color="green">082</FONT>          this.detector = Preconditions.checkNotNull(detector);<a name="line.82"></a>
+<FONT color="green">083</FONT>        }<a name="line.83"></a>
 <FONT color="green">084</FONT>    <a name="line.84"></a>
-<FONT color="green">085</FONT>      public static class Builder extends AbstractBuilder&lt;RegexDetector, Builder&gt; {<a name="line.85"></a>
-<FONT color="green">086</FONT>        public Builder(TokenStream inputStream) {<a name="line.86"></a>
-<FONT color="green">087</FONT>          super(new RegexDetector(inputStream));<a name="line.87"></a>
+<FONT color="green">085</FONT>        @SuppressWarnings("unchecked")<a name="line.85"></a>
+<FONT color="green">086</FONT>        protected T self() {<a name="line.86"></a>
+<FONT color="green">087</FONT>          return (T) this;<a name="line.87"></a>
 <FONT color="green">088</FONT>        }<a name="line.88"></a>
-<FONT color="green">089</FONT>      }<a name="line.89"></a>
-<FONT color="green">090</FONT>    <a name="line.90"></a>
-<FONT color="green">091</FONT>      public abstract static class<a name="line.91"></a>
-<FONT color="green">092</FONT>          AbstractBuilder&lt;N extends RegexDetector, T extends AbstractBuilder&lt;N, T&gt;&gt; {<a name="line.92"></a>
-<FONT color="green">093</FONT>        private final N detector;<a name="line.93"></a>
-<FONT color="green">094</FONT>    <a name="line.94"></a>
-<FONT color="green">095</FONT>        protected AbstractBuilder(N detector) {<a name="line.95"></a>
-<FONT color="green">096</FONT>          this.detector = Preconditions.checkNotNull(detector);<a name="line.96"></a>
-<FONT color="green">097</FONT>        }<a name="line.97"></a>
-<FONT color="green">098</FONT>    <a name="line.98"></a>
-<FONT color="green">099</FONT>        @SuppressWarnings("unchecked")<a name="line.99"></a>
-<FONT color="green">100</FONT>        protected T self() {<a name="line.100"></a>
-<FONT color="green">101</FONT>          return (T) this;<a name="line.101"></a>
-<FONT color="green">102</FONT>        }<a name="line.102"></a>
-<FONT color="green">103</FONT>    <a name="line.103"></a>
-<FONT color="green">104</FONT>        protected N detector() {<a name="line.104"></a>
-<FONT color="green">105</FONT>          return detector;<a name="line.105"></a>
-<FONT color="green">106</FONT>        }<a name="line.106"></a>
-<FONT color="green">107</FONT>    <a name="line.107"></a>
-<FONT color="green">108</FONT>        public T setRegexPattern(Pattern regex) {<a name="line.108"></a>
-<FONT color="green">109</FONT>          Preconditions.checkNotNull(regex);<a name="line.109"></a>
-<FONT color="green">110</FONT>          detector.setRegexPattern(regex);<a name="line.110"></a>
-<FONT color="green">111</FONT>          return self();<a name="line.111"></a>
-<FONT color="green">112</FONT>        }<a name="line.112"></a>
-<FONT color="green">113</FONT>    <a name="line.113"></a>
-<FONT color="green">114</FONT>        public T setType(TokenType type) {<a name="line.114"></a>
-<FONT color="green">115</FONT>          Preconditions.checkNotNull(type);<a name="line.115"></a>
-<FONT color="green">116</FONT>          detector.setType(type);<a name="line.116"></a>
-<FONT color="green">117</FONT>          return self();<a name="line.117"></a>
-<FONT color="green">118</FONT>        }<a name="line.118"></a>
-<FONT color="green">119</FONT>    <a name="line.119"></a>
-<FONT color="green">120</FONT>        public N build() {<a name="line.120"></a>
-<FONT color="green">121</FONT>          return detector;<a name="line.121"></a>
-<FONT color="green">122</FONT>        }<a name="line.122"></a>
-<FONT color="green">123</FONT>      }<a name="line.123"></a>
-<FONT color="green">124</FONT>    }<a name="line.124"></a>
+<FONT color="green">089</FONT>    <a name="line.89"></a>
+<FONT color="green">090</FONT>        protected N detector() {<a name="line.90"></a>
+<FONT color="green">091</FONT>          return detector;<a name="line.91"></a>
+<FONT color="green">092</FONT>        }<a name="line.92"></a>
+<FONT color="green">093</FONT>    <a name="line.93"></a>
+<FONT color="green">094</FONT>        public T setRegexPattern(Pattern regex) {<a name="line.94"></a>
+<FONT color="green">095</FONT>          Preconditions.checkNotNull(regex);<a name="line.95"></a>
+<FONT color="green">096</FONT>          detector.setRegexPattern(regex);<a name="line.96"></a>
+<FONT color="green">097</FONT>          return self();<a name="line.97"></a>
+<FONT color="green">098</FONT>        }<a name="line.98"></a>
+<FONT color="green">099</FONT>    <a name="line.99"></a>
+<FONT color="green">100</FONT>        public T setType(TokenType type) {<a name="line.100"></a>
+<FONT color="green">101</FONT>          Preconditions.checkNotNull(type);<a name="line.101"></a>
+<FONT color="green">102</FONT>          detector.setType(type);<a name="line.102"></a>
+<FONT color="green">103</FONT>          return self();<a name="line.103"></a>
+<FONT color="green">104</FONT>        }<a name="line.104"></a>
+<FONT color="green">105</FONT>    <a name="line.105"></a>
+<FONT color="green">106</FONT>        public N build() {<a name="line.106"></a>
+<FONT color="green">107</FONT>          return detector;<a name="line.107"></a>
+<FONT color="green">108</FONT>        }<a name="line.108"></a>
+<FONT color="green">109</FONT>      }<a name="line.109"></a>
+<FONT color="green">110</FONT>    }<a name="line.110"></a>
 
 
 

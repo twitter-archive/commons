@@ -95,7 +95,7 @@ Class ZooKeeperClient</H2>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.54"><B>ZooKeeperClient</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.56"><B>ZooKeeperClient</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
@@ -199,7 +199,7 @@ Manages a connection to a ZooKeeper cluster.
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.Credentials.html" title="interface in com.twitter.common.zookeeper">ZooKeeperClient.Credentials</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html#credentials(java.lang.String, byte[])">credentials</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;scheme,
-                       byte[]&nbsp;auth)</CODE>
+                       byte[]&nbsp;authToken)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a set of credentials for the given authentication <code>scheme</code>.</TD>
@@ -292,7 +292,7 @@ Manages a connection to a ZooKeeper cluster.
 <A NAME="ZooKeeperClient(com.twitter.common.quantity.Amount, java.net.InetSocketAddress, java.net.InetSocketAddress...)"><!-- --></A><H3>
 ZooKeeperClient</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.162"><B>ZooKeeperClient</B></A>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;sessionTimeout,
+public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.197"><B>ZooKeeperClient</B></A>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;sessionTimeout,
                        <A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&nbsp;zooKeeperServer,
                        <A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>...&nbsp;zooKeeperServers)</PRE>
 <DL>
@@ -307,7 +307,7 @@ public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClien
 <A NAME="ZooKeeperClient(com.twitter.common.quantity.Amount, java.lang.Iterable)"><!-- --></A><H3>
 ZooKeeperClient</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.174"><B>ZooKeeperClient</B></A>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;sessionTimeout,
+public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.209"><B>ZooKeeperClient</B></A>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;sessionTimeout,
                        <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&nbsp;zooKeeperServers)</PRE>
 <DL>
 <DD>Creates an unconnected client that will lazily attempt to connect on the first call to
@@ -321,7 +321,7 @@ public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClien
 <A NAME="ZooKeeperClient(com.twitter.common.quantity.Amount, com.twitter.common.zookeeper.ZooKeeperClient.Credentials, java.net.InetSocketAddress, java.net.InetSocketAddress...)"><!-- --></A><H3>
 ZooKeeperClient</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.189"><B>ZooKeeperClient</B></A>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;sessionTimeout,
+public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.224"><B>ZooKeeperClient</B></A>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;sessionTimeout,
                        <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.Credentials.html" title="interface in com.twitter.common.zookeeper">ZooKeeperClient.Credentials</A>&nbsp;credentials,
                        <A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&nbsp;zooKeeperServer,
                        <A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>...&nbsp;zooKeeperServers)</PRE>
@@ -338,7 +338,7 @@ public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClien
 <A NAME="ZooKeeperClient(com.twitter.common.quantity.Amount, com.twitter.common.zookeeper.ZooKeeperClient.Credentials, java.lang.Iterable)"><!-- --></A><H3>
 ZooKeeperClient</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.203"><B>ZooKeeperClient</B></A>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;sessionTimeout,
+public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.238"><B>ZooKeeperClient</B></A>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;sessionTimeout,
                        <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.Credentials.html" title="interface in com.twitter.common.zookeeper">ZooKeeperClient.Credentials</A>&nbsp;credentials,
                        <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net">InetSocketAddress</A>&gt;&nbsp;zooKeeperServers)</PRE>
 <DL>
@@ -363,7 +363,7 @@ public <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClien
 <A NAME="digestCredentials(java.lang.String, java.lang.String)"><!-- --></A><H3>
 digestCredentials</H3>
 <PRE>
-public static <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.Credentials.html" title="interface in com.twitter.common.zookeeper">ZooKeeperClient.Credentials</A> <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.97"><B>digestCredentials</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;username,
+public static <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.Credentials.html" title="interface in com.twitter.common.zookeeper">ZooKeeperClient.Credentials</A> <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.124"><B>digestCredentials</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;username,
                                                             <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;password)</PRE>
 <DL>
 <DD>Creates a set of credentials for the zoo keeper digest authentication mechanism.
@@ -378,13 +378,13 @@ public static <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.
 <A NAME="credentials(java.lang.String, byte[])"><!-- --></A><H3>
 credentials</H3>
 <PRE>
-public static <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.Credentials.html" title="interface in com.twitter.common.zookeeper">ZooKeeperClient.Credentials</A> <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.115"><B>credentials</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;scheme,
-                                                      byte[]&nbsp;auth)</PRE>
+public static <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.Credentials.html" title="interface in com.twitter.common.zookeeper">ZooKeeperClient.Credentials</A> <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.142"><B>credentials</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;scheme,
+                                                      byte[]&nbsp;authToken)</PRE>
 <DL>
 <DD>Creates a set of credentials for the given authentication <code>scheme</code>.
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>scheme</CODE> - the scheme to authenticate with<DD><CODE>auth</CODE> - the authentication token
+<DT><B>Parameters:</B><DD><CODE>scheme</CODE> - the scheme to authenticate with<DD><CODE>authToken</CODE> - the authentication token
 <DT><B>Returns:</B><DD>a set of credentials that can be used to authenticate the zoo keeper client</DL>
 </DD>
 </DL>
@@ -393,7 +393,7 @@ public static <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.
 <A NAME="get()"><!-- --></A><H3>
 get</H3>
 <PRE>
-public org.apache.zookeeper.ZooKeeper <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.229"><B>get</B></A>()
+public org.apache.zookeeper.ZooKeeper <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.264"><B>get</B></A>()
                                    throws <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.ZooKeeperConnectionException.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient.ZooKeeperConnectionException</A>,
                                           <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/InterruptedException.html?is-external=true" title="class or interface in java.lang">InterruptedException</A></PRE>
 <DL>
@@ -416,7 +416,7 @@ public org.apache.zookeeper.ZooKeeper <A HREF="../../../../src-html/com/twitter/
 <A NAME="get(com.twitter.common.quantity.Amount)"><!-- --></A><H3>
 get</H3>
 <PRE>
-public org.apache.zookeeper.ZooKeeper <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.253"><B>get</B></A>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;connectionTimeout)
+public org.apache.zookeeper.ZooKeeper <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.288"><B>get</B></A>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;connectionTimeout)
                                    throws <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.ZooKeeperConnectionException.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient.ZooKeeperConnectionException</A>,
                                           <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/InterruptedException.html?is-external=true" title="class or interface in java.lang">InterruptedException</A>,
                                           <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/TimeoutException.html?is-external=true" title="class or interface in java.util.concurrent">TimeoutException</A></PRE>
@@ -441,7 +441,7 @@ public org.apache.zookeeper.ZooKeeper <A HREF="../../../../src-html/com/twitter/
 <A NAME="registerExpirationHandler(com.twitter.common.base.Command)"><!-- --></A><H3>
 registerExpirationHandler</H3>
 <PRE>
-public org.apache.zookeeper.Watcher <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.318"><B>registerExpirationHandler</B></A>(<A HREF="../../../../com/twitter/common/base/Command.html" title="interface in com.twitter.common.base">Command</A>&nbsp;onExpired)</PRE>
+public org.apache.zookeeper.Watcher <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.353"><B>registerExpirationHandler</B></A>(<A HREF="../../../../com/twitter/common/base/Command.html" title="interface in com.twitter.common.base">Command</A>&nbsp;onExpired)</PRE>
 <DL>
 <DD>Clients that need to re-establish state after session expiration can register an
  <code>onExpired</code> command to execute.
@@ -457,7 +457,7 @@ public org.apache.zookeeper.Watcher <A HREF="../../../../src-html/com/twitter/co
 <A NAME="register(org.apache.zookeeper.Watcher)"><!-- --></A><H3>
 register</H3>
 <PRE>
-public void <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.337"><B>register</B></A>(org.apache.zookeeper.Watcher&nbsp;watcher)</PRE>
+public void <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.372"><B>register</B></A>(org.apache.zookeeper.Watcher&nbsp;watcher)</PRE>
 <DL>
 <DD>Clients that need to register a top-level <code>Watcher</code> should do so using this method.  The
  registered <code>watcher</code> will remain registered across re-connects and session expiration
@@ -472,7 +472,7 @@ public void <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeper
 <A NAME="unregister(org.apache.zookeeper.Watcher)"><!-- --></A><H3>
 unregister</H3>
 <PRE>
-public boolean <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.348"><B>unregister</B></A>(org.apache.zookeeper.Watcher&nbsp;watcher)</PRE>
+public boolean <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.383"><B>unregister</B></A>(org.apache.zookeeper.Watcher&nbsp;watcher)</PRE>
 <DL>
 <DD>Clients can attempt to unregister a top-level <code>Watcher</code> that has previously been
  registered.
@@ -487,7 +487,7 @@ public boolean <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKee
 <A NAME="shouldRetry(org.apache.zookeeper.KeeperException)"><!-- --></A><H3>
 shouldRetry</H3>
 <PRE>
-public boolean <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.360"><B>shouldRetry</B></A>(org.apache.zookeeper.KeeperException&nbsp;e)</PRE>
+public boolean <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.395"><B>shouldRetry</B></A>(org.apache.zookeeper.KeeperException&nbsp;e)</PRE>
 <DL>
 <DD>Checks to see if the client might reasonably re-try an operation given the exception thrown
  while attempting it.  If the ZooKeeper session should be expired to enable the re-try to
@@ -503,7 +503,7 @@ public boolean <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKee
 <A NAME="close()"><!-- --></A><H3>
 close</H3>
 <PRE>
-public void <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.371"><B>close</B></A>()</PRE>
+public void <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperClient.html#line.406"><B>close</B></A>()</PRE>
 <DL>
 <DD>Closes the current connection if any expiring the current ZooKeeper session.  Any subsequent
  calls to this method will no-op until the next successful <A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperClient.html#get()"><CODE>get()</CODE></A>.

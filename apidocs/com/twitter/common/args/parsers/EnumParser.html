@@ -53,7 +53,7 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../com/twitter/common/args/parsers/DoubleParser.html" title="class in com.twitter.common.args.parsers"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../com/twitter/common/args/parsers/DurationParser.html" title="class in com.twitter.common.args.parsers"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../com/twitter/common/args/parsers/FileParser.html" title="class in com.twitter.common.args.parsers"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?com/twitter/common/args/parsers/EnumParser.html" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -74,7 +74,7 @@ function windowTitle()
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#fields_inherited_from_class_com.twitter.common.args.parsers.BaseParser">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
 DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
@@ -91,44 +91,18 @@ com.twitter.common.args.parsers</FONT>
 Class EnumParser&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang">Enum</A>&lt;T&gt;&gt;</H2>
 <PRE>
 <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
-  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><A HREF="../../../../../com/twitter/common/args/parsers/BaseParser.html" title="class in com.twitter.common.args.parsers">com.twitter.common.args.parsers.BaseParser</A>&lt;T&gt;
-      <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.args.parsers.EnumParser&lt;T&gt;</B>
+  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.args.parsers.EnumParser&lt;T&gt;</B>
 </PRE>
-<DL>
-<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../com/twitter/common/args/Parsers.Parser.html" title="interface in com.twitter.common.args">Parsers.Parser</A>&lt;T&gt;</DD>
-</DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/args/parsers/EnumParser.html#line.26"><B>EnumParser&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang">Enum</A>&lt;T&gt;&gt;</B></A><DT>extends <A HREF="../../../../../com/twitter/common/args/parsers/BaseParser.html" title="class in com.twitter.common.args.parsers">BaseParser</A>&lt;T&gt;</DL>
-</PRE>
-
-<P>
-An <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang"><CODE>Enum</CODE></A> parser that matches enum values via <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Enum.html?is-external=true#valueOf(java.lang.Class, java.lang.String)" title="class or interface in java.lang"><CODE>Enum.valueOf(Class, String)</CODE></A>.
+<DT><PRE>An <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang"><CODE>Enum</CODE></A> parser that matches enum values via <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Enum.html?is-external=true#valueOf(java.lang.Class, java.lang.String)" title="class or interface in java.lang"><CODE>Enum.valueOf(Class, String)</CODE></A>.
 <P>
 
 <P>
 <HR>
 
 <P>
-<!-- =========== FIELD SUMMARY =========== -->
 
-<A NAME="field_summary"><!-- --></A>
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
-<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
-<B>Field Summary</B></FONT></TH>
-</TR>
-</TABLE>
-&nbsp;<A NAME="fields_inherited_from_class_com.twitter.common.args.parsers.BaseParser"><!-- --></A>
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Fields inherited from class com.twitter.common.args.parsers.<A HREF="../../../../../com/twitter/common/args/parsers/BaseParser.html" title="class in com.twitter.common.args.parsers">BaseParser</A></B></TH>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../com/twitter/common/args/parsers/BaseParser.html#parsedClass">parsedClass</A></CODE></TD>
-</TR>
-</TABLE>
-&nbsp;
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 
 <A NAME="constructor_summary"><!-- --></A>
@@ -141,10 +115,7 @@ An <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Enum.html?is-
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/args/parsers/EnumParser.html#EnumParser()">EnumParser</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
-</TR>
-</TABLE>
-&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <!-- ========== METHOD SUMMARY =========== -->
 
 <A NAME="method_summary"><!-- --></A>
@@ -156,23 +127,12 @@ An <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Enum.html?is-
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../../com/twitter/common/args/parsers/EnumParser.html" title="type parameter in EnumParser">T</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/args/parsers/EnumParser.html#parse(java.lang.reflect.Type, java.lang.String)">parse</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type,
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/args/parsers/EnumParser.html#parse(ParserOracle, java.lang.reflect.Type, java.lang.String)">parse</A></B>(ParserOracle&nbsp;parserOracle,
+           <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type,
            <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;raw)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Parses strings as arguments of a given subtype of <code>T</code>.</TD>
-</TR>
-</TABLE>
-&nbsp;<A NAME="methods_inherited_from_class_com.twitter.common.args.parsers.BaseParser"><!-- --></A>
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class com.twitter.common.args.parsers.<A HREF="../../../../../com/twitter/common/args/parsers/BaseParser.html" title="class in com.twitter.common.args.parsers">BaseParser</A></B></TH>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../com/twitter/common/args/parsers/BaseParser.html#getParsedClass()">getParsedClass</A></CODE></TD>
-</TR>
-</TABLE>
-&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
 <TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></B></TH>
@@ -197,7 +157,7 @@ An <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Enum.html?is-
 <A NAME="EnumParser()"><!-- --></A><H3>
 EnumParser</H3>
 <PRE>
-public <A HREF="../../../../../src-html/com/twitter/common/args/parsers/EnumParser.html#line.28"><B>EnumParser</B></A>()</PRE>
+public <A HREF="../../../../../src-html/com/twitter/common/args/parsers/EnumParser.html#line.31"><B>EnumParser</B></A>()</PRE>
 <DL>
 </DL>
 
@@ -211,22 +171,18 @@ public <A HREF="../../../../../src-html/com/twitter/common/args/parsers/EnumPars
 </TR>
 </TABLE>
 
-<A NAME="parse(java.lang.reflect.Type, java.lang.String)"><!-- --></A><H3>
+<A NAME="parse(ParserOracle, java.lang.reflect.Type, java.lang.String)"><!-- --></A><H3>
 parse</H3>
 <PRE>
-public <A HREF="../../../../../com/twitter/common/args/parsers/EnumParser.html" title="type parameter in EnumParser">T</A> <A HREF="../../../../../src-html/com/twitter/common/args/parsers/EnumParser.html#line.33"><B>parse</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type,
+public <A HREF="../../../../../com/twitter/common/args/parsers/EnumParser.html" title="type parameter in EnumParser">T</A> <A HREF="../../../../../src-html/com/twitter/common/args/parsers/EnumParser.html#line.34"><B>parse</B></A>(ParserOracle&nbsp;parserOracle,
+               <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type,
                <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;raw)
                         throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</A></PRE>
 <DL>
-<DD><B>Description copied from interface: <CODE><A HREF="../../../../../com/twitter/common/args/Parsers.Parser.html#parse(java.lang.reflect.Type, java.lang.String)">Parsers.Parser</A></CODE></B></DD>
-<DD>Parses strings as arguments of a given subtype of <code>T</code>.
-<P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>type</CODE> - The target type of the parsed argument.<DD><CODE>raw</CODE> - The raw value of the argument.
-<DT><B>Returns:</B><DD>A value of the given type parsed from the raw value.
+
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - if the raw value could not be parsed into a value of the
-     given type.</DL>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</A></CODE></DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
@@ -260,7 +216,7 @@ public <A HREF="../../../../../com/twitter/common/args/parsers/EnumParser.html" 
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../com/twitter/common/args/parsers/DoubleParser.html" title="class in com.twitter.common.args.parsers"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../com/twitter/common/args/parsers/DurationParser.html" title="class in com.twitter.common.args.parsers"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../com/twitter/common/args/parsers/FileParser.html" title="class in com.twitter.common.args.parsers"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?com/twitter/common/args/parsers/EnumParser.html" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -281,7 +237,7 @@ public <A HREF="../../../../../com/twitter/common/args/parsers/EnumParser.html" 
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#fields_inherited_from_class_com.twitter.common.args.parsers.BaseParser">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
 DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>

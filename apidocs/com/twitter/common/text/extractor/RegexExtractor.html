@@ -53,7 +53,7 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../com/twitter/common/text/extractor/HashtagExtractor.html" title="class in com.twitter.common.text.extractor"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../com/twitter/common/text/extractor/NumericTokenExtractor.html" title="class in com.twitter.common.text.extractor"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../com/twitter/common/text/extractor/RegexExtractor.AbstractBuilder.html" title="class in com.twitter.common.text.extractor"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?com/twitter/common/text/extractor/RegexExtractor.html" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -96,11 +96,11 @@ Class RegexExtractor</H2>
           <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.text.extractor.RegexExtractor</B>
 </PRE>
 <DL>
-<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../../../../com/twitter/common/text/extractor/EmoticonExtractor.html" title="class in com.twitter.common.text.extractor">EmoticonExtractor</A>, <A HREF="../../../../../com/twitter/common/text/extractor/HashtagExtractor.html" title="class in com.twitter.common.text.extractor">HashtagExtractor</A>, <A HREF="../../../../../com/twitter/common/text/extractor/URLExtractor.html" title="class in com.twitter.common.text.extractor">URLExtractor</A>, <A HREF="../../../../../com/twitter/common/text/extractor/UserNameExtractor.html" title="class in com.twitter.common.text.extractor">UserNameExtractor</A></DD>
+<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../../../../com/twitter/common/text/extractor/EmoticonExtractor.html" title="class in com.twitter.common.text.extractor">EmoticonExtractor</A>, <A HREF="../../../../../com/twitter/common/text/extractor/HashtagExtractor.html" title="class in com.twitter.common.text.extractor">HashtagExtractor</A>, <A HREF="../../../../../com/twitter/common/text/extractor/NumericTokenExtractor.html" title="class in com.twitter.common.text.extractor">NumericTokenExtractor</A>, <A HREF="../../../../../com/twitter/common/text/extractor/URLExtractor.html" title="class in com.twitter.common.text.extractor">URLExtractor</A>, <A HREF="../../../../../com/twitter/common/text/extractor/UserNameExtractor.html" title="class in com.twitter.common.text.extractor">UserNameExtractor</A></DD>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/text/extractor/RegexExtractor.html#line.32"><B>RegexExtractor</B></A><DT>extends <A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></DL>
+<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/text/extractor/RegexExtractor.html#line.30"><B>RegexExtractor</B></A><DT>extends <A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></DL>
 </PRE>
 
 <P>
@@ -260,7 +260,7 @@ Extracts entities from text according to a given regular expression.
 <A NAME="RegexExtractor()"><!-- --></A><H3>
 RegexExtractor</H3>
 <PRE>
-protected <A HREF="../../../../../src-html/com/twitter/common/text/extractor/RegexExtractor.html#line.47"><B>RegexExtractor</B></A>()</PRE>
+protected <A HREF="../../../../../src-html/com/twitter/common/text/extractor/RegexExtractor.html#line.44"><B>RegexExtractor</B></A>()</PRE>
 <DL>
 <DD>Protected constructor for subclass builders, clients should use a builder to create an
  instance.
@@ -280,7 +280,7 @@ protected <A HREF="../../../../../src-html/com/twitter/common/text/extractor/Reg
 <A NAME="setRegexPattern(java.util.regex.Pattern)"><!-- --></A><H3>
 setRegexPattern</H3>
 <PRE>
-protected void <A HREF="../../../../../src-html/com/twitter/common/text/extractor/RegexExtractor.html#line.54"><B>setRegexPattern</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A>&nbsp;pattern)</PRE>
+protected void <A HREF="../../../../../src-html/com/twitter/common/text/extractor/RegexExtractor.html#line.51"><B>setRegexPattern</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A>&nbsp;pattern)</PRE>
 <DL>
 <DD>Sets the regular expression used in this <code>RegexExtractor</code>.
 <P>
@@ -293,7 +293,7 @@ protected void <A HREF="../../../../../src-html/com/twitter/common/text/extracto
 <A NAME="setRegexPattern(java.util.regex.Pattern, int, int)"><!-- --></A><H3>
 setRegexPattern</H3>
 <PRE>
-protected void <A HREF="../../../../../src-html/com/twitter/common/text/extractor/RegexExtractor.html#line.67"><B>setRegexPattern</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A>&nbsp;pattern,
+protected void <A HREF="../../../../../src-html/com/twitter/common/text/extractor/RegexExtractor.html#line.64"><B>setRegexPattern</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A>&nbsp;pattern,
                                int&nbsp;startGroup,
                                int&nbsp;endGroup)</PRE>
 <DL>
@@ -310,7 +310,7 @@ protected void <A HREF="../../../../../src-html/com/twitter/common/text/extracto
 <A NAME="setTriggeringChar(char)"><!-- --></A><H3>
 setTriggeringChar</H3>
 <PRE>
-protected void <A HREF="../../../../../src-html/com/twitter/common/text/extractor/RegexExtractor.html#line.81"><B>setTriggeringChar</B></A>(char&nbsp;triggeringChar)</PRE>
+protected void <A HREF="../../../../../src-html/com/twitter/common/text/extractor/RegexExtractor.html#line.78"><B>setTriggeringChar</B></A>(char&nbsp;triggeringChar)</PRE>
 <DL>
 <DD>Sets a character that must appear in the input text. If a specified character does not appear
  in the input text, this <code>RegexExtractor</code> does not extract entities from the text.
@@ -326,7 +326,7 @@ protected void <A HREF="../../../../../src-html/com/twitter/common/text/extracto
 <A NAME="reset(java.lang.CharSequence)"><!-- --></A><H3>
 reset</H3>
 <PRE>
-public void <A HREF="../../../../../src-html/com/twitter/common/text/extractor/RegexExtractor.html#line.91"><B>reset</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;input)</PRE>
+public void <A HREF="../../../../../src-html/com/twitter/common/text/extractor/RegexExtractor.html#line.88"><B>reset</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;input)</PRE>
 <DL>
 <DD>Reset the extractor to use a new <code>CharSequence</code> as input.
 <P>
@@ -342,7 +342,7 @@ public void <A HREF="../../../../../src-html/com/twitter/common/text/extractor/R
 <A NAME="incrementToken()"><!-- --></A><H3>
 incrementToken</H3>
 <PRE>
-public boolean <A HREF="../../../../../src-html/com/twitter/common/text/extractor/RegexExtractor.html#line.117"><B>incrementToken</B></A>()</PRE>
+public boolean <A HREF="../../../../../src-html/com/twitter/common/text/extractor/RegexExtractor.html#line.114"><B>incrementToken</B></A>()</PRE>
 <DL>
 <DD><B>Description copied from class: <CODE><A HREF="../../../../../com/twitter/common/text/token/TokenStream.html#incrementToken()">TokenStream</A></CODE></B></DD>
 <DD>Consumers call this method to advance the stream to the next token.
@@ -386,7 +386,7 @@ public boolean <A HREF="../../../../../src-html/com/twitter/common/text/extracto
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../com/twitter/common/text/extractor/HashtagExtractor.html" title="class in com.twitter.common.text.extractor"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../com/twitter/common/text/extractor/NumericTokenExtractor.html" title="class in com.twitter.common.text.extractor"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../com/twitter/common/text/extractor/RegexExtractor.AbstractBuilder.html" title="class in com.twitter.common.text.extractor"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?com/twitter/common/text/extractor/RegexExtractor.html" target="_top"><B>FRAMES</B></A>  &nbsp;

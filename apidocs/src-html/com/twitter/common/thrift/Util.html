@@ -122,74 +122,82 @@
 <FONT color="green">119</FONT>        for (Map.Entry&lt;? extends TFieldIdEnum, FieldMetaData&gt; entry :<a name="line.119"></a>
 <FONT color="green">120</FONT>            FieldMetaData.getStructMetaDataMap(t.getClass()).entrySet()) {<a name="line.120"></a>
 <FONT color="green">121</FONT>          @SuppressWarnings("unchecked")<a name="line.121"></a>
-<FONT color="green">122</FONT>          Object value = t.getFieldValue(entry.getKey());<a name="line.122"></a>
-<FONT color="green">123</FONT>          fields.add(tabs(depth) + entry.getValue().fieldName + ": " + printValue(value, depth));<a name="line.123"></a>
-<FONT color="green">124</FONT>        }<a name="line.124"></a>
-<FONT color="green">125</FONT>    <a name="line.125"></a>
-<FONT color="green">126</FONT>        return Joiner.on("\n").join(fields);<a name="line.126"></a>
-<FONT color="green">127</FONT>      }<a name="line.127"></a>
-<FONT color="green">128</FONT>    <a name="line.128"></a>
-<FONT color="green">129</FONT>      /**<a name="line.129"></a>
-<FONT color="green">130</FONT>       * Prints a map in a style that is consistent with TBase pretty printing.<a name="line.130"></a>
-<FONT color="green">131</FONT>       *<a name="line.131"></a>
-<FONT color="green">132</FONT>       * @param map The map to print<a name="line.132"></a>
-<FONT color="green">133</FONT>       * @param depth The print nesting level.<a name="line.133"></a>
-<FONT color="green">134</FONT>       * @return The pretty-printed version of the map.<a name="line.134"></a>
-<FONT color="green">135</FONT>       */<a name="line.135"></a>
-<FONT color="green">136</FONT>      private static String printMap(Map&lt;?, ?&gt; map, int depth) {<a name="line.136"></a>
-<FONT color="green">137</FONT>        List&lt;String&gt; entries = Lists.newArrayList();<a name="line.137"></a>
-<FONT color="green">138</FONT>        for (Map.Entry entry : map.entrySet()) {<a name="line.138"></a>
-<FONT color="green">139</FONT>          entries.add(tabs(depth) + printValue(entry.getKey(), depth)<a name="line.139"></a>
-<FONT color="green">140</FONT>              + " = " + printValue(entry.getValue(), depth));<a name="line.140"></a>
-<FONT color="green">141</FONT>        }<a name="line.141"></a>
-<FONT color="green">142</FONT>    <a name="line.142"></a>
-<FONT color="green">143</FONT>        return entries.isEmpty() ? "{}"<a name="line.143"></a>
-<FONT color="green">144</FONT>            : String.format("{\n%s\n%s}", Joiner.on(",\n").join(entries), tabs(depth - 1));<a name="line.144"></a>
-<FONT color="green">145</FONT>      }<a name="line.145"></a>
-<FONT color="green">146</FONT>    <a name="line.146"></a>
-<FONT color="green">147</FONT>      /**<a name="line.147"></a>
-<FONT color="green">148</FONT>       * Prints a list in a style that is consistent with TBase pretty printing.<a name="line.148"></a>
-<FONT color="green">149</FONT>       *<a name="line.149"></a>
-<FONT color="green">150</FONT>       * @param list The list to print<a name="line.150"></a>
-<FONT color="green">151</FONT>       * @param depth The print nesting level.<a name="line.151"></a>
-<FONT color="green">152</FONT>       * @return The pretty-printed version of the list<a name="line.152"></a>
-<FONT color="green">153</FONT>       */<a name="line.153"></a>
-<FONT color="green">154</FONT>      private static String printList(List&lt;?&gt; list, int depth) {<a name="line.154"></a>
-<FONT color="green">155</FONT>        List&lt;String&gt; entries = Lists.newArrayList();<a name="line.155"></a>
-<FONT color="green">156</FONT>        for (int i = 0; i &lt; list.size(); i++) {<a name="line.156"></a>
-<FONT color="green">157</FONT>          entries.add(<a name="line.157"></a>
-<FONT color="green">158</FONT>              String.format("%sItem[%d] = %s", tabs(depth), i, printValue(list.get(i), depth)));<a name="line.158"></a>
-<FONT color="green">159</FONT>        }<a name="line.159"></a>
-<FONT color="green">160</FONT>    <a name="line.160"></a>
-<FONT color="green">161</FONT>        return entries.isEmpty() ? "[]"<a name="line.161"></a>
-<FONT color="green">162</FONT>            : String.format("[\n%s\n%s]", Joiner.on(",\n").join(entries), tabs(depth - 1));<a name="line.162"></a>
-<FONT color="green">163</FONT>      }<a name="line.163"></a>
-<FONT color="green">164</FONT>      /**<a name="line.164"></a>
-<FONT color="green">165</FONT>       * Prints a set in a style that is consistent with TBase pretty printing.<a name="line.165"></a>
-<FONT color="green">166</FONT>       *<a name="line.166"></a>
-<FONT color="green">167</FONT>       * @param set The set to print<a name="line.167"></a>
-<FONT color="green">168</FONT>       * @param depth The print nesting level.<a name="line.168"></a>
-<FONT color="green">169</FONT>       * @return The pretty-printed version of the set<a name="line.169"></a>
-<FONT color="green">170</FONT>       */<a name="line.170"></a>
-<FONT color="green">171</FONT>      private static String printSet(Set&lt;?&gt; set, int depth) {<a name="line.171"></a>
-<FONT color="green">172</FONT>        List&lt;String&gt; entries = Lists.newArrayList();<a name="line.172"></a>
-<FONT color="green">173</FONT>        for (Object item : set) {<a name="line.173"></a>
-<FONT color="green">174</FONT>          entries.add(<a name="line.174"></a>
-<FONT color="green">175</FONT>              String.format("%sItem = %s", tabs(depth), printValue(item, depth)));<a name="line.175"></a>
-<FONT color="green">176</FONT>        }<a name="line.176"></a>
-<FONT color="green">177</FONT>    <a name="line.177"></a>
-<FONT color="green">178</FONT>        return entries.isEmpty() ? "{}"<a name="line.178"></a>
-<FONT color="green">179</FONT>            : String.format("{\n%s\n%s}", Joiner.on(",\n").join(entries), tabs(depth - 1));<a name="line.179"></a>
-<FONT color="green">180</FONT>      }<a name="line.180"></a>
-<FONT color="green">181</FONT>    <a name="line.181"></a>
-<FONT color="green">182</FONT>      private static String tabs(int n) {<a name="line.182"></a>
-<FONT color="green">183</FONT>        return Strings.repeat("  ", n);<a name="line.183"></a>
-<FONT color="green">184</FONT>      }<a name="line.184"></a>
+<FONT color="green">122</FONT>          boolean fieldSet = t.isSet(entry.getKey());<a name="line.122"></a>
+<FONT color="green">123</FONT>          String strValue;<a name="line.123"></a>
+<FONT color="green">124</FONT>          if (fieldSet) {<a name="line.124"></a>
+<FONT color="green">125</FONT>            @SuppressWarnings("unchecked")<a name="line.125"></a>
+<FONT color="green">126</FONT>            Object value = t.getFieldValue(entry.getKey());<a name="line.126"></a>
+<FONT color="green">127</FONT>            strValue = printValue(value, depth);<a name="line.127"></a>
+<FONT color="green">128</FONT>          } else {<a name="line.128"></a>
+<FONT color="green">129</FONT>            strValue = "not set";<a name="line.129"></a>
+<FONT color="green">130</FONT>          }<a name="line.130"></a>
+<FONT color="green">131</FONT>          fields.add(tabs(depth) + entry.getValue().fieldName + ": " + strValue);<a name="line.131"></a>
+<FONT color="green">132</FONT>        }<a name="line.132"></a>
+<FONT color="green">133</FONT>    <a name="line.133"></a>
+<FONT color="green">134</FONT>        return Joiner.on("\n").join(fields);<a name="line.134"></a>
+<FONT color="green">135</FONT>      }<a name="line.135"></a>
+<FONT color="green">136</FONT>    <a name="line.136"></a>
+<FONT color="green">137</FONT>      /**<a name="line.137"></a>
+<FONT color="green">138</FONT>       * Prints a map in a style that is consistent with TBase pretty printing.<a name="line.138"></a>
+<FONT color="green">139</FONT>       *<a name="line.139"></a>
+<FONT color="green">140</FONT>       * @param map The map to print<a name="line.140"></a>
+<FONT color="green">141</FONT>       * @param depth The print nesting level.<a name="line.141"></a>
+<FONT color="green">142</FONT>       * @return The pretty-printed version of the map.<a name="line.142"></a>
+<FONT color="green">143</FONT>       */<a name="line.143"></a>
+<FONT color="green">144</FONT>      private static String printMap(Map&lt;?, ?&gt; map, int depth) {<a name="line.144"></a>
+<FONT color="green">145</FONT>        List&lt;String&gt; entries = Lists.newArrayList();<a name="line.145"></a>
+<FONT color="green">146</FONT>        for (Map.Entry entry : map.entrySet()) {<a name="line.146"></a>
+<FONT color="green">147</FONT>          entries.add(tabs(depth) + printValue(entry.getKey(), depth)<a name="line.147"></a>
+<FONT color="green">148</FONT>              + " = " + printValue(entry.getValue(), depth));<a name="line.148"></a>
+<FONT color="green">149</FONT>        }<a name="line.149"></a>
+<FONT color="green">150</FONT>    <a name="line.150"></a>
+<FONT color="green">151</FONT>        return entries.isEmpty() ? "{}"<a name="line.151"></a>
+<FONT color="green">152</FONT>            : String.format("{\n%s\n%s}", Joiner.on(",\n").join(entries), tabs(depth - 1));<a name="line.152"></a>
+<FONT color="green">153</FONT>      }<a name="line.153"></a>
+<FONT color="green">154</FONT>    <a name="line.154"></a>
+<FONT color="green">155</FONT>      /**<a name="line.155"></a>
+<FONT color="green">156</FONT>       * Prints a list in a style that is consistent with TBase pretty printing.<a name="line.156"></a>
+<FONT color="green">157</FONT>       *<a name="line.157"></a>
+<FONT color="green">158</FONT>       * @param list The list to print<a name="line.158"></a>
+<FONT color="green">159</FONT>       * @param depth The print nesting level.<a name="line.159"></a>
+<FONT color="green">160</FONT>       * @return The pretty-printed version of the list<a name="line.160"></a>
+<FONT color="green">161</FONT>       */<a name="line.161"></a>
+<FONT color="green">162</FONT>      private static String printList(List&lt;?&gt; list, int depth) {<a name="line.162"></a>
+<FONT color="green">163</FONT>        List&lt;String&gt; entries = Lists.newArrayList();<a name="line.163"></a>
+<FONT color="green">164</FONT>        for (int i = 0; i &lt; list.size(); i++) {<a name="line.164"></a>
+<FONT color="green">165</FONT>          entries.add(<a name="line.165"></a>
+<FONT color="green">166</FONT>              String.format("%sItem[%d] = %s", tabs(depth), i, printValue(list.get(i), depth)));<a name="line.166"></a>
+<FONT color="green">167</FONT>        }<a name="line.167"></a>
+<FONT color="green">168</FONT>    <a name="line.168"></a>
+<FONT color="green">169</FONT>        return entries.isEmpty() ? "[]"<a name="line.169"></a>
+<FONT color="green">170</FONT>            : String.format("[\n%s\n%s]", Joiner.on(",\n").join(entries), tabs(depth - 1));<a name="line.170"></a>
+<FONT color="green">171</FONT>      }<a name="line.171"></a>
+<FONT color="green">172</FONT>      /**<a name="line.172"></a>
+<FONT color="green">173</FONT>       * Prints a set in a style that is consistent with TBase pretty printing.<a name="line.173"></a>
+<FONT color="green">174</FONT>       *<a name="line.174"></a>
+<FONT color="green">175</FONT>       * @param set The set to print<a name="line.175"></a>
+<FONT color="green">176</FONT>       * @param depth The print nesting level.<a name="line.176"></a>
+<FONT color="green">177</FONT>       * @return The pretty-printed version of the set<a name="line.177"></a>
+<FONT color="green">178</FONT>       */<a name="line.178"></a>
+<FONT color="green">179</FONT>      private static String printSet(Set&lt;?&gt; set, int depth) {<a name="line.179"></a>
+<FONT color="green">180</FONT>        List&lt;String&gt; entries = Lists.newArrayList();<a name="line.180"></a>
+<FONT color="green">181</FONT>        for (Object item : set) {<a name="line.181"></a>
+<FONT color="green">182</FONT>          entries.add(<a name="line.182"></a>
+<FONT color="green">183</FONT>              String.format("%sItem = %s", tabs(depth), printValue(item, depth)));<a name="line.183"></a>
+<FONT color="green">184</FONT>        }<a name="line.184"></a>
 <FONT color="green">185</FONT>    <a name="line.185"></a>
-<FONT color="green">186</FONT>      private Util() {<a name="line.186"></a>
-<FONT color="green">187</FONT>        // Utility class.<a name="line.187"></a>
+<FONT color="green">186</FONT>        return entries.isEmpty() ? "{}"<a name="line.186"></a>
+<FONT color="green">187</FONT>            : String.format("{\n%s\n%s}", Joiner.on(",\n").join(entries), tabs(depth - 1));<a name="line.187"></a>
 <FONT color="green">188</FONT>      }<a name="line.188"></a>
-<FONT color="green">189</FONT>    }<a name="line.189"></a>
+<FONT color="green">189</FONT>    <a name="line.189"></a>
+<FONT color="green">190</FONT>      private static String tabs(int n) {<a name="line.190"></a>
+<FONT color="green">191</FONT>        return Strings.repeat("  ", n);<a name="line.191"></a>
+<FONT color="green">192</FONT>      }<a name="line.192"></a>
+<FONT color="green">193</FONT>    <a name="line.193"></a>
+<FONT color="green">194</FONT>      private Util() {<a name="line.194"></a>
+<FONT color="green">195</FONT>        // Utility class.<a name="line.195"></a>
+<FONT color="green">196</FONT>      }<a name="line.196"></a>
+<FONT color="green">197</FONT>    }<a name="line.197"></a>
 
 
 

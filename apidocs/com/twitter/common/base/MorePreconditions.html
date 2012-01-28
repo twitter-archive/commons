@@ -100,7 +100,7 @@ Class MorePreconditions</H2>
 
 <P>
 A utility helpful in concisely checking preconditions on arguments.  This utility is a complement
- to <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Preconditions.html?is-external=true" title="class or interface in com.google.common.base"><CODE>Preconditions</CODE></A>.
+ to <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Preconditions.html?is-external=true" title="class or interface in com.google.common.base"><CODE>Preconditions</CODE></A>.
 <P>
 
 <P>
@@ -126,6 +126,17 @@ A utility helpful in concisely checking preconditions on arguments.  This utilit
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Checks that a double falls within a specified range, inclusive</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/base/MorePreconditions.html#checkArgumentRange(int, int, int, java.lang.String)">checkArgumentRange</A></B>(int&nbsp;argument,
+                                     int&nbsp;minimum,
+                                     int&nbsp;maximum,
+                                     <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Checks that an int falls within a specified range, inclusive</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -302,10 +313,30 @@ public static double <A HREF="../../../../src-html/com/twitter/common/base/MoreP
 </DL>
 <HR>
 
+<A NAME="checkArgumentRange(int, int, int, java.lang.String)"><!-- --></A><H3>
+checkArgumentRange</H3>
+<PRE>
+public static int <A HREF="../../../../src-html/com/twitter/common/base/MorePreconditions.html#line.123"><B>checkArgumentRange</B></A>(int&nbsp;argument,
+                                     int&nbsp;minimum,
+                                     int&nbsp;maximum,
+                                     <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message)</PRE>
+<DL>
+<DD>Checks that an int falls within a specified range, inclusive
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>argument</CODE> - argument to validate.<DD><CODE>minimum</CODE> - minimum possible valid value for the argument.<DD><CODE>maximum</CODE> - maximum possible valid value for the argument.<DD><CODE>message</CODE> - the message template for validation exception messages where %s serves as the
+                sole argument placeholder.
+<DT><B>Returns:</B><DD>the argument if it is valid.
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - if the argument falls outside of the specified range.</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="checkArguments(java.lang.String, java.lang.Boolean...)"><!-- --></A><H3>
 checkArguments</H3>
 <PRE>
-public static boolean <A HREF="../../../../src-html/com/twitter/common/base/MorePreconditions.html#line.120"><B>checkArguments</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message,
+public static boolean <A HREF="../../../../src-html/com/twitter/common/base/MorePreconditions.html#line.138"><B>checkArguments</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message,
                                      <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Boolean.html?is-external=true" title="class or interface in java.lang">Boolean</A>...&nbsp;arguments)</PRE>
 <DL>
 <DD>Checks that at least one of the specified arguments is true.

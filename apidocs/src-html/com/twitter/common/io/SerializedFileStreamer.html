@@ -19,100 +19,101 @@
 <FONT color="green">016</FONT>    <a name="line.16"></a>
 <FONT color="green">017</FONT>    package com.twitter.common.io;<a name="line.17"></a>
 <FONT color="green">018</FONT>    <a name="line.18"></a>
-<FONT color="green">019</FONT>    import com.google.common.base.Preconditions;<a name="line.19"></a>
-<FONT color="green">020</FONT>    import com.google.common.base.Predicate;<a name="line.20"></a>
-<FONT color="green">021</FONT>    import com.google.common.base.Predicates;<a name="line.21"></a>
-<FONT color="green">022</FONT>    import com.twitter.common.base.Closure;<a name="line.22"></a>
-<FONT color="green">023</FONT>    <a name="line.23"></a>
-<FONT color="green">024</FONT>    import java.io.EOFException;<a name="line.24"></a>
-<FONT color="green">025</FONT>    import java.io.IOException;<a name="line.25"></a>
-<FONT color="green">026</FONT>    import java.io.ObjectInputStream;<a name="line.26"></a>
-<FONT color="green">027</FONT>    import java.io.Serializable;<a name="line.27"></a>
-<FONT color="green">028</FONT>    import java.util.logging.Level;<a name="line.28"></a>
-<FONT color="green">029</FONT>    import java.util.logging.Logger;<a name="line.29"></a>
-<FONT color="green">030</FONT>    <a name="line.30"></a>
-<FONT color="green">031</FONT>    /**<a name="line.31"></a>
-<FONT color="green">032</FONT>     * A streamer that reads from serialized files.<a name="line.32"></a>
-<FONT color="green">033</FONT>     *<a name="line.33"></a>
-<FONT color="green">034</FONT>     * @author Gilad Mishne<a name="line.34"></a>
-<FONT color="green">035</FONT>     */<a name="line.35"></a>
-<FONT color="green">036</FONT>    public class SerializedFileStreamer&lt;T extends Serializable&gt; implements Streamer&lt;T&gt; {<a name="line.36"></a>
-<FONT color="green">037</FONT>      private static final Logger LOG = Logger.getLogger(SerializedFileStreamer.class.getName());<a name="line.37"></a>
-<FONT color="green">038</FONT>    <a name="line.38"></a>
-<FONT color="green">039</FONT>      private final Iterable&lt;? extends ObjectInputStream&gt; inputs;<a name="line.39"></a>
-<FONT color="green">040</FONT>      private Predicate&lt;T&gt; filter = Predicates.alwaysTrue();<a name="line.40"></a>
-<FONT color="green">041</FONT>      private Predicate&lt;T&gt; endCondition = Predicates.alwaysFalse();<a name="line.41"></a>
-<FONT color="green">042</FONT>    <a name="line.42"></a>
-<FONT color="green">043</FONT>      /**<a name="line.43"></a>
-<FONT color="green">044</FONT>       * Returns a streamer that will deserialize objects of type T from a set of files in the order<a name="line.44"></a>
-<FONT color="green">045</FONT>       * the files are given.<a name="line.45"></a>
-<FONT color="green">046</FONT>       *<a name="line.46"></a>
-<FONT color="green">047</FONT>       * @param inputs The input streams to read from.<a name="line.47"></a>
-<FONT color="green">048</FONT>       */<a name="line.48"></a>
-<FONT color="green">049</FONT>      public SerializedFileStreamer (Iterable&lt;? extends ObjectInputStream&gt; inputs) {<a name="line.49"></a>
-<FONT color="green">050</FONT>        this.inputs = Preconditions.checkNotNull(inputs);<a name="line.50"></a>
-<FONT color="green">051</FONT>      }<a name="line.51"></a>
-<FONT color="green">052</FONT>    <a name="line.52"></a>
-<FONT color="green">053</FONT>      /**<a name="line.53"></a>
-<FONT color="green">054</FONT>       * Deserialize {@code inputStream}, executing {@code work} on each object.<a name="line.54"></a>
-<FONT color="green">055</FONT>       */<a name="line.55"></a>
-<FONT color="green">056</FONT>      private void process(ObjectInputStream inputStream, Closure&lt;T&gt; work) {<a name="line.56"></a>
-<FONT color="green">057</FONT>        Object o;<a name="line.57"></a>
-<FONT color="green">058</FONT>        int count = 0;<a name="line.58"></a>
-<FONT color="green">059</FONT>        try {<a name="line.59"></a>
-<FONT color="green">060</FONT>          while ((o = inputStream.readObject()) != null) {<a name="line.60"></a>
-<FONT color="green">061</FONT>            try {<a name="line.61"></a>
-<FONT color="green">062</FONT>              T t = (T) o;<a name="line.62"></a>
-<FONT color="green">063</FONT>              if (endCondition.apply(t)) {<a name="line.63"></a>
-<FONT color="green">064</FONT>                break;<a name="line.64"></a>
-<FONT color="green">065</FONT>              }<a name="line.65"></a>
-<FONT color="green">066</FONT>              if (filter.apply(t)) {<a name="line.66"></a>
-<FONT color="green">067</FONT>                work.execute(t);<a name="line.67"></a>
-<FONT color="green">068</FONT>                ++count;<a name="line.68"></a>
-<FONT color="green">069</FONT>              }<a name="line.69"></a>
-<FONT color="green">070</FONT>            } catch (ClassCastException e) {<a name="line.70"></a>
-<FONT color="green">071</FONT>              LOG.log(Level.SEVERE, "Unexpected object " + o.toString() + " in stream: " , e);<a name="line.71"></a>
-<FONT color="green">072</FONT>            }<a name="line.72"></a>
-<FONT color="green">073</FONT>          }<a name="line.73"></a>
-<FONT color="green">074</FONT>        } catch (EOFException e) {<a name="line.74"></a>
-<FONT color="green">075</FONT>          LOG.log(Level.INFO, "Read " + count + " objects from stream.");<a name="line.75"></a>
-<FONT color="green">076</FONT>        } catch (ClassNotFoundException e) {<a name="line.76"></a>
-<FONT color="green">077</FONT>          LOG.log(Level.SEVERE, "Unexpected class in stream.");<a name="line.77"></a>
-<FONT color="green">078</FONT>          throw new RuntimeException(e);<a name="line.78"></a>
-<FONT color="green">079</FONT>        } catch (IOException e) {<a name="line.79"></a>
-<FONT color="green">080</FONT>          LOG.log(Level.SEVERE, "Error reading from stream.");<a name="line.80"></a>
-<FONT color="green">081</FONT>          throw new RuntimeException(e);<a name="line.81"></a>
-<FONT color="green">082</FONT>        } catch (NullPointerException e) {<a name="line.82"></a>
-<FONT color="green">083</FONT>          LOG.log(Level.SEVERE, "Unexpected data in status file stream.");<a name="line.83"></a>
-<FONT color="green">084</FONT>          throw new RuntimeException(e);<a name="line.84"></a>
-<FONT color="green">085</FONT>        } finally {<a name="line.85"></a>
-<FONT color="green">086</FONT>          try {<a name="line.86"></a>
-<FONT color="green">087</FONT>            inputStream.close();<a name="line.87"></a>
-<FONT color="green">088</FONT>          } catch (IOException e) {<a name="line.88"></a>
-<FONT color="green">089</FONT>            LOG.log(Level.SEVERE, "Can't close stream.", e);<a name="line.89"></a>
-<FONT color="green">090</FONT>          }<a name="line.90"></a>
-<FONT color="green">091</FONT>        }<a name="line.91"></a>
-<FONT color="green">092</FONT>      }<a name="line.92"></a>
-<FONT color="green">093</FONT>    <a name="line.93"></a>
-<FONT color="green">094</FONT>      @Override<a name="line.94"></a>
-<FONT color="green">095</FONT>      public Streamer&lt;T&gt; endOn(Predicate&lt;T&gt; cond) {<a name="line.95"></a>
-<FONT color="green">096</FONT>        Preconditions.checkNotNull(cond);<a name="line.96"></a>
-<FONT color="green">097</FONT>        endCondition = Predicates.or(cond);<a name="line.97"></a>
-<FONT color="green">098</FONT>        return this;<a name="line.98"></a>
-<FONT color="green">099</FONT>      }<a name="line.99"></a>
-<FONT color="green">100</FONT>    <a name="line.100"></a>
-<FONT color="green">101</FONT>      @Override public void process(Closure&lt;T&gt; work) {<a name="line.101"></a>
-<FONT color="green">102</FONT>        Preconditions.checkNotNull(work);<a name="line.102"></a>
-<FONT color="green">103</FONT>        for (ObjectInputStream input : inputs) {<a name="line.103"></a>
-<FONT color="green">104</FONT>          process(input, work);<a name="line.104"></a>
-<FONT color="green">105</FONT>        }<a name="line.105"></a>
-<FONT color="green">106</FONT>      }<a name="line.106"></a>
-<FONT color="green">107</FONT>    <a name="line.107"></a>
-<FONT color="green">108</FONT>      @Override public Streamer&lt;T&gt; filter(Predicate&lt;T&gt; filter) {<a name="line.108"></a>
-<FONT color="green">109</FONT>        this.filter = Preconditions.checkNotNull(filter);<a name="line.109"></a>
-<FONT color="green">110</FONT>        return this;<a name="line.110"></a>
-<FONT color="green">111</FONT>      }<a name="line.111"></a>
-<FONT color="green">112</FONT>    }<a name="line.112"></a>
+<FONT color="green">019</FONT>    import java.io.EOFException;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import java.io.IOException;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import java.io.ObjectInputStream;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import java.io.Serializable;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import java.util.logging.Level;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import java.util.logging.Logger;<a name="line.24"></a>
+<FONT color="green">025</FONT>    <a name="line.25"></a>
+<FONT color="green">026</FONT>    import com.google.common.base.Preconditions;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import com.google.common.base.Predicate;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import com.google.common.base.Predicates;<a name="line.28"></a>
+<FONT color="green">029</FONT>    <a name="line.29"></a>
+<FONT color="green">030</FONT>    import com.twitter.common.base.Closure;<a name="line.30"></a>
+<FONT color="green">031</FONT>    <a name="line.31"></a>
+<FONT color="green">032</FONT>    /**<a name="line.32"></a>
+<FONT color="green">033</FONT>     * A streamer that reads from serialized files.<a name="line.33"></a>
+<FONT color="green">034</FONT>     *<a name="line.34"></a>
+<FONT color="green">035</FONT>     * @author Gilad Mishne<a name="line.35"></a>
+<FONT color="green">036</FONT>     */<a name="line.36"></a>
+<FONT color="green">037</FONT>    public class SerializedFileStreamer&lt;T extends Serializable&gt; implements Streamer&lt;T&gt; {<a name="line.37"></a>
+<FONT color="green">038</FONT>      private static final Logger LOG = Logger.getLogger(SerializedFileStreamer.class.getName());<a name="line.38"></a>
+<FONT color="green">039</FONT>    <a name="line.39"></a>
+<FONT color="green">040</FONT>      private final Iterable&lt;? extends ObjectInputStream&gt; inputs;<a name="line.40"></a>
+<FONT color="green">041</FONT>      private Predicate&lt;T&gt; filter = Predicates.alwaysTrue();<a name="line.41"></a>
+<FONT color="green">042</FONT>      private Predicate&lt;T&gt; endCondition = Predicates.alwaysFalse();<a name="line.42"></a>
+<FONT color="green">043</FONT>    <a name="line.43"></a>
+<FONT color="green">044</FONT>      /**<a name="line.44"></a>
+<FONT color="green">045</FONT>       * Returns a streamer that will deserialize objects of type T from a set of files in the order<a name="line.45"></a>
+<FONT color="green">046</FONT>       * the files are given.<a name="line.46"></a>
+<FONT color="green">047</FONT>       *<a name="line.47"></a>
+<FONT color="green">048</FONT>       * @param inputs The input streams to read from.<a name="line.48"></a>
+<FONT color="green">049</FONT>       */<a name="line.49"></a>
+<FONT color="green">050</FONT>      public SerializedFileStreamer (Iterable&lt;? extends ObjectInputStream&gt; inputs) {<a name="line.50"></a>
+<FONT color="green">051</FONT>        this.inputs = Preconditions.checkNotNull(inputs);<a name="line.51"></a>
+<FONT color="green">052</FONT>      }<a name="line.52"></a>
+<FONT color="green">053</FONT>    <a name="line.53"></a>
+<FONT color="green">054</FONT>      /**<a name="line.54"></a>
+<FONT color="green">055</FONT>       * Deserialize {@code inputStream}, executing {@code work} on each object.<a name="line.55"></a>
+<FONT color="green">056</FONT>       */<a name="line.56"></a>
+<FONT color="green">057</FONT>      private void process(ObjectInputStream inputStream, Closure&lt;T&gt; work) {<a name="line.57"></a>
+<FONT color="green">058</FONT>        Object o;<a name="line.58"></a>
+<FONT color="green">059</FONT>        int count = 0;<a name="line.59"></a>
+<FONT color="green">060</FONT>        try {<a name="line.60"></a>
+<FONT color="green">061</FONT>          while ((o = inputStream.readObject()) != null) {<a name="line.61"></a>
+<FONT color="green">062</FONT>            try {<a name="line.62"></a>
+<FONT color="green">063</FONT>              T t = (T) o;<a name="line.63"></a>
+<FONT color="green">064</FONT>              if (filter.apply(t)) {<a name="line.64"></a>
+<FONT color="green">065</FONT>                if (endCondition.apply(t)) {<a name="line.65"></a>
+<FONT color="green">066</FONT>                  break;<a name="line.66"></a>
+<FONT color="green">067</FONT>                }<a name="line.67"></a>
+<FONT color="green">068</FONT>                work.execute(t);<a name="line.68"></a>
+<FONT color="green">069</FONT>                ++count;<a name="line.69"></a>
+<FONT color="green">070</FONT>              }<a name="line.70"></a>
+<FONT color="green">071</FONT>            } catch (ClassCastException e) {<a name="line.71"></a>
+<FONT color="green">072</FONT>              LOG.log(Level.SEVERE, "Unexpected object " + o.toString() + " in stream: " , e);<a name="line.72"></a>
+<FONT color="green">073</FONT>            }<a name="line.73"></a>
+<FONT color="green">074</FONT>          }<a name="line.74"></a>
+<FONT color="green">075</FONT>        } catch (EOFException e) {<a name="line.75"></a>
+<FONT color="green">076</FONT>          LOG.log(Level.INFO, "Read " + count + " objects from stream.");<a name="line.76"></a>
+<FONT color="green">077</FONT>        } catch (ClassNotFoundException e) {<a name="line.77"></a>
+<FONT color="green">078</FONT>          LOG.log(Level.SEVERE, "Unexpected class in stream.");<a name="line.78"></a>
+<FONT color="green">079</FONT>          throw new RuntimeException(e);<a name="line.79"></a>
+<FONT color="green">080</FONT>        } catch (IOException e) {<a name="line.80"></a>
+<FONT color="green">081</FONT>          LOG.log(Level.SEVERE, "Error reading from stream.");<a name="line.81"></a>
+<FONT color="green">082</FONT>          throw new RuntimeException(e);<a name="line.82"></a>
+<FONT color="green">083</FONT>        } catch (NullPointerException e) {<a name="line.83"></a>
+<FONT color="green">084</FONT>          LOG.log(Level.SEVERE, "Unexpected data in status file stream.");<a name="line.84"></a>
+<FONT color="green">085</FONT>          throw new RuntimeException(e);<a name="line.85"></a>
+<FONT color="green">086</FONT>        } finally {<a name="line.86"></a>
+<FONT color="green">087</FONT>          try {<a name="line.87"></a>
+<FONT color="green">088</FONT>            inputStream.close();<a name="line.88"></a>
+<FONT color="green">089</FONT>          } catch (IOException e) {<a name="line.89"></a>
+<FONT color="green">090</FONT>            LOG.log(Level.SEVERE, "Can't close stream.", e);<a name="line.90"></a>
+<FONT color="green">091</FONT>          }<a name="line.91"></a>
+<FONT color="green">092</FONT>        }<a name="line.92"></a>
+<FONT color="green">093</FONT>      }<a name="line.93"></a>
+<FONT color="green">094</FONT>    <a name="line.94"></a>
+<FONT color="green">095</FONT>      @Override<a name="line.95"></a>
+<FONT color="green">096</FONT>      public Streamer&lt;T&gt; endOn(Predicate&lt;T&gt; cond) {<a name="line.96"></a>
+<FONT color="green">097</FONT>        Preconditions.checkNotNull(cond);<a name="line.97"></a>
+<FONT color="green">098</FONT>        endCondition = Predicates.or(cond);<a name="line.98"></a>
+<FONT color="green">099</FONT>        return this;<a name="line.99"></a>
+<FONT color="green">100</FONT>      }<a name="line.100"></a>
+<FONT color="green">101</FONT>    <a name="line.101"></a>
+<FONT color="green">102</FONT>      @Override public void process(Closure&lt;T&gt; work) {<a name="line.102"></a>
+<FONT color="green">103</FONT>        Preconditions.checkNotNull(work);<a name="line.103"></a>
+<FONT color="green">104</FONT>        for (ObjectInputStream input : inputs) {<a name="line.104"></a>
+<FONT color="green">105</FONT>          process(input, work);<a name="line.105"></a>
+<FONT color="green">106</FONT>        }<a name="line.106"></a>
+<FONT color="green">107</FONT>      }<a name="line.107"></a>
+<FONT color="green">108</FONT>    <a name="line.108"></a>
+<FONT color="green">109</FONT>      @Override public Streamer&lt;T&gt; filter(Predicate&lt;T&gt; filter) {<a name="line.109"></a>
+<FONT color="green">110</FONT>        this.filter = Preconditions.checkNotNull(filter);<a name="line.110"></a>
+<FONT color="green">111</FONT>        return this;<a name="line.111"></a>
+<FONT color="green">112</FONT>      }<a name="line.112"></a>
+<FONT color="green">113</FONT>    }<a name="line.113"></a>
 
 
 

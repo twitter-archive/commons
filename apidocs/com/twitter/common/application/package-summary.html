@@ -87,12 +87,17 @@ Package com.twitter.common.application
 <B>Interface Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/application/ActionRegistry.html" title="interface in com.twitter.common.application">ActionRegistry</A></B></TD>
-<TD>Tracks actions to be run at a specific stage in an application lifecycle.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/application/Application.html" title="interface in com.twitter.common.application">Application</A></B></TD>
 <TD>An application that supports a limited lifecycle and optional binding of guice modules.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/application/ServiceLauncher.html" title="interface in com.twitter.common.application">ServiceLauncher&lt;E extends Exception&gt;</A></B></TD>
+<TD>Local interface to define requirements for a closure that is responsible for launching
+ a service at startup.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/application/ShutdownRegistry.html" title="interface in com.twitter.common.application">ShutdownRegistry</A></B></TD>
+<TD>A shutdown action controller.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -110,17 +115,24 @@ Package com.twitter.common.application
  method.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/application/ActionController.html" title="class in com.twitter.common.application">ActionController</A></B></TD>
-<TD>A <A HREF="../../../../com/twitter/common/application/ActionRegistry.html" title="interface in com.twitter.common.application"><CODE>ActionRegistry</CODE></A> that provides a <A HREF="../../../../com/twitter/common/application/ActionController.html#execute()"><CODE>ActionController.execute()</CODE></A> method that will ensure all
- registered actions are executed in the reverse order they were registered.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/application/AppLauncher.html" title="class in com.twitter.common.application">AppLauncher</A></B></TD>
 <TD>An application launcher that sets up a framework for pluggable binding modules.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/application/Lifecycle.html" title="class in com.twitter.common.application">Lifecycle</A></B></TD>
 <TD>Application lifecycle manager, which coordinates orderly shutdown of an application.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/application/LocalServiceRegistry.html" title="class in com.twitter.common.application">LocalServiceRegistry</A></B></TD>
+<TD>Registry for services that should be exported from the application.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/application/ShutdownRegistry.ShutdownRegistryImpl.html" title="class in com.twitter.common.application">ShutdownRegistry.ShutdownRegistryImpl</A></B></TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/application/StartupRegistry.html" title="class in com.twitter.common.application">StartupRegistry</A></B></TD>
+<TD>A registry that executes a set of commands.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -133,12 +145,16 @@ Package com.twitter.common.application
 <B>Annotation Types Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/application/LocalServiceRegistry.Port.html" title="annotation in com.twitter.common.application">LocalServiceRegistry.Port</A></B></TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/application/ShutdownStage.html" title="annotation in com.twitter.common.application">ShutdownStage</A></B></TD>
-<TD>Binding annotation used for the shutdown controller/registry.</TD>
+<TD>Binding annotation used for the shutdown registry.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/application/StartupStage.html" title="annotation in com.twitter.common.application">StartupStage</A></B></TD>
-<TD>Binding annotation used for the startup controller/registry.</TD>
+<TD>Binding annotation used for the startup registry.</TD>
 </TR>
 </TABLE>
 &nbsp;

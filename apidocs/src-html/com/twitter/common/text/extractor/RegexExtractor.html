@@ -24,159 +24,155 @@
 <FONT color="green">021</FONT>    <a name="line.21"></a>
 <FONT color="green">022</FONT>    import com.google.common.base.Preconditions;<a name="line.22"></a>
 <FONT color="green">023</FONT>    <a name="line.23"></a>
-<FONT color="green">024</FONT>    import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;<a name="line.24"></a>
-<FONT color="green">025</FONT>    <a name="line.25"></a>
-<FONT color="green">026</FONT>    import com.twitter.common.text.token.TokenStream;<a name="line.26"></a>
-<FONT color="green">027</FONT>    import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;<a name="line.27"></a>
-<FONT color="green">028</FONT>    <a name="line.28"></a>
-<FONT color="green">029</FONT>    /**<a name="line.29"></a>
-<FONT color="green">030</FONT>     * Extracts entities from text according to a given regular expression.<a name="line.30"></a>
-<FONT color="green">031</FONT>     */<a name="line.31"></a>
-<FONT color="green">032</FONT>    public class RegexExtractor extends TokenStream {<a name="line.32"></a>
-<FONT color="green">033</FONT>      private final CharSequenceTermAttribute charSeqTermAtt =<a name="line.33"></a>
-<FONT color="green">034</FONT>        addAttribute(CharSequenceTermAttribute.class);<a name="line.34"></a>
-<FONT color="green">035</FONT>      private final OffsetAttribute offsetAtt = addAttribute(OffsetAttribute.class);<a name="line.35"></a>
-<FONT color="green">036</FONT>    <a name="line.36"></a>
-<FONT color="green">037</FONT>      private Pattern regexPattern;<a name="line.37"></a>
-<FONT color="green">038</FONT>      private int startGroup = 0;<a name="line.38"></a>
-<FONT color="green">039</FONT>      private int endGroup = 0;<a name="line.39"></a>
-<FONT color="green">040</FONT>      private char triggeringChar = 0;<a name="line.40"></a>
-<FONT color="green">041</FONT>      private Matcher matcher = null;<a name="line.41"></a>
-<FONT color="green">042</FONT>    <a name="line.42"></a>
-<FONT color="green">043</FONT>      /**<a name="line.43"></a>
-<FONT color="green">044</FONT>       * Protected constructor for subclass builders, clients should use a builder to create an<a name="line.44"></a>
-<FONT color="green">045</FONT>       * instance.<a name="line.45"></a>
-<FONT color="green">046</FONT>       */<a name="line.46"></a>
-<FONT color="green">047</FONT>      protected RegexExtractor() { }<a name="line.47"></a>
-<FONT color="green">048</FONT>    <a name="line.48"></a>
-<FONT color="green">049</FONT>      /**<a name="line.49"></a>
-<FONT color="green">050</FONT>       * Sets the regular expression used in this {@code RegexExtractor}.<a name="line.50"></a>
-<FONT color="green">051</FONT>       *<a name="line.51"></a>
-<FONT color="green">052</FONT>       * @param pattern regular expression defining the entities to be extracted<a name="line.52"></a>
-<FONT color="green">053</FONT>       */<a name="line.53"></a>
-<FONT color="green">054</FONT>      protected void setRegexPattern(Pattern pattern) {<a name="line.54"></a>
-<FONT color="green">055</FONT>        this.regexPattern = pattern;<a name="line.55"></a>
-<FONT color="green">056</FONT>      }<a name="line.56"></a>
-<FONT color="green">057</FONT>    <a name="line.57"></a>
-<FONT color="green">058</FONT>      /**<a name="line.58"></a>
-<FONT color="green">059</FONT>       * Sets the regular expression and start/end group ID used in this {@code RegexExtractor}.<a name="line.59"></a>
-<FONT color="green">060</FONT>       *<a name="line.60"></a>
-<FONT color="green">061</FONT>       * @param pattern Regex pattern of a substring to be replaced.<a name="line.61"></a>
-<FONT color="green">062</FONT>       * @param startGroup ID of the group in the pattern that matches the beginning<a name="line.62"></a>
-<FONT color="green">063</FONT>       *  of the substring being replaced. Set to 0 to match the entire pattern.<a name="line.63"></a>
-<FONT color="green">064</FONT>       * @param endGroup ID of the group in the pattern that matches the end<a name="line.64"></a>
-<FONT color="green">065</FONT>       *  of the substring being replace. Set to 0 to match the entire pattern.<a name="line.65"></a>
-<FONT color="green">066</FONT>       */<a name="line.66"></a>
-<FONT color="green">067</FONT>      protected void setRegexPattern(Pattern pattern, int startGroup, int endGroup) {<a name="line.67"></a>
-<FONT color="green">068</FONT>        this.regexPattern = pattern;<a name="line.68"></a>
-<FONT color="green">069</FONT>        this.startGroup = startGroup;<a name="line.69"></a>
-<FONT color="green">070</FONT>        this.endGroup = endGroup;<a name="line.70"></a>
-<FONT color="green">071</FONT>      }<a name="line.71"></a>
-<FONT color="green">072</FONT>    <a name="line.72"></a>
-<FONT color="green">073</FONT>      /**<a name="line.73"></a>
-<FONT color="green">074</FONT>       * Sets a character that must appear in the input text. If a specified character does not appear<a name="line.74"></a>
-<FONT color="green">075</FONT>       * in the input text, this {@code RegexExtractor} does not extract entities from the text.<a name="line.75"></a>
-<FONT color="green">076</FONT>       * Specifying a {@code triggeringChar} may improve the performance by skipping unnecessary pattern<a name="line.76"></a>
-<FONT color="green">077</FONT>       * matching.<a name="line.77"></a>
-<FONT color="green">078</FONT>       *<a name="line.78"></a>
-<FONT color="green">079</FONT>       * @param triggeringChar a character that must appear in the text<a name="line.79"></a>
-<FONT color="green">080</FONT>       */<a name="line.80"></a>
-<FONT color="green">081</FONT>      protected void setTriggeringChar(char triggeringChar) {<a name="line.81"></a>
-<FONT color="green">082</FONT>        Preconditions.checkNotNull(triggeringChar);<a name="line.82"></a>
-<FONT color="green">083</FONT>        this.triggeringChar = triggeringChar;<a name="line.83"></a>
-<FONT color="green">084</FONT>      }<a name="line.84"></a>
-<FONT color="green">085</FONT>    <a name="line.85"></a>
-<FONT color="green">086</FONT>      /**<a name="line.86"></a>
-<FONT color="green">087</FONT>       * Reset the extractor to use a new {@code CharSequence} as input.<a name="line.87"></a>
-<FONT color="green">088</FONT>       *<a name="line.88"></a>
-<FONT color="green">089</FONT>       * @param input {@code CharSequence} from which to extract the entities.<a name="line.89"></a>
-<FONT color="green">090</FONT>       */<a name="line.90"></a>
-<FONT color="green">091</FONT>      public void reset(CharSequence input) {<a name="line.91"></a>
-<FONT color="green">092</FONT>        Preconditions.checkNotNull(input);<a name="line.92"></a>
-<FONT color="green">093</FONT>        charSeqTermAtt.setTermBuffer(input);<a name="line.93"></a>
-<FONT color="green">094</FONT>    <a name="line.94"></a>
-<FONT color="green">095</FONT>        if (triggeringChar &gt; 0) {<a name="line.95"></a>
-<FONT color="green">096</FONT>          // triggeringChar is specified.<a name="line.96"></a>
-<FONT color="green">097</FONT>          boolean foundTriggeringChar = false;<a name="line.97"></a>
-<FONT color="green">098</FONT>          for (int i = 0; i &lt; input.length(); i++) {<a name="line.98"></a>
-<FONT color="green">099</FONT>            if (triggeringChar == input.charAt(i)) {<a name="line.99"></a>
-<FONT color="green">100</FONT>              foundTriggeringChar = true;<a name="line.100"></a>
-<FONT color="green">101</FONT>              break;<a name="line.101"></a>
-<FONT color="green">102</FONT>            }<a name="line.102"></a>
-<FONT color="green">103</FONT>          }<a name="line.103"></a>
-<FONT color="green">104</FONT>          if (!foundTriggeringChar) {<a name="line.104"></a>
-<FONT color="green">105</FONT>            // No triggering char found. No extraction performed.<a name="line.105"></a>
-<FONT color="green">106</FONT>            matcher = null;<a name="line.106"></a>
-<FONT color="green">107</FONT>            return;<a name="line.107"></a>
-<FONT color="green">108</FONT>          }<a name="line.108"></a>
-<FONT color="green">109</FONT>        }<a name="line.109"></a>
-<FONT color="green">110</FONT>    <a name="line.110"></a>
-<FONT color="green">111</FONT>        if (regexPattern != null) {<a name="line.111"></a>
-<FONT color="green">112</FONT>          matcher = regexPattern.matcher(input);<a name="line.112"></a>
-<FONT color="green">113</FONT>        }<a name="line.113"></a>
-<FONT color="green">114</FONT>      }<a name="line.114"></a>
-<FONT color="green">115</FONT>    <a name="line.115"></a>
-<FONT color="green">116</FONT>      @Override<a name="line.116"></a>
-<FONT color="green">117</FONT>      public boolean incrementToken() {<a name="line.117"></a>
-<FONT color="green">118</FONT>        if (matcher != null &amp;&amp; matcher.find()) {<a name="line.118"></a>
-<FONT color="green">119</FONT>          int start = matcher.start(startGroup);<a name="line.119"></a>
-<FONT color="green">120</FONT>          int end = matcher.end(endGroup);<a name="line.120"></a>
-<FONT color="green">121</FONT>    <a name="line.121"></a>
-<FONT color="green">122</FONT>          clearAttributes();<a name="line.122"></a>
-<FONT color="green">123</FONT>          charSeqTermAtt.setOffset(start);<a name="line.123"></a>
-<FONT color="green">124</FONT>          charSeqTermAtt.setLength(end - start);<a name="line.124"></a>
-<FONT color="green">125</FONT>          offsetAtt.setOffset(start, end);<a name="line.125"></a>
-<FONT color="green">126</FONT>    <a name="line.126"></a>
-<FONT color="green">127</FONT>          return true;<a name="line.127"></a>
-<FONT color="green">128</FONT>        } else {<a name="line.128"></a>
-<FONT color="green">129</FONT>          return false;<a name="line.129"></a>
-<FONT color="green">130</FONT>        }<a name="line.130"></a>
-<FONT color="green">131</FONT>      }<a name="line.131"></a>
-<FONT color="green">132</FONT>    <a name="line.132"></a>
-<FONT color="green">133</FONT>      public static class Builder extends AbstractBuilder&lt;RegexExtractor, Builder&gt; {<a name="line.133"></a>
-<FONT color="green">134</FONT>        public Builder() {<a name="line.134"></a>
-<FONT color="green">135</FONT>          super(new RegexExtractor());<a name="line.135"></a>
-<FONT color="green">136</FONT>        }<a name="line.136"></a>
-<FONT color="green">137</FONT>      }<a name="line.137"></a>
+<FONT color="green">024</FONT>    import com.twitter.common.text.token.TokenStream;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;<a name="line.25"></a>
+<FONT color="green">026</FONT>    <a name="line.26"></a>
+<FONT color="green">027</FONT>    /**<a name="line.27"></a>
+<FONT color="green">028</FONT>     * Extracts entities from text according to a given regular expression.<a name="line.28"></a>
+<FONT color="green">029</FONT>     */<a name="line.29"></a>
+<FONT color="green">030</FONT>    public class RegexExtractor extends TokenStream {<a name="line.30"></a>
+<FONT color="green">031</FONT>      private final CharSequenceTermAttribute charSeqTermAtt =<a name="line.31"></a>
+<FONT color="green">032</FONT>        addAttribute(CharSequenceTermAttribute.class);<a name="line.32"></a>
+<FONT color="green">033</FONT>    <a name="line.33"></a>
+<FONT color="green">034</FONT>      private Pattern regexPattern;<a name="line.34"></a>
+<FONT color="green">035</FONT>      private int startGroup = 0;<a name="line.35"></a>
+<FONT color="green">036</FONT>      private int endGroup = 0;<a name="line.36"></a>
+<FONT color="green">037</FONT>      private char triggeringChar = 0;<a name="line.37"></a>
+<FONT color="green">038</FONT>      private Matcher matcher = null;<a name="line.38"></a>
+<FONT color="green">039</FONT>    <a name="line.39"></a>
+<FONT color="green">040</FONT>      /**<a name="line.40"></a>
+<FONT color="green">041</FONT>       * Protected constructor for subclass builders, clients should use a builder to create an<a name="line.41"></a>
+<FONT color="green">042</FONT>       * instance.<a name="line.42"></a>
+<FONT color="green">043</FONT>       */<a name="line.43"></a>
+<FONT color="green">044</FONT>      protected RegexExtractor() { }<a name="line.44"></a>
+<FONT color="green">045</FONT>    <a name="line.45"></a>
+<FONT color="green">046</FONT>      /**<a name="line.46"></a>
+<FONT color="green">047</FONT>       * Sets the regular expression used in this {@code RegexExtractor}.<a name="line.47"></a>
+<FONT color="green">048</FONT>       *<a name="line.48"></a>
+<FONT color="green">049</FONT>       * @param pattern regular expression defining the entities to be extracted<a name="line.49"></a>
+<FONT color="green">050</FONT>       */<a name="line.50"></a>
+<FONT color="green">051</FONT>      protected void setRegexPattern(Pattern pattern) {<a name="line.51"></a>
+<FONT color="green">052</FONT>        this.regexPattern = pattern;<a name="line.52"></a>
+<FONT color="green">053</FONT>      }<a name="line.53"></a>
+<FONT color="green">054</FONT>    <a name="line.54"></a>
+<FONT color="green">055</FONT>      /**<a name="line.55"></a>
+<FONT color="green">056</FONT>       * Sets the regular expression and start/end group ID used in this {@code RegexExtractor}.<a name="line.56"></a>
+<FONT color="green">057</FONT>       *<a name="line.57"></a>
+<FONT color="green">058</FONT>       * @param pattern Regex pattern of a substring to be replaced.<a name="line.58"></a>
+<FONT color="green">059</FONT>       * @param startGroup ID of the group in the pattern that matches the beginning<a name="line.59"></a>
+<FONT color="green">060</FONT>       *  of the substring being replaced. Set to 0 to match the entire pattern.<a name="line.60"></a>
+<FONT color="green">061</FONT>       * @param endGroup ID of the group in the pattern that matches the end<a name="line.61"></a>
+<FONT color="green">062</FONT>       *  of the substring being replace. Set to 0 to match the entire pattern.<a name="line.62"></a>
+<FONT color="green">063</FONT>       */<a name="line.63"></a>
+<FONT color="green">064</FONT>      protected void setRegexPattern(Pattern pattern, int startGroup, int endGroup) {<a name="line.64"></a>
+<FONT color="green">065</FONT>        this.regexPattern = pattern;<a name="line.65"></a>
+<FONT color="green">066</FONT>        this.startGroup = startGroup;<a name="line.66"></a>
+<FONT color="green">067</FONT>        this.endGroup = endGroup;<a name="line.67"></a>
+<FONT color="green">068</FONT>      }<a name="line.68"></a>
+<FONT color="green">069</FONT>    <a name="line.69"></a>
+<FONT color="green">070</FONT>      /**<a name="line.70"></a>
+<FONT color="green">071</FONT>       * Sets a character that must appear in the input text. If a specified character does not appear<a name="line.71"></a>
+<FONT color="green">072</FONT>       * in the input text, this {@code RegexExtractor} does not extract entities from the text.<a name="line.72"></a>
+<FONT color="green">073</FONT>       * Specifying a {@code triggeringChar} may improve the performance by skipping unnecessary pattern<a name="line.73"></a>
+<FONT color="green">074</FONT>       * matching.<a name="line.74"></a>
+<FONT color="green">075</FONT>       *<a name="line.75"></a>
+<FONT color="green">076</FONT>       * @param triggeringChar a character that must appear in the text<a name="line.76"></a>
+<FONT color="green">077</FONT>       */<a name="line.77"></a>
+<FONT color="green">078</FONT>      protected void setTriggeringChar(char triggeringChar) {<a name="line.78"></a>
+<FONT color="green">079</FONT>        Preconditions.checkNotNull(triggeringChar);<a name="line.79"></a>
+<FONT color="green">080</FONT>        this.triggeringChar = triggeringChar;<a name="line.80"></a>
+<FONT color="green">081</FONT>      }<a name="line.81"></a>
+<FONT color="green">082</FONT>    <a name="line.82"></a>
+<FONT color="green">083</FONT>      /**<a name="line.83"></a>
+<FONT color="green">084</FONT>       * Reset the extractor to use a new {@code CharSequence} as input.<a name="line.84"></a>
+<FONT color="green">085</FONT>       *<a name="line.85"></a>
+<FONT color="green">086</FONT>       * @param input {@code CharSequence} from which to extract the entities.<a name="line.86"></a>
+<FONT color="green">087</FONT>       */<a name="line.87"></a>
+<FONT color="green">088</FONT>      public void reset(CharSequence input) {<a name="line.88"></a>
+<FONT color="green">089</FONT>        Preconditions.checkNotNull(input);<a name="line.89"></a>
+<FONT color="green">090</FONT>        charSeqTermAtt.setTermBuffer(input);<a name="line.90"></a>
+<FONT color="green">091</FONT>    <a name="line.91"></a>
+<FONT color="green">092</FONT>        if (triggeringChar &gt; 0) {<a name="line.92"></a>
+<FONT color="green">093</FONT>          // triggeringChar is specified.<a name="line.93"></a>
+<FONT color="green">094</FONT>          boolean foundTriggeringChar = false;<a name="line.94"></a>
+<FONT color="green">095</FONT>          for (int i = 0; i &lt; input.length(); i++) {<a name="line.95"></a>
+<FONT color="green">096</FONT>            if (triggeringChar == input.charAt(i)) {<a name="line.96"></a>
+<FONT color="green">097</FONT>              foundTriggeringChar = true;<a name="line.97"></a>
+<FONT color="green">098</FONT>              break;<a name="line.98"></a>
+<FONT color="green">099</FONT>            }<a name="line.99"></a>
+<FONT color="green">100</FONT>          }<a name="line.100"></a>
+<FONT color="green">101</FONT>          if (!foundTriggeringChar) {<a name="line.101"></a>
+<FONT color="green">102</FONT>            // No triggering char found. No extraction performed.<a name="line.102"></a>
+<FONT color="green">103</FONT>            matcher = null;<a name="line.103"></a>
+<FONT color="green">104</FONT>            return;<a name="line.104"></a>
+<FONT color="green">105</FONT>          }<a name="line.105"></a>
+<FONT color="green">106</FONT>        }<a name="line.106"></a>
+<FONT color="green">107</FONT>    <a name="line.107"></a>
+<FONT color="green">108</FONT>        if (regexPattern != null) {<a name="line.108"></a>
+<FONT color="green">109</FONT>          matcher = regexPattern.matcher(input);<a name="line.109"></a>
+<FONT color="green">110</FONT>        }<a name="line.110"></a>
+<FONT color="green">111</FONT>      }<a name="line.111"></a>
+<FONT color="green">112</FONT>    <a name="line.112"></a>
+<FONT color="green">113</FONT>      @Override<a name="line.113"></a>
+<FONT color="green">114</FONT>      public boolean incrementToken() {<a name="line.114"></a>
+<FONT color="green">115</FONT>        if (matcher != null &amp;&amp; matcher.find()) {<a name="line.115"></a>
+<FONT color="green">116</FONT>          int start = matcher.start(startGroup);<a name="line.116"></a>
+<FONT color="green">117</FONT>          int end = matcher.end(endGroup);<a name="line.117"></a>
+<FONT color="green">118</FONT>    <a name="line.118"></a>
+<FONT color="green">119</FONT>          clearAttributes();<a name="line.119"></a>
+<FONT color="green">120</FONT>          charSeqTermAtt.setOffset(start);<a name="line.120"></a>
+<FONT color="green">121</FONT>          charSeqTermAtt.setLength(end - start);<a name="line.121"></a>
+<FONT color="green">122</FONT>    <a name="line.122"></a>
+<FONT color="green">123</FONT>          return true;<a name="line.123"></a>
+<FONT color="green">124</FONT>        } else {<a name="line.124"></a>
+<FONT color="green">125</FONT>          return false;<a name="line.125"></a>
+<FONT color="green">126</FONT>        }<a name="line.126"></a>
+<FONT color="green">127</FONT>      }<a name="line.127"></a>
+<FONT color="green">128</FONT>    <a name="line.128"></a>
+<FONT color="green">129</FONT>      public static class Builder extends AbstractBuilder&lt;RegexExtractor, Builder&gt; {<a name="line.129"></a>
+<FONT color="green">130</FONT>        public Builder() {<a name="line.130"></a>
+<FONT color="green">131</FONT>          super(new RegexExtractor());<a name="line.131"></a>
+<FONT color="green">132</FONT>        }<a name="line.132"></a>
+<FONT color="green">133</FONT>      }<a name="line.133"></a>
+<FONT color="green">134</FONT>    <a name="line.134"></a>
+<FONT color="green">135</FONT>      public abstract static class<a name="line.135"></a>
+<FONT color="green">136</FONT>          AbstractBuilder&lt;N extends RegexExtractor, T extends AbstractBuilder&lt;N, T&gt;&gt; {<a name="line.136"></a>
+<FONT color="green">137</FONT>        private final N extractor;<a name="line.137"></a>
 <FONT color="green">138</FONT>    <a name="line.138"></a>
-<FONT color="green">139</FONT>      public abstract static class<a name="line.139"></a>
-<FONT color="green">140</FONT>          AbstractBuilder&lt;N extends RegexExtractor, T extends AbstractBuilder&lt;N, T&gt;&gt; {<a name="line.140"></a>
-<FONT color="green">141</FONT>        private final N extractor;<a name="line.141"></a>
+<FONT color="green">139</FONT>        protected AbstractBuilder(N transformer) {<a name="line.139"></a>
+<FONT color="green">140</FONT>          this.extractor = Preconditions.checkNotNull(transformer);<a name="line.140"></a>
+<FONT color="green">141</FONT>        }<a name="line.141"></a>
 <FONT color="green">142</FONT>    <a name="line.142"></a>
-<FONT color="green">143</FONT>        protected AbstractBuilder(N transformer) {<a name="line.143"></a>
-<FONT color="green">144</FONT>          this.extractor = Preconditions.checkNotNull(transformer);<a name="line.144"></a>
-<FONT color="green">145</FONT>        }<a name="line.145"></a>
-<FONT color="green">146</FONT>    <a name="line.146"></a>
-<FONT color="green">147</FONT>        @SuppressWarnings("unchecked")<a name="line.147"></a>
-<FONT color="green">148</FONT>        protected T self() {<a name="line.148"></a>
-<FONT color="green">149</FONT>          return (T) this;<a name="line.149"></a>
-<FONT color="green">150</FONT>        }<a name="line.150"></a>
-<FONT color="green">151</FONT>    <a name="line.151"></a>
-<FONT color="green">152</FONT>        public T setRegexPattern(Pattern pattern) {<a name="line.152"></a>
-<FONT color="green">153</FONT>          Preconditions.checkNotNull(pattern);<a name="line.153"></a>
-<FONT color="green">154</FONT>          extractor.regexPattern = pattern;<a name="line.154"></a>
-<FONT color="green">155</FONT>          return self();<a name="line.155"></a>
-<FONT color="green">156</FONT>        }<a name="line.156"></a>
-<FONT color="green">157</FONT>    <a name="line.157"></a>
-<FONT color="green">158</FONT>        public T setRegexPattern(Pattern pattern, int startGroup, int endGroup) {<a name="line.158"></a>
-<FONT color="green">159</FONT>          Preconditions.checkNotNull(pattern);<a name="line.159"></a>
-<FONT color="green">160</FONT>          Preconditions.checkArgument(startGroup &gt;= 0);<a name="line.160"></a>
-<FONT color="green">161</FONT>          Preconditions.checkArgument(endGroup &gt;= 0);<a name="line.161"></a>
-<FONT color="green">162</FONT>          extractor.setRegexPattern(pattern, startGroup, endGroup);<a name="line.162"></a>
-<FONT color="green">163</FONT>          return self();<a name="line.163"></a>
-<FONT color="green">164</FONT>        }<a name="line.164"></a>
-<FONT color="green">165</FONT>    <a name="line.165"></a>
-<FONT color="green">166</FONT>        public T setTriggeringChar(char triggeringChar) {<a name="line.166"></a>
-<FONT color="green">167</FONT>          Preconditions.checkArgument(triggeringChar &gt; 0);<a name="line.167"></a>
-<FONT color="green">168</FONT>          extractor.setTriggeringChar(triggeringChar);<a name="line.168"></a>
-<FONT color="green">169</FONT>          return self();<a name="line.169"></a>
+<FONT color="green">143</FONT>        @SuppressWarnings("unchecked")<a name="line.143"></a>
+<FONT color="green">144</FONT>        protected T self() {<a name="line.144"></a>
+<FONT color="green">145</FONT>          return (T) this;<a name="line.145"></a>
+<FONT color="green">146</FONT>        }<a name="line.146"></a>
+<FONT color="green">147</FONT>    <a name="line.147"></a>
+<FONT color="green">148</FONT>        public T setRegexPattern(Pattern pattern) {<a name="line.148"></a>
+<FONT color="green">149</FONT>          Preconditions.checkNotNull(pattern);<a name="line.149"></a>
+<FONT color="green">150</FONT>          extractor.regexPattern = pattern;<a name="line.150"></a>
+<FONT color="green">151</FONT>          return self();<a name="line.151"></a>
+<FONT color="green">152</FONT>        }<a name="line.152"></a>
+<FONT color="green">153</FONT>    <a name="line.153"></a>
+<FONT color="green">154</FONT>        public T setRegexPattern(Pattern pattern, int startGroup, int endGroup) {<a name="line.154"></a>
+<FONT color="green">155</FONT>          Preconditions.checkNotNull(pattern);<a name="line.155"></a>
+<FONT color="green">156</FONT>          Preconditions.checkArgument(startGroup &gt;= 0);<a name="line.156"></a>
+<FONT color="green">157</FONT>          Preconditions.checkArgument(endGroup &gt;= 0);<a name="line.157"></a>
+<FONT color="green">158</FONT>          extractor.setRegexPattern(pattern, startGroup, endGroup);<a name="line.158"></a>
+<FONT color="green">159</FONT>          return self();<a name="line.159"></a>
+<FONT color="green">160</FONT>        }<a name="line.160"></a>
+<FONT color="green">161</FONT>    <a name="line.161"></a>
+<FONT color="green">162</FONT>        public T setTriggeringChar(char triggeringChar) {<a name="line.162"></a>
+<FONT color="green">163</FONT>          Preconditions.checkArgument(triggeringChar &gt; 0);<a name="line.163"></a>
+<FONT color="green">164</FONT>          extractor.setTriggeringChar(triggeringChar);<a name="line.164"></a>
+<FONT color="green">165</FONT>          return self();<a name="line.165"></a>
+<FONT color="green">166</FONT>        }<a name="line.166"></a>
+<FONT color="green">167</FONT>    <a name="line.167"></a>
+<FONT color="green">168</FONT>        public N build() {<a name="line.168"></a>
+<FONT color="green">169</FONT>          return extractor;<a name="line.169"></a>
 <FONT color="green">170</FONT>        }<a name="line.170"></a>
-<FONT color="green">171</FONT>    <a name="line.171"></a>
-<FONT color="green">172</FONT>        public N build() {<a name="line.172"></a>
-<FONT color="green">173</FONT>          return extractor;<a name="line.173"></a>
-<FONT color="green">174</FONT>        }<a name="line.174"></a>
-<FONT color="green">175</FONT>      }<a name="line.175"></a>
-<FONT color="green">176</FONT>    }<a name="line.176"></a>
+<FONT color="green">171</FONT>      }<a name="line.171"></a>
+<FONT color="green">172</FONT>    }<a name="line.172"></a>
 
 
 

@@ -53,8 +53,8 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../com/twitter/common/args/Parsers.Parser.html" title="interface in com.twitter.common.args"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;NEXT CLASS</FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/args/Parsers.html" title="class in com.twitter.common.args"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../com/twitter/common/args/Verifiers.html" title="class in com.twitter.common.args"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/args/TypeUtil.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="TypeUtil.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -95,7 +95,7 @@ Class TypeUtil</H2>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.36"><B>TypeUtil</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.39"><B>TypeUtil</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
@@ -118,7 +118,7 @@ Utility class to extract generic type information.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>,<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&gt;</CODE></FONT></TD>
+<CODE>static&nbsp;<A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>,<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;?&gt;&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/args/TypeUtil.html#GET_TYPE_PARAM_CLASS">GET_TYPE_PARAM_CLASS</A></B></CODE>
 
 <BR>
@@ -136,6 +136,14 @@ Utility class to extract generic type information.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;?&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/args/TypeUtil.html#getRawType(java.lang.reflect.Type)">getRawType</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Finds the raw class of type.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/args/TypeUtil.html#getTypeParam(java.lang.reflect.Field)">getTypeParam</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>&nbsp;field)</CODE>
 
@@ -144,7 +152,7 @@ Utility class to extract generic type information.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A></CODE></FONT></TD>
+<CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;?&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/args/TypeUtil.html#getTypeParamClass(java.lang.reflect.Field)">getTypeParamClass</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>&nbsp;field)</CODE>
 
 <BR>
@@ -157,15 +165,15 @@ Utility class to extract generic type information.
 <TD><CODE><B><A HREF="../../../../com/twitter/common/args/TypeUtil.html#getTypeParamClasses(java.lang.reflect.Field)">getTypeParamClasses</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>&nbsp;field)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Convenience method to call <A HREF="../../../../com/twitter/common/args/TypeUtil.html#getTypeParamClasses(java.lang.reflect.Type)"><CODE>getTypeParamClasses(Type)</CODE></A> on a <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect"><CODE>Field</CODE></A>.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets the classes that a field is type-parameterized with, in declaration order.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;?&gt;&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/args/TypeUtil.html#getTypeParamClasses(java.lang.reflect.Type)">getTypeParamClasses</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type)</CODE>
+<CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/args/TypeUtil.html#getTypeParams(java.lang.reflect.Type)">getTypeParams</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets the clases that a type is type-parameterized with, in declaration order.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets the types that a type is type-parameterized with, in declaration order.</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -193,7 +201,7 @@ Utility class to extract generic type information.
 <A NAME="GET_TYPE_PARAM_CLASS"><!-- --></A><H3>
 GET_TYPE_PARAM_CLASS</H3>
 <PRE>
-public static <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>,<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&gt; <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.100"><B>GET_TYPE_PARAM_CLASS</B></A></PRE>
+public static <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>,<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;?&gt;&gt; <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.127"><B>GET_TYPE_PARAM_CLASS</B></A></PRE>
 <DL>
 <DD>A function to extract the type parameter class from fields.
 <P>
@@ -214,9 +222,9 @@ public static <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/
 <A NAME="getTypeParamClasses(java.lang.reflect.Field)"><!-- --></A><H3>
 getTypeParamClasses</H3>
 <PRE>
-public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;?&gt;&gt; <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.58"><B>getTypeParamClasses</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>&nbsp;field)</PRE>
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;?&gt;&gt; <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.66"><B>getTypeParamClasses</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>&nbsp;field)</PRE>
 <DL>
-<DD>Convenience method to call <A HREF="../../../../com/twitter/common/args/TypeUtil.html#getTypeParamClasses(java.lang.reflect.Type)"><CODE>getTypeParamClasses(Type)</CODE></A> on a <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect"><CODE>Field</CODE></A>.
+<DD>Gets the classes that a field is type-parameterized with, in declaration order.
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>field</CODE> - The field to extract type parameters from.
@@ -225,16 +233,30 @@ public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Li
 </DL>
 <HR>
 
-<A NAME="getTypeParamClasses(java.lang.reflect.Type)"><!-- --></A><H3>
-getTypeParamClasses</H3>
+<A NAME="getTypeParams(java.lang.reflect.Type)"><!-- --></A><H3>
+getTypeParams</H3>
 <PRE>
-public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;?&gt;&gt; <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.68"><B>getTypeParamClasses</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type)</PRE>
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&gt; <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.76"><B>getTypeParams</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type)</PRE>
 <DL>
-<DD>Gets the clases that a type is type-parameterized with, in declaration order.
+<DD>Gets the types that a type is type-parameterized with, in declaration order.
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>type</CODE> - The type to extract type parameters from.
-<DT><B>Returns:</B><DD>The raw classes of types that <code>field</code> is parameterized with.</DL>
+<DT><B>Returns:</B><DD>The types that <code>type</code> is parameterized with.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getRawType(java.lang.reflect.Type)"><!-- --></A><H3>
+getRawType</H3>
+<PRE>
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;?&gt; <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.90"><B>getRawType</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type)</PRE>
+<DL>
+<DD>Finds the raw class of type.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>type</CODE> - The type to get the raw class of.
+<DT><B>Returns:</B><DD>The raw class of type.</DL>
 </DD>
 </DL>
 <HR>
@@ -242,7 +264,7 @@ public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Li
 <A NAME="getTypeParamClass(java.lang.reflect.Field)"><!-- --></A><H3>
 getTypeParamClass</H3>
 <PRE>
-public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A> <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.80"><B>getTypeParamClass</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>&nbsp;field)</PRE>
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;?&gt; <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.107"><B>getTypeParamClass</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>&nbsp;field)</PRE>
 <DL>
 <DD>Convenience method to call <A HREF="../../../../com/twitter/common/args/TypeUtil.html#getTypeParamClasses(java.lang.reflect.Field)"><CODE>getTypeParamClasses(Field)</CODE></A>, with the requirement that there
  is exactly one type parameter on the field.
@@ -257,7 +279,7 @@ public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Cl
 <A NAME="getTypeParam(java.lang.reflect.Field)"><!-- --></A><H3>
 getTypeParam</H3>
 <PRE>
-public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A> <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.93"><B>getTypeParam</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>&nbsp;field)</PRE>
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A> <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.120"><B>getTypeParam</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>&nbsp;field)</PRE>
 <DL>
 <DD>Gets the type parameter from a field.  Assumes that there is at least one type parameter.
 <P>
@@ -297,8 +319,8 @@ public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/re
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../com/twitter/common/args/Parsers.Parser.html" title="interface in com.twitter.common.args"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;NEXT CLASS</FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/args/Parsers.html" title="class in com.twitter.common.args"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../com/twitter/common/args/Verifiers.html" title="class in com.twitter.common.args"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/args/TypeUtil.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="TypeUtil.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;

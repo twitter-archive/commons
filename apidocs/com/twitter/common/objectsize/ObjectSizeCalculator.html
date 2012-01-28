@@ -54,7 +54,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;PREV CLASS&nbsp;
-&nbsp;NEXT CLASS</FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/objectsize/ObjectSizeCalculator.MemoryLayoutSpecification.html" title="interface in com.twitter.common.objectsize"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/objectsize/ObjectSizeCalculator.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="ObjectSizeCalculator.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -74,9 +74,9 @@ function windowTitle()
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
 </TABLE>
 <A NAME="skip-navbar_top"></A>
@@ -95,7 +95,7 @@ Class ObjectSizeCalculator</H2>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/objectsize/ObjectSizeCalculator.html#line.52"><B>ObjectSizeCalculator</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/objectsize/ObjectSizeCalculator.html#line.53"><B>ObjectSizeCalculator</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
@@ -116,7 +116,41 @@ Contains utility methods for calculating the memory usage of objects. It
 <HR>
 
 <P>
+<!-- ======== NESTED CLASS SUMMARY ======== -->
 
+<A NAME="nested_class_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Nested Class Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;interface</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/objectsize/ObjectSizeCalculator.MemoryLayoutSpecification.html" title="interface in com.twitter.common.objectsize">ObjectSizeCalculator.MemoryLayoutSpecification</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Describes constant memory overheads for various constructs in a JVM implementation.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../com/twitter/common/objectsize/ObjectSizeCalculator.html#ObjectSizeCalculator(com.twitter.common.objectsize.ObjectSizeCalculator.MemoryLayoutSpecification)">ObjectSizeCalculator</A></B>(<A HREF="../../../../com/twitter/common/objectsize/ObjectSizeCalculator.MemoryLayoutSpecification.html" title="interface in com.twitter.common.objectsize">ObjectSizeCalculator.MemoryLayoutSpecification</A>&nbsp;memoryLayoutSpecification)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates an object size calculator that can calculate object sizes for a given
+ <code>memoryLayoutSpecification</code>.</TD>
+</TR>
+</TABLE>
+&nbsp;
 <!-- ========== METHOD SUMMARY =========== -->
 
 <A NAME="method_summary"><!-- --></A>
@@ -124,6 +158,15 @@ Contains utility methods for calculating the memory usage of objects. It
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;long</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/objectsize/ObjectSizeCalculator.html#calculateObjectSize(java.lang.Object)">calculateObjectSize</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>&nbsp;obj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Given an object, returns the total allocated size, in bytes, of the object
+ and all other objects reachable from it.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -147,6 +190,28 @@ Contains utility methods for calculating the memory usage of objects. It
 &nbsp;
 <P>
 
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="ObjectSizeCalculator(com.twitter.common.objectsize.ObjectSizeCalculator.MemoryLayoutSpecification)"><!-- --></A><H3>
+ObjectSizeCalculator</H3>
+<PRE>
+public <A HREF="../../../../src-html/com/twitter/common/objectsize/ObjectSizeCalculator.html#line.153"><B>ObjectSizeCalculator</B></A>(<A HREF="../../../../com/twitter/common/objectsize/ObjectSizeCalculator.MemoryLayoutSpecification.html" title="interface in com.twitter.common.objectsize">ObjectSizeCalculator.MemoryLayoutSpecification</A>&nbsp;memoryLayoutSpecification)</PRE>
+<DL>
+<DD>Creates an object size calculator that can calculate object sizes for a given
+ <code>memoryLayoutSpecification</code>.
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>memoryLayoutSpecification</CODE> - a description of the JVM memory layout.</DL>
+</DL>
+
 <!-- ============ METHOD DETAIL ========== -->
 
 <A NAME="method_detail"><!-- --></A>
@@ -160,7 +225,33 @@ Contains utility methods for calculating the memory usage of objects. It
 <A NAME="getObjectSize(java.lang.Object)"><!-- --></A><H3>
 getObjectSize</H3>
 <PRE>
-public static long <A HREF="../../../../src-html/com/twitter/common/objectsize/ObjectSizeCalculator.html#line.92"><B>getObjectSize</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>&nbsp;obj)</PRE>
+public static long <A HREF="../../../../src-html/com/twitter/common/objectsize/ObjectSizeCalculator.html#line.118"><B>getObjectSize</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>&nbsp;obj)
+                          throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang">UnsupportedOperationException</A></PRE>
+<DL>
+<DD>Given an object, returns the total allocated size, in bytes, of the object
+ and all other objects reachable from it.  Attempts to to detect the current JVM memory layout,
+ but may fail with <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><CODE>UnsupportedOperationException</CODE></A>;
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>obj</CODE> - the object; can be null. Passing in a <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang"><CODE>Class</CODE></A> object doesn't do
+          anything special, it measures the size of all objects
+          reachable through it (which will include its class loader, and by
+          extension, all other Class objects loaded by
+          the same loader, and all the parent class loaders). It doesn't provide the
+          size of the static fields in the JVM class that the Class object
+          represents.
+<DT><B>Returns:</B><DD>the total allocated size of the object and all other objects it
+         retains.
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang">UnsupportedOperationException</A></CODE> - if the current vm memory layout cannot be detected.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="calculateObjectSize(java.lang.Object)"><!-- --></A><H3>
+calculateObjectSize</H3>
+<PRE>
+public long <A HREF="../../../../src-html/com/twitter/common/objectsize/ObjectSizeCalculator.html#line.176"><B>calculateObjectSize</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>&nbsp;obj)</PRE>
 <DL>
 <DD>Given an object, returns the total allocated size, in bytes, of the object
  and all other objects reachable from it.
@@ -209,7 +300,7 @@ public static long <A HREF="../../../../src-html/com/twitter/common/objectsize/O
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;PREV CLASS&nbsp;
-&nbsp;NEXT CLASS</FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/objectsize/ObjectSizeCalculator.MemoryLayoutSpecification.html" title="interface in com.twitter.common.objectsize"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/objectsize/ObjectSizeCalculator.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="ObjectSizeCalculator.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -229,9 +320,9 @@ public static long <A HREF="../../../../src-html/com/twitter/common/objectsize/O
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
 </TABLE>
 <A NAME="skip-navbar_bottom"></A>

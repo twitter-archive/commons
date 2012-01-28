@@ -53,8 +53,8 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../com/twitter/common/application/modules/AppLauncherModule.Init.html" title="class in com.twitter.common.application.modules"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../com/twitter/common/application/modules/HttpModule.Init.html" title="class in com.twitter.common.application.modules"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../com/twitter/common/application/modules/AppLauncherModule.LoggingExceptionHandler.html" title="class in com.twitter.common.application.modules"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../com/twitter/common/application/modules/HttpModule.HttpServerLauncher.html" title="class in com.twitter.common.application.modules"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?com/twitter/common/application/modules/HttpModule.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="HttpModule.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -99,7 +99,7 @@ Class HttpModule</H2>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/application/modules/HttpModule.html#line.90"><B>HttpModule</B></A><DT>extends <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/AbstractModule.html?is-external=true" title="class or interface in com.google.inject">AbstractModule</A></DL>
+<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/application/modules/HttpModule.html#line.93"><B>HttpModule</B></A><DT>extends <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/AbstractModule.html?is-external=true" title="class or interface in com.google.inject">AbstractModule</A></DL>
 </PRE>
 
 <P>
@@ -148,7 +148,7 @@ Binding module for injections related to the HTTP server and the default set of 
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;class</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/application/modules/HttpModule.Init.html" title="class in com.twitter.common.application.modules">HttpModule.Init</A></B></CODE>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/application/modules/HttpModule.HttpServerLauncher.html" title="class in com.twitter.common.application.modules">HttpModule.HttpServerLauncher</A></B></CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -164,14 +164,11 @@ Binding module for injections related to the HTTP server and the default set of 
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected static&nbsp;<A HREF="../../../../../com/twitter/common/args/Arg.html" title="class in com.twitter.common.args">Arg</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>&gt;</CODE></FONT></TD>
+<CODE>protected static&nbsp;<any></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/application/modules/HttpModule.html#HTTP_PORT">HTTP_PORT</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
-</TR>
-</TABLE>
-&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 
 <A NAME="constructor_summary"><!-- --></A>
@@ -239,8 +236,6 @@ Binding module for injections related to the HTTP server and the default set of 
 <A NAME="HTTP_PORT"><!-- --></A><H3>
 HTTP_PORT</H3>
 <PRE>
-protected static final <A HREF="../../../../../com/twitter/common/args/Arg.html" title="class in com.twitter.common.args">Arg</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>&gt; <A HREF="../../../../../src-html/com/twitter/common/application/modules/HttpModule.html#line.112"><B>HTTP_PORT</B></A></PRE>
-<DL>
 <DL>
 </DL>
 </DL>
@@ -258,7 +253,7 @@ protected static final <A HREF="../../../../../com/twitter/common/args/Arg.html"
 <A NAME="HttpModule()"><!-- --></A><H3>
 HttpModule</H3>
 <PRE>
-public <A HREF="../../../../../src-html/com/twitter/common/application/modules/HttpModule.html#line.90"><B>HttpModule</B></A>()</PRE>
+public <A HREF="../../../../../src-html/com/twitter/common/application/modules/HttpModule.html#line.93"><B>HttpModule</B></A>()</PRE>
 <DL>
 </DL>
 
@@ -275,7 +270,7 @@ public <A HREF="../../../../../src-html/com/twitter/common/application/modules/H
 <A NAME="configure()"><!-- --></A><H3>
 configure</H3>
 <PRE>
-protected void <A HREF="../../../../../src-html/com/twitter/common/application/modules/HttpModule.html#line.115"><B>configure</B></A>()</PRE>
+protected void <A HREF="../../../../../src-html/com/twitter/common/application/modules/HttpModule.html#line.118"><B>configure</B></A>()</PRE>
 <DL>
 <DD><DL>
 <DT><B>Specified by:</B><DD><CODE><A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/AbstractModule.html?is-external=true#configure()" title="class or interface in com.google.inject">configure</A></CODE> in class <CODE><A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/AbstractModule.html?is-external=true" title="class or interface in com.google.inject">AbstractModule</A></CODE></DL>
@@ -315,8 +310,8 @@ protected void <A HREF="../../../../../src-html/com/twitter/common/application/m
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../com/twitter/common/application/modules/AppLauncherModule.Init.html" title="class in com.twitter.common.application.modules"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../com/twitter/common/application/modules/HttpModule.Init.html" title="class in com.twitter.common.application.modules"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../com/twitter/common/application/modules/AppLauncherModule.LoggingExceptionHandler.html" title="class in com.twitter.common.application.modules"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../com/twitter/common/application/modules/HttpModule.HttpServerLauncher.html" title="class in com.twitter.common.application.modules"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?com/twitter/common/application/modules/HttpModule.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="HttpModule.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;

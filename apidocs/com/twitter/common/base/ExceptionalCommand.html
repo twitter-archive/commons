@@ -92,7 +92,10 @@ Interface ExceptionalCommand&lt;E extends <A HREF="http://download.oracle.com/ja
 <DL>
 <DT><DT><B>Type Parameters:</B><DD><CODE>E</CODE> - The type of exception that the command throws.</DL>
 <DL>
-<DT><B>All Known Subinterfaces:</B> <DD><A HREF="../../../../com/twitter/common/base/Command.html" title="interface in com.twitter.common.base">Command</A></DD>
+<DT><B>All Known Subinterfaces:</B> <DD><A HREF="../../../../com/twitter/common/base/Command.html" title="interface in com.twitter.common.base">Command</A>, <A HREF="../../../../com/twitter/common/application/ServiceLauncher.html" title="interface in com.twitter.common.application">ServiceLauncher</A>&lt;E&gt;</DD>
+</DL>
+<DL>
+<DT><B>All Known Implementing Classes:</B> <DD><A HREF="../../../../com/twitter/common/util/concurrent/ExecutorServiceShutdown.html" title="class in com.twitter.common.util.concurrent">ExecutorServiceShutdown</A>, <A HREF="../../../../com/twitter/common/application/modules/HttpModule.HttpServerLauncher.html" title="class in com.twitter.common.application.modules">HttpModule.HttpServerLauncher</A>, <A HREF="../../../../com/twitter/common/application/modules/LifecycleModule.RegisteringServiceLauncher.html" title="class in com.twitter.common.application.modules">LifecycleModule.RegisteringServiceLauncher</A>, <A HREF="../../../../com/twitter/common/application/modules/LogModule.ExportLogDir.html" title="class in com.twitter.common.application.modules">LogModule.ExportLogDir</A>, <A HREF="../../../../com/twitter/common/application/ShutdownRegistry.ShutdownRegistryImpl.html" title="class in com.twitter.common.application">ShutdownRegistry.ShutdownRegistryImpl</A>, <A HREF="../../../../com/twitter/common/application/StartupRegistry.html" title="class in com.twitter.common.application">StartupRegistry</A>, <A HREF="../../../../com/twitter/common/application/modules/StatsExportModule.StartCuckooExporter.html" title="class in com.twitter.common.application.modules">StatsExportModule.StartCuckooExporter</A>, <A HREF="../../../../com/twitter/common/application/modules/StatsModule.StartStatPoller.html" title="class in com.twitter.common.application.modules">StatsModule.StartStatPoller</A></DD>
 </DL>
 <HR>
 <DL>

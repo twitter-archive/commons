@@ -1,0 +1,5 @@
+/Users/jsirois/development/third_party/twitter-commons/src/java/com/twitter/common/collections/Iterables2.java
+/Users/jsirois/development/third_party/twitter-commons/src/java/com/twitter/common/collections/Pair.java
+/Users/jsirois/development/third_party/twitter-commons/src/java/com/twitter/common/collections/BoundedQueue.java
+/Users/jsirois/development/third_party/twitter-commons/src/java/com/twitter/common/collections/Multimaps.java
+/Users/jsirois/development/third_party/twitter-commons/src/java/com/twitter/common/collections/Bits.java

@@ -74,7 +74,7 @@ function windowTitle()
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#fields_inherited_from_class_com.twitter.common.args.parsers.BaseParser">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
 DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
@@ -91,20 +91,12 @@ com.twitter.common.args.parsers</FONT>
 Class UnitParser</H2>
 <PRE>
 <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
-  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><A HREF="../../../../../com/twitter/common/args/parsers/BaseParser.html" title="class in com.twitter.common.args.parsers">com.twitter.common.args.parsers.BaseParser</A>&lt;T&gt;
-      <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html" title="class in com.twitter.common.args.parsers">com.twitter.common.args.parsers.NonParameterizedTypeParser</A>&lt;<A HREF="../../../../../com/twitter/common/quantity/Unit.html" title="interface in com.twitter.common.quantity">Unit</A>&gt;
-          <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.args.parsers.UnitParser</B>
+  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html" title="class in com.twitter.common.args.parsers">com.twitter.common.args.parsers.NonParameterizedTypeParser</A>&lt;<A HREF="../../../../../com/twitter/common/quantity/Unit.html" title="interface in com.twitter.common.quantity">Unit</A>&gt;
+      <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.args.parsers.UnitParser</B>
 </PRE>
-<DL>
-<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../com/twitter/common/args/Parsers.Parser.html" title="interface in com.twitter.common.args">Parsers.Parser</A>&lt;<A HREF="../../../../../com/twitter/common/quantity/Unit.html" title="interface in com.twitter.common.quantity">Unit</A>&gt;</DD>
-</DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/args/parsers/UnitParser.html#line.41"><B>UnitParser</B></A><DT>extends <A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html" title="class in com.twitter.common.args.parsers">NonParameterizedTypeParser</A>&lt;<A HREF="../../../../../com/twitter/common/quantity/Unit.html" title="interface in com.twitter.common.quantity">Unit</A>&gt;</DL>
-</PRE>
-
-<P>
-Unit parser.
+<DT><PRE>Unit parser.
  Units are matched (case sensitively) against the result of <CODE>Unit#toString()</CODE>.
 <P>
 
@@ -112,25 +104,7 @@ Unit parser.
 <HR>
 
 <P>
-<!-- =========== FIELD SUMMARY =========== -->
 
-<A NAME="field_summary"><!-- --></A>
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
-<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
-<B>Field Summary</B></FONT></TH>
-</TR>
-</TABLE>
-&nbsp;<A NAME="fields_inherited_from_class_com.twitter.common.args.parsers.BaseParser"><!-- --></A>
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Fields inherited from class com.twitter.common.args.parsers.<A HREF="../../../../../com/twitter/common/args/parsers/BaseParser.html" title="class in com.twitter.common.args.parsers">BaseParser</A></B></TH>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../com/twitter/common/args/parsers/BaseParser.html#parsedClass">parsedClass</A></CODE></TD>
-</TR>
-</TABLE>
-&nbsp;
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 
 <A NAME="constructor_summary"><!-- --></A>
@@ -143,10 +117,7 @@ Unit parser.
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/args/parsers/UnitParser.html#UnitParser()">UnitParser</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
-</TR>
-</TABLE>
-&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <!-- ========== METHOD SUMMARY =========== -->
 
 <A NAME="method_summary"><!-- --></A>
@@ -161,25 +132,13 @@ Unit parser.
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/args/parsers/UnitParser.html#doParse(java.lang.String)">doParse</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;raw)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Performs the parsing of the raw string.</TD>
-</TR>
-</TABLE>
-&nbsp;<A NAME="methods_inherited_from_class_com.twitter.common.args.parsers.NonParameterizedTypeParser"><!-- --></A>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<A NAME="methods_inherited_from_class_com.twitter.common.args.parsers.NonParameterizedTypeParser"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
 <TH ALIGN="left"><B>Methods inherited from class com.twitter.common.args.parsers.<A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html" title="class in com.twitter.common.args.parsers">NonParameterizedTypeParser</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html#parse(java.lang.reflect.Type, java.lang.String)">parse</A></CODE></TD>
-</TR>
-</TABLE>
-&nbsp;<A NAME="methods_inherited_from_class_com.twitter.common.args.parsers.BaseParser"><!-- --></A>
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class com.twitter.common.args.parsers.<A HREF="../../../../../com/twitter/common/args/parsers/BaseParser.html" title="class in com.twitter.common.args.parsers">BaseParser</A></B></TH>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../com/twitter/common/args/parsers/BaseParser.html#getParsedClass()">getParsedClass</A></CODE></TD>
+<TD><CODE><A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html#parse(ParserOracle, java.lang.reflect.Type, java.lang.String)">parse</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -207,7 +166,7 @@ Unit parser.
 <A NAME="UnitParser()"><!-- --></A><H3>
 UnitParser</H3>
 <PRE>
-public <A HREF="../../../../../src-html/com/twitter/common/args/parsers/UnitParser.html#line.45"><B>UnitParser</B></A>()</PRE>
+public <A HREF="../../../../../src-html/com/twitter/common/args/parsers/UnitParser.html#line.44"><B>UnitParser</B></A>()</PRE>
 <DL>
 </DL>
 
@@ -224,7 +183,7 @@ public <A HREF="../../../../../src-html/com/twitter/common/args/parsers/UnitPars
 <A NAME="doParse(java.lang.String)"><!-- --></A><H3>
 doParse</H3>
 <PRE>
-public <A HREF="../../../../../com/twitter/common/quantity/Unit.html" title="interface in com.twitter.common.quantity">Unit</A> <A HREF="../../../../../src-html/com/twitter/common/args/parsers/UnitParser.html#line.54"><B>doParse</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;raw)</PRE>
+public <A HREF="../../../../../com/twitter/common/quantity/Unit.html" title="interface in com.twitter.common.quantity">Unit</A> <A HREF="../../../../../src-html/com/twitter/common/args/parsers/UnitParser.html#line.51"><B>doParse</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;raw)</PRE>
 <DL>
 <DD><B>Description copied from class: <CODE><A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html#doParse(java.lang.String)">NonParameterizedTypeParser</A></CODE></B></DD>
 <DD>Performs the parsing of the raw string.
@@ -289,7 +248,7 @@ public <A HREF="../../../../../com/twitter/common/quantity/Unit.html" title="int
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#fields_inherited_from_class_com.twitter.common.args.parsers.BaseParser">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
 DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>

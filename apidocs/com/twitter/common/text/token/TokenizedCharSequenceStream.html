@@ -97,7 +97,7 @@ Class TokenizedCharSequenceStream</H2>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenizedCharSequenceStream.html#line.30"><B>TokenizedCharSequenceStream</B></A><DT>extends <A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></DL>
+<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenizedCharSequenceStream.html#line.28"><B>TokenizedCharSequenceStream</B></A><DT>extends <A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></DL>
 </PRE>
 
 <P>
@@ -221,7 +221,7 @@ Reproduces the result of tokenization if an input text is an instance of
 <A NAME="TokenizedCharSequenceStream(com.twitter.common.text.token.TokenStream)"><!-- --></A><H3>
 TokenizedCharSequenceStream</H3>
 <PRE>
-public <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenizedCharSequenceStream.html#line.48"><B>TokenizedCharSequenceStream</B></A>(<A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</PRE>
+public <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenizedCharSequenceStream.html#line.45"><B>TokenizedCharSequenceStream</B></A>(<A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</PRE>
 <DL>
 <DD>Constructor.
  If an input text is not tokenized (is not an instance of TokenizedCharSequence),
@@ -235,7 +235,7 @@ public <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenizedC
 <A NAME="TokenizedCharSequenceStream()"><!-- --></A><H3>
 TokenizedCharSequenceStream</H3>
 <PRE>
-public <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenizedCharSequenceStream.html#line.66"><B>TokenizedCharSequenceStream</B></A>()</PRE>
+public <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenizedCharSequenceStream.html#line.62"><B>TokenizedCharSequenceStream</B></A>()</PRE>
 <DL>
 <DD>Constructor.
  This can only accept an already-tokenized text (TokenzedCharSequence) as input.
@@ -255,7 +255,7 @@ public <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenizedC
 <A NAME="incrementToken()"><!-- --></A><H3>
 incrementToken</H3>
 <PRE>
-public boolean <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenizedCharSequenceStream.html#line.75"><B>incrementToken</B></A>()</PRE>
+public boolean <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenizedCharSequenceStream.html#line.70"><B>incrementToken</B></A>()</PRE>
 <DL>
 <DD><B>Description copied from class: <CODE><A HREF="../../../../../com/twitter/common/text/token/TokenStream.html#incrementToken()">TokenStream</A></CODE></B></DD>
 <DD>Consumers call this method to advance the stream to the next token.
@@ -273,7 +273,7 @@ public boolean <A HREF="../../../../../src-html/com/twitter/common/text/token/To
 <A NAME="reset(java.lang.CharSequence)"><!-- --></A><H3>
 reset</H3>
 <PRE>
-public void <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenizedCharSequenceStream.html#line.108"><B>reset</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;input)</PRE>
+public void <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenizedCharSequenceStream.html#line.102"><B>reset</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;input)</PRE>
 <DL>
 <DD><B>Description copied from class: <CODE><A HREF="../../../../../com/twitter/common/text/token/TokenStream.html#reset(java.lang.CharSequence)">TokenStream</A></CODE></B></DD>
 <DD>Resets this <code>TokenStream</code> (and also downstream tokens if they exist) to parse a new

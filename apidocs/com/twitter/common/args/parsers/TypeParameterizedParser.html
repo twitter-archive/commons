@@ -53,7 +53,7 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../com/twitter/common/args/parsers/StringParser.html" title="class in com.twitter.common.args.parsers"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../com/twitter/common/args/parsers/TimeDurationParser.html" title="class in com.twitter.common.args.parsers"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../com/twitter/common/args/parsers/UnitParser.html" title="class in com.twitter.common.args.parsers"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?com/twitter/common/args/parsers/TypeParameterizedParser.html" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -74,7 +74,7 @@ function windowTitle()
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#fields_inherited_from_class_com.twitter.common.args.parsers.BaseParser">FIELD</A>&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
 DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
@@ -91,51 +91,27 @@ com.twitter.common.args.parsers</FONT>
 Class TypeParameterizedParser&lt;T&gt;</H2>
 <PRE>
 <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
-  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><A HREF="../../../../../com/twitter/common/args/parsers/BaseParser.html" title="class in com.twitter.common.args.parsers">com.twitter.common.args.parsers.BaseParser</A>&lt;T&gt;
-      <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.args.parsers.TypeParameterizedParser&lt;T&gt;</B>
+  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.args.parsers.TypeParameterizedParser&lt;T&gt;</B>
 </PRE>
 <DL>
-<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../com/twitter/common/args/Parsers.Parser.html" title="interface in com.twitter.common.args">Parsers.Parser</A>&lt;T&gt;</DD>
-</DL>
+<DT><DT><B>Type Parameters:</B><DD><CODE>T</CODE> - The raw type this parser can parse.</DL>
 <DL>
-<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../../../../com/twitter/common/args/parsers/AmountParser.html" title="class in com.twitter.common.args.parsers">AmountParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/ListParser.html" title="class in com.twitter.common.args.parsers">ListParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/MapParser.html" title="class in com.twitter.common.args.parsers">MapParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/PairParser.html" title="class in com.twitter.common.args.parsers">PairParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/SetParser.html" title="class in com.twitter.common.args.parsers">SetParser</A></DD>
+<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../../../../com/twitter/common/args/parsers/AmountParser.html" title="class in com.twitter.common.args.parsers">AmountParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/ClassParser.html" title="class in com.twitter.common.args.parsers">ClassParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/DurationParser.html" title="class in com.twitter.common.args.parsers">DurationParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/ListParser.html" title="class in com.twitter.common.args.parsers">ListParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/MapParser.html" title="class in com.twitter.common.args.parsers">MapParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/PairParser.html" title="class in com.twitter.common.args.parsers">PairParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/SetParser.html" title="class in com.twitter.common.args.parsers">SetParser</A></DD>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public abstract class <A HREF="../../../../../src-html/com/twitter/common/args/parsers/TypeParameterizedParser.html#line.35"><B>TypeParameterizedParser&lt;T&gt;</B></A><DT>extends <A HREF="../../../../../com/twitter/common/args/parsers/BaseParser.html" title="class in com.twitter.common.args.parsers">BaseParser</A>&lt;T&gt;</DL>
+<DT><PRE>public abstract class <A HREF="../../../../../src-html/com/twitter/common/args/parsers/TypeParameterizedParser.html#line.35"><B>TypeParameterizedParser&lt;T&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
 Parser that makes implementation of parsers for parameterized types simpler.
-
- This only works for top-level parameters.  Behavior is undefined for nested parameterized types.
- For example, this will handle <code>Map&lt;String, Integer&gt;</code> fine but will not handle
- <code>Map&lt;String, List&lt;String&gt;</code>.
 <P>
 
 <P>
 <HR>
 
 <P>
-<!-- =========== FIELD SUMMARY =========== -->
 
-<A NAME="field_summary"><!-- --></A>
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
-<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
-<B>Field Summary</B></FONT></TH>
-</TR>
-</TABLE>
-&nbsp;<A NAME="fields_inherited_from_class_com.twitter.common.args.parsers.BaseParser"><!-- --></A>
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Fields inherited from class com.twitter.common.args.parsers.<A HREF="../../../../../com/twitter/common/args/parsers/BaseParser.html" title="class in com.twitter.common.args.parsers">BaseParser</A></B></TH>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../com/twitter/common/args/parsers/BaseParser.html#parsedClass">parsedClass</A></CODE></TD>
-</TR>
-</TABLE>
-&nbsp;
 <!-- ========== METHOD SUMMARY =========== -->
 
 <A NAME="method_summary"><!-- --></A>
@@ -147,20 +123,12 @@ Parser that makes implementation of parsers for parameterized types simpler.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../../com/twitter/common/args/parsers/TypeParameterizedParser.html" title="type parameter in TypeParameterizedParser">T</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/args/parsers/TypeParameterizedParser.html#parse(java.lang.reflect.Type, java.lang.String)">parse</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type,
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/args/parsers/TypeParameterizedParser.html#parse(ParserOracle, java.lang.reflect.Type, java.lang.String)">parse</A></B>(ParserOracle&nbsp;parserOracle,
+           <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type,
            <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;raw)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Parses strings as arguments of a given subtype of <code>T</code>.</TD>
-</TR>
-</TABLE>
-&nbsp;<A NAME="methods_inherited_from_class_com.twitter.common.args.parsers.BaseParser"><!-- --></A>
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class com.twitter.common.args.parsers.<A HREF="../../../../../com/twitter/common/args/parsers/BaseParser.html" title="class in com.twitter.common.args.parsers">BaseParser</A></B></TH>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../com/twitter/common/args/parsers/BaseParser.html#getParsedClass()">getParsedClass</A></CODE></TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -185,18 +153,15 @@ Parser that makes implementation of parsers for parameterized types simpler.
 </TR>
 </TABLE>
 
-<A NAME="parse(java.lang.reflect.Type, java.lang.String)"><!-- --></A><H3>
+<A NAME="parse(ParserOracle, java.lang.reflect.Type, java.lang.String)"><!-- --></A><H3>
 parse</H3>
 <PRE>
-public <A HREF="../../../../../com/twitter/common/args/parsers/TypeParameterizedParser.html" title="type parameter in TypeParameterizedParser">T</A> <A HREF="../../../../../src-html/com/twitter/common/args/parsers/TypeParameterizedParser.html#line.61"><B>parse</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type,
+public <A HREF="../../../../../com/twitter/common/args/parsers/TypeParameterizedParser.html" title="type parameter in TypeParameterizedParser">T</A> <A HREF="../../../../../src-html/com/twitter/common/args/parsers/TypeParameterizedParser.html#line.60"><B>parse</B></A>(ParserOracle&nbsp;parserOracle,
+               <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type,
                <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;raw)</PRE>
 <DL>
-<DD><B>Description copied from interface: <CODE><A HREF="../../../../../com/twitter/common/args/Parsers.Parser.html#parse(java.lang.reflect.Type, java.lang.String)">Parsers.Parser</A></CODE></B></DD>
-<DD>Parses strings as arguments of a given subtype of <code>T</code>.
-<P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>type</CODE> - The target type of the parsed argument.<DD><CODE>raw</CODE> - The raw value of the argument.
-<DT><B>Returns:</B><DD>A value of the given type parsed from the raw value.</DL>
+</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
@@ -230,7 +195,7 @@ public <A HREF="../../../../../com/twitter/common/args/parsers/TypeParameterized
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../com/twitter/common/args/parsers/StringParser.html" title="class in com.twitter.common.args.parsers"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../com/twitter/common/args/parsers/TimeDurationParser.html" title="class in com.twitter.common.args.parsers"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../com/twitter/common/args/parsers/UnitParser.html" title="class in com.twitter.common.args.parsers"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?com/twitter/common/args/parsers/TypeParameterizedParser.html" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -251,7 +216,7 @@ public <A HREF="../../../../../com/twitter/common/args/parsers/TypeParameterized
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#fields_inherited_from_class_com.twitter.common.args.parsers.BaseParser">FIELD</A>&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
 DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>

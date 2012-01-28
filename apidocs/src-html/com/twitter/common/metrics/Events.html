@@ -1,0 +1,116 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    package com.twitter.common.metrics;<a name="line.1"></a>
+<FONT color="green">002</FONT>    <a name="line.2"></a>
+<FONT color="green">003</FONT>    import java.util.concurrent.atomic.AtomicLong;<a name="line.3"></a>
+<FONT color="green">004</FONT>    <a name="line.4"></a>
+<FONT color="green">005</FONT>    /**<a name="line.5"></a>
+<FONT color="green">006</FONT>     * Provides gauge composition to track per-event statistics, where a variable {@code value} is<a name="line.6"></a>
+<FONT color="green">007</FONT>     * associated with each event.<a name="line.7"></a>
+<FONT color="green">008</FONT>     * This will export a total of five metrics:<a name="line.8"></a>
+<FONT color="green">009</FONT>     * &lt;ul&gt;<a name="line.9"></a>
+<FONT color="green">010</FONT>     *   &lt;li&gt;value counter&lt;/li&gt;<a name="line.10"></a>
+<FONT color="green">011</FONT>     *   &lt;li&gt;event counter&lt;/li&gt;<a name="line.11"></a>
+<FONT color="green">012</FONT>     *   &lt;li&gt;value per-second rate&lt;/li&gt;<a name="line.12"></a>
+<FONT color="green">013</FONT>     *   &lt;li&gt;event per-second rate&lt;/li&gt;<a name="line.13"></a>
+<FONT color="green">014</FONT>     *   &lt;li&gt;ratio-of-rates: rate(value) / rate(event)&lt;/li&gt;<a name="line.14"></a>
+<FONT color="green">015</FONT>     * &lt;/ul&gt;<a name="line.15"></a>
+<FONT color="green">016</FONT>     *<a name="line.16"></a>
+<FONT color="green">017</FONT>     */<a name="line.17"></a>
+<FONT color="green">018</FONT>    public class Events {<a name="line.18"></a>
+<FONT color="green">019</FONT>    <a name="line.19"></a>
+<FONT color="green">020</FONT>      private final AtomicLong totalEvents;<a name="line.20"></a>
+<FONT color="green">021</FONT>      private final AtomicLong totalValue;<a name="line.21"></a>
+<FONT color="green">022</FONT>    <a name="line.22"></a>
+<FONT color="green">023</FONT>      /**<a name="line.23"></a>
+<FONT color="green">024</FONT>       * Creates a new event composition using custom event and value metric names.<a name="line.24"></a>
+<FONT color="green">025</FONT>       *<a name="line.25"></a>
+<FONT color="green">026</FONT>       * @param eventMetricName Event metric name to export.<a name="line.26"></a>
+<FONT color="green">027</FONT>       * @param valueMetricName Value metric name to export.<a name="line.27"></a>
+<FONT color="green">028</FONT>       * @param registry Registry to associate metrics with.<a name="line.28"></a>
+<FONT color="green">029</FONT>       */<a name="line.29"></a>
+<FONT color="green">030</FONT>      public Events(String eventMetricName, String valueMetricName,<a name="line.30"></a>
+<FONT color="green">031</FONT>          MetricRegistry registry) {<a name="line.31"></a>
+<FONT color="green">032</FONT>        totalEvents = registry.registerLong(eventMetricName);<a name="line.32"></a>
+<FONT color="green">033</FONT>        totalValue = registry.registerLong(valueMetricName);<a name="line.33"></a>
+<FONT color="green">034</FONT>        Rate eventRate = Rate.of(eventMetricName, totalEvents);<a name="line.34"></a>
+<FONT color="green">035</FONT>        Rate valueRate = Rate.of(valueMetricName, totalValue);<a name="line.35"></a>
+<FONT color="green">036</FONT>        registry.register(eventRate);<a name="line.36"></a>
+<FONT color="green">037</FONT>        registry.register(valueRate);<a name="line.37"></a>
+<FONT color="green">038</FONT>        registry.register(Ratio.of(eventRate, valueRate));<a name="line.38"></a>
+<FONT color="green">039</FONT>      }<a name="line.39"></a>
+<FONT color="green">040</FONT>    <a name="line.40"></a>
+<FONT color="green">041</FONT>      /**<a name="line.41"></a>
+<FONT color="green">042</FONT>       * Accumulates a value and increments the event counter.<a name="line.42"></a>
+<FONT color="green">043</FONT>       *<a name="line.43"></a>
+<FONT color="green">044</FONT>       * @param value Value to accumulate.<a name="line.44"></a>
+<FONT color="green">045</FONT>       */<a name="line.45"></a>
+<FONT color="green">046</FONT>      public synchronized void accumulate(long value) {<a name="line.46"></a>
+<FONT color="green">047</FONT>        totalEvents.incrementAndGet();<a name="line.47"></a>
+<FONT color="green">048</FONT>        totalValue.addAndGet(value);<a name="line.48"></a>
+<FONT color="green">049</FONT>      }<a name="line.49"></a>
+<FONT color="green">050</FONT>    }<a name="line.50"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

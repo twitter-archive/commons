@@ -88,18 +88,23 @@ DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&n
 <FONT SIZE="-1">
 com.twitter.common.stats</FONT>
 <BR>
-Class Percentile&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt;</H2>
+Class Percentile&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A> & <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Comparable.html?is-external=true" title="class or interface in java.lang">Comparable</A>&lt;T&gt;&gt;</H2>
 <PRE>
 <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
   <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.stats.Percentile&lt;T&gt;</B>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/stats/Percentile.html#line.38"><B>Percentile&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/stats/Percentile.html#line.46"><B>Percentile&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A> & <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Comparable.html?is-external=true" title="class or interface in java.lang">Comparable</A>&lt;T&gt;&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
 A stats tracker to export percentiles of inputs based on a sampling rate.
+
+ A percentile tracker will randomly sample recorded events with the given sampling rate, and
+ will automatically register variables to track the percentiles requested.
+ Percentiles are calculated based on the K most recent sampling windows, where each sampling
+ window has the recorded events for a sampling period.
 <P>
 
 <P>
@@ -116,17 +121,17 @@ A stats tracker to export percentiles of inputs based on a sampling rate.
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/Percentile.html#Percentile(java.lang.String, boolean, com.twitter.common.util.Sampler, double...)">Percentile</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
-                     boolean&nbsp;allowFlushAfterSample,
-                     <A HREF="../../../../com/twitter/common/util/Sampler.html" title="class in com.twitter.common.util">Sampler</A>&nbsp;sampler,
+<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/Percentile.html#Percentile(java.lang.String, float, double...)">Percentile</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                     float&nbsp;samplePercent,
                      double...&nbsp;percentiles)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new percentile tracker.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/Percentile.html#Percentile(java.lang.String, float, double...)">Percentile</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
-                     float&nbsp;samplePercent,
+<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/Percentile.html#Percentile(java.lang.String, int, com.twitter.common.util.Sampler, double...)">Percentile</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                     int&nbsp;numSampleWindows,
+                     <A HREF="../../../../com/twitter/common/util/Sampler.html" title="class in com.twitter.common.util">Sampler</A>&nbsp;sampler,
                      double...&nbsp;percentiles)</CODE>
 
 <BR>
@@ -192,16 +197,11 @@ A stats tracker to export percentiles of inputs based on a sampling rate.
 <A NAME="Percentile(java.lang.String, float, double...)"><!-- --></A><H3>
 Percentile</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/stats/Percentile.html#line.61"><B>Percentile</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+public <A HREF="../../../../src-html/com/twitter/common/stats/Percentile.html#line.67"><B>Percentile</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
                   float&nbsp;samplePercent,
                   double...&nbsp;percentiles)</PRE>
 <DL>
 <DD>Creates a new percentile tracker.
-
- A percentile tracker will randomly sample recorded events with the given sampling rate, and
- will automatically register variables to track the percentiles requested.
- Percentiles are windowed, in that once the last percentile is sampled, all recorded values are
- flushed in preparation for the next window.
 <P>
 <DL>
 <DT><B>Parameters:</B><DD><CODE>name</CODE> - The name of the value whose percentile is being tracked.<DD><CODE>samplePercent</CODE> - The percent of events to sample [0, 100].<DD><CODE>percentiles</CODE> - The percentiles to track.</DL>
@@ -211,27 +211,22 @@ public <A HREF="../../../../src-html/com/twitter/common/stats/Percentile.html#li
 <A NAME="Percentile(java.lang.String, com.twitter.common.util.Sampler, double...)"><!-- --></A><H3>
 Percentile</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/stats/Percentile.html#line.77"><B>Percentile</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+public <A HREF="../../../../src-html/com/twitter/common/stats/Percentile.html#line.78"><B>Percentile</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
                   <A HREF="../../../../com/twitter/common/util/Sampler.html" title="class in com.twitter.common.util">Sampler</A>&nbsp;sampler,
                   double...&nbsp;percentiles)</PRE>
 <DL>
 <DD>Creates a new percentile tracker.
-
- A percentile tracker will randomly sample recorded events with the given sampling rate, and
- will automatically register variables to track the percentiles requested.
- Percentiles are windowed, in that once the last percentile is sampled, all recorded values are
- flushed in preparation for the next window.
 <P>
 <DL>
 <DT><B>Parameters:</B><DD><CODE>name</CODE> - The name of the value whose percentile is being tracked.<DD><CODE>sampler</CODE> - The sampler to use for selecting recorded events.<DD><CODE>percentiles</CODE> - The percentiles to track.</DL>
 </DL>
 <HR>
 
-<A NAME="Percentile(java.lang.String, boolean, com.twitter.common.util.Sampler, double...)"><!-- --></A><H3>
+<A NAME="Percentile(java.lang.String, int, com.twitter.common.util.Sampler, double...)"><!-- --></A><H3>
 Percentile</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/stats/Percentile.html#line.96"><B>Percentile</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
-                  boolean&nbsp;allowFlushAfterSample,
+public <A HREF="../../../../src-html/com/twitter/common/stats/Percentile.html#line.97"><B>Percentile</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                  int&nbsp;numSampleWindows,
                   <FONT SIZE="-1"><A HREF="http://download.oracle.com/javase/6/docs/api/javax/annotation/Nullable.html?is-external=true" title="class or interface in javax.annotation">@Nullable</A></FONT>
                   <A HREF="../../../../com/twitter/common/util/Sampler.html" title="class in com.twitter.common.util">Sampler</A>&nbsp;sampler,
                   double...&nbsp;percentiles)</PRE>
@@ -245,7 +240,7 @@ public <A HREF="../../../../src-html/com/twitter/common/stats/Percentile.html#li
  is calculated using the moving window of the most recent values.
 <P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>name</CODE> - The name of the value whose percentile is being tracked.<DD><CODE>allowFlushAfterSample</CODE> - Whether tp allow auto-flush.<DD><CODE>sampler</CODE> - The sampler to use for selecting recorded events. You may set sampler to null
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - The name of the value whose percentile is being tracked.<DD><CODE>numSampleWindows</CODE> - How many sampling windows are used for calculation.<DD><CODE>sampler</CODE> - The sampler to use for selecting recorded events. You may set sampler to null
         to sample all input.<DD><CODE>percentiles</CODE> - The percentiles to track.</DL>
 </DL>
 

@@ -54,7 +54,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../com/twitter/common/application/Application.html" title="interface in com.twitter.common.application"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../com/twitter/common/application/ShutdownStage.html" title="annotation in com.twitter.common.application"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/application/LocalServiceRegistry.html" title="class in com.twitter.common.application"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/application/Lifecycle.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="Lifecycle.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -95,12 +95,12 @@ Class Lifecycle</H2>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/application/Lifecycle.html#line.32"><B>Lifecycle</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/application/Lifecycle.html#line.33"><B>Lifecycle</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
 Application lifecycle manager, which coordinates orderly shutdown of an application.  This class
- is responsible for executing shutodwn commands, and can also be used to allow threads to await
+ is responsible for executing shutdown commands, and can also be used to allow threads to await
  application shutdown.
 <P>
 
@@ -118,7 +118,7 @@ Application lifecycle manager, which coordinates orderly shutdown of an applicat
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../com/twitter/common/application/Lifecycle.html#Lifecycle(com.twitter.common.application.ActionController, java.lang.Thread.UncaughtExceptionHandler)">Lifecycle</A></B>(<A HREF="../../../../com/twitter/common/application/ActionController.html" title="class in com.twitter.common.application">ActionController</A>&nbsp;shutdownController,
+<TD><CODE><B><A HREF="../../../../com/twitter/common/application/Lifecycle.html#Lifecycle(com.twitter.common.base.Command, java.lang.Thread.UncaughtExceptionHandler)">Lifecycle</A></B>(<A HREF="../../../../com/twitter/common/base/Command.html" title="interface in com.twitter.common.base">Command</A>&nbsp;shutdownRegistry,
                    <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Thread.UncaughtExceptionHandler.html?is-external=true" title="class or interface in java.lang">Thread.UncaughtExceptionHandler</A>&nbsp;exceptionHandler)</CODE>
 
 <BR>
@@ -181,11 +181,11 @@ Application lifecycle manager, which coordinates orderly shutdown of an applicat
 </TR>
 </TABLE>
 
-<A NAME="Lifecycle(com.twitter.common.application.ActionController, java.lang.Thread.UncaughtExceptionHandler)"><!-- --></A><H3>
+<A NAME="Lifecycle(com.twitter.common.base.Command, java.lang.Thread.UncaughtExceptionHandler)"><!-- --></A><H3>
 Lifecycle</H3>
 <PRE>
 <FONT SIZE="-1"><A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Inject.html?is-external=true" title="class or interface in com.google.inject">@Inject</A>
-</FONT>public <A HREF="../../../../src-html/com/twitter/common/application/Lifecycle.html#line.43"><B>Lifecycle</B></A>(<A HREF="../../../../com/twitter/common/application/ActionController.html" title="class in com.twitter.common.application">ActionController</A>&nbsp;shutdownController,
+</FONT>public <A HREF="../../../../src-html/com/twitter/common/application/Lifecycle.html#line.44"><B>Lifecycle</B></A>(<A HREF="../../../../com/twitter/common/base/Command.html" title="interface in com.twitter.common.base">Command</A>&nbsp;shutdownRegistry,
                         <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Thread.UncaughtExceptionHandler.html?is-external=true" title="class or interface in java.lang">Thread.UncaughtExceptionHandler</A>&nbsp;exceptionHandler)</PRE>
 <DL>
 </DL>
@@ -203,7 +203,7 @@ Lifecycle</H3>
 <A NAME="isAlive()"><!-- --></A><H3>
 isAlive</H3>
 <PRE>
-public final boolean <A HREF="../../../../src-html/com/twitter/common/application/Lifecycle.html#line.58"><B>isAlive</B></A>()</PRE>
+public final boolean <A HREF="../../../../src-html/com/twitter/common/application/Lifecycle.html#line.59"><B>isAlive</B></A>()</PRE>
 <DL>
 <DD>Checks whether this lifecycle is still considered alive.  The lifecycle is still alive until
  <A HREF="../../../../com/twitter/common/application/Lifecycle.html#shutdown()"><CODE>shutdown()</CODE></A> has been called and all of the actions registered with the shutdown
@@ -219,7 +219,7 @@ public final boolean <A HREF="../../../../src-html/com/twitter/common/applicatio
 <A NAME="awaitShutdown()"><!-- --></A><H3>
 awaitShutdown</H3>
 <PRE>
-public final void <A HREF="../../../../src-html/com/twitter/common/application/Lifecycle.html#line.66"><B>awaitShutdown</B></A>()</PRE>
+public final void <A HREF="../../../../src-html/com/twitter/common/application/Lifecycle.html#line.69"><B>awaitShutdown</B></A>()</PRE>
 <DL>
 <DD>Allows a caller to wait forever; typically used when all work is done in daemon threads.
  Will exit on interrupts.
@@ -233,7 +233,7 @@ public final void <A HREF="../../../../src-html/com/twitter/common/application/L
 <A NAME="shutdown()"><!-- --></A><H3>
 shutdown</H3>
 <PRE>
-public final void <A HREF="../../../../src-html/com/twitter/common/application/Lifecycle.html#line.84"><B>shutdown</B></A>()</PRE>
+public final void <A HREF="../../../../src-html/com/twitter/common/application/Lifecycle.html#line.87"><B>shutdown</B></A>()</PRE>
 <DL>
 <DD>Initiates an orderly shutdown of the lifecycle's registered shutdown hooks.
 <P>
@@ -273,7 +273,7 @@ public final void <A HREF="../../../../src-html/com/twitter/common/application/L
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../com/twitter/common/application/Application.html" title="interface in com.twitter.common.application"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../com/twitter/common/application/ShutdownStage.html" title="annotation in com.twitter.common.application"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/application/LocalServiceRegistry.html" title="class in com.twitter.common.application"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/application/Lifecycle.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="Lifecycle.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;

@@ -54,7 +54,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../../com/twitter/common/text/combiner/HashtagTokenCombiner.html" title="class in com.twitter.common.text.combiner"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../com/twitter/common/text/combiner/PossessiveTokenCombiner.html" title="class in com.twitter.common.text.combiner"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../com/twitter/common/text/combiner/PossessiveContractionTokenCombiner.html" title="class in com.twitter.common.text.combiner"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?com/twitter/common/text/combiner/LookAheadTokenCombiner.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="LookAheadTokenCombiner.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -101,7 +101,7 @@ Class LookAheadTokenCombiner</H2>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public abstract class <A HREF="../../../../../src-html/com/twitter/common/text/combiner/LookAheadTokenCombiner.html#line.31"><B>LookAheadTokenCombiner</B></A><DT>extends <A HREF="../../../../../com/twitter/common/text/token/TokenProcessor.html" title="class in com.twitter.common.text.token">TokenProcessor</A></DL>
+<DT><PRE>public abstract class <A HREF="../../../../../src-html/com/twitter/common/text/combiner/LookAheadTokenCombiner.html#line.29"><B>LookAheadTokenCombiner</B></A><DT>extends <A HREF="../../../../../com/twitter/common/text/token/TokenProcessor.html" title="class in com.twitter.common.text.token">TokenProcessor</A></DL>
 </PRE>
 
 <P>
@@ -242,7 +242,7 @@ Combiner that looks ahead to the next token and combines it with the current tok
 <A NAME="LookAheadTokenCombiner(com.twitter.common.text.token.TokenStream)"><!-- --></A><H3>
 LookAheadTokenCombiner</H3>
 <PRE>
-public <A HREF="../../../../../src-html/com/twitter/common/text/combiner/LookAheadTokenCombiner.html#line.43"><B>LookAheadTokenCombiner</B></A>(<A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</PRE>
+public <A HREF="../../../../../src-html/com/twitter/common/text/combiner/LookAheadTokenCombiner.html#line.39"><B>LookAheadTokenCombiner</B></A>(<A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;inputStream)</PRE>
 <DL>
 </DL>
 
@@ -259,7 +259,7 @@ public <A HREF="../../../../../src-html/com/twitter/common/text/combiner/LookAhe
 <A NAME="incrementToken()"><!-- --></A><H3>
 incrementToken</H3>
 <PRE>
-public boolean <A HREF="../../../../../src-html/com/twitter/common/text/combiner/LookAheadTokenCombiner.html#line.54"><B>incrementToken</B></A>()</PRE>
+public boolean <A HREF="../../../../../src-html/com/twitter/common/text/combiner/LookAheadTokenCombiner.html#line.49"><B>incrementToken</B></A>()</PRE>
 <DL>
 <DD><B>Description copied from class: <CODE><A HREF="../../../../../com/twitter/common/text/token/TokenStream.html#incrementToken()">TokenStream</A></CODE></B></DD>
 <DD>Consumers call this method to advance the stream to the next token.
@@ -277,7 +277,7 @@ public boolean <A HREF="../../../../../src-html/com/twitter/common/text/combiner
 <A NAME="setType(com.twitter.common.text.token.attribute.TokenType)"><!-- --></A><H3>
 setType</H3>
 <PRE>
-protected void <A HREF="../../../../../src-html/com/twitter/common/text/combiner/LookAheadTokenCombiner.html#line.88"><B>setType</B></A>(<A HREF="../../../../../com/twitter/common/text/token/attribute/TokenType.html" title="enum in com.twitter.common.text.token.attribute">TokenType</A>&nbsp;type)</PRE>
+protected void <A HREF="../../../../../src-html/com/twitter/common/text/combiner/LookAheadTokenCombiner.html#line.82"><B>setType</B></A>(<A HREF="../../../../../com/twitter/common/text/token/attribute/TokenType.html" title="enum in com.twitter.common.text.token.attribute">TokenType</A>&nbsp;type)</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -288,7 +288,7 @@ protected void <A HREF="../../../../../src-html/com/twitter/common/text/combiner
 <A NAME="canBeCombinedWithNextToken(java.lang.CharSequence)"><!-- --></A><H3>
 canBeCombinedWithNextToken</H3>
 <PRE>
-public abstract boolean <A HREF="../../../../../src-html/com/twitter/common/text/combiner/LookAheadTokenCombiner.html#line.92"><B>canBeCombinedWithNextToken</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;term)</PRE>
+public abstract boolean <A HREF="../../../../../src-html/com/twitter/common/text/combiner/LookAheadTokenCombiner.html#line.86"><B>canBeCombinedWithNextToken</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;term)</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -299,7 +299,7 @@ public abstract boolean <A HREF="../../../../../src-html/com/twitter/common/text
 <A NAME="canBeCombinedWithPreviousToken(java.lang.CharSequence)"><!-- --></A><H3>
 canBeCombinedWithPreviousToken</H3>
 <PRE>
-public abstract boolean <A HREF="../../../../../src-html/com/twitter/common/text/combiner/LookAheadTokenCombiner.html#line.94"><B>canBeCombinedWithPreviousToken</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;term)</PRE>
+public abstract boolean <A HREF="../../../../../src-html/com/twitter/common/text/combiner/LookAheadTokenCombiner.html#line.88"><B>canBeCombinedWithPreviousToken</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;term)</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -337,7 +337,7 @@ public abstract boolean <A HREF="../../../../../src-html/com/twitter/common/text
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../../com/twitter/common/text/combiner/HashtagTokenCombiner.html" title="class in com.twitter.common.text.combiner"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../com/twitter/common/text/combiner/PossessiveTokenCombiner.html" title="class in com.twitter.common.text.combiner"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../com/twitter/common/text/combiner/PossessiveContractionTokenCombiner.html" title="class in com.twitter.common.text.combiner"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?com/twitter/common/text/combiner/LookAheadTokenCombiner.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="LookAheadTokenCombiner.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;

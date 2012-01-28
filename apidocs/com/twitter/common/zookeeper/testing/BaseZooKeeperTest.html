@@ -99,7 +99,7 @@ Class BaseZooKeeperTest</H2>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public abstract class <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.41"><B>BaseZooKeeperTest</B></A><DT>extends com.google.common.testing.junit4.TearDownTestCase</DL>
+<DT><PRE>public abstract class <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.42"><B>BaseZooKeeperTest</B></A><DT>extends com.google.common.testing.junit4.TearDownTestCase</DL>
 </PRE>
 
 <P>
@@ -268,7 +268,7 @@ A baseclass for in-process zookeeper tests.
 <A NAME="BaseZooKeeperTest()"><!-- --></A><H3>
 BaseZooKeeperTest</H3>
 <PRE>
-public <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.51"><B>BaseZooKeeperTest</B></A>()</PRE>
+public <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.52"><B>BaseZooKeeperTest</B></A>()</PRE>
 <DL>
 <DD>Creates a test case where the test server uses its
  <A HREF="../../../../../com/twitter/common/zookeeper/testing/ZooKeeperTestServer.html#DEFAULT_SESSION_TIMEOUT"><CODE>ZooKeeperTestServer.DEFAULT_SESSION_TIMEOUT</CODE></A> for clients created without an explicit
@@ -280,7 +280,7 @@ public <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/Bas
 <A NAME="BaseZooKeeperTest(com.twitter.common.quantity.Amount)"><!-- --></A><H3>
 BaseZooKeeperTest</H3>
 <PRE>
-public <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.59"><B>BaseZooKeeperTest</B></A>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;defaultSessionTimeout)</PRE>
+public <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.60"><B>BaseZooKeeperTest</B></A>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;defaultSessionTimeout)</PRE>
 <DL>
 <DD>Creates a test case where the test server uses the given <code>defaultSessionTimeout</code> for
  clients created without an explicit session timeout.
@@ -300,7 +300,7 @@ public <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/Bas
 <A NAME="setUp()"><!-- --></A><H3>
 setUp</H3>
 <PRE>
-public final void <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.64"><B>setUp</B></A>()
+public final void <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.65"><B>setUp</B></A>()
                  throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A></PRE>
 <DL>
 <DD><DL>
@@ -314,7 +314,7 @@ public final void <A HREF="../../../../../src-html/com/twitter/common/zookeeper/
 <A NAME="restartNetwork()"><!-- --></A><H3>
 restartNetwork</H3>
 <PRE>
-protected final void <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.78"><B>restartNetwork</B></A>()
+protected final void <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.79"><B>restartNetwork</B></A>()
                              throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A>,
                                     <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/InterruptedException.html?is-external=true" title="class or interface in java.lang">InterruptedException</A></PRE>
 <DL>
@@ -332,7 +332,7 @@ protected final void <A HREF="../../../../../src-html/com/twitter/common/zookeep
 <A NAME="shutdownNetwork()"><!-- --></A><H3>
 shutdownNetwork</H3>
 <PRE>
-protected final void <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.85"><B>shutdownNetwork</B></A>()</PRE>
+protected final void <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.86"><B>shutdownNetwork</B></A>()</PRE>
 <DL>
 <DD>Shuts down the in-process zookeeper network server.
 <P>
@@ -345,7 +345,7 @@ protected final void <A HREF="../../../../../src-html/com/twitter/common/zookeep
 <A NAME="expireSession(com.twitter.common.zookeeper.ZooKeeperClient)"><!-- --></A><H3>
 expireSession</H3>
 <PRE>
-protected final void <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.98"><B>expireSession</B></A>(<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient)
+protected final void <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.99"><B>expireSession</B></A>(<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A>&nbsp;zkClient)
                             throws <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.ZooKeeperConnectionException.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient.ZooKeeperConnectionException</A>,
                                    <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/InterruptedException.html?is-external=true" title="class or interface in java.lang">InterruptedException</A></PRE>
 <DL>
@@ -365,7 +365,7 @@ protected final void <A HREF="../../../../../src-html/com/twitter/common/zookeep
 <A NAME="getPort()"><!-- --></A><H3>
 getPort</H3>
 <PRE>
-protected final int <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.106"><B>getPort</B></A>()</PRE>
+protected final int <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.107"><B>getPort</B></A>()</PRE>
 <DL>
 <DD>Returns the current port to connect to the in-process zookeeper instance.
 <P>
@@ -378,7 +378,7 @@ protected final int <A HREF="../../../../../src-html/com/twitter/common/zookeepe
 <A NAME="createZkClient()"><!-- --></A><H3>
 createZkClient</H3>
 <PRE>
-protected final <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A> <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.114"><B>createZkClient</B></A>()</PRE>
+protected final <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A> <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.115"><B>createZkClient</B></A>()</PRE>
 <DL>
 <DD>Returns a new unauthenticated zookeeper client connected to the in-process zookeeper server
  with the default session timeout.
@@ -392,7 +392,7 @@ protected final <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperCl
 <A NAME="createZkClient(com.twitter.common.zookeeper.ZooKeeperClient.Credentials)"><!-- --></A><H3>
 createZkClient</H3>
 <PRE>
-protected final <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A> <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.122"><B>createZkClient</B></A>(<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.Credentials.html" title="interface in com.twitter.common.zookeeper">ZooKeeperClient.Credentials</A>&nbsp;credentials)</PRE>
+protected final <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A> <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.123"><B>createZkClient</B></A>(<A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.Credentials.html" title="interface in com.twitter.common.zookeeper">ZooKeeperClient.Credentials</A>&nbsp;credentials)</PRE>
 <DL>
 <DD>Returns a new authenticated zookeeper client connected to the in-process zookeeper server with
  the default session timeout.
@@ -406,7 +406,7 @@ protected final <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperCl
 <A NAME="createZkClient(java.lang.String, java.lang.String)"><!-- --></A><H3>
 createZkClient</H3>
 <PRE>
-protected final <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A> <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.131"><B>createZkClient</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;username,
+protected final <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A> <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.132"><B>createZkClient</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;username,
                                                <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;password)</PRE>
 <DL>
 <DD>Returns a new authenticated zookeeper client connected to the in-process zookeeper server with
@@ -422,7 +422,7 @@ protected final <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperCl
 <A NAME="createZkClient(com.twitter.common.quantity.Amount)"><!-- --></A><H3>
 createZkClient</H3>
 <PRE>
-protected final <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A> <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.139"><B>createZkClient</B></A>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;sessionTimeout)</PRE>
+protected final <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A> <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.140"><B>createZkClient</B></A>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;sessionTimeout)</PRE>
 <DL>
 <DD>Returns a new unauthenticated zookeeper client connected to the in-process zookeeper server
  with a custom <code>sessionTimeout</code>.
@@ -436,7 +436,7 @@ protected final <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperCl
 <A NAME="createZkClient(com.twitter.common.quantity.Amount, com.twitter.common.zookeeper.ZooKeeperClient.Credentials)"><!-- --></A><H3>
 createZkClient</H3>
 <PRE>
-protected final <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A> <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.147"><B>createZkClient</B></A>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;sessionTimeout,
+protected final <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.html" title="class in com.twitter.common.zookeeper">ZooKeeperClient</A> <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/BaseZooKeeperTest.html#line.148"><B>createZkClient</B></A>(<A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;sessionTimeout,
                                                <A HREF="../../../../../com/twitter/common/zookeeper/ZooKeeperClient.Credentials.html" title="interface in com.twitter.common.zookeeper">ZooKeeperClient.Credentials</A>&nbsp;credentials)</PRE>
 <DL>
 <DD>Returns a new authenticated zookeeper client connected to the in-process zookeeper server with

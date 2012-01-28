@@ -123,7 +123,15 @@ A helper class for starting in-process ZooKeeper server and clients.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The default session timeout for clients created by servers constructed with
- <A HREF="../../../../../com/twitter/common/zookeeper/testing/ZooKeeperTestServer.html#ZooKeeperTestServer(int, com.twitter.common.application.ActionRegistry)"><CODE>ZooKeeperTestServer(int, ActionRegistry)</CODE></A>.</TD>
+ <A HREF="../../../../../com/twitter/common/zookeeper/testing/ZooKeeperTestServer.html#ZooKeeperTestServer(int, com.twitter.common.application.ShutdownRegistry)"><CODE>ZooKeeperTestServer(int, ShutdownRegistry)</CODE></A>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;org.apache.zookeeper.server.ZooKeeperServer</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/zookeeper/testing/ZooKeeperTestServer.html#zooKeeperServer">zooKeeperServer</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -136,15 +144,15 @@ A helper class for starting in-process ZooKeeper server and clients.
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/zookeeper/testing/ZooKeeperTestServer.html#ZooKeeperTestServer(int, com.twitter.common.application.ActionRegistry)">ZooKeeperTestServer</A></B>(int&nbsp;port,
-                                       <A HREF="../../../../../com/twitter/common/application/ActionRegistry.html" title="interface in com.twitter.common.application">ActionRegistry</A>&nbsp;shutdownRegistry)</CODE>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/zookeeper/testing/ZooKeeperTestServer.html#ZooKeeperTestServer(int, com.twitter.common.application.ShutdownRegistry)">ZooKeeperTestServer</A></B>(int&nbsp;port,
+                                       <A HREF="../../../../../com/twitter/common/application/ShutdownRegistry.html" title="interface in com.twitter.common.application">ShutdownRegistry</A>&nbsp;shutdownRegistry)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/zookeeper/testing/ZooKeeperTestServer.html#ZooKeeperTestServer(int, com.twitter.common.application.ActionRegistry, com.twitter.common.quantity.Amount)">ZooKeeperTestServer</A></B>(int&nbsp;port,
-                                       <A HREF="../../../../../com/twitter/common/application/ActionRegistry.html" title="interface in com.twitter.common.application">ActionRegistry</A>&nbsp;shutdownRegistry,
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/zookeeper/testing/ZooKeeperTestServer.html#ZooKeeperTestServer(int, com.twitter.common.application.ShutdownRegistry, com.twitter.common.quantity.Amount)">ZooKeeperTestServer</A></B>(int&nbsp;port,
+                                       <A HREF="../../../../../com/twitter/common/application/ShutdownRegistry.html" title="interface in com.twitter.common.application">ShutdownRegistry</A>&nbsp;shutdownRegistry,
                                        <A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;defaultSessionTimeout)</CODE>
 
 <BR>
@@ -266,8 +274,18 @@ DEFAULT_SESSION_TIMEOUT</H3>
 public static final <A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt; <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/ZooKeeperTestServer.html#line.50"><B>DEFAULT_SESSION_TIMEOUT</B></A></PRE>
 <DL>
 <DD>The default session timeout for clients created by servers constructed with
- <A HREF="../../../../../com/twitter/common/zookeeper/testing/ZooKeeperTestServer.html#ZooKeeperTestServer(int, com.twitter.common.application.ActionRegistry)"><CODE>ZooKeeperTestServer(int, ActionRegistry)</CODE></A>.
+ <A HREF="../../../../../com/twitter/common/zookeeper/testing/ZooKeeperTestServer.html#ZooKeeperTestServer(int, com.twitter.common.application.ShutdownRegistry)"><CODE>ZooKeeperTestServer(int, ShutdownRegistry)</CODE></A>.
 <P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="zooKeeperServer"><!-- --></A><H3>
+zooKeeperServer</H3>
+<PRE>
+protected final org.apache.zookeeper.server.ZooKeeperServer <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/ZooKeeperTestServer.html#line.53"><B>zooKeeperServer</B></A></PRE>
+<DL>
 <DL>
 </DL>
 </DL>
@@ -282,11 +300,11 @@ public static final <A HREF="../../../../../com/twitter/common/quantity/Amount.h
 </TR>
 </TABLE>
 
-<A NAME="ZooKeeperTestServer(int, com.twitter.common.application.ActionRegistry)"><!-- --></A><H3>
+<A NAME="ZooKeeperTestServer(int, com.twitter.common.application.ShutdownRegistry)"><!-- --></A><H3>
 ZooKeeperTestServer</H3>
 <PRE>
 public <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/ZooKeeperTestServer.html#line.65"><B>ZooKeeperTestServer</B></A>(int&nbsp;port,
-                           <A HREF="../../../../../com/twitter/common/application/ActionRegistry.html" title="interface in com.twitter.common.application">ActionRegistry</A>&nbsp;shutdownRegistry)
+                           <A HREF="../../../../../com/twitter/common/application/ShutdownRegistry.html" title="interface in com.twitter.common.application">ShutdownRegistry</A>&nbsp;shutdownRegistry)
                     throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
 <DL>
 <DL>
@@ -297,11 +315,11 @@ public <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/Zoo
 </DL>
 <HR>
 
-<A NAME="ZooKeeperTestServer(int, com.twitter.common.application.ActionRegistry, com.twitter.common.quantity.Amount)"><!-- --></A><H3>
+<A NAME="ZooKeeperTestServer(int, com.twitter.common.application.ShutdownRegistry, com.twitter.common.quantity.Amount)"><!-- --></A><H3>
 ZooKeeperTestServer</H3>
 <PRE>
 public <A HREF="../../../../../src-html/com/twitter/common/zookeeper/testing/ZooKeeperTestServer.html#line.77"><B>ZooKeeperTestServer</B></A>(int&nbsp;port,
-                           <A HREF="../../../../../com/twitter/common/application/ActionRegistry.html" title="interface in com.twitter.common.application">ActionRegistry</A>&nbsp;shutdownRegistry,
+                           <A HREF="../../../../../com/twitter/common/application/ShutdownRegistry.html" title="interface in com.twitter.common.application">ShutdownRegistry</A>&nbsp;shutdownRegistry,
                            <A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;defaultSessionTimeout)
                     throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
 <DL>

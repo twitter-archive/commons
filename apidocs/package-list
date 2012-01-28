@@ -11,6 +11,7 @@ com.twitter.common.inject
 com.twitter.common.io
 com.twitter.common.logging
 com.twitter.common.memcached
+com.twitter.common.metrics
 com.twitter.common.net
 com.twitter.common.net.http
 com.twitter.common.net.http.handlers
@@ -19,8 +20,10 @@ com.twitter.common.net.monitoring
 com.twitter.common.net.pool
 com.twitter.common.objectsize
 com.twitter.common.quantity
+com.twitter.common.reflect
 com.twitter.common.stats
 com.twitter.common.testing
+com.twitter.common.testing.runner
 com.twitter.common.text
 com.twitter.common.text.combiner
 com.twitter.common.text.detector
@@ -30,6 +33,7 @@ com.twitter.common.text.filter
 com.twitter.common.text.token
 com.twitter.common.text.token.attribute
 com.twitter.common.text.tokenizer
+com.twitter.common.text.util
 com.twitter.common.thrift
 com.twitter.common.thrift.callers
 com.twitter.common.thrift.monitoring
@@ -41,4 +45,5 @@ com.twitter.common.util.concurrent
 com.twitter.common.util.logging
 com.twitter.common.util.testing
 com.twitter.common.zookeeper
+com.twitter.common.zookeeper.guice
 com.twitter.common.zookeeper.testing

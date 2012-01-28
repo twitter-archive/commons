@@ -98,7 +98,7 @@ Class LeastConnectedStrategy&lt;S&gt;</H2>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html#line.37"><B>LeastConnectedStrategy&lt;S&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html#line.38"><B>LeastConnectedStrategy&lt;S&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
@@ -234,7 +234,7 @@ A load balancer that attempts to direct load towards a backend that has the fewe
 <A NAME="LeastConnectedStrategy()"><!-- --></A><H3>
 LeastConnectedStrategy</H3>
 <PRE>
-public <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html#line.37"><B>LeastConnectedStrategy</B></A>()</PRE>
+public <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html#line.38"><B>LeastConnectedStrategy</B></A>()</PRE>
 <DL>
 </DL>
 
@@ -251,7 +251,7 @@ public <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/Lea
 <A NAME="onBackendsOffered(java.util.Set)"><!-- --></A><H3>
 onBackendsOffered</H3>
 <PRE>
-protected <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html" title="type parameter in LeastConnectedStrategy">S</A>&gt; <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html#line.87"><B>onBackendsOffered</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html" title="type parameter in LeastConnectedStrategy">S</A>&gt;&nbsp;backends)</PRE>
+protected <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html" title="type parameter in LeastConnectedStrategy">S</A>&gt; <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html#line.100"><B>onBackendsOffered</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html" title="type parameter in LeastConnectedStrategy">S</A>&gt;&nbsp;backends)</PRE>
 <DL>
 <DD>Subclasses must override and return a collection of the backends actually chosen for use until
  the next offer round.
@@ -269,7 +269,7 @@ protected <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Collec
 <A NAME="nextBackend()"><!-- --></A><H3>
 nextBackend</H3>
 <PRE>
-public <A HREF="../../../../../com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html" title="type parameter in LeastConnectedStrategy">S</A> <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html#line.112"><B>nextBackend</B></A>()
+public <A HREF="../../../../../com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html" title="type parameter in LeastConnectedStrategy">S</A> <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html#line.130"><B>nextBackend</B></A>()
               throws <A HREF="../../../../../com/twitter/common/net/pool/ResourceExhaustedException.html" title="class in com.twitter.common.net.pool">ResourceExhaustedException</A></PRE>
 <DL>
 <DD><B>Description copied from interface: <CODE><A HREF="../../../../../com/twitter/common/net/loadbalancing/LoadBalancingStrategy.html#nextBackend()">LoadBalancingStrategy</A></CODE></B></DD>
@@ -287,7 +287,7 @@ public <A HREF="../../../../../com/twitter/common/net/loadbalancing/LeastConnect
 <A NAME="addConnectResult(java.lang.Object,com.twitter.common.net.loadbalancing.LoadBalancingStrategy.ConnectionResult,long)"><!-- --></A><A NAME="addConnectResult(S, com.twitter.common.net.loadbalancing.LoadBalancingStrategy.ConnectionResult, long)"><!-- --></A><H3>
 addConnectResult</H3>
 <PRE>
-public void <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html#line.121"><B>addConnectResult</B></A>(<A HREF="../../../../../com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html" title="type parameter in LeastConnectedStrategy">S</A>&nbsp;backendKey,
+public void <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html#line.141"><B>addConnectResult</B></A>(<A HREF="../../../../../com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html" title="type parameter in LeastConnectedStrategy">S</A>&nbsp;backendKey,
                              <A HREF="../../../../../com/twitter/common/net/loadbalancing/LoadBalancingStrategy.ConnectionResult.html" title="enum in com.twitter.common.net.loadbalancing">LoadBalancingStrategy.ConnectionResult</A>&nbsp;result,
                              long&nbsp;connectTimeNanos)</PRE>
 <DL>
@@ -306,7 +306,7 @@ public void <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancin
 <A NAME="connectionReturned(java.lang.Object)"><!-- --></A><A NAME="connectionReturned(S)"><!-- --></A><H3>
 connectionReturned</H3>
 <PRE>
-public void <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html#line.138"><B>connectionReturned</B></A>(<A HREF="../../../../../com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html" title="type parameter in LeastConnectedStrategy">S</A>&nbsp;backendKey)</PRE>
+public void <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html#line.158"><B>connectionReturned</B></A>(<A HREF="../../../../../com/twitter/common/net/loadbalancing/LeastConnectedStrategy.html" title="type parameter in LeastConnectedStrategy">S</A>&nbsp;backendKey)</PRE>
 <DL>
 <DD><B>Description copied from interface: <CODE><A HREF="../../../../../com/twitter/common/net/loadbalancing/LoadBalancingStrategy.html#connectionReturned(K)">LoadBalancingStrategy</A></CODE></B></DD>
 <DD>Offers information about a connection that was returned.

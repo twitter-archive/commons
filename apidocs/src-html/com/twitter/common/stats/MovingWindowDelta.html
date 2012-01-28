@@ -47,7 +47,7 @@
 <FONT color="green">044</FONT>      private MovingWindowDelta(String name, Supplier&lt;T&gt; inputAccessor, int windowSize) {<a name="line.44"></a>
 <FONT color="green">045</FONT>        super(name, 0l);<a name="line.45"></a>
 <FONT color="green">046</FONT>    <a name="line.46"></a>
-<FONT color="green">047</FONT>        Preconditions.checkArgument(windowSize &gt; 1);<a name="line.47"></a>
+<FONT color="green">047</FONT>        Preconditions.checkArgument(windowSize &gt;= 1);<a name="line.47"></a>
 <FONT color="green">048</FONT>        Preconditions.checkNotNull(inputAccessor);<a name="line.48"></a>
 <FONT color="green">049</FONT>        MorePreconditions.checkNotBlank(name);<a name="line.49"></a>
 <FONT color="green">050</FONT>    <a name="line.50"></a>

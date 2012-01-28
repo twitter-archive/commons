@@ -27,34 +27,24 @@
 <FONT color="green">024</FONT>    public abstract class NumberParser&lt;T extends Number&gt; extends NonParameterizedTypeParser&lt;T&gt; {<a name="line.24"></a>
 <FONT color="green">025</FONT>    <a name="line.25"></a>
 <FONT color="green">026</FONT>      /**<a name="line.26"></a>
-<FONT color="green">027</FONT>       * Creates a new number parser.<a name="line.27"></a>
+<FONT color="green">027</FONT>       * Performs the actual parsing of the value into the target type.<a name="line.27"></a>
 <FONT color="green">028</FONT>       *<a name="line.28"></a>
-<FONT color="green">029</FONT>       * @param cls Class that the parser parses into, used to show useful error messages.<a name="line.29"></a>
-<FONT color="green">030</FONT>       */<a name="line.30"></a>
-<FONT color="green">031</FONT>      NumberParser(Class&lt;T&gt; cls) {<a name="line.31"></a>
-<FONT color="green">032</FONT>        super(cls);<a name="line.32"></a>
-<FONT color="green">033</FONT>      }<a name="line.33"></a>
-<FONT color="green">034</FONT>    <a name="line.34"></a>
-<FONT color="green">035</FONT>      /**<a name="line.35"></a>
-<FONT color="green">036</FONT>       * Performs the actual parsing of the value into the target type.<a name="line.36"></a>
-<FONT color="green">037</FONT>       *<a name="line.37"></a>
-<FONT color="green">038</FONT>       * @param raw Raw value to parse.<a name="line.38"></a>
-<FONT color="green">039</FONT>       * @return The parsed value.<a name="line.39"></a>
-<FONT color="green">040</FONT>       * @throws NumberFormatException If the raw value does not represent a valid number of the target<a name="line.40"></a>
-<FONT color="green">041</FONT>       *    type.<a name="line.41"></a>
-<FONT color="green">042</FONT>       */<a name="line.42"></a>
-<FONT color="green">043</FONT>      abstract T parseNumber(String raw) throws NumberFormatException;<a name="line.43"></a>
-<FONT color="green">044</FONT>    <a name="line.44"></a>
-<FONT color="green">045</FONT>      @Override<a name="line.45"></a>
-<FONT color="green">046</FONT>      public T doParse(String raw) throws IllegalArgumentException {<a name="line.46"></a>
-<FONT color="green">047</FONT>        try {<a name="line.47"></a>
-<FONT color="green">048</FONT>          return parseNumber(raw);<a name="line.48"></a>
-<FONT color="green">049</FONT>        } catch (NumberFormatException e) {<a name="line.49"></a>
-<FONT color="green">050</FONT>          throw new IllegalArgumentException(String.format("Invalid %s value: " + e.getMessage(),<a name="line.50"></a>
-<FONT color="green">051</FONT>              parsedClass.getSimpleName()));<a name="line.51"></a>
-<FONT color="green">052</FONT>        }<a name="line.52"></a>
-<FONT color="green">053</FONT>      }<a name="line.53"></a>
-<FONT color="green">054</FONT>    }<a name="line.54"></a>
+<FONT color="green">029</FONT>       * @param raw Raw value to parse.<a name="line.29"></a>
+<FONT color="green">030</FONT>       * @return The parsed value.<a name="line.30"></a>
+<FONT color="green">031</FONT>       * @throws NumberFormatException If the raw value does not represent a valid number of the target<a name="line.31"></a>
+<FONT color="green">032</FONT>       *    type.<a name="line.32"></a>
+<FONT color="green">033</FONT>       */<a name="line.33"></a>
+<FONT color="green">034</FONT>      abstract T parseNumber(String raw) throws NumberFormatException;<a name="line.34"></a>
+<FONT color="green">035</FONT>    <a name="line.35"></a>
+<FONT color="green">036</FONT>      @Override<a name="line.36"></a>
+<FONT color="green">037</FONT>      public T doParse(String raw) throws IllegalArgumentException {<a name="line.37"></a>
+<FONT color="green">038</FONT>        try {<a name="line.38"></a>
+<FONT color="green">039</FONT>          return parseNumber(raw);<a name="line.39"></a>
+<FONT color="green">040</FONT>        } catch (NumberFormatException e) {<a name="line.40"></a>
+<FONT color="green">041</FONT>          throw new IllegalArgumentException(String.format("Invalid value: " + e.getMessage()));<a name="line.41"></a>
+<FONT color="green">042</FONT>        }<a name="line.42"></a>
+<FONT color="green">043</FONT>      }<a name="line.43"></a>
+<FONT color="green">044</FONT>    }<a name="line.44"></a>
 
 
 

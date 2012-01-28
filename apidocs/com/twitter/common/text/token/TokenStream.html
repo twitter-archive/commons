@@ -99,7 +99,7 @@ Class TokenStream</H2>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public abstract class <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenStream.html#line.46"><B>TokenStream</B></A><DT>extends <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeSource</A></DL>
+<DT><PRE>public abstract class <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenStream.html#line.43"><B>TokenStream</B></A><DT>extends <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeSource</A></DL>
 </PRE>
 
 <P>
@@ -151,7 +151,7 @@ Abstraction to enumerate a sequence of tokens. This class represents the central
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected </CODE></FONT></TD>
+<CODE>&nbsp;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/text/token/TokenStream.html#TokenStream()">TokenStream</A></B>()</CODE>
 
 <BR>
@@ -261,7 +261,7 @@ T</CODE></FONT></TD>
 <A NAME="TokenStream()"><!-- --></A><H3>
 TokenStream</H3>
 <PRE>
-protected <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenStream.html#line.50"><B>TokenStream</B></A>()</PRE>
+public <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenStream.html#line.47"><B>TokenStream</B></A>()</PRE>
 <DL>
 <DD>Constructs a <code>TokenStream</code> using the default attribute factory.
 <P>
@@ -271,7 +271,7 @@ protected <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenSt
 <A NAME="TokenStream(org.apache.lucene.util.AttributeSource.AttributeFactory)"><!-- --></A><H3>
 TokenStream</H3>
 <PRE>
-protected <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenStream.html#line.71"><B>TokenStream</B></A>(<A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.AttributeFactory.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeSource.AttributeFactory</A>&nbsp;factory)</PRE>
+protected <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenStream.html#line.57"><B>TokenStream</B></A>(<A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.AttributeFactory.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeSource.AttributeFactory</A>&nbsp;factory)</PRE>
 <DL>
 <DD>Constructs a <code>TokenStream</code> using the supplied <code>AttributeFactory</code> for creating new
  <code>Attribute</code> instances.
@@ -284,7 +284,7 @@ protected <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenSt
 <A NAME="TokenStream(org.apache.lucene.util.AttributeSource)"><!-- --></A><H3>
 TokenStream</H3>
 <PRE>
-protected <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenStream.html#line.80"><B>TokenStream</B></A>(<A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeSource</A>&nbsp;input)</PRE>
+protected <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenStream.html#line.66"><B>TokenStream</B></A>(<A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeSource</A>&nbsp;input)</PRE>
 <DL>
 <DD>Constructs a <code>TokenStream</code> that uses the same attributes as the supplied one.
 <P>
@@ -305,7 +305,7 @@ protected <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenSt
 <A NAME="incrementToken()"><!-- --></A><H3>
 incrementToken</H3>
 <PRE>
-public abstract boolean <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenStream.html#line.89"><B>incrementToken</B></A>()</PRE>
+public abstract boolean <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenStream.html#line.75"><B>incrementToken</B></A>()</PRE>
 <DL>
 <DD>Consumers call this method to advance the stream to the next token.
 <P>
@@ -319,7 +319,7 @@ public abstract boolean <A HREF="../../../../../src-html/com/twitter/common/text
 <A NAME="reset(java.lang.CharSequence)"><!-- --></A><H3>
 reset</H3>
 <PRE>
-public abstract void <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenStream.html#line.97"><B>reset</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;input)</PRE>
+public abstract void <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenStream.html#line.83"><B>reset</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;input)</PRE>
 <DL>
 <DD>Resets this <code>TokenStream</code> (and also downstream tokens if they exist) to parse a new
  input.
@@ -333,7 +333,7 @@ public abstract void <A HREF="../../../../../src-html/com/twitter/common/text/to
 <A NAME="toStringList()"><!-- --></A><H3>
 toStringList</H3>
 <PRE>
-public <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt; <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenStream.html#line.104"><B>toStringList</B></A>()</PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt; <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenStream.html#line.90"><B>toStringList</B></A>()</PRE>
 <DL>
 <DD>Converts this token stream into a list of <code>Strings</code>.
 <P>
@@ -347,7 +347,7 @@ public <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html
 <A NAME="getInstanceOf(java.lang.Class)"><!-- --></A><H3>
 getInstanceOf</H3>
 <PRE>
-public &lt;T extends <A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&gt; T <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenStream.html#line.133"><B>getInstanceOf</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;T&gt;&nbsp;cls)</PRE>
+public &lt;T extends <A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&gt; T <A HREF="../../../../../src-html/com/twitter/common/text/token/TokenStream.html#line.113"><B>getInstanceOf</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;T&gt;&nbsp;cls)</PRE>
 <DL>
 <DD>Searches and returns an instance of a specified class in this TokenStream chain.
 <P>

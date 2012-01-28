@@ -19,7 +19,7 @@
 <FONT color="green">016</FONT>    <a name="line.16"></a>
 <FONT color="green">017</FONT>    package com.twitter.common.text.token.attribute;<a name="line.17"></a>
 <FONT color="green">018</FONT>    <a name="line.18"></a>
-<FONT color="green">019</FONT>    import org.apache.lucene.analysis.tokenattributes.TermAttribute;<a name="line.19"></a>
+<FONT color="green">019</FONT>    import org.apache.lucene.util.Attribute;<a name="line.19"></a>
 <FONT color="green">020</FONT>    <a name="line.20"></a>
 <FONT color="green">021</FONT>    import com.twitter.common.text.token.TokenStream;<a name="line.21"></a>
 <FONT color="green">022</FONT>    <a name="line.22"></a>
@@ -28,7 +28,7 @@
 <FONT color="green">025</FONT>     * {@link TokenStream#incrementToken()} is called. Instead, the offset and character length are<a name="line.25"></a>
 <FONT color="green">026</FONT>     * updated to reference a new span with respect to the underlying {@code CharSequence}.<a name="line.26"></a>
 <FONT color="green">027</FONT>     */<a name="line.27"></a>
-<FONT color="green">028</FONT>    public interface CharSequenceTermAttribute extends TermAttribute {<a name="line.28"></a>
+<FONT color="green">028</FONT>    public interface CharSequenceTermAttribute extends Attribute {<a name="line.28"></a>
 <FONT color="green">029</FONT>      /**<a name="line.29"></a>
 <FONT color="green">030</FONT>       * The offset is the character index, with respect to the underlying CharSequence,<a name="line.30"></a>
 <FONT color="green">031</FONT>       * of the first character in the span referenced by this CharSequenceTermAttribute.<a name="line.31"></a>
@@ -106,12 +106,20 @@
 <FONT color="green">103</FONT>    <a name="line.103"></a>
 <FONT color="green">104</FONT>      /**<a name="line.104"></a>
 <FONT color="green">105</FONT>       * Returns the term text as a {@code CharSequence}, without needing to construct a<a name="line.105"></a>
-<FONT color="green">106</FONT>       * {@code String}. This method is preferred over {@link TermAttribute#term()}.<a name="line.106"></a>
+<FONT color="green">106</FONT>       * {@code String}. This method is preferred over {@link getTermString()}.<a name="line.106"></a>
 <FONT color="green">107</FONT>       *<a name="line.107"></a>
 <FONT color="green">108</FONT>       * @return {@code CharSequence} representing the term text.<a name="line.108"></a>
 <FONT color="green">109</FONT>       */<a name="line.109"></a>
 <FONT color="green">110</FONT>      CharSequence getTermCharSequence();<a name="line.110"></a>
-<FONT color="green">111</FONT>    }<a name="line.111"></a>
+<FONT color="green">111</FONT>    <a name="line.111"></a>
+<FONT color="green">112</FONT>      /**<a name="line.112"></a>
+<FONT color="green">113</FONT>       * Returns the term text as a {@code String}.<a name="line.113"></a>
+<FONT color="green">114</FONT>       * {@link getTermCharSequence()} is preferred over this method.<a name="line.114"></a>
+<FONT color="green">115</FONT>       *<a name="line.115"></a>
+<FONT color="green">116</FONT>       * @return {@code String} representing the term text.<a name="line.116"></a>
+<FONT color="green">117</FONT>       */<a name="line.117"></a>
+<FONT color="green">118</FONT>      String getTermString();<a name="line.118"></a>
+<FONT color="green">119</FONT>    }<a name="line.119"></a>
 
 
 

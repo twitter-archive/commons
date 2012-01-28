@@ -166,6 +166,15 @@ A servlet that provides a way to remotely signal the process to initiate a clean
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/net/http/handlers/QuitHandler.html#doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)">doPost</A></B>(javax.servlet.http.HttpServletRequest&nbsp;req,
+             javax.servlet.http.HttpServletResponse&nbsp;resp)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_javax.servlet.http.HttpServlet"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
@@ -173,7 +182,7 @@ A servlet that provides a way to remotely signal the process to initiate a clean
 <TH ALIGN="left"><B>Methods inherited from class javax.servlet.http.HttpServlet</B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE>doDelete, doHead, doOptions, doPost, doPut, doTrace, getLastModified, service, service</CODE></TD>
+<TD><CODE>doDelete, doHead, doOptions, doPut, doTrace, getLastModified, service, service</CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_javax.servlet.GenericServlet"><!-- --></A>
@@ -257,8 +266,7 @@ doGet</H3>
 <PRE>
 protected void <A HREF="../../../../../../src-html/com/twitter/common/net/http/handlers/QuitHandler.html#line.62"><B>doGet</B></A>(javax.servlet.http.HttpServletRequest&nbsp;req,
                      javax.servlet.http.HttpServletResponse&nbsp;resp)
-              throws javax.servlet.ServletException,
-                     <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
+              throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
 <DL>
 <DD><DL>
 <DT><B>Overrides:</B><DD><CODE>doGet</CODE> in class <CODE>javax.servlet.http.HttpServlet</CODE></DL>
@@ -266,7 +274,24 @@ protected void <A HREF="../../../../../../src-html/com/twitter/common/net/http/h
 <DD><DL>
 
 <DT><B>Throws:</B>
-<DD><CODE>javax.servlet.ServletException</CODE>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)"><!-- --></A><H3>
+doPost</H3>
+<PRE>
+protected void <A HREF="../../../../../../src-html/com/twitter/common/net/http/handlers/QuitHandler.html#line.68"><B>doPost</B></A>(javax.servlet.http.HttpServletRequest&nbsp;req,
+                      javax.servlet.http.HttpServletResponse&nbsp;resp)
+               throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
+<DL>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE>doPost</CODE> in class <CODE>javax.servlet.http.HttpServlet</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Throws:</B>
 <DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></CODE></DL>
 </DD>
 </DL>

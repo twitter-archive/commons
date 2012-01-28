@@ -21,92 +21,87 @@
 <FONT color="green">018</FONT>    <a name="line.18"></a>
 <FONT color="green">019</FONT>    import java.util.Iterator;<a name="line.19"></a>
 <FONT color="green">020</FONT>    <a name="line.20"></a>
-<FONT color="green">021</FONT>    import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;<a name="line.21"></a>
-<FONT color="green">022</FONT>    import org.apache.lucene.util.Attribute;<a name="line.22"></a>
-<FONT color="green">023</FONT>    <a name="line.23"></a>
-<FONT color="green">024</FONT>    import com.twitter.common.text.DefaultTextTokenizer;<a name="line.24"></a>
-<FONT color="green">025</FONT>    import com.twitter.common.text.token.TokenStream;<a name="line.25"></a>
-<FONT color="green">026</FONT>    import com.twitter.common.text.token.TokenizedCharSequence;<a name="line.26"></a>
-<FONT color="green">027</FONT>    import com.twitter.common.text.token.TokenizedCharSequence.Token;<a name="line.27"></a>
-<FONT color="green">028</FONT>    import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;<a name="line.28"></a>
-<FONT color="green">029</FONT>    import com.twitter.common.text.token.attribute.TokenTypeAttribute;<a name="line.29"></a>
-<FONT color="green">030</FONT>    <a name="line.30"></a>
-<FONT color="green">031</FONT>    /**<a name="line.31"></a>
-<FONT color="green">032</FONT>     * Annotated example illustrating major features of {@link DefaultTextTokenizer}.<a name="line.32"></a>
-<FONT color="green">033</FONT>     */<a name="line.33"></a>
-<FONT color="green">034</FONT>    public class TokenizerUsageExample {<a name="line.34"></a>
-<FONT color="green">035</FONT>      private static final String[] famousTweets = {<a name="line.35"></a>
-<FONT color="green">036</FONT>          // http://twitter.com/#!/BarackObama/status/992176676<a name="line.36"></a>
-<FONT color="green">037</FONT>          "We just made history. All of this happened because you gave your time, talent and passion."<a name="line.37"></a>
-<FONT color="green">038</FONT>            + "All of this happened because of you. Thanks",<a name="line.38"></a>
-<FONT color="green">039</FONT>          // http://twitter.com/#!/jkrums/status/1121915133<a name="line.39"></a>
-<FONT color="green">040</FONT>          "http://twitpic.com/135xa - There's a plane in the Hudson."<a name="line.40"></a>
-<FONT color="green">041</FONT>            + " I'm on the ferry going to pick up the people. Crazy.",<a name="line.41"></a>
-<FONT color="green">042</FONT>          // http://twitter.com/#!/carlbildt/status/73498110629904384<a name="line.42"></a>
-<FONT color="green">043</FONT>          "@khalidalkhalifa Trying to get in touch with you on an issue.",<a name="line.43"></a>
-<FONT color="green">044</FONT>          // http://twitter.com/#!/SHAQ/status/75996821360615425<a name="line.44"></a>
-<FONT color="green">045</FONT>          "im retiring Video: http://bit.ly/kvLtE3 #ShaqRetires"<a name="line.45"></a>
-<FONT color="green">046</FONT>      };<a name="line.46"></a>
-<FONT color="green">047</FONT>    <a name="line.47"></a>
-<FONT color="green">048</FONT>      public static void main(String[] args) {<a name="line.48"></a>
-<FONT color="green">049</FONT>        // This is the canonical way to create a token stream.<a name="line.49"></a>
-<FONT color="green">050</FONT>        DefaultTextTokenizer tokenizer =<a name="line.50"></a>
-<FONT color="green">051</FONT>            new DefaultTextTokenizer.Builder().setKeepPunctuation(true).build();<a name="line.51"></a>
-<FONT color="green">052</FONT>        TokenStream stream = tokenizer.getDefaultTokenStream();<a name="line.52"></a>
-<FONT color="green">053</FONT>    <a name="line.53"></a>
-<FONT color="green">054</FONT>        // We're going to ask the token stream what type of attributes it makes available. "Attributes"<a name="line.54"></a>
-<FONT color="green">055</FONT>        // can be understood as "annotations" on the original text.<a name="line.55"></a>
-<FONT color="green">056</FONT>        System.out.println("Attributes available:");<a name="line.56"></a>
-<FONT color="green">057</FONT>        Iterator&lt;Class&lt;? extends Attribute&gt;&gt; iter = stream.getAttributeClassesIterator();<a name="line.57"></a>
-<FONT color="green">058</FONT>        while (iter.hasNext()) {<a name="line.58"></a>
-<FONT color="green">059</FONT>          Class&lt;? extends Attribute&gt; c = iter.next();<a name="line.59"></a>
-<FONT color="green">060</FONT>          System.out.println(" - " + c.getCanonicalName());<a name="line.60"></a>
-<FONT color="green">061</FONT>        }<a name="line.61"></a>
-<FONT color="green">062</FONT>        System.out.println("");<a name="line.62"></a>
-<FONT color="green">063</FONT>    <a name="line.63"></a>
-<FONT color="green">064</FONT>        // We're now going to iterate through a few tweets and tokenize each in turn.<a name="line.64"></a>
-<FONT color="green">065</FONT>        for (String tweet : famousTweets) {<a name="line.65"></a>
-<FONT color="green">066</FONT>          // We're first going to demonstrate the "token-by-token" method of consuming tweets.<a name="line.66"></a>
-<FONT color="green">067</FONT>          System.out.println("Processing: " + tweet);<a name="line.67"></a>
-<FONT color="green">068</FONT>          // Reset the token stream to process new input.<a name="line.68"></a>
-<FONT color="green">069</FONT>          stream.reset(tweet);<a name="line.69"></a>
-<FONT color="green">070</FONT>    <a name="line.70"></a>
-<FONT color="green">071</FONT>          // Now we're going to consume tokens from the stream.<a name="line.71"></a>
-<FONT color="green">072</FONT>          int tokenCnt = 0;<a name="line.72"></a>
-<FONT color="green">073</FONT>          while (stream.incrementToken()) {<a name="line.73"></a>
-<FONT color="green">074</FONT>            // CharSequenceTermAttribute holds the actual token text. This is preferred over<a name="line.74"></a>
-<FONT color="green">075</FONT>            // TermAttribute because it avoids creating new String objects.<a name="line.75"></a>
-<FONT color="green">076</FONT>            CharSequenceTermAttribute termAttribute = stream<a name="line.76"></a>
-<FONT color="green">077</FONT>                .getAttribute(CharSequenceTermAttribute.class);<a name="line.77"></a>
-<FONT color="green">078</FONT>    <a name="line.78"></a>
-<FONT color="green">079</FONT>            // OffsetAttribute holds indexes into the original String that the current token occupies.<a name="line.79"></a>
-<FONT color="green">080</FONT>            // The startOffset is character position is inclusive, the endOffset is exclusive.<a name="line.80"></a>
-<FONT color="green">081</FONT>            OffsetAttribute offsetAttribute = stream.getAttribute(OffsetAttribute.class);<a name="line.81"></a>
-<FONT color="green">082</FONT>    <a name="line.82"></a>
-<FONT color="green">083</FONT>            // TokenTypeAttribute holds, as you'd expect, the type of the token.<a name="line.83"></a>
-<FONT color="green">084</FONT>            TokenTypeAttribute typeAttribute = stream.getAttribute(TokenTypeAttribute.class);<a name="line.84"></a>
-<FONT color="green">085</FONT>            System.out.println(String.format("token %2d (%3d, %3d) type: %12s, token: '%s'",<a name="line.85"></a>
-<FONT color="green">086</FONT>                    tokenCnt, offsetAttribute.startOffset(), offsetAttribute.endOffset(),<a name="line.86"></a>
-<FONT color="green">087</FONT>                    typeAttribute.getType().name, termAttribute.getTermCharSequence()));<a name="line.87"></a>
-<FONT color="green">088</FONT>            tokenCnt++;<a name="line.88"></a>
-<FONT color="green">089</FONT>          }<a name="line.89"></a>
-<FONT color="green">090</FONT>          System.out.println("");<a name="line.90"></a>
-<FONT color="green">091</FONT>    <a name="line.91"></a>
-<FONT color="green">092</FONT>          // We're now going to demonstrate the TokenizedCharSequence API.<a name="line.92"></a>
-<FONT color="green">093</FONT>          // This should produce exactly the same result as above.<a name="line.93"></a>
-<FONT color="green">094</FONT>          tokenCnt = 0;<a name="line.94"></a>
-<FONT color="green">095</FONT>          System.out.println("Processing: " + tweet);<a name="line.95"></a>
-<FONT color="green">096</FONT>          TokenizedCharSequence tokSeq = tokenizer.tokenize(tweet);<a name="line.96"></a>
-<FONT color="green">097</FONT>          for (Token tok : tokSeq.getTokens()) {<a name="line.97"></a>
-<FONT color="green">098</FONT>            System.out.println(String.format("token %2d (%3d, %3d) type: %12s, token: '%s'",<a name="line.98"></a>
-<FONT color="green">099</FONT>                tokenCnt, tok.getOffset(), tok.getOffset() + tok.getLength(),<a name="line.99"></a>
-<FONT color="green">100</FONT>                tok.getType().name, tok.getTerm()));<a name="line.100"></a>
-<FONT color="green">101</FONT>            tokenCnt++;<a name="line.101"></a>
-<FONT color="green">102</FONT>          }<a name="line.102"></a>
-<FONT color="green">103</FONT>          System.out.println("");<a name="line.103"></a>
-<FONT color="green">104</FONT>        }<a name="line.104"></a>
-<FONT color="green">105</FONT>      }<a name="line.105"></a>
-<FONT color="green">106</FONT>    }<a name="line.106"></a>
+<FONT color="green">021</FONT>    import org.apache.lucene.util.Attribute;<a name="line.21"></a>
+<FONT color="green">022</FONT>    <a name="line.22"></a>
+<FONT color="green">023</FONT>    import com.twitter.common.text.DefaultTextTokenizer;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import com.twitter.common.text.token.TokenStream;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import com.twitter.common.text.token.TokenizedCharSequence;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import com.twitter.common.text.token.TokenizedCharSequence.Token;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import com.twitter.common.text.token.attribute.TokenTypeAttribute;<a name="line.28"></a>
+<FONT color="green">029</FONT>    <a name="line.29"></a>
+<FONT color="green">030</FONT>    /**<a name="line.30"></a>
+<FONT color="green">031</FONT>     * Annotated example illustrating major features of {@link DefaultTextTokenizer}.<a name="line.31"></a>
+<FONT color="green">032</FONT>     */<a name="line.32"></a>
+<FONT color="green">033</FONT>    public class TokenizerUsageExample {<a name="line.33"></a>
+<FONT color="green">034</FONT>      private static final String[] famousTweets = {<a name="line.34"></a>
+<FONT color="green">035</FONT>          // http://twitter.com/#!/BarackObama/status/992176676<a name="line.35"></a>
+<FONT color="green">036</FONT>          "We just made history. All of this happened because you gave your time, talent and passion."<a name="line.36"></a>
+<FONT color="green">037</FONT>            + "All of this happened because of you. Thanks",<a name="line.37"></a>
+<FONT color="green">038</FONT>          // http://twitter.com/#!/jkrums/status/1121915133<a name="line.38"></a>
+<FONT color="green">039</FONT>          "http://twitpic.com/135xa - There's a plane in the Hudson."<a name="line.39"></a>
+<FONT color="green">040</FONT>            + " I'm on the ferry going to pick up the people. Crazy.",<a name="line.40"></a>
+<FONT color="green">041</FONT>          // http://twitter.com/#!/carlbildt/status/73498110629904384<a name="line.41"></a>
+<FONT color="green">042</FONT>          "@khalidalkhalifa Trying to get in touch with you on an issue.",<a name="line.42"></a>
+<FONT color="green">043</FONT>          // http://twitter.com/#!/SHAQ/status/75996821360615425<a name="line.43"></a>
+<FONT color="green">044</FONT>          "im retiring Video: http://bit.ly/kvLtE3 #ShaqRetires"<a name="line.44"></a>
+<FONT color="green">045</FONT>      };<a name="line.45"></a>
+<FONT color="green">046</FONT>    <a name="line.46"></a>
+<FONT color="green">047</FONT>      public static void main(String[] args) {<a name="line.47"></a>
+<FONT color="green">048</FONT>        // This is the canonical way to create a token stream.<a name="line.48"></a>
+<FONT color="green">049</FONT>        DefaultTextTokenizer tokenizer =<a name="line.49"></a>
+<FONT color="green">050</FONT>            new DefaultTextTokenizer.Builder().setKeepPunctuation(true).build();<a name="line.50"></a>
+<FONT color="green">051</FONT>        TokenStream stream = tokenizer.getDefaultTokenStream();<a name="line.51"></a>
+<FONT color="green">052</FONT>    <a name="line.52"></a>
+<FONT color="green">053</FONT>        // We're going to ask the token stream what type of attributes it makes available. "Attributes"<a name="line.53"></a>
+<FONT color="green">054</FONT>        // can be understood as "annotations" on the original text.<a name="line.54"></a>
+<FONT color="green">055</FONT>        System.out.println("Attributes available:");<a name="line.55"></a>
+<FONT color="green">056</FONT>        Iterator&lt;Class&lt;? extends Attribute&gt;&gt; iter = stream.getAttributeClassesIterator();<a name="line.56"></a>
+<FONT color="green">057</FONT>        while (iter.hasNext()) {<a name="line.57"></a>
+<FONT color="green">058</FONT>          Class&lt;? extends Attribute&gt; c = iter.next();<a name="line.58"></a>
+<FONT color="green">059</FONT>          System.out.println(" - " + c.getCanonicalName());<a name="line.59"></a>
+<FONT color="green">060</FONT>        }<a name="line.60"></a>
+<FONT color="green">061</FONT>        System.out.println("");<a name="line.61"></a>
+<FONT color="green">062</FONT>    <a name="line.62"></a>
+<FONT color="green">063</FONT>        // We're now going to iterate through a few tweets and tokenize each in turn.<a name="line.63"></a>
+<FONT color="green">064</FONT>        for (String tweet : famousTweets) {<a name="line.64"></a>
+<FONT color="green">065</FONT>          // We're first going to demonstrate the "token-by-token" method of consuming tweets.<a name="line.65"></a>
+<FONT color="green">066</FONT>          System.out.println("Processing: " + tweet);<a name="line.66"></a>
+<FONT color="green">067</FONT>          // Reset the token stream to process new input.<a name="line.67"></a>
+<FONT color="green">068</FONT>          stream.reset(tweet);<a name="line.68"></a>
+<FONT color="green">069</FONT>    <a name="line.69"></a>
+<FONT color="green">070</FONT>          // Now we're going to consume tokens from the stream.<a name="line.70"></a>
+<FONT color="green">071</FONT>          int tokenCnt = 0;<a name="line.71"></a>
+<FONT color="green">072</FONT>          while (stream.incrementToken()) {<a name="line.72"></a>
+<FONT color="green">073</FONT>            // CharSequenceTermAttribute holds the actual token text. This is preferred over<a name="line.73"></a>
+<FONT color="green">074</FONT>            // TermAttribute because it avoids creating new String objects.<a name="line.74"></a>
+<FONT color="green">075</FONT>            CharSequenceTermAttribute termAttribute = stream<a name="line.75"></a>
+<FONT color="green">076</FONT>                .getAttribute(CharSequenceTermAttribute.class);<a name="line.76"></a>
+<FONT color="green">077</FONT>    <a name="line.77"></a>
+<FONT color="green">078</FONT>            // TokenTypeAttribute holds, as you'd expect, the type of the token.<a name="line.78"></a>
+<FONT color="green">079</FONT>            TokenTypeAttribute typeAttribute = stream.getAttribute(TokenTypeAttribute.class);<a name="line.79"></a>
+<FONT color="green">080</FONT>            System.out.println(String.format("token %2d (%3d, %3d) type: %12s, token: '%s'",<a name="line.80"></a>
+<FONT color="green">081</FONT>                    tokenCnt, termAttribute.getOffset(), termAttribute.getLength() - termAttribute.getOffset(),<a name="line.81"></a>
+<FONT color="green">082</FONT>                    typeAttribute.getType().name, termAttribute.getTermCharSequence()));<a name="line.82"></a>
+<FONT color="green">083</FONT>            tokenCnt++;<a name="line.83"></a>
+<FONT color="green">084</FONT>          }<a name="line.84"></a>
+<FONT color="green">085</FONT>          System.out.println("");<a name="line.85"></a>
+<FONT color="green">086</FONT>    <a name="line.86"></a>
+<FONT color="green">087</FONT>          // We're now going to demonstrate the TokenizedCharSequence API.<a name="line.87"></a>
+<FONT color="green">088</FONT>          // This should produce exactly the same result as above.<a name="line.88"></a>
+<FONT color="green">089</FONT>          tokenCnt = 0;<a name="line.89"></a>
+<FONT color="green">090</FONT>          System.out.println("Processing: " + tweet);<a name="line.90"></a>
+<FONT color="green">091</FONT>          TokenizedCharSequence tokSeq = tokenizer.tokenize(tweet);<a name="line.91"></a>
+<FONT color="green">092</FONT>          for (Token tok : tokSeq.getTokens()) {<a name="line.92"></a>
+<FONT color="green">093</FONT>            System.out.println(String.format("token %2d (%3d, %3d) type: %12s, token: '%s'",<a name="line.93"></a>
+<FONT color="green">094</FONT>                tokenCnt, tok.getOffset(), tok.getOffset() + tok.getLength(),<a name="line.94"></a>
+<FONT color="green">095</FONT>                tok.getType().name, tok.getTerm()));<a name="line.95"></a>
+<FONT color="green">096</FONT>            tokenCnt++;<a name="line.96"></a>
+<FONT color="green">097</FONT>          }<a name="line.97"></a>
+<FONT color="green">098</FONT>          System.out.println("");<a name="line.98"></a>
+<FONT color="green">099</FONT>        }<a name="line.99"></a>
+<FONT color="green">100</FONT>      }<a name="line.100"></a>
+<FONT color="green">101</FONT>    }<a name="line.101"></a>
 
 
 

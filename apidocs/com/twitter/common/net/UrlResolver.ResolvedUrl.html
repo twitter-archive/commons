@@ -98,7 +98,7 @@ Class UrlResolver.ResolvedUrl</H2>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public static class <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.html#line.368"><B>UrlResolver.ResolvedUrl</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public static class <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.html#line.371"><B>UrlResolver.ResolvedUrl</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
@@ -226,7 +226,7 @@ Class to wrap the result of a URL resolution.
 <A NAME="UrlResolver.ResolvedUrl()"><!-- --></A><H3>
 UrlResolver.ResolvedUrl</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.ResolvedUrl.html#line.380"><B>UrlResolver.ResolvedUrl</B></A>()</PRE>
+public <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.ResolvedUrl.html#line.383"><B>UrlResolver.ResolvedUrl</B></A>()</PRE>
 <DL>
 </DL>
 <HR>
@@ -234,7 +234,7 @@ public <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.Resolved
 <A NAME="UrlResolver.ResolvedUrl(com.twitter.common.net.UrlResolver.ResolvedUrl.EndState, java.lang.String, java.lang.String...)"><!-- --></A><H3>
 UrlResolver.ResolvedUrl</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.ResolvedUrl.html#line.385"><B>UrlResolver.ResolvedUrl</B></A>(<A HREF="../../../../com/twitter/common/net/UrlResolver.ResolvedUrl.EndState.html" title="enum in com.twitter.common.net">UrlResolver.ResolvedUrl.EndState</A>&nbsp;endState,
+public <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.ResolvedUrl.html#line.388"><B>UrlResolver.ResolvedUrl</B></A>(<A HREF="../../../../com/twitter/common/net/UrlResolver.ResolvedUrl.EndState.html" title="enum in com.twitter.common.net">UrlResolver.ResolvedUrl.EndState</A>&nbsp;endState,
                                <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;startUrl,
                                <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>...&nbsp;resolveChain)</PRE>
 <DL>
@@ -253,7 +253,7 @@ public <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.Resolved
 <A NAME="getStartUrl()"><!-- --></A><H3>
 getStartUrl</H3>
 <PRE>
-public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.ResolvedUrl.html#line.391"><B>getStartUrl</B></A>()</PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.ResolvedUrl.html#line.394"><B>getStartUrl</B></A>()</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -264,7 +264,7 @@ public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.ht
 <A NAME="getEndUrl()"><!-- --></A><H3>
 getEndUrl</H3>
 <PRE>
-public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.ResolvedUrl.html#line.403"><B>getEndUrl</B></A>()</PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.ResolvedUrl.html#line.406"><B>getEndUrl</B></A>()</PRE>
 <DL>
 <DD>Returns the last URL resolved following a redirect chain, or null if the startUrl is a
  landing URL.
@@ -278,7 +278,7 @@ public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.ht
 <A NAME="getIntermediateUrls()"><!-- --></A><H3>
 getIntermediateUrls</H3>
 <PRE>
-public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt; <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.ResolvedUrl.html#line.415"><B>getIntermediateUrls</B></A>()</PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt; <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.ResolvedUrl.html#line.418"><B>getIntermediateUrls</B></A>()</PRE>
 <DL>
 <DD>Returns any immediate URLs encountered on the resolution chain.  If the startUrl redirects
  directly to the endUrl or they are the same the imtermediate URLs will be empty.
@@ -292,7 +292,7 @@ public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.
 <A NAME="getEndState()"><!-- --></A><H3>
 getEndState</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/net/UrlResolver.ResolvedUrl.EndState.html" title="enum in com.twitter.common.net">UrlResolver.ResolvedUrl.EndState</A> <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.ResolvedUrl.html#line.420"><B>getEndState</B></A>()</PRE>
+public <A HREF="../../../../com/twitter/common/net/UrlResolver.ResolvedUrl.EndState.html" title="enum in com.twitter.common.net">UrlResolver.ResolvedUrl.EndState</A> <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.ResolvedUrl.html#line.423"><B>getEndState</B></A>()</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -303,7 +303,7 @@ public <A HREF="../../../../com/twitter/common/net/UrlResolver.ResolvedUrl.EndSt
 <A NAME="toString()"><!-- --></A><H3>
 toString</H3>
 <PRE>
-public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.ResolvedUrl.html#line.428"><B>toString</B></A>()</PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/net/UrlResolver.ResolvedUrl.html#line.431"><B>toString</B></A>()</PRE>
 <DL>
 <DD><DL>
 <DT><B>Overrides:</B><DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</A></CODE> in class <CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></CODE></DL>

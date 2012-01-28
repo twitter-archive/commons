@@ -84,41 +84,28 @@ Package com.twitter.common.args
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
-<B>Interface Summary</B></FONT></TH>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/Parsers.Parser.html" title="interface in com.twitter.common.args">Parsers.Parser&lt;T&gt;</A></B></TD>
-<TD>An interface to a command line argument parser.</TD>
-</TR>
-</TABLE>
-&nbsp;
-
-<P>
-
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
-<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Class Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/Arg.html" title="class in com.twitter.common.args">Arg&lt;T&gt;</A></B></TD>
-<TD>Wrapper class for the value of an argument.</TD>
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/ArgFilters.html" title="class in com.twitter.common.args">ArgFilters</A></B></TD>
+<TD>Utilities for generating @CmdLine <CODE>Arg</CODE> filters suitable for use with
+ <A HREF="../../../../com/twitter/common/args/ArgScanner.html#parse(com.google.common.base.Predicate, java.lang.Iterable)"><CODE>ArgScanner.parse(Predicate, Iterable)</CODE></A>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/ArgScanner.html" title="class in com.twitter.common.args">ArgScanner</A></B></TD>
 <TD>Argument scanning, parsing, and validating system.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/Constraints.html" title="class in com.twitter.common.args">Constraints</A></B></TD>
-<TD>Utility class to manage relationships between constraints and types.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/Parsers.html" title="class in com.twitter.common.args">Parsers</A></B></TD>
-<TD>Parsers for different supported argument types.</TD>
+<TD>A registry of Parsers for different supported argument types.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/TypeUtil.html" title="class in com.twitter.common.args">TypeUtil</A></B></TD>
 <TD>Utility class to extract generic type information.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/Verifiers.html" title="class in com.twitter.common.args">Verifiers</A></B></TD>
+<TD>Utility class to manage relationships between constraints and types.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -133,20 +120,6 @@ Package com.twitter.common.args
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/ArgScanner.ArgScanException.html" title="class in com.twitter.common.args">ArgScanner.ArgScanException</A></B></TD>
 <TD>Indicates a problem scanning @CmdLine arg definitions.</TD>
-</TR>
-</TABLE>
-&nbsp;
-
-<P>
-
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
-<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
-<B>Annotation Types Summary</B></FONT></TH>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/CmdLine.html" title="annotation in com.twitter.common.args">CmdLine</A></B></TD>
-<TD>Annotation for a command line argument.</TD>
 </TR>
 </TABLE>
 &nbsp;

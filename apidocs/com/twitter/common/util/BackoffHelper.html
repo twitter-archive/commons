@@ -54,7 +54,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../com/twitter/common/util/BackoffDecider.RecoveryType.html" title="enum in com.twitter.common.util"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../com/twitter/common/util/BackoffStrategy.html" title="interface in com.twitter.common.util"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/util/BackoffHelper.BackoffStoppedException.html" title="class in com.twitter.common.util"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/util/BackoffHelper.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="BackoffHelper.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -74,7 +74,7 @@ function windowTitle()
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
 DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
@@ -95,21 +95,37 @@ Class BackoffHelper</H2>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/util/BackoffHelper.html#line.35"><B>BackoffHelper</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/util/BackoffHelper.html#line.34"><B>BackoffHelper</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
 A utility for dealing with backoffs of retryable actions.
 
- <p>TODO(John Sirois): investigate synergies with BackoffDecider & also consider options for a timeout
- and/or a maximum number of retries.
+ <p>TODO(John Sirois): investigate synergies with BackoffDecider.
 <P>
 
 <P>
 <HR>
 
 <P>
+<!-- ======== NESTED CLASS SUMMARY ======== -->
 
+<A NAME="nested_class_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Nested Class Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/util/BackoffHelper.BackoffStoppedException.html" title="class in com.twitter.common.util">BackoffHelper.BackoffStoppedException</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Occurs after the backoff strategy should stop.</TD>
+</TR>
+</TABLE>
+&nbsp;
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 
 <A NAME="constructor_summary"><!-- --></A>
@@ -128,6 +144,15 @@ A utility for dealing with backoffs of retryable actions.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../com/twitter/common/util/BackoffHelper.html#BackoffHelper(com.twitter.common.quantity.Amount, com.twitter.common.quantity.Amount)">BackoffHelper</A></B>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;initialBackoff,
                            <A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;maxBackoff)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new BackoffHelper that uses truncated binary backoff starting at the given
+ <code>initialBackoff</code> and maxing out at the given <code>maxBackoff</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../com/twitter/common/util/BackoffHelper.html#BackoffHelper(com.twitter.common.quantity.Amount, com.twitter.common.quantity.Amount, boolean)">BackoffHelper</A></B>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;initialBackoff,
+                           <A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;maxBackoff,
+                           boolean&nbsp;stopAtMax)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new BackoffHelper that uses truncated binary backoff starting at the given
@@ -212,7 +237,7 @@ void</CODE></FONT></TD>
 <A NAME="BackoffHelper()"><!-- --></A><H3>
 BackoffHelper</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/util/BackoffHelper.html#line.48"><B>BackoffHelper</B></A>()</PRE>
+public <A HREF="../../../../src-html/com/twitter/common/util/BackoffHelper.html#line.47"><B>BackoffHelper</B></A>()</PRE>
 <DL>
 <DD>Creates a new BackoffHelper that uses truncated binary backoff starting at a 1 second backoff
  and maxing out at a 1 minute backoff.
@@ -223,7 +248,7 @@ public <A HREF="../../../../src-html/com/twitter/common/util/BackoffHelper.html#
 <A NAME="BackoffHelper(com.twitter.common.quantity.Amount, com.twitter.common.quantity.Amount)"><!-- --></A><H3>
 BackoffHelper</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/util/BackoffHelper.html#line.59"><B>BackoffHelper</B></A>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;initialBackoff,
+public <A HREF="../../../../src-html/com/twitter/common/util/BackoffHelper.html#line.58"><B>BackoffHelper</B></A>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;initialBackoff,
                      <A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;maxBackoff)</PRE>
 <DL>
 <DD>Creates a new BackoffHelper that uses truncated binary backoff starting at the given
@@ -234,10 +259,31 @@ public <A HREF="../../../../src-html/com/twitter/common/util/BackoffHelper.html#
 </DL>
 <HR>
 
+<A NAME="BackoffHelper(com.twitter.common.quantity.Amount, com.twitter.common.quantity.Amount, boolean)"><!-- --></A><H3>
+BackoffHelper</H3>
+<PRE>
+public <A HREF="../../../../src-html/com/twitter/common/util/BackoffHelper.html#line.76"><B>BackoffHelper</B></A>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;initialBackoff,
+                     <A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;maxBackoff,
+                     boolean&nbsp;stopAtMax)</PRE>
+<DL>
+<DD>Creates a new BackoffHelper that uses truncated binary backoff starting at the given
+ <code>initialBackoff</code> and maxing out at the given <code>maxBackoff</code>. This will either:
+ <ul>
+   <li><code>stopAtMax == true</code> : throw <code>BackoffExpiredException</code> when maxBackoff is
+   reached</li>
+   <li><code>stopAtMax == false</code> : continue backing off with maxBackoff</li>
+ </ul>
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>initialBackoff</CODE> - the initial amount of time to back off<DD><CODE>maxBackoff</CODE> - the maximum amount of time to back off<DD><CODE>stopAtMax</CODE> - if true, this will throw <code>BackoffStoppedException</code> when the max backoff is
+ reached</DL>
+</DL>
+<HR>
+
 <A NAME="BackoffHelper(com.twitter.common.util.BackoffStrategy)"><!-- --></A><H3>
 BackoffHelper</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/util/BackoffHelper.html#line.69"><B>BackoffHelper</B></A>(<A HREF="../../../../com/twitter/common/util/BackoffStrategy.html" title="interface in com.twitter.common.util">BackoffStrategy</A>&nbsp;backoffStrategy)</PRE>
+public <A HREF="../../../../src-html/com/twitter/common/util/BackoffHelper.html#line.87"><B>BackoffHelper</B></A>(<A HREF="../../../../com/twitter/common/util/BackoffStrategy.html" title="interface in com.twitter.common.util">BackoffStrategy</A>&nbsp;backoffStrategy)</PRE>
 <DL>
 <DD>Creates a BackoffHelper that uses the given <code>backoffStrategy</code> to calculate backoffs
  between retries.
@@ -259,8 +305,9 @@ public <A HREF="../../../../src-html/com/twitter/common/util/BackoffHelper.html#
 <A NAME="doUntilSuccess(com.twitter.common.base.ExceptionalSupplier)"><!-- --></A><H3>
 doUntilSuccess</H3>
 <PRE>
-public &lt;E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; void <A HREF="../../../../src-html/com/twitter/common/util/BackoffHelper.html#line.86"><B>doUntilSuccess</B></A>(<A HREF="../../../../com/twitter/common/base/ExceptionalSupplier.html" title="interface in com.twitter.common.base">ExceptionalSupplier</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Boolean.html?is-external=true" title="class or interface in java.lang">Boolean</A>,E&gt;&nbsp;task)
+public &lt;E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; void <A HREF="../../../../src-html/com/twitter/common/util/BackoffHelper.html#line.105"><B>doUntilSuccess</B></A>(<A HREF="../../../../com/twitter/common/base/ExceptionalSupplier.html" title="interface in com.twitter.common.base">ExceptionalSupplier</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Boolean.html?is-external=true" title="class or interface in java.lang">Boolean</A>,E&gt;&nbsp;task)
                     throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/InterruptedException.html?is-external=true" title="class or interface in java.lang">InterruptedException</A>,
+                           <A HREF="../../../../com/twitter/common/util/BackoffHelper.BackoffStoppedException.html" title="class in com.twitter.common.util">BackoffHelper.BackoffStoppedException</A>,
                            E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A></PRE>
 <DL>
 <DD>Executes the given task using the configured backoff strategy until the task succeeds as
@@ -270,6 +317,7 @@ public &lt;E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/
 <DT><B>Parameters:</B><DD><CODE>task</CODE> - the retryable task to execute until success
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/InterruptedException.html?is-external=true" title="class or interface in java.lang">InterruptedException</A></CODE> - if interrupted while waiting for the task to execute successfully
+<DD><CODE><A HREF="../../../../com/twitter/common/util/BackoffHelper.BackoffStoppedException.html" title="class in com.twitter.common.util">BackoffHelper.BackoffStoppedException</A></CODE> - if the backoff stopped unsuccessfully
 <DD><CODE>E</CODE> - if the task throws
 <DD><CODE>E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A></CODE></DL>
 </DD>
@@ -279,8 +327,9 @@ public &lt;E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/
 <A NAME="doUntilResult(com.twitter.common.base.ExceptionalSupplier)"><!-- --></A><H3>
 doUntilResult</H3>
 <PRE>
-public &lt;T,E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; T <A HREF="../../../../src-html/com/twitter/common/util/BackoffHelper.html#line.105"><B>doUntilResult</B></A>(<A HREF="../../../../com/twitter/common/base/ExceptionalSupplier.html" title="interface in com.twitter.common.base">ExceptionalSupplier</A>&lt;T,E&gt;&nbsp;task)
+public &lt;T,E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; T <A HREF="../../../../src-html/com/twitter/common/util/BackoffHelper.html#line.125"><B>doUntilResult</B></A>(<A HREF="../../../../com/twitter/common/base/ExceptionalSupplier.html" title="interface in com.twitter.common.base">ExceptionalSupplier</A>&lt;T,E&gt;&nbsp;task)
                 throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/InterruptedException.html?is-external=true" title="class or interface in java.lang">InterruptedException</A>,
+                       <A HREF="../../../../com/twitter/common/util/BackoffHelper.BackoffStoppedException.html" title="class in com.twitter.common.util">BackoffHelper.BackoffStoppedException</A>,
                        E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A></PRE>
 <DL>
 <DD>Executes the given task using the configured backoff strategy until the task succeeds as
@@ -291,6 +340,7 @@ public &lt;T,E extends <A HREF="http://download.oracle.com/javase/6/docs/api/jav
 <DT><B>Returns:</B><DD>the result of the successfully executed task
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/InterruptedException.html?is-external=true" title="class or interface in java.lang">InterruptedException</A></CODE> - if interrupted while waiting for the task to execute successfully
+<DD><CODE><A HREF="../../../../com/twitter/common/util/BackoffHelper.BackoffStoppedException.html" title="class in com.twitter.common.util">BackoffHelper.BackoffStoppedException</A></CODE> - if the backoff stopped unsuccessfully
 <DD><CODE>E</CODE> - if the task throws
 <DD><CODE>E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A></CODE></DL>
 </DD>
@@ -327,7 +377,7 @@ public &lt;T,E extends <A HREF="http://download.oracle.com/javase/6/docs/api/jav
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../com/twitter/common/util/BackoffDecider.RecoveryType.html" title="enum in com.twitter.common.util"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../com/twitter/common/util/BackoffStrategy.html" title="interface in com.twitter.common.util"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/util/BackoffHelper.BackoffStoppedException.html" title="class in com.twitter.common.util"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/util/BackoffHelper.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="BackoffHelper.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -347,7 +397,7 @@ public &lt;T,E extends <A HREF="http://download.oracle.com/javase/6/docs/api/jav
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
 DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>

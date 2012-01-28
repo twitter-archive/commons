@@ -24,119 +24,115 @@
 <FONT color="green">021</FONT>    import com.google.common.base.Preconditions;<a name="line.21"></a>
 <FONT color="green">022</FONT>    import com.google.common.collect.Maps;<a name="line.22"></a>
 <FONT color="green">023</FONT>    <a name="line.23"></a>
-<FONT color="green">024</FONT>    import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;<a name="line.24"></a>
-<FONT color="green">025</FONT>    import org.apache.lucene.util.AttributeSource;<a name="line.25"></a>
-<FONT color="green">026</FONT>    <a name="line.26"></a>
-<FONT color="green">027</FONT>    import com.twitter.common.text.token.TokenProcessor;<a name="line.27"></a>
-<FONT color="green">028</FONT>    import com.twitter.common.text.token.TokenStream;<a name="line.28"></a>
-<FONT color="green">029</FONT>    import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;<a name="line.29"></a>
-<FONT color="green">030</FONT>    import com.twitter.common.text.token.attribute.TokenType;<a name="line.30"></a>
-<FONT color="green">031</FONT>    import com.twitter.common.text.token.attribute.TokenTypeAttribute;<a name="line.31"></a>
-<FONT color="green">032</FONT>    <a name="line.32"></a>
-<FONT color="green">033</FONT>    /**<a name="line.33"></a>
-<FONT color="green">034</FONT>     * Combines multiple tokens into a single one if they define an entity identified<a name="line.34"></a>
-<FONT color="green">035</FONT>     * by an extractor TokenStream.<a name="line.35"></a>
-<FONT color="green">036</FONT>     */<a name="line.36"></a>
-<FONT color="green">037</FONT>    public class ExtractorBasedTokenCombiner extends TokenProcessor {<a name="line.37"></a>
-<FONT color="green">038</FONT>      private final CharSequenceTermAttribute termAttr;<a name="line.38"></a>
-<FONT color="green">039</FONT>      private final CharSequenceTermAttribute inputTermAttr;<a name="line.39"></a>
-<FONT color="green">040</FONT>      private final TokenTypeAttribute typeAttr;<a name="line.40"></a>
-<FONT color="green">041</FONT>      private final OffsetAttribute offsetAttr;<a name="line.41"></a>
-<FONT color="green">042</FONT>    <a name="line.42"></a>
-<FONT color="green">043</FONT>      private TokenStream extractor = null;<a name="line.43"></a>
-<FONT color="green">044</FONT>      private CharSequenceTermAttribute extractorTermAttr;<a name="line.44"></a>
-<FONT color="green">045</FONT>      private TokenType type = null;<a name="line.45"></a>
+<FONT color="green">024</FONT>    import org.apache.lucene.util.AttributeSource;<a name="line.24"></a>
+<FONT color="green">025</FONT>    <a name="line.25"></a>
+<FONT color="green">026</FONT>    import com.twitter.common.text.token.TokenProcessor;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import com.twitter.common.text.token.TokenStream;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;<a name="line.28"></a>
+<FONT color="green">029</FONT>    import com.twitter.common.text.token.attribute.TokenType;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import com.twitter.common.text.token.attribute.TokenTypeAttribute;<a name="line.30"></a>
+<FONT color="green">031</FONT>    <a name="line.31"></a>
+<FONT color="green">032</FONT>    /**<a name="line.32"></a>
+<FONT color="green">033</FONT>     * Combines multiple tokens into a single one if they define an entity identified<a name="line.33"></a>
+<FONT color="green">034</FONT>     * by an extractor TokenStream.<a name="line.34"></a>
+<FONT color="green">035</FONT>     */<a name="line.35"></a>
+<FONT color="green">036</FONT>    public class ExtractorBasedTokenCombiner extends TokenProcessor {<a name="line.36"></a>
+<FONT color="green">037</FONT>      private final CharSequenceTermAttribute termAttr;<a name="line.37"></a>
+<FONT color="green">038</FONT>      private final CharSequenceTermAttribute inputTermAttr;<a name="line.38"></a>
+<FONT color="green">039</FONT>      private final TokenTypeAttribute typeAttr;<a name="line.39"></a>
+<FONT color="green">040</FONT>    <a name="line.40"></a>
+<FONT color="green">041</FONT>      private TokenStream extractor = null;<a name="line.41"></a>
+<FONT color="green">042</FONT>      private CharSequenceTermAttribute extractorTermAttr;<a name="line.42"></a>
+<FONT color="green">043</FONT>      private TokenType type = null;<a name="line.43"></a>
+<FONT color="green">044</FONT>    <a name="line.44"></a>
+<FONT color="green">045</FONT>      private AttributeSource.State state;<a name="line.45"></a>
 <FONT color="green">046</FONT>    <a name="line.46"></a>
-<FONT color="green">047</FONT>      private AttributeSource.State state;<a name="line.47"></a>
-<FONT color="green">048</FONT>    <a name="line.48"></a>
-<FONT color="green">049</FONT>      // this map stores the start offsets and end offsets<a name="line.49"></a>
-<FONT color="green">050</FONT>      // of the tokens detected by extractor.<a name="line.50"></a>
-<FONT color="green">051</FONT>      private Map&lt;Integer, Integer&gt; offsetMap = Maps.newHashMap();<a name="line.51"></a>
-<FONT color="green">052</FONT>    <a name="line.52"></a>
-<FONT color="green">053</FONT>      public ExtractorBasedTokenCombiner(TokenStream inputStream) {<a name="line.53"></a>
-<FONT color="green">054</FONT>        super(inputStream);<a name="line.54"></a>
-<FONT color="green">055</FONT>        Preconditions.checkArgument(hasAttribute(CharSequenceTermAttribute.class));<a name="line.55"></a>
-<FONT color="green">056</FONT>        termAttr = getAttribute(CharSequenceTermAttribute.class);<a name="line.56"></a>
-<FONT color="green">057</FONT>        offsetAttr = getAttribute(OffsetAttribute.class);<a name="line.57"></a>
-<FONT color="green">058</FONT>        typeAttr = addAttribute(TokenTypeAttribute.class);<a name="line.58"></a>
-<FONT color="green">059</FONT>        inputTermAttr = inputStream.getAttribute(CharSequenceTermAttribute.class);<a name="line.59"></a>
-<FONT color="green">060</FONT>      }<a name="line.60"></a>
-<FONT color="green">061</FONT>    <a name="line.61"></a>
-<FONT color="green">062</FONT>      protected void setExtractor(TokenStream extractor) {<a name="line.62"></a>
-<FONT color="green">063</FONT>        this.extractor = extractor;<a name="line.63"></a>
-<FONT color="green">064</FONT>        extractorTermAttr = extractor.getAttribute(CharSequenceTermAttribute.class);<a name="line.64"></a>
-<FONT color="green">065</FONT>      }<a name="line.65"></a>
-<FONT color="green">066</FONT>    <a name="line.66"></a>
-<FONT color="green">067</FONT>      protected void setType(TokenType type) {<a name="line.67"></a>
-<FONT color="green">068</FONT>        this.type = type;<a name="line.68"></a>
-<FONT color="green">069</FONT>      }<a name="line.69"></a>
-<FONT color="green">070</FONT>    <a name="line.70"></a>
-<FONT color="green">071</FONT>      @Override<a name="line.71"></a>
-<FONT color="green">072</FONT>      public void reset(CharSequence input) {<a name="line.72"></a>
-<FONT color="green">073</FONT>        super.reset(input);<a name="line.73"></a>
-<FONT color="green">074</FONT>    <a name="line.74"></a>
-<FONT color="green">075</FONT>        Preconditions.checkNotNull(extractor);<a name="line.75"></a>
-<FONT color="green">076</FONT>    <a name="line.76"></a>
-<FONT color="green">077</FONT>        offsetMap.clear();<a name="line.77"></a>
-<FONT color="green">078</FONT>        extractor.reset(input);<a name="line.78"></a>
-<FONT color="green">079</FONT>        while (extractor.incrementToken()) {<a name="line.79"></a>
-<FONT color="green">080</FONT>          offsetMap.put(extractorTermAttr.getOffset(),<a name="line.80"></a>
-<FONT color="green">081</FONT>              extractorTermAttr.getOffset() + extractorTermAttr.getLength());<a name="line.81"></a>
-<FONT color="green">082</FONT>        }<a name="line.82"></a>
-<FONT color="green">083</FONT>      }<a name="line.83"></a>
-<FONT color="green">084</FONT>    <a name="line.84"></a>
-<FONT color="green">085</FONT>      @Override<a name="line.85"></a>
-<FONT color="green">086</FONT>      public boolean incrementToken() {<a name="line.86"></a>
-<FONT color="green">087</FONT>        clearAttributes();<a name="line.87"></a>
-<FONT color="green">088</FONT>        if (state != null) {<a name="line.88"></a>
-<FONT color="green">089</FONT>          restoreState(state);<a name="line.89"></a>
-<FONT color="green">090</FONT>          state = null;<a name="line.90"></a>
-<FONT color="green">091</FONT>        } else {<a name="line.91"></a>
-<FONT color="green">092</FONT>          if (!getInputStream().incrementToken()) {<a name="line.92"></a>
-<FONT color="green">093</FONT>            return false;<a name="line.93"></a>
-<FONT color="green">094</FONT>          }<a name="line.94"></a>
+<FONT color="green">047</FONT>      // this map stores the start offsets and end offsets<a name="line.47"></a>
+<FONT color="green">048</FONT>      // of the tokens detected by extractor.<a name="line.48"></a>
+<FONT color="green">049</FONT>      private Map&lt;Integer, Integer&gt; offsetMap = Maps.newHashMap();<a name="line.49"></a>
+<FONT color="green">050</FONT>    <a name="line.50"></a>
+<FONT color="green">051</FONT>      public ExtractorBasedTokenCombiner(TokenStream inputStream) {<a name="line.51"></a>
+<FONT color="green">052</FONT>        super(inputStream);<a name="line.52"></a>
+<FONT color="green">053</FONT>        Preconditions.checkArgument(hasAttribute(CharSequenceTermAttribute.class));<a name="line.53"></a>
+<FONT color="green">054</FONT>        termAttr = getAttribute(CharSequenceTermAttribute.class);<a name="line.54"></a>
+<FONT color="green">055</FONT>        typeAttr = addAttribute(TokenTypeAttribute.class);<a name="line.55"></a>
+<FONT color="green">056</FONT>        inputTermAttr = inputStream.getAttribute(CharSequenceTermAttribute.class);<a name="line.56"></a>
+<FONT color="green">057</FONT>      }<a name="line.57"></a>
+<FONT color="green">058</FONT>    <a name="line.58"></a>
+<FONT color="green">059</FONT>      protected void setExtractor(TokenStream extractor) {<a name="line.59"></a>
+<FONT color="green">060</FONT>        this.extractor = extractor;<a name="line.60"></a>
+<FONT color="green">061</FONT>        extractorTermAttr = extractor.getAttribute(CharSequenceTermAttribute.class);<a name="line.61"></a>
+<FONT color="green">062</FONT>      }<a name="line.62"></a>
+<FONT color="green">063</FONT>    <a name="line.63"></a>
+<FONT color="green">064</FONT>      protected void setType(TokenType type) {<a name="line.64"></a>
+<FONT color="green">065</FONT>        this.type = type;<a name="line.65"></a>
+<FONT color="green">066</FONT>      }<a name="line.66"></a>
+<FONT color="green">067</FONT>    <a name="line.67"></a>
+<FONT color="green">068</FONT>      @Override<a name="line.68"></a>
+<FONT color="green">069</FONT>      public void reset(CharSequence input) {<a name="line.69"></a>
+<FONT color="green">070</FONT>        super.reset(input);<a name="line.70"></a>
+<FONT color="green">071</FONT>    <a name="line.71"></a>
+<FONT color="green">072</FONT>        Preconditions.checkNotNull(extractor);<a name="line.72"></a>
+<FONT color="green">073</FONT>    <a name="line.73"></a>
+<FONT color="green">074</FONT>        offsetMap.clear();<a name="line.74"></a>
+<FONT color="green">075</FONT>        extractor.reset(input);<a name="line.75"></a>
+<FONT color="green">076</FONT>        while (extractor.incrementToken()) {<a name="line.76"></a>
+<FONT color="green">077</FONT>          offsetMap.put(extractorTermAttr.getOffset(),<a name="line.77"></a>
+<FONT color="green">078</FONT>              extractorTermAttr.getOffset() + extractorTermAttr.getLength());<a name="line.78"></a>
+<FONT color="green">079</FONT>        }<a name="line.79"></a>
+<FONT color="green">080</FONT>      }<a name="line.80"></a>
+<FONT color="green">081</FONT>    <a name="line.81"></a>
+<FONT color="green">082</FONT>      @Override<a name="line.82"></a>
+<FONT color="green">083</FONT>      public boolean incrementToken() {<a name="line.83"></a>
+<FONT color="green">084</FONT>        clearAttributes();<a name="line.84"></a>
+<FONT color="green">085</FONT>        if (state != null) {<a name="line.85"></a>
+<FONT color="green">086</FONT>          restoreState(state);<a name="line.86"></a>
+<FONT color="green">087</FONT>          state = null;<a name="line.87"></a>
+<FONT color="green">088</FONT>        } else {<a name="line.88"></a>
+<FONT color="green">089</FONT>          if (!getInputStream().incrementToken()) {<a name="line.89"></a>
+<FONT color="green">090</FONT>            return false;<a name="line.90"></a>
+<FONT color="green">091</FONT>          }<a name="line.91"></a>
+<FONT color="green">092</FONT>    <a name="line.92"></a>
+<FONT color="green">093</FONT>          restoreState(getInputStream().captureState());<a name="line.93"></a>
+<FONT color="green">094</FONT>        }<a name="line.94"></a>
 <FONT color="green">095</FONT>    <a name="line.95"></a>
-<FONT color="green">096</FONT>          restoreState(getInputStream().captureState());<a name="line.96"></a>
-<FONT color="green">097</FONT>        }<a name="line.97"></a>
-<FONT color="green">098</FONT>    <a name="line.98"></a>
-<FONT color="green">099</FONT>        if (offsetMap.containsKey(termAttr.getOffset())) {<a name="line.99"></a>
-<FONT color="green">100</FONT>          int startOffset = termAttr.getOffset();<a name="line.100"></a>
-<FONT color="green">101</FONT>          int endOffset = offsetMap.get(startOffset);<a name="line.101"></a>
-<FONT color="green">102</FONT>    <a name="line.102"></a>
-<FONT color="green">103</FONT>          // if the current token matches the given pattern,<a name="line.103"></a>
-<FONT color="green">104</FONT>          // simply update its TypeAttribute.<a name="line.104"></a>
-<FONT color="green">105</FONT>          if (endOffset == inputTermAttr.getOffset() + inputTermAttr.getLength()) {<a name="line.105"></a>
-<FONT color="green">106</FONT>            if (type != null) {<a name="line.106"></a>
-<FONT color="green">107</FONT>              typeAttr.setType(type);<a name="line.107"></a>
-<FONT color="green">108</FONT>            }<a name="line.108"></a>
-<FONT color="green">109</FONT>            return true;<a name="line.109"></a>
-<FONT color="green">110</FONT>          }<a name="line.110"></a>
+<FONT color="green">096</FONT>        if (offsetMap.containsKey(termAttr.getOffset())) {<a name="line.96"></a>
+<FONT color="green">097</FONT>          int startOffset = termAttr.getOffset();<a name="line.97"></a>
+<FONT color="green">098</FONT>          int endOffset = offsetMap.get(startOffset);<a name="line.98"></a>
+<FONT color="green">099</FONT>    <a name="line.99"></a>
+<FONT color="green">100</FONT>          // if the current token matches the given pattern,<a name="line.100"></a>
+<FONT color="green">101</FONT>          // simply update its TypeAttribute.<a name="line.101"></a>
+<FONT color="green">102</FONT>          if (endOffset == inputTermAttr.getOffset() + inputTermAttr.getLength()) {<a name="line.102"></a>
+<FONT color="green">103</FONT>            if (type != null) {<a name="line.103"></a>
+<FONT color="green">104</FONT>              typeAttr.setType(type);<a name="line.104"></a>
+<FONT color="green">105</FONT>            }<a name="line.105"></a>
+<FONT color="green">106</FONT>            return true;<a name="line.106"></a>
+<FONT color="green">107</FONT>          }<a name="line.107"></a>
+<FONT color="green">108</FONT>    <a name="line.108"></a>
+<FONT color="green">109</FONT>          while (getInputStream().incrementToken()) {<a name="line.109"></a>
+<FONT color="green">110</FONT>            state = getInputStream().captureState();<a name="line.110"></a>
 <FONT color="green">111</FONT>    <a name="line.111"></a>
-<FONT color="green">112</FONT>          while (getInputStream().incrementToken()) {<a name="line.112"></a>
-<FONT color="green">113</FONT>            state = getInputStream().captureState();<a name="line.113"></a>
-<FONT color="green">114</FONT>    <a name="line.114"></a>
-<FONT color="green">115</FONT>            int currentEndOffset = inputTermAttr.getOffset() + inputTermAttr.getLength();<a name="line.115"></a>
-<FONT color="green">116</FONT>            if (currentEndOffset == endOffset) {<a name="line.116"></a>
-<FONT color="green">117</FONT>              //found it!<a name="line.117"></a>
-<FONT color="green">118</FONT>              termAttr.setLength(endOffset - startOffset);<a name="line.118"></a>
-<FONT color="green">119</FONT>              offsetAttr.setOffset(startOffset, endOffset);<a name="line.119"></a>
-<FONT color="green">120</FONT>              if (type != null) {<a name="line.120"></a>
-<FONT color="green">121</FONT>                typeAttr.setType(type);<a name="line.121"></a>
-<FONT color="green">122</FONT>              }<a name="line.122"></a>
-<FONT color="green">123</FONT>              state = null;<a name="line.123"></a>
-<FONT color="green">124</FONT>    <a name="line.124"></a>
+<FONT color="green">112</FONT>            int currentEndOffset = inputTermAttr.getOffset() + inputTermAttr.getLength();<a name="line.112"></a>
+<FONT color="green">113</FONT>            if (currentEndOffset == endOffset) {<a name="line.113"></a>
+<FONT color="green">114</FONT>              //found it!<a name="line.114"></a>
+<FONT color="green">115</FONT>              termAttr.setLength(endOffset - startOffset);<a name="line.115"></a>
+<FONT color="green">116</FONT>              if (type != null) {<a name="line.116"></a>
+<FONT color="green">117</FONT>                typeAttr.setType(type);<a name="line.117"></a>
+<FONT color="green">118</FONT>              }<a name="line.118"></a>
+<FONT color="green">119</FONT>              state = null;<a name="line.119"></a>
+<FONT color="green">120</FONT>    <a name="line.120"></a>
+<FONT color="green">121</FONT>              break;<a name="line.121"></a>
+<FONT color="green">122</FONT>            } else if (currentEndOffset &gt; endOffset) {<a name="line.122"></a>
+<FONT color="green">123</FONT>              // cannot find it and currentEndOffset<a name="line.123"></a>
+<FONT color="green">124</FONT>              // grows beyond expected (tokenization mismatch??)<a name="line.124"></a>
 <FONT color="green">125</FONT>              break;<a name="line.125"></a>
-<FONT color="green">126</FONT>            } else if (currentEndOffset &gt; endOffset) {<a name="line.126"></a>
-<FONT color="green">127</FONT>              // cannot find it and currentEndOffset<a name="line.127"></a>
-<FONT color="green">128</FONT>              // grows beyond expected (tokenization mismatch??)<a name="line.128"></a>
-<FONT color="green">129</FONT>              break;<a name="line.129"></a>
-<FONT color="green">130</FONT>            }<a name="line.130"></a>
-<FONT color="green">131</FONT>          }<a name="line.131"></a>
-<FONT color="green">132</FONT>        }<a name="line.132"></a>
-<FONT color="green">133</FONT>    <a name="line.133"></a>
-<FONT color="green">134</FONT>        return true;<a name="line.134"></a>
-<FONT color="green">135</FONT>      }<a name="line.135"></a>
-<FONT color="green">136</FONT>    }<a name="line.136"></a>
+<FONT color="green">126</FONT>            }<a name="line.126"></a>
+<FONT color="green">127</FONT>          }<a name="line.127"></a>
+<FONT color="green">128</FONT>        }<a name="line.128"></a>
+<FONT color="green">129</FONT>    <a name="line.129"></a>
+<FONT color="green">130</FONT>        return true;<a name="line.130"></a>
+<FONT color="green">131</FONT>      }<a name="line.131"></a>
+<FONT color="green">132</FONT>    }<a name="line.132"></a>
 
 
 

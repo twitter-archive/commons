@@ -74,7 +74,7 @@ function windowTitle()
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;<A HREF="#fields_inherited_from_class_com.twitter.common.text.TextTokenizer">FIELD</A>&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
 DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
@@ -91,11 +91,12 @@ com.twitter.common.text</FONT>
 Class DefaultTextTokenizer</H2>
 <PRE>
 <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
-  <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.text.DefaultTextTokenizer</B>
+  <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><A HREF="../../../../com/twitter/common/text/TextTokenizer.html" title="class in com.twitter.common.text">com.twitter.common.text.TextTokenizer</A>
+      <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.text.DefaultTextTokenizer</B>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/text/DefaultTextTokenizer.html#line.41"><B>DefaultTextTokenizer</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/text/DefaultTextTokenizer.html#line.28"><B>DefaultTextTokenizer</B></A><DT>extends <A HREF="../../../../com/twitter/common/text/TextTokenizer.html" title="class in com.twitter.common.text">TextTokenizer</A></DL>
 </PRE>
 
 <P>
@@ -124,6 +125,24 @@ Default implementation of a tokenizer for processing tweets. For sample usage, p
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Builder for <A HREF="../../../../com/twitter/common/text/DefaultTextTokenizer.html" title="class in com.twitter.common.text"><CODE>DefaultTextTokenizer</CODE></A></TD>
 </TR>
 </TABLE>
+&nbsp;<!-- =========== FIELD SUMMARY =========== -->
+
+<A NAME="field_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Field Summary</B></FONT></TH>
+</TR>
+</TABLE>
+&nbsp;<A NAME="fields_inherited_from_class_com.twitter.common.text.TextTokenizer"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Fields inherited from class com.twitter.common.text.<A HREF="../../../../com/twitter/common/text/TextTokenizer.html" title="class in com.twitter.common.text">TextTokenizer</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="../../../../com/twitter/common/text/TextTokenizer.html#tokenizationStream">tokenizationStream</A></CODE></TD>
+</TR>
+</TABLE>
 &nbsp;
 <!-- ========== METHOD SUMMARY =========== -->
 
@@ -135,35 +154,20 @@ Default implementation of a tokenizer for processing tweets. For sample usage, p
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></CODE></FONT></TD>
+<CODE>&nbsp;<A HREF="../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/text/DefaultTextTokenizer.html#applyDefaultChain(com.twitter.common.text.token.TokenStream)">applyDefaultChain</A></B>(<A HREF="../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;tokenizer)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/text/DefaultTextTokenizer.html#getDefaultTokenStream()">getDefaultTokenStream</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns <code>TokenStream</code> to tokenize a text.</TD>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_com.twitter.common.text.TextTokenizer"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class com.twitter.common.text.<A HREF="../../../../com/twitter/common/text/TextTokenizer.html" title="class in com.twitter.common.text">TextTokenizer</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="../../../../com/twitter/common/text/token/TokenizedCharSequence.html" title="class in com.twitter.common.text.token">TokenizedCharSequence</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/text/DefaultTextTokenizer.html#tokenize(java.lang.CharSequence)">tokenize</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;input)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tokenizes a <code>CharSequence</code>, and returns a <code>TokenizedCharSequence</code> as a result.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/text/DefaultTextTokenizer.html#tokenizeToStrings(java.lang.CharSequence)">tokenizeToStrings</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;input)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tokenizes a <code>CharSequence</code> into a list of Strings.</TD>
+<TD><CODE><A HREF="../../../../com/twitter/common/text/TextTokenizer.html#getDefaultTokenStream()">getDefaultTokenStream</A>, <A HREF="../../../../com/twitter/common/text/TextTokenizer.html#tokenize(java.lang.CharSequence)">tokenize</A>, <A HREF="../../../../com/twitter/common/text/TextTokenizer.html#tokenizeToStrings(java.lang.CharSequence)">tokenizeToStrings</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -191,52 +195,13 @@ Default implementation of a tokenizer for processing tweets. For sample usage, p
 <A NAME="applyDefaultChain(com.twitter.common.text.token.TokenStream)"><!-- --></A><H3>
 applyDefaultChain</H3>
 <PRE>
-public static final <A HREF="../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A> <A HREF="../../../../src-html/com/twitter/common/text/DefaultTextTokenizer.html#line.48"><B>applyDefaultChain</B></A>(<A HREF="../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;tokenizer)</PRE>
+public <A HREF="../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A> <A HREF="../../../../src-html/com/twitter/common/text/DefaultTextTokenizer.html#line.32"><B>applyDefaultChain</B></A>(<A HREF="../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;tokenizer)</PRE>
 <DL>
 <DD><DL>
-</DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../com/twitter/common/text/TextTokenizer.html#applyDefaultChain(com.twitter.common.text.token.TokenStream)">applyDefaultChain</A></CODE> in class <CODE><A HREF="../../../../com/twitter/common/text/TextTokenizer.html" title="class in com.twitter.common.text">TextTokenizer</A></CODE></DL>
 </DD>
-</DL>
-<HR>
-
-<A NAME="getDefaultTokenStream()"><!-- --></A><H3>
-getDefaultTokenStream</H3>
-<PRE>
-public <A HREF="../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A> <A HREF="../../../../src-html/com/twitter/common/text/DefaultTextTokenizer.html#line.71"><B>getDefaultTokenStream</B></A>()</PRE>
-<DL>
-<DD>Returns <code>TokenStream</code> to tokenize a text.
-<P>
 <DD><DL>
-
-<DT><B>Returns:</B><DD><code>TokenStream</code> to tokenize the text</DL>
-</DD>
 </DL>
-<HR>
-
-<A NAME="tokenize(java.lang.CharSequence)"><!-- --></A><H3>
-tokenize</H3>
-<PRE>
-public <A HREF="../../../../com/twitter/common/text/token/TokenizedCharSequence.html" title="class in com.twitter.common.text.token">TokenizedCharSequence</A> <A HREF="../../../../src-html/com/twitter/common/text/DefaultTextTokenizer.html#line.81"><B>tokenize</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;input)</PRE>
-<DL>
-<DD>Tokenizes a <code>CharSequence</code>, and returns a <code>TokenizedCharSequence</code> as a result.
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>input</CODE> - text to be tokenized
-<DT><B>Returns:</B><DD><code>TokenizedCharSequence</code> instance</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="tokenizeToStrings(java.lang.CharSequence)"><!-- --></A><H3>
-tokenizeToStrings</H3>
-<PRE>
-public <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt; <A HREF="../../../../src-html/com/twitter/common/text/DefaultTextTokenizer.html#line.92"><B>tokenizeToStrings</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;input)</PRE>
-<DL>
-<DD>Tokenizes a <code>CharSequence</code> into a list of Strings.
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>input</CODE> - text to be tokenized
-<DT><B>Returns:</B><DD>a list of tokens as String objects</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
@@ -291,7 +256,7 @@ public <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;<A HREF="#fields_inherited_from_class_com.twitter.common.text.TextTokenizer">FIELD</A>&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
 DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>

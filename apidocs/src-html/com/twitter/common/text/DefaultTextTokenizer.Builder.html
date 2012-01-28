@@ -19,114 +19,63 @@
 <FONT color="green">016</FONT>    <a name="line.16"></a>
 <FONT color="green">017</FONT>    package com.twitter.common.text;<a name="line.17"></a>
 <FONT color="green">018</FONT>    <a name="line.18"></a>
-<FONT color="green">019</FONT>    import java.util.List;<a name="line.19"></a>
-<FONT color="green">020</FONT>    <a name="line.20"></a>
-<FONT color="green">021</FONT>    import com.google.common.base.Preconditions;<a name="line.21"></a>
-<FONT color="green">022</FONT>    <a name="line.22"></a>
-<FONT color="green">023</FONT>    import com.twitter.common.text.combiner.DotContractedTokenCombiner;<a name="line.23"></a>
-<FONT color="green">024</FONT>    import com.twitter.common.text.combiner.EmoticonTokenCombiner;<a name="line.24"></a>
-<FONT color="green">025</FONT>    import com.twitter.common.text.combiner.HashtagTokenCombiner;<a name="line.25"></a>
-<FONT color="green">026</FONT>    import com.twitter.common.text.combiner.PossessiveTokenCombiner;<a name="line.26"></a>
-<FONT color="green">027</FONT>    import com.twitter.common.text.combiner.StockTokenCombiner;<a name="line.27"></a>
-<FONT color="green">028</FONT>    import com.twitter.common.text.combiner.URLTokenCombiner;<a name="line.28"></a>
-<FONT color="green">029</FONT>    import com.twitter.common.text.combiner.UserNameTokenCombiner;<a name="line.29"></a>
-<FONT color="green">030</FONT>    import com.twitter.common.text.example.TokenizerUsageExample;<a name="line.30"></a>
-<FONT color="green">031</FONT>    import com.twitter.common.text.filter.PunctuationFilter;<a name="line.31"></a>
-<FONT color="green">032</FONT>    import com.twitter.common.text.token.TokenStream;<a name="line.32"></a>
-<FONT color="green">033</FONT>    import com.twitter.common.text.token.TokenizedCharSequence;<a name="line.33"></a>
-<FONT color="green">034</FONT>    import com.twitter.common.text.token.TokenizedCharSequenceStream;<a name="line.34"></a>
-<FONT color="green">035</FONT>    import com.twitter.common.text.tokenizer.LatinTokenizer;<a name="line.35"></a>
-<FONT color="green">036</FONT>    <a name="line.36"></a>
-<FONT color="green">037</FONT>    /**<a name="line.37"></a>
-<FONT color="green">038</FONT>     * Default implementation of a tokenizer for processing tweets. For sample usage, please consult<a name="line.38"></a>
-<FONT color="green">039</FONT>     * annotated code example in {@link TokenizerUsageExample}.<a name="line.39"></a>
-<FONT color="green">040</FONT>     */<a name="line.40"></a>
-<FONT color="green">041</FONT>    public class DefaultTextTokenizer {<a name="line.41"></a>
-<FONT color="green">042</FONT>      private TokenStream tokenizationStream =<a name="line.42"></a>
-<FONT color="green">043</FONT>          new TokenizedCharSequenceStream(applyDefaultChain(new LatinTokenizer.Builder().build()));<a name="line.43"></a>
-<FONT color="green">044</FONT>    <a name="line.44"></a>
-<FONT color="green">045</FONT>      // use Builder.<a name="line.45"></a>
-<FONT color="green">046</FONT>      private DefaultTextTokenizer() { }<a name="line.46"></a>
-<FONT color="green">047</FONT>    <a name="line.47"></a>
-<FONT color="green">048</FONT>      public static final TokenStream applyDefaultChain(TokenStream tokenizer) {<a name="line.48"></a>
-<FONT color="green">049</FONT>        return<a name="line.49"></a>
-<FONT color="green">050</FONT>          // combine stock symbol<a name="line.50"></a>
-<FONT color="green">051</FONT>          new StockTokenCombiner(<a name="line.51"></a>
-<FONT color="green">052</FONT>            // combine emoticon like :) :-D<a name="line.52"></a>
-<FONT color="green">053</FONT>            new EmoticonTokenCombiner(<a name="line.53"></a>
-<FONT color="green">054</FONT>              // combine Mr/Mrs/Dr/Inc + .<a name="line.54"></a>
-<FONT color="green">055</FONT>              new DotContractedTokenCombiner(<a name="line.55"></a>
-<FONT color="green">056</FONT>                // combine possessive form (e.g., apple's)<a name="line.56"></a>
-<FONT color="green">057</FONT>                new PossessiveTokenCombiner(<a name="line.57"></a>
-<FONT color="green">058</FONT>                  // combine URL<a name="line.58"></a>
-<FONT color="green">059</FONT>                  new URLTokenCombiner(<a name="line.59"></a>
-<FONT color="green">060</FONT>                    // combine # + hashtag<a name="line.60"></a>
-<FONT color="green">061</FONT>                    new HashtagTokenCombiner(<a name="line.61"></a>
-<FONT color="green">062</FONT>                      // combine @ + user name<a name="line.62"></a>
-<FONT color="green">063</FONT>                      new UserNameTokenCombiner(tokenizer)))))));<a name="line.63"></a>
-<FONT color="green">064</FONT>      }<a name="line.64"></a>
-<FONT color="green">065</FONT>    <a name="line.65"></a>
-<FONT color="green">066</FONT>      /**<a name="line.66"></a>
-<FONT color="green">067</FONT>       * Returns {@code TokenStream} to tokenize a text.<a name="line.67"></a>
-<FONT color="green">068</FONT>       *<a name="line.68"></a>
-<FONT color="green">069</FONT>       * @return {@code TokenStream} to tokenize the text<a name="line.69"></a>
-<FONT color="green">070</FONT>       */<a name="line.70"></a>
-<FONT color="green">071</FONT>      public TokenStream getDefaultTokenStream() {<a name="line.71"></a>
-<FONT color="green">072</FONT>        return tokenizationStream;<a name="line.72"></a>
-<FONT color="green">073</FONT>      }<a name="line.73"></a>
-<FONT color="green">074</FONT>    <a name="line.74"></a>
-<FONT color="green">075</FONT>      /**<a name="line.75"></a>
-<FONT color="green">076</FONT>       * Tokenizes a {@code CharSequence}, and returns a {@code TokenizedCharSequence} as a result.<a name="line.76"></a>
-<FONT color="green">077</FONT>       *<a name="line.77"></a>
-<FONT color="green">078</FONT>       * @param input text to be tokenized<a name="line.78"></a>
-<FONT color="green">079</FONT>       * @return {@code TokenizedCharSequence} instance<a name="line.79"></a>
-<FONT color="green">080</FONT>       */<a name="line.80"></a>
-<FONT color="green">081</FONT>      public TokenizedCharSequence tokenize(CharSequence input) {<a name="line.81"></a>
-<FONT color="green">082</FONT>        Preconditions.checkNotNull(input);<a name="line.82"></a>
-<FONT color="green">083</FONT>        return TokenizedCharSequence.createFrom(input, getDefaultTokenStream());<a name="line.83"></a>
-<FONT color="green">084</FONT>      }<a name="line.84"></a>
-<FONT color="green">085</FONT>    <a name="line.85"></a>
-<FONT color="green">086</FONT>      /**<a name="line.86"></a>
-<FONT color="green">087</FONT>       * Tokenizes a {@code CharSequence} into a list of Strings.<a name="line.87"></a>
-<FONT color="green">088</FONT>       *<a name="line.88"></a>
-<FONT color="green">089</FONT>       * @param input text to be tokenized<a name="line.89"></a>
-<FONT color="green">090</FONT>       * @return a list of tokens as String objects<a name="line.90"></a>
-<FONT color="green">091</FONT>       */<a name="line.91"></a>
-<FONT color="green">092</FONT>      public List&lt;String&gt; tokenizeToStrings(CharSequence input) {<a name="line.92"></a>
-<FONT color="green">093</FONT>        Preconditions.checkNotNull(input);<a name="line.93"></a>
-<FONT color="green">094</FONT>        TokenStream tokenizer = getDefaultTokenStream();<a name="line.94"></a>
-<FONT color="green">095</FONT>        tokenizer.reset(input);<a name="line.95"></a>
-<FONT color="green">096</FONT>        return tokenizer.toStringList();<a name="line.96"></a>
-<FONT color="green">097</FONT>      }<a name="line.97"></a>
-<FONT color="green">098</FONT>    <a name="line.98"></a>
-<FONT color="green">099</FONT>      /**<a name="line.99"></a>
-<FONT color="green">100</FONT>       * Builder for {@link DefaultTextTokenizer}<a name="line.100"></a>
-<FONT color="green">101</FONT>       */<a name="line.101"></a>
-<FONT color="green">102</FONT>      public static final class Builder {<a name="line.102"></a>
-<FONT color="green">103</FONT>        private final DefaultTextTokenizer tokenizer = new DefaultTextTokenizer();<a name="line.103"></a>
-<FONT color="green">104</FONT>        private boolean keepPunctuation = false;<a name="line.104"></a>
-<FONT color="green">105</FONT>    <a name="line.105"></a>
-<FONT color="green">106</FONT>        /**<a name="line.106"></a>
-<FONT color="green">107</FONT>         * Set to {@code true} to retain punctuation in output.<a name="line.107"></a>
-<FONT color="green">108</FONT>         *<a name="line.108"></a>
-<FONT color="green">109</FONT>         * @param keepPunctuation {@code true} to retain punctuation<a name="line.109"></a>
-<FONT color="green">110</FONT>         * @return this Builder<a name="line.110"></a>
-<FONT color="green">111</FONT>         */<a name="line.111"></a>
-<FONT color="green">112</FONT>        public Builder setKeepPunctuation(boolean keepPunctuation) {<a name="line.112"></a>
-<FONT color="green">113</FONT>          this.keepPunctuation = keepPunctuation;<a name="line.113"></a>
-<FONT color="green">114</FONT>          return this;<a name="line.114"></a>
-<FONT color="green">115</FONT>        }<a name="line.115"></a>
-<FONT color="green">116</FONT>    <a name="line.116"></a>
-<FONT color="green">117</FONT>        public DefaultTextTokenizer build() {<a name="line.117"></a>
-<FONT color="green">118</FONT>          if (!keepPunctuation) {<a name="line.118"></a>
-<FONT color="green">119</FONT>            tokenizer.tokenizationStream =<a name="line.119"></a>
-<FONT color="green">120</FONT>                new PunctuationFilter(tokenizer.tokenizationStream);<a name="line.120"></a>
-<FONT color="green">121</FONT>          }<a name="line.121"></a>
-<FONT color="green">122</FONT>    <a name="line.122"></a>
-<FONT color="green">123</FONT>          return tokenizer;<a name="line.123"></a>
-<FONT color="green">124</FONT>        }<a name="line.124"></a>
-<FONT color="green">125</FONT>      }<a name="line.125"></a>
-<FONT color="green">126</FONT>    }<a name="line.126"></a>
+<FONT color="green">019</FONT>    import com.twitter.common.text.combiner.*;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import com.twitter.common.text.example.TokenizerUsageExample;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import com.twitter.common.text.filter.PunctuationFilter;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import com.twitter.common.text.token.TokenStream;<a name="line.22"></a>
+<FONT color="green">023</FONT>    <a name="line.23"></a>
+<FONT color="green">024</FONT>    /**<a name="line.24"></a>
+<FONT color="green">025</FONT>     * Default implementation of a tokenizer for processing tweets. For sample usage, please consult<a name="line.25"></a>
+<FONT color="green">026</FONT>     * annotated code example in {@link TokenizerUsageExample}.<a name="line.26"></a>
+<FONT color="green">027</FONT>     */<a name="line.27"></a>
+<FONT color="green">028</FONT>    public class DefaultTextTokenizer extends TextTokenizer {<a name="line.28"></a>
+<FONT color="green">029</FONT>      // use Builder.<a name="line.29"></a>
+<FONT color="green">030</FONT>      private DefaultTextTokenizer() { }<a name="line.30"></a>
+<FONT color="green">031</FONT>    <a name="line.31"></a>
+<FONT color="green">032</FONT>      public TokenStream applyDefaultChain(TokenStream tokenizer) {<a name="line.32"></a>
+<FONT color="green">033</FONT>        return<a name="line.33"></a>
+<FONT color="green">034</FONT>          // combine stock symbol<a name="line.34"></a>
+<FONT color="green">035</FONT>          new StockTokenCombiner(<a name="line.35"></a>
+<FONT color="green">036</FONT>            // combine emoticon like :) :-D<a name="line.36"></a>
+<FONT color="green">037</FONT>            new EmoticonTokenCombiner(<a name="line.37"></a>
+<FONT color="green">038</FONT>              // combine Mr/Mrs/Dr/Inc + .<a name="line.38"></a>
+<FONT color="green">039</FONT>              new DotContractedTokenCombiner(<a name="line.39"></a>
+<FONT color="green">040</FONT>                // combine possessive form (e.g., apple's)<a name="line.40"></a>
+<FONT color="green">041</FONT>                new PossessiveContractionTokenCombiner(<a name="line.41"></a>
+<FONT color="green">042</FONT>                  // combine URL<a name="line.42"></a>
+<FONT color="green">043</FONT>                  new URLTokenCombiner(<a name="line.43"></a>
+<FONT color="green">044</FONT>                    // combine # + hashtag<a name="line.44"></a>
+<FONT color="green">045</FONT>                    new HashtagTokenCombiner(<a name="line.45"></a>
+<FONT color="green">046</FONT>                      // combine @ + user name<a name="line.46"></a>
+<FONT color="green">047</FONT>                      new UserNameTokenCombiner(tokenizer)))))));<a name="line.47"></a>
+<FONT color="green">048</FONT>      }<a name="line.48"></a>
+<FONT color="green">049</FONT>    <a name="line.49"></a>
+<FONT color="green">050</FONT>      /**<a name="line.50"></a>
+<FONT color="green">051</FONT>       * Builder for {@link DefaultTextTokenizer}<a name="line.51"></a>
+<FONT color="green">052</FONT>       */<a name="line.52"></a>
+<FONT color="green">053</FONT>      public static final class Builder {<a name="line.53"></a>
+<FONT color="green">054</FONT>        private final DefaultTextTokenizer tokenizer = new DefaultTextTokenizer();<a name="line.54"></a>
+<FONT color="green">055</FONT>        private boolean keepPunctuation = false;<a name="line.55"></a>
+<FONT color="green">056</FONT>    <a name="line.56"></a>
+<FONT color="green">057</FONT>        /**<a name="line.57"></a>
+<FONT color="green">058</FONT>         * Set to {@code true} to retain punctuation in output.<a name="line.58"></a>
+<FONT color="green">059</FONT>         *<a name="line.59"></a>
+<FONT color="green">060</FONT>         * @param keepPunctuation {@code true} to retain punctuation<a name="line.60"></a>
+<FONT color="green">061</FONT>         * @return this Builder<a name="line.61"></a>
+<FONT color="green">062</FONT>         */<a name="line.62"></a>
+<FONT color="green">063</FONT>        public Builder setKeepPunctuation(boolean keepPunctuation) {<a name="line.63"></a>
+<FONT color="green">064</FONT>          this.keepPunctuation = keepPunctuation;<a name="line.64"></a>
+<FONT color="green">065</FONT>          return this;<a name="line.65"></a>
+<FONT color="green">066</FONT>        }<a name="line.66"></a>
+<FONT color="green">067</FONT>    <a name="line.67"></a>
+<FONT color="green">068</FONT>        public DefaultTextTokenizer build() {<a name="line.68"></a>
+<FONT color="green">069</FONT>          if (!keepPunctuation) {<a name="line.69"></a>
+<FONT color="green">070</FONT>            tokenizer.tokenizationStream = new PunctuationFilter(tokenizer.tokenizationStream);<a name="line.70"></a>
+<FONT color="green">071</FONT>          }<a name="line.71"></a>
+<FONT color="green">072</FONT>          return tokenizer;<a name="line.72"></a>
+<FONT color="green">073</FONT>        }<a name="line.73"></a>
+<FONT color="green">074</FONT>      }<a name="line.74"></a>
+<FONT color="green">075</FONT>    }<a name="line.75"></a>
 
 
 

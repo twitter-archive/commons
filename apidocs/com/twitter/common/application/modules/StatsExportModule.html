@@ -53,8 +53,8 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../com/twitter/common/application/modules/LogModule.Init.html" title="class in com.twitter.common.application.modules"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../com/twitter/common/application/modules/StatsModule.html" title="class in com.twitter.common.application.modules"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../com/twitter/common/application/modules/LogModule.ExportLogDir.html" title="class in com.twitter.common.application.modules"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../com/twitter/common/application/modules/StatsExportModule.StartCuckooExporter.html" title="class in com.twitter.common.application.modules"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?com/twitter/common/application/modules/StatsExportModule.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="StatsExportModule.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -74,7 +74,7 @@ function windowTitle()
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
 DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
@@ -99,7 +99,7 @@ Class StatsExportModule</H2>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/application/modules/StatsExportModule.html#line.54"><B>StatsExportModule</B></A><DT>extends <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/AbstractModule.html?is-external=true" title="class or interface in com.google.inject">AbstractModule</A></DL>
+<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/application/modules/StatsExportModule.html#line.52"><B>StatsExportModule</B></A><DT>extends <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/AbstractModule.html?is-external=true" title="class or interface in com.google.inject">AbstractModule</A></DL>
 </PRE>
 
 <P>
@@ -110,8 +110,7 @@ Module to enable periodic exporting of registered stats to an external service.
 
  Bindings required by this module:
  <ul>
-   <li><code>@StartupStage ActionRegistry</code> - Startup action registry.
-   <li><code>@ShutdownStage ActionRegistry</code> - Shutdown hook registry.
+   <li><code>@ShutdownStage ShutdownRegistry</code> - Shutdown action registry.
  </ul>
 <P>
 
@@ -119,7 +118,24 @@ Module to enable periodic exporting of registered stats to an external service.
 <HR>
 
 <P>
+<!-- ======== NESTED CLASS SUMMARY ======== -->
 
+<A NAME="nested_class_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Nested Class Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/application/modules/StatsExportModule.StartCuckooExporter.html" title="class in com.twitter.common.application.modules">StatsExportModule.StartCuckooExporter</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 
 <A NAME="constructor_summary"><!-- --></A>
@@ -187,7 +203,7 @@ Module to enable periodic exporting of registered stats to an external service.
 <A NAME="StatsExportModule()"><!-- --></A><H3>
 StatsExportModule</H3>
 <PRE>
-public <A HREF="../../../../../src-html/com/twitter/common/application/modules/StatsExportModule.html#line.54"><B>StatsExportModule</B></A>()</PRE>
+public <A HREF="../../../../../src-html/com/twitter/common/application/modules/StatsExportModule.html#line.52"><B>StatsExportModule</B></A>()</PRE>
 <DL>
 </DL>
 
@@ -204,7 +220,7 @@ public <A HREF="../../../../../src-html/com/twitter/common/application/modules/S
 <A NAME="configure()"><!-- --></A><H3>
 configure</H3>
 <PRE>
-protected void <A HREF="../../../../../src-html/com/twitter/common/application/modules/StatsExportModule.html#line.62"><B>configure</B></A>()</PRE>
+protected void <A HREF="../../../../../src-html/com/twitter/common/application/modules/StatsExportModule.html#line.60"><B>configure</B></A>()</PRE>
 <DL>
 <DD><DL>
 <DT><B>Specified by:</B><DD><CODE><A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/AbstractModule.html?is-external=true#configure()" title="class or interface in com.google.inject">configure</A></CODE> in class <CODE><A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/AbstractModule.html?is-external=true" title="class or interface in com.google.inject">AbstractModule</A></CODE></DL>
@@ -244,8 +260,8 @@ protected void <A HREF="../../../../../src-html/com/twitter/common/application/m
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../com/twitter/common/application/modules/LogModule.Init.html" title="class in com.twitter.common.application.modules"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../com/twitter/common/application/modules/StatsModule.html" title="class in com.twitter.common.application.modules"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../com/twitter/common/application/modules/LogModule.ExportLogDir.html" title="class in com.twitter.common.application.modules"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../com/twitter/common/application/modules/StatsExportModule.StartCuckooExporter.html" title="class in com.twitter.common.application.modules"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?com/twitter/common/application/modules/StatsExportModule.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="StatsExportModule.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -265,7 +281,7 @@ protected void <A HREF="../../../../../src-html/com/twitter/common/application/m
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
 DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>

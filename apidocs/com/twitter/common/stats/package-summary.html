@@ -53,7 +53,7 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../com/twitter/common/quantity/package-summary.html"><B>PREV PACKAGE</B></A>&nbsp;
+&nbsp;<A HREF="../../../../com/twitter/common/reflect/package-summary.html"><B>PREV PACKAGE</B></A>&nbsp;
 &nbsp;<A HREF="../../../../com/twitter/common/testing/package-summary.html"><B>NEXT PACKAGE</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/stats/package-summary.html" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -125,6 +125,10 @@ Package com.twitter.common.stats
 <TD>Same as CounterMap<K>, but also keeps track of the item with the highest count.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/stats/Elapsed.html" title="class in com.twitter.common.stats">Elapsed</A></B></TD>
+<TD>A stat that exports the amount of time since it was last reset.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/stats/Entropy.html" title="class in com.twitter.common.stats">Entropy&lt;T&gt;</A></B></TD>
 <TD>Calculate the entropy of a discrete distribution of <T>.</TD>
 </TR>
@@ -146,7 +150,7 @@ Package com.twitter.common.stats
  via a caller-defined sink.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/stats/Percentile.html" title="class in com.twitter.common.stats">Percentile&lt;T extends Number&gt;</A></B></TD>
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/stats/Percentile.html" title="class in com.twitter.common.stats">Percentile&lt;T extends Number & Comparable&lt;T&gt;&gt;</A></B></TD>
 <TD>A stats tracker to export percentiles of inputs based on a sampling rate.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
@@ -172,6 +176,16 @@ Package com.twitter.common.stats
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/stats/RequestStats.html" title="class in com.twitter.common.stats">RequestStats</A></B></TD>
 <TD>A class to represent the statistics associated with a client connection to an external service.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/stats/ReservoirSampler.html" title="class in com.twitter.common.stats">ReservoirSampler&lt;T&gt;</A></B></TD>
+<TD>An in memory implementation of Reservoir Sampling for sampling from
+ a population.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/stats/SampledStat.html" title="class in com.twitter.common.stats">SampledStat&lt;T extends Number&gt;</A></B></TD>
+<TD>A convenience class to perform the basic tasks needed for a <CODE>RecordingStat</CODE> except the
+ actual value calculation.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/stats/Significance.html" title="class in com.twitter.common.stats">Significance</A></B></TD>
@@ -233,7 +247,7 @@ Package com.twitter.common.stats
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../com/twitter/common/quantity/package-summary.html"><B>PREV PACKAGE</B></A>&nbsp;
+&nbsp;<A HREF="../../../../com/twitter/common/reflect/package-summary.html"><B>PREV PACKAGE</B></A>&nbsp;
 &nbsp;<A HREF="../../../../com/twitter/common/testing/package-summary.html"><B>NEXT PACKAGE</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/stats/package-summary.html" target="_top"><B>FRAMES</B></A>  &nbsp;

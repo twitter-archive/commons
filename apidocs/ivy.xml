@@ -46,7 +46,7 @@ limitations under the License.
   <dependencies>
     <dependency org="com.google.guava"
                 name="guava"
-                rev="r09"
+                rev="11.0.1"
                 conf="default;sources"
                 transitive="false"
     >
@@ -72,6 +72,13 @@ limitations under the License.
                 transitive="false"
     >
     </dependency>
+    <dependency org="com.twitter"
+                name="util-core"
+                rev="1.8.18"
+                conf="default"
+                transitive="false"
+    >
+    </dependency>
     <dependency org="commons-lang"
                 name="commons-lang"
                 rev="2.4"
@@ -88,7 +95,7 @@ limitations under the License.
     </dependency>
     <dependency org="com.puppycrawl.tools"
                 name="checkstyle"
-                rev="5.3"
+                rev="5.5"
                 conf="default;sources"
                 transitive="false"
     >
@@ -111,6 +118,13 @@ limitations under the License.
     <dependency org="aopalliance"
                 name="aopalliance"
                 rev="1.0"
+                conf="default;sources"
+                transitive="false"
+    >
+    </dependency>
+    <dependency org="commons-io"
+                name="commons-io"
+                rev="2.1"
                 conf="default;sources"
                 transitive="false"
     >
@@ -146,7 +160,7 @@ limitations under the License.
     <dependency org="spy"
                 name="spymemcached"
                 rev="2.7.1"
-                conf="default"
+                conf="default;sources"
                 transitive="false"
     >
     </dependency>
@@ -201,9 +215,16 @@ limitations under the License.
     >
     </dependency>
     <dependency org="junit"
-                name="junit"
-                rev="4.8.2"
+                name="junit-dep"
+                rev="4.10"
                 conf="default;sources"
+                transitive="false"
+    >
+    </dependency>
+    <dependency org="org.hamcrest"
+                name="hamcrest-core"
+                rev="1.2"
+                conf="default"
                 transitive="false"
     >
     </dependency>
@@ -211,13 +232,6 @@ limitations under the License.
                 name="test-libraries-for-java"
                 rev="1.1.1"
                 conf="default"
-                transitive="false"
-    >
-    </dependency>
-    <dependency org="commons-io"
-                name="commons-io"
-                rev="1.4"
-                conf="default;sources"
                 transitive="false"
     >
     </dependency>
@@ -244,7 +258,7 @@ limitations under the License.
     </dependency>
     <dependency org="org.apache.zookeeper"
                 name="zookeeper"
-                rev="3.3.3"
+                rev="3.3.4"
                 conf="default;sources"
                 transitive="false"
     >

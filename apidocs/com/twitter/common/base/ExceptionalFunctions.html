@@ -95,7 +95,7 @@ Class ExceptionalFunctions</H2>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public final class <A HREF="../../../../src-html/com/twitter/common/base/ExceptionalFunctions.html#line.24"><B>ExceptionalFunctions</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public final class <A HREF="../../../../src-html/com/twitter/common/base/ExceptionalFunctions.html#line.26"><B>ExceptionalFunctions</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
@@ -114,6 +114,41 @@ Utility functions for working with exceptional functions.
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;T,E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; 
+<BR>
+<A HREF="../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;T,T,E&gt;</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/base/ExceptionalFunctions.html#compose(com.twitter.common.base.ExceptionalFunction, com.twitter.common.base.ExceptionalFunction...)">compose</A></B>(<A HREF="../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;T,T,E&gt;&nbsp;function,
+               <A HREF="../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;T,T,E&gt;...&nbsp;functions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a List of ExceptionalFunctions from variable number of ExceptionalFunctions.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;T,E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; 
+<BR>
+<A HREF="../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;T,T,E&gt;</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/base/ExceptionalFunctions.html#compose(java.lang.Iterable)">compose</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;<A HREF="../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;T,T,E&gt;&gt;&nbsp;functions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns an ExceptionalFunction that is a composition of multiple ExceptionalFunctions.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -160,12 +195,39 @@ Utility functions for working with exceptional functions.
 <A NAME="curry(com.twitter.common.base.ExceptionalFunction,java.lang.Object)"><!-- --></A><A NAME="curry(com.twitter.common.base.ExceptionalFunction, S)"><!-- --></A><H3>
 curry</H3>
 <PRE>
-public static &lt;S,T,E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; <A HREF="../../../../com/twitter/common/base/CallableExceptionalSupplier.html" title="class in com.twitter.common.base">CallableExceptionalSupplier</A>&lt;T,E&gt; <A HREF="../../../../src-html/com/twitter/common/base/ExceptionalFunctions.html#line.35"><B>curry</B></A>(<A HREF="../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;S,T,E&gt;&nbsp;function,
+public static &lt;S,T,E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; <A HREF="../../../../com/twitter/common/base/CallableExceptionalSupplier.html" title="class in com.twitter.common.base">CallableExceptionalSupplier</A>&lt;T,E&gt; <A HREF="../../../../src-html/com/twitter/common/base/ExceptionalFunctions.html#line.37"><B>curry</B></A>(<A HREF="../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;S,T,E&gt;&nbsp;function,
                                                                                S&nbsp;argument)</PRE>
 <DL>
 <DD>Returns an <A HREF="../../../../com/twitter/common/base/ExceptionalSupplier.html" title="interface in com.twitter.common.base"><CODE>ExceptionalSupplier</CODE></A>/<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/Callable.html?is-external=true" title="class or interface in java.util.concurrent"><CODE>Callable</CODE></A> object that
  will return the result of <code>function</code> applied to <code>argument</code>.  Evaluation is lazy
  and un-memoized.
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="compose(java.lang.Iterable)"><!-- --></A><H3>
+compose</H3>
+<PRE>
+public static &lt;T,E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; <A HREF="../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;T,T,E&gt; <A HREF="../../../../src-html/com/twitter/common/base/ExceptionalFunctions.html#line.50"><B>compose</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;<A HREF="../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;T,T,E&gt;&gt;&nbsp;functions)</PRE>
+<DL>
+<DD>Returns an ExceptionalFunction that is a composition of multiple ExceptionalFunctions.
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="compose(com.twitter.common.base.ExceptionalFunction, com.twitter.common.base.ExceptionalFunction...)"><!-- --></A><H3>
+compose</H3>
+<PRE>
+public static &lt;T,E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; <A HREF="../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;T,T,E&gt; <A HREF="../../../../src-html/com/twitter/common/base/ExceptionalFunctions.html#line.66"><B>compose</B></A>(<A HREF="../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;T,T,E&gt;&nbsp;function,
+                                                                         <A HREF="../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;T,T,E&gt;...&nbsp;functions)</PRE>
+<DL>
+<DD>Returns a List of ExceptionalFunctions from variable number of ExceptionalFunctions.
 <P>
 <DD><DL>
 </DL>

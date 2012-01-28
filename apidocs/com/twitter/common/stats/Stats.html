@@ -95,7 +95,7 @@ Class Stats</H2>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.43"><B>Stats</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.45"><B>Stats</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
@@ -213,6 +213,33 @@ Manages <A HREF="../../../../com/twitter/common/stats/Stat.html" title="interfac
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/Stats.html#exportSize(java.lang.String, com.google.common.cache.Cache)">exportSize</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                     <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/cache/Cache.html?is-external=true" title="class or interface in com.google.common.cache">Cache</A>&lt;?,?&gt;&nbsp;cache)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Exports a metric that tracks the size of a cache.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/Stats.html#exportSize(java.lang.String, java.util.Collection)">exportSize</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                     <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&lt;?&gt;&nbsp;collection)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Exports a metric that tracks the size of a collection.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/Stats.html#exportSize(java.lang.String, java.util.Map)">exportSize</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                     <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;?,?&gt;&nbsp;map)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Exports a metric that tracks the size of a map.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static
 <TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
 <TR ALIGN="right" VALIGN="">
@@ -259,7 +286,7 @@ Manages <A HREF="../../../../com/twitter/common/stats/Stat.html" title="interfac
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;? extends <A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&gt;</CODE></FONT></TD>
+<CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;<A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/stats/Stats.html#getVariables()">getVariables</A></B>()</CODE>
 
 <BR>
@@ -299,7 +326,7 @@ Manages <A HREF="../../../../com/twitter/common/stats/Stat.html" title="interfac
 <A NAME="STATS_PROVIDER"><!-- --></A><H3>
 STATS_PROVIDER</H3>
 <PRE>
-public static final <A HREF="../../../../com/twitter/common/stats/StatsProvider.html" title="interface in com.twitter.common.stats">StatsProvider</A> <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.72"><B>STATS_PROVIDER</B></A></PRE>
+public static final <A HREF="../../../../com/twitter/common/stats/StatsProvider.html" title="interface in com.twitter.common.stats">StatsProvider</A> <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.74"><B>STATS_PROVIDER</B></A></PRE>
 <DL>
 <DD>A <code>StatsProvider</code> that exports gauge-style stats to the global <A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats"><CODE>Stat</CODE></A>s repository
  for time series tracking.
@@ -321,7 +348,7 @@ public static final <A HREF="../../../../com/twitter/common/stats/StatsProvider.
 <A NAME="Stats()"><!-- --></A><H3>
 Stats</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.43"><B>Stats</B></A>()</PRE>
+public <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.45"><B>Stats</B></A>()</PRE>
 <DL>
 </DL>
 
@@ -338,7 +365,7 @@ public <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.43
 <A NAME="normalizeName(java.lang.String)"><!-- --></A><H3>
 normalizeName</H3>
 <PRE>
-public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.56"><B>normalizeName</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name)</PRE>
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.58"><B>normalizeName</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name)</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -349,7 +376,7 @@ public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/St
 <A NAME="export(com.twitter.common.stats.Stat)"><!-- --></A><H3>
 export</H3>
 <PRE>
-public static &lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt; <A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.102"><B>export</B></A>(<A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;T&gt;&nbsp;var)</PRE>
+public static &lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt; <A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.104"><B>export</B></A>(<A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;T&gt;&nbsp;var)</PRE>
 <DL>
 <DD>Exports a stat for tracking.
  if the stat provided implements the internal <CODE>RecordingStat</CODE> interface, it will be
@@ -368,7 +395,7 @@ public static &lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/ap
 <A NAME="exportString(com.twitter.common.stats.Stat)"><!-- --></A><H3>
 exportString</H3>
 <PRE>
-public static <A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt; <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.132"><B>exportString</B></A>(<A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;&nbsp;var)</PRE>
+public static <A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt; <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.134"><B>exportString</B></A>(<A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;&nbsp;var)</PRE>
 <DL>
 <DD>Exports a string stat.
  String-based statistics will not be registered for time series collection.
@@ -384,7 +411,7 @@ public static <A HREF="../../../../com/twitter/common/stats/Stat.html" title="in
 <A NAME="exportAll(java.lang.Iterable)"><!-- --></A><H3>
 exportAll</H3>
 <PRE>
-public static void <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.141"><B>exportAll</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;<A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;? extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt;&gt;&nbsp;vars)</PRE>
+public static void <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.143"><B>exportAll</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;<A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;? extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt;&gt;&nbsp;vars)</PRE>
 <DL>
 <DD>Adds a collection of stats for export.
 <P>
@@ -397,7 +424,7 @@ public static void <A HREF="../../../../src-html/com/twitter/common/stats/Stats.
 <A NAME="export(java.lang.String, java.util.concurrent.atomic.AtomicInteger)"><!-- --></A><H3>
 export</H3>
 <PRE>
-public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicInteger.html?is-external=true" title="class or interface in java.util.concurrent.atomic">AtomicInteger</A> <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.154"><B>export</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicInteger.html?is-external=true" title="class or interface in java.util.concurrent.atomic">AtomicInteger</A> <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.156"><B>export</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
                                    <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicInteger.html?is-external=true" title="class or interface in java.util.concurrent.atomic">AtomicInteger</A>&nbsp;intVar)</PRE>
 <DL>
 <DD>Exports an <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicInteger.html?is-external=true" title="class or interface in java.util.concurrent.atomic"><CODE>AtomicInteger</CODE></A>, which will be included in time series tracking.
@@ -412,7 +439,7 @@ public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/co
 <A NAME="exportInt(java.lang.String)"><!-- --></A><H3>
 exportInt</H3>
 <PRE>
-public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicInteger.html?is-external=true" title="class or interface in java.util.concurrent.atomic">AtomicInteger</A> <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.168"><B>exportInt</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name)</PRE>
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicInteger.html?is-external=true" title="class or interface in java.util.concurrent.atomic">AtomicInteger</A> <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.170"><B>exportInt</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name)</PRE>
 <DL>
 <DD>Creates and exports an <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicInteger.html?is-external=true" title="class or interface in java.util.concurrent.atomic"><CODE>AtomicInteger</CODE></A>.
 <P>
@@ -426,7 +453,7 @@ public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/co
 <A NAME="export(java.lang.String, java.util.concurrent.atomic.AtomicLong)"><!-- --></A><H3>
 export</H3>
 <PRE>
-public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicLong.html?is-external=true" title="class or interface in java.util.concurrent.atomic">AtomicLong</A> <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.179"><B>export</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicLong.html?is-external=true" title="class or interface in java.util.concurrent.atomic">AtomicLong</A> <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.181"><B>export</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
                                 <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicLong.html?is-external=true" title="class or interface in java.util.concurrent.atomic">AtomicLong</A>&nbsp;longVar)</PRE>
 <DL>
 <DD>Exports an <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicLong.html?is-external=true" title="class or interface in java.util.concurrent.atomic"><CODE>AtomicLong</CODE></A>, which will be included in time series tracking.
@@ -441,7 +468,7 @@ public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/co
 <A NAME="exportLong(java.lang.String)"><!-- --></A><H3>
 exportLong</H3>
 <PRE>
-public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicLong.html?is-external=true" title="class or interface in java.util.concurrent.atomic">AtomicLong</A> <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.193"><B>exportLong</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name)</PRE>
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicLong.html?is-external=true" title="class or interface in java.util.concurrent.atomic">AtomicLong</A> <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.195"><B>exportLong</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name)</PRE>
 <DL>
 <DD>Creates and exports an <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicLong.html?is-external=true" title="class or interface in java.util.concurrent.atomic"><CODE>AtomicLong</CODE></A>.
 <P>
@@ -452,10 +479,52 @@ public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/co
 </DL>
 <HR>
 
+<A NAME="exportSize(java.lang.String, java.util.Collection)"><!-- --></A><H3>
+exportSize</H3>
+<PRE>
+public static void <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.205"><B>exportSize</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                              <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&lt;?&gt;&nbsp;collection)</PRE>
+<DL>
+<DD>Exports a metric that tracks the size of a collection.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - Name of the stat to export.<DD><CODE>collection</CODE> - Collection whose size should be tracked.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="exportSize(java.lang.String, java.util.Map)"><!-- --></A><H3>
+exportSize</H3>
+<PRE>
+public static void <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.219"><B>exportSize</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                              <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;?,?&gt;&nbsp;map)</PRE>
+<DL>
+<DD>Exports a metric that tracks the size of a map.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - Name of the stat to export.<DD><CODE>map</CODE> - Map whose size should be tracked.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="exportSize(java.lang.String, com.google.common.cache.Cache)"><!-- --></A><H3>
+exportSize</H3>
+<PRE>
+public static void <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.233"><B>exportSize</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                              <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/cache/Cache.html?is-external=true" title="class or interface in com.google.common.cache">Cache</A>&lt;?,?&gt;&nbsp;cache)</PRE>
+<DL>
+<DD>Exports a metric that tracks the size of a cache.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - Name of the stat to export.<DD><CODE>cache</CODE> - Cache whose size should be tracked.</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="exportStatic(com.twitter.common.stats.Stat)"><!-- --></A><H3>
 exportStatic</H3>
 <PRE>
-public static &lt;T&gt; <A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.203"><B>exportStatic</B></A>(<A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;T&gt;&nbsp;var)</PRE>
+public static &lt;T&gt; <A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.247"><B>exportStatic</B></A>(<A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;T&gt;&nbsp;var)</PRE>
 <DL>
 <DD>Exports a 'static' statistic, which will not be registered for time series tracking.
 <P>
@@ -469,7 +538,7 @@ public static &lt;T&gt; <A HREF="../../../../com/twitter/common/stats/Stat.html"
 <A NAME="getVariables()"><!-- --></A><H3>
 getVariables</H3>
 <PRE>
-public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;? extends <A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&gt; <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.222"><B>getVariables</B></A>()</PRE>
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;<A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&gt; <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.266"><B>getVariables</B></A>()</PRE>
 <DL>
 <DD>Fetches all registered stat.
 <P>
@@ -483,7 +552,7 @@ public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/It
 <A NAME="flush()"><!-- --></A><H3>
 flush</H3>
 <PRE>
-public static void <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.235"><B>flush</B></A>()</PRE>
+public static void <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.279"><B>flush</B></A>()</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -494,7 +563,7 @@ public static void <A HREF="../../../../src-html/com/twitter/common/stats/Stats.
 <A NAME="getVariable(java.lang.String)"><!-- --></A><H3>
 getVariable</H3>
 <PRE>
-public static &lt;T&gt; <A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.241"><B>getVariable</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name)</PRE>
+public static &lt;T&gt; <A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/stats/Stats.html#line.285"><B>getVariable</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name)</PRE>
 <DL>
 <DD><DL>
 </DL>

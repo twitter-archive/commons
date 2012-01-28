@@ -92,7 +92,7 @@ Package com.twitter.common.application.modules
  <A HREF="../../../../../com/twitter/common/application/AppLauncher.html" title="class in com.twitter.common.application"><CODE>AppLauncher</CODE></A>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../com/twitter/common/application/modules/AppLauncherModule.Init.html" title="class in com.twitter.common.application.modules">AppLauncherModule.Init</A></B></TD>
+<TD WIDTH="15%"><B><A HREF="../../../../../com/twitter/common/application/modules/AppLauncherModule.LoggingExceptionHandler.html" title="class in com.twitter.common.application.modules">AppLauncherModule.LoggingExceptionHandler</A></B></TD>
 <TD>&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
@@ -100,7 +100,7 @@ Package com.twitter.common.application.modules
 <TD>Binding module for injections related to the HTTP server and the default set of servlets.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../com/twitter/common/application/modules/HttpModule.Init.html" title="class in com.twitter.common.application.modules">HttpModule.Init</A></B></TD>
+<TD WIDTH="15%"><B><A HREF="../../../../../com/twitter/common/application/modules/HttpModule.HttpServerLauncher.html" title="class in com.twitter.common.application.modules">HttpModule.HttpServerLauncher</A></B></TD>
 <TD>&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
@@ -108,15 +108,16 @@ Package com.twitter.common.application.modules
 <TD>Binding module for startup and shutdown controller and registries.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.Init.html" title="class in com.twitter.common.application.modules">LifecycleModule.Init</A></B></TD>
-<TD>&nbsp;</TD>
+<TD WIDTH="15%"><B><A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.RegisteringServiceLauncher.html" title="class in com.twitter.common.application.modules">LifecycleModule.RegisteringServiceLauncher&lt;E extends Exception&gt;</A></B></TD>
+<TD>An action that is responsible for launching a local service, and registering it with the
+ local service registry.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../com/twitter/common/application/modules/LogModule.html" title="class in com.twitter.common.application.modules">LogModule</A></B></TD>
 <TD>Binding module for logging-related bindings, such as the log directory.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../com/twitter/common/application/modules/LogModule.Init.html" title="class in com.twitter.common.application.modules">LogModule.Init</A></B></TD>
+<TD WIDTH="15%"><B><A HREF="../../../../../com/twitter/common/application/modules/LogModule.ExportLogDir.html" title="class in com.twitter.common.application.modules">LogModule.ExportLogDir</A></B></TD>
 <TD>&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
@@ -124,8 +125,16 @@ Package com.twitter.common.application.modules
 <TD>Module to enable periodic exporting of registered stats to an external service.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../com/twitter/common/application/modules/StatsExportModule.StartCuckooExporter.html" title="class in com.twitter.common.application.modules">StatsExportModule.StartCuckooExporter</A></B></TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../com/twitter/common/application/modules/StatsModule.html" title="class in com.twitter.common.application.modules">StatsModule</A></B></TD>
 <TD>Binding module for injections related to the in-process stats system.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../com/twitter/common/application/modules/StatsModule.StartStatPoller.html" title="class in com.twitter.common.application.modules">StatsModule.StartStatPoller</A></B></TD>
+<TD>&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../com/twitter/common/application/modules/ThriftModule.html" title="class in com.twitter.common.application.modules">ThriftModule</A></B></TD>

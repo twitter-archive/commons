@@ -123,9 +123,18 @@ A BackoffStrategy that implements truncated binary exponential backoff.
                                              <A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;maxBackoff)</CODE>
 
 <BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Same as main constructor, but this will always return true from shouldContinue().</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../com/twitter/common/util/TruncatedBinaryBackoff.html#TruncatedBinaryBackoff(com.twitter.common.quantity.Amount, com.twitter.common.quantity.Amount, boolean)">TruncatedBinaryBackoff</A></B>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;initialBackoff,
+                                             <A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;maxBackoff,
+                                             boolean&nbsp;stopAtMax)</CODE>
+
+<BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new TruncatedBinaryBackoff that will start by backing off for <code>initialBackoff</code>
  and then backoff of twice as long each time its called until reaching the <code>maxBackoff</code> at
- which point it will always wait for that amount of time.</TD>
+ which point shouldContinue() will return false and any future backoffs will always wait for
+ that amount of time.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -144,6 +153,14 @@ A BackoffStrategy that implements truncated binary exponential backoff.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Calculates the amount of time to backoff from an operation.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/util/TruncatedBinaryBackoff.html#shouldContinue()">shouldContinue</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns whether to continue backing off.</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -168,15 +185,30 @@ A BackoffStrategy that implements truncated binary exponential backoff.
 </TR>
 </TABLE>
 
-<A NAME="TruncatedBinaryBackoff(com.twitter.common.quantity.Amount, com.twitter.common.quantity.Amount)"><!-- --></A><H3>
+<A NAME="TruncatedBinaryBackoff(com.twitter.common.quantity.Amount, com.twitter.common.quantity.Amount, boolean)"><!-- --></A><H3>
 TruncatedBinaryBackoff</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/util/TruncatedBinaryBackoff.html#line.38"><B>TruncatedBinaryBackoff</B></A>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;initialBackoff,
-                              <A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;maxBackoff)</PRE>
+public <A HREF="../../../../src-html/com/twitter/common/util/TruncatedBinaryBackoff.html#line.43"><B>TruncatedBinaryBackoff</B></A>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;initialBackoff,
+                              <A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;maxBackoff,
+                              boolean&nbsp;stopAtMax)</PRE>
 <DL>
 <DD>Creates a new TruncatedBinaryBackoff that will start by backing off for <code>initialBackoff</code>
  and then backoff of twice as long each time its called until reaching the <code>maxBackoff</code> at
- which point it will always wait for that amount of time.
+ which point shouldContinue() will return false and any future backoffs will always wait for
+ that amount of time.
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>initialBackoff</CODE> - the intial amount of time to backoff<DD><CODE>maxBackoff</CODE> - the maximum amount of time to backoff<DD><CODE>stopAtMax</CODE> - whether shouldContinue() returns false when the max is reached</DL>
+</DL>
+<HR>
+
+<A NAME="TruncatedBinaryBackoff(com.twitter.common.quantity.Amount, com.twitter.common.quantity.Amount)"><!-- --></A><H3>
+TruncatedBinaryBackoff</H3>
+<PRE>
+public <A HREF="../../../../src-html/com/twitter/common/util/TruncatedBinaryBackoff.html#line.60"><B>TruncatedBinaryBackoff</B></A>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;initialBackoff,
+                              <A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;maxBackoff)</PRE>
+<DL>
+<DD>Same as main constructor, but this will always return true from shouldContinue().
 <P>
 <DL>
 <DT><B>Parameters:</B><DD><CODE>initialBackoff</CODE> - the intial amount of time to backoff<DD><CODE>maxBackoff</CODE> - the maximum amount of time to backoff</DL>
@@ -195,7 +227,7 @@ public <A HREF="../../../../src-html/com/twitter/common/util/TruncatedBinaryBack
 <A NAME="calculateBackoffMs(long)"><!-- --></A><H3>
 calculateBackoffMs</H3>
 <PRE>
-public long <A HREF="../../../../src-html/com/twitter/common/util/TruncatedBinaryBackoff.html#line.49"><B>calculateBackoffMs</B></A>(long&nbsp;lastBackoffMs)</PRE>
+public long <A HREF="../../../../src-html/com/twitter/common/util/TruncatedBinaryBackoff.html#line.65"><B>calculateBackoffMs</B></A>(long&nbsp;lastBackoffMs)</PRE>
 <DL>
 <DD><B>Description copied from interface: <CODE><A HREF="../../../../com/twitter/common/util/BackoffStrategy.html#calculateBackoffMs(long)">BackoffStrategy</A></CODE></B></DD>
 <DD>Calculates the amount of time to backoff from an operation.
@@ -207,6 +239,24 @@ public long <A HREF="../../../../src-html/com/twitter/common/util/TruncatedBinar
 <DT><B>Parameters:</B><DD><CODE>lastBackoffMs</CODE> - the last used backoff in milliseconds where 0 signifies no backoff has
      been performed yet
 <DT><B>Returns:</B><DD>the amount of time in milliseconds to back off before retrying the operation</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="shouldContinue()"><!-- --></A><H3>
+shouldContinue</H3>
+<PRE>
+public boolean <A HREF="../../../../src-html/com/twitter/common/util/TruncatedBinaryBackoff.html#line.74"><B>shouldContinue</B></A>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../com/twitter/common/util/BackoffStrategy.html#shouldContinue()">BackoffStrategy</A></CODE></B></DD>
+<DD>Returns whether to continue backing off.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../com/twitter/common/util/BackoffStrategy.html#shouldContinue()">shouldContinue</A></CODE> in interface <CODE><A HREF="../../../../com/twitter/common/util/BackoffStrategy.html" title="interface in com.twitter.common.util">BackoffStrategy</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>whether to continue backing off</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
