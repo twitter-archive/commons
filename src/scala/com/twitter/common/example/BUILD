@@ -1,5 +1,5 @@
 # ==================================================================================================
-# Copyright 2011 Twitter, Inc.
+# Copyright 2012 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -15,12 +15,7 @@
 # ==================================================================================================
 
 scala_library(name = 'jvm-run-example-lib',
-  dependencies = [
-    pants('3rdparty:gson'),
-    pants('src/java/com/twitter/common/base'),
-    pants('src/scala/com/twitter/common/stats'),
-    pants('src/thrift/com/twitter/common/thrift/text'),
-  ],
+  dependencies = [ ],
   sources = [ 'JvmRunExample.scala' ]
 )
 
