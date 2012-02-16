@@ -43,13 +43,9 @@ java_library(name = 'junit-runner',
     repo = pants('build-support/commons/ivy:public'),
   ),
   dependencies = [
-    pants('3rdparty:commons-lang'),
+    pants('3rdparty:args4j'),
     pants('3rdparty:guava'),
     pants('3rdparty:junit'),
-    pants('src/java/com/twitter/common/application'),
-    pants('src/java/com/twitter/common/args'),
-    pants('src/java/com/twitter/common/base'),
-    pants('src/java/com/twitter/common/quantity'),
   ],
   sources = globs('runner/*.java')
 ).with_description("""

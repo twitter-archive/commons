@@ -19,6 +19,7 @@ package com.twitter.common.application;
 import java.lang.reflect.Field;
 
 import com.google.common.base.Predicates;
+import com.google.inject.Module;
 
 import org.junit.Test;
 

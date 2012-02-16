@@ -17,7 +17,6 @@
 import os
 import errno
 import time
-import datetime
 
 def _tail_lines(fd, linesback=10):
   if fd is None:

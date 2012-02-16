@@ -16,25 +16,33 @@
 
 package com.twitter.common.application.modules;
 
-import com.google.common.base.Preconditions;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.AbstractModule;
 import com.google.inject.Binder;
+import com.google.inject.BindingAnnotation;
 import com.google.inject.Inject;
 import com.google.inject.Key;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 
 import com.twitter.common.application.Lifecycle;
-import com.twitter.common.application.LocalServiceRegistry;
-import com.twitter.common.application.LocalServiceRegistry.Port;
-import com.twitter.common.application.ServiceLauncher;
 import com.twitter.common.application.ShutdownRegistry;
 import com.twitter.common.application.ShutdownRegistry.ShutdownRegistryImpl;
 import com.twitter.common.application.ShutdownStage;
 import com.twitter.common.application.StartupRegistry;
 import com.twitter.common.application.StartupStage;
+import com.twitter.common.application.modules.LocalServiceRegistry.LocalService;
 import com.twitter.common.base.Command;
 import com.twitter.common.base.ExceptionalCommand;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Binding module for startup and shutdown controller and registries.
@@ -53,6 +61,15 @@ import com.twitter.common.base.ExceptionalCommand;
  */
 public class LifecycleModule extends AbstractModule {
 
+  /**
+   * Binding annotation used for local services.
+   * This is used to ensure the LocalService bindings are visibile within the package only, to
+   * prevent injection inadvertently triggering a service launch.
+   */
+  @BindingAnnotation
+  @Target({FIELD, PARAMETER, METHOD}) @Retention(RUNTIME)
+  @interface Service {}
+
   @Override
   protected void configure() {
     bind(Lifecycle.class).in(Singleton.class);
@@ -67,24 +84,68 @@ public class LifecycleModule extends AbstractModule {
 
     bind(LocalServiceRegistry.class).in(Singleton.class);
 
-    // Ensure that there is least an empty set for port names and service launchers.
-    Multibinder.newSetBinder(binder(), String.class, Port.class);
-    Multibinder.newSetBinder(binder(), ServiceLauncher.class);
+    // Ensure that there is at least an empty set for the service runners.
+    runnerBinder(binder());
+
+    bindStartupAction(binder(), LocalServiceLauncher.class);
   }
 
   /**
-   * Binds a startup action that will register and announce a local service.
+   * Thrown when a local service fails to launch.
+   */
+  public static class LaunchException extends Exception {
+    public LaunchException(String msg) {
+      super(msg);
+    }
+
+    public LaunchException(String msg, Throwable cause) {
+      super(msg, cause);
+    }
+  }
+
+  /**
+   * Responsible for starting and stopping a local service.
+   */
+  public interface ServiceRunner {
+
+    /**
+     * Launches the local service.
+     *
+     * @return Information about the launched service.
+     * @throws LaunchException If the service failed to launch.
+     */
+    LocalService launch() throws LaunchException;
+  }
+
+  @VisibleForTesting
+  static Multibinder<ServiceRunner> runnerBinder(Binder binder) {
+    return Multibinder.newSetBinder(binder, ServiceRunner.class, Service.class);
+  }
+
+  /**
+   * Binds a service runner that will start and stop a local service.
    *
    * @param binder Binder to bind against.
-   * @param portName Port name to register.
-   * @param launcher Launcher class that will announce the port.
+   * @param launcher Launcher class for a service.
    */
-  public static void bindServiceLauncher(Binder binder, String portName,
-      Class<? extends ServiceLauncher> launcher) {
-    Multibinder.newSetBinder(binder, String.class, Port.class).addBinding().toInstance(portName);
-    bindStartupAction(binder, launcher);
-    Multibinder.newSetBinder(binder, ServiceLauncher.class).addBinding().to(launcher);
+  public static void bindServiceRunner(Binder binder, Class<? extends ServiceRunner> launcher) {
+    runnerBinder(binder).addBinding().to(launcher);
     binder.bind(launcher).in(Singleton.class);
+  }
+
+  /**
+   * Binds a local service instance, without attaching an explicit lifecycle.
+   *
+   * @param binder Binder to bind against.
+   * @param service Local service instance to bind.
+   */
+  public static void bindLocalService(Binder binder, final LocalService service) {
+    runnerBinder(binder).addBinding().toInstance(
+        new ServiceRunner() {
+          @Override public LocalService launch() {
+            return service;
+          }
+        });
   }
 
   /**
@@ -107,7 +168,7 @@ public class LifecycleModule extends AbstractModule {
     private final Command shutdownCommand;
 
     @Inject ShutdownHookRegistration(@ShutdownStage Command shutdownCommand) {
-      this.shutdownCommand = Preconditions.checkNotNull(shutdownCommand);
+      this.shutdownCommand = checkNotNull(shutdownCommand);
     }
 
     @Override public void execute() {
@@ -120,30 +181,17 @@ public class LifecycleModule extends AbstractModule {
   }
 
   /**
-   * An action that is responsible for launching a local service, and registering it with the
-   * local service registry.
-   *
-   * @param <E> Exception type thrown during service launch.
+   * Startup command that ensures startup and shutdown of local services.
    */
-  public static abstract class RegisteringServiceLauncher<E extends Exception>
-      implements ServiceLauncher<E> {
-
+  private static class LocalServiceLauncher implements Command {
     private final LocalServiceRegistry serviceRegistry;
 
-    public RegisteringServiceLauncher(LocalServiceRegistry serviceRegistry) {
-      this.serviceRegistry = Preconditions.checkNotNull(serviceRegistry);
+    @Inject LocalServiceLauncher(LocalServiceRegistry serviceRegistry) {
+      this.serviceRegistry = checkNotNull(serviceRegistry);
     }
 
-    @Override
-    public final void execute() throws E {
-      serviceRegistry.announce(getPortName(), launchAndGetPort(), isPrimaryService());
+    @Override public void execute() {
+      serviceRegistry.ensureLaunched();
     }
-
-    /**
-     * Initiates a launch of the service and returns the port that the service is listening on.
-     *
-     * @return The service's listening port.
-     */
-    public abstract int launchAndGetPort() throws E;
   }
 }

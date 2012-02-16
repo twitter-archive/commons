@@ -111,11 +111,15 @@ public class CmdLineProcessor extends AbstractProcessor {
     if (!options.containsKey(name)) {
       return defaultValue;
     }
+
+    // We want to map the presence of a boolean option without a value to indicate true, giving the
+    // following accepted boolean option formats:
+    // -Afoo -> true
+    // -Afoo=false -> false
+    // -Afoo=true -> true
+
     String isOption = options.get(name);
-    if (isOption == null) {
-      return defaultValue;
-    }
-    return Boolean.parseBoolean(isOption);
+    return (isOption == null) || Boolean.parseBoolean(isOption);
   }
 
   private final Configuration.Builder configBuilder = new Configuration.Builder();

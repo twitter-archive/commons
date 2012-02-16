@@ -14,9 +14,11 @@
 # limitations under the License.
 # ==================================================================================================
 
+from numbers import Integral
+
 class AmountUnit(object):
   def __init__(self, multiplier, base_or_unit, display):
-    if isinstance(base_or_unit, (int, long)):
+    if isinstance(base_or_unit, Integral):
       self._multiplier = multiplier * long(base_or_unit)
     elif isinstance(base_or_unit, AmountUnit):
       self._multiplier = multiplier * long(base_or_unit.multiplier())
@@ -30,9 +32,11 @@ class AmountUnit(object):
   def __str__(self):
     return self._display
 
+
 class Time(AmountUnit):
   def __init__(self, multiplier, base, display):
     AmountUnit.__init__(self, multiplier, base, display)
+
 
 Time.NANOSECONDS   = Time(   1,                 1, "ns")
 Time.MICROSECONDS  = Time(1000,  Time.NANOSECONDS, "us")
@@ -41,26 +45,61 @@ Time.SECONDS       = Time(1000, Time.MILLISECONDS, "secs")
 Time.MINUTES       = Time(  60,      Time.SECONDS, "mins")
 Time.HOURS         = Time(  60,      Time.MINUTES, "hrs")
 Time.DAYS          = Time(  24,        Time.HOURS, "days")
+Time.BASES = [
+  Time.NANOSECONDS,
+  Time.MICROSECONDS,
+  Time.MILLISECONDS,
+  Time.SECONDS,
+  Time.MINUTES,
+  Time.HOURS,
+  Time.DAYS
+]
+
 
 class Data(AmountUnit):
   def __init__(self, multiplier, base, display):
     AmountUnit.__init__(self, multiplier, base, display)
 
-Data.BITS  = Data(   1,          1, "b")
-Data.Kb    = Data(1024,  Data.BITS, "Kb")
-Data.Mb    = Data(1024,    Data.Kb, "Mb")
-Data.Gb    = Data(1024,    Data.Mb, "Gb")
-Data.Tb    = Data(1024,    Data.Gb, "Tb")
-
-Data.BYTES = Data(   8,  Data.BITS, "B")
+Data.BYTES = Data(   1,          1, "B")
 Data.KB    = Data(1024, Data.BYTES, "KB")
 Data.MB    = Data(1024,    Data.KB, "MB")
 Data.GB    = Data(1024,    Data.MB, "GB")
 Data.TB    = Data(1024,    Data.GB, "TB")
 Data.PB    = Data(1024,    Data.TB, "PB")
 
+Data.BASES = [
+  Data.BYTES,
+  Data.KB,
+  Data.MB,
+  Data.GB,
+  Data.TB,
+  Data.PB
+]
+
+
 class Amount(object):
   def __init__(self, amount, unit):
+    if not isinstance(amount, Integral):
+      raise ValueError('Amount should be an integer type.')
+    if not isinstance(unit, AmountUnit):
+      raise TypeError('unit should be of type AmountUnit.')
+    self._amount = amount
+    self._unit = unit
+    self._reduce()
+
+  def _reduce(self):
+    if not hasattr(self._unit, 'BASES'):
+      return
+    index = self._unit.BASES.index(self._unit)
+
+    amount = self._amount
+    unit = self._unit
+    for base in self._unit.BASES[index+1:]:
+      new_amount = (1. * self._amount * self._unit.multiplier()) / base.multiplier()
+      if new_amount.is_integer():
+        amount = int(new_amount)
+        unit = base
+
     self._amount = amount
     self._unit = unit
 
@@ -86,6 +125,22 @@ class Amount(object):
     self._raise_if_incompatible(other)
     return cmp(self._calc(), other._calc())
 
+  def __add__(self, other):
+    self._raise_if_incompatible(other)
+    return Amount(self._calc() + other._calc(), self._unit.BASES[0])
+
+  def __sub__(self, other):
+    self._raise_if_incompatible(other)
+    return Amount(self._calc() - other._calc(), self._unit.BASES[0])
+
+  def __mul__(self, other):
+    if not isinstance(other, Integral):
+      raise TypeError('Can only multiply by integers')
+    return Amount(self._calc() * other, self._unit.BASES[0])
+
+  def __rmul__(self, other):
+    return self.__mul__(other)
+
   def as_(self, unit):
     if type(self._unit) != type(unit):
       raise TypeError('Cannot convert from disparate base units: %s vs %s' % (
@@ -94,6 +149,9 @@ class Amount(object):
 
   def __str__(self):
     return '%s %s' % (self._amount, self._unit)
+
+  def __repr__(self):
+    return 'Amount(%s, %s)' % (self._amount, self._unit)
 
 __all__ = [
   'Time',

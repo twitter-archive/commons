@@ -16,5 +16,19 @@
 
 from client import ServerSetClient
 
-__all__ = ['ServerSetClient']
+def get_random_host(serverset, zk=None):
+  import random
+  import threading
 
+  populated = threading.Event()
+  def on_connection(*a, **kw):
+    populated.set()
+  serverset_client = ServerSetClient(serverset, zk=zk, watcher=on_connection)
+  populated.wait()
+  if len(serverset_client) > 0:
+    random_host = random.choice(serverset_client.get_endpoints()).serviceEndpoint
+    serverset_client._zk.close()
+    return random_host
+
+
+__all__ = ['ServerSetClient', 'get_random_host']

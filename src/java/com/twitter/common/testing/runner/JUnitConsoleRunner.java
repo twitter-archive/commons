@@ -7,6 +7,9 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,32 +17,29 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 
-import org.apache.commons.lang.SystemUtils;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
 import org.junit.runner.Result;
 import org.junit.runner.notification.RunListener;
-
-import com.twitter.common.application.AbstractApplication;
-import com.twitter.common.application.AppLauncher;
-import com.twitter.common.args.Arg;
-import com.twitter.common.args.ArgFilters;
-import com.twitter.common.args.CmdLine;
-import com.twitter.common.args.Positional;
-import com.twitter.common.args.constraints.NotEmpty;
-import com.twitter.common.collections.Pair;
+import org.kohsuke.args4j.Argument;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
+import org.kohsuke.args4j.spi.StringArrayOptionHandler;
 
 /**
  * An alternative to {@link JUnitCore} with stream capture and junit-report xml output capabilities.
  */
-public class JUnitConsoleRunner extends AbstractApplication {
+public class JUnitConsoleRunner {
 
   private static final SwappableStream<PrintStream> SWAPPABLE_OUT =
       new SwappableStream<PrintStream>(System.out);
@@ -207,27 +207,21 @@ public class JUnitConsoleRunner extends AbstractApplication {
     }
   }
 
-  @CmdLine(name = "suppress-output", help = "Suppresses test output.")
-  private static final Arg<Boolean> SUPPRESS_OUTPUT = Arg.create(false);
-
-  @CmdLine(name = "xmlreport", help = "Create ant compatible junit xml report files in -outdir.")
-  private static final Arg<Boolean> ANT_JUNIT_XML = Arg.create(false);
-
-  @CmdLine(name = "outdir",
-           help = "Directory to output test captures too.  Only used if -suppress-output "
-                  + "or -xmlreport is set.")
-  private static final Arg<File> OUTDIR = Arg.create(SystemUtils.getJavaIoTmpDir());
-
-  @NotEmpty
-  @Positional(help = "Names of junit test classes or test methods to run.")
-  private static final Arg<List<String>> TESTS = Arg.create();
-
   private static final Pattern METHOD_PARSER = Pattern.compile("^([^#]+)#([^#]+)$");
 
-  @Override
-  public void run() {
+  private final boolean suppressOutput;
+  private final boolean xmlReport;
+  private final File outdir;
+
+  JUnitConsoleRunner(boolean suppressOutput, boolean xmlReport, File outdir) {
+    this.suppressOutput = suppressOutput;
+    this.xmlReport = xmlReport;
+    this.outdir = outdir;
+  }
+
+  void run(Iterable<String> tests) {
     PrintStream out = SWAPPABLE_OUT.getOriginal();
-    List<Request> requests = parseRequests(out, TESTS.get());
+    List<Request> requests = parseRequests(out, tests);
 
     final JUnitCore core = new JUnitCore();
     ListenerRegistry listenerRegistry = new ListenerRegistry() {
@@ -236,8 +230,7 @@ public class JUnitConsoleRunner extends AbstractApplication {
       }
     };
 
-    if (ANT_JUNIT_XML.get() || SUPPRESS_OUTPUT.get()) {
-      File outdir = OUTDIR.get();
+    if (xmlReport || suppressOutput) {
       if (!outdir.exists()) {
         if (!outdir.mkdirs()) {
           throw new IllegalStateException("Failed to create output directory: " + outdir);
@@ -247,7 +240,7 @@ public class JUnitConsoleRunner extends AbstractApplication {
       listenerRegistry.addListener(streamCapturingListener);
       listenerRegistry = streamCapturingListener;
 
-      if (ANT_JUNIT_XML.get()) {
+      if (xmlReport) {
         AntJunitXmlReportListener xmlReportListener =
             new AntJunitXmlReportListener(outdir, streamCapturingListener);
         listenerRegistry.addListener(xmlReportListener);
@@ -264,34 +257,53 @@ public class JUnitConsoleRunner extends AbstractApplication {
     exit(failures);
   }
 
-  private List<Request> parseRequests(PrintStream out, List<String> specs) {
+  private List<Request> parseRequests(PrintStream out, Iterable<String> specs) {
+    /**
+     * Datatype representing an individual test method.
+     */
+    class TestMethod {
+      private final Class<?> clazz;
+      private final String name;
+      TestMethod(Class<?> clazz, String name) {
+        this.clazz = clazz;
+        this.name = name;
+      }
+    }
+    Set<TestMethod> testMethods = Sets.newLinkedHashSet();
     Set<Class<?>> classes = Sets.newLinkedHashSet();
-    Set<Pair<Class<?>, String>> methods = Sets.newLinkedHashSet();
     for (String spec : specs) {
       Matcher matcher = METHOD_PARSER.matcher(spec);
       try {
         if (matcher.matches()) {
           Class<?> testClass = Class.forName(matcher.group(1));
-          String method = matcher.group(2);
-          methods.add(Pair.<Class<?>, String>of(testClass, method));
+          if (isTest(testClass)) {
+            String method = matcher.group(2);
+            testMethods.add(new TestMethod(testClass, method));
+          }
         } else {
           Class<?> testClass = Class.forName(spec);
-          classes.add(testClass);
+          if (isTest(testClass)) {
+            classes.add(testClass);
+          }
         }
+      } catch (NoClassDefFoundError e) {
+        warnNotFound(spec, out, e);
       } catch (ClassNotFoundException e) {
-        out.printf("WARNING: Skipping %s: %s\n", spec, e);
+        warnNotFound(spec, out, e);
       }
     }
     List<Request> requests = Lists.newArrayList();
     if (!classes.isEmpty()) {
       requests.add(Request.classes(classes.toArray(new Class<?>[classes.size()])));
     }
-    for (Pair<Class<?>, String> method : methods) {
-      Class<?> testClass = method.getFirst();
-      String testMethod = method.getSecond();
-      requests.add(Request.method(testClass, testMethod));
+    for (TestMethod testMethod : testMethods) {
+      requests.add(Request.method(testMethod.clazz, testMethod.name));
     }
     return requests;
+  }
+
+  private void warnNotFound(String spec, PrintStream out, Throwable t) {
+    out.printf("WARNING: Skipping %s: %s\n", spec, t);
   }
 
   /**
@@ -300,8 +312,76 @@ public class JUnitConsoleRunner extends AbstractApplication {
   public static void main(String[] args) {
     System.setOut(new PrintStream(SWAPPABLE_OUT));
     System.setErr(new PrintStream(SWAPPABLE_ERR));
-    AppLauncher.launch(JUnitConsoleRunner.class, ArgFilters.selectClass(JUnitConsoleRunner.class),
-        args);
+
+    /**
+     * Command line option bean.
+     */
+    class Options {
+      private boolean suppressOutput = false;
+      private boolean xmlReport = false;
+      private File outdir = new File(System.getProperty("java.io.tmpdir"));
+      private List<String> tests = Lists.newArrayList();
+
+      @Option(name = "-suppress-output", usage = "Suppresses test output.")
+      public void setSuppressOutput(boolean suppressOutput) {
+        this.suppressOutput = suppressOutput;
+      }
+
+      @Option(name = "-xmlreport",
+              usage = "Create ant compatible junit xml report files in -outdir.")
+      public void setXmlReport(boolean xmlReport) {
+        this.xmlReport = xmlReport;
+      }
+
+      @Option(name = "-outdir",
+              usage = "Directory to output test captures too.  Only used if -suppress-output or "
+                      + "-xmlreport is set.")
+      public void setOutdir(File outdir) {
+        this.outdir = outdir;
+      }
+
+      @Argument(usage = "Names of junit test classes or test methods to run.",
+                required = true,
+                metaVar = "TESTS",
+                handler = StringArrayOptionHandler.class)
+      public void setTests(String[] tests) {
+        this.tests = Arrays.asList(tests);
+      }
+    }
+    Options options = new Options();
+    CmdLineParser parser = new CmdLineParser(options);
+    try {
+      parser.parseArgument(args);
+    } catch (CmdLineException e) {
+      e.getParser().printUsage(System.out);
+      exit(1);
+    }
+
+    JUnitConsoleRunner runner =
+        new JUnitConsoleRunner(options.suppressOutput, options.xmlReport, options.outdir);
+    runner.run(options.tests);
+  }
+
+  private static boolean isTest(final Class<?> clazz) {
+    // Must be a public concrete class to be a runnable junit Test.
+    if (clazz.isInterface()
+        || Modifier.isAbstract(clazz.getModifiers())
+        || !Modifier.isPublic(clazz.getModifiers())) {
+      return false;
+    }
+
+    // Support junit 3.x Test hierarchy.
+    if (junit.framework.Test.class.isAssignableFrom(clazz)) {
+      return true;
+    }
+
+    // Support junit 4.x @Test annotated methods.
+    return Iterables.any(Arrays.asList(clazz.getDeclaredMethods()), new Predicate<Method>() {
+      @Override public boolean apply(Method method) {
+        return Modifier.isPublic(method.getModifiers())
+            && method.isAnnotationPresent(org.junit.Test.class);
+      }
+    });
   }
 
   private static void exit(int code) {

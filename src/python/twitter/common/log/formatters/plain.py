@@ -15,6 +15,7 @@
 # ==================================================================================================
 
 import logging
+from twitter.common.log.formatters.base import format_message
 
 class PlainFormatter(logging.Formatter):
   """
@@ -39,6 +40,6 @@ class PlainFormatter(logging.Formatter):
       level = PlainFormatter.LEVEL_MAP[record.levelno]
     except:
       level = '?????'
-    record_message = '%s] %s' % (level, record.msg)
+    record_message = '%s] %s' % (level, format_message(record))
     record.getMessage = lambda: record_message
     return logging.Formatter.format(self, record)

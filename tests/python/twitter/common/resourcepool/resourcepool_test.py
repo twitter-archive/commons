@@ -64,7 +64,9 @@ class TestResourcePool(object):
     pool = ResourcePool([])
     now = time.time()
     with pytest.raises(Empty):
-      with pool.acquire(timeout=Amount(1.01, Time.SECONDS)) as resource:
+      # TODO(wickman) We should also be able to round-down for non-integral Amount types.
+      with pool.acquire(timeout=Amount(1, Time.SECONDS) +
+                                Amount(10, Time.MILLISECONDS)) as resource:
         pass
     elapsed = time.time() - now
     assert elapsed >= 1.0

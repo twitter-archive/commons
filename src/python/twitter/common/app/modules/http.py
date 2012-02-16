@@ -46,7 +46,15 @@ class RootServer(HttpServer, app.Module):
           type='string',
           metavar='HOSTNAME',
           dest='twitter_common_http_root_server_host',
-          help='The host the root http server will be listening on.')
+          help='The host the root http server will be listening on.'),
+
+    'framework':
+      options.Option('--http_framework',
+          default='wsgiref',
+          type='string',
+          metavar='FRAMEWORK',
+          dest='twitter_common_http_root_server_framework',
+          help='The framework that will be running the integrated http server.')
   }
 
   def __init__(self):
@@ -65,7 +73,8 @@ class RootServer(HttpServer, app.Module):
       def run(self):
         rs = parent
         rs.run(options.twitter_common_http_root_server_host,
-               options.twitter_common_http_root_server_port)
+               options.twitter_common_http_root_server_port,
+               server=options.twitter_common_http_root_server_framework)
 
     if options.twitter_common_http_root_server_enabled:
       self._thread = RootServerThread()

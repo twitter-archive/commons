@@ -16,8 +16,6 @@
 
 ACTION_SOURCES = set([
     'Lifecycle.java',
-    'LocalServiceRegistry.java',
-    'ServiceLauncher.java',
     'ShutdownRegistry.java',
     'ShutdownStage.java',
     'StartupRegistry.java',
@@ -31,6 +29,7 @@ java_library(name = 'action',
     repo = pants('build-support/commons/ivy:public'),
   ),
   dependencies = [
+    pants('3rdparty:commons-lang'),
     pants('3rdparty:guava'),
     pants('3rdparty:guice'),
     pants('src/java/com/twitter/common/base'),

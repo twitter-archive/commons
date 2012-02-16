@@ -117,11 +117,11 @@ class RecordIO(object):
       try:
         cur_fp = os.fdopen(fd, self._fp.mode)
         cur_fp.seek(0)
-      except OSError, e:
+      except OSError as e:
         log.error('Failed to duplicate fd on %s, error = %s' % (self._fp.name, e))
         try:
           os.close(fd)
-        except OSError, e:
+        except OSError as e:
           if e.errno != errno.EBADF:
             log.error('Failed to close duped fd on %s, error = %s' % (self._fp.name, e))
         return
@@ -188,7 +188,7 @@ class RecordIO(object):
       read_blob = None
       try:
         read_blob = self.read()
-      except RecordIO.PrematureEndOfStream, e:
+      except RecordIO.PrematureEndOfStream as e:
         log.debug('Got premature end of stream [%s], skipping - %s' % (self._fp.name, e))
         self._fp.seek(pos)
         return None
@@ -234,7 +234,7 @@ class RecordIO(object):
       try:
         fp.write(struct.pack(">L", blob_len))
         fp.write(blob)
-      except Exception, e:
+      except Exception as e:
         log.debug("Got exception in write(%s): %s" % (fp.name, e))
         return False
       if sync:
@@ -257,7 +257,7 @@ class RecordIO(object):
       try:
         with open(filename, "a+") as fp:
           rv = RecordIO.Writer.do_write(fp, input, codec)
-      except Exception, e:
+      except Exception as e:
         if fp:
           log.debug("Unexpected exception (%s), but continuing" % e)
         else:

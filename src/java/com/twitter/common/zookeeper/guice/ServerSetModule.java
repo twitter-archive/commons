@@ -16,15 +16,17 @@
 
 package com.twitter.common.zookeeper.guice;
 
+import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 
-import com.twitter.common.application.LocalServiceRegistry;
 import com.twitter.common.application.ShutdownRegistry;
 import com.twitter.common.application.modules.LifecycleModule;
+import com.twitter.common.application.modules.LocalServiceRegistry;
 import com.twitter.common.args.Arg;
 import com.twitter.common.args.CmdLine;
 import com.twitter.common.args.constraints.NotEmpty;
@@ -89,10 +91,15 @@ public class ServerSetModule extends AbstractModule {
     @Override public void execute() throws RuntimeException {
       ServerSet serverSet = new ServerSetImpl(zkClient, SERVERSET_PATH.get());
 
+      Optional<InetSocketAddress> primarySocket = serviceRegistry.getPrimarySocket();
+      if (!primarySocket.isPresent()) {
+        throw new IllegalStateException("No primary service registered with LocalServiceRegistry.");
+      }
+
       final EndpointStatus status;
       try {
         status = serverSet.join(
-            serviceRegistry.getPrimarySocket(),
+            primarySocket.get(),
             serviceRegistry.getAuxiliarySockets(),
             Status.ALIVE);
       } catch (JoinException e) {

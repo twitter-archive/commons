@@ -9,13 +9,19 @@ import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 
-import com.twitter.common.base.Closure;
-import com.twitter.common.base.ExceptionalClosure;
-
 /**
  * A run listener that forwards all events to a sequence of registered listeners.
  */
 class ForwardingListener extends RunListener implements ListenerRegistry {
+  /**
+   * Fires an event to a listener.
+   *
+   * @param <E> The type of exception thrown when firing this event.
+   */
+  private interface Event<E extends Exception> {
+    void fire(RunListener listener) throws E;
+  }
+
   private final List<RunListener> listeners = Lists.newArrayList();
 
   @Override
@@ -23,16 +29,16 @@ class ForwardingListener extends RunListener implements ListenerRegistry {
     listeners.add(listener);
   }
 
-  private <E extends Exception> void fire(ExceptionalClosure<RunListener, E> dispatcher) throws E {
+  private <E extends Exception> void fire(Event<E> dispatcher) throws E {
     for (RunListener listener : listeners) {
-      dispatcher.execute(listener);
+      dispatcher.fire(listener);
     }
   }
 
   @Override
   public void testRunStarted(final Description description) throws Exception {
-    fire(new ExceptionalClosure<RunListener, Exception>() {
-      @Override public void execute(RunListener listener) throws Exception {
+    fire(new Event<Exception>() {
+      @Override public void fire(RunListener listener) throws Exception {
         listener.testRunStarted(description);
       }
     });
@@ -40,8 +46,8 @@ class ForwardingListener extends RunListener implements ListenerRegistry {
 
   @Override
   public void testRunFinished(final Result result) throws Exception {
-    fire(new ExceptionalClosure<RunListener, Exception>() {
-      @Override public void execute(RunListener listener) throws Exception {
+    fire(new Event<Exception>() {
+      @Override public void fire(RunListener listener) throws Exception {
         listener.testRunFinished(result);
       }
     });
@@ -49,8 +55,8 @@ class ForwardingListener extends RunListener implements ListenerRegistry {
 
   @Override
   public void testStarted(final Description description) throws Exception {
-    fire(new ExceptionalClosure<RunListener, Exception>() {
-      @Override public void execute(RunListener listener) throws Exception {
+    fire(new Event<Exception>() {
+      @Override public void fire(RunListener listener) throws Exception {
         listener.testStarted(description);
       }
     });
@@ -58,8 +64,8 @@ class ForwardingListener extends RunListener implements ListenerRegistry {
 
   @Override
   public void testIgnored(final Description description) throws Exception {
-    fire(new ExceptionalClosure<RunListener, Exception>() {
-      @Override public void execute(RunListener listener) throws Exception {
+    fire(new Event<Exception>() {
+      @Override public void fire(RunListener listener) throws Exception {
         listener.testIgnored(description);
       }
     });
@@ -67,8 +73,8 @@ class ForwardingListener extends RunListener implements ListenerRegistry {
 
   @Override
   public void testFailure(final Failure failure) throws Exception {
-    fire(new ExceptionalClosure<RunListener, Exception>() {
-      @Override public void execute(RunListener listener) throws Exception {
+    fire(new Event<Exception>() {
+      @Override public void fire(RunListener listener) throws Exception {
         listener.testFailure(failure);
       }
     });
@@ -76,8 +82,8 @@ class ForwardingListener extends RunListener implements ListenerRegistry {
 
   @Override
   public void testFinished(final Description description) throws Exception {
-    fire(new ExceptionalClosure<RunListener, Exception>() {
-      @Override public void execute(RunListener listener) throws Exception {
+    fire(new Event<Exception>() {
+      @Override public void fire(RunListener listener) throws Exception {
         listener.testFinished(description);
       }
     });
@@ -85,8 +91,8 @@ class ForwardingListener extends RunListener implements ListenerRegistry {
 
   @Override
   public void testAssumptionFailure(final Failure failure) {
-    fire(new Closure<RunListener>() {
-      @Override public void execute(RunListener listener) {
+    fire(new Event<RuntimeException>() {
+      @Override public void fire(RunListener listener) {
         listener.testAssumptionFailure(failure);
       }
     });

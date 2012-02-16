@@ -14,6 +14,10 @@
 # limitations under the License.
 # ==================================================================================================
 
+EXECUTOR_SERVICE_SHUTDOWN_SOURCES = [
+  'concurrent/ExecutorServiceShutdown.java'
+]
+
 SYSTEM_MOCKS_SOURCES = [
   'Clock.java',
   'Random.java',
@@ -50,7 +54,7 @@ java_library(name = 'executor-service-shutdown',
     pants('src/java/com/twitter/common/base'),
     pants('src/java/com/twitter/common/quantity'),
   ],
-  sources = [ 'concurrent/ExecutorServiceShutdown.java' ],
+  sources = EXECUTOR_SERVICE_SHUTDOWN_SOURCES,
 )
 
 java_library(name = 'util',
@@ -73,7 +77,7 @@ java_library(name = 'util',
     pants('src/java/com/twitter/common/stats'),
   ],
   sources = globs('*.java', 'concurrent/*.java')
-    - SYSTEM_MOCKS_SOURCES - SAMPLER_SOURCES - KESTREL_SOURCES,
+    - EXECUTOR_SERVICE_SHUTDOWN_SOURCES - SYSTEM_MOCKS_SOURCES - SAMPLER_SOURCES - KESTREL_SOURCES,
 )
 
 java_library(name = 'system-mocks',

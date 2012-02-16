@@ -18,6 +18,7 @@ package com.twitter.common.zookeeper;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.zookeeper.CreateMode;
@@ -33,11 +34,7 @@ import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException
 import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
 
 import static com.google.common.testing.junit4.JUnitAsserts.assertNotEqual;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author John Sirois
@@ -58,6 +55,7 @@ public class ZooKeeperClientTest extends BaseZooKeeperTest {
     } catch (TimeoutException e) {
       assertTrue(zkClient.isClosed());
     }
+    assertNull(zkClient.getZooKeeperClientForTests());
 
     final CountDownLatch blockingGetComplete = new CountDownLatch(1);
     final AtomicReference<ZooKeeper> client = new AtomicReference<ZooKeeper>();
@@ -100,6 +98,46 @@ public class ZooKeeperClientTest extends BaseZooKeeperTest {
     restartNetwork();
     assertEquals("Expected connection to be re-established with existing session",
         sessionId, zkClient.get().getSessionId());
+  }
+
+  /**
+   * Test that if a blocking get() call gets interrupted, after a connection has been created
+   * but before it's connected, the zk connection gets closed.
+   */
+  @Test
+  public void testGetInterrupted() throws Exception {
+    final ZooKeeperClient zkClient = createZkClient();
+    shutdownNetwork();
+
+    final CountDownLatch blockingGetComplete = new CountDownLatch(1);
+    final AtomicBoolean interrupted = new AtomicBoolean();
+    final AtomicReference<ZooKeeper> client = new AtomicReference<ZooKeeper>();
+    Thread getThread = new Thread(new Runnable() {
+      @Override public void run() {
+        try {
+          client.set(zkClient.get());
+        } catch (ZooKeeperConnectionException e) {
+          throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+          interrupted.set(true);
+          throw new RuntimeException(e);
+        } finally {
+          blockingGetComplete.countDown();
+        }
+      }
+    });
+    getThread.start();
+
+    while (zkClient.getZooKeeperClientForTests() == null) {
+      Thread.sleep(100);
+    }
+
+    getThread.interrupt();
+    blockingGetComplete.await();
+
+    assertNull("The zk connection should have been closed", zkClient.getZooKeeperClientForTests());
+    assertTrue("The waiter thread should have been interrupted", interrupted.get());
+    assertTrue(zkClient.isClosed());
   }
 
   @Test

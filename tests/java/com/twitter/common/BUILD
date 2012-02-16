@@ -14,12 +14,11 @@
 # limitations under the License.
 # ==================================================================================================
 
-
-
 jar_library(name = 'small',
   dependencies = [
     pants('3rdparty:junit'),
     pants('tests/java/com/twitter/common/application'),
+    pants('tests/java/com/twitter/common/application/modules:all'),
     pants('tests/java/com/twitter/common/args:small'),
     pants('tests/java/com/twitter/common/base'),
     pants('tests/java/com/twitter/common/collections'),

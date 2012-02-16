@@ -16,11 +16,9 @@
 
 import ConfigParser
 import copy
-import time
 import inspect
 import os
 import sys
-import types
 import optparse
 import shlex
 import traceback
@@ -174,10 +172,10 @@ class Application(object):
       or global help options registered by the application.
     """
     parser = (options.parser()
-                   .interspersed_arguments(self._interspersed_args)
-                   .options(self._main_options)
-                   .values(self._option_values)
-                   .usage(self._usage))
+              .interspersed_arguments(self._interspersed_args)
+              .options(self._main_options)
+              .values(self._option_values)
+              .usage(self._usage))
 
     if hasattr(self._commands.get(self._command), Application.OPTIONS_ATTR):
       return parser.groups([getattr(self._commands[self._command], Application.OPTIONS_ATTR)])
@@ -336,16 +334,26 @@ class Application(object):
       self._global_options[calling_module] = options.new_group(calling_module)
     self._global_options[calling_module].add_option(option)
 
+  @staticmethod
+  def rewrite_help(op):
+    if hasattr(op, 'help') and isinstance(op.help, basestring):
+      if op.help.find('%default') != -1 and op.default != optparse.NO_DEFAULT:
+        op.help = op.help.replace('%default', str(op.default))
+      else:
+        op.help = op.help + ((' [default: %s]' % str(op.default))
+          if op.default != optparse.NO_DEFAULT else '')
+
   def _add_option(self, calling_module, option):
     op = copy.deepcopy(option)
-    if option.dest and hasattr(option, 'default'):
-      self.set_option(option.dest,
-          option.default if option.default != optparse.NO_DEFAULT else None,
-          force=False)
+    if op.dest and hasattr(op, 'default'):
+      self.set_option(op.dest, op.default if op.default != optparse.NO_DEFAULT else None,
+        force=False)
+      Application.rewrite_help(op)
+      op.default = optparse.NO_DEFAULT
     if calling_module == '__main__':
-      self._add_main_option(option)
+      self._add_main_option(op)
     else:
-      self._add_module_option(calling_module, option)
+      self._add_module_option(calling_module, op)
 
   def _get_option_from_args(self, args, kwargs):
     if len(args) == 1 and kwargs == {} and isinstance(args[0], options.Option):
@@ -403,7 +411,8 @@ class Application(object):
     return register_option
 
   def _debug_log(self, msg):
-    if self._option_values.twitter_common_app_debug:
+    if hasattr(self._option_values, 'twitter_common_app_debug') and (
+        self._option_values.twitter_common_app_debug):
       print >> sys.stderr, 'twitter.common.app debug: %s' % msg
 
   def set_option(self, dest, value, force=True):

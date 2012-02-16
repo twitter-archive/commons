@@ -72,7 +72,7 @@ class ProcessHandlePs(ProcessHandle, ProcessHandleParserBase):
     try:
       lsof = subprocess.Popen(('lsof -a -p %s -d cwd -Fn' % self.pid()).split(),
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-      stdout, stderr = lsof.communicate()
+      stdout, _ = lsof.communicate()
       for line in stdout.split('\n'):
         if line.startswith('n'):
           return line[1:]

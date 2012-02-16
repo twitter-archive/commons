@@ -29,14 +29,14 @@ import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 
-import com.twitter.common.application.LocalServiceRegistry;
-import com.twitter.common.application.modules.LifecycleModule.RegisteringServiceLauncher;
 import com.twitter.common.application.ShutdownRegistry;
 import com.twitter.common.application.http.DefaultQuitHandler;
 import com.twitter.common.application.http.GraphViewer;
 import com.twitter.common.application.http.HttpAssetConfig;
 import com.twitter.common.application.http.HttpServletConfig;
 import com.twitter.common.application.http.Registration;
+import com.twitter.common.application.modules.LifecycleModule.ServiceRunner;
+import com.twitter.common.application.modules.LocalServiceRegistry.LocalService;
 import com.twitter.common.args.Arg;
 import com.twitter.common.args.CmdLine;
 import com.twitter.common.args.constraints.Range;
@@ -147,54 +147,30 @@ public class HttpModule extends AbstractModule {
 
     GraphViewer.registerResources(binder());
 
-    LifecycleModule.bindServiceLauncher(binder(),
-        HttpServerLauncher.PORT_NAME, HttpServerLauncher.class);
+    LifecycleModule.bindServiceRunner(binder(), HttpServerLauncher.class);
   }
 
-  public static final class HttpServerLauncher
-      extends RegisteringServiceLauncher<RuntimeException> {
-    private static final String PORT_NAME = "http";
-
+  public static final class HttpServerLauncher implements ServiceRunner {
     private final HttpServerDispatch httpServer;
     private final Set<HttpServletConfig> httpServlets;
     private final Set<HttpAssetConfig> httpAssets;
     private final Injector injector;
-    private final ShutdownRegistry shutdownRegistry;
 
     @Inject HttpServerLauncher(
-        LocalServiceRegistry serviceRegistry,
         HttpServerDispatch httpServer,
         Set<HttpServletConfig> httpServlets,
         Set<HttpAssetConfig> httpAssets,
-        Injector injector,
-        ShutdownRegistry shutdownRegistry) {
-      super(serviceRegistry);
+        Injector injector) {
       this.httpServer = checkNotNull(httpServer);
       this.httpServlets = checkNotNull(httpServlets);
       this.httpAssets = checkNotNull(httpAssets);
       this.injector = checkNotNull(injector);
-      this.shutdownRegistry = checkNotNull(shutdownRegistry);
     }
 
-    @Override public String getPortName() {
-      return PORT_NAME;
-    }
-
-    @Override public boolean isPrimaryService() {
-      return false;
-    }
-
-    @Override public int launchAndGetPort() {
+    @Override public LocalService launch() {
       if (!httpServer.listen(HTTP_PORT.get())) {
         throw new IllegalStateException("Failed to start HTTP server, all servlets disabled.");
       }
-
-      shutdownRegistry.addAction(new Command() {
-        @Override public void execute() {
-          LOG.info("Shutting down embedded http server");
-          httpServer.stop();
-        }
-      });
 
       for (HttpServletConfig config : httpServlets) {
         HttpServlet handler = injector.getInstance(config.handlerClass);
@@ -205,7 +181,16 @@ public class HttpModule extends AbstractModule {
         httpServer.registerHandler(config.path, config.handler, null, config.silent);
       }
 
-      return httpServer.getPort();
+      Command shutdown = new Command() {
+        @Override public void execute() {
+          LOG.info("Shutting down embedded http server");
+          httpServer.stop();
+        }
+      };
+
+      return HTTP_PRIMARY_SERVICE.get()
+          ? LocalService.primaryService(httpServer.getPort(), shutdown)
+          : LocalService.auxiliaryService("http", httpServer.getPort(), shutdown);
     }
   }
 }

@@ -78,6 +78,13 @@ public class Partitioner {
     public abstract boolean isMember(long value);
 
     /**
+     * Gets number of members in the group at this time.
+     *
+     * @return number of members in the ZK group at this time.
+     */
+    public abstract int getNumPartitions();
+
+    /**
      * Evaluates partition membership based on the given {@code value}'s hash code.  If the value
      * is null it is never a member of a partition.
      */
@@ -122,6 +129,10 @@ public class Partitioner {
     return new Partition() {
       @Override public boolean isMember(long value) {
         return (value % groupSize) == groupIndex;
+      }
+
+      @Override public int getNumPartitions() {
+        return groupSize;
       }
 
       @Override public String getGroupPath() {

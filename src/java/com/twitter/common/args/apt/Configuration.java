@@ -269,7 +269,7 @@ public class Configuration {
     }
 
     public Configuration build(Configuration configuration) {
-      return new Configuration(ImmutableList.<URL>of(), configuration.nextResourceIndex + 1,
+      return new Configuration(configuration.nextResourceIndex + 1,
           positionalInfos, argInfos, parserInfos, verifierInfos);
     }
   }
@@ -362,12 +362,10 @@ public class Configuration {
     private final ImmutableList.Builder<ParserInfo> parserInfoBuilder = ImmutableList.builder();
     private final ImmutableList.Builder<VerifierInfo> verifierInfoBuilder = ImmutableList.builder();
 
-    private final Iterable<URL> resources;
     final int nextIndex;
     int lineNumber = 0;
 
-    private ConfigurationParser(Iterable<URL> resources, int nextIndex) {
-      this.resources = resources;
+    private ConfigurationParser(int nextIndex) {
       this.nextIndex = nextIndex;
     }
 
@@ -412,7 +410,7 @@ public class Configuration {
 
     @Override
     public Configuration getResult() {
-      return new Configuration(resources, nextIndex, positionalInfo.build(),
+      return new Configuration(nextIndex, positionalInfo.build(),
           fieldInfoBuilder.build(), parserInfoBuilder.build(), verifierInfoBuilder.build());
     }
   }
@@ -420,20 +418,18 @@ public class Configuration {
   private static Configuration load(int nextIndex, List<URL> configs)
       throws ConfigurationException, IOException {
     InputSupplier<Reader> input = CharStreams.join(Iterables.transform(configs, URL_TO_READER));
-    return CharStreams.readLines(input, new ConfigurationParser(configs, nextIndex));
+    return CharStreams.readLines(input, new ConfigurationParser(nextIndex));
   }
 
-  private final Iterable<URL> resources;
   private int nextResourceIndex;
   private final ImmutableSet<ArgInfo> positionalInfos;
   private final ImmutableSet<ArgInfo> cmdLineInfos;
   private final ImmutableSet<ParserInfo> parserInfos;
   private final ImmutableSet<VerifierInfo> verifierInfos;
 
-  private Configuration(Iterable<URL> resources, int nextResourceIndex,
+  private Configuration(int nextResourceIndex,
       Iterable<ArgInfo> positionalInfos, Iterable<ArgInfo> cmdLineInfos,
       Iterable<ParserInfo> parserInfos, Iterable<VerifierInfo> verifierInfos) {
-    this.resources = resources;
     this.nextResourceIndex = nextResourceIndex;
     this.positionalInfos = ImmutableSet.copyOf(positionalInfos);
     this.cmdLineInfos = ImmutableSet.copyOf(cmdLineInfos);

@@ -2,7 +2,7 @@ import os
 import errno
 import time
 import pwd
-from process_handle import ProcessHandle, ProcessHandleParserBase
+from process_handle import ProcessHandleParserBase
 
 class ProcessHandlersProcfs(object):
   BOOT_TIME = None
@@ -34,9 +34,9 @@ class ProcessHandlersProcfs(object):
 class ProcessHandleProcfs(ProcessHandleParserBase):
   ATTRS = \
     """pid comm state ppid pgrp session tty_nr tpgid flags minflt cminflt majflt cmajflt utime
-       stime cutime cstime priority nice num_threads itrealvalue starttime vsize rss rsslim startcode
-       endcode startstack kstkesp kstkeip signal blocked sigignore sigcatch wchan nswap cnswap
-       exit_signal processor rt_priority policy""".split()
+       stime cutime cstime priority nice num_threads itrealvalue starttime vsize rss rsslim
+       startcode endcode startstack kstkesp kstkeip signal blocked sigignore sigcatch wchan nswap
+       cnswap exit_signal processor rt_priority policy""".split()
 
   TYPE_MAP = {
             "pid":   "%d",         "comm":   "%s",       "state":  "%c",        "ppid":  "%d",

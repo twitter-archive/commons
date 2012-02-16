@@ -58,7 +58,7 @@ public interface ShutdownRegistry {
     }
 
     /**
-     * Executes an application lifecycle stage by executing all registered actions. This method can
+     * Executes an application shutdown stage by executing all registered actions. This method can
      * be called multiple times but will only execute the registered actions the first time.
      *
      * This sends output to System.out because logging is unreliable during JVM shutdown, which
@@ -67,7 +67,7 @@ public interface ShutdownRegistry {
     @Override
     public synchronized void execute() {
       if (!completed) {
-        LOG.info(String.format("Executing %d lifecycle commands.", actions.size()));
+        LOG.info(String.format("Executing %d shutdown commands.", actions.size()));
         completed = true;
         try {
           for (ExceptionalCommand<? extends Exception> action : Lists.reverse(actions)) {

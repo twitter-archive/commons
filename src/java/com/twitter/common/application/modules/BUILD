@@ -40,8 +40,10 @@ java_library(name = 'lifecycle',
     pants('3rdparty:guice'),
     pants('3rdparty:guice-multibindings'),
     pants('src/java/com/twitter/common/application:action'),
+    pants('src/java/com/twitter/common/base'),
+    pants('src/java/com/twitter/common/net:util')
   ],
-  sources = ['LifecycleModule.java']
+  sources = ['LifecycleModule.java', 'LocalServiceRegistry.java']
 )
 
 # TODO(William Farner): Split this up further - HTTP should not require thrift and time-series.

@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -28,9 +29,6 @@ import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
-
-import com.twitter.common.quantity.Amount;
-import com.twitter.common.quantity.Time;
 
 /**
  * A run listener that creates ant junit xml report compatible output describing a junit run.
@@ -137,7 +135,7 @@ class AntJunitXmlReportListener extends RunListener {
     }
 
     public void finished() {
-      time = convertTimeSpan(System.nanoTime() - startNs, Time.NANOSECONDS);
+      time = convertTimeSpanNs(System.nanoTime() - startNs);
     }
   }
 
@@ -284,7 +282,7 @@ class AntJunitXmlReportListener extends RunListener {
 
     public void finished() {
       if (++tests == testCases.size()) {
-        time = convertTimeSpan(System.nanoTime() - startNs, Time.NANOSECONDS);
+        time = convertTimeSpanNs(System.nanoTime() - startNs);
       }
     }
 
@@ -371,7 +369,7 @@ class AntJunitXmlReportListener extends RunListener {
     }
   }
 
-  private static String convertTimeSpan(double timespan, Time unit) {
-    return String.format("%f", Amount.of(timespan, unit).as(Time.SECONDS));
+  private static String convertTimeSpanNs(long timespanNs) {
+    return String.format("%f", timespanNs / (double) TimeUnit.SECONDS.toNanos(1));
   }
 }

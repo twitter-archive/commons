@@ -34,27 +34,38 @@ jar_library(name = 'aopalliance',
           )
 
 jar_library(name = 'args4j',
-           dependencies = [ jar(org = 'args4j', name = 'args4j', rev = '2.0.10') ])
+            dependencies = [ jar(org = 'args4j', name = 'args4j', rev = '2.0.16').withSources() ])
 
 
 jar_library(name = 'cascading-core',
-            dependencies = [ jar(org = 'cascading', name = 'cascading-core', rev = '1.2.3') ]
-           )
+            dependencies = [ jar(org = 'cascading', name = 'cascading-core', rev = '1.2.3',
+                             force = True )]
+           ).with_description('''
+This is cascading 1, only project depends upon this rule will likely to have confliction with
+cascading 2 which is used by elephant bird, so depends upon this explicitly to force the right
+version.
+Notice: force is NOT transitive, so any indirectly depended package will not have forced version
+           ''')
+
 
 jar_library(name = 'cascading2-core',
-            dependencies = [ jar(org = 'cascading', name = 'cascading-core', rev = '2.0.0-wip-165') ]
+            dependencies = [ jar(org = 'cascading', name = 'cascading-core', rev = '2.0.0-wip-215') ]
+           )
+
+jar_library(name = 'cascading-kryo',
+            dependencies = [ jar(org = 'cascading.kryo', name = 'cascading.kryo', rev = '0.2.0') ]
            )
 
 jar_library(name = 'cascading2-local',
-            dependencies = [ jar(org = 'cascading', name = 'cascading-local', rev = '2.0.0-wip-165') ]
+            dependencies = [ jar(org = 'cascading', name = 'cascading-local', rev = '2.0.0-wip-215') ]
            )
 
 jar_library(name = 'cascading2-hadoop',
-            dependencies = [ jar(org = 'cascading', name = 'cascading-hadoop', rev = '2.0.0-wip-165') ]
+            dependencies = [ jar(org = 'cascading', name = 'cascading-hadoop', rev = '2.0.0-wip-215') ]
            )
 
 jar_library(name = 'cascading2-test',
-            dependencies = [ jar(org = 'cascading', name = 'cascading-test', rev = '2.0.0-wip-154') ]
+            dependencies = [ jar(org = 'cascading', name = 'cascading-test', rev = '2.0.0-wip-215') ]
            )
 
 jar_library(name = 'cascading.jdbc',
@@ -193,6 +204,13 @@ jar_library(name = 'lucene-analyzers',
              ]
             )
 
+jar_library(name = 'lucene-smartcn',
+            dependencies = [
+              jar(org = 'org.apache.lucene', name = 'lucene-smartcn', rev = '3.0.2',
+                  apidocs = 'http://lucene.apache.org/java/3_0_2/api/all/').withSources()
+             ]
+            )
+
 jar_library(name = 'lucene-core',
             dependencies = [
               jar(org = 'org.apache.lucene', name = 'lucene-core', rev = '3.0.2',
@@ -206,6 +224,10 @@ jar_library(name = 'lucene-snowball',
                   apidocs = 'http://lucene.apache.org/java/3_0_2/api/all/').withSources()
             ]
            )
+
+jar_library(name = 'meat-locker',
+  dependencies = [ jar(org='meat-locker', name='meat-locker', rev='0.1.3-SNAPSHOT') ]
+  )
 
 jar_library(name = 'ostrich',
             dependencies = [ jar(org = 'com.twitter', name = 'ostrich', rev = '2.3.6') ])
@@ -320,10 +342,10 @@ jar_library(name = 'visualization-datasource',
 jar_library(name = 'zookeeper',
             dependencies = [
               jar(org = 'org.apache.zookeeper', name = 'zookeeper', rev = '3.3.4').withSources()
-                .exclude(org = 'jline')
-                .exclude(org = 'javax.jms')
-                .exclude(org = 'com.sun.jdmk')
-                .exclude(org = 'com.sun.jmx')
+                .exclude(org = 'jline', name = 'jline')
+                .exclude(org = 'javax.jms', name = 'jms')
+                .exclude(org = 'com.sun.jdmk', name = 'jmxtools')
+                .exclude(org = 'com.sun.jmx', name = 'jmxri')
             ]
            )
 

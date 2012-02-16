@@ -16,6 +16,7 @@
 
 import time
 import logging
+from twitter.common.log.formatters.base import format_message
 
 class GlogFormatter(logging.Formatter):
   """
@@ -47,6 +48,6 @@ class GlogFormatter(logging.Formatter):
        record.process if record.process is not None else '?????',
        record.filename,
        record.lineno,
-       record.msg)
+       format_message(record))
     record.getMessage = lambda: record_message
     return logging.Formatter.format(self, record)

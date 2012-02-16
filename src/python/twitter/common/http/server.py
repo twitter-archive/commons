@@ -133,7 +133,6 @@ class HttpServer(object):
     self._request = bottle.request   # it's sort of upsetting that these are globals
     self._response = bottle.response # in bottle, but, c'est la vie.
     self._hostname = None
-    self._server = None
     self._port = None
     self._mounts = set()
     self.mount_routes(self)
@@ -188,22 +187,10 @@ class HttpServer(object):
   def port(self):
     return self._port
 
-  def run(self, hostname, port):
+  def run(self, hostname, port, server='wsgiref'):
     """
       Start a webserver on hostname & port.
     """
     self._hostname = hostname
     self._port = port
-    self._server = QuittableServer(host=hostname, port=port)
-    bottle.run(self._app, host=hostname, port=port, server=self._server)
-
-  def shutdown(self):
-    """
-      Terminate the WSGI server and call the shutdown() method on any mounted
-      class that has one.
-    """
-    if self._server:
-      self._server.shutdown()
-    for mount in self._mounts:
-      if hasattr(mount, 'shutdown') and callable(mount.shutdown):
-        mount.shutdown()
+    bottle.run(self._app, host=hostname, port=port, server=server)

@@ -175,9 +175,10 @@ public class ZooKeeperClient {
   private final int sessionTimeoutMs;
   private final Credentials credentials;
   private final String zooKeeperServers;
-  private ZooKeeper zooKeeper;
+  // GuardedBy "this", but still volatile for tests, where we want to be able to see writes
+  // made from within long synchronized blocks.
+  private volatile ZooKeeper zooKeeper;
   private SessionState sessionState;
-  private boolean closed = true;
 
   private final Set<Watcher> watchers = Collections.synchronizedSet(new HashSet<Watcher>());
 
@@ -259,7 +260,6 @@ public class ZooKeeperClient {
    * @return a connected ZooKeeper client
    * @throws ZooKeeperConnectionException if there was a problem connecting to the ZK cluster
    * @throws InterruptedException if interrupted while waiting for a connection to be established
-   * @throws IllegalStateException if this client has already been {@link #close() closed}
    */
   public synchronized ZooKeeper get() throws ZooKeeperConnectionException, InterruptedException {
     try {
@@ -332,12 +332,17 @@ public class ZooKeeperClient {
                                      + connectionTimeout);
         }
       } else {
-        connected.await();
+        try {
+          connected.await();
+        } catch (InterruptedException ex) {
+          LOG.info("Interrupted while waiting to connect to zooKeeper");
+          close();
+          throw ex;
+        }
       }
       credentials.authenticate(zooKeeper);
 
       sessionState = new SessionState(zooKeeper.getSessionId(), zooKeeper.getSessionPasswd());
-      closed = false;
     }
     return zooKeeper;
   }
@@ -404,25 +409,26 @@ public class ZooKeeperClient {
    * calls to this method will no-op until the next successful {@link #get}.
    */
   public synchronized void close() {
-    if (closed) {
-      return;
-    }
-
-    closed = true;
     if (zooKeeper != null) {
       try {
         zooKeeper.close();
-        zooKeeper = null;
-        sessionState = null;
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
         LOG.warning("Interrupted trying to close zooKeeper");
+      } finally {
+        zooKeeper = null;
+        sessionState = null;
       }
     }
   }
 
   @VisibleForTesting
   synchronized boolean isClosed() {
-    return closed;
+    return zooKeeper == null;
+  }
+
+  @VisibleForTesting
+  ZooKeeper getZooKeeperClientForTests() {
+    return zooKeeper;
   }
 }

@@ -1,4 +1,3 @@
-import copy
 from twitter.common.string import ScanfParser
 
 try:
@@ -130,4 +129,4 @@ class ProcessHandleParserBase(object):
       raise AttributeError("%s not in ProcessHandle" % probe_key)
 
   def refresh(self, line=None):
-    self._realize() if line is None else self._realize_from_line(self, line)
+    return self._realize() if line is None else self._realize_from_line(self, line)

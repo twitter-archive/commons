@@ -42,7 +42,6 @@ import sys
 import time
 import logging
 import getpass
-import errno
 from socket import gethostname
 
 from formatters import glog, plain
@@ -97,7 +96,9 @@ def _safe_setup_link(link_filename, real_filename):
       pass
   try:
     os.symlink(real_filename, link_filename)
-  except OSError:
+  except OSError as e:
+    print >> sys.stderr, 'Failed to set up link %s => %s because %s' % (
+      real_filename, link_filename, e)
     pass
 
 def _setup_disk_logging(filebase):

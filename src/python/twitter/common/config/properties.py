@@ -16,6 +16,8 @@
 
 import re
 
+from twitter.common.collections import OrderedDict
+
 class Properties(object):
   """
     A Python reader for java.util.Properties formatted data as oulined here:
@@ -84,7 +86,7 @@ class Properties(object):
           else:
             return normalize(line[:space_sep]), normalize(line[space_sep:])
 
-    props = {}
+    props = OrderedDict()
     for line in coalesce_lines():
       kv_pair = parse_line(line)
       if kv_pair:

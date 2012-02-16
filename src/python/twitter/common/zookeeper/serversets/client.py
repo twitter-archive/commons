@@ -70,7 +70,7 @@ class ServerSetClient(object):
   def get_endpoints(self):
     """Get list of endpoints."""
     with self._lock:
-      return self._endpoint[:]
+      return self._endpoints[:]
 
   @validate
   def set_watcher(self, watcher):

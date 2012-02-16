@@ -31,7 +31,7 @@ def test_equals():
     "expected unit conversions to not lose precision"
 
   with pytest.raises(TypeError):
-    Amount(1, Time.NANOSECONDS) == Amount(1, Data.BITS)
+    Amount(1, Time.NANOSECONDS) == Amount(1, Data.BYTES)
 
 
 def test_comparison_mixed_units():
@@ -52,4 +52,26 @@ def test_sorting():
     return [Amount(x, Time.MILLISECONDS) for x in amtlist]
 
   assert map_to_amount(elements) == sorted(map_to_amount(elements_unsorted))
+
+
+def test_reduction():
+  minute = Amount(60, Time.SECONDS)
+  assert minute._amount == 1 and minute._unit == Time.MINUTES
+
+
+def test_add():
+  kb = Amount(512, Data.BYTES) + Amount(1536, Data.BYTES)
+  assert kb._amount == 2 and kb._unit == Data.KB
+  kb = kb + Amount(1, Data.BYTES)
+  assert kb._amount == 2049 and kb._unit == Data.BYTES
+
+  # disparate units
+  value = Amount(1, Data.KB) + Amount(1, Data.MB)
+  assert value._amount == 1025
+  assert value._unit == Data.KB
+
+def test_mul():
+  assert 5 * Amount(12, Time.SECONDS) == Amount(12, Time.SECONDS) * 5
+  amount = 5 * Amount(12, Time.SECONDS)
+  assert amount._amount == 1 and amount._unit == Time.MINUTES
 
