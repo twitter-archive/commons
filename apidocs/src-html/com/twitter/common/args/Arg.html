@@ -71,61 +71,65 @@
 <FONT color="green">068</FONT>        this.value = hasDefault ? defaultValue : null;<a name="line.68"></a>
 <FONT color="green">069</FONT>      }<a name="line.69"></a>
 <FONT color="green">070</FONT>    <a name="line.70"></a>
-<FONT color="green">071</FONT>      /**<a name="line.71"></a>
-<FONT color="green">072</FONT>       * Gets the value of the argument.  If a value has not yet been applied to the argument, or the<a name="line.72"></a>
-<FONT color="green">073</FONT>       * argument did not provide a default value, {@link IllegalStateException} will be thrown.<a name="line.73"></a>
-<FONT color="green">074</FONT>       *<a name="line.74"></a>
-<FONT color="green">075</FONT>       * @return The argument value.<a name="line.75"></a>
-<FONT color="green">076</FONT>       */<a name="line.76"></a>
-<FONT color="green">077</FONT>      public synchronized T get() {<a name="line.77"></a>
-<FONT color="green">078</FONT>        // TODO(William Farner): This has a tendency to break bad-arg reporting by ArgScanner.  Fix.<a name="line.78"></a>
-<FONT color="green">079</FONT>        Preconditions.checkState(valueApplied || hasDefault,<a name="line.79"></a>
-<FONT color="green">080</FONT>            "A value may only be retrieved from a variable that has a default or has been set.");<a name="line.80"></a>
-<FONT color="green">081</FONT>        valueObserved = true;<a name="line.81"></a>
-<FONT color="green">082</FONT>        return uncheckedGet();<a name="line.82"></a>
-<FONT color="green">083</FONT>      }<a name="line.83"></a>
-<FONT color="green">084</FONT>    <a name="line.84"></a>
-<FONT color="green">085</FONT>      /**<a name="line.85"></a>
-<FONT color="green">086</FONT>       * Checks whether a value has been applied to the argument (i.e., apart from the default).<a name="line.86"></a>
-<FONT color="green">087</FONT>       *<a name="line.87"></a>
-<FONT color="green">088</FONT>       * @return {@code true} if a value from the command line has been applied to this arg,<a name="line.88"></a>
-<FONT color="green">089</FONT>       *         {@code false} otherwise.<a name="line.89"></a>
-<FONT color="green">090</FONT>       */<a name="line.90"></a>
-<FONT color="green">091</FONT>      public synchronized boolean hasAppliedValue() {<a name="line.91"></a>
-<FONT color="green">092</FONT>        return valueApplied;<a name="line.92"></a>
-<FONT color="green">093</FONT>      }<a name="line.93"></a>
-<FONT color="green">094</FONT>    <a name="line.94"></a>
-<FONT color="green">095</FONT>      /**<a name="line.95"></a>
-<FONT color="green">096</FONT>       * Gets the value of the argument, without checking whether a default was available or if a<a name="line.96"></a>
-<FONT color="green">097</FONT>       * value was applied.<a name="line.97"></a>
-<FONT color="green">098</FONT>       *<a name="line.98"></a>
-<FONT color="green">099</FONT>       * @return The argument value.<a name="line.99"></a>
-<FONT color="green">100</FONT>       */<a name="line.100"></a>
-<FONT color="green">101</FONT>      synchronized T uncheckedGet() {<a name="line.101"></a>
-<FONT color="green">102</FONT>        return value;<a name="line.102"></a>
-<FONT color="green">103</FONT>      }<a name="line.103"></a>
-<FONT color="green">104</FONT>    <a name="line.104"></a>
-<FONT color="green">105</FONT>      /**<a name="line.105"></a>
-<FONT color="green">106</FONT>       * Convenience factory method to create an arg that has no default value.<a name="line.106"></a>
-<FONT color="green">107</FONT>       *<a name="line.107"></a>
-<FONT color="green">108</FONT>       * @param &lt;T&gt; Type of arg value.<a name="line.108"></a>
-<FONT color="green">109</FONT>       * @return A new arg.<a name="line.109"></a>
-<FONT color="green">110</FONT>       */<a name="line.110"></a>
-<FONT color="green">111</FONT>      public static &lt;T&gt; Arg&lt;T&gt; create() {<a name="line.111"></a>
-<FONT color="green">112</FONT>        return new Arg&lt;T&gt;();<a name="line.112"></a>
-<FONT color="green">113</FONT>      }<a name="line.113"></a>
-<FONT color="green">114</FONT>    <a name="line.114"></a>
-<FONT color="green">115</FONT>      /**<a name="line.115"></a>
-<FONT color="green">116</FONT>       * Convenience factory method to create an arg with a default value.<a name="line.116"></a>
-<FONT color="green">117</FONT>       *<a name="line.117"></a>
-<FONT color="green">118</FONT>       * @param value Default argument value.<a name="line.118"></a>
-<FONT color="green">119</FONT>       * @param &lt;T&gt; Type of arg value.<a name="line.119"></a>
-<FONT color="green">120</FONT>       * @return A new arg.<a name="line.120"></a>
-<FONT color="green">121</FONT>       */<a name="line.121"></a>
-<FONT color="green">122</FONT>      public static &lt;T&gt; Arg&lt;T&gt; create(@Nullable T value) {<a name="line.122"></a>
-<FONT color="green">123</FONT>        return new Arg&lt;T&gt;(value);<a name="line.123"></a>
-<FONT color="green">124</FONT>      }<a name="line.124"></a>
-<FONT color="green">125</FONT>    }<a name="line.125"></a>
+<FONT color="green">071</FONT>      public boolean hasDefault() {<a name="line.71"></a>
+<FONT color="green">072</FONT>        return hasDefault;<a name="line.72"></a>
+<FONT color="green">073</FONT>      }<a name="line.73"></a>
+<FONT color="green">074</FONT>    <a name="line.74"></a>
+<FONT color="green">075</FONT>      /**<a name="line.75"></a>
+<FONT color="green">076</FONT>       * Gets the value of the argument.  If a value has not yet been applied to the argument, or the<a name="line.76"></a>
+<FONT color="green">077</FONT>       * argument did not provide a default value, {@link IllegalStateException} will be thrown.<a name="line.77"></a>
+<FONT color="green">078</FONT>       *<a name="line.78"></a>
+<FONT color="green">079</FONT>       * @return The argument value.<a name="line.79"></a>
+<FONT color="green">080</FONT>       */<a name="line.80"></a>
+<FONT color="green">081</FONT>      public synchronized T get() {<a name="line.81"></a>
+<FONT color="green">082</FONT>        // TODO(William Farner): This has a tendency to break bad-arg reporting by ArgScanner.  Fix.<a name="line.82"></a>
+<FONT color="green">083</FONT>        Preconditions.checkState(valueApplied || hasDefault,<a name="line.83"></a>
+<FONT color="green">084</FONT>            "A value may only be retrieved from a variable that has a default or has been set.");<a name="line.84"></a>
+<FONT color="green">085</FONT>        valueObserved = true;<a name="line.85"></a>
+<FONT color="green">086</FONT>        return uncheckedGet();<a name="line.86"></a>
+<FONT color="green">087</FONT>      }<a name="line.87"></a>
+<FONT color="green">088</FONT>    <a name="line.88"></a>
+<FONT color="green">089</FONT>      /**<a name="line.89"></a>
+<FONT color="green">090</FONT>       * Checks whether a value has been applied to the argument (i.e., apart from the default).<a name="line.90"></a>
+<FONT color="green">091</FONT>       *<a name="line.91"></a>
+<FONT color="green">092</FONT>       * @return {@code true} if a value from the command line has been applied to this arg,<a name="line.92"></a>
+<FONT color="green">093</FONT>       *         {@code false} otherwise.<a name="line.93"></a>
+<FONT color="green">094</FONT>       */<a name="line.94"></a>
+<FONT color="green">095</FONT>      public synchronized boolean hasAppliedValue() {<a name="line.95"></a>
+<FONT color="green">096</FONT>        return valueApplied;<a name="line.96"></a>
+<FONT color="green">097</FONT>      }<a name="line.97"></a>
+<FONT color="green">098</FONT>    <a name="line.98"></a>
+<FONT color="green">099</FONT>      /**<a name="line.99"></a>
+<FONT color="green">100</FONT>       * Gets the value of the argument, without checking whether a default was available or if a<a name="line.100"></a>
+<FONT color="green">101</FONT>       * value was applied.<a name="line.101"></a>
+<FONT color="green">102</FONT>       *<a name="line.102"></a>
+<FONT color="green">103</FONT>       * @return The argument value.<a name="line.103"></a>
+<FONT color="green">104</FONT>       */<a name="line.104"></a>
+<FONT color="green">105</FONT>      synchronized T uncheckedGet() {<a name="line.105"></a>
+<FONT color="green">106</FONT>        return value;<a name="line.106"></a>
+<FONT color="green">107</FONT>      }<a name="line.107"></a>
+<FONT color="green">108</FONT>    <a name="line.108"></a>
+<FONT color="green">109</FONT>      /**<a name="line.109"></a>
+<FONT color="green">110</FONT>       * Convenience factory method to create an arg that has no default value.<a name="line.110"></a>
+<FONT color="green">111</FONT>       *<a name="line.111"></a>
+<FONT color="green">112</FONT>       * @param &lt;T&gt; Type of arg value.<a name="line.112"></a>
+<FONT color="green">113</FONT>       * @return A new arg.<a name="line.113"></a>
+<FONT color="green">114</FONT>       */<a name="line.114"></a>
+<FONT color="green">115</FONT>      public static &lt;T&gt; Arg&lt;T&gt; create() {<a name="line.115"></a>
+<FONT color="green">116</FONT>        return new Arg&lt;T&gt;();<a name="line.116"></a>
+<FONT color="green">117</FONT>      }<a name="line.117"></a>
+<FONT color="green">118</FONT>    <a name="line.118"></a>
+<FONT color="green">119</FONT>      /**<a name="line.119"></a>
+<FONT color="green">120</FONT>       * Convenience factory method to create an arg with a default value.<a name="line.120"></a>
+<FONT color="green">121</FONT>       *<a name="line.121"></a>
+<FONT color="green">122</FONT>       * @param value Default argument value.<a name="line.122"></a>
+<FONT color="green">123</FONT>       * @param &lt;T&gt; Type of arg value.<a name="line.123"></a>
+<FONT color="green">124</FONT>       * @return A new arg.<a name="line.124"></a>
+<FONT color="green">125</FONT>       */<a name="line.125"></a>
+<FONT color="green">126</FONT>      public static &lt;T&gt; Arg&lt;T&gt; create(@Nullable T value) {<a name="line.126"></a>
+<FONT color="green">127</FONT>        return new Arg&lt;T&gt;(value);<a name="line.127"></a>
+<FONT color="green">128</FONT>      }<a name="line.128"></a>
+<FONT color="green">129</FONT>    }<a name="line.129"></a>
 
 
 

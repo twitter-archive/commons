@@ -92,6 +92,10 @@ Packages that use <A HREF="../../../../../com/twitter/common/base/ExceptionalFun
 <TD>&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><A HREF="#com.twitter.common.io"><B>com.twitter.common.io</B></A></TD>
+<TD>&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><A HREF="#com.twitter.common.thrift"><B>com.twitter.common.thrift</B></A></TD>
 <TD>&nbsp;&nbsp;</TD>
 </TR>
@@ -126,7 +130,86 @@ Uses of <A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html
 
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Methods in <A HREF="../../../../../com/twitter/common/base/package-summary.html">com.twitter.common.base</A> that return <A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;T,E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; 
+<BR>
+<A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;T,T,E&gt;</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B>ExceptionalFunctions.</B><B><A HREF="../../../../../com/twitter/common/base/ExceptionalFunctions.html#compose(com.twitter.common.base.ExceptionalFunction, com.twitter.common.base.ExceptionalFunction...)">compose</A></B>(<A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;T,T,E&gt;&nbsp;function,
+               <A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;T,T,E&gt;...&nbsp;functions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a List of ExceptionalFunctions from variable number of ExceptionalFunctions.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;T,E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; 
+<BR>
+<A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;T,T,E&gt;</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B>ExceptionalFunctions.</B><B><A HREF="../../../../../com/twitter/common/base/ExceptionalFunctions.html#compose(java.lang.Iterable)">compose</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;<A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;T,T,E&gt;&gt;&nbsp;functions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns an ExceptionalFunction that is a composition of multiple ExceptionalFunctions.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
 <TH ALIGN="left" COLSPAN="2">Methods in <A HREF="../../../../../com/twitter/common/base/package-summary.html">com.twitter.common.base</A> with parameters of type <A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;T,E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; 
+<BR>
+<A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;T,T,E&gt;</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B>ExceptionalFunctions.</B><B><A HREF="../../../../../com/twitter/common/base/ExceptionalFunctions.html#compose(com.twitter.common.base.ExceptionalFunction, com.twitter.common.base.ExceptionalFunction...)">compose</A></B>(<A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;T,T,E&gt;&nbsp;function,
+               <A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;T,T,E&gt;...&nbsp;functions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a List of ExceptionalFunctions from variable number of ExceptionalFunctions.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;T,E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; 
+<BR>
+<A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;T,T,E&gt;</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B>ExceptionalFunctions.</B><B><A HREF="../../../../../com/twitter/common/base/ExceptionalFunctions.html#compose(com.twitter.common.base.ExceptionalFunction, com.twitter.common.base.ExceptionalFunction...)">compose</A></B>(<A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;T,T,E&gt;&nbsp;function,
+               <A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;T,T,E&gt;...&nbsp;functions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a List of ExceptionalFunctions from variable number of ExceptionalFunctions.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -146,6 +229,84 @@ Uses of <A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns an <A HREF="../../../../../com/twitter/common/base/ExceptionalSupplier.html" title="interface in com.twitter.common.base"><CODE>ExceptionalSupplier</CODE></A>/<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/Callable.html?is-external=true" title="class or interface in java.util.concurrent"><CODE>Callable</CODE></A> object that
  will return the result of <code>function</code> applied to <code>argument</code>.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Method parameters in <A HREF="../../../../../com/twitter/common/base/package-summary.html">com.twitter.common.base</A> with type arguments of type <A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;T,E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; 
+<BR>
+<A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;T,T,E&gt;</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B>ExceptionalFunctions.</B><B><A HREF="../../../../../com/twitter/common/base/ExceptionalFunctions.html#compose(java.lang.Iterable)">compose</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;<A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;T,T,E&gt;&gt;&nbsp;functions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns an ExceptionalFunction that is a composition of multiple ExceptionalFunctions.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+<A NAME="com.twitter.common.io"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+Uses of <A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A> in <A HREF="../../../../../com/twitter/common/io/package-summary.html">com.twitter.common.io</A></FONT></TH>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Methods in <A HREF="../../../../../com/twitter/common/io/package-summary.html">com.twitter.common.io</A> with parameters of type <A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;T,E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; 
+<BR>
+T</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B>FileUtils.Temporary.</B><B><A HREF="../../../../../com/twitter/common/io/FileUtils.Temporary.html#doWithDir(com.twitter.common.base.ExceptionalFunction)">doWithDir</A></B>(<A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</A>,T,E&gt;&nbsp;work)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new temporary directory and executes the unit of <code>work</code> against it ensuring
+ the directory and its contents are removed after the work completes normally or abnormally.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;T,E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; 
+<BR>
+T</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B>FileUtils.Temporary.</B><B><A HREF="../../../../../com/twitter/common/io/FileUtils.Temporary.html#doWithFile(com.twitter.common.base.ExceptionalFunction)">doWithFile</A></B>(<A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</A>,T,E&gt;&nbsp;work)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new temporary file and executes the unit of <code>work</code> against it ensuring
+ the file is removed after the work completes normally or abnormally.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -191,7 +352,7 @@ Uses of <A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/thrift/ThriftServer.html#ThriftServer(java.lang.String, java.lang.String, com.google.common.base.Supplier, com.twitter.common.base.ExceptionalFunction)">ThriftServer</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
                          <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;version,
-                         <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</A>&lt;org.apache.thrift.protocol.TProtocolFactory&gt;&nbsp;protoFactorySupplier,
+                         <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</A>&lt;org.apache.thrift.protocol.TProtocolFactory&gt;&nbsp;protoFactorySupplier,
                          <A HREF="../../../../../com/twitter/common/base/ExceptionalFunction.html" title="interface in com.twitter.common.base">ExceptionalFunction</A>&lt;<A HREF="../../../../../com/twitter/common/thrift/ThriftServer.ServerSetup.html" title="class in com.twitter.common.thrift">ThriftServer.ServerSetup</A>,org.apache.thrift.server.TServer,org.apache.thrift.transport.TTransportException&gt;&nbsp;serverSupplier)</CODE>
 
 <BR>

@@ -91,18 +91,17 @@ com.twitter.common.application.modules</FONT>
 Class HttpModule.HttpServerLauncher</H2>
 <PRE>
 <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
-  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.RegisteringServiceLauncher.html" title="class in com.twitter.common.application.modules">com.twitter.common.application.modules.LifecycleModule.RegisteringServiceLauncher</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/RuntimeException.html?is-external=true" title="class or interface in java.lang">RuntimeException</A>&gt;
-      <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.application.modules.HttpModule.HttpServerLauncher</B>
+  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.application.modules.HttpModule.HttpServerLauncher</B>
 </PRE>
 <DL>
-<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../com/twitter/common/application/ServiceLauncher.html" title="interface in com.twitter.common.application">ServiceLauncher</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/RuntimeException.html?is-external=true" title="class or interface in java.lang">RuntimeException</A>&gt;, <A HREF="../../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/RuntimeException.html?is-external=true" title="class or interface in java.lang">RuntimeException</A>&gt;</DD>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.ServiceRunner.html" title="interface in com.twitter.common.application.modules">LifecycleModule.ServiceRunner</A></DD>
 </DL>
 <DL>
 <DT><B>Enclosing class:</B><DD><A HREF="../../../../../com/twitter/common/application/modules/HttpModule.html" title="class in com.twitter.common.application.modules">HttpModule</A></DD>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public static final class <A HREF="../../../../../src-html/com/twitter/common/application/modules/HttpModule.html#line.154"><B>HttpModule.HttpServerLauncher</B></A><DT>extends <A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.RegisteringServiceLauncher.html" title="class in com.twitter.common.application.modules">LifecycleModule.RegisteringServiceLauncher</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/RuntimeException.html?is-external=true" title="class or interface in java.lang">RuntimeException</A>&gt;</DL>
+<DT><PRE>public static final class <A HREF="../../../../../src-html/com/twitter/common/application/modules/HttpModule.html#line.153"><B>HttpModule.HttpServerLauncher</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.ServiceRunner.html" title="interface in com.twitter.common.application.modules">LifecycleModule.ServiceRunner</A></DL>
 </PRE>
 
 <P>
@@ -120,36 +119,11 @@ Class HttpModule.HttpServerLauncher</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/application/modules/HttpModule.HttpServerLauncher.html#getPortName()">getPortName</A></B>()</CODE>
+<CODE>&nbsp;<A HREF="../../../../../com/twitter/common/application/modules/LocalServiceRegistry.LocalService.html" title="class in com.twitter.common.application.modules">LocalServiceRegistry.LocalService</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/application/modules/HttpModule.HttpServerLauncher.html#launch()">launch</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets the service port name.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;boolean</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/application/modules/HttpModule.HttpServerLauncher.html#isPrimaryService()">isPrimaryService</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Checks whether this is the primary service in the application.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;int</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/application/modules/HttpModule.HttpServerLauncher.html#launchAndGetPort()">launchAndGetPort</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initiates a launch of the service and returns the port that the service is listening on.</TD>
-</TR>
-</TABLE>
-&nbsp;<A NAME="methods_inherited_from_class_com.twitter.common.application.modules.LifecycleModule.RegisteringServiceLauncher"><!-- --></A>
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class com.twitter.common.application.modules.<A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.RegisteringServiceLauncher.html" title="class in com.twitter.common.application.modules">LifecycleModule.RegisteringServiceLauncher</A></B></TH>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.RegisteringServiceLauncher.html#execute()">execute</A></CODE></TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Launches the local service.</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -174,52 +148,20 @@ Class HttpModule.HttpServerLauncher</H2>
 </TR>
 </TABLE>
 
-<A NAME="getPortName()"><!-- --></A><H3>
-getPortName</H3>
+<A NAME="launch()"><!-- --></A><H3>
+launch</H3>
 <PRE>
-public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../../src-html/com/twitter/common/application/modules/HttpModule.HttpServerLauncher.html#line.179"><B>getPortName</B></A>()</PRE>
+public <A HREF="../../../../../com/twitter/common/application/modules/LocalServiceRegistry.LocalService.html" title="class in com.twitter.common.application.modules">LocalServiceRegistry.LocalService</A> <A HREF="../../../../../src-html/com/twitter/common/application/modules/HttpModule.HttpServerLauncher.html#line.170"><B>launch</B></A>()</PRE>
 <DL>
-<DD><B>Description copied from interface: <CODE><A HREF="../../../../../com/twitter/common/application/ServiceLauncher.html#getPortName()">ServiceLauncher</A></CODE></B></DD>
-<DD>Gets the service port name.
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.ServiceRunner.html#launch()">LifecycleModule.ServiceRunner</A></CODE></B></DD>
+<DD>Launches the local service.
 <P>
 <DD><DL>
-
-<DT><B>Returns:</B><DD>Port name.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="isPrimaryService()"><!-- --></A><H3>
-isPrimaryService</H3>
-<PRE>
-public boolean <A HREF="../../../../../src-html/com/twitter/common/application/modules/HttpModule.HttpServerLauncher.html#line.183"><B>isPrimaryService</B></A>()</PRE>
-<DL>
-<DD><B>Description copied from interface: <CODE><A HREF="../../../../../com/twitter/common/application/ServiceLauncher.html#isPrimaryService()">ServiceLauncher</A></CODE></B></DD>
-<DD>Checks whether this is the primary service in the application.  There may be at most one
- primary service in an application.
-<P>
-<DD><DL>
-
-<DT><B>Returns:</B><DD><code>true</code> if this launcher is responsible for reporting the primary application
-     service, <code>false</code> otherwise.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="launchAndGetPort()"><!-- --></A><H3>
-launchAndGetPort</H3>
-<PRE>
-public int <A HREF="../../../../../src-html/com/twitter/common/application/modules/HttpModule.HttpServerLauncher.html#line.187"><B>launchAndGetPort</B></A>()</PRE>
-<DL>
-<DD><B>Description copied from class: <CODE><A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.RegisteringServiceLauncher.html#launchAndGetPort()">LifecycleModule.RegisteringServiceLauncher</A></CODE></B></DD>
-<DD>Initiates a launch of the service and returns the port that the service is listening on.
-<P>
-<DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.RegisteringServiceLauncher.html#launchAndGetPort()">launchAndGetPort</A></CODE> in class <CODE><A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.RegisteringServiceLauncher.html" title="class in com.twitter.common.application.modules">LifecycleModule.RegisteringServiceLauncher</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/RuntimeException.html?is-external=true" title="class or interface in java.lang">RuntimeException</A>&gt;</CODE></DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.ServiceRunner.html#launch()">launch</A></CODE> in interface <CODE><A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.ServiceRunner.html" title="interface in com.twitter.common.application.modules">LifecycleModule.ServiceRunner</A></CODE></DL>
 </DD>
 <DD><DL>
 
-<DT><B>Returns:</B><DD>The service's listening port.</DL>
+<DT><B>Returns:</B><DD>Information about the launched service.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

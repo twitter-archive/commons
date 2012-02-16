@@ -54,7 +54,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../../com/twitter/common/application/modules/HttpModule.HttpServerLauncher.html" title="class in com.twitter.common.application.modules"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.RegisteringServiceLauncher.html" title="class in com.twitter.common.application.modules"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.LaunchException.html" title="class in com.twitter.common.application.modules"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?com/twitter/common/application/modules/LifecycleModule.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="LifecycleModule.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -99,7 +99,7 @@ Class LifecycleModule</H2>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/application/modules/LifecycleModule.html#line.54"><B>LifecycleModule</B></A><DT>extends <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/AbstractModule.html?is-external=true" title="class or interface in com.google.inject">AbstractModule</A></DL>
+<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/application/modules/LifecycleModule.html#line.62"><B>LifecycleModule</B></A><DT>extends <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/AbstractModule.html?is-external=true" title="class or interface in com.google.inject">AbstractModule</A></DL>
 </PRE>
 
 <P>
@@ -113,7 +113,7 @@ Binding module for startup and shutdown controller and registries.
  </ul>
 
  If you would like to register a startup action that starts a local network service, please
- consider using <A HREF="../../../../../com/twitter/common/application/LocalServiceRegistry.html" title="class in com.twitter.common.application"><CODE>LocalServiceRegistry</CODE></A>.
+ consider using <A HREF="../../../../../com/twitter/common/application/modules/LocalServiceRegistry.html" title="class in com.twitter.common.application.modules"><CODE>LocalServiceRegistry</CODE></A>.
 <P>
 
 <P>
@@ -131,11 +131,18 @@ Binding module for startup and shutdown controller and registries.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;class</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.RegisteringServiceLauncher.html" title="class in com.twitter.common.application.modules">LifecycleModule.RegisteringServiceLauncher</A>&lt;<A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.RegisteringServiceLauncher.html" title="type parameter in LifecycleModule.RegisteringServiceLauncher">E</A> extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt;</B></CODE>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.LaunchException.html" title="class in com.twitter.common.application.modules">LifecycleModule.LaunchException</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An action that is responsible for launching a local service, and registering it with the
- local service registry.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thrown when a local service fails to launch.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;interface</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.ServiceRunner.html" title="interface in com.twitter.common.application.modules">LifecycleModule.ServiceRunner</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Responsible for starting and stopping a local service.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -166,12 +173,20 @@ Binding module for startup and shutdown controller and registries.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.html#bindServiceLauncher(com.google.inject.Binder, java.lang.String, java.lang.Class)">bindServiceLauncher</A></B>(<A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Binder.html?is-external=true" title="class or interface in com.google.inject">Binder</A>&nbsp;binder,
-                                       <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;portName,
-                                       <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;? extends <A HREF="../../../../../com/twitter/common/application/ServiceLauncher.html" title="interface in com.twitter.common.application">ServiceLauncher</A>&gt;&nbsp;launcher)</CODE>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.html#bindLocalService(com.google.inject.Binder, com.twitter.common.application.modules.LocalServiceRegistry.LocalService)">bindLocalService</A></B>(<A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Binder.html?is-external=true" title="class or interface in com.google.inject">Binder</A>&nbsp;binder,
+                                 <A HREF="../../../../../com/twitter/common/application/modules/LocalServiceRegistry.LocalService.html" title="class in com.twitter.common.application.modules">LocalServiceRegistry.LocalService</A>&nbsp;service)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Binds a startup action that will register and announce a local service.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Binds a local service instance, without attaching an explicit lifecycle.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.html#bindServiceRunner(com.google.inject.Binder, java.lang.Class)">bindServiceRunner</A></B>(<A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Binder.html?is-external=true" title="class or interface in com.google.inject">Binder</A>&nbsp;binder,
+                                   <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;? extends <A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.ServiceRunner.html" title="interface in com.twitter.common.application.modules">LifecycleModule.ServiceRunner</A>&gt;&nbsp;launcher)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Binds a service runner that will start and stop a local service.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -225,7 +240,7 @@ Binding module for startup and shutdown controller and registries.
 <A NAME="LifecycleModule()"><!-- --></A><H3>
 LifecycleModule</H3>
 <PRE>
-public <A HREF="../../../../../src-html/com/twitter/common/application/modules/LifecycleModule.html#line.54"><B>LifecycleModule</B></A>()</PRE>
+public <A HREF="../../../../../src-html/com/twitter/common/application/modules/LifecycleModule.html#line.62"><B>LifecycleModule</B></A>()</PRE>
 <DL>
 </DL>
 
@@ -242,7 +257,7 @@ public <A HREF="../../../../../src-html/com/twitter/common/application/modules/L
 <A NAME="configure()"><!-- --></A><H3>
 configure</H3>
 <PRE>
-protected void <A HREF="../../../../../src-html/com/twitter/common/application/modules/LifecycleModule.html#line.57"><B>configure</B></A>()</PRE>
+protected void <A HREF="../../../../../src-html/com/twitter/common/application/modules/LifecycleModule.html#line.74"><B>configure</B></A>()</PRE>
 <DL>
 <DD><DL>
 <DT><B>Specified by:</B><DD><CODE><A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/AbstractModule.html?is-external=true#configure()" title="class or interface in com.google.inject">configure</A></CODE> in class <CODE><A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/AbstractModule.html?is-external=true" title="class or interface in com.google.inject">AbstractModule</A></CODE></DL>
@@ -253,17 +268,30 @@ protected void <A HREF="../../../../../src-html/com/twitter/common/application/m
 </DL>
 <HR>
 
-<A NAME="bindServiceLauncher(com.google.inject.Binder, java.lang.String, java.lang.Class)"><!-- --></A><H3>
-bindServiceLauncher</H3>
+<A NAME="bindServiceRunner(com.google.inject.Binder, java.lang.Class)"><!-- --></A><H3>
+bindServiceRunner</H3>
 <PRE>
-public static void <A HREF="../../../../../src-html/com/twitter/common/application/modules/LifecycleModule.html#line.82"><B>bindServiceLauncher</B></A>(<A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Binder.html?is-external=true" title="class or interface in com.google.inject">Binder</A>&nbsp;binder,
-                                       <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;portName,
-                                       <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;? extends <A HREF="../../../../../com/twitter/common/application/ServiceLauncher.html" title="interface in com.twitter.common.application">ServiceLauncher</A>&gt;&nbsp;launcher)</PRE>
+public static void <A HREF="../../../../../src-html/com/twitter/common/application/modules/LifecycleModule.html#line.131"><B>bindServiceRunner</B></A>(<A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Binder.html?is-external=true" title="class or interface in com.google.inject">Binder</A>&nbsp;binder,
+                                     <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;? extends <A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.ServiceRunner.html" title="interface in com.twitter.common.application.modules">LifecycleModule.ServiceRunner</A>&gt;&nbsp;launcher)</PRE>
 <DL>
-<DD>Binds a startup action that will register and announce a local service.
+<DD>Binds a service runner that will start and stop a local service.
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>binder</CODE> - Binder to bind against.<DD><CODE>portName</CODE> - Port name to register.<DD><CODE>launcher</CODE> - Launcher class that will announce the port.</DL>
+<DT><B>Parameters:</B><DD><CODE>binder</CODE> - Binder to bind against.<DD><CODE>launcher</CODE> - Launcher class for a service.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="bindLocalService(com.google.inject.Binder, com.twitter.common.application.modules.LocalServiceRegistry.LocalService)"><!-- --></A><H3>
+bindLocalService</H3>
+<PRE>
+public static void <A HREF="../../../../../src-html/com/twitter/common/application/modules/LifecycleModule.html#line.142"><B>bindLocalService</B></A>(<A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Binder.html?is-external=true" title="class or interface in com.google.inject">Binder</A>&nbsp;binder,
+                                    <A HREF="../../../../../com/twitter/common/application/modules/LocalServiceRegistry.LocalService.html" title="class in com.twitter.common.application.modules">LocalServiceRegistry.LocalService</A>&nbsp;service)</PRE>
+<DL>
+<DD>Binds a local service instance, without attaching an explicit lifecycle.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>binder</CODE> - Binder to bind against.<DD><CODE>service</CODE> - Local service instance to bind.</DL>
 </DD>
 </DL>
 <HR>
@@ -271,7 +299,7 @@ public static void <A HREF="../../../../../src-html/com/twitter/common/applicati
 <A NAME="bindStartupAction(com.google.inject.Binder, java.lang.Class)"><!-- --></A><H3>
 bindStartupAction</H3>
 <PRE>
-public static void <A HREF="../../../../../src-html/com/twitter/common/application/modules/LifecycleModule.html#line.96"><B>bindStartupAction</B></A>(<A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Binder.html?is-external=true" title="class or interface in com.google.inject">Binder</A>&nbsp;binder,
+public static void <A HREF="../../../../../src-html/com/twitter/common/application/modules/LifecycleModule.html#line.157"><B>bindStartupAction</B></A>(<A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Binder.html?is-external=true" title="class or interface in com.google.inject">Binder</A>&nbsp;binder,
                                      <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;? extends <A HREF="../../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&gt;&nbsp;actionClass)</PRE>
 <DL>
 <DD>Adds a startup action to the startup registry binding.
@@ -312,7 +340,7 @@ public static void <A HREF="../../../../../src-html/com/twitter/common/applicati
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../../com/twitter/common/application/modules/HttpModule.HttpServerLauncher.html" title="class in com.twitter.common.application.modules"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.RegisteringServiceLauncher.html" title="class in com.twitter.common.application.modules"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.LaunchException.html" title="class in com.twitter.common.application.modules"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?com/twitter/common/application/modules/LifecycleModule.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="LifecycleModule.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;

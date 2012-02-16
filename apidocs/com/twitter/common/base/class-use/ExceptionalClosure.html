@@ -92,6 +92,10 @@ Packages that use <A HREF="../../../../../com/twitter/common/base/ExceptionalClo
 <TD>&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><A HREF="#com.twitter.common.io"><B>com.twitter.common.io</B></A></TD>
+<TD>&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><A HREF="#com.twitter.common.net.http.handlers"><B>com.twitter.common.net.http.handlers</B></A></TD>
 <TD>&nbsp;&nbsp;</TD>
 </TR>
@@ -134,7 +138,7 @@ Uses of <A HREF="../../../../../com/twitter/common/base/ExceptionalClosure.html"
 <TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
 <TR ALIGN="right" VALIGN="">
 <TD NOWRAP><FONT SIZE="-1">
-<CODE>&lt;T&gt; <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;T,<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Void.html?is-external=true" title="class or interface in java.lang">Void</A>&gt;</CODE></FONT></TD>
+<CODE>&lt;T&gt; <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;T,<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Void.html?is-external=true" title="class or interface in java.lang">Void</A>&gt;</CODE></FONT></TD>
 </TR>
 </TABLE>
 </CODE></FONT></TD>
@@ -142,6 +146,59 @@ Uses of <A HREF="../../../../../com/twitter/common/base/ExceptionalClosure.html"
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Converts a closure into a function returning <code>null</code>.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+<A NAME="com.twitter.common.io"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+Uses of <A HREF="../../../../../com/twitter/common/base/ExceptionalClosure.html" title="interface in com.twitter.common.base">ExceptionalClosure</A> in <A HREF="../../../../../com/twitter/common/io/package-summary.html">com.twitter.common.io</A></FONT></TH>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Methods in <A HREF="../../../../../com/twitter/common/io/package-summary.html">com.twitter.common.io</A> with parameters of type <A HREF="../../../../../com/twitter/common/base/ExceptionalClosure.html" title="interface in com.twitter.common.base">ExceptionalClosure</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; 
+<BR>
+void</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B>FileUtils.Temporary.</B><B><A HREF="../../../../../com/twitter/common/io/FileUtils.Temporary.html#doWithDir(com.twitter.common.base.ExceptionalClosure)">doWithDir</A></B>(<A HREF="../../../../../com/twitter/common/base/ExceptionalClosure.html" title="interface in com.twitter.common.base">ExceptionalClosure</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</A>,E&gt;&nbsp;work)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new temporary directory and executes the unit of <code>work</code> against it ensuring
+ the directory and its contents are removed after the work completes normally or abnormally.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; 
+<BR>
+void</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B>FileUtils.Temporary.</B><B><A HREF="../../../../../com/twitter/common/io/FileUtils.Temporary.html#doWithFile(com.twitter.common.base.ExceptionalClosure)">doWithFile</A></B>(<A HREF="../../../../../com/twitter/common/base/ExceptionalClosure.html" title="interface in com.twitter.common.base">ExceptionalClosure</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</A>,E&gt;&nbsp;work)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new temporary file and executes the unit of <code>work</code> against it ensuring
+ the file is removed after the work completes normally or abnormally.</TD>
 </TR>
 </TABLE>
 &nbsp;

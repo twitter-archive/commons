@@ -103,8 +103,8 @@ An application launcher that sets up a framework for pluggable binding modules. 
  should be called directly as the main class, with a command line argument <code>-app_class</code>
  which is the canonical class name of the application to execute.
 
- If your application uses command line arguments all <CODE>Arg</CODE> fields annotated with
- <CODE>CmdLine</CODE> will be discovered and command line arguments will be validated against this set,
+ If your application uses command line arguments all <A HREF="../../../../com/twitter/common/args/Arg.html" title="class in com.twitter.common.args"><CODE>Arg</CODE></A> fields annotated with
+ <A HREF="../../../../com/twitter/common/args/CmdLine.html" title="annotation in com.twitter.common.args"><CODE>CmdLine</CODE></A> will be discovered and command line arguments will be validated against this set,
  parsed and applied.
 
  A bootstrap module will be automatically applied (<A HREF="../../../../com/twitter/common/application/modules/AppLauncherModule.html" title="class in com.twitter.common.application.modules"><CODE>AppLauncherModule</CODE></A>), which provides
@@ -150,7 +150,7 @@ An application launcher that sets up a framework for pluggable binding modules. 
              <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;&nbsp;args)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Used to launch an application with a restricted set of @CmdLine <CODE>Arg</CODE>s
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Used to launch an application with a restricted set of @CmdLine <A HREF="../../../../com/twitter/common/args/Arg.html" title="class in com.twitter.common.args"><CODE>Arg</CODE></A>s
  considered for parsing.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
@@ -266,7 +266,7 @@ public static void <A HREF="../../../../src-html/com/twitter/common/application/
  </pre>
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>appClass</CODE> - The application class to instantiate and launch.<DD><CODE>argFilter</CODE> - A filter that selects the @CmdLine <CODE>Arg</CODE>s to enable for
+<DT><B>Parameters:</B><DD><CODE>appClass</CODE> - The application class to instantiate and launch.<DD><CODE>argFilter</CODE> - A filter that selects the @CmdLine <A HREF="../../../../com/twitter/common/args/Arg.html" title="class in com.twitter.common.args"><CODE>Arg</CODE></A>s to enable for
      parsing.<DD><CODE>args</CODE> - The command line arguments to parse.<DT><B>See Also:</B><DD><A HREF="../../../../com/twitter/common/args/ArgFilters.html" title="class in com.twitter.common.args"><CODE>ArgFilters</CODE></A></DL>
 </DD>
 </DL>
@@ -279,12 +279,12 @@ public static void <A HREF="../../../../src-html/com/twitter/common/application/
                           <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>&gt;&nbsp;argFilter,
                           <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;&nbsp;args)</PRE>
 <DL>
-<DD>Used to launch an application with a restricted set of @CmdLine <CODE>Arg</CODE>s
+<DD>Used to launch an application with a restricted set of @CmdLine <A HREF="../../../../com/twitter/common/args/Arg.html" title="class in com.twitter.common.args"><CODE>Arg</CODE></A>s
  considered for parsing.  This is useful if the classpath includes annotated fields you do not
  wish arguments to be parsed for.
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>appClass</CODE> - The application class to instantiate and launch.<DD><CODE>argFilter</CODE> - A filter that selects the @CmdLine <CODE>Arg</CODE>s to enable for
+<DT><B>Parameters:</B><DD><CODE>appClass</CODE> - The application class to instantiate and launch.<DD><CODE>argFilter</CODE> - A filter that selects the @CmdLine <A HREF="../../../../com/twitter/common/args/Arg.html" title="class in com.twitter.common.args"><CODE>Arg</CODE></A>s to enable for
      parsing.<DD><CODE>args</CODE> - The command line arguments to parse.<DT><B>See Also:</B><DD><A HREF="../../../../com/twitter/common/args/ArgFilters.html" title="class in com.twitter.common.args"><CODE>ArgFilters</CODE></A></DL>
 </DD>
 </DL>

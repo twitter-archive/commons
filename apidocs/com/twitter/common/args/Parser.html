@@ -1,0 +1,224 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+Parser
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../stylesheet.css" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="Parser";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<script type="text/javascript">top.updateArtifact(window.location);</script><HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/Parser.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../com/twitter/common/args/CmdLine.html" title="annotation in com.twitter.common.args"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../com/twitter/common/args/ParserOracle.html" title="interface in com.twitter.common.args"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../index.html?com/twitter/common/args/Parser.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="Parser.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../allclasses-noframe.html"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../allclasses-noframe.html"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+com.twitter.common.args</FONT>
+<BR>
+Interface Parser&lt;T&gt;</H2>
+<DL>
+<DT><DT><B>Type Parameters:</B><DD><CODE>T</CODE> - The base class this parser can parse all subtypes of.</DL>
+<DL>
+<DT><B>All Known Implementing Classes:</B> <DD><A HREF="../../../../com/twitter/common/args/parsers/AmountParser.html" title="class in com.twitter.common.args.parsers">AmountParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/BooleanParser.html" title="class in com.twitter.common.args.parsers">BooleanParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/ByteParser.html" title="class in com.twitter.common.args.parsers">ByteParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/CharacterParser.html" title="class in com.twitter.common.args.parsers">CharacterParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/ClassParser.html" title="class in com.twitter.common.args.parsers">ClassParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/DateParser.html" title="class in com.twitter.common.args.parsers">DateParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/DoubleParser.html" title="class in com.twitter.common.args.parsers">DoubleParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/DurationParser.html" title="class in com.twitter.common.args.parsers">DurationParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/EnumParser.html" title="class in com.twitter.common.args.parsers">EnumParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/FileParser.html" title="class in com.twitter.common.args.parsers">FileParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/FloatParser.html" title="class in com.twitter.common.args.parsers">FloatParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/InetSocketAddressParser.html" title="class in com.twitter.common.args.parsers">InetSocketAddressParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/IntegerParser.html" title="class in com.twitter.common.args.parsers">IntegerParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/ListParser.html" title="class in com.twitter.common.args.parsers">ListParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/LongParser.html" title="class in com.twitter.common.args.parsers">LongParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/MapParser.html" title="class in com.twitter.common.args.parsers">MapParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html" title="class in com.twitter.common.args.parsers">NonParameterizedTypeParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/NumberParser.html" title="class in com.twitter.common.args.parsers">NumberParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/PairParser.html" title="class in com.twitter.common.args.parsers">PairParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/RangeParser.html" title="class in com.twitter.common.args.parsers">RangeParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/SetParser.html" title="class in com.twitter.common.args.parsers">SetParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/ShortParser.html" title="class in com.twitter.common.args.parsers">ShortParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/StringParser.html" title="class in com.twitter.common.args.parsers">StringParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/TimeDurationParser.html" title="class in com.twitter.common.args.parsers">TimeDurationParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/TypeParameterizedParser.html" title="class in com.twitter.common.args.parsers">TypeParameterizedParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/UnitParser.html" title="class in com.twitter.common.args.parsers">UnitParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/URIParser.html" title="class in com.twitter.common.args.parsers">URIParser</A>, <A HREF="../../../../com/twitter/common/args/parsers/URLParser.html" title="class in com.twitter.common.args.parsers">URLParser</A></DD>
+</DL>
+<HR>
+<DL>
+<DT><PRE>public interface <A HREF="../../../../src-html/com/twitter/common/args/Parser.html#line.10"><B>Parser&lt;T&gt;</B></A></DL>
+</PRE>
+
+<P>
+An interface to a command line argument parser.
+<P>
+
+<P>
+<HR>
+
+<P>
+
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../com/twitter/common/args/Parser.html" title="type parameter in Parser">T</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/args/Parser.html#parse(com.twitter.common.args.ParserOracle, java.lang.reflect.Type, java.lang.String)">parse</A></B>(<A HREF="../../../../com/twitter/common/args/ParserOracle.html" title="interface in com.twitter.common.args">ParserOracle</A>&nbsp;parserOracle,
+           <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type,
+           <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;raw)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Parses strings as arguments of a given subtype of <code>T</code>.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="parse(com.twitter.common.args.ParserOracle, java.lang.reflect.Type, java.lang.String)"><!-- --></A><H3>
+parse</H3>
+<PRE>
+<A HREF="../../../../com/twitter/common/args/Parser.html" title="type parameter in Parser">T</A> <A HREF="../../../../src-html/com/twitter/common/args/Parser.html#line.22"><B>parse</B></A>(<A HREF="../../../../com/twitter/common/args/ParserOracle.html" title="interface in com.twitter.common.args">ParserOracle</A>&nbsp;parserOracle,
+        <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type,
+        <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;raw)
+        throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</A></PRE>
+<DL>
+<DD>Parses strings as arguments of a given subtype of <code>T</code>.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>parserOracle</CODE> - The registered parserOracle for delegation.<DD><CODE>type</CODE> - The target type of the parsed argument.<DD><CODE>raw</CODE> - The raw value of the argument.
+<DT><B>Returns:</B><DD>A value of the given type parsed from the raw value.
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - if the raw value could not be parsed into a value of the
+     given type.</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/Parser.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../com/twitter/common/args/CmdLine.html" title="annotation in com.twitter.common.args"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../com/twitter/common/args/ParserOracle.html" title="interface in com.twitter.common.args"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../index.html?com/twitter/common/args/Parser.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="Parser.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../allclasses-noframe.html"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../allclasses-noframe.html"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

@@ -143,6 +143,15 @@ Uses of <A HREF="../../../../../com/twitter/common/stats/Stat.html" title="inter
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/stats/SampledStat.html" title="class in com.twitter.common.stats">SampledStat&lt;T extends Number&gt;</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A convenience class to perform the basic tasks needed for a <CODE>RecordingStat</CODE> except the
+ actual value calculation.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/stats/StatImpl.html" title="class in com.twitter.common.stats">StatImpl&lt;T&gt;</A></B></CODE>
 
 <BR>
@@ -158,7 +167,7 @@ Uses of <A HREF="../../../../../com/twitter/common/stats/Stat.html" title="inter
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="../../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;?&gt;,<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
+<CODE>static&nbsp;<A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="../../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;?&gt;,<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B>NumericStatExporter.</B><B><A HREF="../../../../../com/twitter/common/stats/NumericStatExporter.html#GET_NAME">GET_NAME</A></B></CODE>
 
 <BR>
@@ -166,7 +175,7 @@ Uses of <A HREF="../../../../../com/twitter/common/stats/Stat.html" title="inter
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="../../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;? extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt;,<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt;</CODE></FONT></TD>
+<CODE>static&nbsp;<A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="../../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;? extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt;,<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B>NumericStatExporter.</B><B><A HREF="../../../../../com/twitter/common/stats/NumericStatExporter.html#READ_STAT">READ_STAT</A></B></CODE>
 
 <BR>
@@ -248,7 +257,7 @@ Uses of <A HREF="../../../../../com/twitter/common/stats/Stat.html" title="inter
 </TABLE>
 </CODE></FONT></TD>
 <TD><CODE><B>StatsProvider.</B><B><A HREF="../../../../../com/twitter/common/stats/StatsProvider.html#makeGauge(java.lang.String, com.google.common.base.Supplier)">makeGauge</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
-                   <A HREF="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</A>&lt;T&gt;&nbsp;gauge)</CODE>
+                   <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</A>&lt;T&gt;&nbsp;gauge)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Exports a read-only value for tracking.</TD>
@@ -271,7 +280,7 @@ Uses of <A HREF="../../../../../com/twitter/common/stats/Stat.html" title="inter
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;? extends <A HREF="../../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&gt;</CODE></FONT></TD>
+<CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;<A HREF="../../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B>Stats.</B><B><A HREF="../../../../../com/twitter/common/stats/Stats.html#getVariables()">getVariables</A></B>()</CODE>
 
 <BR>

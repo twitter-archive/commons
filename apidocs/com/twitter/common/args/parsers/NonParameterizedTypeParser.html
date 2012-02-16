@@ -94,11 +94,14 @@ Class NonParameterizedTypeParser&lt;T&gt;</H2>
   <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.args.parsers.NonParameterizedTypeParser&lt;T&gt;</B>
 </PRE>
 <DL>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../com/twitter/common/args/Parser.html" title="interface in com.twitter.common.args">Parser</A>&lt;T&gt;</DD>
+</DL>
+<DL>
 <DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../../../../com/twitter/common/args/parsers/BooleanParser.html" title="class in com.twitter.common.args.parsers">BooleanParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/CharacterParser.html" title="class in com.twitter.common.args.parsers">CharacterParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/DateParser.html" title="class in com.twitter.common.args.parsers">DateParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/FileParser.html" title="class in com.twitter.common.args.parsers">FileParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/InetSocketAddressParser.html" title="class in com.twitter.common.args.parsers">InetSocketAddressParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/NumberParser.html" title="class in com.twitter.common.args.parsers">NumberParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/RangeParser.html" title="class in com.twitter.common.args.parsers">RangeParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/StringParser.html" title="class in com.twitter.common.args.parsers">StringParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/UnitParser.html" title="class in com.twitter.common.args.parsers">UnitParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/URIParser.html" title="class in com.twitter.common.args.parsers">URIParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/URLParser.html" title="class in com.twitter.common.args.parsers">URLParser</A></DD>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public abstract class <A HREF="../../../../../src-html/com/twitter/common/args/parsers/NonParameterizedTypeParser.html#line.29"><B>NonParameterizedTypeParser&lt;T&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public abstract class <A HREF="../../../../../src-html/com/twitter/common/args/parsers/NonParameterizedTypeParser.html#line.29"><B>NonParameterizedTypeParser&lt;T&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../../com/twitter/common/args/Parser.html" title="interface in com.twitter.common.args">Parser</A>&lt;T&gt;</DL>
 </PRE>
 
 <P>
@@ -145,12 +148,12 @@ Base class for parsers of types that are not parameterized.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html" title="type parameter in NonParameterizedTypeParser">T</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html#parse(ParserOracle, java.lang.reflect.Type, java.lang.String)">parse</A></B>(ParserOracle&nbsp;parserOracle,
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html#parse(com.twitter.common.args.ParserOracle, java.lang.reflect.Type, java.lang.String)">parse</A></B>(<A HREF="../../../../../com/twitter/common/args/ParserOracle.html" title="interface in com.twitter.common.args">ParserOracle</A>&nbsp;parserOracle,
            <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type,
            <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;raw)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Parses strings as arguments of a given subtype of <code>T</code>.</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -201,6 +204,9 @@ public abstract <A HREF="../../../../../com/twitter/common/args/parsers/NonParam
 <DD>Performs the parsing of the raw string.
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 <DT><B>Parameters:</B><DD><CODE>raw</CODE> - Value to parse.
 <DT><B>Returns:</B><DD>The parsed value.
 <DT><B>Throws:</B>
@@ -209,18 +215,26 @@ public abstract <A HREF="../../../../../com/twitter/common/args/parsers/NonParam
 </DL>
 <HR>
 
-<A NAME="parse(ParserOracle, java.lang.reflect.Type, java.lang.String)"><!-- --></A><H3>
+<A NAME="parse(com.twitter.common.args.ParserOracle, java.lang.reflect.Type, java.lang.String)"><!-- --></A><H3>
 parse</H3>
 <PRE>
-public <A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html" title="type parameter in NonParameterizedTypeParser">T</A> <A HREF="../../../../../src-html/com/twitter/common/args/parsers/NonParameterizedTypeParser.html#line.41"><B>parse</B></A>(ParserOracle&nbsp;parserOracle,
+public <A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html" title="type parameter in NonParameterizedTypeParser">T</A> <A HREF="../../../../../src-html/com/twitter/common/args/parsers/NonParameterizedTypeParser.html#line.41"><B>parse</B></A>(<A HREF="../../../../../com/twitter/common/args/ParserOracle.html" title="interface in com.twitter.common.args">ParserOracle</A>&nbsp;parserOracle,
                <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type,
                <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;raw)
         throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</A></PRE>
 <DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../com/twitter/common/args/Parser.html#parse(com.twitter.common.args.ParserOracle, java.lang.reflect.Type, java.lang.String)">Parser</A></CODE></B></DD>
+<DD>Parses strings as arguments of a given subtype of <code>T</code>.
+<P>
 <DD><DL>
-
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../com/twitter/common/args/Parser.html#parse(com.twitter.common.args.ParserOracle, java.lang.reflect.Type, java.lang.String)">parse</A></CODE> in interface <CODE><A HREF="../../../../../com/twitter/common/args/Parser.html" title="interface in com.twitter.common.args">Parser</A>&lt;<A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html" title="type parameter in NonParameterizedTypeParser">T</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>parserOracle</CODE> - The registered parserOracle for delegation.<DD><CODE>type</CODE> - The target type of the parsed argument.<DD><CODE>raw</CODE> - The raw value of the argument.
+<DT><B>Returns:</B><DD>A value of the given type parsed from the raw value.
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</A></CODE></DL>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - if the raw value could not be parsed into a value of the
+     given type.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

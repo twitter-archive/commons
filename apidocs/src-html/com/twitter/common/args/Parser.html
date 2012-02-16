@@ -1,0 +1,89 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    package com.twitter.common.args;<a name="line.1"></a>
+<FONT color="green">002</FONT>    <a name="line.2"></a>
+<FONT color="green">003</FONT>    import java.lang.reflect.Type;<a name="line.3"></a>
+<FONT color="green">004</FONT>    <a name="line.4"></a>
+<FONT color="green">005</FONT>    /**<a name="line.5"></a>
+<FONT color="green">006</FONT>     * An interface to a command line argument parser.<a name="line.6"></a>
+<FONT color="green">007</FONT>     *<a name="line.7"></a>
+<FONT color="green">008</FONT>     * @param &lt;T&gt; The base class this parser can parse all subtypes of.<a name="line.8"></a>
+<FONT color="green">009</FONT>     */<a name="line.9"></a>
+<FONT color="green">010</FONT>    public interface Parser&lt;T&gt; {<a name="line.10"></a>
+<FONT color="green">011</FONT>    <a name="line.11"></a>
+<FONT color="green">012</FONT>      /**<a name="line.12"></a>
+<FONT color="green">013</FONT>       * Parses strings as arguments of a given subtype of {@code T}.<a name="line.13"></a>
+<FONT color="green">014</FONT>       *<a name="line.14"></a>
+<FONT color="green">015</FONT>       * @param parserOracle The registered parserOracle for delegation.<a name="line.15"></a>
+<FONT color="green">016</FONT>       * @param type The target type of the parsed argument.<a name="line.16"></a>
+<FONT color="green">017</FONT>       * @param raw The raw value of the argument.<a name="line.17"></a>
+<FONT color="green">018</FONT>       * @return A value of the given type parsed from the raw value.<a name="line.18"></a>
+<FONT color="green">019</FONT>       * @throws IllegalArgumentException if the raw value could not be parsed into a value of the<a name="line.19"></a>
+<FONT color="green">020</FONT>       *     given type.<a name="line.20"></a>
+<FONT color="green">021</FONT>       */<a name="line.21"></a>
+<FONT color="green">022</FONT>      T parse(ParserOracle parserOracle, Type type, String raw) throws IllegalArgumentException;<a name="line.22"></a>
+<FONT color="green">023</FONT>    }<a name="line.23"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

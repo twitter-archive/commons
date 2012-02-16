@@ -22,49 +22,47 @@
 <FONT color="green">019</FONT>    import java.lang.annotation.Retention;<a name="line.19"></a>
 <FONT color="green">020</FONT>    import java.lang.annotation.Target;<a name="line.20"></a>
 <FONT color="green">021</FONT>    <a name="line.21"></a>
-<FONT color="green">022</FONT>    import com.twitter.common.args.Parsers.Parser;<a name="line.22"></a>
-<FONT color="green">023</FONT>    <a name="line.23"></a>
-<FONT color="green">024</FONT>    import static java.lang.annotation.ElementType.FIELD;<a name="line.24"></a>
-<FONT color="green">025</FONT>    import static java.lang.annotation.RetentionPolicy.RUNTIME;<a name="line.25"></a>
-<FONT color="green">026</FONT>    <a name="line.26"></a>
-<FONT color="green">027</FONT>    /**<a name="line.27"></a>
-<FONT color="green">028</FONT>     * Annotation for a command line argument.<a name="line.28"></a>
-<FONT color="green">029</FONT>     *<a name="line.29"></a>
-<FONT color="green">030</FONT>     * @author William Farner<a name="line.30"></a>
-<FONT color="green">031</FONT>     */<a name="line.31"></a>
-<FONT color="green">032</FONT>    @Target({FIELD})<a name="line.32"></a>
-<FONT color="green">033</FONT>    @Retention(RUNTIME)<a name="line.33"></a>
-<FONT color="green">034</FONT>    public @interface CmdLine {<a name="line.34"></a>
-<FONT color="green">035</FONT>    <a name="line.35"></a>
-<FONT color="green">036</FONT>      /**<a name="line.36"></a>
-<FONT color="green">037</FONT>       * The short name of the argument, as supplied on the command line.  The argument can also be<a name="line.37"></a>
-<FONT color="green">038</FONT>       * accessed by the canonical name, which is {@code com.foo.bar.MyArgClass.arg_name}.<a name="line.38"></a>
-<FONT color="green">039</FONT>       * If the global scope contains more than one argument with the same name, all colliding arguments<a name="line.39"></a>
-<FONT color="green">040</FONT>       * must be disambiguated with the canonical form.<a name="line.40"></a>
+<FONT color="green">022</FONT>    import static java.lang.annotation.ElementType.FIELD;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import static java.lang.annotation.RetentionPolicy.RUNTIME;<a name="line.23"></a>
+<FONT color="green">024</FONT>    <a name="line.24"></a>
+<FONT color="green">025</FONT>    /**<a name="line.25"></a>
+<FONT color="green">026</FONT>     * Annotation for a command line argument.<a name="line.26"></a>
+<FONT color="green">027</FONT>     *<a name="line.27"></a>
+<FONT color="green">028</FONT>     * @author William Farner<a name="line.28"></a>
+<FONT color="green">029</FONT>     */<a name="line.29"></a>
+<FONT color="green">030</FONT>    @Target({FIELD})<a name="line.30"></a>
+<FONT color="green">031</FONT>    @Retention(RUNTIME)<a name="line.31"></a>
+<FONT color="green">032</FONT>    public @interface CmdLine {<a name="line.32"></a>
+<FONT color="green">033</FONT>    <a name="line.33"></a>
+<FONT color="green">034</FONT>      /**<a name="line.34"></a>
+<FONT color="green">035</FONT>       * The short name of the argument, as supplied on the command line.  The argument can also be<a name="line.35"></a>
+<FONT color="green">036</FONT>       * accessed by the canonical name, which is {@code com.foo.bar.MyArgClass.arg_name}.<a name="line.36"></a>
+<FONT color="green">037</FONT>       * If the global scope contains more than one argument with the same name, all colliding arguments<a name="line.37"></a>
+<FONT color="green">038</FONT>       * must be disambiguated with the canonical form.<a name="line.38"></a>
+<FONT color="green">039</FONT>       *<a name="line.39"></a>
+<FONT color="green">040</FONT>       * The argument name must match the format {@code [\w\-\.]+}.<a name="line.40"></a>
 <FONT color="green">041</FONT>       *<a name="line.41"></a>
-<FONT color="green">042</FONT>       * The argument name must match the format {@code [\w\-\.]+}.<a name="line.42"></a>
-<FONT color="green">043</FONT>       *<a name="line.43"></a>
-<FONT color="green">044</FONT>       * @return The argument name.<a name="line.44"></a>
-<FONT color="green">045</FONT>       */<a name="line.45"></a>
-<FONT color="green">046</FONT>      String name();<a name="line.46"></a>
-<FONT color="green">047</FONT>    <a name="line.47"></a>
-<FONT color="green">048</FONT>      /**<a name="line.48"></a>
-<FONT color="green">049</FONT>       * The help string to display on the command line in a usage message.<a name="line.49"></a>
-<FONT color="green">050</FONT>       *<a name="line.50"></a>
-<FONT color="green">051</FONT>       * @return Help string.<a name="line.51"></a>
-<FONT color="green">052</FONT>       */<a name="line.52"></a>
-<FONT color="green">053</FONT>      String help();<a name="line.53"></a>
-<FONT color="green">054</FONT>    <a name="line.54"></a>
-<FONT color="green">055</FONT>      /**<a name="line.55"></a>
-<FONT color="green">056</FONT>       * The parser class to use for parsing this argument.  The parser must return the same type as<a name="line.56"></a>
-<FONT color="green">057</FONT>       * the field being annotated.<a name="line.57"></a>
-<FONT color="green">058</FONT>       *<a name="line.58"></a>
-<FONT color="green">059</FONT>       * @return Custom parser for this type.<a name="line.59"></a>
-<FONT color="green">060</FONT>       */<a name="line.60"></a>
-<FONT color="green">061</FONT>      // The default is fully qualified to work around an apt bug:<a name="line.61"></a>
-<FONT color="green">062</FONT>      // http://bugs.sun.com/view_bug.do?bug_id=6512707<a name="line.62"></a>
-<FONT color="green">063</FONT>      Class&lt;? extends Parser&gt; parser() default com.twitter.common.args.Parsers.Parser.class;<a name="line.63"></a>
-<FONT color="green">064</FONT>    }<a name="line.64"></a>
+<FONT color="green">042</FONT>       * @return The argument name.<a name="line.42"></a>
+<FONT color="green">043</FONT>       */<a name="line.43"></a>
+<FONT color="green">044</FONT>      String name();<a name="line.44"></a>
+<FONT color="green">045</FONT>    <a name="line.45"></a>
+<FONT color="green">046</FONT>      /**<a name="line.46"></a>
+<FONT color="green">047</FONT>       * The help string to display on the command line in a usage message.<a name="line.47"></a>
+<FONT color="green">048</FONT>       *<a name="line.48"></a>
+<FONT color="green">049</FONT>       * @return Help string.<a name="line.49"></a>
+<FONT color="green">050</FONT>       */<a name="line.50"></a>
+<FONT color="green">051</FONT>      String help();<a name="line.51"></a>
+<FONT color="green">052</FONT>    <a name="line.52"></a>
+<FONT color="green">053</FONT>      /**<a name="line.53"></a>
+<FONT color="green">054</FONT>       * The parser class to use for parsing this argument.  The parser must return the same type as<a name="line.54"></a>
+<FONT color="green">055</FONT>       * the field being annotated.<a name="line.55"></a>
+<FONT color="green">056</FONT>       *<a name="line.56"></a>
+<FONT color="green">057</FONT>       * @return Custom parser for this type.<a name="line.57"></a>
+<FONT color="green">058</FONT>       */<a name="line.58"></a>
+<FONT color="green">059</FONT>      // The default is fully qualified to work around an apt bug:<a name="line.59"></a>
+<FONT color="green">060</FONT>      // http://bugs.sun.com/view_bug.do?bug_id=6512707<a name="line.60"></a>
+<FONT color="green">061</FONT>      Class&lt;? extends Parser&gt; parser() default com.twitter.common.args.Parser.class;<a name="line.61"></a>
+<FONT color="green">062</FONT>    }<a name="line.62"></a>
 
 
 

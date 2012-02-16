@@ -54,7 +54,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;PREV CLASS&nbsp;
-&nbsp;<A HREF="../../../../com/twitter/common/args/ArgScanner.html" title="class in com.twitter.common.args"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/args/ArgFilters.html" title="class in com.twitter.common.args"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/args/Arg.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="Arg.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -185,6 +185,14 @@ Wrapper class for the value of an argument.  For proper behavior, an <code>Arg</
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Checks whether a value has been applied to the argument (i.e., apart from the default).</TD>
 </TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/args/Arg.html#hasDefault()">hasDefault</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
@@ -241,10 +249,21 @@ public <A HREF="../../../../src-html/com/twitter/common/args/Arg.html#line.52"><
 </TR>
 </TABLE>
 
+<A NAME="hasDefault()"><!-- --></A><H3>
+hasDefault</H3>
+<PRE>
+public boolean <A HREF="../../../../src-html/com/twitter/common/args/Arg.html#line.71"><B>hasDefault</B></A>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="get()"><!-- --></A><H3>
 get</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/args/Arg.html" title="type parameter in Arg">T</A> <A HREF="../../../../src-html/com/twitter/common/args/Arg.html#line.77"><B>get</B></A>()</PRE>
+public <A HREF="../../../../com/twitter/common/args/Arg.html" title="type parameter in Arg">T</A> <A HREF="../../../../src-html/com/twitter/common/args/Arg.html#line.81"><B>get</B></A>()</PRE>
 <DL>
 <DD>Gets the value of the argument.  If a value has not yet been applied to the argument, or the
  argument did not provide a default value, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang"><CODE>IllegalStateException</CODE></A> will be thrown.
@@ -259,7 +278,7 @@ public <A HREF="../../../../com/twitter/common/args/Arg.html" title="type parame
 <A NAME="hasAppliedValue()"><!-- --></A><H3>
 hasAppliedValue</H3>
 <PRE>
-public boolean <A HREF="../../../../src-html/com/twitter/common/args/Arg.html#line.91"><B>hasAppliedValue</B></A>()</PRE>
+public boolean <A HREF="../../../../src-html/com/twitter/common/args/Arg.html#line.95"><B>hasAppliedValue</B></A>()</PRE>
 <DL>
 <DD>Checks whether a value has been applied to the argument (i.e., apart from the default).
 <P>
@@ -274,7 +293,7 @@ public boolean <A HREF="../../../../src-html/com/twitter/common/args/Arg.html#li
 <A NAME="create()"><!-- --></A><H3>
 create</H3>
 <PRE>
-public static &lt;T&gt; <A HREF="../../../../com/twitter/common/args/Arg.html" title="class in com.twitter.common.args">Arg</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/args/Arg.html#line.111"><B>create</B></A>()</PRE>
+public static &lt;T&gt; <A HREF="../../../../com/twitter/common/args/Arg.html" title="class in com.twitter.common.args">Arg</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/args/Arg.html#line.115"><B>create</B></A>()</PRE>
 <DL>
 <DD>Convenience factory method to create an arg that has no default value.
 <P>
@@ -288,7 +307,7 @@ public static &lt;T&gt; <A HREF="../../../../com/twitter/common/args/Arg.html" t
 <A NAME="create(java.lang.Object)"><!-- --></A><A NAME="create(T)"><!-- --></A><H3>
 create</H3>
 <PRE>
-public static &lt;T&gt; <A HREF="../../../../com/twitter/common/args/Arg.html" title="class in com.twitter.common.args">Arg</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/args/Arg.html#line.122"><B>create</B></A>(<FONT SIZE="-1"><A HREF="http://download.oracle.com/javase/6/docs/api/javax/annotation/Nullable.html?is-external=true" title="class or interface in javax.annotation">@Nullable</A></FONT>
+public static &lt;T&gt; <A HREF="../../../../com/twitter/common/args/Arg.html" title="class in com.twitter.common.args">Arg</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/args/Arg.html#line.126"><B>create</B></A>(<FONT SIZE="-1"><A HREF="http://download.oracle.com/javase/6/docs/api/javax/annotation/Nullable.html?is-external=true" title="class or interface in javax.annotation">@Nullable</A></FONT>
                                 T&nbsp;value)</PRE>
 <DL>
 <DD>Convenience factory method to create an arg with a default value.
@@ -330,7 +349,7 @@ public static &lt;T&gt; <A HREF="../../../../com/twitter/common/args/Arg.html" t
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;PREV CLASS&nbsp;
-&nbsp;<A HREF="../../../../com/twitter/common/args/ArgScanner.html" title="class in com.twitter.common.args"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/args/ArgFilters.html" title="class in com.twitter.common.args"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/args/Arg.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="Arg.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;

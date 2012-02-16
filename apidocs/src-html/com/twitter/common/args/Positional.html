@@ -1,0 +1,97 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    package com.twitter.common.args;<a name="line.1"></a>
+<FONT color="green">002</FONT>    <a name="line.2"></a>
+<FONT color="green">003</FONT>    import java.lang.annotation.Retention;<a name="line.3"></a>
+<FONT color="green">004</FONT>    import java.lang.annotation.Target;<a name="line.4"></a>
+<FONT color="green">005</FONT>    <a name="line.5"></a>
+<FONT color="green">006</FONT>    import static java.lang.annotation.ElementType.FIELD;<a name="line.6"></a>
+<FONT color="green">007</FONT>    import static java.lang.annotation.RetentionPolicy.RUNTIME;<a name="line.7"></a>
+<FONT color="green">008</FONT>    <a name="line.8"></a>
+<FONT color="green">009</FONT>    /**<a name="line.9"></a>
+<FONT color="green">010</FONT>     * Annotation to mark an {@link Arg} for gathering the positional command line arguments.<a name="line.10"></a>
+<FONT color="green">011</FONT>     */<a name="line.11"></a>
+<FONT color="green">012</FONT>    @Retention(RUNTIME)<a name="line.12"></a>
+<FONT color="green">013</FONT>    @Target({FIELD})<a name="line.13"></a>
+<FONT color="green">014</FONT>    public @interface Positional {<a name="line.14"></a>
+<FONT color="green">015</FONT>      /**<a name="line.15"></a>
+<FONT color="green">016</FONT>       * The help string to display on the command line in a usage message.<a name="line.16"></a>
+<FONT color="green">017</FONT>       *<a name="line.17"></a>
+<FONT color="green">018</FONT>       * @return Help string.<a name="line.18"></a>
+<FONT color="green">019</FONT>       */<a name="line.19"></a>
+<FONT color="green">020</FONT>      String help();<a name="line.20"></a>
+<FONT color="green">021</FONT>    <a name="line.21"></a>
+<FONT color="green">022</FONT>      /**<a name="line.22"></a>
+<FONT color="green">023</FONT>       * The parser class to use for parsing the positional arguments.  The parser must return the same<a name="line.23"></a>
+<FONT color="green">024</FONT>       * type as the field being annotated.<a name="line.24"></a>
+<FONT color="green">025</FONT>       *<a name="line.25"></a>
+<FONT color="green">026</FONT>       * @return Custom parser for this type.<a name="line.26"></a>
+<FONT color="green">027</FONT>       */<a name="line.27"></a>
+<FONT color="green">028</FONT>      // The default is fully qualified to work around an apt bug:<a name="line.28"></a>
+<FONT color="green">029</FONT>      // http://bugs.sun.com/view_bug.do?bug_id=6512707<a name="line.29"></a>
+<FONT color="green">030</FONT>      Class&lt;? extends Parser&gt; parser() default com.twitter.common.args.Parser.class;<a name="line.30"></a>
+<FONT color="green">031</FONT>    }<a name="line.31"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

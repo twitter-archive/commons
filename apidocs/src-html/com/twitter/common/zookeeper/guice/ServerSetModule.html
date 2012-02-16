@@ -19,103 +19,110 @@
 <FONT color="green">016</FONT>    <a name="line.16"></a>
 <FONT color="green">017</FONT>    package com.twitter.common.zookeeper.guice;<a name="line.17"></a>
 <FONT color="green">018</FONT>    <a name="line.18"></a>
-<FONT color="green">019</FONT>    import java.util.logging.Level;<a name="line.19"></a>
-<FONT color="green">020</FONT>    import java.util.logging.Logger;<a name="line.20"></a>
-<FONT color="green">021</FONT>    <a name="line.21"></a>
-<FONT color="green">022</FONT>    import com.google.inject.AbstractModule;<a name="line.22"></a>
-<FONT color="green">023</FONT>    import com.google.inject.Inject;<a name="line.23"></a>
-<FONT color="green">024</FONT>    <a name="line.24"></a>
-<FONT color="green">025</FONT>    import com.twitter.common.application.LocalServiceRegistry;<a name="line.25"></a>
-<FONT color="green">026</FONT>    import com.twitter.common.application.ShutdownRegistry;<a name="line.26"></a>
-<FONT color="green">027</FONT>    import com.twitter.common.application.modules.LifecycleModule;<a name="line.27"></a>
-<FONT color="green">028</FONT>    import com.twitter.common.args.Arg;<a name="line.28"></a>
-<FONT color="green">029</FONT>    import com.twitter.common.args.CmdLine;<a name="line.29"></a>
-<FONT color="green">030</FONT>    import com.twitter.common.args.constraints.NotEmpty;<a name="line.30"></a>
-<FONT color="green">031</FONT>    import com.twitter.common.args.constraints.NotNull;<a name="line.31"></a>
-<FONT color="green">032</FONT>    import com.twitter.common.base.Command;<a name="line.32"></a>
-<FONT color="green">033</FONT>    import com.twitter.common.base.ExceptionalCommand;<a name="line.33"></a>
-<FONT color="green">034</FONT>    import com.twitter.common.zookeeper.Group.JoinException;<a name="line.34"></a>
-<FONT color="green">035</FONT>    import com.twitter.common.zookeeper.ServerSet;<a name="line.35"></a>
-<FONT color="green">036</FONT>    import com.twitter.common.zookeeper.ServerSet.EndpointStatus;<a name="line.36"></a>
-<FONT color="green">037</FONT>    import com.twitter.common.zookeeper.ServerSet.UpdateException;<a name="line.37"></a>
-<FONT color="green">038</FONT>    import com.twitter.common.zookeeper.ServerSetImpl;<a name="line.38"></a>
-<FONT color="green">039</FONT>    import com.twitter.common.zookeeper.ZooKeeperClient;<a name="line.39"></a>
-<FONT color="green">040</FONT>    import com.twitter.thrift.Status;<a name="line.40"></a>
-<FONT color="green">041</FONT>    <a name="line.41"></a>
-<FONT color="green">042</FONT>    import static com.google.common.base.Preconditions.checkNotNull;<a name="line.42"></a>
+<FONT color="green">019</FONT>    import java.net.InetSocketAddress;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import java.util.logging.Level;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import java.util.logging.Logger;<a name="line.21"></a>
+<FONT color="green">022</FONT>    <a name="line.22"></a>
+<FONT color="green">023</FONT>    import com.google.common.base.Optional;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import com.google.inject.AbstractModule;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import com.google.inject.Inject;<a name="line.25"></a>
+<FONT color="green">026</FONT>    <a name="line.26"></a>
+<FONT color="green">027</FONT>    import com.twitter.common.application.ShutdownRegistry;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import com.twitter.common.application.modules.LifecycleModule;<a name="line.28"></a>
+<FONT color="green">029</FONT>    import com.twitter.common.application.modules.LocalServiceRegistry;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import com.twitter.common.args.Arg;<a name="line.30"></a>
+<FONT color="green">031</FONT>    import com.twitter.common.args.CmdLine;<a name="line.31"></a>
+<FONT color="green">032</FONT>    import com.twitter.common.args.constraints.NotEmpty;<a name="line.32"></a>
+<FONT color="green">033</FONT>    import com.twitter.common.args.constraints.NotNull;<a name="line.33"></a>
+<FONT color="green">034</FONT>    import com.twitter.common.base.Command;<a name="line.34"></a>
+<FONT color="green">035</FONT>    import com.twitter.common.base.ExceptionalCommand;<a name="line.35"></a>
+<FONT color="green">036</FONT>    import com.twitter.common.zookeeper.Group.JoinException;<a name="line.36"></a>
+<FONT color="green">037</FONT>    import com.twitter.common.zookeeper.ServerSet;<a name="line.37"></a>
+<FONT color="green">038</FONT>    import com.twitter.common.zookeeper.ServerSet.EndpointStatus;<a name="line.38"></a>
+<FONT color="green">039</FONT>    import com.twitter.common.zookeeper.ServerSet.UpdateException;<a name="line.39"></a>
+<FONT color="green">040</FONT>    import com.twitter.common.zookeeper.ServerSetImpl;<a name="line.40"></a>
+<FONT color="green">041</FONT>    import com.twitter.common.zookeeper.ZooKeeperClient;<a name="line.41"></a>
+<FONT color="green">042</FONT>    import com.twitter.thrift.Status;<a name="line.42"></a>
 <FONT color="green">043</FONT>    <a name="line.43"></a>
-<FONT color="green">044</FONT>    /**<a name="line.44"></a>
-<FONT color="green">045</FONT>     * A module that registers all ports in the {@link LocalServiceRegistry} in an {@link ServerSet}.<a name="line.45"></a>
-<FONT color="green">046</FONT>     *<a name="line.46"></a>
-<FONT color="green">047</FONT>     * Required bindings:<a name="line.47"></a>
-<FONT color="green">048</FONT>     * &lt;ul&gt;<a name="line.48"></a>
-<FONT color="green">049</FONT>     *   &lt;li&gt; {@link ZooKeeperClient}<a name="line.49"></a>
-<FONT color="green">050</FONT>     *   &lt;li&gt; {@link ShutdownRegistry}<a name="line.50"></a>
-<FONT color="green">051</FONT>     *   &lt;li&gt; {@link LocalServiceRegistry}<a name="line.51"></a>
-<FONT color="green">052</FONT>     * &lt;/ul&gt;<a name="line.52"></a>
-<FONT color="green">053</FONT>     * {@link LifecycleModule} must also be included by users so a startup action may be registered.<a name="line.53"></a>
-<FONT color="green">054</FONT>     *<a name="line.54"></a>
-<FONT color="green">055</FONT>     * @author William Farner<a name="line.55"></a>
-<FONT color="green">056</FONT>     */<a name="line.56"></a>
-<FONT color="green">057</FONT>    public class ServerSetModule extends AbstractModule {<a name="line.57"></a>
-<FONT color="green">058</FONT>    <a name="line.58"></a>
-<FONT color="green">059</FONT>      private static final Logger LOG = Logger.getLogger(ServerSetModule.class.getName());<a name="line.59"></a>
+<FONT color="green">044</FONT>    import static com.google.common.base.Preconditions.checkNotNull;<a name="line.44"></a>
+<FONT color="green">045</FONT>    <a name="line.45"></a>
+<FONT color="green">046</FONT>    /**<a name="line.46"></a>
+<FONT color="green">047</FONT>     * A module that registers all ports in the {@link LocalServiceRegistry} in an {@link ServerSet}.<a name="line.47"></a>
+<FONT color="green">048</FONT>     *<a name="line.48"></a>
+<FONT color="green">049</FONT>     * Required bindings:<a name="line.49"></a>
+<FONT color="green">050</FONT>     * &lt;ul&gt;<a name="line.50"></a>
+<FONT color="green">051</FONT>     *   &lt;li&gt; {@link ZooKeeperClient}<a name="line.51"></a>
+<FONT color="green">052</FONT>     *   &lt;li&gt; {@link ShutdownRegistry}<a name="line.52"></a>
+<FONT color="green">053</FONT>     *   &lt;li&gt; {@link LocalServiceRegistry}<a name="line.53"></a>
+<FONT color="green">054</FONT>     * &lt;/ul&gt;<a name="line.54"></a>
+<FONT color="green">055</FONT>     * {@link LifecycleModule} must also be included by users so a startup action may be registered.<a name="line.55"></a>
+<FONT color="green">056</FONT>     *<a name="line.56"></a>
+<FONT color="green">057</FONT>     * @author William Farner<a name="line.57"></a>
+<FONT color="green">058</FONT>     */<a name="line.58"></a>
+<FONT color="green">059</FONT>    public class ServerSetModule extends AbstractModule {<a name="line.59"></a>
 <FONT color="green">060</FONT>    <a name="line.60"></a>
-<FONT color="green">061</FONT>      @NotNull<a name="line.61"></a>
-<FONT color="green">062</FONT>      @NotEmpty<a name="line.62"></a>
-<FONT color="green">063</FONT>      @CmdLine(name = "serverset_path", help = "ServerSet registration path")<a name="line.63"></a>
-<FONT color="green">064</FONT>      protected static final Arg&lt;String&gt; SERVERSET_PATH = Arg.create(null);<a name="line.64"></a>
-<FONT color="green">065</FONT>    <a name="line.65"></a>
-<FONT color="green">066</FONT>      @Override<a name="line.66"></a>
-<FONT color="green">067</FONT>      protected void configure() {<a name="line.67"></a>
-<FONT color="green">068</FONT>        requireBinding(ZooKeeperClient.class);<a name="line.68"></a>
-<FONT color="green">069</FONT>        requireBinding(ShutdownRegistry.class);<a name="line.69"></a>
-<FONT color="green">070</FONT>        requireBinding(LocalServiceRegistry.class);<a name="line.70"></a>
-<FONT color="green">071</FONT>        LifecycleModule.bindStartupAction(binder(), ServerSetJoiner.class);<a name="line.71"></a>
-<FONT color="green">072</FONT>      }<a name="line.72"></a>
-<FONT color="green">073</FONT>    <a name="line.73"></a>
-<FONT color="green">074</FONT>      private static class ServerSetJoiner implements Command {<a name="line.74"></a>
-<FONT color="green">075</FONT>        private final ZooKeeperClient zkClient;<a name="line.75"></a>
-<FONT color="green">076</FONT>        private final LocalServiceRegistry serviceRegistry;<a name="line.76"></a>
-<FONT color="green">077</FONT>        private final ShutdownRegistry shutdownRegistry;<a name="line.77"></a>
-<FONT color="green">078</FONT>    <a name="line.78"></a>
-<FONT color="green">079</FONT>        @Inject<a name="line.79"></a>
-<FONT color="green">080</FONT>        ServerSetJoiner(<a name="line.80"></a>
-<FONT color="green">081</FONT>            ZooKeeperClient zkClient,<a name="line.81"></a>
-<FONT color="green">082</FONT>            LocalServiceRegistry serviceRegistry,<a name="line.82"></a>
-<FONT color="green">083</FONT>            ShutdownRegistry shutdownRegistry) {<a name="line.83"></a>
-<FONT color="green">084</FONT>          this.zkClient = checkNotNull(zkClient);<a name="line.84"></a>
-<FONT color="green">085</FONT>          this.serviceRegistry = checkNotNull(serviceRegistry);<a name="line.85"></a>
-<FONT color="green">086</FONT>          this.shutdownRegistry = checkNotNull(shutdownRegistry);<a name="line.86"></a>
-<FONT color="green">087</FONT>        }<a name="line.87"></a>
-<FONT color="green">088</FONT>    <a name="line.88"></a>
-<FONT color="green">089</FONT>        @Override public void execute() throws RuntimeException {<a name="line.89"></a>
-<FONT color="green">090</FONT>          ServerSet serverSet = new ServerSetImpl(zkClient, SERVERSET_PATH.get());<a name="line.90"></a>
-<FONT color="green">091</FONT>    <a name="line.91"></a>
-<FONT color="green">092</FONT>          final EndpointStatus status;<a name="line.92"></a>
-<FONT color="green">093</FONT>          try {<a name="line.93"></a>
-<FONT color="green">094</FONT>            status = serverSet.join(<a name="line.94"></a>
-<FONT color="green">095</FONT>                serviceRegistry.getPrimarySocket(),<a name="line.95"></a>
-<FONT color="green">096</FONT>                serviceRegistry.getAuxiliarySockets(),<a name="line.96"></a>
-<FONT color="green">097</FONT>                Status.ALIVE);<a name="line.97"></a>
-<FONT color="green">098</FONT>          } catch (JoinException e) {<a name="line.98"></a>
-<FONT color="green">099</FONT>            LOG.log(Level.WARNING, "Failed to join ServerSet.", e);<a name="line.99"></a>
-<FONT color="green">100</FONT>            throw new RuntimeException(e);<a name="line.100"></a>
-<FONT color="green">101</FONT>          } catch (InterruptedException e) {<a name="line.101"></a>
-<FONT color="green">102</FONT>            LOG.log(Level.WARNING, "Interrupted while joining ServerSet.", e);<a name="line.102"></a>
-<FONT color="green">103</FONT>            Thread.currentThread().interrupt();<a name="line.103"></a>
-<FONT color="green">104</FONT>            throw new RuntimeException(e);<a name="line.104"></a>
-<FONT color="green">105</FONT>          }<a name="line.105"></a>
-<FONT color="green">106</FONT>    <a name="line.106"></a>
-<FONT color="green">107</FONT>          shutdownRegistry.addAction(new ExceptionalCommand&lt;UpdateException&gt;() {<a name="line.107"></a>
-<FONT color="green">108</FONT>            @Override public void execute() throws UpdateException {<a name="line.108"></a>
-<FONT color="green">109</FONT>              LOG.info("Leaving ServerSet.");<a name="line.109"></a>
-<FONT color="green">110</FONT>              status.update(Status.DEAD);<a name="line.110"></a>
-<FONT color="green">111</FONT>            }<a name="line.111"></a>
-<FONT color="green">112</FONT>          });<a name="line.112"></a>
-<FONT color="green">113</FONT>        }<a name="line.113"></a>
-<FONT color="green">114</FONT>      }<a name="line.114"></a>
-<FONT color="green">115</FONT>    }<a name="line.115"></a>
+<FONT color="green">061</FONT>      private static final Logger LOG = Logger.getLogger(ServerSetModule.class.getName());<a name="line.61"></a>
+<FONT color="green">062</FONT>    <a name="line.62"></a>
+<FONT color="green">063</FONT>      @NotNull<a name="line.63"></a>
+<FONT color="green">064</FONT>      @NotEmpty<a name="line.64"></a>
+<FONT color="green">065</FONT>      @CmdLine(name = "serverset_path", help = "ServerSet registration path")<a name="line.65"></a>
+<FONT color="green">066</FONT>      protected static final Arg&lt;String&gt; SERVERSET_PATH = Arg.create(null);<a name="line.66"></a>
+<FONT color="green">067</FONT>    <a name="line.67"></a>
+<FONT color="green">068</FONT>      @Override<a name="line.68"></a>
+<FONT color="green">069</FONT>      protected void configure() {<a name="line.69"></a>
+<FONT color="green">070</FONT>        requireBinding(ZooKeeperClient.class);<a name="line.70"></a>
+<FONT color="green">071</FONT>        requireBinding(ShutdownRegistry.class);<a name="line.71"></a>
+<FONT color="green">072</FONT>        requireBinding(LocalServiceRegistry.class);<a name="line.72"></a>
+<FONT color="green">073</FONT>        LifecycleModule.bindStartupAction(binder(), ServerSetJoiner.class);<a name="line.73"></a>
+<FONT color="green">074</FONT>      }<a name="line.74"></a>
+<FONT color="green">075</FONT>    <a name="line.75"></a>
+<FONT color="green">076</FONT>      private static class ServerSetJoiner implements Command {<a name="line.76"></a>
+<FONT color="green">077</FONT>        private final ZooKeeperClient zkClient;<a name="line.77"></a>
+<FONT color="green">078</FONT>        private final LocalServiceRegistry serviceRegistry;<a name="line.78"></a>
+<FONT color="green">079</FONT>        private final ShutdownRegistry shutdownRegistry;<a name="line.79"></a>
+<FONT color="green">080</FONT>    <a name="line.80"></a>
+<FONT color="green">081</FONT>        @Inject<a name="line.81"></a>
+<FONT color="green">082</FONT>        ServerSetJoiner(<a name="line.82"></a>
+<FONT color="green">083</FONT>            ZooKeeperClient zkClient,<a name="line.83"></a>
+<FONT color="green">084</FONT>            LocalServiceRegistry serviceRegistry,<a name="line.84"></a>
+<FONT color="green">085</FONT>            ShutdownRegistry shutdownRegistry) {<a name="line.85"></a>
+<FONT color="green">086</FONT>          this.zkClient = checkNotNull(zkClient);<a name="line.86"></a>
+<FONT color="green">087</FONT>          this.serviceRegistry = checkNotNull(serviceRegistry);<a name="line.87"></a>
+<FONT color="green">088</FONT>          this.shutdownRegistry = checkNotNull(shutdownRegistry);<a name="line.88"></a>
+<FONT color="green">089</FONT>        }<a name="line.89"></a>
+<FONT color="green">090</FONT>    <a name="line.90"></a>
+<FONT color="green">091</FONT>        @Override public void execute() throws RuntimeException {<a name="line.91"></a>
+<FONT color="green">092</FONT>          ServerSet serverSet = new ServerSetImpl(zkClient, SERVERSET_PATH.get());<a name="line.92"></a>
+<FONT color="green">093</FONT>    <a name="line.93"></a>
+<FONT color="green">094</FONT>          Optional&lt;InetSocketAddress&gt; primarySocket = serviceRegistry.getPrimarySocket();<a name="line.94"></a>
+<FONT color="green">095</FONT>          if (!primarySocket.isPresent()) {<a name="line.95"></a>
+<FONT color="green">096</FONT>            throw new IllegalStateException("No primary service registered with LocalServiceRegistry.");<a name="line.96"></a>
+<FONT color="green">097</FONT>          }<a name="line.97"></a>
+<FONT color="green">098</FONT>    <a name="line.98"></a>
+<FONT color="green">099</FONT>          final EndpointStatus status;<a name="line.99"></a>
+<FONT color="green">100</FONT>          try {<a name="line.100"></a>
+<FONT color="green">101</FONT>            status = serverSet.join(<a name="line.101"></a>
+<FONT color="green">102</FONT>                primarySocket.get(),<a name="line.102"></a>
+<FONT color="green">103</FONT>                serviceRegistry.getAuxiliarySockets(),<a name="line.103"></a>
+<FONT color="green">104</FONT>                Status.ALIVE);<a name="line.104"></a>
+<FONT color="green">105</FONT>          } catch (JoinException e) {<a name="line.105"></a>
+<FONT color="green">106</FONT>            LOG.log(Level.WARNING, "Failed to join ServerSet.", e);<a name="line.106"></a>
+<FONT color="green">107</FONT>            throw new RuntimeException(e);<a name="line.107"></a>
+<FONT color="green">108</FONT>          } catch (InterruptedException e) {<a name="line.108"></a>
+<FONT color="green">109</FONT>            LOG.log(Level.WARNING, "Interrupted while joining ServerSet.", e);<a name="line.109"></a>
+<FONT color="green">110</FONT>            Thread.currentThread().interrupt();<a name="line.110"></a>
+<FONT color="green">111</FONT>            throw new RuntimeException(e);<a name="line.111"></a>
+<FONT color="green">112</FONT>          }<a name="line.112"></a>
+<FONT color="green">113</FONT>    <a name="line.113"></a>
+<FONT color="green">114</FONT>          shutdownRegistry.addAction(new ExceptionalCommand&lt;UpdateException&gt;() {<a name="line.114"></a>
+<FONT color="green">115</FONT>            @Override public void execute() throws UpdateException {<a name="line.115"></a>
+<FONT color="green">116</FONT>              LOG.info("Leaving ServerSet.");<a name="line.116"></a>
+<FONT color="green">117</FONT>              status.update(Status.DEAD);<a name="line.117"></a>
+<FONT color="green">118</FONT>            }<a name="line.118"></a>
+<FONT color="green">119</FONT>          });<a name="line.119"></a>
+<FONT color="green">120</FONT>        }<a name="line.120"></a>
+<FONT color="green">121</FONT>      }<a name="line.121"></a>
+<FONT color="green">122</FONT>    }<a name="line.122"></a>
 
 
 

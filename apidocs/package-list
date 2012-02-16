@@ -2,6 +2,7 @@ com.twitter.common.application
 com.twitter.common.application.http
 com.twitter.common.application.modules
 com.twitter.common.args
+com.twitter.common.args.apt
 com.twitter.common.args.constraints
 com.twitter.common.args.parsers
 com.twitter.common.base
@@ -39,6 +40,7 @@ com.twitter.common.thrift.callers
 com.twitter.common.thrift.monitoring
 com.twitter.common.thrift.testing
 com.twitter.common.thrift.text
+com.twitter.common.tools
 com.twitter.common.util
 com.twitter.common.util.caching
 com.twitter.common.util.concurrent

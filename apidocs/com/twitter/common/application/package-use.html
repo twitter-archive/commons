@@ -96,7 +96,15 @@ Packages that use <A HREF="../../../../com/twitter/common/application/package-su
 <TD>&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><A HREF="#com.twitter.common.application.modules"><B>com.twitter.common.application.modules</B></A></TD>
+<TD>&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><A HREF="#com.twitter.common.stats"><B>com.twitter.common.stats</B></A></TD>
+<TD>&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><A HREF="#com.twitter.common.testing"><B>com.twitter.common.testing</B></A></TD>
 <TD>&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
@@ -113,29 +121,28 @@ Packages that use <A HREF="../../../../com/twitter/common/application/package-su
 Classes in <A HREF="../../../../com/twitter/common/application/package-summary.html">com.twitter.common.application</A> used by <A HREF="../../../../com/twitter/common/application/package-summary.html">com.twitter.common.application</A></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><B><A HREF="../../../../com/twitter/common/application/class-use/ActionController.html#com.twitter.common.application"><B>ActionController</B></A></B>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A <A HREF="../../../../com/twitter/common/application/ActionRegistry.html" title="interface in com.twitter.common.application"><CODE>ActionRegistry</CODE></A> that provides a <A HREF="../../../../com/twitter/common/application/ActionController.html#execute()"><CODE>ActionController.execute()</CODE></A> method that will ensure all
- registered actions are executed in the reverse order they were registered.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><B><A HREF="../../../../com/twitter/common/application/class-use/ActionRegistry.html#com.twitter.common.application"><B>ActionRegistry</B></A></B>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tracks actions to be run at a specific stage in an application lifecycle.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><B><A HREF="../../../../com/twitter/common/application/class-use/Application.html#com.twitter.common.application"><B>Application</B></A></B>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An application that supports a limited lifecycle and optional binding of guice modules.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><B><A HREF="../../../../com/twitter/common/application/class-use/ShutdownRegistry.html#com.twitter.common.application"><B>ShutdownRegistry</B></A></B>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A shutdown action controller.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><B><A HREF="../../../../com/twitter/common/application/class-use/ShutdownStage.html#com.twitter.common.application"><B>ShutdownStage</B></A></B>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Binding annotation used for the shutdown controller/registry.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Binding annotation used for the shutdown registry.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><B><A HREF="../../../../com/twitter/common/application/class-use/StartupStage.html#com.twitter.common.application"><B>StartupStage</B></A></B>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Binding annotation used for the startup registry.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -155,6 +162,21 @@ Classes in <A HREF="../../../../com/twitter/common/application/package-summary.h
 </TABLE>
 &nbsp;
 <P>
+<A NAME="com.twitter.common.application.modules"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+Classes in <A HREF="../../../../com/twitter/common/application/package-summary.html">com.twitter.common.application</A> used by <A HREF="../../../../com/twitter/common/application/modules/package-summary.html">com.twitter.common.application.modules</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><B><A HREF="../../../../com/twitter/common/application/class-use/ShutdownRegistry.html#com.twitter.common.application.modules"><B>ShutdownRegistry</B></A></B>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A shutdown action controller.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
 <A NAME="com.twitter.common.stats"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
@@ -162,10 +184,25 @@ Classes in <A HREF="../../../../com/twitter/common/application/package-summary.h
 Classes in <A HREF="../../../../com/twitter/common/application/package-summary.html">com.twitter.common.application</A> used by <A HREF="../../../../com/twitter/common/stats/package-summary.html">com.twitter.common.stats</A></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><B><A HREF="../../../../com/twitter/common/application/class-use/ActionRegistry.html#com.twitter.common.stats"><B>ActionRegistry</B></A></B>
+<TD><B><A HREF="../../../../com/twitter/common/application/class-use/ShutdownRegistry.html#com.twitter.common.stats"><B>ShutdownRegistry</B></A></B>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tracks actions to be run at a specific stage in an application lifecycle.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A shutdown action controller.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+<A NAME="com.twitter.common.testing"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+Classes in <A HREF="../../../../com/twitter/common/application/package-summary.html">com.twitter.common.application</A> used by <A HREF="../../../../com/twitter/common/testing/package-summary.html">com.twitter.common.testing</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><B><A HREF="../../../../com/twitter/common/application/class-use/ShutdownRegistry.html#com.twitter.common.testing"><B>ShutdownRegistry</B></A></B>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A shutdown action controller.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -177,10 +214,10 @@ Classes in <A HREF="../../../../com/twitter/common/application/package-summary.h
 Classes in <A HREF="../../../../com/twitter/common/application/package-summary.html">com.twitter.common.application</A> used by <A HREF="../../../../com/twitter/common/zookeeper/testing/package-summary.html">com.twitter.common.zookeeper.testing</A></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><B><A HREF="../../../../com/twitter/common/application/class-use/ActionRegistry.html#com.twitter.common.zookeeper.testing"><B>ActionRegistry</B></A></B>
+<TD><B><A HREF="../../../../com/twitter/common/application/class-use/ShutdownRegistry.html#com.twitter.common.zookeeper.testing"><B>ShutdownRegistry</B></A></B>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tracks actions to be run at a specific stage in an application lifecycle.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A shutdown action controller.</TD>
 </TR>
 </TABLE>
 &nbsp;

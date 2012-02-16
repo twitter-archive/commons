@@ -44,6 +44,13 @@ limitations under the License.
   </publications>
 
   <dependencies>
+    <dependency org="commons-lang"
+                name="commons-lang"
+                rev="2.4"
+                conf="default;sources"
+                transitive="false"
+    >
+    </dependency>
     <dependency org="com.google.guava"
                 name="guava"
                 rev="11.0.1"
@@ -72,17 +79,17 @@ limitations under the License.
                 transitive="false"
     >
     </dependency>
-    <dependency org="com.twitter"
-                name="util-core"
-                rev="1.8.18"
+    <dependency org="com.google.code.findbugs"
+                name="jsr305"
+                rev="1.3.9"
                 conf="default"
                 transitive="false"
     >
     </dependency>
-    <dependency org="commons-lang"
-                name="commons-lang"
-                rev="2.4"
-                conf="default;sources"
+    <dependency org="com.twitter"
+                name="util-core"
+                rev="1.8.18"
+                conf="default"
                 transitive="false"
     >
     </dependency>
@@ -105,13 +112,6 @@ limitations under the License.
                 name="commons-beanutils"
                 rev="1.8.3"
                 conf="default;sources"
-                transitive="false"
-    >
-    </dependency>
-    <dependency org="com.google.code.findbugs"
-                name="jsr305"
-                rev="1.3.9"
-                conf="default"
                 transitive="false"
     >
     </dependency>
@@ -235,6 +235,13 @@ limitations under the License.
                 transitive="false"
     >
     </dependency>
+    <dependency org="args4j"
+                name="args4j"
+                rev="2.0.16"
+                conf="default;sources"
+                transitive="false"
+    >
+    </dependency>
     <dependency org="org.apache.lucene"
                 name="lucene-analyzers"
                 rev="3.0.2"
@@ -262,10 +269,10 @@ limitations under the License.
                 conf="default;sources"
                 transitive="false"
     >
-      <exclude org="jline"/>
-      <exclude org="javax.jms"/>
-      <exclude org="com.sun.jdmk"/>
-      <exclude org="com.sun.jmx"/>
+      <exclude org="jline" module="jline"/>
+      <exclude org="javax.jms" module="jms"/>
+      <exclude org="com.sun.jdmk" module="jmxtools"/>
+      <exclude org="com.sun.jmx" module="jmxri"/>
     </dependency>
   </dependencies>
 </ivy-module>

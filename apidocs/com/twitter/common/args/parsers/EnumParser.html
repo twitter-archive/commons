@@ -93,9 +93,16 @@ Class EnumParser&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/
 <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
   <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.args.parsers.EnumParser&lt;T&gt;</B>
 </PRE>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../com/twitter/common/args/Parser.html" title="interface in com.twitter.common.args">Parser</A>&lt;T&gt;</DD>
+</DL>
 <HR>
 <DL>
-<DT><PRE>An <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang"><CODE>Enum</CODE></A> parser that matches enum values via <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Enum.html?is-external=true#valueOf(java.lang.Class, java.lang.String)" title="class or interface in java.lang"><CODE>Enum.valueOf(Class, String)</CODE></A>.
+<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/args/parsers/EnumParser.html#line.31"><B>EnumParser&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang">Enum</A>&lt;T&gt;&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../../com/twitter/common/args/Parser.html" title="interface in com.twitter.common.args">Parser</A>&lt;T&gt;</DL>
+</PRE>
+
+<P>
+An <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang"><CODE>Enum</CODE></A> parser that matches enum values via <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Enum.html?is-external=true#valueOf(java.lang.Class, java.lang.String)" title="class or interface in java.lang"><CODE>Enum.valueOf(Class, String)</CODE></A>.
 <P>
 
 <P>
@@ -115,7 +122,10 @@ Class EnumParser&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/args/parsers/EnumParser.html#EnumParser()">EnumParser</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
 <!-- ========== METHOD SUMMARY =========== -->
 
 <A NAME="method_summary"><!-- --></A>
@@ -127,12 +137,15 @@ Class EnumParser&lt;T extends <A HREF="http://download.oracle.com/javase/6/docs/
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../../com/twitter/common/args/parsers/EnumParser.html" title="type parameter in EnumParser">T</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/args/parsers/EnumParser.html#parse(ParserOracle, java.lang.reflect.Type, java.lang.String)">parse</A></B>(ParserOracle&nbsp;parserOracle,
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/args/parsers/EnumParser.html#parse(com.twitter.common.args.ParserOracle, java.lang.reflect.Type, java.lang.String)">parse</A></B>(<A HREF="../../../../../com/twitter/common/args/ParserOracle.html" title="interface in com.twitter.common.args">ParserOracle</A>&nbsp;parserOracle,
            <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type,
            <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;raw)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Parses strings as arguments of a given subtype of <code>T</code>.</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
 <TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></B></TH>
@@ -171,18 +184,26 @@ public <A HREF="../../../../../src-html/com/twitter/common/args/parsers/EnumPars
 </TR>
 </TABLE>
 
-<A NAME="parse(ParserOracle, java.lang.reflect.Type, java.lang.String)"><!-- --></A><H3>
+<A NAME="parse(com.twitter.common.args.ParserOracle, java.lang.reflect.Type, java.lang.String)"><!-- --></A><H3>
 parse</H3>
 <PRE>
-public <A HREF="../../../../../com/twitter/common/args/parsers/EnumParser.html" title="type parameter in EnumParser">T</A> <A HREF="../../../../../src-html/com/twitter/common/args/parsers/EnumParser.html#line.34"><B>parse</B></A>(ParserOracle&nbsp;parserOracle,
+public <A HREF="../../../../../com/twitter/common/args/parsers/EnumParser.html" title="type parameter in EnumParser">T</A> <A HREF="../../../../../src-html/com/twitter/common/args/parsers/EnumParser.html#line.34"><B>parse</B></A>(<A HREF="../../../../../com/twitter/common/args/ParserOracle.html" title="interface in com.twitter.common.args">ParserOracle</A>&nbsp;parserOracle,
                <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type,
                <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;raw)
                         throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</A></PRE>
 <DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../com/twitter/common/args/Parser.html#parse(com.twitter.common.args.ParserOracle, java.lang.reflect.Type, java.lang.String)">Parser</A></CODE></B></DD>
+<DD>Parses strings as arguments of a given subtype of <code>T</code>.
+<P>
 <DD><DL>
-
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../com/twitter/common/args/Parser.html#parse(com.twitter.common.args.ParserOracle, java.lang.reflect.Type, java.lang.String)">parse</A></CODE> in interface <CODE><A HREF="../../../../../com/twitter/common/args/Parser.html" title="interface in com.twitter.common.args">Parser</A>&lt;<A HREF="../../../../../com/twitter/common/args/parsers/EnumParser.html" title="type parameter in EnumParser">T</A> extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang">Enum</A>&lt;<A HREF="../../../../../com/twitter/common/args/parsers/EnumParser.html" title="type parameter in EnumParser">T</A>&gt;&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>parserOracle</CODE> - The registered parserOracle for delegation.<DD><CODE>type</CODE> - The target type of the parsed argument.<DD><CODE>raw</CODE> - The raw value of the argument.
+<DT><B>Returns:</B><DD>A value of the given type parsed from the raw value.
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</A></CODE></DL>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - if the raw value could not be parsed into a value of the
+     given type.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

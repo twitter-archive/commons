@@ -54,7 +54,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../com/twitter/common/args/ArgScanner.ArgScanException.html" title="class in com.twitter.common.args"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../com/twitter/common/args/Constraints.html" title="class in com.twitter.common.args"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/args/Parser.html" title="interface in com.twitter.common.args"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/args/CmdLine.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="CmdLine.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -93,7 +93,7 @@ Annotation Type CmdLine</H2>
 <DL>
 <DT><PRE><FONT SIZE="-1"><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/Target.html?is-external=true" title="class or interface in java.lang.annotation">@Target</A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/Target.html?is-external=true#value()" title="class or interface in java.lang.annotation">value</A>=<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/ElementType.html?is-external=true#FIELD" title="class or interface in java.lang.annotation">FIELD</A>)
 <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/Retention.html?is-external=true" title="class or interface in java.lang.annotation">@Retention</A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/Retention.html?is-external=true#value()" title="class or interface in java.lang.annotation">value</A>=<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/RetentionPolicy.html?is-external=true#RUNTIME" title="class or interface in java.lang.annotation">RUNTIME</A>)
-</FONT>public @interface <A HREF="../../../../src-html/com/twitter/common/args/CmdLine.html#line.34"><B>CmdLine</B></A></DL>
+</FONT>public @interface <A HREF="../../../../src-html/com/twitter/common/args/CmdLine.html#line.32"><B>CmdLine</B></A></DL>
 </PRE>
 
 <P>
@@ -139,7 +139,7 @@ Annotation for a command line argument.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;? extends <A HREF="../../../../com/twitter/common/args/Parsers.Parser.html" title="interface in com.twitter.common.args">Parsers.Parser</A>&gt;</CODE></FONT></TD>
+<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;? extends <A HREF="../../../../com/twitter/common/args/Parser.html" title="interface in com.twitter.common.args">Parser</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/args/CmdLine.html#parser()">parser</A></B></CODE>
 
 <BR>
@@ -162,7 +162,7 @@ Annotation for a command line argument.
 <A NAME="name()"><!-- --></A><H3>
 name</H3>
 <PRE>
-public abstract <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/args/CmdLine.html#line.46"><B>name</B></A></PRE>
+public abstract <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/args/CmdLine.html#line.44"><B>name</B></A></PRE>
 <DL>
 <DD>The short name of the argument, as supplied on the command line.  The argument can also be
  accessed by the canonical name, which is <code>com.foo.bar.MyArgClass.arg_name</code>.
@@ -183,7 +183,7 @@ public abstract <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/
 <A NAME="help()"><!-- --></A><H3>
 help</H3>
 <PRE>
-public abstract <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/args/CmdLine.html#line.53"><B>help</B></A></PRE>
+public abstract <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/args/CmdLine.html#line.51"><B>help</B></A></PRE>
 <DL>
 <DD>The help string to display on the command line in a usage message.
 <P>
@@ -197,7 +197,7 @@ public abstract <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/
 <A NAME="parser()"><!-- --></A><H3>
 parser</H3>
 <PRE>
-public abstract <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;? extends <A HREF="../../../../com/twitter/common/args/Parsers.Parser.html" title="interface in com.twitter.common.args">Parsers.Parser</A>&gt; <A HREF="../../../../src-html/com/twitter/common/args/CmdLine.html#line.63"><B>parser</B></A></PRE>
+public abstract <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;? extends <A HREF="../../../../com/twitter/common/args/Parser.html" title="interface in com.twitter.common.args">Parser</A>&gt; <A HREF="../../../../src-html/com/twitter/common/args/CmdLine.html#line.61"><B>parser</B></A></PRE>
 <DL>
 <DD>The parser class to use for parsing this argument.  The parser must return the same type as
  the field being annotated.
@@ -209,7 +209,7 @@ public abstract <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/
 
 <DT><B>Returns:</B><DD>Custom parser for this type.</DL>
 <DL>
-<DT><B>Default:</B><DD>com.twitter.common.args.Parsers.Parser.class</DD>
+<DT><B>Default:</B><DD>com.twitter.common.args.Parser.class</DD>
 </DL>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
@@ -244,7 +244,7 @@ public abstract <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../com/twitter/common/args/ArgScanner.ArgScanException.html" title="class in com.twitter.common.args"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../com/twitter/common/args/Constraints.html" title="class in com.twitter.common.args"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/args/Parser.html" title="interface in com.twitter.common.args"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/args/CmdLine.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="CmdLine.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;

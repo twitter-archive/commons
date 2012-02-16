@@ -94,9 +94,16 @@ Class RangeParser</H2>
   <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html" title="class in com.twitter.common.args.parsers">com.twitter.common.args.parsers.NonParameterizedTypeParser</A>&lt;<A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/collect/Range.html?is-external=true" title="class or interface in com.google.common.collect">Range</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>&gt;&gt;
       <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.args.parsers.RangeParser</B>
 </PRE>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../com/twitter/common/args/Parser.html" title="interface in com.twitter.common.args">Parser</A>&lt;<A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/collect/Range.html?is-external=true" title="class or interface in com.google.common.collect">Range</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>&gt;&gt;</DD>
+</DL>
 <HR>
 <DL>
-<DT><PRE>A parser that handles closed ranges. For the input "4-6", it will capture [4, 5, 6].
+<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/args/parsers/RangeParser.html#line.15"><B>RangeParser</B></A><DT>extends <A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html" title="class in com.twitter.common.args.parsers">NonParameterizedTypeParser</A>&lt;<A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/collect/Range.html?is-external=true" title="class or interface in com.google.common.collect">Range</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>&gt;&gt;</DL>
+</PRE>
+
+<P>
+A parser that handles closed ranges. For the input "4-6", it will capture [4, 5, 6].
 <P>
 
 <P>
@@ -116,7 +123,10 @@ Class RangeParser</H2>
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/args/parsers/RangeParser.html#RangeParser()">RangeParser</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
 <!-- ========== METHOD SUMMARY =========== -->
 
 <A NAME="method_summary"><!-- --></A>
@@ -131,13 +141,16 @@ Class RangeParser</H2>
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/args/parsers/RangeParser.html#doParse(java.lang.String)">doParse</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;raw)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<A NAME="methods_inherited_from_class_com.twitter.common.args.parsers.NonParameterizedTypeParser"><!-- --></A>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Performs the parsing of the raw string.</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_com.twitter.common.args.parsers.NonParameterizedTypeParser"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
 <TH ALIGN="left"><B>Methods inherited from class com.twitter.common.args.parsers.<A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html" title="class in com.twitter.common.args.parsers">NonParameterizedTypeParser</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html#parse(ParserOracle, java.lang.reflect.Type, java.lang.String)">parse</A></CODE></TD>
+<TD><CODE><A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html#parse(com.twitter.common.args.ParserOracle, java.lang.reflect.Type, java.lang.String)">parse</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>

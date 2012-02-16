@@ -175,7 +175,7 @@ void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/application/ShutdownRegistry.ShutdownRegistryImpl.html#execute()">execute</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Executes an application lifecycle stage by executing all registered actions.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Executes an application shutdown stage by executing all registered actions.</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -239,7 +239,7 @@ execute</H3>
 <PRE>
 public void <A HREF="../../../../src-html/com/twitter/common/application/ShutdownRegistry.ShutdownRegistryImpl.html#line.68"><B>execute</B></A>()</PRE>
 <DL>
-<DD>Executes an application lifecycle stage by executing all registered actions. This method can
+<DD>Executes an application shutdown stage by executing all registered actions. This method can
  be called multiple times but will only execute the registered actions the first time.
 
  This sends output to System.out because logging is unreliable during JVM shutdown, which

@@ -84,6 +84,20 @@ Package com.twitter.common.application.modules
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Interface Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.ServiceRunner.html" title="interface in com.twitter.common.application.modules">LifecycleModule.ServiceRunner</A></B></TD>
+<TD>Responsible for starting and stopping a local service.</TD>
+</TR>
+</TABLE>
+&nbsp;
+
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Class Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
@@ -108,9 +122,12 @@ Package com.twitter.common.application.modules
 <TD>Binding module for startup and shutdown controller and registries.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.RegisteringServiceLauncher.html" title="class in com.twitter.common.application.modules">LifecycleModule.RegisteringServiceLauncher&lt;E extends Exception&gt;</A></B></TD>
-<TD>An action that is responsible for launching a local service, and registering it with the
- local service registry.</TD>
+<TD WIDTH="15%"><B><A HREF="../../../../../com/twitter/common/application/modules/LocalServiceRegistry.html" title="class in com.twitter.common.application.modules">LocalServiceRegistry</A></B></TD>
+<TD>Registry for services that should be exported from the application.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../com/twitter/common/application/modules/LocalServiceRegistry.LocalService.html" title="class in com.twitter.common.application.modules">LocalServiceRegistry.LocalService</A></B></TD>
+<TD>An individual local service.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../com/twitter/common/application/modules/LogModule.html" title="class in com.twitter.common.application.modules">LogModule</A></B></TD>
@@ -140,6 +157,20 @@ Package com.twitter.common.application.modules
 <TD WIDTH="15%"><B><A HREF="../../../../../com/twitter/common/application/modules/ThriftModule.html" title="class in com.twitter.common.application.modules">ThriftModule</A></B></TD>
 <TD>Binding module for thrift traffic monitor servlets, to ensure an empty set is available for
  the thrift traffic monitor servlet.</TD>
+</TR>
+</TABLE>
+&nbsp;
+
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Exception Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.LaunchException.html" title="class in com.twitter.common.application.modules">LifecycleModule.LaunchException</A></B></TD>
+<TD>Thrown when a local service fails to launch.</TD>
 </TR>
 </TABLE>
 &nbsp;

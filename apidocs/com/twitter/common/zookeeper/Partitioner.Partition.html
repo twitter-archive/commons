@@ -149,6 +149,14 @@ Represents a slice of a partition group.  The partition is dynamic and will adju
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>abstract &nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/Partitioner.Partition.html#getNumPartitions()">getNumPartitions</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets number of members in the group at this time.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>abstract &nbsp;boolean</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/Partitioner.Partition.html#isMember(long)">isMember</A></B>(long&nbsp;value)</CODE>
 
@@ -229,10 +237,27 @@ public abstract boolean <A HREF="../../../../src-html/com/twitter/common/zookeep
 </DL>
 <HR>
 
+<A NAME="getNumPartitions()"><!-- --></A><H3>
+getNumPartitions</H3>
+<PRE>
+public abstract int <A HREF="../../../../src-html/com/twitter/common/zookeeper/Partitioner.Partition.html#line.85"><B>getNumPartitions</B></A>()</PRE>
+<DL>
+<DD>Gets number of members in the group at this time.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>number of members in the ZK group at this time.</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="apply(java.lang.Long)"><!-- --></A><H3>
 apply</H3>
 <PRE>
-public boolean <A HREF="../../../../src-html/com/twitter/common/zookeeper/Partitioner.Partition.html#line.93"><B>apply</B></A>(<FONT SIZE="-1"><A HREF="http://download.oracle.com/javase/6/docs/api/javax/annotation/Nullable.html?is-external=true" title="class or interface in javax.annotation">@Nullable</A></FONT>
+public boolean <A HREF="../../../../src-html/com/twitter/common/zookeeper/Partitioner.Partition.html#line.100"><B>apply</B></A>(<FONT SIZE="-1"><A HREF="http://download.oracle.com/javase/6/docs/api/javax/annotation/Nullable.html?is-external=true" title="class or interface in javax.annotation">@Nullable</A></FONT>
                      <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>&nbsp;input)</PRE>
 <DL>
 <DD>Equivalent to <A HREF="../../../../com/twitter/common/zookeeper/Partitioner.Partition.html#isMember(long)"><CODE>isMember(long)</CODE></A> for all non-null values; however incurs unboxing

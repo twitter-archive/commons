@@ -92,11 +92,23 @@ Packages that use <A HREF="../../../../../com/twitter/common/base/ExceptionalCom
 <TD>&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><A HREF="#com.twitter.common.application.modules"><B>com.twitter.common.application.modules</B></A></TD>
+<TD>&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><A HREF="#com.twitter.common.base"><B>com.twitter.common.base</B></A></TD>
 <TD>&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><A HREF="#com.twitter.common.testing"><B>com.twitter.common.testing</B></A></TD>
+<TD>&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><A HREF="#com.twitter.common.util"><B>com.twitter.common.util</B></A></TD>
+<TD>&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><A HREF="#com.twitter.common.util.concurrent"><B>com.twitter.common.util.concurrent</B></A></TD>
 <TD>&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
@@ -118,6 +130,30 @@ Uses of <A HREF="../../../../../com/twitter/common/base/ExceptionalCommand.html"
 
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Classes in <A HREF="../../../../../com/twitter/common/application/package-summary.html">com.twitter.common.application</A> that implement <A HREF="../../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/application/ShutdownRegistry.ShutdownRegistryImpl.html" title="class in com.twitter.common.application">ShutdownRegistry.ShutdownRegistryImpl</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/application/StartupRegistry.html" title="class in com.twitter.common.application">StartupRegistry</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A registry that executes a set of commands.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
 <TH ALIGN="left" COLSPAN="2">Methods in <A HREF="../../../../../com/twitter/common/application/package-summary.html">com.twitter.common.application</A> with type parameters of type <A HREF="../../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
@@ -132,10 +168,10 @@ void</CODE></FONT></TD>
 </TR>
 </TABLE>
 </CODE></FONT></TD>
-<TD><CODE><B>ActionController.</B><B><A HREF="../../../../../com/twitter/common/application/ActionController.html#addAction(T)">addAction</A></B>(T&nbsp;action)</CODE>
+<TD><CODE><B>ShutdownRegistry.</B><B><A HREF="../../../../../com/twitter/common/application/ShutdownRegistry.html#addAction(T)">addAction</A></B>(T&nbsp;action)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Registers an action to execute during <A HREF="../../../../../com/twitter/common/application/ActionController.html#execute()"><CODE>ActionController.execute()</CODE></A>.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -149,10 +185,82 @@ void</CODE></FONT></TD>
 </TR>
 </TABLE>
 </CODE></FONT></TD>
-<TD><CODE><B>ActionRegistry.</B><B><A HREF="../../../../../com/twitter/common/application/ActionRegistry.html#addAction(T)">addAction</A></B>(T&nbsp;action)</CODE>
+<TD><CODE><B>ShutdownRegistry.ShutdownRegistryImpl.</B><B><A HREF="../../../../../com/twitter/common/application/ShutdownRegistry.ShutdownRegistryImpl.html#addAction(T)">addAction</A></B>(T&nbsp;action)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Adds the <code>action</code> to the list of actions to perform.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Registers an action to execute during <A HREF="../../../../../com/twitter/common/application/ShutdownRegistry.ShutdownRegistryImpl.html#execute()"><CODE>ShutdownRegistry.ShutdownRegistryImpl.execute()</CODE></A>.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Constructor parameters in <A HREF="../../../../../com/twitter/common/application/package-summary.html">com.twitter.common.application</A> with type arguments of type <A HREF="../../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/application/StartupRegistry.html#StartupRegistry(java.util.Set)">StartupRegistry</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&gt;&nbsp;startupActions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+<A NAME="com.twitter.common.application.modules"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+Uses of <A HREF="../../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A> in <A HREF="../../../../../com/twitter/common/application/modules/package-summary.html">com.twitter.common.application.modules</A></FONT></TH>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Classes in <A HREF="../../../../../com/twitter/common/application/modules/package-summary.html">com.twitter.common.application.modules</A> that implement <A HREF="../../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/application/modules/LogModule.ExportLogDir.html" title="class in com.twitter.common.application.modules">LogModule.ExportLogDir</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/application/modules/StatsExportModule.StartCuckooExporter.html" title="class in com.twitter.common.application.modules">StatsExportModule.StartCuckooExporter</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/application/modules/StatsModule.StartStatPoller.html" title="class in com.twitter.common.application.modules">StatsModule.StartStatPoller</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Method parameters in <A HREF="../../../../../com/twitter/common/application/modules/package-summary.html">com.twitter.common.application.modules</A> with type arguments of type <A HREF="../../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B>LifecycleModule.</B><B><A HREF="../../../../../com/twitter/common/application/modules/LifecycleModule.html#bindStartupAction(com.google.inject.Binder, java.lang.Class)">bindStartupAction</A></B>(<A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Binder.html?is-external=true" title="class or interface in com.google.inject">Binder</A>&nbsp;binder,
+                                   <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;? extends <A HREF="../../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&gt;&nbsp;actionClass)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Adds a startup action to the startup registry binding.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -207,6 +315,40 @@ Uses of <A HREF="../../../../../com/twitter/common/base/ExceptionalCommand.html"
 </TABLE>
 &nbsp;
 <P>
+<A NAME="com.twitter.common.testing"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+Uses of <A HREF="../../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A> in <A HREF="../../../../../com/twitter/common/testing/package-summary.html">com.twitter.common.testing</A></FONT></TH>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Methods in <A HREF="../../../../../com/twitter/common/testing/package-summary.html">com.twitter.common.testing</A> with type parameters of type <A HREF="../../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>,T extends <A HREF="../../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&lt;E&gt;&gt; 
+<BR>
+void</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B>TearDownRegistry.</B><B><A HREF="../../../../../com/twitter/common/testing/TearDownRegistry.html#addAction(T)">addAction</A></B>(T&nbsp;action)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
 <A NAME="com.twitter.common.util"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
@@ -238,6 +380,89 @@ void</CODE></FONT></TD>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Times the block of code encapsulated by <code>timedWork</code> recoding the result in <code>stat</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B>RateLimitedCommandExecutor.</B><B><A HREF="../../../../../com/twitter/common/util/RateLimitedCommandExecutor.html#execute(java.lang.String, com.twitter.common.base.ExceptionalCommand, java.lang.Class, int, com.twitter.common.quantity.Amount)">execute</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+               <A HREF="../../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&nbsp;task,
+               <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&nbsp;exceptionClass,
+               int&nbsp;numTries,
+               <A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;retryDelay)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B>CommandExecutor.</B><B><A HREF="../../../../../com/twitter/common/util/CommandExecutor.html#execute(java.lang.String, com.twitter.common.base.ExceptionalCommand, java.lang.Class, int, com.twitter.common.quantity.Amount)">execute</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+               <A HREF="../../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&nbsp;task,
+               <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&nbsp;exceptionClass,
+               int&nbsp;maxTries,
+               <A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;retryDelay)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Enqueue a task to be executed with retry semantics defined.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Constructors in <A HREF="../../../../../com/twitter/common/util/package-summary.html">com.twitter.common.util</A> with parameters of type <A HREF="../../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/util/RetryingRunnable.html#RetryingRunnable(java.lang.String, com.twitter.common.base.ExceptionalCommand, java.lang.Class, int, com.twitter.common.quantity.Amount, com.twitter.common.util.CommandExecutor)">RetryingRunnable</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                                 <A HREF="../../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&lt;<A HREF="../../../../../com/twitter/common/util/RetryingRunnable.html" title="type parameter in RetryingRunnable">E</A>&gt;&nbsp;task,
+                                 <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;<A HREF="../../../../../com/twitter/common/util/RetryingRunnable.html" title="type parameter in RetryingRunnable">E</A>&gt;&nbsp;exceptionClass,
+                                 int&nbsp;numTries,
+                                 <A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;retryDelay,
+                                 <A HREF="../../../../../com/twitter/common/util/CommandExecutor.html" title="interface in com.twitter.common.util">CommandExecutor</A>&nbsp;commandExecutor)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Create a Task with name <code>name</code> that executes at most <code>numTries</code>
+ in case of failure with an interval of <code>retryDelay</code> between attempts
+  and sets tryNum to be the first (=1).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/util/RetryingRunnable.html#RetryingRunnable(java.lang.String, com.twitter.common.base.ExceptionalCommand, java.lang.Class, int, com.twitter.common.quantity.Amount, com.twitter.common.util.CommandExecutor, int)">RetryingRunnable</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                                 <A HREF="../../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&lt;<A HREF="../../../../../com/twitter/common/util/RetryingRunnable.html" title="type parameter in RetryingRunnable">E</A>&gt;&nbsp;task,
+                                 <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;<A HREF="../../../../../com/twitter/common/util/RetryingRunnable.html" title="type parameter in RetryingRunnable">E</A>&gt;&nbsp;exceptionClass,
+                                 int&nbsp;numTries,
+                                 <A HREF="../../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;retryDelay,
+                                 <A HREF="../../../../../com/twitter/common/util/CommandExecutor.html" title="interface in com.twitter.common.util">CommandExecutor</A>&nbsp;commandExecutor,
+                                 int&nbsp;tryNum)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Create a Task with name <code>name</code> that executes at most <code>numTries</code>
+ in case of failure with an interval of <code>retryDelay</code> between attempts.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+<A NAME="com.twitter.common.util.concurrent"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+Uses of <A HREF="../../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A> in <A HREF="../../../../../com/twitter/common/util/concurrent/package-summary.html">com.twitter.common.util.concurrent</A></FONT></TH>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left" COLSPAN="2">Classes in <A HREF="../../../../../com/twitter/common/util/concurrent/package-summary.html">com.twitter.common.util.concurrent</A> that implement <A HREF="../../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/util/concurrent/ExecutorServiceShutdown.html" title="class in com.twitter.common.util.concurrent">ExecutorServiceShutdown</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An implementation of the graceful shutdown sequence recommended by <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/ExecutorService.html?is-external=true" title="class or interface in java.util.concurrent"><CODE>ExecutorService</CODE></A>.</TD>
 </TR>
 </TABLE>
 &nbsp;

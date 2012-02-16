@@ -32,14 +32,14 @@
 <FONT color="green">029</FONT>    import com.google.inject.TypeLiteral;<a name="line.29"></a>
 <FONT color="green">030</FONT>    import com.google.inject.name.Names;<a name="line.30"></a>
 <FONT color="green">031</FONT>    <a name="line.31"></a>
-<FONT color="green">032</FONT>    import com.twitter.common.application.LocalServiceRegistry;<a name="line.32"></a>
-<FONT color="green">033</FONT>    import com.twitter.common.application.modules.LifecycleModule.RegisteringServiceLauncher;<a name="line.33"></a>
-<FONT color="green">034</FONT>    import com.twitter.common.application.ShutdownRegistry;<a name="line.34"></a>
-<FONT color="green">035</FONT>    import com.twitter.common.application.http.DefaultQuitHandler;<a name="line.35"></a>
-<FONT color="green">036</FONT>    import com.twitter.common.application.http.GraphViewer;<a name="line.36"></a>
-<FONT color="green">037</FONT>    import com.twitter.common.application.http.HttpAssetConfig;<a name="line.37"></a>
-<FONT color="green">038</FONT>    import com.twitter.common.application.http.HttpServletConfig;<a name="line.38"></a>
-<FONT color="green">039</FONT>    import com.twitter.common.application.http.Registration;<a name="line.39"></a>
+<FONT color="green">032</FONT>    import com.twitter.common.application.ShutdownRegistry;<a name="line.32"></a>
+<FONT color="green">033</FONT>    import com.twitter.common.application.http.DefaultQuitHandler;<a name="line.33"></a>
+<FONT color="green">034</FONT>    import com.twitter.common.application.http.GraphViewer;<a name="line.34"></a>
+<FONT color="green">035</FONT>    import com.twitter.common.application.http.HttpAssetConfig;<a name="line.35"></a>
+<FONT color="green">036</FONT>    import com.twitter.common.application.http.HttpServletConfig;<a name="line.36"></a>
+<FONT color="green">037</FONT>    import com.twitter.common.application.http.Registration;<a name="line.37"></a>
+<FONT color="green">038</FONT>    import com.twitter.common.application.modules.LifecycleModule.ServiceRunner;<a name="line.38"></a>
+<FONT color="green">039</FONT>    import com.twitter.common.application.modules.LocalServiceRegistry.LocalService;<a name="line.39"></a>
 <FONT color="green">040</FONT>    import com.twitter.common.args.Arg;<a name="line.40"></a>
 <FONT color="green">041</FONT>    import com.twitter.common.args.CmdLine;<a name="line.41"></a>
 <FONT color="green">042</FONT>    import com.twitter.common.args.constraints.Range;<a name="line.42"></a>
@@ -150,69 +150,54 @@
 <FONT color="green">147</FONT>    <a name="line.147"></a>
 <FONT color="green">148</FONT>        GraphViewer.registerResources(binder());<a name="line.148"></a>
 <FONT color="green">149</FONT>    <a name="line.149"></a>
-<FONT color="green">150</FONT>        LifecycleModule.bindServiceLauncher(binder(),<a name="line.150"></a>
-<FONT color="green">151</FONT>            HttpServerLauncher.PORT_NAME, HttpServerLauncher.class);<a name="line.151"></a>
-<FONT color="green">152</FONT>      }<a name="line.152"></a>
-<FONT color="green">153</FONT>    <a name="line.153"></a>
-<FONT color="green">154</FONT>      public static final class HttpServerLauncher<a name="line.154"></a>
-<FONT color="green">155</FONT>          extends RegisteringServiceLauncher&lt;RuntimeException&gt; {<a name="line.155"></a>
-<FONT color="green">156</FONT>        private static final String PORT_NAME = "http";<a name="line.156"></a>
-<FONT color="green">157</FONT>    <a name="line.157"></a>
-<FONT color="green">158</FONT>        private final HttpServerDispatch httpServer;<a name="line.158"></a>
-<FONT color="green">159</FONT>        private final Set&lt;HttpServletConfig&gt; httpServlets;<a name="line.159"></a>
-<FONT color="green">160</FONT>        private final Set&lt;HttpAssetConfig&gt; httpAssets;<a name="line.160"></a>
-<FONT color="green">161</FONT>        private final Injector injector;<a name="line.161"></a>
-<FONT color="green">162</FONT>        private final ShutdownRegistry shutdownRegistry;<a name="line.162"></a>
-<FONT color="green">163</FONT>    <a name="line.163"></a>
-<FONT color="green">164</FONT>        @Inject HttpServerLauncher(<a name="line.164"></a>
-<FONT color="green">165</FONT>            LocalServiceRegistry serviceRegistry,<a name="line.165"></a>
-<FONT color="green">166</FONT>            HttpServerDispatch httpServer,<a name="line.166"></a>
-<FONT color="green">167</FONT>            Set&lt;HttpServletConfig&gt; httpServlets,<a name="line.167"></a>
-<FONT color="green">168</FONT>            Set&lt;HttpAssetConfig&gt; httpAssets,<a name="line.168"></a>
-<FONT color="green">169</FONT>            Injector injector,<a name="line.169"></a>
-<FONT color="green">170</FONT>            ShutdownRegistry shutdownRegistry) {<a name="line.170"></a>
-<FONT color="green">171</FONT>          super(serviceRegistry);<a name="line.171"></a>
-<FONT color="green">172</FONT>          this.httpServer = checkNotNull(httpServer);<a name="line.172"></a>
-<FONT color="green">173</FONT>          this.httpServlets = checkNotNull(httpServlets);<a name="line.173"></a>
-<FONT color="green">174</FONT>          this.httpAssets = checkNotNull(httpAssets);<a name="line.174"></a>
-<FONT color="green">175</FONT>          this.injector = checkNotNull(injector);<a name="line.175"></a>
-<FONT color="green">176</FONT>          this.shutdownRegistry = checkNotNull(shutdownRegistry);<a name="line.176"></a>
-<FONT color="green">177</FONT>        }<a name="line.177"></a>
-<FONT color="green">178</FONT>    <a name="line.178"></a>
-<FONT color="green">179</FONT>        @Override public String getPortName() {<a name="line.179"></a>
-<FONT color="green">180</FONT>          return PORT_NAME;<a name="line.180"></a>
-<FONT color="green">181</FONT>        }<a name="line.181"></a>
-<FONT color="green">182</FONT>    <a name="line.182"></a>
-<FONT color="green">183</FONT>        @Override public boolean isPrimaryService() {<a name="line.183"></a>
-<FONT color="green">184</FONT>          return false;<a name="line.184"></a>
-<FONT color="green">185</FONT>        }<a name="line.185"></a>
-<FONT color="green">186</FONT>    <a name="line.186"></a>
-<FONT color="green">187</FONT>        @Override public int launchAndGetPort() {<a name="line.187"></a>
-<FONT color="green">188</FONT>          if (!httpServer.listen(HTTP_PORT.get())) {<a name="line.188"></a>
-<FONT color="green">189</FONT>            throw new IllegalStateException("Failed to start HTTP server, all servlets disabled.");<a name="line.189"></a>
-<FONT color="green">190</FONT>          }<a name="line.190"></a>
-<FONT color="green">191</FONT>    <a name="line.191"></a>
-<FONT color="green">192</FONT>          shutdownRegistry.addAction(new Command() {<a name="line.192"></a>
-<FONT color="green">193</FONT>            @Override public void execute() {<a name="line.193"></a>
-<FONT color="green">194</FONT>              LOG.info("Shutting down embedded http server");<a name="line.194"></a>
-<FONT color="green">195</FONT>              httpServer.stop();<a name="line.195"></a>
-<FONT color="green">196</FONT>            }<a name="line.196"></a>
-<FONT color="green">197</FONT>          });<a name="line.197"></a>
-<FONT color="green">198</FONT>    <a name="line.198"></a>
-<FONT color="green">199</FONT>          for (HttpServletConfig config : httpServlets) {<a name="line.199"></a>
-<FONT color="green">200</FONT>            HttpServlet handler = injector.getInstance(config.handlerClass);<a name="line.200"></a>
-<FONT color="green">201</FONT>            httpServer.registerHandler(config.path, handler, config.params, config.silent);<a name="line.201"></a>
-<FONT color="green">202</FONT>          }<a name="line.202"></a>
-<FONT color="green">203</FONT>    <a name="line.203"></a>
-<FONT color="green">204</FONT>          for (HttpAssetConfig config : httpAssets) {<a name="line.204"></a>
-<FONT color="green">205</FONT>            httpServer.registerHandler(config.path, config.handler, null, config.silent);<a name="line.205"></a>
-<FONT color="green">206</FONT>          }<a name="line.206"></a>
-<FONT color="green">207</FONT>    <a name="line.207"></a>
-<FONT color="green">208</FONT>          return httpServer.getPort();<a name="line.208"></a>
-<FONT color="green">209</FONT>        }<a name="line.209"></a>
-<FONT color="green">210</FONT>      }<a name="line.210"></a>
-<FONT color="green">211</FONT>    }<a name="line.211"></a>
-<FONT color="green">212</FONT>    <a name="line.212"></a>
+<FONT color="green">150</FONT>        LifecycleModule.bindServiceRunner(binder(), HttpServerLauncher.class);<a name="line.150"></a>
+<FONT color="green">151</FONT>      }<a name="line.151"></a>
+<FONT color="green">152</FONT>    <a name="line.152"></a>
+<FONT color="green">153</FONT>      public static final class HttpServerLauncher implements ServiceRunner {<a name="line.153"></a>
+<FONT color="green">154</FONT>        private final HttpServerDispatch httpServer;<a name="line.154"></a>
+<FONT color="green">155</FONT>        private final Set&lt;HttpServletConfig&gt; httpServlets;<a name="line.155"></a>
+<FONT color="green">156</FONT>        private final Set&lt;HttpAssetConfig&gt; httpAssets;<a name="line.156"></a>
+<FONT color="green">157</FONT>        private final Injector injector;<a name="line.157"></a>
+<FONT color="green">158</FONT>    <a name="line.158"></a>
+<FONT color="green">159</FONT>        @Inject HttpServerLauncher(<a name="line.159"></a>
+<FONT color="green">160</FONT>            HttpServerDispatch httpServer,<a name="line.160"></a>
+<FONT color="green">161</FONT>            Set&lt;HttpServletConfig&gt; httpServlets,<a name="line.161"></a>
+<FONT color="green">162</FONT>            Set&lt;HttpAssetConfig&gt; httpAssets,<a name="line.162"></a>
+<FONT color="green">163</FONT>            Injector injector) {<a name="line.163"></a>
+<FONT color="green">164</FONT>          this.httpServer = checkNotNull(httpServer);<a name="line.164"></a>
+<FONT color="green">165</FONT>          this.httpServlets = checkNotNull(httpServlets);<a name="line.165"></a>
+<FONT color="green">166</FONT>          this.httpAssets = checkNotNull(httpAssets);<a name="line.166"></a>
+<FONT color="green">167</FONT>          this.injector = checkNotNull(injector);<a name="line.167"></a>
+<FONT color="green">168</FONT>        }<a name="line.168"></a>
+<FONT color="green">169</FONT>    <a name="line.169"></a>
+<FONT color="green">170</FONT>        @Override public LocalService launch() {<a name="line.170"></a>
+<FONT color="green">171</FONT>          if (!httpServer.listen(HTTP_PORT.get())) {<a name="line.171"></a>
+<FONT color="green">172</FONT>            throw new IllegalStateException("Failed to start HTTP server, all servlets disabled.");<a name="line.172"></a>
+<FONT color="green">173</FONT>          }<a name="line.173"></a>
+<FONT color="green">174</FONT>    <a name="line.174"></a>
+<FONT color="green">175</FONT>          for (HttpServletConfig config : httpServlets) {<a name="line.175"></a>
+<FONT color="green">176</FONT>            HttpServlet handler = injector.getInstance(config.handlerClass);<a name="line.176"></a>
+<FONT color="green">177</FONT>            httpServer.registerHandler(config.path, handler, config.params, config.silent);<a name="line.177"></a>
+<FONT color="green">178</FONT>          }<a name="line.178"></a>
+<FONT color="green">179</FONT>    <a name="line.179"></a>
+<FONT color="green">180</FONT>          for (HttpAssetConfig config : httpAssets) {<a name="line.180"></a>
+<FONT color="green">181</FONT>            httpServer.registerHandler(config.path, config.handler, null, config.silent);<a name="line.181"></a>
+<FONT color="green">182</FONT>          }<a name="line.182"></a>
+<FONT color="green">183</FONT>    <a name="line.183"></a>
+<FONT color="green">184</FONT>          Command shutdown = new Command() {<a name="line.184"></a>
+<FONT color="green">185</FONT>            @Override public void execute() {<a name="line.185"></a>
+<FONT color="green">186</FONT>              LOG.info("Shutting down embedded http server");<a name="line.186"></a>
+<FONT color="green">187</FONT>              httpServer.stop();<a name="line.187"></a>
+<FONT color="green">188</FONT>            }<a name="line.188"></a>
+<FONT color="green">189</FONT>          };<a name="line.189"></a>
+<FONT color="green">190</FONT>    <a name="line.190"></a>
+<FONT color="green">191</FONT>          return HTTP_PRIMARY_SERVICE.get()<a name="line.191"></a>
+<FONT color="green">192</FONT>              ? LocalService.primaryService(httpServer.getPort(), shutdown)<a name="line.192"></a>
+<FONT color="green">193</FONT>              : LocalService.auxiliaryService("http", httpServer.getPort(), shutdown);<a name="line.193"></a>
+<FONT color="green">194</FONT>        }<a name="line.194"></a>
+<FONT color="green">195</FONT>      }<a name="line.195"></a>
+<FONT color="green">196</FONT>    }<a name="line.196"></a>
+<FONT color="green">197</FONT>    <a name="line.197"></a>
 
 
 

@@ -178,91 +178,91 @@
 <FONT color="green">175</FONT>      private final int sessionTimeoutMs;<a name="line.175"></a>
 <FONT color="green">176</FONT>      private final Credentials credentials;<a name="line.176"></a>
 <FONT color="green">177</FONT>      private final String zooKeeperServers;<a name="line.177"></a>
-<FONT color="green">178</FONT>      private ZooKeeper zooKeeper;<a name="line.178"></a>
-<FONT color="green">179</FONT>      private SessionState sessionState;<a name="line.179"></a>
-<FONT color="green">180</FONT>      private boolean closed = true;<a name="line.180"></a>
-<FONT color="green">181</FONT>    <a name="line.181"></a>
-<FONT color="green">182</FONT>      private final Set&lt;Watcher&gt; watchers = Collections.synchronizedSet(new HashSet&lt;Watcher&gt;());<a name="line.182"></a>
-<FONT color="green">183</FONT>    <a name="line.183"></a>
-<FONT color="green">184</FONT>      private static Iterable&lt;InetSocketAddress&gt; combine(InetSocketAddress address,<a name="line.184"></a>
-<FONT color="green">185</FONT>          InetSocketAddress... addresses) {<a name="line.185"></a>
-<FONT color="green">186</FONT>        return ImmutableSet.&lt;InetSocketAddress&gt;builder().add(address).add(addresses).build();<a name="line.186"></a>
-<FONT color="green">187</FONT>      }<a name="line.187"></a>
-<FONT color="green">188</FONT>    <a name="line.188"></a>
-<FONT color="green">189</FONT>      /**<a name="line.189"></a>
-<FONT color="green">190</FONT>       * Creates an unconnected client that will lazily attempt to connect on the first call to<a name="line.190"></a>
-<FONT color="green">191</FONT>       * {@link #get()}.<a name="line.191"></a>
-<FONT color="green">192</FONT>       *<a name="line.192"></a>
-<FONT color="green">193</FONT>       * @param sessionTimeout the ZK session timeout<a name="line.193"></a>
-<FONT color="green">194</FONT>       * @param zooKeeperServer the first, required ZK server<a name="line.194"></a>
-<FONT color="green">195</FONT>       * @param zooKeeperServers any additional servers forming the ZK cluster<a name="line.195"></a>
-<FONT color="green">196</FONT>       */<a name="line.196"></a>
-<FONT color="green">197</FONT>      public ZooKeeperClient(Amount&lt;Integer, Time&gt; sessionTimeout, InetSocketAddress zooKeeperServer,<a name="line.197"></a>
-<FONT color="green">198</FONT>          InetSocketAddress... zooKeeperServers) {<a name="line.198"></a>
-<FONT color="green">199</FONT>        this(sessionTimeout, combine(zooKeeperServer, zooKeeperServers));<a name="line.199"></a>
-<FONT color="green">200</FONT>      }<a name="line.200"></a>
-<FONT color="green">201</FONT>    <a name="line.201"></a>
-<FONT color="green">202</FONT>      /**<a name="line.202"></a>
-<FONT color="green">203</FONT>       * Creates an unconnected client that will lazily attempt to connect on the first call to<a name="line.203"></a>
-<FONT color="green">204</FONT>       * {@link #get}.<a name="line.204"></a>
-<FONT color="green">205</FONT>       *<a name="line.205"></a>
-<FONT color="green">206</FONT>       * @param sessionTimeout the ZK session timeout<a name="line.206"></a>
-<FONT color="green">207</FONT>       * @param zooKeeperServers the set of servers forming the ZK cluster<a name="line.207"></a>
-<FONT color="green">208</FONT>       */<a name="line.208"></a>
-<FONT color="green">209</FONT>      public ZooKeeperClient(Amount&lt;Integer, Time&gt; sessionTimeout,<a name="line.209"></a>
-<FONT color="green">210</FONT>          Iterable&lt;InetSocketAddress&gt; zooKeeperServers) {<a name="line.210"></a>
-<FONT color="green">211</FONT>        this(sessionTimeout, Credentials.NONE, zooKeeperServers);<a name="line.211"></a>
-<FONT color="green">212</FONT>      }<a name="line.212"></a>
-<FONT color="green">213</FONT>    <a name="line.213"></a>
-<FONT color="green">214</FONT>      /**<a name="line.214"></a>
-<FONT color="green">215</FONT>       * Creates an unconnected client that will lazily attempt to connect on the first call to<a name="line.215"></a>
-<FONT color="green">216</FONT>       * {@link #get()}.  All successful connections will be authenticated with the given<a name="line.216"></a>
-<FONT color="green">217</FONT>       * {@code credentials}.<a name="line.217"></a>
-<FONT color="green">218</FONT>       *<a name="line.218"></a>
-<FONT color="green">219</FONT>       * @param sessionTimeout the ZK session timeout<a name="line.219"></a>
-<FONT color="green">220</FONT>       * @param credentials the credentials to authenticate with<a name="line.220"></a>
-<FONT color="green">221</FONT>       * @param zooKeeperServer the first, required ZK server<a name="line.221"></a>
-<FONT color="green">222</FONT>       * @param zooKeeperServers any additional servers forming the ZK cluster<a name="line.222"></a>
-<FONT color="green">223</FONT>       */<a name="line.223"></a>
-<FONT color="green">224</FONT>      public ZooKeeperClient(Amount&lt;Integer, Time&gt; sessionTimeout, Credentials credentials,<a name="line.224"></a>
-<FONT color="green">225</FONT>          InetSocketAddress zooKeeperServer, InetSocketAddress... zooKeeperServers) {<a name="line.225"></a>
-<FONT color="green">226</FONT>        this(sessionTimeout, credentials, combine(zooKeeperServer, zooKeeperServers));<a name="line.226"></a>
-<FONT color="green">227</FONT>      }<a name="line.227"></a>
-<FONT color="green">228</FONT>    <a name="line.228"></a>
-<FONT color="green">229</FONT>      /**<a name="line.229"></a>
-<FONT color="green">230</FONT>       * Creates an unconnected client that will lazily attempt to connect on the first call to<a name="line.230"></a>
-<FONT color="green">231</FONT>       * {@link #get}.  All successful connections will be authenticated with the given<a name="line.231"></a>
-<FONT color="green">232</FONT>       * {@code credentials}.<a name="line.232"></a>
-<FONT color="green">233</FONT>       *<a name="line.233"></a>
-<FONT color="green">234</FONT>       * @param sessionTimeout the ZK session timeout<a name="line.234"></a>
-<FONT color="green">235</FONT>       * @param credentials the credentials to authenticate with<a name="line.235"></a>
-<FONT color="green">236</FONT>       * @param zooKeeperServers the set of servers forming the ZK cluster<a name="line.236"></a>
-<FONT color="green">237</FONT>       */<a name="line.237"></a>
-<FONT color="green">238</FONT>      public ZooKeeperClient(Amount&lt;Integer, Time&gt; sessionTimeout, Credentials credentials,<a name="line.238"></a>
-<FONT color="green">239</FONT>          Iterable&lt;InetSocketAddress&gt; zooKeeperServers) {<a name="line.239"></a>
-<FONT color="green">240</FONT>        this.sessionTimeoutMs = Preconditions.checkNotNull(sessionTimeout).as(Time.MILLISECONDS);<a name="line.240"></a>
-<FONT color="green">241</FONT>        this.credentials = Preconditions.checkNotNull(credentials);<a name="line.241"></a>
-<FONT color="green">242</FONT>    <a name="line.242"></a>
-<FONT color="green">243</FONT>        Preconditions.checkNotNull(zooKeeperServers);<a name="line.243"></a>
-<FONT color="green">244</FONT>        Preconditions.checkArgument(!Iterables.isEmpty(zooKeeperServers),<a name="line.244"></a>
-<FONT color="green">245</FONT>            "Must present at least 1 ZK server");<a name="line.245"></a>
-<FONT color="green">246</FONT>    <a name="line.246"></a>
-<FONT color="green">247</FONT>        Iterable&lt;String&gt; servers =<a name="line.247"></a>
-<FONT color="green">248</FONT>            Iterables.transform(ImmutableSet.copyOf(zooKeeperServers),<a name="line.248"></a>
-<FONT color="green">249</FONT>                InetSocketAddressHelper.INET_TO_STR);<a name="line.249"></a>
-<FONT color="green">250</FONT>        this.zooKeeperServers = Joiner.on(',').join(servers);<a name="line.250"></a>
-<FONT color="green">251</FONT>      }<a name="line.251"></a>
-<FONT color="green">252</FONT>    <a name="line.252"></a>
-<FONT color="green">253</FONT>      /**<a name="line.253"></a>
-<FONT color="green">254</FONT>       * Returns the current active ZK connection or establishes a new one if none has yet been<a name="line.254"></a>
-<FONT color="green">255</FONT>       * established or a previous connection was disconnected or had its session time out.  This method<a name="line.255"></a>
-<FONT color="green">256</FONT>       * will attempt to re-use sessions when possible.  Equivalent to:<a name="line.256"></a>
-<FONT color="green">257</FONT>       * &lt;pre&gt;get(Amount.of(0L, ...)&lt;/pre&gt;.<a name="line.257"></a>
-<FONT color="green">258</FONT>       *<a name="line.258"></a>
-<FONT color="green">259</FONT>       * @return a connected ZooKeeper client<a name="line.259"></a>
-<FONT color="green">260</FONT>       * @throws ZooKeeperConnectionException if there was a problem connecting to the ZK cluster<a name="line.260"></a>
-<FONT color="green">261</FONT>       * @throws InterruptedException if interrupted while waiting for a connection to be established<a name="line.261"></a>
-<FONT color="green">262</FONT>       * @throws IllegalStateException if this client has already been {@link #close() closed}<a name="line.262"></a>
+<FONT color="green">178</FONT>      // GuardedBy "this", but still volatile for tests, where we want to be able to see writes<a name="line.178"></a>
+<FONT color="green">179</FONT>      // made from within long synchronized blocks.<a name="line.179"></a>
+<FONT color="green">180</FONT>      private volatile ZooKeeper zooKeeper;<a name="line.180"></a>
+<FONT color="green">181</FONT>      private SessionState sessionState;<a name="line.181"></a>
+<FONT color="green">182</FONT>    <a name="line.182"></a>
+<FONT color="green">183</FONT>      private final Set&lt;Watcher&gt; watchers = Collections.synchronizedSet(new HashSet&lt;Watcher&gt;());<a name="line.183"></a>
+<FONT color="green">184</FONT>    <a name="line.184"></a>
+<FONT color="green">185</FONT>      private static Iterable&lt;InetSocketAddress&gt; combine(InetSocketAddress address,<a name="line.185"></a>
+<FONT color="green">186</FONT>          InetSocketAddress... addresses) {<a name="line.186"></a>
+<FONT color="green">187</FONT>        return ImmutableSet.&lt;InetSocketAddress&gt;builder().add(address).add(addresses).build();<a name="line.187"></a>
+<FONT color="green">188</FONT>      }<a name="line.188"></a>
+<FONT color="green">189</FONT>    <a name="line.189"></a>
+<FONT color="green">190</FONT>      /**<a name="line.190"></a>
+<FONT color="green">191</FONT>       * Creates an unconnected client that will lazily attempt to connect on the first call to<a name="line.191"></a>
+<FONT color="green">192</FONT>       * {@link #get()}.<a name="line.192"></a>
+<FONT color="green">193</FONT>       *<a name="line.193"></a>
+<FONT color="green">194</FONT>       * @param sessionTimeout the ZK session timeout<a name="line.194"></a>
+<FONT color="green">195</FONT>       * @param zooKeeperServer the first, required ZK server<a name="line.195"></a>
+<FONT color="green">196</FONT>       * @param zooKeeperServers any additional servers forming the ZK cluster<a name="line.196"></a>
+<FONT color="green">197</FONT>       */<a name="line.197"></a>
+<FONT color="green">198</FONT>      public ZooKeeperClient(Amount&lt;Integer, Time&gt; sessionTimeout, InetSocketAddress zooKeeperServer,<a name="line.198"></a>
+<FONT color="green">199</FONT>          InetSocketAddress... zooKeeperServers) {<a name="line.199"></a>
+<FONT color="green">200</FONT>        this(sessionTimeout, combine(zooKeeperServer, zooKeeperServers));<a name="line.200"></a>
+<FONT color="green">201</FONT>      }<a name="line.201"></a>
+<FONT color="green">202</FONT>    <a name="line.202"></a>
+<FONT color="green">203</FONT>      /**<a name="line.203"></a>
+<FONT color="green">204</FONT>       * Creates an unconnected client that will lazily attempt to connect on the first call to<a name="line.204"></a>
+<FONT color="green">205</FONT>       * {@link #get}.<a name="line.205"></a>
+<FONT color="green">206</FONT>       *<a name="line.206"></a>
+<FONT color="green">207</FONT>       * @param sessionTimeout the ZK session timeout<a name="line.207"></a>
+<FONT color="green">208</FONT>       * @param zooKeeperServers the set of servers forming the ZK cluster<a name="line.208"></a>
+<FONT color="green">209</FONT>       */<a name="line.209"></a>
+<FONT color="green">210</FONT>      public ZooKeeperClient(Amount&lt;Integer, Time&gt; sessionTimeout,<a name="line.210"></a>
+<FONT color="green">211</FONT>          Iterable&lt;InetSocketAddress&gt; zooKeeperServers) {<a name="line.211"></a>
+<FONT color="green">212</FONT>        this(sessionTimeout, Credentials.NONE, zooKeeperServers);<a name="line.212"></a>
+<FONT color="green">213</FONT>      }<a name="line.213"></a>
+<FONT color="green">214</FONT>    <a name="line.214"></a>
+<FONT color="green">215</FONT>      /**<a name="line.215"></a>
+<FONT color="green">216</FONT>       * Creates an unconnected client that will lazily attempt to connect on the first call to<a name="line.216"></a>
+<FONT color="green">217</FONT>       * {@link #get()}.  All successful connections will be authenticated with the given<a name="line.217"></a>
+<FONT color="green">218</FONT>       * {@code credentials}.<a name="line.218"></a>
+<FONT color="green">219</FONT>       *<a name="line.219"></a>
+<FONT color="green">220</FONT>       * @param sessionTimeout the ZK session timeout<a name="line.220"></a>
+<FONT color="green">221</FONT>       * @param credentials the credentials to authenticate with<a name="line.221"></a>
+<FONT color="green">222</FONT>       * @param zooKeeperServer the first, required ZK server<a name="line.222"></a>
+<FONT color="green">223</FONT>       * @param zooKeeperServers any additional servers forming the ZK cluster<a name="line.223"></a>
+<FONT color="green">224</FONT>       */<a name="line.224"></a>
+<FONT color="green">225</FONT>      public ZooKeeperClient(Amount&lt;Integer, Time&gt; sessionTimeout, Credentials credentials,<a name="line.225"></a>
+<FONT color="green">226</FONT>          InetSocketAddress zooKeeperServer, InetSocketAddress... zooKeeperServers) {<a name="line.226"></a>
+<FONT color="green">227</FONT>        this(sessionTimeout, credentials, combine(zooKeeperServer, zooKeeperServers));<a name="line.227"></a>
+<FONT color="green">228</FONT>      }<a name="line.228"></a>
+<FONT color="green">229</FONT>    <a name="line.229"></a>
+<FONT color="green">230</FONT>      /**<a name="line.230"></a>
+<FONT color="green">231</FONT>       * Creates an unconnected client that will lazily attempt to connect on the first call to<a name="line.231"></a>
+<FONT color="green">232</FONT>       * {@link #get}.  All successful connections will be authenticated with the given<a name="line.232"></a>
+<FONT color="green">233</FONT>       * {@code credentials}.<a name="line.233"></a>
+<FONT color="green">234</FONT>       *<a name="line.234"></a>
+<FONT color="green">235</FONT>       * @param sessionTimeout the ZK session timeout<a name="line.235"></a>
+<FONT color="green">236</FONT>       * @param credentials the credentials to authenticate with<a name="line.236"></a>
+<FONT color="green">237</FONT>       * @param zooKeeperServers the set of servers forming the ZK cluster<a name="line.237"></a>
+<FONT color="green">238</FONT>       */<a name="line.238"></a>
+<FONT color="green">239</FONT>      public ZooKeeperClient(Amount&lt;Integer, Time&gt; sessionTimeout, Credentials credentials,<a name="line.239"></a>
+<FONT color="green">240</FONT>          Iterable&lt;InetSocketAddress&gt; zooKeeperServers) {<a name="line.240"></a>
+<FONT color="green">241</FONT>        this.sessionTimeoutMs = Preconditions.checkNotNull(sessionTimeout).as(Time.MILLISECONDS);<a name="line.241"></a>
+<FONT color="green">242</FONT>        this.credentials = Preconditions.checkNotNull(credentials);<a name="line.242"></a>
+<FONT color="green">243</FONT>    <a name="line.243"></a>
+<FONT color="green">244</FONT>        Preconditions.checkNotNull(zooKeeperServers);<a name="line.244"></a>
+<FONT color="green">245</FONT>        Preconditions.checkArgument(!Iterables.isEmpty(zooKeeperServers),<a name="line.245"></a>
+<FONT color="green">246</FONT>            "Must present at least 1 ZK server");<a name="line.246"></a>
+<FONT color="green">247</FONT>    <a name="line.247"></a>
+<FONT color="green">248</FONT>        Iterable&lt;String&gt; servers =<a name="line.248"></a>
+<FONT color="green">249</FONT>            Iterables.transform(ImmutableSet.copyOf(zooKeeperServers),<a name="line.249"></a>
+<FONT color="green">250</FONT>                InetSocketAddressHelper.INET_TO_STR);<a name="line.250"></a>
+<FONT color="green">251</FONT>        this.zooKeeperServers = Joiner.on(',').join(servers);<a name="line.251"></a>
+<FONT color="green">252</FONT>      }<a name="line.252"></a>
+<FONT color="green">253</FONT>    <a name="line.253"></a>
+<FONT color="green">254</FONT>      /**<a name="line.254"></a>
+<FONT color="green">255</FONT>       * Returns the current active ZK connection or establishes a new one if none has yet been<a name="line.255"></a>
+<FONT color="green">256</FONT>       * established or a previous connection was disconnected or had its session time out.  This method<a name="line.256"></a>
+<FONT color="green">257</FONT>       * will attempt to re-use sessions when possible.  Equivalent to:<a name="line.257"></a>
+<FONT color="green">258</FONT>       * &lt;pre&gt;get(Amount.of(0L, ...)&lt;/pre&gt;.<a name="line.258"></a>
+<FONT color="green">259</FONT>       *<a name="line.259"></a>
+<FONT color="green">260</FONT>       * @return a connected ZooKeeper client<a name="line.260"></a>
+<FONT color="green">261</FONT>       * @throws ZooKeeperConnectionException if there was a problem connecting to the ZK cluster<a name="line.261"></a>
+<FONT color="green">262</FONT>       * @throws InterruptedException if interrupted while waiting for a connection to be established<a name="line.262"></a>
 <FONT color="green">263</FONT>       */<a name="line.263"></a>
 <FONT color="green">264</FONT>      public synchronized ZooKeeper get() throws ZooKeeperConnectionException, InterruptedException {<a name="line.264"></a>
 <FONT color="green">265</FONT>        try {<a name="line.265"></a>
@@ -335,100 +335,106 @@
 <FONT color="green">332</FONT>                                         + connectionTimeout);<a name="line.332"></a>
 <FONT color="green">333</FONT>            }<a name="line.333"></a>
 <FONT color="green">334</FONT>          } else {<a name="line.334"></a>
-<FONT color="green">335</FONT>            connected.await();<a name="line.335"></a>
-<FONT color="green">336</FONT>          }<a name="line.336"></a>
-<FONT color="green">337</FONT>          credentials.authenticate(zooKeeper);<a name="line.337"></a>
-<FONT color="green">338</FONT>    <a name="line.338"></a>
-<FONT color="green">339</FONT>          sessionState = new SessionState(zooKeeper.getSessionId(), zooKeeper.getSessionPasswd());<a name="line.339"></a>
-<FONT color="green">340</FONT>          closed = false;<a name="line.340"></a>
-<FONT color="green">341</FONT>        }<a name="line.341"></a>
-<FONT color="green">342</FONT>        return zooKeeper;<a name="line.342"></a>
-<FONT color="green">343</FONT>      }<a name="line.343"></a>
+<FONT color="green">335</FONT>            try {<a name="line.335"></a>
+<FONT color="green">336</FONT>              connected.await();<a name="line.336"></a>
+<FONT color="green">337</FONT>            } catch (InterruptedException ex) {<a name="line.337"></a>
+<FONT color="green">338</FONT>              LOG.info("Interrupted while waiting to connect to zooKeeper");<a name="line.338"></a>
+<FONT color="green">339</FONT>              close();<a name="line.339"></a>
+<FONT color="green">340</FONT>              throw ex;<a name="line.340"></a>
+<FONT color="green">341</FONT>            }<a name="line.341"></a>
+<FONT color="green">342</FONT>          }<a name="line.342"></a>
+<FONT color="green">343</FONT>          credentials.authenticate(zooKeeper);<a name="line.343"></a>
 <FONT color="green">344</FONT>    <a name="line.344"></a>
-<FONT color="green">345</FONT>      /**<a name="line.345"></a>
-<FONT color="green">346</FONT>       * Clients that need to re-establish state after session expiration can register an<a name="line.346"></a>
-<FONT color="green">347</FONT>       * {@code onExpired} command to execute.<a name="line.347"></a>
-<FONT color="green">348</FONT>       *<a name="line.348"></a>
-<FONT color="green">349</FONT>       * @param onExpired the {@code Command} to register<a name="line.349"></a>
-<FONT color="green">350</FONT>       * @return the new {@link Watcher} which can later be passed to {@link #unregister} for<a name="line.350"></a>
-<FONT color="green">351</FONT>       *     removal.<a name="line.351"></a>
-<FONT color="green">352</FONT>       */<a name="line.352"></a>
-<FONT color="green">353</FONT>      public Watcher registerExpirationHandler(final Command onExpired) {<a name="line.353"></a>
-<FONT color="green">354</FONT>        Watcher watcher = new Watcher() {<a name="line.354"></a>
-<FONT color="green">355</FONT>          @Override public void process(WatchedEvent event) {<a name="line.355"></a>
-<FONT color="green">356</FONT>            if (event.getType() == EventType.None &amp;&amp; event.getState() == KeeperState.Expired) {<a name="line.356"></a>
-<FONT color="green">357</FONT>              onExpired.execute();<a name="line.357"></a>
-<FONT color="green">358</FONT>            }<a name="line.358"></a>
-<FONT color="green">359</FONT>          }<a name="line.359"></a>
-<FONT color="green">360</FONT>        };<a name="line.360"></a>
-<FONT color="green">361</FONT>        register(watcher);<a name="line.361"></a>
-<FONT color="green">362</FONT>        return watcher;<a name="line.362"></a>
-<FONT color="green">363</FONT>      }<a name="line.363"></a>
-<FONT color="green">364</FONT>    <a name="line.364"></a>
-<FONT color="green">365</FONT>      /**<a name="line.365"></a>
-<FONT color="green">366</FONT>       * Clients that need to register a top-level {@code Watcher} should do so using this method.  The<a name="line.366"></a>
-<FONT color="green">367</FONT>       * registered {@code watcher} will remain registered across re-connects and session expiration<a name="line.367"></a>
-<FONT color="green">368</FONT>       * events.<a name="line.368"></a>
-<FONT color="green">369</FONT>       *<a name="line.369"></a>
-<FONT color="green">370</FONT>       * @param watcher the {@code Watcher to register}<a name="line.370"></a>
-<FONT color="green">371</FONT>       */<a name="line.371"></a>
-<FONT color="green">372</FONT>      public void register(Watcher watcher) {<a name="line.372"></a>
-<FONT color="green">373</FONT>        watchers.add(watcher);<a name="line.373"></a>
-<FONT color="green">374</FONT>      }<a name="line.374"></a>
-<FONT color="green">375</FONT>    <a name="line.375"></a>
-<FONT color="green">376</FONT>      /**<a name="line.376"></a>
-<FONT color="green">377</FONT>       * Clients can attempt to unregister a top-level {@code Watcher} that has previously been<a name="line.377"></a>
-<FONT color="green">378</FONT>       * registered.<a name="line.378"></a>
-<FONT color="green">379</FONT>       *<a name="line.379"></a>
-<FONT color="green">380</FONT>       * @param watcher the {@code Watcher} to unregister as a top-level, persistent watch<a name="line.380"></a>
-<FONT color="green">381</FONT>       * @return whether the given {@code Watcher} was found and removed from the active set<a name="line.381"></a>
-<FONT color="green">382</FONT>       */<a name="line.382"></a>
-<FONT color="green">383</FONT>      public boolean unregister(Watcher watcher) {<a name="line.383"></a>
-<FONT color="green">384</FONT>        return watchers.remove(watcher);<a name="line.384"></a>
-<FONT color="green">385</FONT>      }<a name="line.385"></a>
-<FONT color="green">386</FONT>    <a name="line.386"></a>
-<FONT color="green">387</FONT>      /**<a name="line.387"></a>
-<FONT color="green">388</FONT>       * Checks to see if the client might reasonably re-try an operation given the exception thrown<a name="line.388"></a>
-<FONT color="green">389</FONT>       * while attempting it.  If the ZooKeeper session should be expired to enable the re-try to<a name="line.389"></a>
-<FONT color="green">390</FONT>       * succeed this method will expire it as a side-effect.<a name="line.390"></a>
-<FONT color="green">391</FONT>       *<a name="line.391"></a>
-<FONT color="green">392</FONT>       * @param e the exception to test<a name="line.392"></a>
-<FONT color="green">393</FONT>       * @return true if a retry can be attempted<a name="line.393"></a>
-<FONT color="green">394</FONT>       */<a name="line.394"></a>
-<FONT color="green">395</FONT>      public boolean shouldRetry(KeeperException e) {<a name="line.395"></a>
-<FONT color="green">396</FONT>        if (e instanceof SessionExpiredException) {<a name="line.396"></a>
-<FONT color="green">397</FONT>          close();<a name="line.397"></a>
-<FONT color="green">398</FONT>        }<a name="line.398"></a>
-<FONT color="green">399</FONT>        return ZooKeeperUtils.isRetryable(e);<a name="line.399"></a>
-<FONT color="green">400</FONT>      }<a name="line.400"></a>
-<FONT color="green">401</FONT>    <a name="line.401"></a>
-<FONT color="green">402</FONT>      /**<a name="line.402"></a>
-<FONT color="green">403</FONT>       * Closes the current connection if any expiring the current ZooKeeper session.  Any subsequent<a name="line.403"></a>
-<FONT color="green">404</FONT>       * calls to this method will no-op until the next successful {@link #get}.<a name="line.404"></a>
-<FONT color="green">405</FONT>       */<a name="line.405"></a>
-<FONT color="green">406</FONT>      public synchronized void close() {<a name="line.406"></a>
-<FONT color="green">407</FONT>        if (closed) {<a name="line.407"></a>
-<FONT color="green">408</FONT>          return;<a name="line.408"></a>
-<FONT color="green">409</FONT>        }<a name="line.409"></a>
-<FONT color="green">410</FONT>    <a name="line.410"></a>
-<FONT color="green">411</FONT>        closed = true;<a name="line.411"></a>
+<FONT color="green">345</FONT>          sessionState = new SessionState(zooKeeper.getSessionId(), zooKeeper.getSessionPasswd());<a name="line.345"></a>
+<FONT color="green">346</FONT>        }<a name="line.346"></a>
+<FONT color="green">347</FONT>        return zooKeeper;<a name="line.347"></a>
+<FONT color="green">348</FONT>      }<a name="line.348"></a>
+<FONT color="green">349</FONT>    <a name="line.349"></a>
+<FONT color="green">350</FONT>      /**<a name="line.350"></a>
+<FONT color="green">351</FONT>       * Clients that need to re-establish state after session expiration can register an<a name="line.351"></a>
+<FONT color="green">352</FONT>       * {@code onExpired} command to execute.<a name="line.352"></a>
+<FONT color="green">353</FONT>       *<a name="line.353"></a>
+<FONT color="green">354</FONT>       * @param onExpired the {@code Command} to register<a name="line.354"></a>
+<FONT color="green">355</FONT>       * @return the new {@link Watcher} which can later be passed to {@link #unregister} for<a name="line.355"></a>
+<FONT color="green">356</FONT>       *     removal.<a name="line.356"></a>
+<FONT color="green">357</FONT>       */<a name="line.357"></a>
+<FONT color="green">358</FONT>      public Watcher registerExpirationHandler(final Command onExpired) {<a name="line.358"></a>
+<FONT color="green">359</FONT>        Watcher watcher = new Watcher() {<a name="line.359"></a>
+<FONT color="green">360</FONT>          @Override public void process(WatchedEvent event) {<a name="line.360"></a>
+<FONT color="green">361</FONT>            if (event.getType() == EventType.None &amp;&amp; event.getState() == KeeperState.Expired) {<a name="line.361"></a>
+<FONT color="green">362</FONT>              onExpired.execute();<a name="line.362"></a>
+<FONT color="green">363</FONT>            }<a name="line.363"></a>
+<FONT color="green">364</FONT>          }<a name="line.364"></a>
+<FONT color="green">365</FONT>        };<a name="line.365"></a>
+<FONT color="green">366</FONT>        register(watcher);<a name="line.366"></a>
+<FONT color="green">367</FONT>        return watcher;<a name="line.367"></a>
+<FONT color="green">368</FONT>      }<a name="line.368"></a>
+<FONT color="green">369</FONT>    <a name="line.369"></a>
+<FONT color="green">370</FONT>      /**<a name="line.370"></a>
+<FONT color="green">371</FONT>       * Clients that need to register a top-level {@code Watcher} should do so using this method.  The<a name="line.371"></a>
+<FONT color="green">372</FONT>       * registered {@code watcher} will remain registered across re-connects and session expiration<a name="line.372"></a>
+<FONT color="green">373</FONT>       * events.<a name="line.373"></a>
+<FONT color="green">374</FONT>       *<a name="line.374"></a>
+<FONT color="green">375</FONT>       * @param watcher the {@code Watcher to register}<a name="line.375"></a>
+<FONT color="green">376</FONT>       */<a name="line.376"></a>
+<FONT color="green">377</FONT>      public void register(Watcher watcher) {<a name="line.377"></a>
+<FONT color="green">378</FONT>        watchers.add(watcher);<a name="line.378"></a>
+<FONT color="green">379</FONT>      }<a name="line.379"></a>
+<FONT color="green">380</FONT>    <a name="line.380"></a>
+<FONT color="green">381</FONT>      /**<a name="line.381"></a>
+<FONT color="green">382</FONT>       * Clients can attempt to unregister a top-level {@code Watcher} that has previously been<a name="line.382"></a>
+<FONT color="green">383</FONT>       * registered.<a name="line.383"></a>
+<FONT color="green">384</FONT>       *<a name="line.384"></a>
+<FONT color="green">385</FONT>       * @param watcher the {@code Watcher} to unregister as a top-level, persistent watch<a name="line.385"></a>
+<FONT color="green">386</FONT>       * @return whether the given {@code Watcher} was found and removed from the active set<a name="line.386"></a>
+<FONT color="green">387</FONT>       */<a name="line.387"></a>
+<FONT color="green">388</FONT>      public boolean unregister(Watcher watcher) {<a name="line.388"></a>
+<FONT color="green">389</FONT>        return watchers.remove(watcher);<a name="line.389"></a>
+<FONT color="green">390</FONT>      }<a name="line.390"></a>
+<FONT color="green">391</FONT>    <a name="line.391"></a>
+<FONT color="green">392</FONT>      /**<a name="line.392"></a>
+<FONT color="green">393</FONT>       * Checks to see if the client might reasonably re-try an operation given the exception thrown<a name="line.393"></a>
+<FONT color="green">394</FONT>       * while attempting it.  If the ZooKeeper session should be expired to enable the re-try to<a name="line.394"></a>
+<FONT color="green">395</FONT>       * succeed this method will expire it as a side-effect.<a name="line.395"></a>
+<FONT color="green">396</FONT>       *<a name="line.396"></a>
+<FONT color="green">397</FONT>       * @param e the exception to test<a name="line.397"></a>
+<FONT color="green">398</FONT>       * @return true if a retry can be attempted<a name="line.398"></a>
+<FONT color="green">399</FONT>       */<a name="line.399"></a>
+<FONT color="green">400</FONT>      public boolean shouldRetry(KeeperException e) {<a name="line.400"></a>
+<FONT color="green">401</FONT>        if (e instanceof SessionExpiredException) {<a name="line.401"></a>
+<FONT color="green">402</FONT>          close();<a name="line.402"></a>
+<FONT color="green">403</FONT>        }<a name="line.403"></a>
+<FONT color="green">404</FONT>        return ZooKeeperUtils.isRetryable(e);<a name="line.404"></a>
+<FONT color="green">405</FONT>      }<a name="line.405"></a>
+<FONT color="green">406</FONT>    <a name="line.406"></a>
+<FONT color="green">407</FONT>      /**<a name="line.407"></a>
+<FONT color="green">408</FONT>       * Closes the current connection if any expiring the current ZooKeeper session.  Any subsequent<a name="line.408"></a>
+<FONT color="green">409</FONT>       * calls to this method will no-op until the next successful {@link #get}.<a name="line.409"></a>
+<FONT color="green">410</FONT>       */<a name="line.410"></a>
+<FONT color="green">411</FONT>      public synchronized void close() {<a name="line.411"></a>
 <FONT color="green">412</FONT>        if (zooKeeper != null) {<a name="line.412"></a>
 <FONT color="green">413</FONT>          try {<a name="line.413"></a>
 <FONT color="green">414</FONT>            zooKeeper.close();<a name="line.414"></a>
-<FONT color="green">415</FONT>            zooKeeper = null;<a name="line.415"></a>
-<FONT color="green">416</FONT>            sessionState = null;<a name="line.416"></a>
-<FONT color="green">417</FONT>          } catch (InterruptedException e) {<a name="line.417"></a>
-<FONT color="green">418</FONT>            Thread.currentThread().interrupt();<a name="line.418"></a>
-<FONT color="green">419</FONT>            LOG.warning("Interrupted trying to close zooKeeper");<a name="line.419"></a>
-<FONT color="green">420</FONT>          }<a name="line.420"></a>
-<FONT color="green">421</FONT>        }<a name="line.421"></a>
-<FONT color="green">422</FONT>      }<a name="line.422"></a>
-<FONT color="green">423</FONT>    <a name="line.423"></a>
-<FONT color="green">424</FONT>      @VisibleForTesting<a name="line.424"></a>
-<FONT color="green">425</FONT>      synchronized boolean isClosed() {<a name="line.425"></a>
-<FONT color="green">426</FONT>        return closed;<a name="line.426"></a>
-<FONT color="green">427</FONT>      }<a name="line.427"></a>
-<FONT color="green">428</FONT>    }<a name="line.428"></a>
+<FONT color="green">415</FONT>          } catch (InterruptedException e) {<a name="line.415"></a>
+<FONT color="green">416</FONT>            Thread.currentThread().interrupt();<a name="line.416"></a>
+<FONT color="green">417</FONT>            LOG.warning("Interrupted trying to close zooKeeper");<a name="line.417"></a>
+<FONT color="green">418</FONT>          } finally {<a name="line.418"></a>
+<FONT color="green">419</FONT>            zooKeeper = null;<a name="line.419"></a>
+<FONT color="green">420</FONT>            sessionState = null;<a name="line.420"></a>
+<FONT color="green">421</FONT>          }<a name="line.421"></a>
+<FONT color="green">422</FONT>        }<a name="line.422"></a>
+<FONT color="green">423</FONT>      }<a name="line.423"></a>
+<FONT color="green">424</FONT>    <a name="line.424"></a>
+<FONT color="green">425</FONT>      @VisibleForTesting<a name="line.425"></a>
+<FONT color="green">426</FONT>      synchronized boolean isClosed() {<a name="line.426"></a>
+<FONT color="green">427</FONT>        return zooKeeper == null;<a name="line.427"></a>
+<FONT color="green">428</FONT>      }<a name="line.428"></a>
+<FONT color="green">429</FONT>    <a name="line.429"></a>
+<FONT color="green">430</FONT>      @VisibleForTesting<a name="line.430"></a>
+<FONT color="green">431</FONT>      ZooKeeper getZooKeeperClientForTests() {<a name="line.431"></a>
+<FONT color="green">432</FONT>        return zooKeeper;<a name="line.432"></a>
+<FONT color="green">433</FONT>      }<a name="line.433"></a>
+<FONT color="green">434</FONT>    }<a name="line.434"></a>
 
 
 

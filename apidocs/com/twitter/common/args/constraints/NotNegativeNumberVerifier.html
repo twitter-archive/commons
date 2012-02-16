@@ -94,9 +94,16 @@ Class NotNegativeNumberVerifier</H2>
   <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><A HREF="../../../../../com/twitter/common/args/constraints/ScalarVerifier.html" title="class in com.twitter.common.args.constraints">com.twitter.common.args.constraints.ScalarVerifier</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt;
       <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.args.constraints.NotNegativeNumberVerifier</B>
 </PRE>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../com/twitter/common/args/Verifier.html" title="interface in com.twitter.common.args">Verifier</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt;</DD>
+</DL>
 <HR>
 <DL>
-<DT><PRE>Verifier to ensure that a number is non-negative.
+<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/args/constraints/NotNegativeNumberVerifier.html#line.31"><B>NotNegativeNumberVerifier</B></A><DT>extends <A HREF="../../../../../com/twitter/common/args/constraints/ScalarVerifier.html" title="class in com.twitter.common.args.constraints">ScalarVerifier</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt;</DL>
+</PRE>
+
+<P>
+Verifier to ensure that a number is non-negative.
 <P>
 
 <P>
@@ -116,7 +123,10 @@ Class NotNegativeNumberVerifier</H2>
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/args/constraints/NotNegativeNumberVerifier.html#NotNegativeNumberVerifier()">NotNegativeNumberVerifier</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
 <!-- ========== METHOD SUMMARY =========== -->
 
 <A NAME="method_summary"><!-- --></A>
@@ -132,7 +142,18 @@ Class NotNegativeNumberVerifier</H2>
                  <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/Annotation.html?is-external=true" title="class or interface in java.lang.annotation">Annotation</A>&nbsp;annotation)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<A NAME="methods_inherited_from_class_com.twitter.common.args.constraints.ScalarVerifier"><!-- --></A>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a representation of the constraint this verifier checks.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/args/constraints/NotNegativeNumberVerifier.html#verify(java.lang.Number)">verify</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&nbsp;number)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_com.twitter.common.args.constraints.ScalarVerifier"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
 <TH ALIGN="left"><B>Methods inherited from class com.twitter.common.args.constraints.<A HREF="../../../../../com/twitter/common/args/constraints/ScalarVerifier.html" title="class in com.twitter.common.args.constraints">ScalarVerifier</A></B></TH>
@@ -200,8 +221,12 @@ toString</H3>
 public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../../src-html/com/twitter/common/args/constraints/NotNegativeNumberVerifier.html#line.38"><B>toString</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt;&nbsp;argType,
                        <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/Annotation.html?is-external=true" title="class or interface in java.lang.annotation">Annotation</A>&nbsp;annotation)</PRE>
 <DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../com/twitter/common/args/Verifier.html#toString(java.lang.Class, java.lang.annotation.Annotation)">Verifier</A></CODE></B></DD>
+<DD>Returns a representation of the constraint this verifier checks.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>argType</CODE> - The type of the <A HREF="../../../../../com/twitter/common/args/Arg.html" title="class in com.twitter.common.args"><CODE>Arg</CODE></A> this annotation applies to.<DD><CODE>annotation</CODE> - The constraint annotation to represent.
+<DT><B>Returns:</B><DD>A representation of the constraint this verifier checks.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

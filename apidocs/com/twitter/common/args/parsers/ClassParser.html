@@ -94,9 +94,16 @@ Class ClassParser</H2>
   <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><A HREF="../../../../../com/twitter/common/args/parsers/TypeParameterizedParser.html" title="class in com.twitter.common.args.parsers">com.twitter.common.args.parsers.TypeParameterizedParser</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&gt;
       <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.args.parsers.ClassParser</B>
 </PRE>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../com/twitter/common/args/Parser.html" title="interface in com.twitter.common.args">Parser</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&gt;</DD>
+</DL>
 <HR>
 <DL>
-<DT><PRE>Class parser.
+<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/args/parsers/ClassParser.html#line.34"><B>ClassParser</B></A><DT>extends <A HREF="../../../../../com/twitter/common/args/parsers/TypeParameterizedParser.html" title="class in com.twitter.common.args.parsers">TypeParameterizedParser</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&gt;</DL>
+</PRE>
+
+<P>
+Class parser.
 <P>
 
 <P>
@@ -116,7 +123,10 @@ Class ClassParser</H2>
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/args/parsers/ClassParser.html#ClassParser()">ClassParser</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
 <!-- ========== METHOD SUMMARY =========== -->
 
 <A NAME="method_summary"><!-- --></A>
@@ -128,18 +138,21 @@ Class ClassParser</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/args/parsers/ClassParser.html#doParse(ParserOracle, java.lang.String, java.util.List)">doParse</A></B>(ParserOracle&nbsp;parserOracle,
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/args/parsers/ClassParser.html#doParse(com.twitter.common.args.ParserOracle, java.lang.String, java.util.List)">doParse</A></B>(<A HREF="../../../../../com/twitter/common/args/ParserOracle.html" title="interface in com.twitter.common.args">ParserOracle</A>&nbsp;parserOracle,
                <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;raw,
                <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&gt;&nbsp;typeParams)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<A NAME="methods_inherited_from_class_com.twitter.common.args.parsers.TypeParameterizedParser"><!-- --></A>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Performs the actual parsing.</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_com.twitter.common.args.parsers.TypeParameterizedParser"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
 <TH ALIGN="left"><B>Methods inherited from class com.twitter.common.args.parsers.<A HREF="../../../../../com/twitter/common/args/parsers/TypeParameterizedParser.html" title="class in com.twitter.common.args.parsers">TypeParameterizedParser</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../com/twitter/common/args/parsers/TypeParameterizedParser.html#parse(ParserOracle, java.lang.reflect.Type, java.lang.String)">parse</A></CODE></TD>
+<TD><CODE><A HREF="../../../../../com/twitter/common/args/parsers/TypeParameterizedParser.html#parse(com.twitter.common.args.ParserOracle, java.lang.reflect.Type, java.lang.String)">parse</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -181,14 +194,14 @@ public <A HREF="../../../../../src-html/com/twitter/common/args/parsers/ClassPar
 </TR>
 </TABLE>
 
-<A NAME="doParse(ParserOracle, java.lang.String, java.util.List)"><!-- --></A><H3>
+<A NAME="doParse(com.twitter.common.args.ParserOracle, java.lang.String, java.util.List)"><!-- --></A><H3>
 doParse</H3>
 <PRE>
-public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A> <A HREF="../../../../../src-html/com/twitter/common/args/parsers/ClassParser.html#line.41"><B>doParse</B></A>(ParserOracle&nbsp;parserOracle,
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A> <A HREF="../../../../../src-html/com/twitter/common/args/parsers/ClassParser.html#line.41"><B>doParse</B></A>(<A HREF="../../../../../com/twitter/common/args/ParserOracle.html" title="interface in com.twitter.common.args">ParserOracle</A>&nbsp;parserOracle,
                      <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;raw,
                      <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&gt;&nbsp;typeParams)</PRE>
 <DL>
-<DD><B>Description copied from class: <CODE><A HREF="../../../../../com/twitter/common/args/parsers/TypeParameterizedParser.html#doParse(ParserOracle, java.lang.String, java.util.List)">TypeParameterizedParser</A></CODE></B></DD>
+<DD><B>Description copied from class: <CODE><A HREF="../../../../../com/twitter/common/args/parsers/TypeParameterizedParser.html#doParse(com.twitter.common.args.ParserOracle, java.lang.String, java.util.List)">TypeParameterizedParser</A></CODE></B></DD>
 <DD>Performs the actual parsing.
 <P>
 <DD><DL>

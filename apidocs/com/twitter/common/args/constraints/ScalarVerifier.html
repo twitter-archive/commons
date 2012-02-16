@@ -94,11 +94,14 @@ Class ScalarVerifier&lt;T&gt;</H2>
   <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.args.constraints.ScalarVerifier&lt;T&gt;</B>
 </PRE>
 <DL>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../com/twitter/common/args/Verifier.html" title="interface in com.twitter.common.args">Verifier</A>&lt;T&gt;</DD>
+</DL>
+<DL>
 <DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../../../../com/twitter/common/args/constraints/CanExecuteFileVerifier.html" title="class in com.twitter.common.args.constraints">CanExecuteFileVerifier</A>, <A HREF="../../../../../com/twitter/common/args/constraints/CanReadFileVerifier.html" title="class in com.twitter.common.args.constraints">CanReadFileVerifier</A>, <A HREF="../../../../../com/twitter/common/args/constraints/CanWriteFileVerifier.html" title="class in com.twitter.common.args.constraints">CanWriteFileVerifier</A>, <A HREF="../../../../../com/twitter/common/args/constraints/ExistsFileVerifier.html" title="class in com.twitter.common.args.constraints">ExistsFileVerifier</A>, <A HREF="../../../../../com/twitter/common/args/constraints/IsDirectoryFileVerifier.html" title="class in com.twitter.common.args.constraints">IsDirectoryFileVerifier</A>, <A HREF="../../../../../com/twitter/common/args/constraints/NotEmptyIterableVerifier.html" title="class in com.twitter.common.args.constraints">NotEmptyIterableVerifier</A>, <A HREF="../../../../../com/twitter/common/args/constraints/NotEmptyStringVerifier.html" title="class in com.twitter.common.args.constraints">NotEmptyStringVerifier</A>, <A HREF="../../../../../com/twitter/common/args/constraints/NotNegativeNumberVerifier.html" title="class in com.twitter.common.args.constraints">NotNegativeNumberVerifier</A>, <A HREF="../../../../../com/twitter/common/args/constraints/NotNullVerifier.html" title="class in com.twitter.common.args.constraints">NotNullVerifier</A>, <A HREF="../../../../../com/twitter/common/args/constraints/PositiveNumberVerifier.html" title="class in com.twitter.common.args.constraints">PositiveNumberVerifier</A></DD>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public abstract class <A HREF="../../../../../src-html/com/twitter/common/args/constraints/ScalarVerifier.html#line.29"><B>ScalarVerifier&lt;T&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public abstract class <A HREF="../../../../../src-html/com/twitter/common/args/constraints/ScalarVerifier.html#line.29"><B>ScalarVerifier&lt;T&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../../com/twitter/common/args/Verifier.html" title="interface in com.twitter.common.args">Verifier</A>&lt;T&gt;</DL>
 </PRE>
 
 <P>
@@ -142,7 +145,7 @@ Partial verifier implementation to simplify implementation of scalar verifiers. 
              <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/Annotation.html?is-external=true" title="class or interface in java.lang.annotation">Annotation</A>&nbsp;annotation)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Verifies the value against the annotation.</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -152,6 +155,15 @@ Partial verifier implementation to simplify implementation of scalar verifiers. 
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_com.twitter.common.args.Verifier"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from interface com.twitter.common.args.<A HREF="../../../../../com/twitter/common/args/Verifier.html" title="interface in com.twitter.common.args">Verifier</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="../../../../../com/twitter/common/args/Verifier.html#toString(java.lang.Class, java.lang.annotation.Annotation)">toString</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -190,8 +202,14 @@ verify</H3>
 public void <A HREF="../../../../../src-html/com/twitter/common/args/constraints/ScalarVerifier.html#line.33"><B>verify</B></A>(<A HREF="../../../../../com/twitter/common/args/constraints/ScalarVerifier.html" title="type parameter in ScalarVerifier">T</A>&nbsp;value,
                    <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/Annotation.html?is-external=true" title="class or interface in java.lang.annotation">Annotation</A>&nbsp;annotation)</PRE>
 <DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../com/twitter/common/args/Verifier.html#verify(T, java.lang.annotation.Annotation)">Verifier</A></CODE></B></DD>
+<DD>Verifies the value against the annotation.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../com/twitter/common/args/Verifier.html#verify(T, java.lang.annotation.Annotation)">verify</A></CODE> in interface <CODE><A HREF="../../../../../com/twitter/common/args/Verifier.html" title="interface in com.twitter.common.args">Verifier</A>&lt;<A HREF="../../../../../com/twitter/common/args/constraints/ScalarVerifier.html" title="type parameter in ScalarVerifier">T</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>value</CODE> - Value that is being applied.<DD><CODE>annotation</CODE> - Annotation that the verifier is checking against.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
