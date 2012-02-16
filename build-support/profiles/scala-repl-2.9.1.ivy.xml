@@ -27,6 +27,6 @@ limitations under the License.
   <dependencies>
     <dependency org="org.scala-lang" name="scala-compiler" rev="2.9.1" transitive="false"/>
     <dependency org="org.scala-lang" name="scala-library" rev="2.9.1" transitive="false"/>
-    <dependency org="jline" name="jline" rev="0.9.94" transitive="false"/>
+    <dependency org="org.scala-lang" name="jline" rev="2.9.1" transitive="false"/>
   </dependencies>
 </ivy-module>
