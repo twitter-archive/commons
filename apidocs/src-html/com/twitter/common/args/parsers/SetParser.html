@@ -31,7 +31,7 @@
 <FONT color="green">028</FONT>    import com.twitter.common.args.Parser;<a name="line.28"></a>
 <FONT color="green">029</FONT>    import com.twitter.common.args.ParserOracle;<a name="line.29"></a>
 <FONT color="green">030</FONT>    import com.twitter.common.args.Parsers;<a name="line.30"></a>
-<FONT color="green">031</FONT>    import com.twitter.common.args.TypeUtil;<a name="line.31"></a>
+<FONT color="green">031</FONT>    import com.twitter.common.reflect.TypeToken;<a name="line.31"></a>
 <FONT color="green">032</FONT>    <a name="line.32"></a>
 <FONT color="green">033</FONT>    /**<a name="line.33"></a>
 <FONT color="green">034</FONT>     * Set parser.<a name="line.34"></a>
@@ -48,7 +48,7 @@
 <FONT color="green">045</FONT>      @Override<a name="line.45"></a>
 <FONT color="green">046</FONT>      Set doParse(final ParserOracle parserOracle, String raw, List&lt;Type&gt; typeParams) {<a name="line.46"></a>
 <FONT color="green">047</FONT>        final Type setType = typeParams.get(0);<a name="line.47"></a>
-<FONT color="green">048</FONT>        final Parser parser = parserOracle.get(TypeUtil.getRawType(setType));<a name="line.48"></a>
+<FONT color="green">048</FONT>        final Parser parser = parserOracle.get(TypeToken.create(setType));<a name="line.48"></a>
 <FONT color="green">049</FONT>    <a name="line.49"></a>
 <FONT color="green">050</FONT>        return ImmutableSet.copyOf(Iterables.transform(Parsers.MULTI_VALUE_SPLITTER.split(raw),<a name="line.50"></a>
 <FONT color="green">051</FONT>            new Function&lt;String, Object&gt;() {<a name="line.51"></a>

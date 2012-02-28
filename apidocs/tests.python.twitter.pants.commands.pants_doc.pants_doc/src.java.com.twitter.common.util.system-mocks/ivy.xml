@@ -46,7 +46,7 @@ limitations under the License.
   <dependencies>
     <dependency org="com.google.guava"
                 name="guava"
-                rev="11.0.1"
+                rev="11.0.2"
                 conf="default;sources"
                 transitive="false"
     >

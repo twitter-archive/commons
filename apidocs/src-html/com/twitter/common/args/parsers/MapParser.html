@@ -31,7 +31,7 @@
 <FONT color="green">028</FONT>    import com.twitter.common.args.Parser;<a name="line.28"></a>
 <FONT color="green">029</FONT>    import com.twitter.common.args.ParserOracle;<a name="line.29"></a>
 <FONT color="green">030</FONT>    import com.twitter.common.args.Parsers;<a name="line.30"></a>
-<FONT color="green">031</FONT>    import com.twitter.common.args.TypeUtil;<a name="line.31"></a>
+<FONT color="green">031</FONT>    import com.twitter.common.reflect.TypeToken;<a name="line.31"></a>
 <FONT color="green">032</FONT>    <a name="line.32"></a>
 <FONT color="green">033</FONT>    import static com.google.common.base.Preconditions.checkArgument;<a name="line.33"></a>
 <FONT color="green">034</FONT>    <a name="line.34"></a>
@@ -54,10 +54,10 @@
 <FONT color="green">051</FONT>      @Override<a name="line.51"></a>
 <FONT color="green">052</FONT>      Map doParse(ParserOracle parserOracle, String raw, List&lt;Type&gt; typeParams) {<a name="line.52"></a>
 <FONT color="green">053</FONT>        Type keyType = typeParams.get(0);<a name="line.53"></a>
-<FONT color="green">054</FONT>        Parser keyParser = parserOracle.get(TypeUtil.getRawType(keyType));<a name="line.54"></a>
+<FONT color="green">054</FONT>        Parser keyParser = parserOracle.get(TypeToken.create(keyType));<a name="line.54"></a>
 <FONT color="green">055</FONT>    <a name="line.55"></a>
 <FONT color="green">056</FONT>        Type valueType = typeParams.get(1);<a name="line.56"></a>
-<FONT color="green">057</FONT>        Parser valueParser = parserOracle.get(TypeUtil.getRawType(valueType));<a name="line.57"></a>
+<FONT color="green">057</FONT>        Parser valueParser = parserOracle.get(TypeToken.create(valueType));<a name="line.57"></a>
 <FONT color="green">058</FONT>    <a name="line.58"></a>
 <FONT color="green">059</FONT>        ImmutableMap.Builder map = ImmutableMap.builder();<a name="line.59"></a>
 <FONT color="green">060</FONT>        for (String keyAndValue : Parsers.MULTI_VALUE_SPLITTER.split(raw)) {<a name="line.60"></a>

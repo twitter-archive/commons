@@ -100,7 +100,7 @@ Class TypeToken&lt;T&gt;</H2>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public abstract class <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.html#line.37"><B>TypeToken&lt;T&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public abstract class <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.html#line.38"><B>TypeToken&lt;T&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
@@ -202,6 +202,22 @@ A class meant to be sub-classed in order to capture a generic type literal value
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;<A HREF="../../../../com/twitter/common/reflect/TypeToken.html" title="type parameter in TypeToken">T</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/reflect/TypeToken.html#getRawType()">getRawType</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Finds the raw class of this type token.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;?&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/reflect/TypeToken.html#getRawType(java.lang.reflect.Type)">getRawType</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Finds the raw class of a type.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/reflect/TypeToken.html#getType()">getType</A></B>()</CODE>
 
@@ -250,7 +266,7 @@ A class meant to be sub-classed in order to capture a generic type literal value
 <A NAME="type"><!-- --></A><H3>
 type</H3>
 <PRE>
-protected final <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A> <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.html#line.42"><B>type</B></A></PRE>
+protected final <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A> <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.html#line.43"><B>type</B></A></PRE>
 <DL>
 <DD>The type captured by this type token.
 <P>
@@ -271,7 +287,7 @@ protected final <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/
 <A NAME="TypeToken()"><!-- --></A><H3>
 TypeToken</H3>
 <PRE>
-protected <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.html#line.44"><B>TypeToken</B></A>()</PRE>
+protected <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.html#line.45"><B>TypeToken</B></A>()</PRE>
 <DL>
 </DL>
 
@@ -288,7 +304,7 @@ protected <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.htm
 <A NAME="getType()"><!-- --></A><H3>
 getType</H3>
 <PRE>
-public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A> <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.html#line.62"><B>getType</B></A>()</PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A> <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.html#line.63"><B>getType</B></A>()</PRE>
 <DL>
 <DD>Returns the type captured by this type token.
 <P>
@@ -299,10 +315,24 @@ public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/T
 </DL>
 <HR>
 
+<A NAME="getRawType()"><!-- --></A><H3>
+getRawType</H3>
+<PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;<A HREF="../../../../com/twitter/common/reflect/TypeToken.html" title="type parameter in TypeToken">T</A>&gt; <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.html#line.72"><B>getRawType</B></A>()</PRE>
+<DL>
+<DD>Finds the raw class of this type token.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>The raw class of this type token.</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="equals(java.lang.Object)"><!-- --></A><H3>
 equals</H3>
 <PRE>
-public boolean <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.html#line.74"><B>equals</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>&nbsp;o)</PRE>
+public boolean <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.html#line.86"><B>equals</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>&nbsp;o)</PRE>
 <DL>
 <DD>Implements value-equality over the this type token's captured type.
 <P>
@@ -320,7 +350,7 @@ public boolean <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToke
 <A NAME="hashCode()"><!-- --></A><H3>
 hashCode</H3>
 <PRE>
-public int <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.html#line.84"><B>hashCode</B></A>()</PRE>
+public int <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.html#line.96"><B>hashCode</B></A>()</PRE>
 <DL>
 <DD><DL>
 <DT><B>Overrides:</B><DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</A></CODE> in class <CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></CODE></DL>
@@ -334,7 +364,7 @@ public int <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.ht
 <A NAME="toString()"><!-- --></A><H3>
 toString</H3>
 <PRE>
-public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.html#line.89"><B>toString</B></A>()</PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.html#line.101"><B>toString</B></A>()</PRE>
 <DL>
 <DD><DL>
 <DT><B>Overrides:</B><DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</A></CODE> in class <CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></CODE></DL>
@@ -348,7 +378,7 @@ public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.ht
 <A NAME="create(java.lang.Class)"><!-- --></A><H3>
 create</H3>
 <PRE>
-public static &lt;T&gt; <A HREF="../../../../com/twitter/common/reflect/TypeToken.html" title="class in com.twitter.common.reflect">TypeToken</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.html#line.100"><B>create</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;T&gt;&nbsp;cls)</PRE>
+public static &lt;T&gt; <A HREF="../../../../com/twitter/common/reflect/TypeToken.html" title="class in com.twitter.common.reflect">TypeToken</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.html#line.112"><B>create</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;T&gt;&nbsp;cls)</PRE>
 <DL>
 <DD>Creates a type token for the given raw class.
 <P>
@@ -362,7 +392,7 @@ public static &lt;T&gt; <A HREF="../../../../com/twitter/common/reflect/TypeToke
 <A NAME="create(java.lang.reflect.Type)"><!-- --></A><H3>
 create</H3>
 <PRE>
-public static <A HREF="../../../../com/twitter/common/reflect/TypeToken.html" title="class in com.twitter.common.reflect">TypeToken</A>&lt;?&gt; <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.html#line.111"><B>create</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type)</PRE>
+public static <A HREF="../../../../com/twitter/common/reflect/TypeToken.html" title="class in com.twitter.common.reflect">TypeToken</A>&lt;?&gt; <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.html#line.123"><B>create</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type)</PRE>
 <DL>
 <DD>Creates a type token wrapping the given type.
 <P>
@@ -376,7 +406,7 @@ public static <A HREF="../../../../com/twitter/common/reflect/TypeToken.html" ti
 <A NAME="extractTypeToken(java.lang.reflect.Type)"><!-- --></A><H3>
 extractTypeToken</H3>
 <PRE>
-public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A> <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.html#line.124"><B>extractTypeToken</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type)</PRE>
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A> <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.html#line.136"><B>extractTypeToken</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type)</PRE>
 <DL>
 <DD>Extracts the actual type parameter for a singly parameterized type.
 <P>
@@ -386,6 +416,20 @@ public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/re
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - if the supplied type does not have exactly one specified type
      parameter</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getRawType(java.lang.reflect.Type)"><!-- --></A><H3>
+getRawType</H3>
+<PRE>
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;?&gt; <A HREF="../../../../src-html/com/twitter/common/reflect/TypeToken.html#line.151"><B>getRawType</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type)</PRE>
+<DL>
+<DD>Finds the raw class of a type.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>type</CODE> - The type to get the raw class of.
+<DT><B>Returns:</B><DD>The raw class of the type.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

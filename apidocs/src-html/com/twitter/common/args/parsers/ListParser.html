@@ -30,7 +30,7 @@
 <FONT color="green">027</FONT>    import com.twitter.common.args.Parser;<a name="line.27"></a>
 <FONT color="green">028</FONT>    import com.twitter.common.args.ParserOracle;<a name="line.28"></a>
 <FONT color="green">029</FONT>    import com.twitter.common.args.Parsers;<a name="line.29"></a>
-<FONT color="green">030</FONT>    import com.twitter.common.args.TypeUtil;<a name="line.30"></a>
+<FONT color="green">030</FONT>    import com.twitter.common.reflect.TypeToken;<a name="line.30"></a>
 <FONT color="green">031</FONT>    <a name="line.31"></a>
 <FONT color="green">032</FONT>    /**<a name="line.32"></a>
 <FONT color="green">033</FONT>     * List parser.<a name="line.33"></a>
@@ -47,16 +47,15 @@
 <FONT color="green">044</FONT>      @Override<a name="line.44"></a>
 <FONT color="green">045</FONT>      List doParse(final ParserOracle parserOracle, String raw, final List&lt;Type&gt; typeParams) {<a name="line.45"></a>
 <FONT color="green">046</FONT>        final Type listType = typeParams.get(0);<a name="line.46"></a>
-<FONT color="green">047</FONT>        final Parser parser = parserOracle.get(TypeUtil.getRawType(listType));<a name="line.47"></a>
-<FONT color="green">048</FONT>    <a name="line.48"></a>
-<FONT color="green">049</FONT>        return ImmutableList.copyOf(Iterables.transform(Parsers.MULTI_VALUE_SPLITTER.split(raw),<a name="line.49"></a>
-<FONT color="green">050</FONT>            new Function&lt;String, Object&gt;() {<a name="line.50"></a>
-<FONT color="green">051</FONT>              @Override public Object apply(String raw) {<a name="line.51"></a>
-<FONT color="green">052</FONT>                return parser.parse(parserOracle, listType, raw);<a name="line.52"></a>
-<FONT color="green">053</FONT>              }<a name="line.53"></a>
-<FONT color="green">054</FONT>            }));<a name="line.54"></a>
-<FONT color="green">055</FONT>      }<a name="line.55"></a>
-<FONT color="green">056</FONT>    }<a name="line.56"></a>
+<FONT color="green">047</FONT>        final Parser parser = parserOracle.get(TypeToken.create(listType));<a name="line.47"></a>
+<FONT color="green">048</FONT>        return ImmutableList.copyOf(Iterables.transform(Parsers.MULTI_VALUE_SPLITTER.split(raw),<a name="line.48"></a>
+<FONT color="green">049</FONT>            new Function&lt;String, Object&gt;() {<a name="line.49"></a>
+<FONT color="green">050</FONT>              @Override public Object apply(String raw) {<a name="line.50"></a>
+<FONT color="green">051</FONT>                return parser.parse(parserOracle, listType, raw);<a name="line.51"></a>
+<FONT color="green">052</FONT>              }<a name="line.52"></a>
+<FONT color="green">053</FONT>            }));<a name="line.53"></a>
+<FONT color="green">054</FONT>      }<a name="line.54"></a>
+<FONT color="green">055</FONT>    }<a name="line.55"></a>
 
 
 

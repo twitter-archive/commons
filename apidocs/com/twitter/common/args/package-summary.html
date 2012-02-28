@@ -54,7 +54,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../com/twitter/common/application/modules/package-summary.html"><B>PREV PACKAGE</B></A>&nbsp;
-&nbsp;<A HREF="../../../../com/twitter/common/args/apt/package-summary.html"><B>NEXT PACKAGE</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/args/constraints/package-summary.html"><B>NEXT PACKAGE</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/args/package-summary.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="package-summary.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -84,37 +84,11 @@ Package com.twitter.common.args
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
-<B>Interface Summary</B></FONT></TH>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/Parser.html" title="interface in com.twitter.common.args">Parser&lt;T&gt;</A></B></TD>
-<TD>An interface to a command line argument parser.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/ParserOracle.html" title="interface in com.twitter.common.args">ParserOracle</A></B></TD>
-<TD>A registry of Parsers for different supported argument types.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/Verifier.html" title="interface in com.twitter.common.args">Verifier&lt;T&gt;</A></B></TD>
-<TD>Typedef for a constraint verifier.</TD>
-</TR>
-</TABLE>
-&nbsp;
-
-<P>
-
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
-<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Class Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/Arg.html" title="class in com.twitter.common.args">Arg&lt;T&gt;</A></B></TD>
-<TD>Wrapper class for the value of an argument.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/ArgFilters.html" title="class in com.twitter.common.args">ArgFilters</A></B></TD>
-<TD>Utilities for generating @CmdLine <A HREF="../../../../com/twitter/common/args/Arg.html" title="class in com.twitter.common.args"><CODE>Arg</CODE></A> filters suitable for use with
+<TD>Utilities for generating @CmdLine <CODE>Arg</CODE> filters suitable for use with
  <A HREF="../../../../com/twitter/common/args/ArgScanner.html#parse(com.google.common.base.Predicate, java.lang.Iterable)"><CODE>ArgScanner.parse(Predicate, Iterable)</CODE></A>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
@@ -122,8 +96,20 @@ Package com.twitter.common.args
 <TD>Argument scanning, parsing, and validating system.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/ArgumentInfo.html" title="class in com.twitter.common.args">ArgumentInfo&lt;T&gt;</A></B></TD>
+<TD>Description of a command line argument.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/OptionInfo.html" title="class in com.twitter.common.args">OptionInfo&lt;T&gt;</A></B></TD>
+<TD>Description of a command line option/flag such as -foo=bar.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/Parsers.html" title="class in com.twitter.common.args">Parsers</A></B></TD>
 <TD>A registry of Parsers for different supported argument types.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/PositionalInfo.html" title="class in com.twitter.common.args">PositionalInfo&lt;T&gt;</A></B></TD>
+<TD>Description of a positional command line argument.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/TypeUtil.html" title="class in com.twitter.common.args">TypeUtil</A></B></TD>
@@ -146,32 +132,6 @@ Package com.twitter.common.args
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/ArgScanner.ArgScanException.html" title="class in com.twitter.common.args">ArgScanner.ArgScanException</A></B></TD>
 <TD>Indicates a problem scanning @CmdLine arg definitions.</TD>
-</TR>
-</TABLE>
-&nbsp;
-
-<P>
-
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
-<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
-<B>Annotation Types Summary</B></FONT></TH>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/ArgParser.html" title="annotation in com.twitter.common.args">ArgParser</A></B></TD>
-<TD>Annotation to register a command line argument parser globally.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/CmdLine.html" title="annotation in com.twitter.common.args">CmdLine</A></B></TD>
-<TD>Annotation for a command line argument.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/Positional.html" title="annotation in com.twitter.common.args">Positional</A></B></TD>
-<TD>Annotation to mark an <A HREF="../../../../com/twitter/common/args/Arg.html" title="class in com.twitter.common.args"><CODE>Arg</CODE></A> for gathering the positional command line arguments.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/args/VerifierFor.html" title="annotation in com.twitter.common.args">VerifierFor</A></B></TD>
-<TD>Annotation to register a command line argument verifier.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -210,7 +170,7 @@ Package com.twitter.common.args
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../com/twitter/common/application/modules/package-summary.html"><B>PREV PACKAGE</B></A>&nbsp;
-&nbsp;<A HREF="../../../../com/twitter/common/args/apt/package-summary.html"><B>NEXT PACKAGE</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/args/constraints/package-summary.html"><B>NEXT PACKAGE</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/args/package-summary.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="package-summary.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;

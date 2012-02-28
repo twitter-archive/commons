@@ -53,8 +53,8 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../com/twitter/common/args/ParserOracle.html" title="interface in com.twitter.common.args"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../com/twitter/common/args/Positional.html" title="annotation in com.twitter.common.args"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/args/OptionInfo.html" title="class in com.twitter.common.args"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../com/twitter/common/args/PositionalInfo.html" title="class in com.twitter.common.args"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/args/Parsers.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="Parsers.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -93,12 +93,9 @@ Class Parsers</H2>
 <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
   <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.args.Parsers</B>
 </PRE>
-<DL>
-<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../com/twitter/common/args/ParserOracle.html" title="interface in com.twitter.common.args">ParserOracle</A></DD>
-</DL>
 <HR>
 <DL>
-<DT><PRE>public final class <A HREF="../../../../src-html/com/twitter/common/args/Parsers.html#line.38"><B>Parsers</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../com/twitter/common/args/ParserOracle.html" title="interface in com.twitter.common.args">ParserOracle</A></DL>
+<DT><PRE>public final class <A HREF="../../../../src-html/com/twitter/common/args/Parsers.html#line.39"><B>Parsers</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
@@ -119,7 +116,7 @@ A registry of Parsers for different supported argument types.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Splitter.html?is-external=true" title="class or interface in com.google.common.base">Splitter</A></CODE></FONT></TD>
+<CODE>static&nbsp;<A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.2/javadoc/com/google/common/base/Splitter.html?is-external=true" title="class or interface in com.google.common.base">Splitter</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/args/Parsers.html#MULTI_VALUE_SPLITTER">MULTI_VALUE_SPLITTER</A></B></CODE>
 
 <BR>
@@ -136,7 +133,7 @@ A registry of Parsers for different supported argument types.
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../com/twitter/common/args/Parsers.html#Parsers(java.util.Map)">Parsers</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;?&gt;,<A HREF="../../../../com/twitter/common/args/Parser.html" title="interface in com.twitter.common.args">Parser</A>&lt;?&gt;&gt;&nbsp;parsers)</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/args/Parsers.html#Parsers(java.util.Map)">Parsers</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;?&gt;,<any>&gt;&nbsp;parsers)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new parser registry over the specified <code>parsers</code>.</TD>
@@ -153,11 +150,18 @@ A registry of Parsers for different supported argument types.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="../../../../com/twitter/common/args/Parser.html" title="interface in com.twitter.common.args">Parser</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/args/Parsers.html#get(java.lang.Class)">get</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;?&gt;&nbsp;cls)</CODE>
+<CODE>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;T&gt; <any></CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/args/Parsers.html#get(com.twitter.common.reflect.TypeToken)">get</A></B>(<A HREF="../../../../com/twitter/common/reflect/TypeToken.html" title="class in com.twitter.common.reflect">TypeToken</A>&lt;T&gt;&nbsp;type)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets the parser associated with a class.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -185,7 +189,7 @@ A registry of Parsers for different supported argument types.
 <A NAME="MULTI_VALUE_SPLITTER"><!-- --></A><H3>
 MULTI_VALUE_SPLITTER</H3>
 <PRE>
-public static final <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Splitter.html?is-external=true" title="class or interface in com.google.common.base">Splitter</A> <A HREF="../../../../src-html/com/twitter/common/args/Parsers.html#line.97"><B>MULTI_VALUE_SPLITTER</B></A></PRE>
+public static final <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.2/javadoc/com/google/common/base/Splitter.html?is-external=true" title="class or interface in com.google.common.base">Splitter</A> <A HREF="../../../../src-html/com/twitter/common/args/Parsers.html#line.103"><B>MULTI_VALUE_SPLITTER</B></A></PRE>
 <DL>
 <DL>
 </DL>
@@ -204,7 +208,7 @@ public static final <A HREF="http://docs.guava-libraries.googlecode.com/git-hist
 <A NAME="Parsers(java.util.Map)"><!-- --></A><H3>
 Parsers</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/args/Parsers.html#line.47"><B>Parsers</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;?&gt;,<A HREF="../../../../com/twitter/common/args/Parser.html" title="interface in com.twitter.common.args">Parser</A>&lt;?&gt;&gt;&nbsp;parsers)</PRE>
+public <A HREF="../../../../src-html/com/twitter/common/args/Parsers.html#line.48"><B>Parsers</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;?&gt;,<any>&gt;&nbsp;parsers)</PRE>
 <DL>
 <DD>Creates a new parser registry over the specified <code>parsers</code>.
 <P>
@@ -222,23 +226,16 @@ public <A HREF="../../../../src-html/com/twitter/common/args/Parsers.html#line.4
 </TR>
 </TABLE>
 
-<A NAME="get(java.lang.Class)"><!-- --></A><H3>
+<A NAME="get(com.twitter.common.reflect.TypeToken)"><!-- --></A><H3>
 get</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/args/Parser.html" title="interface in com.twitter.common.args">Parser</A> <A HREF="../../../../src-html/com/twitter/common/args/Parsers.html#line.53"><B>get</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;?&gt;&nbsp;cls)
-           throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</A></PRE>
+public &lt;T&gt; <any> <A HREF="../../../../src-html/com/twitter/common/args/Parsers.html#line.54"><B>get</B></A>(<A HREF="../../../../com/twitter/common/reflect/TypeToken.html" title="class in com.twitter.common.reflect">TypeToken</A>&lt;T&gt;&nbsp;type)
+          throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</A></PRE>
 <DL>
-<DD><B>Description copied from interface: <CODE><A HREF="../../../../com/twitter/common/args/ParserOracle.html#get(java.lang.Class)">ParserOracle</A></CODE></B></DD>
-<DD>Gets the parser associated with a class.
-<P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../com/twitter/common/args/ParserOracle.html#get(java.lang.Class)">get</A></CODE> in interface <CODE><A HREF="../../../../com/twitter/common/args/ParserOracle.html" title="interface in com.twitter.common.args">ParserOracle</A></CODE></DL>
-</DD>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>cls</CODE> - Class to get the parser for.
-<DT><B>Returns:</B><DD>The parser for <code>cls</code>.
+
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - If no parser was found for <code>cls</code>.</DL>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</A></CODE></DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
@@ -272,8 +269,8 @@ public <A HREF="../../../../com/twitter/common/args/Parser.html" title="interfac
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../com/twitter/common/args/ParserOracle.html" title="interface in com.twitter.common.args"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../com/twitter/common/args/Positional.html" title="annotation in com.twitter.common.args"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/args/OptionInfo.html" title="class in com.twitter.common.args"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../com/twitter/common/args/PositionalInfo.html" title="class in com.twitter.common.args"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/args/Parsers.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="Parsers.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;

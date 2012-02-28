@@ -96,14 +96,11 @@ Class TypeParameterizedParser&lt;T&gt;</H2>
 <DL>
 <DT><DT><B>Type Parameters:</B><DD><CODE>T</CODE> - The raw type this parser can parse.</DL>
 <DL>
-<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../com/twitter/common/args/Parser.html" title="interface in com.twitter.common.args">Parser</A>&lt;T&gt;</DD>
-</DL>
-<DL>
 <DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../../../../com/twitter/common/args/parsers/AmountParser.html" title="class in com.twitter.common.args.parsers">AmountParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/ClassParser.html" title="class in com.twitter.common.args.parsers">ClassParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/DurationParser.html" title="class in com.twitter.common.args.parsers">DurationParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/ListParser.html" title="class in com.twitter.common.args.parsers">ListParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/MapParser.html" title="class in com.twitter.common.args.parsers">MapParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/PairParser.html" title="class in com.twitter.common.args.parsers">PairParser</A>, <A HREF="../../../../../com/twitter/common/args/parsers/SetParser.html" title="class in com.twitter.common.args.parsers">SetParser</A></DD>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public abstract class <A HREF="../../../../../src-html/com/twitter/common/args/parsers/TypeParameterizedParser.html#line.35"><B>TypeParameterizedParser&lt;T&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../../com/twitter/common/args/Parser.html" title="interface in com.twitter.common.args">Parser</A>&lt;T&gt;</DL>
+<DT><PRE>public abstract class <A HREF="../../../../../src-html/com/twitter/common/args/parsers/TypeParameterizedParser.html#line.35"><B>TypeParameterizedParser&lt;T&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
@@ -126,12 +123,12 @@ Parser that makes implementation of parsers for parameterized types simpler.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../../com/twitter/common/args/parsers/TypeParameterizedParser.html" title="type parameter in TypeParameterizedParser">T</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/args/parsers/TypeParameterizedParser.html#parse(com.twitter.common.args.ParserOracle, java.lang.reflect.Type, java.lang.String)">parse</A></B>(<A HREF="../../../../../com/twitter/common/args/ParserOracle.html" title="interface in com.twitter.common.args">ParserOracle</A>&nbsp;parserOracle,
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/args/parsers/TypeParameterizedParser.html#parse(ParserOracle, java.lang.reflect.Type, java.lang.String)">parse</A></B>(ParserOracle&nbsp;parserOracle,
            <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type,
            <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;raw)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Parses strings as arguments of a given subtype of <code>T</code>.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -156,22 +153,15 @@ Parser that makes implementation of parsers for parameterized types simpler.
 </TR>
 </TABLE>
 
-<A NAME="parse(com.twitter.common.args.ParserOracle, java.lang.reflect.Type, java.lang.String)"><!-- --></A><H3>
+<A NAME="parse(ParserOracle, java.lang.reflect.Type, java.lang.String)"><!-- --></A><H3>
 parse</H3>
 <PRE>
-public <A HREF="../../../../../com/twitter/common/args/parsers/TypeParameterizedParser.html" title="type parameter in TypeParameterizedParser">T</A> <A HREF="../../../../../src-html/com/twitter/common/args/parsers/TypeParameterizedParser.html#line.60"><B>parse</B></A>(<A HREF="../../../../../com/twitter/common/args/ParserOracle.html" title="interface in com.twitter.common.args">ParserOracle</A>&nbsp;parserOracle,
+public <A HREF="../../../../../com/twitter/common/args/parsers/TypeParameterizedParser.html" title="type parameter in TypeParameterizedParser">T</A> <A HREF="../../../../../src-html/com/twitter/common/args/parsers/TypeParameterizedParser.html#line.60"><B>parse</B></A>(ParserOracle&nbsp;parserOracle,
                <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type,
                <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;raw)</PRE>
 <DL>
-<DD><B>Description copied from interface: <CODE><A HREF="../../../../../com/twitter/common/args/Parser.html#parse(com.twitter.common.args.ParserOracle, java.lang.reflect.Type, java.lang.String)">Parser</A></CODE></B></DD>
-<DD>Parses strings as arguments of a given subtype of <code>T</code>.
-<P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../com/twitter/common/args/Parser.html#parse(com.twitter.common.args.ParserOracle, java.lang.reflect.Type, java.lang.String)">parse</A></CODE> in interface <CODE><A HREF="../../../../../com/twitter/common/args/Parser.html" title="interface in com.twitter.common.args">Parser</A>&lt;<A HREF="../../../../../com/twitter/common/args/parsers/TypeParameterizedParser.html" title="type parameter in TypeParameterizedParser">T</A>&gt;</CODE></DL>
-</DD>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>parserOracle</CODE> - The registered parserOracle for delegation.<DD><CODE>type</CODE> - The target type of the parsed argument.<DD><CODE>raw</CODE> - The raw value of the argument.
-<DT><B>Returns:</B><DD>A value of the given type parsed from the raw value.</DL>
+</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

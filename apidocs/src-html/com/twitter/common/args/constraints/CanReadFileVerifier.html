@@ -22,27 +22,28 @@
 <FONT color="green">019</FONT>    import java.io.File;<a name="line.19"></a>
 <FONT color="green">020</FONT>    import java.lang.annotation.Annotation;<a name="line.20"></a>
 <FONT color="green">021</FONT>    <a name="line.21"></a>
-<FONT color="green">022</FONT>    import com.twitter.common.args.VerifierFor;<a name="line.22"></a>
-<FONT color="green">023</FONT>    <a name="line.23"></a>
-<FONT color="green">024</FONT>    import static com.google.common.base.Preconditions.checkArgument;<a name="line.24"></a>
-<FONT color="green">025</FONT>    <a name="line.25"></a>
-<FONT color="green">026</FONT>    /**<a name="line.26"></a>
-<FONT color="green">027</FONT>     * Verifier to ensure that a file is readable.<a name="line.27"></a>
-<FONT color="green">028</FONT>     *<a name="line.28"></a>
-<FONT color="green">029</FONT>     * @author William Farner<a name="line.29"></a>
-<FONT color="green">030</FONT>     */<a name="line.30"></a>
-<FONT color="green">031</FONT>    @VerifierFor(CanRead.class)<a name="line.31"></a>
-<FONT color="green">032</FONT>    public class CanReadFileVerifier extends ScalarVerifier&lt;File&gt; {<a name="line.32"></a>
-<FONT color="green">033</FONT>      @Override<a name="line.33"></a>
-<FONT color="green">034</FONT>      void verify(File value) {<a name="line.34"></a>
-<FONT color="green">035</FONT>        checkArgument(value.canRead(), "File must be readable");<a name="line.35"></a>
-<FONT color="green">036</FONT>      }<a name="line.36"></a>
-<FONT color="green">037</FONT>    <a name="line.37"></a>
-<FONT color="green">038</FONT>      @Override<a name="line.38"></a>
-<FONT color="green">039</FONT>      public String toString(Class&lt;File&gt; argType, Annotation annotation) {<a name="line.39"></a>
-<FONT color="green">040</FONT>        return "file must be readable";<a name="line.40"></a>
-<FONT color="green">041</FONT>      }<a name="line.41"></a>
-<FONT color="green">042</FONT>    }<a name="line.42"></a>
+<FONT color="green">022</FONT>    import com.twitter.common.args.Verifier;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import com.twitter.common.args.VerifierFor;<a name="line.23"></a>
+<FONT color="green">024</FONT>    <a name="line.24"></a>
+<FONT color="green">025</FONT>    import static com.google.common.base.Preconditions.checkArgument;<a name="line.25"></a>
+<FONT color="green">026</FONT>    <a name="line.26"></a>
+<FONT color="green">027</FONT>    /**<a name="line.27"></a>
+<FONT color="green">028</FONT>     * Verifier to ensure that a file is readable.<a name="line.28"></a>
+<FONT color="green">029</FONT>     *<a name="line.29"></a>
+<FONT color="green">030</FONT>     * @author William Farner<a name="line.30"></a>
+<FONT color="green">031</FONT>     */<a name="line.31"></a>
+<FONT color="green">032</FONT>    @VerifierFor(CanRead.class)<a name="line.32"></a>
+<FONT color="green">033</FONT>    public class CanReadFileVerifier implements Verifier&lt;File&gt; {<a name="line.33"></a>
+<FONT color="green">034</FONT>      @Override<a name="line.34"></a>
+<FONT color="green">035</FONT>      public void verify(File value, Annotation annotation) {<a name="line.35"></a>
+<FONT color="green">036</FONT>        checkArgument(value.canRead(), "File must be readable");<a name="line.36"></a>
+<FONT color="green">037</FONT>      }<a name="line.37"></a>
+<FONT color="green">038</FONT>    <a name="line.38"></a>
+<FONT color="green">039</FONT>      @Override<a name="line.39"></a>
+<FONT color="green">040</FONT>      public String toString(Class&lt;? extends File&gt; argType, Annotation annotation) {<a name="line.40"></a>
+<FONT color="green">041</FONT>        return "file must be readable";<a name="line.41"></a>
+<FONT color="green">042</FONT>      }<a name="line.42"></a>
+<FONT color="green">043</FONT>    }<a name="line.43"></a>
 
 
 

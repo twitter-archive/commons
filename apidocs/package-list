@@ -2,7 +2,6 @@ com.twitter.common.application
 com.twitter.common.application.http
 com.twitter.common.application.modules
 com.twitter.common.args
-com.twitter.common.args.apt
 com.twitter.common.args.constraints
 com.twitter.common.args.parsers
 com.twitter.common.base

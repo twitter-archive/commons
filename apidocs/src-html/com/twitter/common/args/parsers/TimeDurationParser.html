@@ -45,7 +45,7 @@
 <FONT color="green">042</FONT>      @Override<a name="line.42"></a>
 <FONT color="green">043</FONT>      public Duration parse(ParserOracle parserOracle, Type type, String raw)<a name="line.43"></a>
 <FONT color="green">044</FONT>          throws IllegalArgumentException {<a name="line.44"></a>
-<FONT color="green">045</FONT>        Parser amountParser = parserOracle.get(Amount.class);<a name="line.45"></a>
+<FONT color="green">045</FONT>        Parser amountParser = parserOracle.get(TypeToken.create(Amount.class));<a name="line.45"></a>
 <FONT color="green">046</FONT>    <a name="line.46"></a>
 <FONT color="green">047</FONT>        @SuppressWarnings("unchecked")<a name="line.47"></a>
 <FONT color="green">048</FONT>        Amount&lt;Long, Time&gt; parsed = (Amount&lt;Long, Time&gt;)<a name="line.48"></a>

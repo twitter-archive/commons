@@ -54,7 +54,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../com/twitter/common/application/modules/package-tree.html"><B>PREV</B></A>&nbsp;
-&nbsp;<A HREF="../../../../com/twitter/common/args/apt/package-tree.html"><B>NEXT</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/args/constraints/package-tree.html"><B>NEXT</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/args/package-tree.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="package-tree.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -90,8 +90,9 @@ Class Hierarchy
 </H2>
 <UL>
 <LI TYPE="circle">java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang"><B>Object</B></A><UL>
-<LI TYPE="circle">com.twitter.common.args.<A HREF="../../../../com/twitter/common/args/Arg.html" title="class in com.twitter.common.args"><B>Arg</B></A>&lt;T&gt;<LI TYPE="circle">com.twitter.common.args.<A HREF="../../../../com/twitter/common/args/ArgFilters.html" title="class in com.twitter.common.args"><B>ArgFilters</B></A><LI TYPE="circle">com.twitter.common.args.<A HREF="../../../../com/twitter/common/args/ArgScanner.html" title="class in com.twitter.common.args"><B>ArgScanner</B></A><LI TYPE="circle">com.twitter.common.args.<A HREF="../../../../com/twitter/common/args/Parsers.html" title="class in com.twitter.common.args"><B>Parsers</B></A> (implements com.twitter.common.args.<A HREF="../../../../com/twitter/common/args/ParserOracle.html" title="interface in com.twitter.common.args">ParserOracle</A>)
-<LI TYPE="circle">java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang"><B>Throwable</B></A> (implements java.io.<A HREF="http://download.oracle.com/javase/6/docs/api/java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</A>)
+<LI TYPE="circle">com.twitter.common.args.<A HREF="../../../../com/twitter/common/args/ArgFilters.html" title="class in com.twitter.common.args"><B>ArgFilters</B></A><LI TYPE="circle">com.twitter.common.args.<A HREF="../../../../com/twitter/common/args/ArgScanner.html" title="class in com.twitter.common.args"><B>ArgScanner</B></A><LI TYPE="circle">com.twitter.common.args.<A HREF="../../../../com/twitter/common/args/ArgumentInfo.html" title="class in com.twitter.common.args"><B>ArgumentInfo</B></A>&lt;T&gt;<UL>
+<LI TYPE="circle">com.twitter.common.args.<A HREF="../../../../com/twitter/common/args/OptionInfo.html" title="class in com.twitter.common.args"><B>OptionInfo</B></A>&lt;T&gt;<LI TYPE="circle">com.twitter.common.args.<A HREF="../../../../com/twitter/common/args/PositionalInfo.html" title="class in com.twitter.common.args"><B>PositionalInfo</B></A>&lt;T&gt;</UL>
+<LI TYPE="circle">com.twitter.common.args.<A HREF="../../../../com/twitter/common/args/Parsers.html" title="class in com.twitter.common.args"><B>Parsers</B></A><LI TYPE="circle">java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang"><B>Throwable</B></A> (implements java.io.<A HREF="http://download.oracle.com/javase/6/docs/api/java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</A>)
 <UL>
 <LI TYPE="circle">java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang"><B>Exception</B></A><UL>
 <LI TYPE="circle">java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/RuntimeException.html?is-external=true" title="class or interface in java.lang"><B>RuntimeException</B></A><UL>
@@ -99,20 +100,6 @@ Class Hierarchy
 </UL>
 </UL>
 <LI TYPE="circle">com.twitter.common.args.<A HREF="../../../../com/twitter/common/args/TypeUtil.html" title="class in com.twitter.common.args"><B>TypeUtil</B></A><LI TYPE="circle">com.twitter.common.args.<A HREF="../../../../com/twitter/common/args/Verifiers.html" title="class in com.twitter.common.args"><B>Verifiers</B></A></UL>
-</UL>
-<H2>
-Interface Hierarchy
-</H2>
-<UL>
-<LI TYPE="circle">com.twitter.common.args.<A HREF="../../../../com/twitter/common/args/Parser.html" title="interface in com.twitter.common.args"><B>Parser</B></A>&lt;T&gt;<LI TYPE="circle">com.twitter.common.args.<A HREF="../../../../com/twitter/common/args/ParserOracle.html" title="interface in com.twitter.common.args"><B>ParserOracle</B></A><LI TYPE="circle">com.twitter.common.args.<A HREF="../../../../com/twitter/common/args/Verifier.html" title="interface in com.twitter.common.args"><B>Verifier</B></A>&lt;T&gt;</UL>
-<H2>
-Annotation Type Hierarchy
-</H2>
-<UL>
-<LI TYPE="circle">com.twitter.common.args.<A HREF="../../../../com/twitter/common/args/Positional.html" title="annotation in com.twitter.common.args"><B>Positional</B></A> (implements java.lang.annotation.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/Annotation.html?is-external=true" title="class or interface in java.lang.annotation">Annotation</A>)
-<LI TYPE="circle">com.twitter.common.args.<A HREF="../../../../com/twitter/common/args/ArgParser.html" title="annotation in com.twitter.common.args"><B>ArgParser</B></A> (implements java.lang.annotation.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/Annotation.html?is-external=true" title="class or interface in java.lang.annotation">Annotation</A>)
-<LI TYPE="circle">com.twitter.common.args.<A HREF="../../../../com/twitter/common/args/CmdLine.html" title="annotation in com.twitter.common.args"><B>CmdLine</B></A> (implements java.lang.annotation.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/Annotation.html?is-external=true" title="class or interface in java.lang.annotation">Annotation</A>)
-<LI TYPE="circle">com.twitter.common.args.<A HREF="../../../../com/twitter/common/args/VerifierFor.html" title="annotation in com.twitter.common.args"><B>VerifierFor</B></A> (implements java.lang.annotation.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/annotation/Annotation.html?is-external=true" title="class or interface in java.lang.annotation">Annotation</A>)
 </UL>
 <HR>
 
@@ -145,7 +132,7 @@ Annotation Type Hierarchy
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../com/twitter/common/application/modules/package-tree.html"><B>PREV</B></A>&nbsp;
-&nbsp;<A HREF="../../../../com/twitter/common/args/apt/package-tree.html"><B>NEXT</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/args/constraints/package-tree.html"><B>NEXT</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/args/package-tree.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="package-tree.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;

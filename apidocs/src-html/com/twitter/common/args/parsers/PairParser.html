@@ -28,8 +28,8 @@
 <FONT color="green">025</FONT>    import com.twitter.common.args.Parser;<a name="line.25"></a>
 <FONT color="green">026</FONT>    import com.twitter.common.args.ParserOracle;<a name="line.26"></a>
 <FONT color="green">027</FONT>    import com.twitter.common.args.Parsers;<a name="line.27"></a>
-<FONT color="green">028</FONT>    import com.twitter.common.args.TypeUtil;<a name="line.28"></a>
-<FONT color="green">029</FONT>    import com.twitter.common.collections.Pair;<a name="line.29"></a>
+<FONT color="green">028</FONT>    import com.twitter.common.collections.Pair;<a name="line.28"></a>
+<FONT color="green">029</FONT>    import com.twitter.common.reflect.TypeToken;<a name="line.29"></a>
 <FONT color="green">030</FONT>    <a name="line.30"></a>
 <FONT color="green">031</FONT>    import static com.google.common.base.Preconditions.checkArgument;<a name="line.31"></a>
 <FONT color="green">032</FONT>    <a name="line.32"></a>
@@ -48,10 +48,10 @@
 <FONT color="green">045</FONT>      @Override<a name="line.45"></a>
 <FONT color="green">046</FONT>      Pair doParse(ParserOracle parserOracle, String raw, List&lt;Type&gt; typeParams) {<a name="line.46"></a>
 <FONT color="green">047</FONT>        Type leftType = typeParams.get(0);<a name="line.47"></a>
-<FONT color="green">048</FONT>        Parser leftParser = parserOracle.get(TypeUtil.getRawType(leftType));<a name="line.48"></a>
+<FONT color="green">048</FONT>        Parser leftParser = parserOracle.get(TypeToken.create(leftType));<a name="line.48"></a>
 <FONT color="green">049</FONT>    <a name="line.49"></a>
 <FONT color="green">050</FONT>        Type rightType = typeParams.get(1);<a name="line.50"></a>
-<FONT color="green">051</FONT>        Parser rightParser = parserOracle.get(TypeUtil.getRawType(rightType));<a name="line.51"></a>
+<FONT color="green">051</FONT>        Parser rightParser = parserOracle.get(TypeToken.create(rightType));<a name="line.51"></a>
 <FONT color="green">052</FONT>    <a name="line.52"></a>
 <FONT color="green">053</FONT>        List&lt;String&gt; parts = ImmutableList.copyOf(Parsers.MULTI_VALUE_SPLITTER.split(raw));<a name="line.53"></a>
 <FONT color="green">054</FONT>        checkArgument(parts.size() == 2,<a name="line.54"></a>

@@ -143,7 +143,7 @@ A load balancer that serves as a layer above another load balancer to mark hosts
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>&gt;</CODE></FONT></TD>
+<CODE>protected &nbsp;<A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.2/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html#hostChecker">hostChecker</A></B></CODE>
 
 <BR>
@@ -161,15 +161,15 @@ A load balancer that serves as a layer above another load balancer to mark hosts
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html#MarkDeadStrategy(com.twitter.common.net.loadbalancing.LoadBalancingStrategy, com.google.common.base.Function)">MarkDeadStrategy</A></B>(<A HREF="../../../../../com/twitter/common/net/loadbalancing/LoadBalancingStrategy.html" title="interface in com.twitter.common.net.loadbalancing">LoadBalancingStrategy</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>&gt;&nbsp;wrappedStrategy,
-                                 <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>,<A HREF="../../../../../com/twitter/common/util/BackoffDecider.html" title="class in com.twitter.common.util">BackoffDecider</A>&gt;&nbsp;backoffFactory)</CODE>
+                                 <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.2/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>,<A HREF="../../../../../com/twitter/common/util/BackoffDecider.html" title="class in com.twitter.common.util">BackoffDecider</A>&gt;&nbsp;backoffFactory)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructor that uses a default predicate host checker that always returns true.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html#MarkDeadStrategy(com.twitter.common.net.loadbalancing.LoadBalancingStrategy, com.google.common.base.Function, com.google.common.base.Predicate)">MarkDeadStrategy</A></B>(<A HREF="../../../../../com/twitter/common/net/loadbalancing/LoadBalancingStrategy.html" title="interface in com.twitter.common.net.loadbalancing">LoadBalancingStrategy</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>&gt;&nbsp;wrappedStrategy,
-                                 <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>,<A HREF="../../../../../com/twitter/common/util/BackoffDecider.html" title="class in com.twitter.common.util">BackoffDecider</A>&gt;&nbsp;backoffFactory,
-                                 <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>&gt;&nbsp;hostChecker)</CODE>
+                                 <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.2/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>,<A HREF="../../../../../com/twitter/common/util/BackoffDecider.html" title="class in com.twitter.common.util">BackoffDecider</A>&gt;&nbsp;backoffFactory,
+                                 <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.2/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>&gt;&nbsp;hostChecker)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a mark dead strategy with a wrapped strategy, backoff decider factory
@@ -256,7 +256,7 @@ A load balancer that serves as a layer above another load balancer to mark hosts
 <A NAME="hostChecker"><!-- --></A><H3>
 hostChecker</H3>
 <PRE>
-protected final <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>&gt; <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/MarkDeadStrategy.html#line.50"><B>hostChecker</B></A></PRE>
+protected final <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.2/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>&gt; <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/MarkDeadStrategy.html#line.50"><B>hostChecker</B></A></PRE>
 <DL>
 <DL>
 </DL>
@@ -276,8 +276,8 @@ protected final <A HREF="http://docs.guava-libraries.googlecode.com/git-history/
 MarkDeadStrategy</H3>
 <PRE>
 public <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/MarkDeadStrategy.html#line.68"><B>MarkDeadStrategy</B></A>(<A HREF="../../../../../com/twitter/common/net/loadbalancing/LoadBalancingStrategy.html" title="interface in com.twitter.common.net.loadbalancing">LoadBalancingStrategy</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>&gt;&nbsp;wrappedStrategy,
-                        <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>,<A HREF="../../../../../com/twitter/common/util/BackoffDecider.html" title="class in com.twitter.common.util">BackoffDecider</A>&gt;&nbsp;backoffFactory,
-                        <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>&gt;&nbsp;hostChecker)</PRE>
+                        <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.2/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>,<A HREF="../../../../../com/twitter/common/util/BackoffDecider.html" title="class in com.twitter.common.util">BackoffDecider</A>&gt;&nbsp;backoffFactory,
+                        <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.2/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>&gt;&nbsp;hostChecker)</PRE>
 <DL>
 <DD>Creates a mark dead strategy with a wrapped strategy, backoff decider factory
  and a predicate host checker. Use this constructor if you want to pass in the
@@ -292,7 +292,7 @@ public <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/Mar
 MarkDeadStrategy</H3>
 <PRE>
 public <A HREF="../../../../../src-html/com/twitter/common/net/loadbalancing/MarkDeadStrategy.html#line.82"><B>MarkDeadStrategy</B></A>(<A HREF="../../../../../com/twitter/common/net/loadbalancing/LoadBalancingStrategy.html" title="interface in com.twitter.common.net.loadbalancing">LoadBalancingStrategy</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>&gt;&nbsp;wrappedStrategy,
-                        <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.1/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>,<A HREF="../../../../../com/twitter/common/util/BackoffDecider.html" title="class in com.twitter.common.util">BackoffDecider</A>&gt;&nbsp;backoffFactory)</PRE>
+                        <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.2/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</A>&lt;<A HREF="../../../../../com/twitter/common/net/loadbalancing/MarkDeadStrategy.html" title="type parameter in MarkDeadStrategy">S</A>,<A HREF="../../../../../com/twitter/common/util/BackoffDecider.html" title="class in com.twitter.common.util">BackoffDecider</A>&gt;&nbsp;backoffFactory)</PRE>
 <DL>
 <DD>Constructor that uses a default predicate host checker that always returns true.
  This is the default constructor that all consumers of MarkDeadStrategy currently use.

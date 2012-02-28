@@ -74,7 +74,7 @@
 <FONT color="green">071</FONT>       * the type of a {@code List&lt;String&gt;} you would use: {@code new Clazz&lt;List&lt;String&gt;&gt;() {}}<a name="line.71"></a>
 <FONT color="green">072</FONT>       */<a name="line.72"></a>
 <FONT color="green">073</FONT>      public abstract static class Clazz&lt;T&gt; extends TypeToken {<a name="line.73"></a>
-<FONT color="green">074</FONT>        Class&lt;T&gt; getRawType() {<a name="line.74"></a>
+<FONT color="green">074</FONT>        Class&lt;T&gt; rawType() {<a name="line.74"></a>
 <FONT color="green">075</FONT>          @SuppressWarnings("unchecked")<a name="line.75"></a>
 <FONT color="green">076</FONT>          Class&lt;T&gt; rawType = (Class&lt;T&gt;) findRawType();<a name="line.76"></a>
 <FONT color="green">077</FONT>          return rawType;<a name="line.77"></a>
@@ -99,11 +99,11 @@
 <FONT color="green">096</FONT>        }<a name="line.96"></a>
 <FONT color="green">097</FONT>    <a name="line.97"></a>
 <FONT color="green">098</FONT>        public T createMock() {<a name="line.98"></a>
-<FONT color="green">099</FONT>          return EasyMock.createMock(getRawType());<a name="line.99"></a>
+<FONT color="green">099</FONT>          return EasyMock.createMock(rawType());<a name="line.99"></a>
 <FONT color="green">100</FONT>        }<a name="line.100"></a>
 <FONT color="green">101</FONT>    <a name="line.101"></a>
 <FONT color="green">102</FONT>        public T createMock(IMocksControl control) {<a name="line.102"></a>
-<FONT color="green">103</FONT>          return control.createMock(getRawType());<a name="line.103"></a>
+<FONT color="green">103</FONT>          return control.createMock(rawType());<a name="line.103"></a>
 <FONT color="green">104</FONT>        }<a name="line.104"></a>
 <FONT color="green">105</FONT>      }<a name="line.105"></a>
 <FONT color="green">106</FONT>    <a name="line.106"></a>

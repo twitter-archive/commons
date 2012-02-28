@@ -3,15 +3,15 @@ var artifacts = {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "util-system-mocks", 
     "org": "com.twitter.common", 
-    "rev": "0.0.19"
+    "rev": "0.0.24"
   }, 
   "com/twitter/common/util/Random.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "util-system-mocks", 
     "org": "com.twitter.common", 
-    "rev": "0.0.19"
+    "rev": "0.0.24"
   }
 };
 artifacts.title = 'Twitter Commons API Docs';
-artifacts.publishDate = '01/27/2012 08:18 PM';
+artifacts.publishDate = '02/28/2012 10:24 AM';
 artifacts.hasChangelog = false;
