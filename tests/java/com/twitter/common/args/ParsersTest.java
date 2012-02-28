@@ -24,6 +24,7 @@ import org.junit.Test;
 import com.twitter.common.args.parsers.PairParser;
 import com.twitter.common.args.parsers.StringParser;
 import com.twitter.common.collections.Pair;
+import com.twitter.common.reflect.TypeToken;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -46,21 +47,21 @@ public class ParsersTest {
 
   @Test
   public void testParseTypeFamily() {
-    assertNotNull(defaultParsers.get(String.class));
+    assertNotNull(defaultParsers.get(TypeToken.create(String.class)));
 
     class Credentials extends Pair<String, String> {
       public Credentials(String first, String second) {
         super(first, second);
       }
     }
-    Parser parser = defaultParsers.get(Credentials.class);
+    Parser parser = defaultParsers.get(TypeToken.create(Credentials.class));
     assertNotNull(parser);
-    assertSame(parser, defaultParsers.get(Pair.class));
+    assertSame(parser, defaultParsers.get(TypeToken.create(Pair.class)));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNoParser() {
     class NoParserForMe {}
-    assertNull(defaultParsers.get(NoParserForMe.class));
+    assertNull(defaultParsers.get(TypeToken.create(NoParserForMe.class)));
   }
 }

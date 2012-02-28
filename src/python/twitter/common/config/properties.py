@@ -15,6 +15,7 @@
 # ==================================================================================================
 
 import re
+from twitter.common.lang import Compatibility
 
 from twitter.common.collections import OrderedDict
 
@@ -33,7 +34,7 @@ class Properties(object):
 
     if hasattr(data, 'read') and callable(data.read):
       contents = data.read()
-    elif isinstance(data, basestring):
+    elif isinstance(data, Compatibility.string):
       contents = data
     else:
       raise TypeError('Can only process data from a string or a readable object, given: %s' % data)
@@ -52,7 +53,7 @@ class Properties(object):
       try:
         buffer = ''
         while True:
-          line = line_iter.next()
+          line = next(line_iter)
           if line.strip().endswith('\\'):
             # Continuation.
             buffer += line.strip()[:-1]
@@ -106,9 +107,8 @@ class Properties(object):
 
     if hasattr(output, 'write') and callable(output.write):
       write(output)
-    elif isinstance(output, basestring):
+    elif isinstance(output, Compatibility.string):
       with open(output, 'w+a') as out:
         write(out)
     else:
       raise TypeError('Can only dump data to a path or a writable object, given: %s' % output)
-

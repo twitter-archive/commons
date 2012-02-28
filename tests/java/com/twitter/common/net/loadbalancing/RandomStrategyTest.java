@@ -16,22 +16,22 @@
 
 package com.twitter.common.net.loadbalancing;
 
+import java.util.Collection;
+import java.util.HashSet;
+
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.twitter.common.base.Closure;
-import com.twitter.common.net.pool.ResourceExhaustedException;
-import com.twitter.common.testing.EasyMockTest;
+
 import org.easymock.Capture;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Collection;
-import java.util.HashSet;
+import com.twitter.common.base.Closure;
+import com.twitter.common.net.pool.ResourceExhaustedException;
+import com.twitter.common.testing.EasyMockTest;
 
 import static org.easymock.EasyMock.capture;
-import static org.hamcrest.CoreMatchers.anyOf;
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -91,7 +91,8 @@ public class RandomStrategyTest extends EasyMockTest {
     HashSet<String> backends = Sets.newHashSet(BACKEND_1, BACKEND_2, BACKEND_3);
     randomStrategy.offerBackends(backends, onBackendsChosen);
 
-    assertThat(randomStrategy.nextBackend(), anyOf(is(BACKEND_1), is(BACKEND_2), is(BACKEND_3)));
+    assertTrue(ImmutableSet.of(BACKEND_1, BACKEND_2, BACKEND_3)
+        .contains(randomStrategy.nextBackend()));
     assertTrue(capture.hasCaptured());
     assertEquals(backends, Sets.newHashSet(capture.getValue()));
   }

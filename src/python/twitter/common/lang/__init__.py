@@ -14,6 +14,20 @@
 # limitations under the License.
 # ==================================================================================================
 
+from sys import version_info as sys_version_info
+from numbers import Integral, Real
+
+try:
+  # CPython 2.x
+  from cStringIO import StringIO
+except ImportError:
+  try:
+    # Python 2.x
+    from StringIO import StringIO
+  except:
+    # Python 3.x
+    from io import StringIO
+
 class SingletonMetaclass(type):
   """
     Singleton metaclass.
@@ -27,8 +41,45 @@ class SingletonMetaclass(type):
       cls.instance = super(SingletonMetaclass, cls).__call__(*args, **kw)
     return cls.instance
 
-class Singleton(object):
-  """
-    Singleton mixin.
-  """
-  __metaclass__ = SingletonMetaclass
+Singleton = SingletonMetaclass('Singleton', (object,), {})
+
+class Compatibility(object):
+  """2.x + 3.x compatibility"""
+  PY2 = sys_version_info[0] == 2
+  PY3 = sys_version_info[0] == 3
+  StringIO = StringIO
+
+  integer = (Integral,)
+  real = (Real,)
+  numeric = integer + real
+  string = (str,) if PY3 else (str, unicode)
+
+  if PY2:
+    @staticmethod
+    def to_bytes(st):
+      return str(st)
+  else:
+    @staticmethod
+    def to_bytes(st):
+      return bytes(st, encoding='utf8')
+
+  if PY3:
+    @staticmethod
+    def exec_function(ast, globals_map):
+      locals_map = globals_map
+      exec(ast, globals_map, locals_map)
+      return locals_map
+  else:
+    eval(compile(
+"""
+@staticmethod
+def exec_function(ast, globals_map):
+  locals_map = globals_map
+  exec ast in globals_map, locals_map
+  return locals_map
+""", "<exec_function>", "exec"))
+
+__all__ = [
+  'Singleton',
+  'Compatibility',
+]

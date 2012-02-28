@@ -16,10 +16,16 @@
 
 import os
 import shutil
+import tarfile
 import tempfile
 import sys
+import zipfile
 
-class environment_as(object):
+from contextlib import closing, contextmanager
+
+
+@contextmanager
+def environment_as(**kwargs):
   """
     Update the environment to the supplied values, for example:
 
@@ -27,28 +33,27 @@ class environment_as(object):
                         PYTHON = '/usr/bin/python2.6'):
       subprocess.Popen(foo).wait()
   """
-  def __init__(self, **kwargs):
-    self.new_environment = kwargs
-    self.old_environment = {}
+  new_environment = kwargs
+  old_environment = {}
 
-  @staticmethod
   def setenv(key, val):
     if val is not None:
       os.putenv(key, val)
     else:
       os.unsetenv(key)
 
-  def __enter__(self):
-    for key in self.new_environment:
-      self.old_environment[key] = os.environ.get(key, None)
-      environment_as.setenv(key, self.new_environment[key])
+  for key, val in new_environment.items():
+    old_environment[key] = os.environ.get(key)
+    setenv(key, val)
+  try:
+    yield
+  finally:
+    for key, val in old_environment.items():
+      setenv(key, val)
 
-  def __exit__(self, exctype, value, traceback):
-    for key in self.old_environment:
-      environment_as.setenv(key, self.old_environment[key])
 
-
-class temporary_dir(object):
+@contextmanager
+def temporary_dir(root_dir=None, cleanup=True):
   """
     A with-context that creates a temporary directory.
 
@@ -56,20 +61,16 @@ class temporary_dir(object):
       root_dir [path]: The parent directory to create the temporary directory.
       cleanup [True/False]: Whether or not to clean up the temporary directory.
   """
-  def __init__(self, root_dir=None, cleanup=True):
-    self.root_dir = root_dir
-    self.cleanup = cleanup
-
-  def __enter__(self):
-    self.path = tempfile.mkdtemp(dir=self.root_dir)
-    return self.path
-
-  def __exit__(self, exctype, value, traceback):
-    if self.cleanup:
-      shutil.rmtree(self.path)
+  path = tempfile.mkdtemp(dir=root_dir)
+  try:
+    yield path
+  finally:
+    if cleanup:
+      shutil.rmtree(path)
 
 
-class temporary_file(object):
+@contextmanager
+def temporary_file(root_dir=None, cleanup=True):
   """
     A with-context that creates a temporary file.
 
@@ -77,42 +78,35 @@ class temporary_file(object):
       root_dir [path]: The parent directory to create the temporary file.
       cleanup [True/False]: Whether or not to clean up the temporary file.
   """
-  def __init__(self, root_dir=None, cleanup=True):
-    self.root_dir = root_dir
-    self.cleanup = cleanup
-
-  def __enter__(self):
-    # argh, I would love to use os.fdopen here but then fp.name == '<fdopen>'
-    # and that's unacceptable behavior for most cases where I want to use temporary_file
-    fh, self.path = tempfile.mkstemp(dir=self.root_dir)
-    os.close(fh)
-    self.fd = open(self.path, 'w+')
-    return self.fd
-
-  def __exit__(self, exctype, value, traceback):
-    if not self.fd.closed:
-      self.fd.close()
-    if self.cleanup:
-      os.unlink(self.path)
+  # argh, I would love to use os.fdopen here but then fp.name == '<fdopen>'
+  # and that's unacceptable behavior for most cases where I want to use temporary_file
+  fh, path = tempfile.mkstemp(dir=root_dir)
+  os.close(fh)
+  fd = open(path, 'w+')
+  try:
+    yield fd
+  finally:
+    if not fd.closed:
+      fd.close()
+    if cleanup:
+      os.unlink(path)
 
 
-class pushd(object):
+@contextmanager
+def pushd(directory):
   """
     A with-context that encapsulates pushd/popd.
   """
-  def __init__(self, directory):
-    self.directory = directory
-
-  def __enter__(self):
-    self.cwd = os.getcwd()
-    os.chdir(self.directory)
-    return self.directory
-
-  def __exit__(self, exctype, value, traceback):
-    os.chdir(self.cwd)
+  cwd = os.getcwd()
+  os.chdir(directory)
+  try:
+    yield directory
+  finally:
+    os.chdir(cwd)
 
 
-class mutable_sys(object):
+@contextmanager
+def mutable_sys():
   """
     A with-context that does backup/restore of sys.argv, sys.path and
     sys.stderr/stdout/stdin following execution.
@@ -123,17 +117,31 @@ class mutable_sys(object):
     '__egginsert'
   ]
 
-  def __init__(self):
-    self._sys_backup = dict((key, getattr(sys, key))
-      for key in mutable_sys.SAVED_ATTRIBUTES if hasattr(sys, key))
-    self._sys_delete = set(filter(lambda key: not hasattr(sys, key), mutable_sys.SAVED_ATTRIBUTES))
-
-  def __enter__(self):
-    return sys
-
-  def __exit__(self, exctype, value, traceback):
-    for attribute in self._sys_backup:
-      setattr(sys, attribute, self._sys_backup[attribute])
-    for attribute in self._sys_delete:
+  _sys_backup = dict((key, getattr(sys, key)) for key in SAVED_ATTRIBUTES if hasattr(sys, key))
+  _sys_delete = set(filter(lambda key: not hasattr(sys, key), SAVED_ATTRIBUTES))
+  try:
+    yield sys
+  finally:
+    for attribute in _sys_backup:
+      setattr(sys, attribute, _sys_backup[attribute])
+    for attribute in _sys_delete:
       if hasattr(sys, attribute):
         delattr(sys, attribute)
+
+
+@contextmanager
+def open_zip(path, *args, **kwargs):
+  """
+    A with-context for zip files.  Passes through positional and kwargs to zipfile.ZipFile.
+  """
+  with closing(zipfile.ZipFile(path, *args, **kwargs)) as zip:
+    yield zip
+
+
+@contextmanager
+def open_tar(path, *args, **kwargs):
+  """
+    A with-context for tar files.  Passes through positional and kwargs to tarfile.open.
+  """
+  with closing(tarfile.open(path, *args, **kwargs)) as tar:
+    yield tar

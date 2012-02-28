@@ -19,22 +19,21 @@ package com.twitter.common.testing
 import java.io.File
 import org.specs.runner.SpecsFileRunner
 import scala.collection.mutable.Queue
+import scala.io.Source
 
 /**
  * A specs runner that accepts an explicit list of spec source files to run the specs from.  This
  * runner is configured via the command line with either 2 required system properties:
  * <ul>
- * <li>{@code specs.base.dir} - the base directory to calculate spec source file paths relative to
- * <li>{@code specs.path.list} - a comma-separated list of spec paths relative to
- * {@code specs.base.dir}
+ * <li>`specs.base.dir` - the base directory to calculate spec source file paths relative to
+ * <li>`specs.path.list` - a comma-separated list of spec paths relative to `specs.base.dir`
  * </ul>
  *
  * Or via a flag:
  * <ul>
- * <li>{@code --specs-files} - a comma-separated list of full spec paths
+ * <li>`--specs-files` - a comma-separated list of full spec paths or @-prefixed argument
+ * file paths
  * </ul>
- *
- * @author jsirois
  */
 object ExplicitSpecsRunnerMain extends SpecsFileRunner("", ".*") {
   private[this] def mapFlags(): Map[String, String] = {
@@ -47,19 +46,34 @@ object ExplicitSpecsRunnerMain extends SpecsFileRunner("", ".*") {
   }
 
   private[this] def specPaths() = {
-    def parseList(string: String) = string.split("\\s*,\\s*") filter { !_.isEmpty() }
+    def parseArgFile(path: String) = {
+      Source.fromFile(path).getLines().toSeq flatMap { _.split("\\s+") } filter { !_.isEmpty }
+    }
+
+    def parseList(string: String) = string.split("\\s*,\\s*") filter { !_.isEmpty }
+
     val base = System.getProperty("specs.base.dir")
     if (base != null) {
       parseList(System.getProperty("specs.path.list", "")) map { new File(base, _).getPath }
     } else {
       mapFlags().get("--specs-files") match {
-        case Some(list) => parseList(list)
+        case Some(list) => parseList(list) flatMap { item: String =>
+          if (item.startsWith("@")) {
+            parseArgFile(item.substring(1))
+          } else {
+            Some(item)
+          }
+        }
         case None =>
           val main = getClass.getName
           println("""usage:
                     |  java -Dspecs.base.dir=PATH -Dspecs.base.list=LIST %s
                     |  java %s --specs-files=LIST
                   """.format(main, main).stripMargin)
+          println("""If using --specs-files, elements in the list prefixed with @ are considered
+                    |arg file paths and these will be loaded and the whitespace delimited arguments
+                    |found inside added to the list.
+                  """.stripMargin)
           println("Must supply either -Dspecs.base.dir or --specs-files")
           exit(1)
       }

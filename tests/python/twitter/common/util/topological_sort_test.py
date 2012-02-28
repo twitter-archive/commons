@@ -65,10 +65,10 @@ class TopologicalSortTest(unittest.TestCase):
       "esther": set(["brian", 3]),
     }
     iter = topological_sort(deps)
-    assert iter.next() == set(["bob", "brian", 3])
-    assert iter.next() == set([1, "esther"])
-    assert iter.next() == set(["frank"])
-    assert iter.next() == set([2])
+    assert next(iter) == set(["bob", "brian", 3])
+    assert next(iter) == set([1, "esther"])
+    assert next(iter) == set(["frank"])
+    assert next(iter) == set([2])
 
   def test_filtering(self):
     output = list(topological_sort([(1,1), (1,2)]))

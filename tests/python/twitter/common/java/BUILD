@@ -14,10 +14,16 @@
 # limitations under the License.
 # ==================================================================================================
 
+python_library(
+  name = 'resources',
+  resources = globs('resources/*'),
+)
+
 python_tests(
   name = 'java',
   sources = ['test_class_file.py'],
   dependencies = [
-    pants('src/python/twitter/common/java')
+    pants('src/python/twitter/common/java'),
+    pants(':resources'),
   ]
 )

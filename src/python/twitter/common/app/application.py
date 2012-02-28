@@ -14,7 +14,13 @@
 # limitations under the License.
 # ==================================================================================================
 
-import ConfigParser
+from __future__ import print_function
+
+try:
+  import ConfigParser
+except ImportError:
+  import configparser as ConfigParser
+
 import copy
 import inspect
 import os
@@ -25,10 +31,11 @@ import traceback
 from collections import defaultdict
 
 from twitter.common import options
+from twitter.common.app.module import AppModule
+from twitter.common.app.inspection import Inspection
+from twitter.common.lang import Compatibility
 from twitter.common.util import topological_sort
 
-from module import AppModule
-from inspection import Inspection
 
 class Application(object):
   class Error(Exception): pass
@@ -171,16 +178,27 @@ class Application(object):
       Construct an options parser containing only options added by __main__
       or global help options registered by the application.
     """
+    values_copy = copy.deepcopy(self._option_values)
     parser = (options.parser()
               .interspersed_arguments(self._interspersed_args)
               .options(self._main_options)
-              .values(self._option_values)
               .usage(self._usage))
 
     if hasattr(self._commands.get(self._command), Application.OPTIONS_ATTR):
-      return parser.groups([getattr(self._commands[self._command], Application.OPTIONS_ATTR)])
+      if self._command is None:
+        command_group = options.new_group('When running with no command')
+      else:
+        command_group = options.new_group('For command %s' % self._command)
+      for option in getattr(self._commands[self._command], Application.OPTIONS_ATTR):
+        op = copy.deepcopy(option)
+        if not hasattr(values_copy, op.dest):
+          setattr(values_copy, op.dest, op.default if op.default != optparse.NO_DEFAULT else None)
+        Application.rewrite_help(op)
+        op.default = optparse.NO_DEFAULT
+        command_group.add_option(op)
+      return parser.groups([command_group]).values(values_copy)
     else:
-      return parser
+      return parser.values(values_copy)
 
   def _construct_full_parser(self):
     """
@@ -336,7 +354,7 @@ class Application(object):
 
   @staticmethod
   def rewrite_help(op):
-    if hasattr(op, 'help') and isinstance(op.help, basestring):
+    if hasattr(op, 'help') and isinstance(op.help, Compatibility.string):
       if op.help.find('%default') != -1 and op.default != optparse.NO_DEFAULT:
         op.help = op.help.replace('%default', str(op.default))
       else:
@@ -413,7 +431,7 @@ class Application(object):
   def _debug_log(self, msg):
     if hasattr(self._option_values, 'twitter_common_app_debug') and (
         self._option_values.twitter_common_app_debug):
-      print >> sys.stderr, 'twitter.common.app debug: %s' % msg
+      print('twitter.common.app debug: %s' % msg, file=sys.stderr)
 
   def set_option(self, dest, value, force=True):
     """
@@ -562,7 +580,7 @@ class Application(object):
 
     # Pull in modules in twitter.common.app.modules
     if not self._import_module('twitter.common.app.modules'):
-      print >> sys.stderr, 'Unable to import twitter app modules!'
+      print('Unable to import twitter app modules!', file=sys.stderr)
       sys.exit(1)
 
     # defer init as long as possible.
@@ -573,15 +591,15 @@ class Application(object):
     if main_method is None:
       commands = sorted(self.get_commands())
       if commands:
-        print >> sys.stderr, 'Must supply one of the following commands:', ', '.join(commands)
+        print('Must supply one of the following commands:', ', '.join(commands), file=sys.stderr)
       else:
-        print >> sys.stderr, 'No main() or command defined! Application must define one of these.'
+        print('No main() or command defined! Application must define one of these.', file=sys.stderr)
       sys.exit(1)
 
     try:
       argspec = inspect.getargspec(main_method)
     except TypeError as e:
-      print >> sys.stderr, 'Malformed main(): %s' % e
+      print('Malformed main(): %s' % e, file=sys.stderr)
       sys.exit(1)
 
     if len(argspec.args) == 1:
@@ -590,8 +608,8 @@ class Application(object):
       args = [self._argv, self._option_values]
     else:
       if len(self._argv) != 0:
-        print >> sys.stderr, 'main() takes no arguments but got leftover arguments: %s!' % (
-          ' '.join(self._argv))
+        print('main() takes no arguments but got leftover arguments: %s!' %
+          ' '.join(self._argv), file=sys.stderr)
         sys.exit(1)
       args = []
     rc = self._run_main(main_method, *args)

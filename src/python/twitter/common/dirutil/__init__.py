@@ -32,7 +32,7 @@ def safe_mkdir(directory, clean=False):
     safe_rmtree(directory)
   try:
     os.makedirs(directory)
-  except OSError, e:
+  except OSError as e:
     if e.errno != errno.EEXIST:
       raise
 
@@ -112,6 +112,7 @@ def lock_file(filename, mode='r+', blocking=False):
     fcntl.flock(fp, fcntl.LOCK_EX | fcntl.LOCK_NB if not blocking else fcntl.LOCK_EX)
   except IOError as e:
     if e.errno in (errno.EACCES, errno.EAGAIN):
+      fp.close()
       return False
 
   return fp

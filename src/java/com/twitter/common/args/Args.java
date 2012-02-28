@@ -44,25 +44,25 @@ final class Args {
         }
       };
 
-  private static final Function<Field, OptionInfo> TO_OPTIONINFO =
-      new Function<Field, OptionInfo>() {
-        @Override public OptionInfo apply(Field field) {
-          CmdLine cmdLineDef = field.getAnnotation(CmdLine.class);
-          if (cmdLineDef == null) {
+  private static final Function<Field, OptionInfo<?>> TO_OPTIONINFO =
+      new Function<Field, OptionInfo<?>>() {
+        @Override public OptionInfo<?> apply(Field field) {
+          CmdLine cmdLine = field.getAnnotation(CmdLine.class);
+          if (cmdLine == null) {
             throw new ConfigurationException("No @CmdLine Arg annotation for field " + field);
           }
-          return new OptionInfo(cmdLineDef, field);
+          return OptionInfo.createFromField(field);
         }
       };
 
-  private static final Function<Field, PositionalInfo> TO_POSITIONALINFO =
-      new Function<Field, PositionalInfo>() {
-        @Override public PositionalInfo apply(Field field) {
+  private static final Function<Field, PositionalInfo<?>> TO_POSITIONALINFO =
+      new Function<Field, PositionalInfo<?>>() {
+        @Override public PositionalInfo<?> apply(Field field) {
           Positional positional = field.getAnnotation(Positional.class);
           if (positional == null) {
             throw new ConfigurationException("No @Positional Arg annotation for field " + field);
           }
-          return new PositionalInfo(positional, field);
+          return PositionalInfo.createFromField(field);
         }
       };
 
@@ -70,33 +70,14 @@ final class Args {
     // utility
   }
 
-  static class OptionInfo {
-    final CmdLine cmdLine;
-    final Field field;
-
-    OptionInfo(CmdLine cmdLine, Field field) {
-      this.cmdLine = Preconditions.checkNotNull(cmdLine);
-      this.field = Preconditions.checkNotNull(field);
-    }
-  }
-
-  static class PositionalInfo {
-    final Positional positional;
-    final Field field;
-
-    PositionalInfo(Positional positional, Field field) {
-      this.positional = Preconditions.checkNotNull(positional);
-      this.field = Preconditions.checkNotNull(field);
-    }
-  }
-
   static class ArgumentInfo {
-    final Optional<PositionalInfo> positionalInfo;
-    final Iterable<OptionInfo> optionInfos;
+    final Optional<? extends PositionalInfo<?>> positionalInfo;
+    final Iterable<? extends OptionInfo<?>> optionInfos;
 
-    ArgumentInfo(Optional<PositionalInfo> positionalInfo, Iterable<OptionInfo> optionInfos) {
+    ArgumentInfo(Optional<? extends PositionalInfo<?>> positionalInfo,
+        Iterable<? extends OptionInfo<?>> cmdLineDescs) {
       this.positionalInfo = Preconditions.checkNotNull(positionalInfo);
-      this.optionInfos = Preconditions.checkNotNull(optionInfos);
+      this.optionInfos = Preconditions.checkNotNull(cmdLineDescs);
     }
   }
 
@@ -122,11 +103,14 @@ final class Args {
               Joiner.on("\n\t").join(positionalFields)));
     }
 
-    Optional<PositionalInfo> positionalInfo = Optional.fromNullable(
-        Iterables.getOnlyElement(Iterables.transform(positionalFields, TO_POSITIONALINFO), null));
-    Iterable<OptionInfo> optionInfos = Iterables.transform(
+    Iterable<PositionalInfo<?>> positionalInfos =
+        Iterables.transform(positionalFields, TO_POSITIONALINFO);
+    PositionalInfo<?> positionalInfoOrNull = Iterables.getOnlyElement(positionalInfos, null);
+    Optional<? extends PositionalInfo<?>> positionalInfoOptional =
+        Optional.fromNullable(positionalInfoOrNull);
+    Iterable<? extends OptionInfo<?>> optionInfos = Iterables.transform(
         filterFields(configuration.optionInfo(), filter), TO_OPTIONINFO);
-    return new ArgumentInfo(positionalInfo, optionInfos);
+    return new ArgumentInfo(positionalInfoOptional, optionInfos);
   }
 
   private static Iterable<Field> filterFields(Iterable<ArgInfo> infos, Predicate<Field> filter) {

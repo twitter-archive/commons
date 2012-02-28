@@ -74,4 +74,3 @@ def test_mul():
   assert 5 * Amount(12, Time.SECONDS) == Amount(12, Time.SECONDS) * 5
   amount = 5 * Amount(12, Time.SECONDS)
   assert amount._amount == 1 and amount._unit == Time.MINUTES
-

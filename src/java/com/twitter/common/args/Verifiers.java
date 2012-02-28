@@ -19,10 +19,13 @@ package com.twitter.common.args;
 import java.lang.annotation.Annotation;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.ImmutableMap;
 
 import com.twitter.common.args.apt.Configuration;
 import com.twitter.common.collections.Pair;
+import com.twitter.common.reflect.TypeToken;
 
 import static com.twitter.common.args.apt.Configuration.ConfigurationException;
 import static com.twitter.common.args.apt.Configuration.VerifierInfo;
@@ -34,19 +37,26 @@ import static com.twitter.common.args.apt.Configuration.VerifierInfo;
  */
 public class Verifiers {
 
-  private final ImmutableMap<Pair<Class<?>, Class<? extends Annotation>>, Verifier<?>> registry;
+  private final ImmutableMap<Pair<Class<?>, Class<? extends Annotation>>,
+                             Verifier<?>> registry;
 
-  Verifiers(Map<Pair<Class<?>, Class<? extends Annotation>>, Verifier<?>> registry) {
+  private Verifiers(Map<Pair<Class<?>, Class<? extends Annotation>>,
+                        Verifier<?>> registry) {
+
     this.registry = ImmutableMap.copyOf(registry);
   }
 
-  @SuppressWarnings("unchecked")
-  <T> Verifier<T> get(final Class<T> type, Annotation constraint) {
+  @Nullable
+  <T> Verifier<T> get(TypeToken<T> type, Annotation constraint) {
     for (Map.Entry<Pair<Class<?>, Class<? extends Annotation>>, Verifier<?>> entry
         : registry.entrySet()) {
       if (entry.getKey().getSecond() == constraint.annotationType()
-          && entry.getKey().getFirst().isAssignableFrom(type)) {
-        return (Verifier<T>) entry.getValue();
+          && entry.getKey().getFirst().isAssignableFrom(type.getRawType())) {
+
+        // We control the registry which ensures a proper mapping of class -> verifier.
+        @SuppressWarnings("unchecked")
+        Verifier<T> verifier = (Verifier<T>) entry.getValue();
+        return verifier;
       }
     }
 
@@ -54,8 +64,8 @@ public class Verifiers {
   }
 
   static Verifiers fromConfiguration(Configuration configuration) {
-    ImmutableMap.Builder<Pair<Class<?>, Class<? extends Annotation>>, Verifier<?>> registry =
-        ImmutableMap.builder();
+    ImmutableMap.Builder<Pair<Class<?>, Class<? extends Annotation>>,
+                         Verifier<?>> registry = ImmutableMap.builder();
 
     for (VerifierInfo info : configuration.verifierInfo()) {
       Class<?> verifiedType = forName(info.verifiedType);
@@ -64,7 +74,7 @@ public class Verifiers {
       try {
         registry.put(
             Pair.<Class<?>, Class<? extends Annotation>>of(verifiedType, verifyingAnnotation),
-            verifierClass.newInstance());
+          verifierClass.newInstance());
       } catch (InstantiationException e) {
         throw new ConfigurationException(e);
       } catch (IllegalAccessException e) {

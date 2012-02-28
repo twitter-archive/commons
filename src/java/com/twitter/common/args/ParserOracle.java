@@ -16,6 +16,8 @@
 
 package com.twitter.common.args;
 
+import com.twitter.common.reflect.TypeToken;
+
 /**
  * A registry of Parsers for different supported argument types.
  */
@@ -24,9 +26,9 @@ public interface ParserOracle {
   /**
    * Gets the parser associated with a class.
    *
-   * @param cls Class to get the parser for.
+   * @param type Type to get the parser for.
    * @return The parser for {@code cls}.
    * @throws IllegalArgumentException If no parser was found for {@code cls}.
    */
-  Parser get(Class<?> cls) throws IllegalArgumentException;
+  <T> Parser<T> get(TypeToken<T> type) throws IllegalArgumentException;
 }

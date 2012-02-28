@@ -14,23 +14,24 @@
 // limitations under the License.
 // =================================================================================================
 
-package com.twitter.common.args.constraints;
+package com.twitter.common.args
 
-import java.lang.annotation.Annotation;
+import org.specs.Specification
 
-import com.twitter.common.args.Verifier;
+class Struct {
+  var int: Int = 101
+  var string: String = "Nantucket"
+}
 
 /**
- * Partial verifier implementation to simplify implementation of scalar verifiers. A scalar
- * verifier is one that requires no information other than the object in order to operate.
- *
- * @author William Farner
+ * @author nkallen
  */
-public abstract class ScalarVerifier<T> implements Verifier<T> {
-
-  abstract void verify(T value);
-
-  @Override public void verify(T value, Annotation annotation) {
-    verify(value);
+class FlagsSpec extends Specification {
+  "Flags" should {
+    "be awesome" in {
+      val result = Flags[Struct](Seq("-int=7685", "-string=Rokovoko"))
+      result.int mustEqual 7685
+      result.string mustEqual "Rokovoko"
+    }
   }
 }

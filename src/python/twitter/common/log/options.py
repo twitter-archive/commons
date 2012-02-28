@@ -17,43 +17,48 @@
 """
 Glog log system global options.
 
-Exports module-level options such as --log_dir and --stdout_log_level, but may be
+Exports module-level options such as --log_dir and --stderr_log_level, but may be
 overridden locally before calling log.init().
 """
 
+from __future__ import print_function
+
 import logging
 import optparse
+import sys
 
 from collections import namedtuple
 DefaultLogOpts = namedtuple('DefaultLogOpts',
-  ' '.join(['twitter_common_log_stdout_log_level',
+  ' '.join(['twitter_common_log_stderr_log_level',
             'twitter_common_log_disk_log_level',
             'twitter_common_log_log_dir']))
 _DEFAULT_LOG_OPTS = DefaultLogOpts(
-  twitter_common_log_stdout_log_level='NONE',
+  twitter_common_log_stderr_log_level='ERROR',
   twitter_common_log_disk_log_level='INFO',
   twitter_common_log_log_dir='/var/tmp')
 
 try:
   from twitter.common import app
-  HAVE_APP=True
+  HAVE_APP = True
 except ImportError:
   class AppDefaultProxy(object):
     def get_options(self):
       return _DEFAULT_LOG_OPTS
   app = AppDefaultProxy()
-  HAVE_APP=False
+  HAVE_APP = False
 
 class LogOptionsException(Exception): pass
 
 class LogOptions(object):
+  LOG_LEVEL_NONE = 100
+
   _LOG_LEVELS = {
     'DEBUG': logging.DEBUG,
     'INFO':  logging.INFO,
     'WARN':  logging.WARN,
     'FATAL': logging.FATAL,
     'ERROR': logging.ERROR,
-    'NONE':  100
+    'NONE':  LOG_LEVEL_NONE
   }
 
   _LOG_SCHEMES = [
@@ -61,7 +66,7 @@ class LogOptions(object):
     'plain'
   ]
 
-  _STDOUT_LOG_LEVEL = None
+  _STDERR_LOG_LEVEL = None
   _STDOUT_LOG_SCHEME = None
   _DISK_LOG_LEVEL = None
   _DISK_LOG_SCHEME = None
@@ -97,30 +102,35 @@ class LogOptions(object):
       return False
 
   @staticmethod
-  def set_stdout_log_level(log_level):
+  def set_stderr_log_level(log_level):
     """
-      Set the log level for stdout.
+      Set the log level for stderr.
     """
-    LogOptions._STDOUT_LOG_SCHEME, LogOptions._STDOUT_LOG_LEVEL = \
+    LogOptions._STDOUT_LOG_SCHEME, LogOptions._STDERR_LOG_LEVEL = \
       LogOptions._parse_loglevel(log_level, scheme='plain')
 
   @staticmethod
-  def stdout_log_level():
+  def stderr_log_level():
     """
-      Get the current stdout_log_level (in logging units specified by logging module.)
+      Get the current stderr_log_level (in logging units specified by logging module.)
     """
-    if LogOptions._STDOUT_LOG_LEVEL is None:
-      LogOptions.set_stdout_log_level(app.get_options().twitter_common_log_stdout_log_level)
-    return LogOptions._STDOUT_LOG_LEVEL
+    if LogOptions._STDERR_LOG_LEVEL is None:
+      LogOptions.set_stderr_log_level(app.get_options().twitter_common_log_stderr_log_level)
+    return LogOptions._STDERR_LOG_LEVEL
 
   @staticmethod
-  def stdout_log_scheme():
+  def stderr_log_scheme():
     """
-      Get the current stdout log scheme.
+      Get the current stderr log scheme.
     """
     if LogOptions._STDOUT_LOG_SCHEME is None:
-      LogOptions.set_stdout_log_level(app.get_options().twitter_common_log_stdout_log_level)
+      LogOptions.set_stderr_log_level(app.get_options().twitter_common_log_stderr_log_level)
     return LogOptions._STDOUT_LOG_SCHEME
+
+  # old deprecated version of these functions.
+  set_stdout_log_level = set_stderr_log_level
+  stdout_log_level = stderr_log_level
+  stdout_log_scheme = stderr_log_scheme
 
   @staticmethod
   def set_disk_log_level(log_level):
@@ -169,17 +179,39 @@ class LogOptions(object):
   def _disk_options_callback(option, opt, value, parser):
     try:
       LogOptions.set_disk_log_level(value)
-    except LogOptionsException, e:
+    except LogOptionsException as e:
       raise optparse.OptionValueError('Failed to parse option: %s' % e)
     parser.values.twitter_common_log_disk_log_level = value
 
+  __log_to_stderr_is_set = False
+  __log_to_stdout_is_set = False
+  @staticmethod
+  def _stderr_options_callback(option, opt, value, parser):
+    if LogOptions.__log_to_stdout_is_set:
+      raise optparse.OptionValueError(
+        '--log_to_stdout is an obsolete flag that was replaced by --log_to_stderr. '
+        'Use only --log_to_stderr.')
+    LogOptions.__log_to_stderr_is_set = True
+    try:
+      LogOptions.set_stderr_log_level(value)
+    except LogOptionsException as e:
+      raise optparse.OptionValueError('Failed to parse option: %s' % e)
+    parser.values.twitter_common_log_stderr_log_level = value
+
   @staticmethod
   def _stdout_options_callback(option, opt, value, parser):
+    if LogOptions.__log_to_stderr_is_set:
+      raise optparse.OptionValueError(
+        '--log_to_stdout is an obsolete flag that was replaced by --log_to_stderr. '
+        'Use only --log_to_stderr.')
+    LogOptions.__log_to_stdout_is_set = True
+    print('--log_to_stdout is an obsolete flag that was replaced by '
+          '--log_to_stderr. Use --log_to_stderr instead.', file=sys.stderr)
     try:
-      LogOptions.set_stdout_log_level(value)
-    except LogOptionsException, e:
+      LogOptions.set_stderr_log_level(value)
+    except LogOptionsException as e:
       raise optparse.OptionValueError('Failed to parse option: %s' % e)
-    parser.values.twitter_common_log_stdout_log_level = value
+    parser.values.twitter_common_log_stderr_log_level = value
 
 _LOGGING_HELP = \
 """The level at which to log to %%s [default: %%%%default].
@@ -190,12 +222,21 @@ of %s and scheme is one of %s.
 if HAVE_APP:
   app.add_option('--log_to_stdout',
               callback=LogOptions._stdout_options_callback,
-              default=_DEFAULT_LOG_OPTS.twitter_common_log_stdout_log_level,
+              default=_DEFAULT_LOG_OPTS.twitter_common_log_stderr_log_level,
               type='string',
               action='callback',
               metavar='[scheme:]LEVEL',
-              dest='twitter_common_log_stdout_log_level',
-              help=_LOGGING_HELP % 'stdout')
+              dest='twitter_common_log_stderr_log_level',
+              help='OBSOLETE - legacy flag, use --log_to_stderr instead.')
+
+  app.add_option('--log_to_stderr',
+              callback=LogOptions._stderr_options_callback,
+              default=_DEFAULT_LOG_OPTS.twitter_common_log_stderr_log_level,
+              type='string',
+              action='callback',
+              metavar='[scheme:]LEVEL',
+              dest='twitter_common_log_stderr_log_level',
+              help=_LOGGING_HELP % 'stderr')
 
   app.add_option('--log_to_disk',
               callback=LogOptions._disk_options_callback,

@@ -18,6 +18,7 @@ package com.twitter.common.args.constraints;
 
 import java.lang.annotation.Annotation;
 
+import com.twitter.common.args.Verifier;
 import com.twitter.common.args.VerifierFor;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -28,14 +29,14 @@ import static com.google.common.base.Preconditions.checkArgument;
  * @author William Farner
  */
 @VerifierFor(Positive.class)
-public class PositiveNumberVerifier extends ScalarVerifier<Number> {
+public class PositiveNumberVerifier implements Verifier<Number> {
   @Override
-  public void verify(Number number) {
+  public void verify(Number number, Annotation annotation) {
     checkArgument(number.doubleValue() > 0, "Value must be positive.");
   }
 
   @Override
-  public String toString(Class<Number> argType, Annotation annotation) {
+  public String toString(Class<? extends Number> argType, Annotation annotation) {
     return "must be > 0";
   }
 }

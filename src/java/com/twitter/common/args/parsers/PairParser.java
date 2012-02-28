@@ -25,8 +25,8 @@ import com.twitter.common.args.ArgParser;
 import com.twitter.common.args.Parser;
 import com.twitter.common.args.ParserOracle;
 import com.twitter.common.args.Parsers;
-import com.twitter.common.args.TypeUtil;
 import com.twitter.common.collections.Pair;
+import com.twitter.common.reflect.TypeToken;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -45,10 +45,10 @@ public class PairParser extends TypeParameterizedParser<Pair> {
   @Override
   Pair doParse(ParserOracle parserOracle, String raw, List<Type> typeParams) {
     Type leftType = typeParams.get(0);
-    Parser leftParser = parserOracle.get(TypeUtil.getRawType(leftType));
+    Parser leftParser = parserOracle.get(TypeToken.create(leftType));
 
     Type rightType = typeParams.get(1);
-    Parser rightParser = parserOracle.get(TypeUtil.getRawType(rightType));
+    Parser rightParser = parserOracle.get(TypeToken.create(rightType));
 
     List<String> parts = ImmutableList.copyOf(Parsers.MULTI_VALUE_SPLITTER.split(raw));
     checkArgument(parts.size() == 2,

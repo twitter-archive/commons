@@ -30,7 +30,6 @@ def test_bad_input():
         basic_scanf(c, b)
 
 def test_no_matches():
-  print ScanfParser("%%")._re_pattern
   match = ScanfParser("%%").parse("%")
   assert len(match.groups()) == 0
   assert len(match.ungrouped()) == 0

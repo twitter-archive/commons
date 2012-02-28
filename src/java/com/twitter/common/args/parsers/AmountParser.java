@@ -24,9 +24,9 @@ import java.util.regex.Pattern;
 import com.twitter.common.args.ArgParser;
 import com.twitter.common.args.Parser;
 import com.twitter.common.args.ParserOracle;
-import com.twitter.common.args.TypeUtil;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Unit;
+import com.twitter.common.reflect.TypeToken;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -47,7 +47,7 @@ public class AmountParser extends TypeParameterizedParser<Amount> {
   @Override
   Amount doParse(ParserOracle parserOracle, String raw, List<Type> typeParams) {
     Type valueType = typeParams.get(0);
-    Parser parser = parserOracle.get(TypeUtil.getRawType(valueType));
+    Parser parser = parserOracle.get(TypeToken.create(valueType));
 
     Matcher matcher = AMOUNT_PATTERN.matcher(raw);
     checkArgument(matcher.matches(),
@@ -57,11 +57,17 @@ public class AmountParser extends TypeParameterizedParser<Amount> {
     String unitRaw = matcher.group(2);
 
     Type unitType = typeParams.get(1);
-    Unit unit = (Unit) parserOracle.get(Unit.class).parse(parserOracle, unitType, unitRaw);
+    Parser<Unit> unitParser = parserOracle.get(TypeToken.create(Unit.class));
+    Unit unit = unitParser.parse(parserOracle, unitType, unitRaw);
     checkArgument(unit.getClass() == unitType, String.format(
         "Unit type (%s) does not match argument type (%s).",
         unit.getClass(), unitType));
 
+    return create(valueType, number, unit);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Amount create(Type valueType, Number number, Unit unit) {
     if (valueType == Integer.class) {
       return Amount.of(number.intValue(), unit);
     } else if (valueType == Double.class) {
@@ -75,7 +81,6 @@ public class AmountParser extends TypeParameterizedParser<Amount> {
     } else if (valueType == Float.class) {
       return Amount.of(number.floatValue(), unit);
     }
-
     throw new IllegalArgumentException("Unrecognized number class " + valueType);
   }
 }

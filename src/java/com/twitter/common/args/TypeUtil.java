@@ -38,12 +38,6 @@ import com.twitter.common.reflect.TypeToken;
  */
 public class TypeUtil {
 
-  private static final Function<Type, Class<?>> GET_CLASS = new Function<Type, Class<?>>() {
-    @Override public Class<?> apply(Type type) {
-      return getRawType(type);
-    }
-  };
-
   private static final Function<Type, Type> GET_TYPE = new Function<Type, Type>() {
     @Override public Type apply(Type type) {
       if (type instanceof WildcardType) {
@@ -55,16 +49,6 @@ public class TypeUtil {
 
   private TypeUtil() {
     // Utility.
-  }
-
-  /**
-   * Gets the classes that a field is type-parameterized with, in declaration order.
-   *
-   * @param field The field to extract type parameters from.
-   * @return The raw classes of types that {@code field} is parameterized with.
-   */
-  public static List<Class<?>> getTypeParamClasses(Field field) {
-    return Lists.transform(getTypeParams(field.getGenericType()), GET_CLASS);
   }
 
   /**
@@ -98,17 +82,17 @@ public class TypeUtil {
   }
 
   /**
-   * Convenience method to call {@link #getTypeParamClasses(Field)}, with the requirement that there
+   * Convenience method to call {@link #getTypeParams(Field)}, with the requirement that there
    * is exactly one type parameter on the field.
    *
    * @param field The field to extract type parameters from.
    * @return The raw classes of types that {@code field} is parameterized with.
    */
-  public static Class<?> getTypeParamClass(Field field) {
-    List<Class<?>> typeParams = getTypeParamClasses(field);
+  public static TypeToken<?> getTypeParamTypeToken(Field field) {
+    List<Type> typeParams = getTypeParams(field.getGenericType());
     Preconditions.checkArgument(typeParams.size() == 1,
         "Expected exactly one type parameter for field " + field);
-    return typeParams.get(0);
+    return TypeToken.create(typeParams.get(0));
   }
 
   /**
@@ -120,13 +104,4 @@ public class TypeUtil {
   public static Type getTypeParam(Field field) {
     return TypeToken.extractTypeToken(field.getGenericType());
   }
-
-  /**
-   * A function to extract the type parameter class from fields.
-   */
-  public static Function<Field, Class<?>> GET_TYPE_PARAM_CLASS = new Function<Field, Class<?>>() {
-    @Override public Class<?> apply(Field field) {
-      return getTypeParamClass(field);
-    }
-  };
 }

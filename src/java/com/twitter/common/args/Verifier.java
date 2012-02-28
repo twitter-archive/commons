@@ -24,12 +24,10 @@ import java.lang.annotation.Annotation;
  * @author William Farner
  */
 public interface Verifier<T> {
-
   /**
    * Verifies the value against the annotation.
    *
    * @param value Value that is being applied.
-   * @param annotation Annotation that the verifier is checking against.
    */
   void verify(T value, Annotation annotation);
 
@@ -37,8 +35,7 @@ public interface Verifier<T> {
    * Returns a representation of the constraint this verifier checks.
    *
    * @param argType The type of the {@link com.twitter.common.args.Arg} this annotation applies to.
-   * @param annotation The constraint annotation to represent.
    * @return A representation of the constraint this verifier checks.
    */
-  String toString(Class<T> argType, Annotation annotation);
+  String toString(Class<? extends T> argType, Annotation annotation);
 }

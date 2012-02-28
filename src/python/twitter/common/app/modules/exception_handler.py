@@ -35,7 +35,7 @@ def log_function(msg):
   if _LOG_MODULE:
     log.error(msg)
   # ensure that at least one message goes to stdout/stderr
-  if not _LOG_MODULE or LogOptions.stdout_log_level() > logging.ERROR:
+  if not _LOG_MODULE or LogOptions.stderr_log_level() > logging.ERROR:
     sys.stderr.write(msg)
 
 class AppExceptionHandler(app.Module):

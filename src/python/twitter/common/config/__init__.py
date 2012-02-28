@@ -16,7 +16,7 @@
 
 __author__ = 'John Sirois'
 
-from properties import Properties
+from twitter.common.config.properties import Properties
 
 __all__ = (
   Properties

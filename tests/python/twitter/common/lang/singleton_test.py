@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-from twitter.common.lang import Singleton, SingletonMetaclass
+from twitter.common.lang import Singleton
 
 def test_basic_singleton():
   class Hello(Singleton):
@@ -24,24 +24,13 @@ def test_basic_singleton():
   h2 = Hello()
   assert id(h1) == id(h2), 'singleton mixin should memoize objects'
 
-def test_basic_singleton_metaclass():
-  class Hello(object):
-    __metaclass__ = SingletonMetaclass
-    def __init__(self):
-      pass
-  h1 = Hello()
-  h2 = Hello()
-  assert id(h1) == id(h2), 'singleton metaclass should memoize objects'
-
 def test_singleton_names():
-  class Hello(object):
-    __metaclass__ = SingletonMetaclass
+  class Hello(Singleton):
     def __init__(self, sig):
       self._sig = sig
   H1 = Hello
 
-  class Hello(object):
-    __metaclass__ = SingletonMetaclass
+  class Hello(Singleton):
     def __init__(self, sig):
       self._sig = sig
   H2 = Hello
@@ -52,8 +41,7 @@ def test_singleton_names():
   assert h1._sig != h2._sig
 
 def test_cannot_supercede_constructors():
-  class CountingSingleton(object):
-    __metaclass__ = SingletonMetaclass
+  class CountingSingleton(Singleton):
     VALUE=0
     @staticmethod
     def increment():
@@ -103,8 +91,7 @@ def test_singleton_mixin_inheritance():
 
 
 def test_singleton_metaclass_inheritance():
-  class Named(object):
-    __metaclass__ = SingletonMetaclass
+  class Named(Singleton):
     def __init__(self, name):
       self._name = name
   class John(Named):

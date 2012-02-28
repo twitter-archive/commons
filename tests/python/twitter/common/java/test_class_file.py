@@ -16,18 +16,22 @@
 
 import pkgutil
 import pytest
-import unittest
 from twitter.common.java.class_file import ClassFile
+
+import unittest2 as unittest
 
 # Known golden file, com.google.protobuf.ByteString => ByteString.class
 # named example_class because of science .gitignore
-_EXAMPLE_RESOURCE = 'example_class'
+#
+# resources don't properly work in python_tests yet, so this test is marked as expected fail.
+_EXAMPLE_RESOURCE = 'resources/example_class'
 
-@pytest.mark.xfail(reason="pytest 2.6")
 class ClassFileParserTest(unittest.TestCase):
   @classmethod
   def setup_class(cls):
-    cls._class_file = ClassFile(pkgutil.get_data(__name__, _EXAMPLE_RESOURCE))
+    cls._class_data = pkgutil.get_data('twitter.common.java', _EXAMPLE_RESOURCE)
+    assert cls._class_data is not None
+    cls._class_file = ClassFile(cls._class_data)
 
   def test_parsed(self):
     assert self._class_file is not None

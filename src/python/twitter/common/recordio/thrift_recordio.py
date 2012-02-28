@@ -14,6 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
+from __future__ import print_function
+
 import sys
 import inspect
 
@@ -25,7 +27,7 @@ try:
 except ImportError:
   _SER = None
   _HAS_THRIFT = False
-  print >> sys.stderr, "WARNING: Unable to load thrift in record_writer"
+  print("WARNING: Unable to load thrift in record_writer", file=sys.stderr)
 
 class ThriftRecordIO:
   class ThriftUnavailableException(Exception): pass
@@ -63,7 +65,7 @@ class ThriftRecordIO:
       base = self._base()
       try:
         _SER.deserialize(base, input)
-      except EOFError, e:
+      except EOFError as e:
         raise RecordIO.PrematureEndOfStream(e)
       return base
 

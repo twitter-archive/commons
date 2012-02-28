@@ -16,7 +16,7 @@
 
 python_library(
   name = "modules",
-  sources = ['__init__.py']
+  sources = ['__init__.py'],
 )
 
 python_library(
@@ -53,7 +53,8 @@ python_library(
   dependencies = [
     pants(':modules'),
     pants(':http'),
-    pants('src/python/twitter/common/quantity'),
+    pants('src/python/twitter/common/lang'),
     pants('src/python/twitter/common/metrics'),
+    pants('src/python/twitter/common/quantity'),
   ]
 )

@@ -43,7 +43,7 @@ public class AppLauncherModule extends AbstractModule {
 
   public static class LoggingExceptionHandler implements UncaughtExceptionHandler {
     @Override public void uncaughtException(Thread t, Throwable e) {
-      LOG.log(Level.SEVERE, "Uncaught exception from " + t, e);
+      LOG.log(Level.SEVERE, "Uncaught exception from " + t + ":" + e, e);
     }
   }
 }

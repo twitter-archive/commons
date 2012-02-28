@@ -37,6 +37,8 @@ Google logging format.
 See twitter.com.log.options for customizations.
 """
 
+from __future__ import print_function
+
 import os
 import sys
 import time
@@ -44,9 +46,8 @@ import logging
 import getpass
 from socket import gethostname
 
-from formatters import glog, plain
-from .options import LogOptions
-
+from twitter.common.log.formatters import glog, plain
+from twitter.common.log.options import LogOptions
 from twitter.common.dirutil import safe_mkdir
 
 class GenericFilter(logging.Filter):
@@ -97,8 +98,7 @@ def _safe_setup_link(link_filename, real_filename):
   try:
     os.symlink(real_filename, link_filename)
   except OSError as e:
-    print >> sys.stderr, 'Failed to set up link %s => %s because %s' % (
-      real_filename, link_filename, e)
+    # Typically permission denied.
     pass
 
 def _setup_disk_logging(filebase):
@@ -144,26 +144,58 @@ def _setup_disk_logging(filebase):
     _safe_setup_link(logfile_link, logfile_full)
   return handlers
 
-def _setup_stdout_logging():
-  filter = GenericFilter(lambda r_l: r_l >= LogOptions.stdout_log_level())
-  formatter = ProxyFormatter(LogOptions.stdout_log_scheme)
-  stdout_handler = logging.StreamHandler(sys.stdout)
-  stdout_handler.setFormatter(formatter)
-  stdout_handler.addFilter(filter)
-  return [stdout_handler]
+_STDERR_LOGGERS = []
+_DISK_LOGGERS = []
+
+def _setup_stderr_logging():
+  filter = GenericFilter(lambda r_l: r_l >= LogOptions.stderr_log_level())
+  formatter = ProxyFormatter(LogOptions.stderr_log_scheme)
+  stderr_handler = logging.StreamHandler(sys.stderr)
+  stderr_handler.setFormatter(formatter)
+  stderr_handler.addFilter(filter)
+  return [stderr_handler]
+
+def teardown_stderr_logging():
+  root_logger = logging.getLogger()
+  global _STDERR_LOGGERS
+  for handler in _STDERR_LOGGERS:
+    root_logger.removeHandler(handler)
+  _STDERR_LOGGERS = []
+
+def teardown_disk_logging():
+  root_logger = logging.getLogger()
+  global _DISK_LOGGERS
+  for handler in _DISK_LOGGERS:
+    root_logger.removeHandler(handler)
+  _DISK_LOGGERS = []
 
 def init(filebase):
   """
     Set up default logging using:
       {--log_dir}/filebase.{INFO,WARNING,...}
   """
+  logging._acquireLock()
+
   # set up permissive logger
   root_logger = logging.getLogger()
   root_logger.setLevel(logging.DEBUG)
 
+  # clear existing handlers
+  teardown_stderr_logging()
+  teardown_disk_logging()
+
   # setup INFO...FATAL handlers
+  num_disk_handlers = 0
   for handler in _setup_disk_logging(filebase):
     root_logger.addHandler(handler)
-  for handler in _setup_stdout_logging():
+    _DISK_LOGGERS.append(handler)
+  for handler in _setup_stderr_logging():
     root_logger.addHandler(handler)
+    _STDERR_LOGGERS.append(handler)
+
+  logging._releaseLock()
+
+  if len(_DISK_LOGGERS) > 0 and LogOptions.stderr_log_level() != LogOptions.LOG_LEVEL_NONE:
+    print('Writing log files to disk in %s' % LogOptions.log_dir(), file=sys.stderr)
+
   return root_logger

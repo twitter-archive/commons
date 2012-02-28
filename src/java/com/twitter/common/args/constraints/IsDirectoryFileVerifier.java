@@ -19,6 +19,7 @@ package com.twitter.common.args.constraints;
 import java.io.File;
 import java.lang.annotation.Annotation;
 
+import com.twitter.common.args.Verifier;
 import com.twitter.common.args.VerifierFor;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -29,14 +30,14 @@ import static com.google.common.base.Preconditions.checkArgument;
  * @author William Farner
  */
 @VerifierFor(IsDirectory.class)
-public class IsDirectoryFileVerifier extends ScalarVerifier<File> {
+public class IsDirectoryFileVerifier implements Verifier<File> {
   @Override
-  void verify(File value) {
+  public void verify(File value, Annotation annotation) {
     checkArgument(value.isDirectory(), "Must be a directory.");
   }
 
   @Override
-  public String toString(Class<File> argType, Annotation annotation) {
+  public String toString(Class<? extends File> argType, Annotation annotation) {
     return "file must be a directory";
   }
 }

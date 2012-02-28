@@ -14,14 +14,21 @@
 # limitations under the License.
 # ==================================================================================================
 
+from __future__ import print_function
+
 import os
 import copy
 import threading
 import tempfile
 import time
+import sys
+from twitter.common.lang import Compatibility
 from twitter.common.dirutil import tail_f
 
-import unittest
+if Compatibility.PY3:
+  import unittest
+else:
+  import unittest2 as unittest
 
 class TestClock(object):
   def __init__(self):
@@ -60,7 +67,7 @@ class TailThread(threading.Thread):
         break
 
   def clear(self):
-    time.sleep(0.01)  # yield the thread.
+    time.sleep(0.10)  # yield the thread.
     rc = copy.copy(self._lines)
     self._lines = []
     return rc
@@ -74,7 +81,7 @@ class TailThread(threading.Thread):
 class TestTail(unittest.TestCase):
   @classmethod
   def write_to_fp(cls, msg):
-    print >> cls._fp, msg
+    print(msg, file=cls._fp)
     cls._fp.flush()
 
   @classmethod
@@ -85,13 +92,13 @@ class TestTail(unittest.TestCase):
     cls._fp = open(filename, 'w')
 
   @classmethod
-  def setup_class(cls):
+  def setUpClass(cls):
     cls._fp = open(tempfile.mktemp(), 'w')
     cls._thread = TailThread(cls._fp.name)
     cls._thread.start()
 
   @classmethod
-  def teardown_class(cls):
+  def tearDownClass(cls):
     cls._thread.terminate()
     cls.write_to_fp('whee!')
     cls._thread.clock().tick()

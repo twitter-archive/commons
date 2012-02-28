@@ -36,11 +36,11 @@ class VarsSubsystem(app.Module):
   """
   OPTIONS = {
     'sampling_delay':
-      options.Option('--vars_sampling_delay',
-          default=1.0,
-          type='float',
-          metavar='SECONDS',
-          dest='twitter_common_metrics_vars_sampling_delay',
+      options.Option('--vars_sampling_delay_ms',
+          default=1000,
+          type='int',
+          metavar='MILLISECONDS',
+          dest='twitter_common_metrics_vars_sampling_delay_ms',
           help='How long between taking samples of the vars subsystem.')
   }
 
@@ -53,7 +53,7 @@ class VarsSubsystem(app.Module):
     rs = RootServer()
     if rs:
       varz = VarsEndpoint(period = Amount(
-        options.twitter_common_metrics_vars_sampling_delay, Time.SECONDS))
+        options.twitter_common_metrics_vars_sampling_delay_ms, Time.MILLISECONDS))
       rs.mount_routes(varz)
       register_diagnostics()
 
@@ -78,7 +78,7 @@ class VarsEndpoint(object):
 
     if var is None:
       body='<br>'.join(
-        '%s %s' % (key, val) for key, val in samples.iteritems())
+        '%s %s' % (key, val) for key, val in samples.items())
       return '<html><body><pre>%s</pre></body></html>' % body
     else:
       if var in samples:

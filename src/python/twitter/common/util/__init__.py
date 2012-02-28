@@ -17,6 +17,7 @@
 import sys
 import copy
 from collections import defaultdict
+from functools import reduce
 
 class DependencyCycle(Exception):
   pass
@@ -65,7 +66,7 @@ def topological_sort(data, priors=[], require_fully_specified=False):
   for key, val in data.items():
     if val is None:
       data[key] = set()
-    elif isinstance(val, basestring):
+    elif isinstance(val, str):
       data[key] = set([val])
     elif not hasattr(val, '__iter__'):
       data[key] = set([val])

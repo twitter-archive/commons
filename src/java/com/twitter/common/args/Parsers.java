@@ -26,6 +26,7 @@ import com.google.common.collect.Maps;
 
 import com.twitter.common.args.apt.Configuration;
 import com.twitter.common.args.apt.Configuration.ParserInfo;
+import com.twitter.common.reflect.TypeToken;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.twitter.common.args.apt.Configuration.ConfigurationException;
@@ -50,14 +51,19 @@ public final class Parsers implements ParserOracle {
   }
 
   @Override
-  public Parser get(Class<?> cls) throws IllegalArgumentException {
+  public <T> Parser<T> get(TypeToken<T> type) throws IllegalArgumentException {
     Parser parser;
-    Class<?> explicitClass = cls;
+    Class<?> explicitClass = type.getRawType();
     while (((parser = registry.get(explicitClass)) == null) && (explicitClass != null)) {
       explicitClass = explicitClass.getSuperclass();
     }
-    checkArgument(parser != null, "No parser found for " + cls);
-    return parser;
+    checkArgument(parser != null, "No parser found for " + type);
+
+    // We control loading of the registry which ensures a proper mapping of class -> parser
+    @SuppressWarnings("unchecked")
+    Parser<T> parserT = parser;
+
+    return parserT;
   }
 
   private static final Function<ParserInfo, Class<?>> INFO_TO_PARSED_TYPE =

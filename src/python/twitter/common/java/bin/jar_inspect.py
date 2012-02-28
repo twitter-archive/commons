@@ -20,7 +20,7 @@ from zipfile import ZipFile
 from twitter.common import app, log
 from twitter.common.java.class_file import ClassFile
 
-app.set_option('log_to_stdout', 'INFO')
+app.set_option('log_to_stderr', 'INFO')
 
 def main(args):
   log.debug('main got args: %s' % args)

@@ -72,7 +72,7 @@ class MirrorFile(object):
       return None
     try:
       res = conn.getresponse()
-    except httplib.ResponseNotReady, httplib.BadStatusLine:
+    except (httplib.ResponseNotReady, httplib.BadStatusLine):
       return None
     if res is not None:
       with open(self._local_filename, 'w') as fp:

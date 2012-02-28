@@ -12,6 +12,8 @@ from ctypes import (
   c_char_p,
 )
 
+from twitter.common.lang import Compatibility
+
 __author__ = 'wickman@twitter.com (brian wickman)'
 
 class ScanfResult(object):
@@ -127,7 +129,7 @@ class ScanfParser(object):
     """
       Given a line of text, parse it and return a ScanfResult object.
     """
-    if not isinstance(line, basestring):
+    if not isinstance(line, Compatibility.string):
       raise TypeError("Expected line to be a string, got %s" % type(line))
     sre_match = self._re.match(line)
     if sre_match is None:
@@ -155,7 +157,7 @@ class ScanfParser(object):
         you can name parameters %(hey there)s and the string value will be keyed by "hey there"
         you can parse but not save parameters by specifying %*f
     """
-    if not isinstance(format_string, basestring):
+    if not isinstance(format_string, Compatibility.string):
       raise TypeError('format_string should be a string, instead got %s' % type(format_string))
     self._re_pattern, self._applicators = self._preprocess_format_string(format_string)
     self._re = re.compile(self._re_pattern)

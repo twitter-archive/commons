@@ -14,6 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
+from __future__ import print_function
+
 import os
 import sys
 import inspect
@@ -33,10 +35,9 @@ class Inspection(object):
   def print_stack_locals(out=sys.stderr):
     stack = inspect.stack()[1:]
     for fr_n in range(len(stack)):
-      print >> out, '--- frame %s ---\n' % fr_n
+      print('--- frame %s ---\n' % fr_n, file=out)
       for key in stack[fr_n][0].f_locals:
-        print >> out, '  %s => %s' % (
-          key, stack[fr_n][0].f_locals[key])
+        print('  %s => %s' % (key, stack[fr_n][0].f_locals[key]), file=out)
 
   @staticmethod
   def find_main_module():
@@ -67,9 +68,9 @@ class Inspection(object):
   def find_application_name():
     __entry_point__ = None
     locals = Inspection.get_main_locals()
-    if locals.has_key('__file__') and locals['__file__'] is not None:
+    if '__file__' in locals and locals['__file__'] is not None:
       __entry_point__ = locals['__file__']
-    elif locals.has_key('__loader__'):
+    elif '__loader__' in locals:
       from zipimport import zipimporter
       from pkgutil import ImpLoader
       if isinstance(locals['__loader__'], zipimporter):

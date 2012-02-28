@@ -36,6 +36,7 @@ annotation_processor(name = 'core',
   dependencies = [
     pants('3rdparty:guava'),
     pants('3rdparty:jsr305'),
+    pants('src/java/com/twitter/common/reflect')
   ],
   sources = CORE_SOURCES,
 )

@@ -15,7 +15,10 @@
 # ==================================================================================================
 
 import logging
-from initialize import init
+from twitter.common.log.initialize import (
+  init,
+  teardown_disk_logging,
+  teardown_stderr_logging)
 
 try:
   from twitter.common import app
@@ -68,6 +71,8 @@ __all__ = [
 
   # only if you're not using app directly.
   'init',
+  'teardown_stderr_logging',
+  'teardown_disk_logging',
 
   # ditto
   'formatters'

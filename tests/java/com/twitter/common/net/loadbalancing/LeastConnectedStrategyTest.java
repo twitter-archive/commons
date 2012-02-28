@@ -30,7 +30,6 @@ import com.twitter.common.net.pool.ResourceExhaustedException;
 import com.twitter.common.testing.EasyMockTest;
 
 import static org.easymock.EasyMock.capture;
-import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -113,7 +112,7 @@ public class LeastConnectedStrategyTest extends EasyMockTest {
     connect(BACKEND_2, 5);
     connect(BACKEND_3, 5);
 
-    assertThat(leastCon.nextBackend(), anyOf(is(BACKEND_1), is(BACKEND_2), is(BACKEND_3)));
+    assertTrue(ImmutableSet.of(BACKEND_1, BACKEND_2, BACKEND_3).contains(leastCon.nextBackend()));
   }
 
   @Test

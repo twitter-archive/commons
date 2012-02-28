@@ -30,7 +30,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({FIELD})
 @Retention(RUNTIME)
 public @interface CmdLine {
-
   /**
    * The short name of the argument, as supplied on the command line.  The argument can also be
    * accessed by the canonical name, which is {@code com.foo.bar.MyArgClass.arg_name}.

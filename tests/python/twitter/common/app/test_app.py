@@ -53,6 +53,7 @@ class TestApp(unittest.TestCase):
     app.Module.clear_registry()
     self.factory = ModuleFactory()
 
+  @pytest.mark.xfail
   def test_app_name(self):
     # This is going to be pytest as long as we invoke all these with
     # sys.interpreter -m pytest <source> since the __entry_point__ will

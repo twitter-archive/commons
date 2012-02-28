@@ -71,7 +71,7 @@ public abstract class EasyMockTest extends TearDownTestCase {
    * the type of a {@code List<String>} you would use: {@code new Clazz<List<String>>() {}}
    */
   public abstract static class Clazz<T> extends TypeToken {
-    Class<T> getRawType() {
+    Class<T> rawType() {
       @SuppressWarnings("unchecked")
       Class<T> rawType = (Class<T>) findRawType();
       return rawType;
@@ -96,11 +96,11 @@ public abstract class EasyMockTest extends TearDownTestCase {
     }
 
     public T createMock() {
-      return EasyMock.createMock(getRawType());
+      return EasyMock.createMock(rawType());
     }
 
     public T createMock(IMocksControl control) {
-      return control.createMock(getRawType());
+      return control.createMock(rawType());
     }
   }
 

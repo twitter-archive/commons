@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-from twitter.common.lang import SingletonMetaclass
+from twitter.common.lang import SingletonMetaclass, Compatibility
 from twitter.common.util import topological_sort, DependencyCycle
 
 class AppModule(object):
@@ -58,7 +58,7 @@ class AppModule(object):
     self._description = description
     if isinstance(dependencies, list):
       self._dependencies = set(dependencies)
-    elif isinstance(dependencies, basestring):
+    elif isinstance(dependencies, Compatibility.string):
       self._dependencies = set([dependencies])
     elif dependencies is None:
       self._dependencies = set()

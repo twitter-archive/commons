@@ -19,6 +19,7 @@ import copy
 import shutil
 import errno
 import tempfile
+import sys
 import zipfile
 
 from . import safe_mkdir
@@ -76,7 +77,7 @@ class Chroot(object):
     return self.chroot
 
   def _check_tag(self, fn, label):
-    for fs_label, fs in self.filesets.iteritems():
+    for fs_label, fs in self.filesets.items():
       if fn in fs and fs_label != label:
         raise Chroot.ChrootTaggingException(fn, fs_label, label)
 

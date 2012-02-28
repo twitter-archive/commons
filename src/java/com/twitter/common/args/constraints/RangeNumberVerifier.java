@@ -47,7 +47,7 @@ public class RangeNumberVerifier implements Verifier<Number> {
   }
 
   @Override
-  public String toString(Class<Number> argType, Annotation annotation) {
+  public String toString(Class<? extends Number> argType, Annotation annotation) {
     Range range = getRange(annotation);
 
     Function<Number, Number> converter;

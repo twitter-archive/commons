@@ -27,7 +27,7 @@ import com.twitter.common.args.ArgParser;
 import com.twitter.common.args.Parser;
 import com.twitter.common.args.ParserOracle;
 import com.twitter.common.args.Parsers;
-import com.twitter.common.args.TypeUtil;
+import com.twitter.common.reflect.TypeToken;
 
 /**
  * List parser.
@@ -44,8 +44,7 @@ public class ListParser extends TypeParameterizedParser<List> {
   @Override
   List doParse(final ParserOracle parserOracle, String raw, final List<Type> typeParams) {
     final Type listType = typeParams.get(0);
-    final Parser parser = parserOracle.get(TypeUtil.getRawType(listType));
-
+    final Parser parser = parserOracle.get(TypeToken.create(listType));
     return ImmutableList.copyOf(Iterables.transform(Parsers.MULTI_VALUE_SPLITTER.split(raw),
         new Function<String, Object>() {
           @Override public Object apply(String raw) {

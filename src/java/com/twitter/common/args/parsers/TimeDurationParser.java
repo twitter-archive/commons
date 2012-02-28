@@ -42,7 +42,7 @@ public class TimeDurationParser implements Parser<Duration> {
   @Override
   public Duration parse(ParserOracle parserOracle, Type type, String raw)
       throws IllegalArgumentException {
-    Parser amountParser = parserOracle.get(Amount.class);
+    Parser amountParser = parserOracle.get(TypeToken.create(Amount.class));
 
     @SuppressWarnings("unchecked")
     Amount<Long, Time> parsed = (Amount<Long, Time>)

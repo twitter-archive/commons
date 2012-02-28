@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -340,7 +341,9 @@ public class JUnitConsoleRunner {
         this.outdir = outdir;
       }
 
-      @Argument(usage = "Names of junit test classes or test methods to run.",
+      @Argument(usage = "Names of junit test classes or test methods to run.  Names prefixed "
+                        + "with @ are considered arg file paths and these will be loaded and the "
+                        + "whitespace delimited arguments found inside added to the list",
                 required = true,
                 metaVar = "TESTS",
                 handler = StringArrayOptionHandler.class)
@@ -359,7 +362,22 @@ public class JUnitConsoleRunner {
 
     JUnitConsoleRunner runner =
         new JUnitConsoleRunner(options.suppressOutput, options.xmlReport, options.outdir);
-    runner.run(options.tests);
+
+    List<String> tests = Lists.newArrayList();
+    for (String test : options.tests) {
+      if (test.startsWith("@")) {
+        try {
+          String argFileContents = Files.toString(new File(test.substring(1)), Charsets.UTF_8);
+          tests.addAll(Arrays.asList(argFileContents.split("\\s+")));
+        } catch (IOException e) {
+          System.err.printf("Failed to load args from arg file %s: %s\n", test, e.getMessage());
+          exit(1);
+        }
+      } else {
+        tests.add(test);
+      }
+    }
+    runner.run(tests);
   }
 
   private static boolean isTest(final Class<?> clazz) {

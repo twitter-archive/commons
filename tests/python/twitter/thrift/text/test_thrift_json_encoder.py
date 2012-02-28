@@ -14,6 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
+from __future__ import print_function
+
 import json
 import pkgutil
 import unittest
@@ -78,6 +80,6 @@ class ThriftJsonEncoderTest(unittest.TestCase):
 }"""
 
     json_str2 = thrift_json_encoder.thrift_to_json(x)
-    print json_str2
+    print(json_str2)
     assert expected2 == json_str2
 

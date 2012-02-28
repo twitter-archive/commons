@@ -18,6 +18,7 @@ package com.twitter.common.reflect;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 
 import com.google.common.base.Preconditions;
 
@@ -61,6 +62,17 @@ public abstract class TypeToken<T> {
    */
   public Type getType() {
     return type;
+  }
+
+  /**
+   * Finds the raw class of this type token.
+   *
+   * @return The raw class of this type token.
+   */
+  public Class<T> getRawType() {
+    @SuppressWarnings("unchecked") // We control type on entry
+    Class<T> rawType = (Class<T>) getRawType(type);
+    return rawType;
   }
 
   /**
@@ -128,5 +140,21 @@ public abstract class TypeToken<T> {
     Preconditions.checkArgument(typeArguments.length == 1,
         "Expected a type with exactly 1 type argument");
     return typeArguments[0];
+  }
+
+  /**
+   * Finds the raw class of a type.
+   *
+   * @param type The type to get the raw class of.
+   * @return The raw class of the type.
+   */
+  public static Class<?> getRawType(Type type) {
+    if (type instanceof ParameterizedType) {
+      return getRawType(((ParameterizedType) type).getRawType());
+    }
+    if (type instanceof WildcardType) {
+      return getRawType(((WildcardType) type).getUpperBounds()[0]);
+    }
+    return (Class<?>) type;
   }
 }

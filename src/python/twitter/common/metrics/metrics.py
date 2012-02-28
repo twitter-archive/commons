@@ -14,7 +14,14 @@
 # limitations under the License.
 # ==================================================================================================
 
-from gauge import Gauge, MutatorGauge, NamedGauge, namablegauge
+
+from twitter.common.lang import Compatibility
+from twitter.common.metrics.gauge import (
+  Gauge,
+  MutatorGauge,
+  NamedGauge,
+  namablegauge)
+
 
 class MetricProvider(object):
   def sample(self):
@@ -57,14 +64,14 @@ class Metrics(MetricRegistry, MetricProvider):
     self._children = {}
 
   def scope(self, name):
-    if not isinstance(name, basestring):
+    if not isinstance(name, Compatibility.string):
       raise TypeError('Scope names must be strings, got: %s' % type(name))
     if name not in self._children:
       self._children[name] = Metrics()
     return self._children[name]
 
   def register(self, gauge):
-    if isinstance(gauge, basestring):
+    if isinstance(gauge, Compatibility.string):
       gauge = MutatorGauge(gauge)
     if not isinstance(gauge, NamedGauge) and not namablegauge(gauge):
       raise Metrics.Error('Must register either a string or a Gauge-like object! Got %s' % gauge)
@@ -73,7 +80,7 @@ class Metrics(MetricRegistry, MetricProvider):
 
   def sample(self, sample_prefix=''):
     samples = {}
-    for name, metric in self._metrics.iteritems():
+    for name, metric in self._metrics.items():
       samples[sample_prefix + name] = str(metric.read())
     for scope_name in self._children:
       samples.update(self.scope(scope_name)

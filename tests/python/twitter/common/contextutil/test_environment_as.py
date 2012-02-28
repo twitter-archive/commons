@@ -26,14 +26,14 @@ def test_override_single_variable():
   with temporary_file() as output:
     # test that the override takes place
     with environment_as(HORK = 'BORK'):
-      subprocess.Popen([sys.executable, '-c', 'import os; print os.environ["HORK"]'],
+      subprocess.Popen([sys.executable, '-c', 'import os; print(os.environ["HORK"])'],
         stdout=output).wait()
       output.seek(0)
       assert output.read() == 'BORK\n'
 
     # test that the variable is cleared
     with temporary_file() as new_output:
-      subprocess.Popen([sys.executable, '-c', 'import os; print os.environ.has_key("HORK")'],
+      subprocess.Popen([sys.executable, '-c', 'import os; print("HORK" in os.environ)'],
         stdout=new_output).wait()
       new_output.seek(0)
       assert new_output.read() == 'False\n'
@@ -43,7 +43,7 @@ def test_environment_negation():
     with environment_as(HORK = 'BORK'):
       with environment_as(HORK = None):
       # test that the variable is cleared
-        subprocess.Popen([sys.executable, '-c', 'import os; print os.environ.has_key("HORK")'],
+        subprocess.Popen([sys.executable, '-c', 'import os; print("HORK" in os.environ)'],
           stdout=output).wait()
         output.seek(0)
         assert output.read() == 'False\n'

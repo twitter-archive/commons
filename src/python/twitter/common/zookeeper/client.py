@@ -42,12 +42,12 @@ app.add_option(
     dest='twitter_common_zookeeper_debug',
     default=False,
     action='store_true',
-    help='whether to enable ZK debug logging to stdout',
+    help='whether to enable ZK debug logging to stderr',
     )
 
 
 class ZookeeperLoggingSubsystem(app.Module):
-  # Map the ZK debug log to the same level as stdout logging.
+  # Map the ZK debug log to the same level as stderr logging.
   _ZK_LOG_LEVEL_MAP = {
       log.DEBUG: zookeeper.LOG_LEVEL_DEBUG,
       log.INFO: zookeeper.LOG_LEVEL_INFO,
@@ -66,7 +66,7 @@ class ZookeeperLoggingSubsystem(app.Module):
       self._set_default_log_level()
 
   def _set_default_log_level(self):
-    log_level = LogOptions.stdout_log_level()
+    log_level = LogOptions.stderr_log_level()
     zk_log_level = ZookeeperLoggingSubsystem._ZK_LOG_LEVEL_MAP.get(
         log_level, zookeeper.LOG_LEVEL_ERROR)
     zookeeper.set_debug_level(zk_log_level)

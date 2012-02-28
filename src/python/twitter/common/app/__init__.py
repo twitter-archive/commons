@@ -31,10 +31,12 @@
   initialization code by app-compatible libraries as many in twitter.common are.
 """
 
+import sys
 import types
 
-from application import Application
-from module import AppModule as Module
+from twitter.common.app.application import Application
+from twitter.common.app.module import AppModule as Module
+from twitter.common.lang import Compatibility
 
 # Initialize the global application
 reset = Application.reset
@@ -45,9 +47,13 @@ ApplicationError = Application.Error
 def _make_proxy_function(method_name):
   unbound_method = Application.__dict__[method_name]
   def proxy_function(*args, **kwargs):
-    bound_method = types.MethodType(unbound_method,
-                                    Application.active(),
-                                    Application)
+    if Compatibility.PY2:
+      bound_method = types.MethodType(unbound_method,
+                                      Application.active(),
+                                      Application)
+    else:
+      bound_method = types.MethodType(unbound_method,
+                                      Application.active())
     return bound_method(*args, **kwargs)
   proxy_function.__doc__ = getattr(Application, attribute).__doc__
   proxy_function.__name__ = attribute

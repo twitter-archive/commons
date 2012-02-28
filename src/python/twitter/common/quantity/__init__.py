@@ -19,9 +19,9 @@ from numbers import Integral
 class AmountUnit(object):
   def __init__(self, multiplier, base_or_unit, display):
     if isinstance(base_or_unit, Integral):
-      self._multiplier = multiplier * long(base_or_unit)
+      self._multiplier = multiplier * int(base_or_unit)
     elif isinstance(base_or_unit, AmountUnit):
-      self._multiplier = multiplier * long(base_or_unit.multiplier())
+      self._multiplier = multiplier * int(base_or_unit.multiplier())
     else:
       raise TypeError('Unknown type for base_or_unit: %s' % type(base_or_unit))
     self._display = display

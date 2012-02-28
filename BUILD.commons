@@ -14,6 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
+from __future__ import print_function
+
 import os
 import sys
 
@@ -22,11 +24,11 @@ from zipfile import ZipFile
 
 from twitter.common.python.pexbuilder import PexBuilder
 
-from twitter.pants import goal, is_internal, is_java
+from twitter.pants import goal, is_internal
 from twitter.pants.base.build_file import BuildFile
 from twitter.pants.base.parse_context import ParseContext
 from twitter.pants.python.python_chroot import PythonChroot
-from twitter.pants.targets import JavaLibrary, JvmBinary
+from twitter.pants.targets import JavaLibrary, JvmBinary, ScalaLibrary
 from twitter.pants.tasks import Task
 
 def reinstall():
@@ -37,7 +39,7 @@ def reinstall():
     PexBuilder(chroot.dump()).write(pex)
   ParseContext(BuildFile(ROOT_DIR, os.path.basename(__file__))).do_in_context(build_pex)
 
-  print '\nPants reinstalled from live local source.'
+  print('\nPants reinstalled from live local source.')
 
   # TODO(John Sirois): remove 'goal' when pants.new -> pants
   args = ['pants.pex', 'goal']
@@ -45,7 +47,7 @@ def reinstall():
   # When we re-run, pass on the remaining goals and flags so we can pick up where we leave off here.
   index = sys.argv.index('reinstall')
   args.extend(sys.argv[index+1:])
-  print 'Respawning with: %s\n' % ' '.join(args)
+  print('Respawning with: %s\n' % ' '.join(args))
 
   sys.stdout.flush()
   sys.stderr.flush()
@@ -91,6 +93,8 @@ class ArgsResourceMapper(Task):
     self.resource_index = 0 if main else 1
 
     context.products.require('jars', self.select_targets)
+    context.products.require('classes')
+
     self.classdirs = context.config.getlist('args-resource-mapper', 'classdirs')
     self.include_all = context.options.args_resource_mapper_include_all
 
@@ -98,9 +102,13 @@ class ArgsResourceMapper(Task):
     if self.classdirs:
       jarmap = self.context.products.get('jars')
       for target in filter(self.select_targets, targets):
-        for basedir, jars in jarmap.get(target).items():
-          for jar in jars:
-            self._addargsresources(os.path.join(basedir, jar), target)
+        mapping = jarmap.get(target)
+        if mapping:
+          for basedir, jars in mapping.items():
+            for jar in jars:
+              self._addargsresources(os.path.join(basedir, jar), target)
+        else:
+          self.context.log.warn('No classes found for target %s' % target)
 
   def _addargsresources(self, jar, target):
     lines = set()
@@ -113,15 +121,14 @@ class ArgsResourceMapper(Task):
 
     if lines:
       class Args(object):
-        def __init__(self, transitive):
+        def __init__(self, transitive, class_genmap):
           self.classnames = set()
           def add_clasnames(target):
-            # TODO(John Sirois): this does not handle scala - re-use the
-            # twitter.pants.tasks.scala_compile.ScalaCompiler#findclasses scanner to map sources to
-            # classes?
-            if is_java(target):
-              self.classnames.update(src.replace('/', '.').replace('.java', '')
-                                     for src in target.sources)
+            if isinstance(target, JavaLibrary) or isinstance(target, ScalaLibrary):
+              for base, classes in class_genmap.get(target).items():
+                for cls in classes:
+                  self.classnames.add(cls.replace('.class', '').replace('/', '.'))
+
           if transitive:
             target.walk(add_clasnames, is_internal)
           else:
@@ -147,7 +154,10 @@ class ArgsResourceMapper(Task):
             return True
 
       self._addargs(lines if self.include_all
-                          else filter(Args(self.transitive).matches, lines), jar, target)
+                          else filter(Args(self.transitive,
+                                           self.context.products.get('classes')).matches, lines),
+                    jar,
+                    target)
 
   @contextmanager
   def _open_jar(self, path):

@@ -16,8 +16,12 @@
 
 __author__ = 'John Sirois'
 
-from orderedset import OrderedSet
-from ordereddict import OrderedDict
+from sys import version_info
+if version_info[0] == 2:
+  from twitter.common.collections.ordereddict import OrderedDict
+else:
+  from collections import OrderedDict
+from twitter.common.collections.orderedset import OrderedSet
 
 __all__ = (
   OrderedSet,

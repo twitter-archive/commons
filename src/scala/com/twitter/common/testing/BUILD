@@ -25,3 +25,10 @@ scala_library(name = 'explicit-specs-runner',
   ],
   sources = [ 'ExplicitSpecsRunnerMain.scala' ],
 )
+
+jvm_binary(name = 'explicit-specs-runner-main',
+  main = 'com.twitter.common.testing.ExplicitSpecsRunnerMain',
+  dependencies = [
+    pants(':explicit-specs-runner')
+  ]
+)

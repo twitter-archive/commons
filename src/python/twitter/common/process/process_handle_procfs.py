@@ -29,7 +29,7 @@ class ProcessHandlersProcfs(object):
   @staticmethod
   def handle_start_time(key, value):
     seconds = ProcessHandlersProcfs.handle_time(key, value)
-    return ProcessHandlersProcfs.boot_time() + seconds
+    return seconds - ProcessHandlersProcfs.boot_time()
 
 class ProcessHandleProcfs(ProcessHandleParserBase):
   ATTRS = \
@@ -70,7 +70,7 @@ class ProcessHandleProcfs(ProcessHandleParserBase):
     try:
       with open("/proc/%s/stat" % self._pid) as fp:
         return fp.read()
-    except IOError, e:
+    except IOError as e:
       if e.errno not in (errno.ENOENT, errno.ESRCH):
         raise e
 
@@ -78,6 +78,9 @@ class ProcessHandleProcfs(ProcessHandleParserBase):
     return self.get('utime') + self.get('stime')
 
   def wall_time(self):
+    """
+      wall_time that this application has been running
+    """
     return self.get('starttime')
 
   def pid(self):

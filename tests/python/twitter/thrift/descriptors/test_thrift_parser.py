@@ -14,6 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
+from __future__ import print_function
+
 import pkgutil
 import pytest
 import unittest
@@ -38,9 +40,9 @@ def test_thrift_parser(generate_golden_data):
   test_data = pkgutil.get_data(TEST_DATA_PATH, TEST_DATA_FILE)
   golden_data = pkgutil.get_data(TEST_DATA_PATH, GOLDEN_DATA_FILE)
   parser = ThriftParser()
-  print 'Parsing file %s...' % TEST_DATA_FILE,
+  print('Parsing file %s...' % TEST_DATA_FILE,)
   program = parser.parse_string(test_data)
-  print 'OK.'
+  print('OK.')
   res = thrift_json_encoder.thrift_to_json(program)
 
   if golden_data is not None:
@@ -68,9 +70,9 @@ def test_parse_various_files():
   parser = ThriftParser()
   for test_data_file in TEST_DATA_FILES:
     test_data = pkgutil.get_data(TEST_DATA_PATH, os.path.join(TEST_DATA_DIR, test_data_file))
-    print 'Parsing file %s...' % test_data_file,
+    print('Parsing file %s...' % test_data_file, end='')
     program = parser.parse_string(test_data)
-    print 'OK.'
+    print('OK.')
 
 
 def _parse_with_expected_error(test_data, expected_error_msg):

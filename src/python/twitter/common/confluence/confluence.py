@@ -35,11 +35,17 @@ class Confluence(object):
 
   @staticmethod
   def login(confluence_url):
-    """Prompts the user to log in to confluence, and returns a Confluence object."""
+    """Prompts the user to log in to confluence, and returns a Confluence object.
+
+    raises ConfluenceError if login is unsuccessful.
+    """
     server = xmlrpclib.ServerProxy(confluence_url + '/rpc/xmlrpc')
     user = getpass.getuser()
     password = getpass.getpass('Please enter confluence password for %s: ' % user)
-    return Confluence(server, confluence_url, server.confluence1.login(user, password))
+    try:
+      return Confluence(server, confluence_url, server.confluence1.login(user, password))
+    except  xmlrpclib.Fault as e:
+      raise ConfluenceError('Failed to log in to %s: %s' % (confluence_url, e))
 
   @staticmethod
   def get_url(server_url, wiki_space, page_title):
@@ -86,25 +92,30 @@ class Confluence(object):
     except xmlrpclib.Fault as e:
       raise ConfluenceError('Failed to delete page: %s' % e)
 
-  def create(self, wiki_space, parent_page, page_title, body):
-    """ Create a new confluence page with the given title and body.
+  def create(self, space, title, content, parent_page=None, **pageoptions):
+    """ Create a new confluence page with the given title and content.  Additional page options
+    available in the xmlrpc api can be specified as kwargs.
 
     returns the created page or None if the page could not be stored.
-    raises ConfluenceError if the parent page could not be found.
+    raises ConfluenceError if a parent page was specified but could not be found.
     """
 
-    # Get the parent page id.
-    parent_page_obj = self.getpage(wiki_space, parent_page)
-    if parent_page_obj is None:
-      raise ConfluenceError('Failed to find parent page %s in space %s' % (parent_page, wiki_space))
+    pagedef = dict(
+      space = space,
+      title = title,
+      url = Confluence.get_url(self._server_url, space, title),
+      content = content,
+      contentStatus = 'current',
+      current = True
+    )
+    pagedef.update(**pageoptions)
+
+    if parent_page:
+      # Get the parent page id.
+      parent_page_obj = self.getpage(space, parent_page)
+      if parent_page_obj is None:
+        raise ConfluenceError('Failed to find parent page %s in space %s' % (parent_page, space))
+      pagedef['parentId'] = parent_page_obj['id']
 
     # Now create the page
-    pagedef = dict(space = wiki_space,
-                   title = page_title,
-                   url = Confluence.get_url(self._server_url, wiki_space, page_title),
-                   content = body,
-                   contentStatus = 'current',
-                   current = True,
-                   parentId = parent_page_obj['id']
-                   )
     return self.storepage(pagedef)

@@ -505,7 +505,7 @@ public class ArgScannerTest {
     }
 
     @Override
-    public String toString(Class<Name> argType, Annotation annotation) {
+    public String toString(Class<? extends Name> argType, Annotation annotation) {
       return "name = " + getValue(annotation);
     }
 
@@ -531,6 +531,8 @@ public class ArgScannerTest {
     static final Arg<Double> doubleVal = Arg.create(0D);
     @CmdLine(name = "bool", help = "help")
     static final Arg<Boolean> bool = Arg.create(false);
+    @CmdLine(name = "arg_without_default", help = "help")
+    static final Arg<Boolean> argWithoutDefault = Arg.create();
   }
 
   @Test
@@ -661,20 +663,20 @@ public class ArgScannerTest {
   }
 
   static class Main1 {
-    @Positional(help = "help")
+    @Positional(help = "halp")
     static final Arg<List<String>> names = Arg.create(null);
   }
 
   static class Main2 {
-    @Positional(help = "help")
+    @Positional(help = "halp")
     static final Arg<List<List<String>>> rosters = Arg.create(null);
   }
 
   static class Main3 {
-    @Positional(help = "help")
+    @Positional(help = "halp")
     static final Arg<List<Double>> percentiles = Arg.create(null);
 
-    @Positional(help = "help")
+    @Positional(help = "halp")
     static final Arg<List<File>> files = Arg.create(null);
   }
 

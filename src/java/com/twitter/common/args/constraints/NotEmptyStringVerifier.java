@@ -18,6 +18,7 @@ package com.twitter.common.args.constraints;
 
 import java.lang.annotation.Annotation;
 
+import com.twitter.common.args.Verifier;
 import com.twitter.common.args.VerifierFor;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -28,14 +29,14 @@ import static com.google.common.base.Preconditions.checkArgument;
  * @author William Farner
  */
 @VerifierFor(NotEmpty.class)
-public class NotEmptyStringVerifier extends ScalarVerifier<String> {
+public class NotEmptyStringVerifier implements Verifier<String> {
   @Override
-  public void verify(String s) {
+  public void verify(String s, Annotation annotation) {
     checkArgument(!s.isEmpty(), "Value must not be empty.");
   }
 
   @Override
-  public String toString(Class<String> argType, Annotation annotation) {
+  public String toString(Class<? extends String> argType, Annotation annotation) {
     return "must be non-empty";
   }
 }

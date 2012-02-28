@@ -1,3 +1,4 @@
+from twitter.common.lang import Compatibility
 from twitter.common.quantity import Data, Time, Amount
 
 class InvalidTime(ValueError):
@@ -9,7 +10,7 @@ def parse_time(timestring):
     Parse a time string of the format
       XdYhZmWs (each field optional but must be in that order.)
   """
-  if not isinstance(timestring, basestring):
+  if not isinstance(timestring, Compatibility.string):
     raise TypeError('timestring should be of type string')
   BASES = (('d', Time.DAYS), ('h', Time.HOURS), ('m', Time.MINUTES), ('s', Time.SECONDS))
   timestr = timestring.lower()
