@@ -22,11 +22,13 @@ import com.google.common.base.Functions;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.twitter.common.base.*;
+import com.twitter.common.collections.Pair;
 import com.twitter.common.util.BackoffHelper;
 import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.data.Stat;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -57,7 +59,7 @@ public class ZooKeeperNode<T> implements Supplier<T> {
 
   private final ZooKeeperClient zkClient;
   private final String nodePath;
-  private final Function<byte[], T> deserializer;
+  private final FunctionPicker<T> deserializer;
 
   private final BackoffHelper backoffHelper;
 
@@ -100,7 +102,46 @@ public class ZooKeeperNode<T> implements Supplier<T> {
       Function<byte[], T> deserializer, Closure<T> dataUpdateListener) throws InterruptedException,
       KeeperException, ZooKeeperConnectionException {
     ZooKeeperNode<T> zkNode =
-        new ZooKeeperNode<T>(zkClient, nodePath, deserializer, dataUpdateListener);
+        new ZooKeeperNode<T>(zkClient, nodePath, new FunctionWithByteArray<T>(deserializer),
+            dataUpdateListener);
+    zkNode.init();
+    return zkNode;
+  }
+
+  /**
+   * Returns an initialized ZooKeeperNode.  The given node must exist at the time of object
+   * creation or a {@link KeeperException} will be thrown.
+   *
+   * @param zkClient a zookeeper client
+   * @param nodePath path to a node whose data will be watched
+   * @param deserializer a function that converts Pair&lt;byte[], Stat&gt; data from a zk node
+   *     to this supplier's type T. Also supplies a {@link Stat} object which is useful for doing
+   *     versioned updates.
+   *
+   * @throws InterruptedException if the underlying zookeeper server transaction is interrupted
+   * @throws KeeperException.NoNodeException if the given nodePath doesn't exist
+   * @throws KeeperException if the server signals an error
+   * @throws ZooKeeperConnectionException if there was a problem connecting to the zookeeper
+   *     cluster
+   */
+  public static <T> ZooKeeperNode<T> createWithStat(ZooKeeperClient zkClient, String nodePath,
+      Function<Pair<byte[], Stat>, T> deserializer) throws InterruptedException, KeeperException,
+      ZooKeeperConnectionException {
+    return createWithStat(zkClient, nodePath, deserializer, Closures.<T>noop());
+  }
+
+  /**
+   * Like the above, but optionally takes in a {@link Closure} that will get notified
+   * whenever the data is updated from the remote node.
+   *
+   * @param dataUpdateListener a {@link Closure} to receive data update notifications.
+   */
+  public static <T> ZooKeeperNode<T> createWithStat(ZooKeeperClient zkClient, String nodePath,
+      Function<Pair<byte[], Stat>, T> deserializer, Closure<T> dataUpdateListener)
+      throws InterruptedException, KeeperException, ZooKeeperConnectionException {
+    ZooKeeperNode<T> zkNode =
+        new ZooKeeperNode<T>(zkClient, nodePath, new FunctionWithPair<T>(deserializer),
+            dataUpdateListener);
     zkNode.init();
     return zkNode;
   }
@@ -121,7 +162,7 @@ public class ZooKeeperNode<T> implements Supplier<T> {
    */
   @VisibleForTesting
   ZooKeeperNode(ZooKeeperClient zkClient, String nodePath,
-      Function<byte[], T> deserializer, Closure<T> dataUpdateListener) {
+      FunctionPicker<T> deserializer, Closure<T> dataUpdateListener) {
     this.zkClient = Preconditions.checkNotNull(zkClient);
     this.nodePath = MorePreconditions.checkNotBlank(nodePath);
     this.deserializer = Preconditions.checkNotNull(deserializer);
@@ -230,7 +271,9 @@ public class ZooKeeperNode<T> implements Supplier<T> {
     };
 
     try {
-      T newData = deserializer.apply(zkClient.get().getData(nodePath, nodeWatcher, null));
+      Stat stat = new Stat();
+      byte[] rawData = zkClient.get().getData(nodePath, nodeWatcher, stat);
+      T newData = deserializer.apply(rawData, stat);
       updateData(newData);
     } catch (KeeperException.NoNodeException e) {
       /*
@@ -267,5 +310,39 @@ public class ZooKeeperNode<T> implements Supplier<T> {
       tryWatchDataNode();
     }
   }
+
+  // These are helper classes for keeping backwards compatibility with Function<byte[], T> usage.
+  @VisibleForTesting
+  static interface FunctionPicker<T> {
+    T apply(byte[] rawData, Stat stat);
+  }
+
+  private static final class FunctionWithByteArray<T> implements FunctionPicker<T> {
+    private final Function<byte[], T> func;
+
+    private FunctionWithByteArray(Function<byte[], T> func) {
+      Preconditions.checkNotNull(func);
+      this.func = func;
+    }
+
+    public T apply(byte[] rawData, Stat stat) {
+      return func.apply(rawData);
+    }
+  }
+
+  static final class FunctionWithPair<T> implements FunctionPicker<T> {
+    private final Function<Pair<byte[], Stat>, T> func;
+
+    @VisibleForTesting
+    FunctionWithPair(Function<Pair<byte[], Stat>, T> func) {
+      Preconditions.checkNotNull(func);
+      this.func = func;
+    }
+
+    public T apply(byte[] rawData, Stat stat) {
+      return func.apply(Pair.<byte[], Stat>of(rawData, stat));
+    }
+  }
+
 }
 
