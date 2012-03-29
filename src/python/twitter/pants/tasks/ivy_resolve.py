@@ -146,6 +146,14 @@ class IvyResolve(NailgunTask):
       if os.path.exists(self._classpath_file):
         os.unlink(self._classpath_file)
       os.symlink(target_classpath_file, self._classpath_file)
+
+      # Symlink to the current ivy.xml file (useful for IDEs that read it).
+      ivyxml_symlink = os.path.join(self._work_dir, 'ivy.xml')
+      target_ivyxml = os.path.join(target_workdir, 'ivy.xml')
+      if os.path.exists(ivyxml_symlink):
+        os.unlink(ivyxml_symlink)
+      os.symlink(target_ivyxml, ivyxml_symlink)
+
       with self._cachepath(self._classpath_file) as classpath:
         with self.context.state('classpath', []) as cp:
           for path in classpath:
