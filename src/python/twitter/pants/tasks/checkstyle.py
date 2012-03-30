@@ -70,8 +70,6 @@ class Checkstyle(NailgunTask):
 
   def checkstyle(self, sources):
     classpath = nailgun_profile_classpath(self, self._profile)
-    with self.context.state('classpath', []) as cp:
-      classpath.extend(jar for conf, jar in cp if conf in self._confs)
     self.ng('ng-cp', *classpath)
 
     args = [
