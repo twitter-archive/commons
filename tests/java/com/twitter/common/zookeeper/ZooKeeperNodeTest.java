@@ -16,7 +16,6 @@
 
 package com.twitter.common.zookeeper;
 
-import com.google.common.base.Function;
 import com.twitter.common.base.Closure;
 import com.twitter.common.base.Closures;
 import com.twitter.common.collections.Pair;
@@ -121,16 +120,16 @@ public class ZooKeeperNodeTest extends BaseZooKeeperTest {
     String data1 = "test_data";
     zkClient.get().create(nodePath, data1.getBytes(), ACL, CreateMode.PERSISTENT);
     Listener<String> listener = new Listener<String>();
-    TestFunction func = new TestFunction();
-    ZooKeeperNode<String> zkNode = makeNode(func, nodePath, listener);
+    TestDeserializer deserializer = new TestDeserializer();
+    ZooKeeperNode<String> zkNode = makeNode(deserializer, nodePath, listener);
 
     assertEquals(data1, listener.waitForUpdate());
-    assertNotNull(func.getStat());
-    assertEquals(0, func.getStat().getVersion());
+    assertNotNull(deserializer.getStat());
+    assertEquals(0, deserializer.getStat().getVersion());
     String data2 = "BLAH";
     zkClient.get().setData(nodePath, data2.getBytes(), -1);
     assertEquals(data2, listener.waitForUpdate());
-    assertEquals(1, func.getStat().getVersion());
+    assertEquals(1, deserializer.getStat().getVersion());
   }
 
   @Test
@@ -138,20 +137,20 @@ public class ZooKeeperNodeTest extends BaseZooKeeperTest {
     String data = "testdata";
     zkClient.get().create(nodePath, data.getBytes(), ACL, CreateMode.PERSISTENT);
     Listener<String> listener = new Listener<String>();
-    TestFunction func = new TestFunction();
-    ZooKeeperNode<String> zkNode = makeNode(func, nodePath, listener);
+    TestDeserializer deserializer = new TestDeserializer();
+    ZooKeeperNode<String> zkNode = makeNode(deserializer, nodePath, listener);
 
     assertEquals(data, listener.waitForUpdate());
-    assertNotNull(func.getStat());
-    assertEquals(0, func.getStat().getVersion());
+    assertNotNull(deserializer.getStat());
+    assertEquals(0, deserializer.getStat().getVersion());
 
     zkClient.get().delete(nodePath, -1);
     assertEquals(null, listener.waitForUpdate());
-    assertEquals(0, func.getStat().getVersion());
+    assertEquals(0, deserializer.getStat().getVersion());
 
     zkClient.get().create(nodePath, data.getBytes(), ACL, CreateMode.PERSISTENT);
     assertEquals(data, listener.waitForUpdate());
-    assertEquals(0, func.getStat().getVersion());
+    assertEquals(0, deserializer.getStat().getVersion());
   }
 
   @Test
@@ -159,12 +158,12 @@ public class ZooKeeperNodeTest extends BaseZooKeeperTest {
     String data1 = "testdata";
     zkClient.get().create(nodePath, data1.getBytes(), ACL, CreateMode.PERSISTENT);
     Listener<String> listener = new Listener<String>();
-    TestFunction func = new TestFunction();
-    ZooKeeperNode<String> zkNode = makeNode(func, nodePath, listener);
+    TestDeserializer deserializer = new TestDeserializer();
+    ZooKeeperNode<String> zkNode = makeNode(deserializer, nodePath, listener);
 
     assertEquals(data1, listener.waitForUpdate());
-    assertNotNull(func.getStat());
-    assertEquals(0, func.getStat().getVersion());
+    assertNotNull(deserializer.getStat());
+    assertEquals(0, deserializer.getStat().getVersion());
 
     expireSession(zkClient);
     assertEquals(data1, listener.waitForUpdate());
@@ -173,46 +172,45 @@ public class ZooKeeperNodeTest extends BaseZooKeeperTest {
     zkClient = createZkClient();
     zkClient.get().setData(nodePath, data2.getBytes(), -1);
     assertEquals(data2, listener.waitForUpdate());
-    assertEquals(1, func.getStat().getVersion());
+    assertEquals(1, deserializer.getStat().getVersion());
   }
 
   @Test
   public void testStaticCreate() throws Exception {
     String data = "stuff";
     zkClient.get().create(nodePath, data.getBytes(), ACL, CreateMode.PERSISTENT);
-    ZooKeeperNode<String> zkNode = ZooKeeperNode.createWithStat(zkClient, nodePath, new TestFunction());
+    ZooKeeperNode<String> zkNode = ZooKeeperNode.create(zkClient, nodePath, new TestDeserializer());
     assertEquals(data, zkNode.get());
   }
 
-  private ZooKeeperNode<String> makeNode(TestFunction func, String path,
+  private ZooKeeperNode<String> makeNode(TestDeserializer deserializer, String path,
       Closure<String> listener) throws Exception {
-    ZooKeeperNode<String> zkNode = makeUninitializedNode(func, path, listener);
+    ZooKeeperNode<String> zkNode = makeUninitializedNode(deserializer, path, listener);
     zkNode.init();
     return zkNode;
   }
 
   private ZooKeeperNode<String> makeUninitializedNode(String path, Closure<String> listener)
       throws Exception {
-    return makeUninitializedNode(new TestFunction(), path, listener);
+    return makeUninitializedNode(new TestDeserializer(), path, listener);
   }
 
   private ZooKeeperNode<String> makeUninitializedNode(
-      Function<Pair<byte[], Stat>, String> func, String path, Closure<String> listener)
+      ZooKeeperNode.NodeDeserializer<String> deserializer, String path, Closure<String> listener)
       throws Exception {
-    // we test FunctionWithPair primarily because it is functionally a proper
-    // superset of FunctionWithByteArray
-    return new ZooKeeperNode<String>(zkClient, path,
-        new ZooKeeperNode.FunctionWithPair<String>(func), listener);
+    // we test deserializertionWithPair primarily because it is deserializertionally a proper
+    // superset of deserializertionWithByteArray
+    return new ZooKeeperNode<String>(zkClient, path, deserializer, listener);
   }
 
   // helper to test Stat population and retrieval
-  private static final class TestFunction implements Function<Pair<byte[], Stat>, String> {
+  private static final class TestDeserializer implements ZooKeeperNode.NodeDeserializer<String> {
     private Stat stat = null;
 
     @Override
-    public String apply(Pair<byte[], Stat> from) {
-      this.stat = from.getSecond();
-      return new String(from.getFirst());
+    public String deserialize(byte[] data, Stat stat) {
+      this.stat = stat;
+      return new String(data);
     }
 
     public Stat getStat() {

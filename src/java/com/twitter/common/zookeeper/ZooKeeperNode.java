@@ -59,7 +59,7 @@ public class ZooKeeperNode<T> implements Supplier<T> {
 
   private final ZooKeeperClient zkClient;
   private final String nodePath;
-  private final FunctionPicker<T> deserializer;
+  private final NodeDeserializer<T> deserializer;
 
   private final BackoffHelper backoffHelper;
 
@@ -102,7 +102,7 @@ public class ZooKeeperNode<T> implements Supplier<T> {
       Function<byte[], T> deserializer, Closure<T> dataUpdateListener) throws InterruptedException,
       KeeperException, ZooKeeperConnectionException {
     ZooKeeperNode<T> zkNode =
-        new ZooKeeperNode<T>(zkClient, nodePath, new FunctionWithByteArray<T>(deserializer),
+        new ZooKeeperNode<T>(zkClient, nodePath, new FunctionWrapper<T>(deserializer),
             dataUpdateListener);
     zkNode.init();
     return zkNode;
@@ -124,10 +124,10 @@ public class ZooKeeperNode<T> implements Supplier<T> {
    * @throws ZooKeeperConnectionException if there was a problem connecting to the zookeeper
    *     cluster
    */
-  public static <T> ZooKeeperNode<T> createWithStat(ZooKeeperClient zkClient, String nodePath,
-      Function<Pair<byte[], Stat>, T> deserializer) throws InterruptedException, KeeperException,
+  public static <T> ZooKeeperNode<T> create(ZooKeeperClient zkClient, String nodePath,
+      NodeDeserializer<T> deserializer) throws InterruptedException, KeeperException,
       ZooKeeperConnectionException {
-    return createWithStat(zkClient, nodePath, deserializer, Closures.<T>noop());
+    return create(zkClient, nodePath, deserializer, Closures.<T>noop());
   }
 
   /**
@@ -136,12 +136,11 @@ public class ZooKeeperNode<T> implements Supplier<T> {
    *
    * @param dataUpdateListener a {@link Closure} to receive data update notifications.
    */
-  public static <T> ZooKeeperNode<T> createWithStat(ZooKeeperClient zkClient, String nodePath,
-      Function<Pair<byte[], Stat>, T> deserializer, Closure<T> dataUpdateListener)
+  public static <T> ZooKeeperNode<T> create(ZooKeeperClient zkClient, String nodePath,
+      NodeDeserializer<T> deserializer, Closure<T> dataUpdateListener)
       throws InterruptedException, KeeperException, ZooKeeperConnectionException {
     ZooKeeperNode<T> zkNode =
-        new ZooKeeperNode<T>(zkClient, nodePath, new FunctionWithPair<T>(deserializer),
-            dataUpdateListener);
+        new ZooKeeperNode<T>(zkClient, nodePath, deserializer, dataUpdateListener);
     zkNode.init();
     return zkNode;
   }
@@ -162,7 +161,7 @@ public class ZooKeeperNode<T> implements Supplier<T> {
    */
   @VisibleForTesting
   ZooKeeperNode(ZooKeeperClient zkClient, String nodePath,
-      FunctionPicker<T> deserializer, Closure<T> dataUpdateListener) {
+      NodeDeserializer<T> deserializer, Closure<T> dataUpdateListener) {
     this.zkClient = Preconditions.checkNotNull(zkClient);
     this.nodePath = MorePreconditions.checkNotBlank(nodePath);
     this.deserializer = Preconditions.checkNotNull(deserializer);
@@ -273,7 +272,7 @@ public class ZooKeeperNode<T> implements Supplier<T> {
     try {
       Stat stat = new Stat();
       byte[] rawData = zkClient.get().getData(nodePath, nodeWatcher, stat);
-      T newData = deserializer.apply(rawData, stat);
+      T newData = deserializer.deserialize(rawData, stat);
       updateData(newData);
     } catch (KeeperException.NoNodeException e) {
       /*
@@ -311,36 +310,28 @@ public class ZooKeeperNode<T> implements Supplier<T> {
     }
   }
 
-  // These are helper classes for keeping backwards compatibility with Function<byte[], T> usage.
-  @VisibleForTesting
-  static interface FunctionPicker<T> {
-    T apply(byte[] rawData, Stat stat);
+  /**
+   * Interface for defining zookeeper node data deserialization.
+   */
+  public interface NodeDeserializer<T> {
+    /**
+     * @param data the byte array returned from ZooKeeper when a watch is triggered.
+     * @param stat a ZooKeeper {@link Stat} object. Populated by
+     *             {@link ZooKeeper#getData(String, boolean, Stat)}.
+     */
+
+    T deserialize(byte[] data, @Nullable Stat stat);
   }
 
-  private static final class FunctionWithByteArray<T> implements FunctionPicker<T> {
+  private static final class FunctionWrapper<T> implements NodeDeserializer<T> {
     private final Function<byte[], T> func;
-
-    private FunctionWithByteArray(Function<byte[], T> func) {
+    private FunctionWrapper(Function<byte[], T> func) {
       Preconditions.checkNotNull(func);
       this.func = func;
     }
 
-    public T apply(byte[] rawData, Stat stat) {
+    public T deserialize(byte[] rawData, @Nullable Stat stat) {
       return func.apply(rawData);
-    }
-  }
-
-  static final class FunctionWithPair<T> implements FunctionPicker<T> {
-    private final Function<Pair<byte[], Stat>, T> func;
-
-    @VisibleForTesting
-    FunctionWithPair(Function<Pair<byte[], Stat>, T> func) {
-      Preconditions.checkNotNull(func);
-      this.func = func;
-    }
-
-    public T apply(byte[] rawData, Stat stat) {
-      return func.apply(Pair.<byte[], Stat>of(rawData, stat));
     }
   }
 
