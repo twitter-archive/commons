@@ -22,7 +22,6 @@ import com.google.common.base.Functions;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.twitter.common.base.*;
-import com.twitter.common.collections.Pair;
 import com.twitter.common.util.BackoffHelper;
 import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException;
 import org.apache.zookeeper.KeeperException;
@@ -114,9 +113,9 @@ public class ZooKeeperNode<T> implements Supplier<T> {
    *
    * @param zkClient a zookeeper client
    * @param nodePath path to a node whose data will be watched
-   * @param deserializer a function that converts Pair&lt;byte[], Stat&gt; data from a zk node
-   *     to this supplier's type T. Also supplies a {@link Stat} object which is useful for doing
-   *     versioned updates.
+   * @param deserializer an implentation of {@link NodeDeserializer} that converts a byte[] from a
+   *     zk node to this supplier's type T. Also supplies a {@link Stat} object which is useful for
+   *     doing versioned updates.
    *
    * @throws InterruptedException if the underlying zookeeper server transaction is interrupted
    * @throws KeeperException.NoNodeException if the given nodePath doesn't exist
@@ -155,8 +154,8 @@ public class ZooKeeperNode<T> implements Supplier<T> {
    *
    * @param zkClient a zookeeper client
    * @param nodePath path to a node whose data will be watched
-   * @param deserializer a function that converts byte[] data from a zk node to this supplier's
-   *     type T
+   * @param deserializer an implementation of {@link NodeDeserializer} that converts byte[] data
+   *     from a zk node to this supplier's type T
    * @param dataUpdateListener a {@link Closure} to receive data update notifications.
    */
   @VisibleForTesting
@@ -323,6 +322,7 @@ public class ZooKeeperNode<T> implements Supplier<T> {
     T deserialize(byte[] data, @Nullable Stat stat);
   }
 
+  // wrapper for backwards compatibility with older create() methods with Function parameter
   private static final class FunctionWrapper<T> implements NodeDeserializer<T> {
     private final Function<byte[], T> func;
     private FunctionWrapper(Function<byte[], T> func) {
