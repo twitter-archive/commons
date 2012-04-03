@@ -18,7 +18,6 @@ package com.twitter.common.zookeeper;
 
 import com.twitter.common.base.Closure;
 import com.twitter.common.base.Closures;
-import com.twitter.common.collections.Pair;
 import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
