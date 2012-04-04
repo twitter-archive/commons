@@ -27,6 +27,7 @@ import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.data.Stat;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -57,7 +58,7 @@ public class ZooKeeperNode<T> implements Supplier<T> {
 
   private final ZooKeeperClient zkClient;
   private final String nodePath;
-  private final Function<byte[], T> deserializer;
+  private final NodeDeserializer<T> deserializer;
 
   private final BackoffHelper backoffHelper;
 
@@ -99,6 +100,40 @@ public class ZooKeeperNode<T> implements Supplier<T> {
   public static <T> ZooKeeperNode<T> create(ZooKeeperClient zkClient, String nodePath,
       Function<byte[], T> deserializer, Closure<T> dataUpdateListener) throws InterruptedException,
       KeeperException, ZooKeeperConnectionException {
+    return create(zkClient, nodePath, new FunctionWrapper<T>(deserializer), dataUpdateListener);
+  }
+
+  /**
+   * Returns an initialized ZooKeeperNode.  The given node must exist at the time of object
+   * creation or a {@link KeeperException} will be thrown.
+   *
+   * @param zkClient a zookeeper client
+   * @param nodePath path to a node whose data will be watched
+   * @param deserializer an implentation of {@link NodeDeserializer} that converts a byte[] from a
+   *     zk node to this supplier's type T. Also supplies a {@link Stat} object which is useful for
+   *     doing versioned updates.
+   *
+   * @throws InterruptedException if the underlying zookeeper server transaction is interrupted
+   * @throws KeeperException.NoNodeException if the given nodePath doesn't exist
+   * @throws KeeperException if the server signals an error
+   * @throws ZooKeeperConnectionException if there was a problem connecting to the zookeeper
+   *     cluster
+   */
+  public static <T> ZooKeeperNode<T> create(ZooKeeperClient zkClient, String nodePath,
+      NodeDeserializer<T> deserializer) throws InterruptedException, KeeperException,
+      ZooKeeperConnectionException {
+    return create(zkClient, nodePath, deserializer, Closures.<T>noop());
+  }
+
+  /**
+   * Like the above, but optionally takes in a {@link Closure} that will get notified
+   * whenever the data is updated from the remote node.
+   *
+   * @param dataUpdateListener a {@link Closure} to receive data update notifications.
+   */
+  public static <T> ZooKeeperNode<T> create(ZooKeeperClient zkClient, String nodePath,
+      NodeDeserializer<T> deserializer, Closure<T> dataUpdateListener)
+      throws InterruptedException, KeeperException, ZooKeeperConnectionException {
     ZooKeeperNode<T> zkNode =
         new ZooKeeperNode<T>(zkClient, nodePath, deserializer, dataUpdateListener);
     zkNode.init();
@@ -115,13 +150,13 @@ public class ZooKeeperNode<T> implements Supplier<T> {
    *
    * @param zkClient a zookeeper client
    * @param nodePath path to a node whose data will be watched
-   * @param deserializer a function that converts byte[] data from a zk node to this supplier's
-   *     type T
+   * @param deserializer an implementation of {@link NodeDeserializer} that converts byte[] data
+   *     from a zk node to this supplier's type T
    * @param dataUpdateListener a {@link Closure} to receive data update notifications.
    */
   @VisibleForTesting
   ZooKeeperNode(ZooKeeperClient zkClient, String nodePath,
-      Function<byte[], T> deserializer, Closure<T> dataUpdateListener) {
+      NodeDeserializer<T> deserializer, Closure<T> dataUpdateListener) {
     this.zkClient = Preconditions.checkNotNull(zkClient);
     this.nodePath = MorePreconditions.checkNotBlank(nodePath);
     this.deserializer = Preconditions.checkNotNull(deserializer);
@@ -230,7 +265,9 @@ public class ZooKeeperNode<T> implements Supplier<T> {
     };
 
     try {
-      T newData = deserializer.apply(zkClient.get().getData(nodePath, nodeWatcher, null));
+      Stat stat = new Stat();
+      byte[] rawData = zkClient.get().getData(nodePath, nodeWatcher, stat);
+      T newData = deserializer.deserialize(rawData, stat);
       updateData(newData);
     } catch (KeeperException.NoNodeException e) {
       /*
@@ -267,5 +304,33 @@ public class ZooKeeperNode<T> implements Supplier<T> {
       tryWatchDataNode();
     }
   }
+
+  /**
+   * Interface for defining zookeeper node data deserialization.
+   *
+   * @param <T> the type of data associated with this node
+   */
+  public interface NodeDeserializer<T> {
+    /**
+     * @param data the byte array returned from ZooKeeper when a watch is triggered.
+     * @param stat a ZooKeeper {@link Stat} object. Populated by
+     *             {@link ZooKeeper#getData(String, boolean, Stat)}.
+     */
+    T deserialize(byte[] data, Stat stat);
+  }
+
+  // wrapper for backwards compatibility with older create() methods with Function parameter
+  private static final class FunctionWrapper<T> implements NodeDeserializer<T> {
+    private final Function<byte[], T> func;
+    private FunctionWrapper(Function<byte[], T> func) {
+      Preconditions.checkNotNull(func);
+      this.func = func;
+    }
+
+    public T deserialize(byte[] rawData, Stat stat) {
+      return func.apply(rawData);
+    }
+  }
+
 }
 
