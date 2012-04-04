@@ -100,11 +100,7 @@ public class ZooKeeperNode<T> implements Supplier<T> {
   public static <T> ZooKeeperNode<T> create(ZooKeeperClient zkClient, String nodePath,
       Function<byte[], T> deserializer, Closure<T> dataUpdateListener) throws InterruptedException,
       KeeperException, ZooKeeperConnectionException {
-    ZooKeeperNode<T> zkNode =
-        new ZooKeeperNode<T>(zkClient, nodePath, new FunctionWrapper<T>(deserializer),
-            dataUpdateListener);
-    zkNode.init();
-    return zkNode;
+    return create(zkClient, nodePath, new FunctionWrapper<T>(deserializer), dataUpdateListener);
   }
 
   /**
@@ -311,6 +307,8 @@ public class ZooKeeperNode<T> implements Supplier<T> {
 
   /**
    * Interface for defining zookeeper node data deserialization.
+   *
+   * @param <T> the type of data associated with this node
    */
   public interface NodeDeserializer<T> {
     /**
@@ -318,8 +316,7 @@ public class ZooKeeperNode<T> implements Supplier<T> {
      * @param stat a ZooKeeper {@link Stat} object. Populated by
      *             {@link ZooKeeper#getData(String, boolean, Stat)}.
      */
-
-    T deserialize(byte[] data, @Nullable Stat stat);
+    T deserialize(byte[] data, Stat stat);
   }
 
   // wrapper for backwards compatibility with older create() methods with Function parameter
@@ -330,7 +327,7 @@ public class ZooKeeperNode<T> implements Supplier<T> {
       this.func = func;
     }
 
-    public T deserialize(byte[] rawData, @Nullable Stat stat) {
+    public T deserialize(byte[] rawData, Stat stat) {
       return func.apply(rawData);
     }
   }
