@@ -202,3 +202,11 @@ class JarArgsResourceMapper(ArgsResourceMapper):
                                 main=False)
 
 goal(name='args-apt', action=JarArgsResourceMapper).install('jar')
+
+
+# We always want compile to finish with a checkstyle
+from twitter.pants.tasks.checkstyle import Checkstyle
+
+goal(name='checkstyle',
+     action=Checkstyle,
+     dependencies=['gen', 'resolve']).install('compile')
