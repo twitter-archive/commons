@@ -4,11 +4,11 @@ from process_handle import ProcessHandle, ProcessHandleParserBase
 
 class ProcessHandlersPs(object):
   @staticmethod
-  def handle_mem(key, value):
+  def handle_mem(_, value):
     return value * 1024
 
   @staticmethod
-  def handle_elapsed(key, value):
+  def handle_elapsed(_, value):
     seconds = 0
 
     unpack = value.split('-')

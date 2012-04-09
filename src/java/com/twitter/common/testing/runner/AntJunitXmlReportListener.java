@@ -293,6 +293,10 @@ class AntJunitXmlReportListener extends RunListener {
     public void incrementErrors() {
       errors++;
     }
+
+    public boolean wasStarted() {
+      return startNs > 0;
+    }
   }
 
   private final Map<Class<?>, TestSuite> suites = Maps.newHashMap();
@@ -362,10 +366,12 @@ class AntJunitXmlReportListener extends RunListener {
       Class<?> testClass = entry.getKey();
       TestSuite suite = entry.getValue();
 
-      suite.setOut(new String(streamSource.readOut(testClass), Charsets.UTF_8));
-      suite.setErr(new String(streamSource.readErr(testClass), Charsets.UTF_8));
+      if (suite.wasStarted()) {
+        suite.setOut(new String(streamSource.readOut(testClass), Charsets.UTF_8));
+        suite.setErr(new String(streamSource.readErr(testClass), Charsets.UTF_8));
 
-      JAXB.marshal(suite, new File(outdir, String.format("TEST-%s.xml", suite.name)));
+        JAXB.marshal(suite, new File(outdir, String.format("TEST-%s.xml", suite.name)));
+      }
     }
   }
 

@@ -41,10 +41,25 @@ public class PositionalInfo<T> extends ArgumentInfo<List<T>> {
   private final String canonicalName;
   private final TypeToken<T> elementType;
 
+  public PositionalInfo(
+      String canonicalName,
+      String help,
+      Arg<List<T>> arg,
+      TypeToken<List<T>> type,
+      TypeToken<T> elementType,
+      List<Annotation> verifierAnnotations,
+      @Nullable Class<? extends Parser<? extends List<T>>> parser) {
+
+    super(help, arg, type, verifierAnnotations, parser);
+    this.elementType = elementType;
+    this.canonicalName = canonicalName;
+  }
+
   /**
    * Factory method to create a PositionalInfo from a java.lang.reflect.Field.
    *
-   * @param field The field must contain a Arg<List<?>>. The List<?> represents zero or more positional arguments.
+   * @param field The field must contain a Arg<List<?>>. The List<?> represents zero or more
+   *     positional arguments.
    * @return a PositionalInfo
    */
   static PositionalInfo createFromField(Field field) {
@@ -72,18 +87,10 @@ public class PositionalInfo<T> extends ArgumentInfo<List<T>> {
     return positionalInfo;
   }
 
-  public PositionalInfo(String canonicalName, String help, Arg<List<T>> arg,
-      TypeToken<List<T>> type, TypeToken<T> elementType, List<Annotation> verifierAnnotations,
-      @Nullable Class<? extends Parser<? extends List<T>>> parser) {
-    super(help, arg, type, verifierAnnotations, parser);
-    this.elementType = elementType;
-    this.canonicalName = canonicalName;
-  }
-
   /**
-   * Get the "name" of the positional argument. Positional arguments, unlike optional arguments, don't
-   * have names (like `-foo=bar`). However, when printing help info, we use the name to represent the positional
-   * argument.
+   * Get the "name" of the positional argument. Positional arguments, unlike optional arguments,
+   * don't have names (like `-foo=bar`). However, when printing help info, we use the name to
+   * represent the positional argument.
    *
    * @return the string "[positional args]"
    */

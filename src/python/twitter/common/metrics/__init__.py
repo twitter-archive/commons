@@ -14,7 +14,9 @@
 # limitations under the License.
 # ==================================================================================================
 
-from gauge import *
-from rate import Rate
-from metrics import RootMetrics
-from sampler import MetricSampler
+__author__ = 'Brian Wickman'
+
+from .gauge import *
+from .rate import Rate
+from .metrics import RootMetrics
+from .sampler import MetricSampler

@@ -17,7 +17,7 @@
 import time
 
 from twitter.common.quantity import Amount, Time
-from gauge import NamedGauge, gaugelike, namablegauge
+from .gauge import NamedGauge, gaugelike, namablegauge
 
 class Rate(NamedGauge):
   """
@@ -57,7 +57,7 @@ class Rate(NamedGauge):
     """
     if newer_than is None:
       newer_than = self._clock.time() - self._window.as_(Time.SECONDS)
-    self._samples = filter(lambda sample: sample[0] >= newer_than, self._samples)
+    self._samples = [sample for sample in self._samples if sample[0] >= newer_than]
 
   def read(self):
     now = self._clock.time()

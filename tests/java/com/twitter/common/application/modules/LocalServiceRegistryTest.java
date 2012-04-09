@@ -31,6 +31,13 @@ import static org.junit.Assert.assertFalse;
  */
 public class LocalServiceRegistryTest extends EasyMockTest {
 
+  private static final Function<InetSocketAddress, Integer> INET_TO_PORT =
+      new Function<InetSocketAddress, Integer>() {
+        @Override public Integer apply(InetSocketAddress address) {
+          return address.getPort();
+        }
+      };
+
   private static final String A = "a";
   private static final String B = "b";
 
@@ -44,7 +51,7 @@ public class LocalServiceRegistryTest extends EasyMockTest {
   public void setUp() {
     runner1 = createMock(ServiceRunner.class);
     runner2 = createMock(ServiceRunner.class);
-    serviceProvider = createMock(new Clazz<Provider<Set<ServiceRunner>>>() {});
+    serviceProvider = createMock(new Clazz<Provider<Set<ServiceRunner>>>() { });
     shutdownRegistry = createMock(ShutdownRegistry.class);
     registry = new LocalServiceRegistry(serviceProvider, shutdownRegistry);
   }
@@ -129,11 +136,4 @@ public class LocalServiceRegistryTest extends EasyMockTest {
     assertEquals(primary, registeredPort);
     assertEquals(expected, Maps.transformValues(registry.getAuxiliarySockets(), INET_TO_PORT));
   }
-
-  private static final Function<InetSocketAddress, Integer> INET_TO_PORT =
-      new Function<InetSocketAddress, Integer>() {
-        @Override public Integer apply(InetSocketAddress address) {
-          return address.getPort();
-        }
-      };
 }

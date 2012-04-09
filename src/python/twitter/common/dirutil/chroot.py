@@ -14,12 +14,14 @@
 # limitations under the License.
 # ==================================================================================================
 
-import os
+__author__ = 'Alec Thomas, Brian Wickman'
+
+import contextlib
 import copy
-import shutil
 import errno
+import os
+import shutil
 import tempfile
-import sys
 import zipfile
 
 from . import safe_mkdir
@@ -138,7 +140,7 @@ class Chroot(object):
       else:
         raise
 
-  def write(self, data, dst, label=None, mode='w'):
+  def write(self, data, dst, label=None, mode='wb'):
     """
       Write data to {chroot}/dest with optional label.
 
@@ -179,11 +181,11 @@ class Chroot(object):
   def delete(self):
     shutil.rmtree(self.chroot)
 
-  def zip(self, filename):
-    zf = zipfile.ZipFile(filename, "w")
-    for f in sorted(self.files()):
-      zf.write(os.path.join(self.chroot, f), arcname=f, compress_type=zipfile.ZIP_DEFLATED)
-    zf.close()
+  def zip(self, filename, mode='wb'):
+    with contextlib.closing(zipfile.ZipFile(filename, mode)) as zf:
+      for f in sorted(self.files()):
+        zf.write(os.path.join(self.chroot, f), arcname=f, compress_type=zipfile.ZIP_DEFLATED)
+
 
 class RelativeChroot(Chroot):
   """

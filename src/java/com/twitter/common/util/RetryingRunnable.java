@@ -19,7 +19,6 @@ package com.twitter.common.util;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -27,6 +26,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import com.twitter.common.base.ExceptionalCommand;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * A runnable task that is retried in a user-configurable fashion.
@@ -55,17 +57,24 @@ public class RetryingRunnable<E extends Exception> implements Runnable {
    * @param exceptionClass class of the exception thrown by the task.
    * @param numTries the total number of times to try.
    * @param retryDelay the delay between successive tries.
+   * @param commandExecutor Executor to resubmit retries to.
    * @param tryNum the seq number of this try.
-   * @param name
    */
-  public RetryingRunnable(String name, ExceptionalCommand<E> task, Class<E> exceptionClass,
-      int numTries, Amount<Long, Time> retryDelay, CommandExecutor commandExecutor, int tryNum) {
-    this.name = Preconditions.checkNotNull(name);
-    this.task = Preconditions.checkNotNull(task);
-    this.exceptionClass = Preconditions.checkNotNull(exceptionClass);
-    this.retryDelay = Preconditions.checkNotNull(retryDelay);
-    this.commandExecutor = Preconditions.checkNotNull(commandExecutor);
-    Preconditions.checkArgument(numTries > 0);
+  public RetryingRunnable(
+      String name,
+      ExceptionalCommand<E> task,
+      Class<E> exceptionClass,
+      int numTries,
+      Amount<Long, Time> retryDelay,
+      CommandExecutor commandExecutor,
+      int tryNum) {
+
+    this.name = checkNotNull(name);
+    this.task = checkNotNull(task);
+    this.exceptionClass = checkNotNull(exceptionClass);
+    this.retryDelay = checkNotNull(retryDelay);
+    this.commandExecutor = checkNotNull(commandExecutor);
+    checkArgument(numTries > 0);
     this.tryNum = tryNum;
     this.numTries = numTries;
   }
@@ -80,12 +89,17 @@ public class RetryingRunnable<E extends Exception> implements Runnable {
    * @param exceptionClass class of the exception thrown by the task.
    * @param numTries the total number of times to try.
    * @param retryDelay the delay between successive tries.
+   * @param commandExecutor Executor to resubmit retries to.
    */
-  public RetryingRunnable(String name, ExceptionalCommand<E> task,
-      Class<E> exceptionClass, int numTries, Amount<Long, Time> retryDelay,
+  public RetryingRunnable(
+      String name,
+      ExceptionalCommand<E> task,
+      Class<E> exceptionClass,
+      int numTries,
+      Amount<Long, Time> retryDelay,
       CommandExecutor commandExecutor) {
-    this(name, task, exceptionClass, numTries, retryDelay, commandExecutor,
-    /*tryNum=*/ 1);
+
+    this(name, task, exceptionClass, numTries, retryDelay, commandExecutor, /*tryNum=*/ 1);
   }
 
   @Override

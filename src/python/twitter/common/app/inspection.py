@@ -16,20 +16,27 @@
 
 from __future__ import print_function
 
+import inspect
 import os
 import sys
-import inspect
 
 class Inspection(object):
   class InternalError(Exception): pass
 
+  # TODO(wickman)
+  #   Remove all calls to inspect.stack().  This is just bad.  Port everything over
+  #   to iterating from currentframe => outer frames.
   @staticmethod
   def find_main_from_caller():
-    stack = inspect.stack()[1:]
-    for fr_n in range(len(stack)):
-      if 'main' in stack[fr_n][0].f_locals:
-        return stack[fr_n][0].f_locals['main']
-    return None
+    last_frame = inspect.currentframe()
+    while True:
+      inspect_frame = last_frame.f_back
+      if not inspect_frame:
+        break
+      if 'main' in inspect_frame.f_locals:
+        return inspect_frame.f_locals['main']
+      last_frame = inspect_frame
+    raise Inspection.InternalError("Unable to detect main from the stack!")
 
   @staticmethod
   def print_stack_locals(out=sys.stderr):
@@ -58,10 +65,14 @@ class Inspection(object):
 
   @staticmethod
   def find_calling_module():
-    stack = inspect.stack()
-    for fr_n in range(len(stack)):
-      if '__name__' in stack[fr_n][0].f_locals:
-        return stack[fr_n][0].f_locals['__name__']
+    last_frame = inspect.currentframe()
+    while True:
+      inspect_frame = last_frame.f_back
+      if not inspect_frame:
+        break
+      if '__name__' in inspect_frame.f_locals:
+        return inspect_frame.f_locals['__name__']
+      last_frame = inspect_frame
     raise Inspection.InternalError("Unable to interpret stack frame!")
 
   @staticmethod
@@ -73,7 +84,9 @@ class Inspection(object):
     elif '__loader__' in locals:
       from zipimport import zipimporter
       from pkgutil import ImpLoader
-      if isinstance(locals['__loader__'], zipimporter):
+      # TODO(wickman) The monkeypatched zipimporter should probably not be a function
+      # but instead a properly delegating proxy.
+      if hasattr(locals['__loader__'], 'archive'):
         # assuming it ends in .zip or .egg, it may be of package format, so
         # foo-version-py2.6-arch.egg, so split off anything after '-'.
         __entry_point__ = os.path.basename(locals['__loader__'].archive)

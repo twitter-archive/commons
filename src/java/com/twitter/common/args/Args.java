@@ -21,10 +21,8 @@ import static com.twitter.common.args.apt.Configuration.ConfigurationException;
  * A utility that can load {@literal @CmdLine} arg field info from a configuration database.
  */
 final class Args {
-  private static final Logger LOG = Logger.getLogger(Args.class.getName());
-
   @VisibleForTesting
-  public static final Function<ArgInfo, Optional<Field>> TO_FIELD =
+  static final Function<ArgInfo, Optional<Field>> TO_FIELD =
       new Function<ArgInfo, Optional<Field>>() {
         @Override public Optional<Field> apply(ArgInfo info) {
           try {
@@ -43,6 +41,8 @@ final class Args {
           }
         }
       };
+
+  private static final Logger LOG = Logger.getLogger(Args.class.getName());
 
   private static final Function<Field, OptionInfo<?>> TO_OPTIONINFO =
       new Function<Field, OptionInfo<?>>() {
@@ -71,13 +71,21 @@ final class Args {
   }
 
   static class ArgumentInfo {
-    final Optional<? extends PositionalInfo<?>> positionalInfo;
-    final Iterable<? extends OptionInfo<?>> optionInfos;
+    private final Optional<? extends PositionalInfo<?>> positionalInfo;
+    private final Iterable<? extends OptionInfo<?>> optionInfos;
 
     ArgumentInfo(Optional<? extends PositionalInfo<?>> positionalInfo,
         Iterable<? extends OptionInfo<?>> cmdLineDescs) {
       this.positionalInfo = Preconditions.checkNotNull(positionalInfo);
       this.optionInfos = Preconditions.checkNotNull(cmdLineDescs);
+    }
+
+    Optional<? extends PositionalInfo<?>> getPositionalInfo() {
+      return positionalInfo;
+    }
+
+    Iterable<? extends OptionInfo<?>> getOptionInfos() {
+      return optionInfos;
     }
   }
 
@@ -98,8 +106,8 @@ final class Args {
 
     if (positionalFields.size() > 1) {
       throw new IllegalArgumentException(
-          String.format("Found %d fields marked for @Positional Args after applying filter - " +
-              "only 1 is allowed:\n\t%s", positionalFields.size(),
+          String.format("Found %d fields marked for @Positional Args after applying filter - "
+              + "only 1 is allowed:\n\t%s", positionalFields.size(),
               Joiner.on("\n\t").join(positionalFields)));
     }
 

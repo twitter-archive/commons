@@ -35,12 +35,12 @@ import com.twitter.common.quantity.Time;
  */
 public class DurationParser extends TypeParameterizedParser<Amount> {
 
+  private static final String SUFFIXES = "dhms";
+  private static final Time[] TIME_UNITS = {Time.DAYS, Time.HOURS, Time.MINUTES, Time.SECONDS};
+
   public DurationParser() {
     super(2);
   }
-
-  private static final String SUFFIXES = "dhms";
-  private static final Time[] TIME_UNITS = { Time.DAYS, Time.HOURS, Time.MINUTES, Time.SECONDS };
 
   @Override
   Amount doParse(ParserOracle parserOracle, String raw, List<Type> paramParsers)

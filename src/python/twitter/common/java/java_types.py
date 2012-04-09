@@ -47,7 +47,7 @@ class JavaNativeType(object):
     if total_size > len(data):
       raise JavaNativeType.ParseException("Not enough data to deserialize %s" % repr(type_args))
     for t in type_args:
-      parsed_type = t(data.__getslice__(offset, offset + t.size())).value()
+      parsed_type = t(data[slice(offset, offset + t.size())]).value()
       parsed_types.append(parsed_type)
       offset += t.size()
     return parsed_types, data[total_size:]

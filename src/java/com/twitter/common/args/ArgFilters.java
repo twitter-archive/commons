@@ -34,14 +34,15 @@ import com.twitter.common.base.MorePreconditions;
  * @author John Sirois
  */
 public final class ArgFilters {
-  private ArgFilters() {
-    // utility
-  }
 
   /**
    * A filter that selects all {@literal @CmdLine} {@link Arg}s found on the classpath.
    */
   public static final Predicate<Field> SELECT_ALL = Predicates.alwaysTrue();
+
+  private ArgFilters() {
+    // utility
+  }
 
   /**
    * Creates a filter that selects all {@literal @CmdLine} {@link Arg}s found in classes that are

@@ -39,7 +39,7 @@ public class QueueDrainerTest extends EasyMockTest {
   public void setUp() {
     taskExecutor = createMock(Executor.class);
     blockingQueue = createMock(new Clazz<BlockingQueue<RetryingRunnable>>() { });
-    queueDrainer = new QueueDrainer(taskExecutor, blockingQueue);
+    queueDrainer = new QueueDrainer<RetryingRunnable>(taskExecutor, blockingQueue);
   }
 
   @Test

@@ -38,8 +38,7 @@ public class QueueDrainer<T extends Runnable> implements Runnable {
    * @param taskExecutor Executor to execute a task if present.
    * @param blockingQueue Queue to poll if there is a runnable to execute.
    */
-  public QueueDrainer(Executor taskExecutor,
-      BlockingQueue<T> blockingQueue) {
+  public QueueDrainer(Executor taskExecutor, BlockingQueue<T> blockingQueue) {
     this.taskExecutor = Preconditions.checkNotNull(taskExecutor);
     this.blockingQueue = Preconditions.checkNotNull(blockingQueue);
   }

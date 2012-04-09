@@ -15,13 +15,12 @@
 # ==================================================================================================
 
 import logging
-from twitter.common.decorators import deprecated, deprecated_with_warning
-
 import pytest
 import unittest
 
-# TODO(Brian Wickman): This should probably be split out into a test
-# framework (and tested in and of itself.)
+from twitter.common.decorators import deprecated, deprecated_with_warning
+
+
 class TestLogHandler(logging.Handler):
   def __init__(self, level):
     logging.Handler.__init__(self)
@@ -38,15 +37,16 @@ class TestLogHandler(logging.Handler):
   def clear(self):
     del self._records[:]
 
+
 class TestDeprecatedDecorator(unittest.TestCase):
   @classmethod
-  def setup_class(cls):
+  def setUpClass(cls):
     cls._log_handler = TestLogHandler(logging.WARNING)
     root_logger = logging.getLogger()
     root_logger.addHandler(cls._log_handler)
 
   @classmethod
-  def teardown_class(cls):
+  def tearDownClass(cls):
     root_logger = logging.getLogger()
     root_logger.removeHandler(cls._log_handler)
 

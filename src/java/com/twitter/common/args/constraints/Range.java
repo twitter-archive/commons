@@ -27,21 +27,17 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *
  * @author William Farner
  */
-@Target({FIELD})
+@Target(FIELD)
 @Retention(RUNTIME)
 public @interface Range {
 
   /**
    * The lower bound on the acceptable range (inclusive).
-   *
-   * @return Range lower bound.
    */
   double lower();
 
   /**
    * The upper bound on the acceptable range (inclusive).
-   *
-   * @return Range upper bound.
    */
   double upper();
 }

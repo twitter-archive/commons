@@ -26,7 +26,7 @@ import com.google.inject.Module;
 public interface Application extends Runnable {
 
   /**
-   * Returns an iterable containing binding modules for the application.
+   * Returns binding modules for the application.
    *
    * @return Application binding modules.
    */

@@ -61,7 +61,7 @@ public class ParsersTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNoParser() {
-    class NoParserForMe {}
+    class NoParserForMe { }
     assertNull(defaultParsers.get(TypeToken.create(NoParserForMe.class)));
   }
 }

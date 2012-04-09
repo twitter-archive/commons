@@ -1,3 +1,5 @@
+__author__ = 'Brian Wickman'
+
 from process_provider_ps import ProcessProvider_PS
 from process_provider_procfs import ProcessProvider_Procfs
 

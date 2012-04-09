@@ -100,7 +100,7 @@ public class LogPrinter extends StringTemplateServlet {
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
-    resp.setContentType("text/xml");
+    resp.setContentType("text/xml; charset=utf-8");
 
     try {
       LogViewRequest request = new LogViewRequest(req);

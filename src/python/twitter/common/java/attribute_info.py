@@ -15,9 +15,9 @@
 # ==================================================================================================
 
 import sys
-from java_types import *
-from class_flags import ClassFlags
-import signature_parser
+from .java_types import *
+from .class_flags import ClassFlags
+from . import signature_parser
 
 class AttributeInfo(object):
   """

@@ -54,11 +54,11 @@ public class Arg<T> {
     this.value = defaultValue;
   }
 
-  synchronized void set(T value) {
+  synchronized void set(T appliedValue) {
     Preconditions.checkState(!valueApplied, "A value cannot be applied twice to an argument.");
     Preconditions.checkState(!valueObserved, "A value cannot be changed after it was read.");
     valueApplied = true;
-    this.value = value;
+    this.value = appliedValue;
   }
 
   @VisibleForTesting

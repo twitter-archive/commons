@@ -31,8 +31,8 @@ import scala.io.Source
  *
  * Or via a flag:
  * <ul>
- * <li>`--specs-files` - a comma-separated list of full spec paths or @-prefixed argument
- * file paths
+ * <li>`--specs` - a comma-separated list of full spec paths, @-prefixed argument
+ * file paths or specs class names
  * </ul>
  */
 object ExplicitSpecsRunnerMain extends SpecsFileRunner("", ".*") {
@@ -45,7 +45,7 @@ object ExplicitSpecsRunnerMain extends SpecsFileRunner("", ".*") {
     }:_*)
   }
 
-  private[this] def specPaths() = {
+  private[this] def specIds() = {
     def parseArgFile(path: String) = {
       Source.fromFile(path).getLines().toSeq flatMap { _.split("\\s+") } filter { !_.isEmpty }
     }
@@ -56,7 +56,7 @@ object ExplicitSpecsRunnerMain extends SpecsFileRunner("", ".*") {
     if (base != null) {
       parseList(System.getProperty("specs.path.list", "")) map { new File(base, _).getPath }
     } else {
-      mapFlags().get("--specs-files") match {
+      mapFlags().get("--specs") match {
         case Some(list) => parseList(list) flatMap { item: String =>
           if (item.startsWith("@")) {
             parseArgFile(item.substring(1))
@@ -68,13 +68,14 @@ object ExplicitSpecsRunnerMain extends SpecsFileRunner("", ".*") {
           val main = getClass.getName
           println("""usage:
                     |  java -Dspecs.base.dir=PATH -Dspecs.base.list=LIST %s
-                    |  java %s --specs-files=LIST
+                    |  java %s --specs=LIST
                   """.format(main, main).stripMargin)
-          println("""If using --specs-files, elements in the list prefixed with @ are considered
+          println("""If using --specs, elements in the list prefixed with @ are considered
                     |arg file paths and these will be loaded and the whitespace delimited arguments
-                    |found inside added to the list.
+                    |found inside added to the list.  List items can be either paths to files
+                    |containing specs or specs class names.
                   """.stripMargin)
-          println("Must supply either -Dspecs.base.dir or --specs-files")
+          println("Must supply either -Dspecs.base.dir or --specs")
           exit(1)
       }
     }
@@ -82,10 +83,13 @@ object ExplicitSpecsRunnerMain extends SpecsFileRunner("", ".*") {
 
   override def specificationNames(path: String, pattern: String) : List[String] = {
     val result = new Queue[String]
-    for (specPath <- specPaths()) {
-      collectSpecifications(result, specPath, pattern)
+    for (specId <- specIds()) {
+      if (specId.endsWith(".scala")) {
+        collectSpecifications(result, specId, pattern)
+      } else {
+        result += specId
+      }
     }
     result.toList
   }
 }
-

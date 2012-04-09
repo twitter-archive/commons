@@ -34,8 +34,9 @@ import com.twitter.common.args.argfilterstest.subpackageA.subsubpackage1.ArgsA1;
 import com.twitter.common.args.argfilterstest.subpackageB.ArgsB;
 import com.twitter.common.args.argfilterstest.subpackageBwithSuffix.ArgsBWithSuffix;
 
-import static com.twitter.common.args.apt.Configuration.ArgInfo;
 import static org.junit.Assert.assertEquals;
+
+import static com.twitter.common.args.apt.Configuration.ArgInfo;
 
 /**
  * @author John Sirois

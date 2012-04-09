@@ -32,11 +32,14 @@ public interface CommandExecutor {
    *
    * @param name Human readable name for this task.
    * @param task task to execute.
+   * @param exceptionClass Concrete exception type.
    * @param maxTries num of tries in case of failure.
    * @param retryDelay interval between retries in case of failure.
    */
-  void execute(String name, ExceptionalCommand task,
-      Class exceptionClass,
+  <E extends Exception> void execute(
+      String name,
+      ExceptionalCommand<E> task,
+      Class<E> exceptionClass,
       int maxTries,
       Amount<Long, Time> retryDelay);
 }

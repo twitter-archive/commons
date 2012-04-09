@@ -14,7 +14,10 @@
 # limitations under the License.
 # ==================================================================================================
 
+__author__ = 'Brian Wickman'
+
 from numbers import Integral
+from twitter.common.lang import total_ordering
 
 class AmountUnit(object):
   def __init__(self, multiplier, base_or_unit, display):
@@ -77,6 +80,7 @@ Data.BASES = [
 ]
 
 
+@total_ordering
 class Amount(object):
   def __init__(self, amount, unit):
     if not isinstance(amount, Integral):
@@ -121,9 +125,9 @@ class Amount(object):
     self._raise_if_incompatible(other)
     return self._calc() == other._calc()
 
-  def __cmp__(self, other):
+  def __lt__(self, other):
     self._raise_if_incompatible(other)
-    return cmp(self._calc(), other._calc())
+    return self._calc() < other._calc()
 
   def __add__(self, other):
     self._raise_if_incompatible(other)

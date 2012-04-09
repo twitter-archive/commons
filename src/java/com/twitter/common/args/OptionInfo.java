@@ -46,6 +46,13 @@ public class OptionInfo<T> extends ArgumentInfo<T> {
   private final String name;
   private final String prefix;
 
+  public OptionInfo(String name, String help, Arg<T> arg, TypeToken<T> type, String prefix,
+      List<Annotation> verifierAnnotations, @Nullable Class<? extends Parser<? extends T>> parser) {
+    super(help, arg, type, verifierAnnotations, parser);
+    this.name = name;
+    this.prefix = Preconditions.checkNotNull(prefix);
+  }
+
   static OptionInfo createFromField(Field field) {
     Preconditions.checkNotNull(field);
     CmdLine cmdLine = field.getAnnotation(CmdLine.class);
@@ -65,6 +72,16 @@ public class OptionInfo<T> extends ArgumentInfo<T> {
     return optionInfo;
   }
 
+  /**
+   * Creates a new optioninfo.
+   *
+   * @param name Name of the option.
+   * @param help Help string.
+   * @param prefix Prefix scope for the option.
+   * @param type Concrete option target type.
+   * @param <T> Option type.
+   * @return A new optioninfo.
+   */
   public static <T> OptionInfo<T> create(String name, String help, String prefix, Class<T> type) {
     return new OptionInfo<T>(
         checkValidName(name),
@@ -74,13 +91,6 @@ public class OptionInfo<T> extends ArgumentInfo<T> {
         prefix,
         ImmutableList.<Annotation>of(),
         null);
-  }
-
-  public OptionInfo(String name, String help, Arg<T> arg, TypeToken<T> type, String prefix,
-      List<Annotation> verifierAnnotations, @Nullable Class<? extends Parser<? extends T>> parser) {
-    super(help, arg, type, verifierAnnotations, parser);
-    this.name = name;
-    this.prefix = Preconditions.checkNotNull(prefix);
   }
 
   /**
@@ -98,19 +108,20 @@ public class OptionInfo<T> extends ArgumentInfo<T> {
   /**
    * Parse the value and store result in the Arg contained in this OptionInfo.
    */
-  void load(ParserOracle parserOracle, String name, String value) {
+  void load(ParserOracle parserOracle, String optionName, String value) {
     Parser<? extends T> parser = getParser(parserOracle);
     Object result = parser.parse(parserOracle, getType().getType(), value); // [A]
 
     // If the arg type is boolean, check if the command line uses the negated boolean form.
     if (isBoolean()) {
-      if (Predicates.in(Arrays.asList(getNegatedName(), getCanonicalNegatedName())).apply(name)) {
-        result = (!(Boolean) result); // [B]
+      if (Predicates.in(Arrays.asList(getNegatedName(), getCanonicalNegatedName()))
+          .apply(optionName)) {
+        result = !(Boolean) result; // [B]
       }
     }
 
-    // We know result is T at line [A] but throw this type information away to allow negation if T is
-    // Boolean at line [B]
+    // We know result is T at line [A] but throw this type information away to allow negation if T
+    // is Boolean at line [B]
     @SuppressWarnings("unchecked")
     T parsed = (T) result;
 
@@ -119,9 +130,9 @@ public class OptionInfo<T> extends ArgumentInfo<T> {
 
   /**
    * A fully-qualified name of a parameter. This is used as a command-line optional argument, as in:
-   * -prefix.name=value. Prefix is typically a java package and class like "com.twitter.myapp.MyClass". The difference
-   * between a canonical name and a regular name is that it is in some circumstances for two names to collide; the
-   * canonical name, then, disambiguates.
+   * -prefix.name=value. Prefix is typically a java package and class like
+   * "com.twitter.myapp.MyClass". The difference between a canonical name and a regular name is that
+   * it is in some circumstances for two names to collide; the canonical name, then, disambiguates.
    */
   String getCanonicalName() {
     return this.prefix + "." + name;
@@ -136,7 +147,7 @@ public class OptionInfo<T> extends ArgumentInfo<T> {
    * -com.twitter.common.MyApp.no_fire=false
    */
   String getCanonicalNegatedName() {
-    return this.prefix +"." + NEGATE_BOOLEAN + this.name;
+    return this.prefix + "." + NEGATE_BOOLEAN + this.name;
   }
 
   private static String checkValidName(String name) {

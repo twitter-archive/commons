@@ -68,7 +68,7 @@ public class Stats {
   }
 
   /**
-   * A {@code StatsProvider} that exports gauge-style stats to the global {@link Stat}s repository
+   * A {@link StatsProvider} that exports gauge-style stats to the global {@link Stat}s repository
    * for time series tracking.
    */
   public static final StatsProvider STATS_PROVIDER = new StatsProvider() {
@@ -86,6 +86,15 @@ public class Stats {
 
     @Override public RequestTimer makeRequestTimer(String name) {
       return new RequestStats(name);
+    }
+  };
+
+  /**
+   * A {@link StatRegistry} that provides stats registered with the global {@link Stat}s repository.
+   */
+  public static final StatRegistry STAT_REGISTRY = new StatRegistry() {
+    @Override public Iterable<RecordingStat<? extends Number>> getStats() {
+      return Stats.getNumericVariables();
     }
   };
 
@@ -168,7 +177,18 @@ public class Stats {
    * @return A reference to the {@link AtomicInteger} created.
    */
   public static AtomicInteger exportInt(String name) {
-    return export(name, new AtomicInteger());
+    return exportInt(name, 0);
+  }
+
+  /**
+   * Creates and exports an {@link AtomicInteger} with initial value.
+   *
+   * @param name The name to export the stat with.
+   * @param initialValue The initial stat value.
+   * @return A reference to the {@link AtomicInteger} created.
+   */
+  public static AtomicInteger exportInt(String name, int initialValue) {
+    return export(name, new AtomicInteger(initialValue));
   }
 
   /**
@@ -193,7 +213,18 @@ public class Stats {
    * @return A reference to the {@link AtomicLong} created.
    */
   public static AtomicLong exportLong(String name) {
-    return export(name, new AtomicLong());
+    return exportLong(name, 0L);
+  }
+
+  /**
+   * Creates and exports an {@link AtomicLong} with initial value.
+   *
+   * @param name The name to export the stat with.
+   * @param initialValue The initial stat value.
+   * @return A reference to the {@link AtomicLong} created.
+   */
+  public static AtomicLong exportLong(String name, long initialValue) {
+    return export(name, new AtomicLong(initialValue));
   }
 
   /**

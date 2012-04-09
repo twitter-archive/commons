@@ -14,8 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
-from util import javaify
-from java_types import *
+from .util import javaify
+from .java_types import *
 
 """
   Parse constants as defined in
@@ -218,6 +218,7 @@ class Constant(object):
 
   @staticmethod
   def parse(data):
+    print('parse data[0] = %s' % data[0])
     tag = u1(data[0]).get()
     constant = Constant._BASE_TYPES[tag](data)
     return constant

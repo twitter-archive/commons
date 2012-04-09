@@ -18,6 +18,7 @@ package com.twitter.common.text.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Random;
 
 import org.junit.Test;
@@ -31,6 +32,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class TokenStreamSerializerTest {
+
   @Test
   public void testSerialization() throws Exception {
     final String text = "Hello, this is a test";
@@ -85,5 +87,40 @@ public class TokenStreamSerializerTest {
     for (int i = 0; i < N; i++) {
       assertEquals(expected[i], in.readVInt());
     }
+  }
+
+  @Test
+  public void testIncompatibleStreams() throws Exception {
+    final String text = "Test that incompatible streams are - actually -incompatible.";
+
+    TextTokenizer tokenizer = new DefaultTextTokenizer.Builder()
+        .setKeepPunctuation(false)
+        .build();
+
+    TokenStream stream = tokenizer.getDefaultTokenStream();
+    stream.reset(text);
+
+    TokenStreamSerializer serializer = TokenStreamSerializer.builder()
+        .add(new CharSequenceTermAttributeSerializer())
+        .add(new TokenTypeAttributeSerializer())
+        .add(new PositionIncrementAttributeSerializer())
+        .build();
+
+    byte[] data  = serializer.serialize(stream);
+
+    // Notice that I just flipped two serializers.
+    TokenStreamSerializer incompatibleSerializer = TokenStreamSerializer.builder()
+        .add(new CharSequenceTermAttributeSerializer())
+        .add(new PositionIncrementAttributeSerializer())
+        .add(new TokenTypeAttributeSerializer())
+        .build();
+
+    boolean exceptionWasThrown = false;
+    try {
+      incompatibleSerializer.deserialize(data, text);
+    } catch (IOException e) {
+      exceptionWasThrown = true;
+    }
+    assertTrue("The expected exception was not thrown!", exceptionWasThrown);
   }
 }

@@ -31,6 +31,8 @@
   initialization code by app-compatible libraries as many in twitter.common are.
 """
 
+__author__ = 'Brian Wickman'
+
 import sys
 import types
 

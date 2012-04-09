@@ -101,7 +101,9 @@ class TestApp(unittest.TestCase):
     self.factory.new_module('second', dependencies='first')
     self.factory.new_module('third', dependencies=['first', 'second'])
     app.init(force_args=[])
-    app.quit(None, exit_function=sys.stdout.write)
+    def exit_function(*args):
+      pass
+    app.quit(None, exit_function=exit_function)
     assert self.factory.value('third_exit') > 0 and (
       self.factory.value('second_exit') > 0 and self.factory.value('first_exit') > 0), \
       'all exit callbacks should have been called'

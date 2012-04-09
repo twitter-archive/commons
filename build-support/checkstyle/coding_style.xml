@@ -161,7 +161,9 @@ limitations under the License.
           <!-- Allow tags for runtime exceptions that are not explicitly declared -->
           <property name="allowUndeclaredRTE" value="true" />
         </module>
-        <module name="JavadocType"/>
+        <module name="JavadocType">
+          <property name="excludeScope" value="private"/>
+        </module>
         <!-- <module name="JavadocVariable"/> -->
         <module name="JavadocStyle">
           <property name="checkFirstSentence" value="false"/>
@@ -283,7 +285,19 @@ limitations under the License.
         <module name="ParenPad"/>
         <module name="TypecastParenPad"/>
         <module name="WhitespaceAfter"/>
-        <module name="WhitespaceAround"/>
+        <module name="WhitespaceAround">
+          <!-- Intentionally excludes RCURLY (default) since it trips on anonymous
+               inner class declarations when chained with a method call.
+          -->
+          <property name="tokens" value="ASSIGN,BAND,BAND_ASSIGN,BOR,BOR_ASSIGN,BSR,BSR_ASSIGN,
+                                         BXOR,BXOR_ASSIGN,COLON,DIV,DIV_ASSIGN,EQUAL,GE,GT,LAND,
+                                         LCURLY,LE,LITERAL_ASSERT,LITERAL_CATCH,LITERAL_DO,
+                                         LITERAL_ELSE,LITERAL_FINALLY,LITERAL_FOR,LITERAL_IF,
+                                         LITERAL_RETURN,LITERAL_SYNCHRONIZED,LITERAL_TRY,
+                                         LITERAL_WHILE,LOR,LT,MINUS,MINUS_ASSIGN,MOD,MOD_ASSIGN,
+                                         NOT_EQUAL,PLUS,PLUS_ASSIGN,QUESTION,SL,SLIST,SL_ASSIGN,
+                                         SR,SR_ASSIGN,STAR,STAR_ASSIGN,TYPE_EXTENSION_AND"/>
+        </module>
 
         <!-- Modifier Checks                                    -->
         <!-- See http://checkstyle.sf.net/config_modifiers.html -->
@@ -343,6 +357,7 @@ limitations under the License.
         <module name="MissingSwitchDefault"/>
         <module name="ModifiedControlVariable"/>
         <module name="RedundantThrows">
+          <property name="allowUnchecked" value="true"/>
           <!-- Need to set to true, else we get lots of errors:
                "Unable to get class information for ThriftException -->
           <property name="suppressLoadErrors" value="true"/>
@@ -387,6 +402,7 @@ classpath." />
                    value="Return values or parameters of
 type ''{0}'' is not allowed. Use interface type instead, e.g. Map&lt;T&gt; =
 new HashMap&lt;T&gt;();"/>
+          <property name="illegalClassNames" value="java.util.GregorianCalendar, java.util.Hashtable, java.util.HashSet, java.util.HashMap, java.util.ArrayList, java.util.LinkedList, java.util.LinkedHashMap, java.util.LinkedHashSet, java.util.TreeSet, java.util.TreeMap"/>
           <property name="tokens" value="PARAMETER_DEF,METHOD_DEF"/>
         </module>
 	<!-- correct order is static vars, instance vars, ctors, methods

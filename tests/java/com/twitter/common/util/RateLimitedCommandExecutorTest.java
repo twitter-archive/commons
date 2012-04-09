@@ -24,19 +24,18 @@ import org.easymock.Capture;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.twitter.common.base.ExceptionalCommand;
+import com.twitter.common.base.Command;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
 import com.twitter.common.testing.EasyMockTest;
-import com.twitter.common.util.RetryingRunnable;
 
 import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expectLastCall;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -46,21 +45,25 @@ public class RateLimitedCommandExecutorTest extends EasyMockTest {
   private ScheduledExecutorService taskExecutor;
   private Amount<Long, Time> intervalBetweenRequests;
   private RateLimitedCommandExecutor rateLimiter;
-  private ExceptionalCommand exceptionalCommand;
+  private Command command;
   private BlockingQueue<RetryingRunnable> queue;
   private Runnable queueDrainer;
-  private final int numTries = 1;
-  private final String name = "name";
-
-  private final class TestException extends Exception { }
 
   @Before
   public void setUp() throws Exception {
-    exceptionalCommand = createMock(ExceptionalCommand.class);
+    command = createMock(Command.class);
     taskExecutor = createMock(ScheduledExecutorService.class);
     queue = createMock(new Clazz<BlockingQueue<RetryingRunnable>>() {});
     queueDrainer = createMock(Runnable.class);
     intervalBetweenRequests = Amount.of(100L, Time.MILLISECONDS);
+  }
+
+  private RateLimitedCommandExecutor createLimiter() {
+    return new RateLimitedCommandExecutor(
+        taskExecutor,
+        intervalBetweenRequests,
+        queueDrainer,
+        queue);
   }
 
   @Test
@@ -73,17 +76,13 @@ public class RateLimitedCommandExecutorTest extends EasyMockTest {
         eq(TimeUnit.MILLISECONDS))).andReturn(null);
     control.replay();
 
-    rateLimiter = new RateLimitedCommandExecutor(taskExecutor,
-        intervalBetweenRequests,
-        queueDrainer,
-        queue);
+    rateLimiter = createLimiter();
     assertTrue(runnableCapture.hasCaptured());
-    assertTrue(runnableCapture.getValue() instanceof Runnable);
+    assertNotNull(runnableCapture.getValue());
   }
 
   @Test
   public void testEnqueue() throws Exception {
-    Capture<Runnable> runnableCapture = createCapture();
     expect(taskExecutor.scheduleWithFixedDelay((Runnable) anyObject(),
         eq(0L),
         eq((long) intervalBetweenRequests.as(Time.MILLISECONDS)),
@@ -92,12 +91,9 @@ public class RateLimitedCommandExecutorTest extends EasyMockTest {
     Capture<RetryingRunnable> runnableTaskCapture = createCapture();
     expect(queue.add(capture(runnableTaskCapture))).andReturn(true);
     control.replay();
-    rateLimiter = new RateLimitedCommandExecutor(taskExecutor,
-        intervalBetweenRequests,
-        queueDrainer,
-        queue);
-    rateLimiter.execute(name, exceptionalCommand, TestException.class,
-        numTries, intervalBetweenRequests);
+
+    rateLimiter = createLimiter();
+    rateLimiter.execute("name", command, RuntimeException.class, 1, intervalBetweenRequests);
     assertTrue(runnableTaskCapture.hasCaptured());
   }
 
@@ -111,11 +107,9 @@ public class RateLimitedCommandExecutorTest extends EasyMockTest {
         eq(TimeUnit.MILLISECONDS))).andReturn(null);
     queueDrainer.run();
     expectLastCall().andThrow(new RuntimeException());
+
     control.replay();
-    rateLimiter = new RateLimitedCommandExecutor(taskExecutor,
-        intervalBetweenRequests,
-        queueDrainer,
-        queue);
+    rateLimiter = createLimiter();
 
     //Execute the runnable to ensure the exception does not propagate
     // and potentially kill threads in the executor service.

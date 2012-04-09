@@ -42,7 +42,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * @author Nick Kallen
  */
-abstract public class ArgumentInfo<T> {
+public abstract class ArgumentInfo<T> {
   static final ImmutableSet<String> HELP_ARGS = ImmutableSet.of("h", "help");
 
   private final String help;
@@ -51,8 +51,22 @@ abstract public class ArgumentInfo<T> {
   private final List<Annotation> verifierAnnotations;
   @Nullable private final Class<? extends Parser<? extends T>> parser;
 
-  public ArgumentInfo(String help, Arg<T> arg, TypeToken<T> type, List<Annotation> verifierAnnotations,
+  /**
+   * Creates a new argumentinfo.
+   *
+   * @param help Help string.
+   * @param arg Argument object.
+   * @param type Concrete argument type.
+   * @param verifierAnnotations Annotations if verifiers for this argument.
+   * @param parser Parser for the argument type.
+   */
+  public ArgumentInfo(
+      String help,
+      Arg<T> arg,
+      TypeToken<T> type,
+      List<Annotation> verifierAnnotations,
       @Nullable Class<? extends Parser<? extends T>> parser) {
+
     this.help = MorePreconditions.checkNotBlank(help);
     this.arg = Preconditions.checkNotNull(arg);
     this.type = Preconditions.checkNotNull(type);
@@ -65,7 +79,7 @@ abstract public class ArgumentInfo<T> {
    * the command line by "-name=value"; whereas, for a positional argument, the name indicates
    * the type/function.
    */
-  abstract public String getName();
+  public abstract String getName();
 
   protected Parser<? extends T> getParser(ParserOracle parserOracle) {
     Preconditions.checkNotNull(parserOracle);
@@ -134,7 +148,7 @@ abstract public class ArgumentInfo<T> {
 
     field.setAccessible(true);
     try {
-      return ((Arg<?>) field.get(null));
+      return (Arg<?>) field.get(null);
     } catch (IllegalAccessException e) {
       throw new RuntimeException("Cannot get arg value for " + field);
     }

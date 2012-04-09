@@ -22,8 +22,6 @@ import sys
 from contextlib import contextmanager
 from zipfile import ZipFile
 
-from twitter.common.python.pexbuilder import PexBuilder
-
 from twitter.pants import goal, is_internal
 from twitter.pants.base.build_file import BuildFile
 from twitter.pants.base.parse_context import ParseContext
@@ -36,7 +34,7 @@ def reinstall():
   def build_pex():
     pants_exe = pants('src/python/twitter/pants').resolve().next()
     chroot = PythonChroot(pants_exe, ROOT_DIR)
-    PexBuilder(chroot.dump()).write(pex)
+    chroot.dump().write(pex)
   ParseContext(BuildFile(ROOT_DIR, os.path.basename(__file__))).do_in_context(build_pex)
 
   print('\nPants reinstalled from live local source.')
@@ -121,13 +119,17 @@ class ArgsResourceMapper(Task):
 
     if lines:
       class Args(object):
-        def __init__(self, transitive, class_genmap):
+        def __init__(self, context, transitive, class_genmap):
+          self.context = context
           self.classnames = set()
           def add_clasnames(target):
             if isinstance(target, JavaLibrary) or isinstance(target, ScalaLibrary):
-              for base, classes in class_genmap.get(target).items():
-                for cls in classes:
-                  self.classnames.add(cls.replace('.class', '').replace('/', '.'))
+              if class_genmap.get(target):
+                for base, classes in class_genmap.get(target).items():
+                  for cls in classes:
+                    self.classnames.add(cls.replace('.class', '').replace('/', '.'))
+              else:
+                self.context.log.debug('No mapping for %s' % target)
 
           if transitive:
             target.walk(add_clasnames, is_internal)
@@ -154,7 +156,8 @@ class ArgsResourceMapper(Task):
             return True
 
       self._addargs(lines if self.include_all
-                          else filter(Args(self.transitive,
+                          else filter(Args(self.context,
+                                           self.transitive,
                                            self.context.products.get('classes')).matches, lines),
                     jar,
                     target)
@@ -210,3 +213,4 @@ from twitter.pants.tasks.checkstyle import Checkstyle
 goal(name='checkstyle',
      action=Checkstyle,
      dependencies=['gen', 'resolve']).install('compile')
+

@@ -80,17 +80,25 @@ public final class AppLauncher {
   @Inject @StartupStage private ExceptionalCommand startupCommand;
   @Inject private Lifecycle lifecycle;
 
+  private AppLauncher() {
+    // This should not be invoked directly.
+  }
+
   private void run(Application application) {
     try {
       configureInjection(application);
 
       LOG.info("Executing startup actions.");
+      // We're an app framework and this is the outer shell - it makes sense to handle all errors
+      // before exiting.
+      // SUPPRESS CHECKSTYLE:OFF IllegalCatch
       try {
         startupCommand.execute();
       } catch (Exception e) {
         LOG.log(Level.SEVERE, "Startup action failed, quitting.", e);
         throw Throwables.propagate(e);
       }
+      // SUPPRESS CHECKSTYLE:ON IllegalCatch
 
       try {
         application.run();
@@ -194,7 +202,7 @@ public final class AppLauncher {
   }
 
   private static void exit(String message, Exception error) {
-    LOG.log(Level.SEVERE, message, error);
+    LOG.log(Level.SEVERE, message + "\n" + error, error);
     System.exit(1);
   }
 }

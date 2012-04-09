@@ -16,11 +16,14 @@
 
 from __future__ import print_function
 
+__author__ = 'Dave Buchfuhrer, Brian Wickman'
+
 try:
   import ConfigParser
 except ImportError:
   import configparser as ConfigParser
 
+import atexit
 import copy
 import inspect
 import os
@@ -33,8 +36,47 @@ from collections import defaultdict
 from twitter.common import options
 from twitter.common.app.module import AppModule
 from twitter.common.app.inspection import Inspection
+from twitter.common.dirutil import lock_file
 from twitter.common.lang import Compatibility
 from twitter.common.util import topological_sort
+
+_PIDFILE = None
+
+# TODO(wickman)  Leverage PEP-3143 http://pypi.python.org/pypi/python-daemon/
+def daemonize(pidfile=None, stdout='/dev/null', stderr='/dev/null'):
+  global _PIDFILE
+
+  def daemon_fork():
+    try:
+      if os.fork() > 0:
+        os._exit(0)
+    except OSError as e:
+      sys.stderr.write('Failed to fork: %s\n' % e)
+      sys.exit(1)
+
+  daemon_fork()
+  os.setsid()
+  daemon_fork()
+
+  if pidfile:
+    _PIDFILE = lock_file(pidfile, 'w+')
+    if _PIDFILE:
+      pid = os.getpid()
+      sys.stderr.write('Writing pid %s into %s\n' % (pid, pidfile))
+      _PIDFILE.write(str(pid))
+      _PIDFILE.flush()
+    else:
+      sys.stderr.write('Could not acquire pidfile %s, another process running!\n' % pidfile)
+      sys.exit(1)
+
+    def shutdown():
+      os.unlink(pidfile)
+      _PIDFILE.close()
+    atexit.register(shutdown)
+
+  sys.stdin = open('/dev/null', 'r')
+  sys.stdout = open(stdout, 'a+')
+  sys.stderr = open(stderr, 'a+', 1)
 
 
 class Application(object):
@@ -67,6 +109,31 @@ class Application(object):
   IGNORE_RC_FLAG = '--app_ignore_rc_file'
 
   APP_OPTIONS = {
+    'daemonize':
+       options.Option('--app_daemonize',
+           action='store_true',
+           default=False,
+           dest='twitter_common_app_daemonize',
+           help="Daemonize this application."),
+
+    'daemon_stdout':
+       options.Option('--app_daemon_stdout',
+           default='/dev/null',
+           dest='twitter_common_app_daemon_stdout',
+           help="Direct this app's stdout to this file if daemonized ."),
+
+    'daemon_stderr':
+       options.Option('--app_daemon_stderr',
+           default='/dev/null',
+           dest='twitter_common_app_daemon_stderr',
+           help="Direct this app's stderr to this file if daemonized."),
+
+    'pidfile':
+       options.Option('--app_pidfile',
+           default=None,
+           dest='twitter_common_app_pidfile',
+           help="The pidfile to use if --app_daemonize is specified."),
+
     'debug':
        options.Option('--app_debug',
            action='store_true',
@@ -280,6 +347,12 @@ class Application(object):
       except AppModule.Unimplemented:
         pass
 
+  def _maybe_daemonize(self):
+    if self._option_values.twitter_common_app_daemonize:
+      daemonize(pidfile=self._option_values.twitter_common_app_pidfile,
+                stdout=self._option_values.twitter_common_app_daemon_stdout,
+                stderr=self._option_values.twitter_common_app_daemon_stderr)
+
   # ------- public exported methods -------
   def init(self, force_args=None):
     """
@@ -289,6 +362,7 @@ class Application(object):
     """
     self._raise_if_initialized("init cannot be called twice.  Use reinit if necessary.")
     self._parse_options(force_args)
+    self._maybe_daemonize()
     self._setup_modules()
     self.initialized = True
 
@@ -508,7 +582,10 @@ class Application(object):
     if self._name is not None:
       return self._name
     else:
-      return Inspection.find_application_name()
+      try:
+        return Inspection.find_application_name()
+      except:
+        return 'unknown'
 
   def quit(self, rc, exit_function=sys.exit):
     self._debug_log('Shutting application down.')
@@ -586,7 +663,14 @@ class Application(object):
     # defer init as long as possible.
     self.init()
 
-    self._commands[None] = Inspection.find_main_from_caller()
+    try:
+        caller_main = Inspection.find_main_from_caller()
+    except Inspection.InternalError:
+        caller_main = None
+    if None in self._commands:
+      assert caller_main is None, "Error: Cannot define both main and a default command."
+    else:
+      self._commands[None] = caller_main
     main_method = self._commands[self._command]
     if main_method is None:
       commands = sorted(self.get_commands())

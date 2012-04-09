@@ -14,7 +14,9 @@
 # limitations under the License.
 # ==================================================================================================
 
-from server import HttpServer
+__author__ = 'Brian Wickman'
+
+from .server import HttpServer
 
 __all__ = [
   'HttpServer',

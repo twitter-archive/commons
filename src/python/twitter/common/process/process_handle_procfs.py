@@ -7,29 +7,31 @@ from process_handle import ProcessHandleParserBase
 class ProcessHandlersProcfs(object):
   BOOT_TIME = None
   @staticmethod
-  def boot_time():
+  def boot_time(now=None):
+    now = now or time.time()
     if ProcessHandlersProcfs.BOOT_TIME is None:
       try:
         with open("/proc/uptime") as fp:
-          uptime, idle = fp.read().split()
-        ProcessHandlersProcfs.BOOT_TIME = time.time() - float(uptime)
+          uptime, _ = fp.read().split()
+        ProcessHandlersProcfs.BOOT_TIME = now - float(uptime)
       except:
         ProcessHandlersProcfs.BOOT_TIME = 0
         pass
     return ProcessHandlersProcfs.BOOT_TIME
 
   @staticmethod
-  def handle_time(key, value):
+  def handle_time(_, value):
     return 1.0 * value / os.sysconf('SC_CLK_TCK')
 
   @staticmethod
-  def handle_mem(key, value):
+  def handle_mem(_, value):
     return value * os.sysconf('SC_PAGESIZE')
 
   @staticmethod
   def handle_start_time(key, value):
-    seconds = ProcessHandlersProcfs.handle_time(key, value)
-    return seconds - ProcessHandlersProcfs.boot_time()
+    elapsed_after_system_boot = ProcessHandlersProcfs.handle_time(key, value)
+    return time.time() - (ProcessHandlersProcfs.boot_time() + elapsed_after_system_boot)
+
 
 class ProcessHandleProcfs(ProcessHandleParserBase):
   ATTRS = \
@@ -78,9 +80,6 @@ class ProcessHandleProcfs(ProcessHandleParserBase):
     return self.get('utime') + self.get('stime')
 
   def wall_time(self):
-    """
-      wall_time that this application has been running
-    """
     return self.get('starttime')
 
   def pid(self):

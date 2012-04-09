@@ -65,6 +65,30 @@ import com.twitter.common.net.InetSocketAddressHelper;
  */
 public class LocalServiceRegistry {
 
+  private static final Predicate<LocalService> IS_PRIMARY = new Predicate<LocalService>() {
+    @Override public boolean apply(LocalService service) {
+      return service.primary;
+    }
+  };
+
+  private static final Function<LocalService, InetSocketAddress> SERVICE_TO_SOCKET =
+      new Function<LocalService, InetSocketAddress>() {
+        @Override public InetSocketAddress apply(LocalService service) {
+          try {
+            return InetSocketAddressHelper.getLocalAddress(service.port);
+          } catch (UnknownHostException e) {
+            throw new RuntimeException("Failed to resolve local address for " + service, e);
+          }
+        }
+      };
+
+  private static final Function<LocalService, String> GET_NAME =
+      new Function<LocalService, String>() {
+        @Override public String apply(LocalService service) {
+          return service.name.get();
+        }
+      };
+
   private final ShutdownRegistry shutdownRegistry;
   private final Provider<Set<ServiceRunner>> runnerProvider;
 
@@ -128,30 +152,6 @@ public class LocalServiceRegistry {
     }
   }
 
-  private static final Predicate<LocalService> IS_PRIMARY = new Predicate<LocalService>() {
-    @Override public boolean apply(LocalService service) {
-      return service.primary;
-    }
-  };
-
-  private static final Function<LocalService, InetSocketAddress> SERVICE_TO_SOCKET =
-      new Function<LocalService, InetSocketAddress>() {
-        @Override public InetSocketAddress apply(LocalService service) {
-          try {
-            return InetSocketAddressHelper.getLocalAddress(service.port);
-          } catch (UnknownHostException e) {
-            throw new RuntimeException("Failed to resolve local address for " + service, e);
-          }
-        }
-      };
-
-  private static final Function<LocalService, String> GET_NAME =
-      new Function<LocalService, String>() {
-        @Override public String apply(LocalService service) {
-          return service.name.get();
-        }
-      };
-
   /**
    * Gets the mapping from auxiliary port name to socket.
    *
@@ -177,7 +177,7 @@ public class LocalServiceRegistry {
   /**
    * An individual local service.
    */
-  public static class LocalService {
+  public static final class LocalService {
     private final boolean primary;
     private final Optional<String> name;
     private final int port;

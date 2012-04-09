@@ -38,11 +38,12 @@ import com.twitter.common.application.modules.LocalServiceRegistry.LocalService;
 import com.twitter.common.base.Command;
 import com.twitter.common.base.ExceptionalCommand;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Binding module for startup and shutdown controller and registries.
@@ -67,8 +68,8 @@ public class LifecycleModule extends AbstractModule {
    * prevent injection inadvertently triggering a service launch.
    */
   @BindingAnnotation
-  @Target({FIELD, PARAMETER, METHOD}) @Retention(RUNTIME)
-  @interface Service {}
+  @Target({ FIELD, PARAMETER, METHOD }) @Retention(RUNTIME)
+  @interface Service { }
 
   @Override
   protected void configure() {

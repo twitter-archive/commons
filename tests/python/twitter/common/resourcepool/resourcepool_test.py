@@ -18,7 +18,10 @@ import gc
 import pytest
 import time
 from collections import namedtuple
-from Queue import Empty
+try:
+  from Queue import Empty
+except ImportError:
+  from queue import Empty
 from twitter.common.resourcepool import ResourcePool
 from twitter.common.quantity import Amount, Time
 

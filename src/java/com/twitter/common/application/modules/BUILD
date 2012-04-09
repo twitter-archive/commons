@@ -62,7 +62,6 @@ java_library(name = 'http',
     pants('src/java/com/twitter/common/base'),
     pants('src/java/com/twitter/common/net/http'),
     pants('src/java/com/twitter/common/net/http/handlers'),
-    pants('src/java/com/twitter/common/net/http/handlers:thrift'),
     pants('src/java/com/twitter/common/net/http/handlers:time-series'),
   ],
   sources = ['HttpModule.java']

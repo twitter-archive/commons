@@ -29,6 +29,7 @@ import com.twitter.common.args.apt.Configuration.ParserInfo;
 import com.twitter.common.reflect.TypeToken;
 
 import static com.google.common.base.Preconditions.checkArgument;
+
 import static com.twitter.common.args.apt.Configuration.ConfigurationException;
 
 /**
@@ -37,6 +38,35 @@ import static com.twitter.common.args.apt.Configuration.ConfigurationException;
  * @author William Farner
  */
 public final class Parsers implements ParserOracle {
+
+  public static final Splitter MULTI_VALUE_SPLITTER =
+      Splitter.on(",").trimResults().omitEmptyStrings();
+
+  private static final Function<ParserInfo, Class<?>> INFO_TO_PARSED_TYPE =
+      new Function<ParserInfo, Class<?>>() {
+        @Override public Class<?> apply(ParserInfo parserInfo) {
+          try {
+            return Class.forName(parserInfo.parsedType);
+          } catch (ClassNotFoundException e) {
+            throw new ConfigurationException(e);
+          }
+        }
+      };
+
+  private static final Function<ParserInfo, Parser<?>> INFO_TO_PARSER =
+      new Function<ParserInfo, Parser<?>>() {
+        @Override public Parser apply(ParserInfo parserInfo) {
+          try {
+            return (Parser<?>) Class.forName(parserInfo.parserClass).newInstance();
+          } catch (ClassNotFoundException e) {
+            throw new ConfigurationException(e);
+          } catch (InstantiationException e) {
+            throw new ConfigurationException(e);
+          } catch (IllegalAccessException e) {
+            throw new ConfigurationException(e);
+          }
+        }
+      };
 
   private final ImmutableMap<Class<?>, Parser<?>> registry;
 
@@ -66,32 +96,6 @@ public final class Parsers implements ParserOracle {
     return parserT;
   }
 
-  private static final Function<ParserInfo, Class<?>> INFO_TO_PARSED_TYPE =
-      new Function<ParserInfo, Class<?>>() {
-        @Override public Class<?> apply(ParserInfo parserInfo) {
-          try {
-            return Class.forName(parserInfo.parsedType);
-          } catch (ClassNotFoundException e) {
-            throw new ConfigurationException(e);
-          }
-        }
-      };
-
-  private static final Function<ParserInfo, Parser<?>> INFO_TO_PARSER =
-      new Function<ParserInfo, Parser<?>>() {
-        @Override public Parser apply(ParserInfo parserInfo) {
-          try {
-            return (Parser<?>) Class.forName(parserInfo.parserClass).newInstance();
-          } catch (ClassNotFoundException e) {
-            throw new ConfigurationException(e);
-          } catch (InstantiationException e) {
-            throw new ConfigurationException(e);
-          } catch (IllegalAccessException e) {
-            throw new ConfigurationException(e);
-          }
-        }
-      };
-
   static Parsers fromConfiguration(Configuration configuration) {
     Map<Class<?>, Parser<?>> parsers =
         Maps.transformValues(
@@ -99,7 +103,4 @@ public final class Parsers implements ParserOracle {
             INFO_TO_PARSER);
     return new Parsers(parsers);
   }
-
-  public static final Splitter MULTI_VALUE_SPLITTER =
-        Splitter.on(",").trimResults().omitEmptyStrings();
 }

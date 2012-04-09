@@ -59,6 +59,7 @@ import com.twitter.common.quantity.Time;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
@@ -73,6 +74,17 @@ import static org.junit.Assert.fail;
  */
 public class ArgScannerTest {
 
+  private static final Function<Class<?>, Predicate<Field>> TO_SCOPE_PREDICATE =
+      new Function<Class<?>, Predicate<Field>>() {
+        @Override public Predicate<Field> apply(final Class<?> cls) {
+          return new Predicate<Field>() {
+            @Override public boolean apply(Field field) {
+              return field.getDeclaringClass() == cls;
+            }
+          };
+        }
+      };
+
   @Before
   public void setUp() {
     // Reset args in all classes before each test.
@@ -84,33 +96,34 @@ public class ArgScannerTest {
   public static class StandardArgs {
     enum Optimizations { NONE, MINIMAL, ALL }
     @CmdLine(name = "enum", help = "help")
-    static final Arg<Optimizations> enumVal = Arg.create(Optimizations.MINIMAL);
+    static final Arg<Optimizations> ENUM_VAL = Arg.create(Optimizations.MINIMAL);
     @CmdLine(name = "string", help = "help")
-    static final Arg<String> stringVal = Arg.create("string");
+    static final Arg<String> STRING_VAL = Arg.create("string");
     @CmdLine(name = "char", help = "help")
-    static final Arg<Character> charVal = Arg.create('c');
+    static final Arg<Character> CHAR_VAL = Arg.create('c');
     @CmdLine(name = "byte", help = "help")
-    static final Arg<Byte> byteVal = Arg.create((byte) 0);
+    static final Arg<Byte> BYTE_VAL = Arg.create((byte) 0);
     @CmdLine(name = "short", help = "help")
-    static final Arg<Short> shortVal = Arg.create((short) 0);
+    static final Arg<Short> SHORT_VAL = Arg.create((short) 0);
     @CmdLine(name = "int", help = "help")
-    static Arg<Integer> intVal = Arg.create(0);
+    static final Arg<Integer> INT_VAL = Arg.create(0);
     @CmdLine(name = "long", help = "help")
-    static Arg<Long> longVal = Arg.create(0L);
+    static final Arg<Long> LONG_VAL = Arg.create(0L);
     @CmdLine(name = "float", help = "help")
-    static Arg<Float> floatVal = Arg.create(0F);
+    static final Arg<Float> FLOAT_VAL = Arg.create(0F);
     @CmdLine(name = "double", help = "help")
-    static Arg<Double> doubleVal = Arg.create(0D);
+    static final Arg<Double> DOUBLE_VAL = Arg.create(0D);
     @CmdLine(name = "bool", help = "help")
-    static Arg<Boolean> bool = Arg.create(false);
+    static final Arg<Boolean> BOOL = Arg.create(false);
     @CmdLine(name = "time_amount", help = "help")
-    static Arg<Amount<Long, Time>> timeAmount = Arg.create(Amount.of(1L, Time.SECONDS));
+    static final Arg<Amount<Long, Time>> TIME_AMOUNT = Arg.create(Amount.of(1L, Time.SECONDS));
     @CmdLine(name = "data_amount", help = "help")
-    static Arg<Amount<Long, Data>> dataAmount = Arg.create(Amount.of(1L, Data.MB));
+    static final Arg<Amount<Long, Data>> DATA_AMOUNT = Arg.create(Amount.of(1L, Data.MB));
     @CmdLine(name = "range", help = "help")
-    static Arg<com.google.common.collect.Range<Integer>> range = Arg.create(Ranges.closed(1, 5));
+    static final Arg<com.google.common.collect.Range<Integer>> RANGE =
+        Arg.create(Ranges.closed(1, 5));
     @Positional(help = "help")
-    static final Arg<List<Amount<Long, Time>>> positional =
+    static final Arg<List<Amount<Long, Time>>> POSITIONAL =
         Arg.<List<Amount<Long, Time>>>create(ImmutableList.<Amount<Long, Time>>of());
   }
 
@@ -119,91 +132,93 @@ public class ArgScannerTest {
     test(StandardArgs.class,
         new Command() {
           @Override public void execute() {
-            assertThat(StandardArgs.enumVal.get(), is(Optimizations.ALL));
+            assertThat(StandardArgs.ENUM_VAL.get(), is(Optimizations.ALL));
           }
         }, "enum", "ALL");
     test(StandardArgs.class,
         new Command() {
           @Override public void execute() {
-            assertThat(StandardArgs.stringVal.get(), is("newstring"));
+            assertThat(StandardArgs.STRING_VAL.get(), is("newstring"));
           }
         },
         "string", "newstring");
     test(StandardArgs.class,
         new Command() {
-          @Override public void execute() { assertThat(StandardArgs.charVal.get(), is('x')); }
+          @Override public void execute() { assertThat(StandardArgs.CHAR_VAL.get(), is('x')); }
         },
         "char", "x");
     test(StandardArgs.class,
         new Command() {
-          @Override public void execute() { assertThat(StandardArgs.byteVal.get(), is((byte) 10)); }
+          @Override public void execute() {
+            assertThat(StandardArgs.BYTE_VAL.get(), is((byte) 10));
+          }
         },
         "byte", "10");
     test(StandardArgs.class,
         new Command() {
           @Override public void execute() {
-            assertThat(StandardArgs.shortVal.get(), is((short) 10));
+            assertThat(StandardArgs.SHORT_VAL.get(), is((short) 10));
           }
         },
         "short", "10");
     test(StandardArgs.class,
         new Command() {
-          @Override public void execute() { assertThat(StandardArgs.intVal.get(), is(10)); }
+          @Override public void execute() { assertThat(StandardArgs.INT_VAL.get(), is(10)); }
         },
         "int", "10");
     test(StandardArgs.class,
         new Command() {
-          @Override public void execute() { assertThat(StandardArgs.longVal.get(), is(10L)); }
+          @Override public void execute() { assertThat(StandardArgs.LONG_VAL.get(), is(10L)); }
         },
         "long", "10");
     test(StandardArgs.class,
         new Command() {
-          @Override public void execute() { assertThat(StandardArgs.floatVal.get(), is(10f)); }
+          @Override public void execute() { assertThat(StandardArgs.FLOAT_VAL.get(), is(10f)); }
         },
         "float", "10.0");
     test(StandardArgs.class,
         new Command() {
-          @Override public void execute() { assertThat(StandardArgs.doubleVal.get(), is(10d)); }
+          @Override public void execute() { assertThat(StandardArgs.DOUBLE_VAL.get(), is(10d)); }
         },
         "double", "10.0");
     test(StandardArgs.class,
         new Command() {
-          @Override public void execute() { assertThat(StandardArgs.bool.get(), is(true)); }
+          @Override public void execute() { assertThat(StandardArgs.BOOL.get(), is(true)); }
         },
         "bool", "true");
     test(StandardArgs.class,
         new Command() {
-          @Override public void execute() { assertThat(StandardArgs.bool.get(), is(true)); }
+          @Override public void execute() { assertThat(StandardArgs.BOOL.get(), is(true)); }
         },
         "bool", "");
     test(StandardArgs.class,
         new Command() {
-          @Override public void execute() { assertThat(StandardArgs.bool.get(), is(false)); }
+          @Override public void execute() { assertThat(StandardArgs.BOOL.get(), is(false)); }
         },
         "no_bool", "");
     test(StandardArgs.class,
         new Command() {
-          @Override public void execute() { assertThat(StandardArgs.bool.get(), is(true)); }
+          @Override public void execute() { assertThat(StandardArgs.BOOL.get(), is(true)); }
         },
         "no_bool", "false");
     test(StandardArgs.class,
         new Command() {
           @Override public void execute() {
-            assertThat(StandardArgs.timeAmount.get(), is(Amount.of(100L, Time.SECONDS)));
+            assertThat(StandardArgs.TIME_AMOUNT.get(), is(Amount.of(100L, Time.SECONDS)));
           }
         },
         "time_amount", "100secs");
     test(StandardArgs.class,
         new Command() {
           @Override public void execute() {
-            assertThat(StandardArgs.dataAmount.get(), is(Amount.of(1L, Data.Gb)));
+            assertThat(StandardArgs.DATA_AMOUNT.get(), is(Amount.of(1L, Data.Gb)));
           }
         },
         "data_amount", "1Gb");
     test(StandardArgs.class,
         new Command() {
           @Override public void execute() {
-            assertThat(StandardArgs.range.get(), is(Ranges.closed(1, 5)));
+            assertThat(StandardArgs.RANGE.get(), is(Ranges.closed(1, 5)));
           }
         },
         "range", "1-5");
@@ -212,7 +227,7 @@ public class ArgScannerTest {
     assertTrue(parse(StandardArgs.class, "1mins", "2secs"));
     assertEquals(ImmutableList.builder()
         .add(Amount.of(60L, Time.SECONDS))
-        .add(Amount.of(2L, Time.SECONDS)).build(), StandardArgs.positional.get());
+        .add(Amount.of(2L, Time.SECONDS)).build(), StandardArgs.POSITIONAL.get());
   }
 
   public static class Name {
@@ -270,10 +285,10 @@ public class ArgScannerTest {
 
   public static class CustomArgs {
     @CmdLine(name = "custom1", help = "help")
-    static final Arg<Name> nameVal = Arg.create(new Name("jim"));
+    static final Arg<Name> NAME_VAL = Arg.create(new Name("jim"));
 
     @CmdLine(name = "custom2", help = "help", parser = Monty.class)
-    static final Arg<MeaningOfLife> meaningVal = Arg.create(new MeaningOfLife(13L));
+    static final Arg<MeaningOfLife> MEANING_VAL = Arg.create(new MeaningOfLife(13L));
   }
 
   @Test
@@ -281,13 +296,13 @@ public class ArgScannerTest {
     test(CustomArgs.class,
         new Command() {
           @Override public void execute() {
-            assertThat(CustomArgs.nameVal.get(), is(new Name("jane")));
+            assertThat(CustomArgs.NAME_VAL.get(), is(new Name("jane")));
           }
         }, "custom1", "jane");
     test(CustomArgs.class,
         new Command() {
           @Override public void execute() {
-            assertThat(CustomArgs.meaningVal.get(), is(new MeaningOfLife(42L)));
+            assertThat(CustomArgs.MEANING_VAL.get(), is(new MeaningOfLife(42L)));
           }
         }, "custom2", "jim");
   }
@@ -301,42 +316,42 @@ public class ArgScannerTest {
   @Test
   public void testAllowsEmptyString() {
     parse(StandardArgs.class, "-string=");
-    assertThat(StandardArgs.stringVal.get(), is(""));
+    assertThat(StandardArgs.STRING_VAL.get(), is(""));
 
     resetArgs(StandardArgs.class);
 
     parse(StandardArgs.class, "-string=''");
-    assertThat(StandardArgs.stringVal.get(), is(""));
+    assertThat(StandardArgs.STRING_VAL.get(), is(""));
 
     resetArgs(StandardArgs.class);
 
     parse(StandardArgs.class, "-string=\"\"");
-    assertThat(StandardArgs.stringVal.get(), is(""));
+    assertThat(StandardArgs.STRING_VAL.get(), is(""));
   }
 
   public static class CollectionArgs {
     @CmdLine(name = "stringList", help = "help")
-    static final Arg<List<String>> stringList = Arg.create(null);
+    static final Arg<List<String>> STRING_LIST = Arg.create(null);
     @CmdLine(name = "intList", help = "help")
-    static final Arg<List<Integer>> intList = Arg.create(null);
+    static final Arg<List<Integer>> INT_LIST = Arg.create(null);
     @CmdLine(name = "stringSet", help = "help")
-    static final Arg<Set<String>> stringSet = Arg.create(null);
+    static final Arg<Set<String>> STRING_SET = Arg.create(null);
     @CmdLine(name = "intSet", help = "help")
-    static final Arg<Set<Integer>> intSet = Arg.create(null);
+    static final Arg<Set<Integer>> INT_SET = Arg.create(null);
     @CmdLine(name = "stringStringMap", help = "help")
-    static final Arg<Map<String, String>> stringStringMap = Arg.create(null);
+    static final Arg<Map<String, String>> STRING_STRING_MAP = Arg.create(null);
     @CmdLine(name = "intIntMap", help = "help")
-    static final Arg<Map<Integer, Integer>> intIntMap = Arg.create(null);
+    static final Arg<Map<Integer, Integer>> INT_INT_MAP = Arg.create(null);
     @CmdLine(name = "stringIntMap", help = "help")
-    static final Arg<Map<String, Integer>> stringIntMap = Arg.create(null);
+    static final Arg<Map<String, Integer>> STRING_INT_MAP = Arg.create(null);
     @CmdLine(name = "intStringMap", help = "help")
-    static Arg<Map<Integer, String>> intStringMap = Arg.create(null);
+    static final Arg<Map<Integer, String>> INT_STRING_MAP = Arg.create(null);
     @CmdLine(name = "stringStringPair", help = "help")
-    static final Arg<Pair<String, String>> stringStringPair = Arg.create(null);
+    static final Arg<Pair<String, String>> STRING_STRING_PAIR = Arg.create(null);
     @CmdLine(name = "intIntPair", help = "help")
-    static final Arg<Pair<Integer, Integer>> intIntPair = Arg.create(null);
+    static final Arg<Pair<Integer, Integer>> INT_INT_PAIR = Arg.create(null);
     @CmdLine(name = "stringTimeAmountPair", help = "help")
-    static final Arg<Pair<String, Amount<Long, Time>>> stringTimeAmountPair = Arg.create(null);
+    static final Arg<Pair<String, Amount<Long, Time>>> STRING_TIME_AMOUNT_PAIR = Arg.create(null);
   }
 
   @Test
@@ -344,14 +359,14 @@ public class ArgScannerTest {
     test(CollectionArgs.class,
         new Command() {
           @Override public void execute() {
-            assertThat(CollectionArgs.stringList.get(), is(Arrays.asList("a", "b", "c", "d")));
+            assertThat(CollectionArgs.STRING_LIST.get(), is(Arrays.asList("a", "b", "c", "d")));
           }
         },
         "stringList", "a,b,c,d");
     test(CollectionArgs.class,
         new Command() {
           @Override public void execute() {
-            assertThat(CollectionArgs.intList.get(), is(Arrays.asList(1, 2, 3, 4)));
+            assertThat(CollectionArgs.INT_LIST.get(), is(Arrays.asList(1, 2, 3, 4)));
           }
         },
         "intList", "1, 2, 3, 4");
@@ -359,7 +374,7 @@ public class ArgScannerTest {
         new Command() {
           @Override public void execute() {
             Set<String> expected = ImmutableSet.of("a", "b", "c", "d");
-            assertThat(CollectionArgs.stringSet.get(), is(expected));
+            assertThat(CollectionArgs.STRING_SET.get(), is(expected));
           }
         },
         "stringSet", "a,b,c,d");
@@ -367,7 +382,7 @@ public class ArgScannerTest {
         new Command() {
           @Override public void execute() {
             Set<Integer> expected = ImmutableSet.of(1, 2, 3, 4);
-            assertThat(CollectionArgs.intSet.get(), is(expected));
+            assertThat(CollectionArgs.INT_SET.get(), is(expected));
           }
         },
         "intSet", "1, 2, 3, 4");
@@ -375,7 +390,7 @@ public class ArgScannerTest {
         new Command() {
           @Override public void execute() {
             Map<String, String> expected = ImmutableMap.of("a", "b", "c", "d", "e", "f", "g", "h");
-            assertThat(CollectionArgs.stringStringMap.get(), is(expected));
+            assertThat(CollectionArgs.STRING_STRING_MAP.get(), is(expected));
           }
         },
         "stringStringMap", "a=b, c=d, e=f, g=h");
@@ -383,7 +398,7 @@ public class ArgScannerTest {
         new Command() {
           @Override public void execute() {
             Map<Integer, Integer> expected = ImmutableMap.of(1, 2, 3, 4, 5, 6, 7, 8);
-            assertThat(CollectionArgs.intIntMap.get(), is(expected));
+            assertThat(CollectionArgs.INT_INT_MAP.get(), is(expected));
           }
         },
         "intIntMap", "1 = 2,3=4, 5=6 ,7=8");
@@ -391,7 +406,7 @@ public class ArgScannerTest {
         new Command() {
           @Override public void execute() {
             Map<String, Integer> expected = ImmutableMap.of("a", 1, "b", 2, "c", 3, "d", 4);
-            assertThat(CollectionArgs.stringIntMap.get(), is(expected));
+            assertThat(CollectionArgs.STRING_INT_MAP.get(), is(expected));
           }
         },
         "stringIntMap", "a=1  , b=2, c=3   ,d=4");
@@ -399,28 +414,28 @@ public class ArgScannerTest {
         new Command() {
           @Override public void execute() {
             Map<Integer, String> expected = ImmutableMap.of(1, "1", 2, "2", 3, "3", 4, "4");
-            assertThat(CollectionArgs.intStringMap.get(), is(expected));
+            assertThat(CollectionArgs.INT_STRING_MAP.get(), is(expected));
           }
         },
         "intStringMap", "  1=1  , 2=2, 3=3,4=4");
     test(CollectionArgs.class,
         new Command() {
           @Override public void execute() {
-            assertThat(CollectionArgs.stringStringPair.get(), is(Pair.of("foo", "bar")));
+            assertThat(CollectionArgs.STRING_STRING_PAIR.get(), is(Pair.of("foo", "bar")));
           }
         },
         "stringStringPair", "foo , bar");
     test(CollectionArgs.class,
         new Command() {
           @Override public void execute() {
-            assertThat(CollectionArgs.intIntPair.get(), is(Pair.of(10, 20)));
+            assertThat(CollectionArgs.INT_INT_PAIR.get(), is(Pair.of(10, 20)));
           }
         },
         "intIntPair", "10    ,20");
     test(CollectionArgs.class,
         new Command() {
           @Override public void execute() {
-            assertThat(CollectionArgs.stringTimeAmountPair.get(),
+            assertThat(CollectionArgs.STRING_TIME_AMOUNT_PAIR.get(),
                        is(Pair.of("fred", Amount.of(42L, Time.MINUTES))));
           }
         },
@@ -428,7 +443,7 @@ public class ArgScannerTest {
     test(CollectionArgs.class,
         new Command() {
           @Override public void execute() {
-            CollectionArgs.stringTimeAmountPair.get();
+            CollectionArgs.STRING_TIME_AMOUNT_PAIR.get();
           }
         },
         true, "stringTimeAmountPair", "george,1MB");
@@ -440,11 +455,12 @@ public class ArgScannerTest {
 
   public static class WildcardArgs {
     @CmdLine(name = "class", help = "help")
-    static Arg<? extends Class<? extends Serializable>> clazz = Arg.create(Serializable1.class);
+    static final Arg<? extends Class<? extends Serializable>> CLAZZ =
+        Arg.create(Serializable1.class);
     @CmdLine(name = "classList1", help = "help")
-    static final Arg<List<Class<? extends Serializable>>> classList1 = Arg.create(null);
+    static final Arg<List<Class<? extends Serializable>>> CLASS_LIST_1 = Arg.create(null);
     @CmdLine(name = "classList2", help = "help")
-    static final Arg<List<? extends Class<? extends Serializable>>> classList2 = Arg.create(null);
+    static final Arg<List<? extends Class<? extends Serializable>>> CLASS_LIST_2 = Arg.create(null);
   }
 
   @Test
@@ -452,7 +468,7 @@ public class ArgScannerTest {
     test(WildcardArgs.class,
         new Command() {
           @Override public void execute() {
-            assertSame(Serializable2.class, WildcardArgs.clazz.get());
+            assertSame(Serializable2.class, WildcardArgs.CLAZZ.get());
           }
         },
         "class", Serializable2.class.getName());
@@ -460,7 +476,7 @@ public class ArgScannerTest {
     test(WildcardArgs.class,
         new Command() {
           @Override public void execute() {
-            WildcardArgs.clazz.get();
+            WildcardArgs.CLAZZ.get();
           }
         },
         true, "class", Runnable.class.getName());
@@ -469,7 +485,7 @@ public class ArgScannerTest {
         new Command() {
           @Override public void execute() {
             assertEquals(ImmutableList.of(Serializable1.class, Serializable2.class),
-                         WildcardArgs.classList1.get());
+                         WildcardArgs.CLASS_LIST_1.get());
           }
         },
         "classList1", Serializable1.class.getName() + "," + Serializable2.class.getName());
@@ -477,7 +493,7 @@ public class ArgScannerTest {
     test(WildcardArgs.class,
         new Command() {
           @Override public void execute() {
-            assertEquals(ImmutableList.of(Serializable2.class), WildcardArgs.classList2.get());
+            assertEquals(ImmutableList.of(Serializable2.class), WildcardArgs.CLASS_LIST_2.get());
           }
         },
         "classList2", Serializable2.class.getName());
@@ -485,7 +501,7 @@ public class ArgScannerTest {
     test(WildcardArgs.class,
         new Command() {
           @Override public void execute() {
-            WildcardArgs.classList2.get();
+            WildcardArgs.CLASS_LIST_2.get();
           }
         },
         true, "classList2", Serializable1.class.getName() + "," + Runnable.class.getName());
@@ -516,23 +532,23 @@ public class ArgScannerTest {
 
   public static class VerifyArgs {
     @Equals("jake") @CmdLine(name = "custom", help = "help")
-    static final Arg<Name> customVal = Arg.create(new Name("jake"));
+    static final Arg<Name> CUSTOM_VAL = Arg.create(new Name("jake"));
     @NotEmpty @CmdLine(name = "string", help = "help")
-    static final Arg<String> stringVal = Arg.create("string");
+    static final Arg<String> STRING_VAL = Arg.create("string");
     @NotEmpty @CmdLine(name = "optional_string", help = "help")
-    static final Arg<String> optionalStringVal = Arg.create(null);
+    static final Arg<String> OPTIONAL_STRING_VAL = Arg.create(null);
     @Positive @CmdLine(name = "int", help = "help")
-    static final Arg<Integer> intVal = Arg.create(1);
+    static final Arg<Integer> INT_VAL = Arg.create(1);
     @NotNegative @CmdLine(name = "long", help = "help")
-    static final Arg<Long> longVal = Arg.create(0L);
+    static final Arg<Long> LONG_VAL = Arg.create(0L);
     @Range(lower = 10, upper = 20) @CmdLine(name = "float", help = "help")
-    static final Arg<Float> floatVal = Arg.create(10F);
+    static final Arg<Float> FLOAT_VAL = Arg.create(10F);
     @CmdLine(name = "double", help = "help")
-    static final Arg<Double> doubleVal = Arg.create(0D);
+    static final Arg<Double> DOUBLE_VAL = Arg.create(0D);
     @CmdLine(name = "bool", help = "help")
-    static final Arg<Boolean> bool = Arg.create(false);
+    static final Arg<Boolean> BOOL = Arg.create(false);
     @CmdLine(name = "arg_without_default", help = "help")
-    static final Arg<Boolean> argWithoutDefault = Arg.create();
+    static final Arg<Boolean> ARG_WITHOUT_DEFAULT = Arg.create();
   }
 
   @Test
@@ -540,8 +556,8 @@ public class ArgScannerTest {
     test(VerifyArgs.class,
         new Command() {
           @Override public void execute() {
-            assertThat(VerifyArgs.stringVal.get(), is("newstring"));
-            assertThat(VerifyArgs.optionalStringVal.get(), nullValue(String.class));
+            assertThat(VerifyArgs.STRING_VAL.get(), is("newstring"));
+            assertThat(VerifyArgs.OPTIONAL_STRING_VAL.get(), nullValue(String.class));
           }
         },
         "string", "newstring");
@@ -555,7 +571,7 @@ public class ArgScannerTest {
     test(VerifyArgs.class,
         new Command() {
           @Override public void execute() {
-           assertThat(VerifyArgs.floatVal.get(), is(10.5f));
+           assertThat(VerifyArgs.FLOAT_VAL.get(), is(10.5f));
           }
         },
         "float", "10.5");
@@ -575,7 +591,7 @@ public class ArgScannerTest {
 
   public static class ShortHelpArg {
     @CmdLine(name = "h", help = "help")
-    static final Arg<String> shortHelp = Arg.create("string");
+    static final Arg<String> SHORT_HELP = Arg.create("string");
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -585,7 +601,7 @@ public class ArgScannerTest {
 
   public static class LongHelpArg {
     @CmdLine(name = "help", help = "help")
-    static final Arg<String> longHelp = Arg.create("string");
+    static final Arg<String> LONG_HELP = Arg.create("string");
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -594,8 +610,8 @@ public class ArgScannerTest {
   }
 
   public static class DuplicateNames {
-    @CmdLine(name = "string", help = "help") static Arg<String> string1 = Arg.create();
-    @CmdLine(name = "string", help = "help") static Arg<String> string2 = Arg.create();
+    @CmdLine(name = "string", help = "help") static final Arg<String> STRING_1 = Arg.create();
+    @CmdLine(name = "string", help = "help") static final Arg<String> STRING_2 = Arg.create();
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -605,9 +621,9 @@ public class ArgScannerTest {
 
   public static class OneRequired {
     @CmdLine(name = "string1", help = "help")
-    static final Arg<String> string1 = Arg.create(null);
+    static final Arg<String> STRING_1 = Arg.create(null);
     @NotNull @CmdLine(name = "string2", help = "help")
-    static final Arg<String> string2 = Arg.create(null);
+    static final Arg<String> STRING_2 = Arg.create(null);
   }
 
   @Test
@@ -627,12 +643,12 @@ public class ArgScannerTest {
 
   public static class NameClashA {
     @CmdLine(name = "string", help = "help")
-    static final Arg<String> string = Arg.create(null);
+    static final Arg<String> STRING = Arg.create(null);
   }
 
   public static class NameClashB {
     @CmdLine(name = "string", help = "help")
-    static final Arg<String> string1 = Arg.create(null);
+    static final Arg<String> STRING_1 = Arg.create(null);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -649,7 +665,7 @@ public class ArgScannerTest {
 
   public static class AmountContainer {
     @CmdLine(name = "time_amount", help = "help")
-    static final Arg<Amount<Integer, Time>> timeAmount = Arg.create(null);
+    static final Arg<Amount<Integer, Time>> TIME_AMOUNT = Arg.create(null);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -664,20 +680,20 @@ public class ArgScannerTest {
 
   static class Main1 {
     @Positional(help = "halp")
-    static final Arg<List<String>> names = Arg.create(null);
+    static final Arg<List<String>> NAMES = Arg.create(null);
   }
 
   static class Main2 {
     @Positional(help = "halp")
-    static final Arg<List<List<String>>> rosters = Arg.create(null);
+    static final Arg<List<List<String>>> ROSTERS = Arg.create(null);
   }
 
   static class Main3 {
     @Positional(help = "halp")
-    static final Arg<List<Double>> percentiles = Arg.create(null);
+    static final Arg<List<Double>> PERCENTILES = Arg.create(null);
 
     @Positional(help = "halp")
-    static final Arg<List<File>> files = Arg.create(null);
+    static final Arg<List<File>> FILES = Arg.create(null);
   }
 
   private void resetMainArgs() {
@@ -693,7 +709,7 @@ public class ArgScannerTest {
     resetMainArgs();
     assertTrue(parse(Main1.class, "jack,jill", "laurel,hardy"));
     assertEquals(ImmutableList.of("jack,jill", "laurel,hardy"),
-        ImmutableList.copyOf(Main1.names.get()));
+        ImmutableList.copyOf(Main1.NAMES.get()));
 
     resetMainArgs();
     assertTrue(parse(Main2.class, "jack,jill", "laurel,hardy"));
@@ -701,7 +717,7 @@ public class ArgScannerTest {
         ImmutableList.of(
             ImmutableList.of("jack", "jill"),
             ImmutableList.of("laurel", "hardy")),
-        ImmutableList.copyOf(Main2.rosters.get()));
+        ImmutableList.copyOf(Main2.ROSTERS.get()));
 
     // But if combined in the same class or across classes the @Positional is ambiguous and we
     // should fail fast.
@@ -802,17 +818,6 @@ public class ArgScannerTest {
   private static boolean parse(final Class<?> scope, String... args) {
     return parse(ImmutableList.of(scope), args);
   }
-
-  private static final Function<Class<?>, Predicate<Field>> TO_SCOPE_PREDICATE =
-      new Function<Class<?>, Predicate<Field>>() {
-        @Override public Predicate<Field> apply(final Class<?> cls) {
-          return new Predicate<Field>() {
-            @Override public boolean apply(Field field) {
-              return field.getDeclaringClass() == cls;
-            }
-          };
-        }
-      };
 
   private static boolean parse(Iterable<? extends Class<?>> scopes, String... args) {
     Predicate<Field> filter = Predicates.or(Iterables.transform(scopes, TO_SCOPE_PREDICATE));

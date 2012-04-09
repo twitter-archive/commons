@@ -14,7 +14,9 @@
 # limitations under the License.
 # ==================================================================================================
 
-from resourcepool import ResourcePool
+__author__ = 'Alec Thomas'
+
+from .resourcepool import ResourcePool
 
 __all__ = ['ResourcePool']
 

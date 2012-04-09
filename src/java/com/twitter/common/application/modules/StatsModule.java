@@ -34,6 +34,7 @@ import com.twitter.common.quantity.Time;
 import com.twitter.common.stats.JvmStats;
 import com.twitter.common.stats.Stat;
 import com.twitter.common.stats.StatImpl;
+import com.twitter.common.stats.StatRegistry;
 import com.twitter.common.stats.Stats;
 import com.twitter.common.stats.TimeSeriesRepository;
 import com.twitter.common.stats.TimeSeriesRepositoryImpl;
@@ -79,15 +80,16 @@ public class StatsModule extends AbstractModule {
     requireBinding(BuildInfo.class);
 
     // Bindings for TimeSeriesRepositoryImpl.
-    bind(new TypeLiteral<Amount<Long, Time>>() {})
+    bind(StatRegistry.class).toInstance(Stats.STAT_REGISTRY);
+    bind(new TypeLiteral<Amount<Long, Time>>() { })
         .annotatedWith(Names.named(TimeSeriesRepositoryImpl.SAMPLE_RETENTION_PERIOD))
         .toInstance(RETENTION_PERIOD.get());
-    bind(new TypeLiteral<Amount<Long, Time>>() {})
+    bind(new TypeLiteral<Amount<Long, Time>>() { })
         .annotatedWith(Names.named(TimeSeriesRepositoryImpl.SAMPLE_PERIOD))
         .toInstance(SAMPLING_INTERVAL.get());
     bind(TimeSeriesRepository.class).to(TimeSeriesRepositoryImpl.class).in(Singleton.class);
 
-    bind(new TypeLiteral<Supplier<Iterable<Stat>>>() {}).toInstance(
+    bind(new TypeLiteral<Supplier<Iterable<Stat>>>() { }).toInstance(
         new Supplier<Iterable<Stat>>() {
           @Override public Iterable<Stat> get() {
             return Stats.getVariables();

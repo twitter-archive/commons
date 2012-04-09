@@ -23,15 +23,21 @@ import com.google.inject.Binder;
  *
  * @author William Farner
  */
-public class GraphViewer {
+public final class GraphViewer {
+
+  private GraphViewer() {
+    // Utility class.
+  }
+
+  /**
+   * Registers required resources with the binder.
+   *
+   * @param binder Binder to register with.
+   */
   public static void registerResources(Binder binder) {
     Registration.registerHttpAsset(binder, "/graphview/dygraph-combined.js", GraphViewer.class,
         "dygraph-combined.js", "application/javascript", true);
     Registration.registerHttpAsset(binder,
         "/graphview", GraphViewer.class, "graphview.html", "text/html", false);
-  }
-
-  private GraphViewer() {
-    // Utility class.
   }
 }

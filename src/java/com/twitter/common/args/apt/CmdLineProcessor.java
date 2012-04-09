@@ -95,15 +95,49 @@ import static com.twitter.common.args.apt.Configuration.VerifierInfo;
     CmdLineProcessor.CHECK_LINKAGE_OPTION
 })
 public class CmdLineProcessor extends AbstractProcessor {
-  private static final String OPTION_PREFIX = "com.twitter.common.args.apt.CmdLineProcessor";
-  static final String MAIN_OPTION = OPTION_PREFIX + ".main";
-  static final String CHECK_LINKAGE_OPTION = OPTION_PREFIX + ".check_linkage";
+  static final String MAIN_OPTION =
+      "com.twitter.common.args.apt.CmdLineProcessor.main";
+  static final String CHECK_LINKAGE_OPTION =
+      "com.twitter.common.args.apt.CmdLineProcessor.check_linkage";
 
-  private static final Function<Class<?>,String> GET_NAME = new Function<Class<?>, String>() {
+  private static final Function<Class<?>, String> GET_NAME = new Function<Class<?>, String>() {
     @Override public String apply(Class<?> type) {
       return type.getName();
     }
   };
+
+  private final Supplier<Configuration> configSupplier =
+      Suppliers.memoize(new Supplier<Configuration>() {
+        @Override public Configuration get() {
+          try {
+            Configuration configuration = Configuration.load();
+            for (ArgInfo argInfo : configuration.positionalInfo()) {
+              configBuilder.addPositionalInfo(argInfo);
+            }
+            for (ArgInfo argInfo : configuration.optionInfo()) {
+              configBuilder.addCmdLineArg(argInfo);
+            }
+            for (ParserInfo parserInfo : configuration.parserInfo()) {
+              configBuilder.addParser(parserInfo);
+            }
+            for (VerifierInfo verifierInfo : configuration.verifierInfo()) {
+              configBuilder.addVerifier(verifierInfo);
+            }
+            return configuration;
+          } catch (IOException e) {
+            error("Problem loading existing flags on compile time classpath: %s",
+                Throwables.getStackTraceAsString(e));
+            return null;
+          }
+        }
+      });
+
+  private final Configuration.Builder configBuilder = new Configuration.Builder();
+
+  private Types typeUtils;
+  private Elements elementUtils;
+  private boolean isMain;
+  private boolean isCheckLinkage;
 
   private static boolean getBooleanOption(Map<String, String> options, String name,
       boolean defaultValue) {
@@ -121,13 +155,6 @@ public class CmdLineProcessor extends AbstractProcessor {
     String isOption = options.get(name);
     return (isOption == null) || Boolean.parseBoolean(isOption);
   }
-
-  private final Configuration.Builder configBuilder = new Configuration.Builder();
-
-  private Types typeUtils;
-  private Elements elementUtils;
-  private boolean isMain;
-  private boolean isCheckLinkage;
 
   @Override
   public void init(ProcessingEnvironment processingEnv) {
@@ -231,32 +258,6 @@ public class CmdLineProcessor extends AbstractProcessor {
     }
     return ImmutableSet.copyOf(parsersFor);
   }
-
-  private final Supplier<Configuration> configSupplier =
-      Suppliers.memoize(new Supplier<Configuration>() {
-        @Override public Configuration get() {
-          try {
-            Configuration configuration = Configuration.load();
-            for (ArgInfo argInfo : configuration.positionalInfo()) {
-              configBuilder.addPositionalInfo(argInfo);
-            }
-            for (ArgInfo argInfo : configuration.optionInfo()) {
-              configBuilder.addCmdLineArg(argInfo);
-            }
-            for (ParserInfo parserInfo : configuration.parserInfo()) {
-              configBuilder.addParser(parserInfo);
-            }
-            for (VerifierInfo verifierInfo : configuration.verifierInfo()) {
-              configBuilder.addVerifier(verifierInfo);
-            }
-            return configuration;
-          } catch (IOException e) {
-            error("Problem loading existing flags on compile time classpath: %s",
-                Throwables.getStackTraceAsString(e));
-            return null;
-          }
-        }
-      });
 
   private Iterable<ArgInfo> processAnnotatedArgs(@Nullable final Set<String> parsedTypes,
       RoundEnvironment roundEnv, final Class<? extends Annotation> argAnnotation) {

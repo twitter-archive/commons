@@ -14,7 +14,9 @@
 # limitations under the License.
 # ==================================================================================================
 
-from recordio import *
+__author__ = 'Brian Wickman'
+
+from .recordio import *
 
 __all__ = [
   'RecordIO',
@@ -23,7 +25,7 @@ __all__ = [
 ]
 
 try:
-  from thrift_recordio import *
+  from .thrift_recordio import *
   __all__ += [ 'ThriftRecordReader', 'ThriftRecordWriter' ]
 except ImportError:
   pass

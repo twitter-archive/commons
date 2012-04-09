@@ -37,6 +37,14 @@ public class HttpAssetConfig {
   public final AssetHandler handler;
   public final boolean silent;
 
+  /**
+   * Creates a new asset configuration.
+   *
+   * @param path HTTP path the asset should be accessible from.
+   * @param asset Asset resource URL.
+   * @param contentType HTTP content-type to report for the asset.
+   * @param silent Whether the asset should be visible on the default index page.
+   */
   public HttpAssetConfig(String path, URL asset, String contentType, boolean silent) {
     this.path = checkNotBlank(path);
     this.handler = new AssetHandler(

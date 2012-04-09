@@ -65,10 +65,10 @@ class ScanfParser(object):
     c_char: str,  # to cover cases like unicode
     c_int: int,
     c_long: int,
-    c_longlong: long,
+    c_longlong: long if Compatibility.PY2 else int,
     c_uint: int,
     c_ulong: int,
-    c_ulonglong: long,
+    c_ulonglong: long if Compatibility.PY2 else int,
     c_float: float,
     c_double: float
   }

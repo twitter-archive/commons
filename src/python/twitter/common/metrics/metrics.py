@@ -16,7 +16,7 @@
 
 
 from twitter.common.lang import Compatibility
-from twitter.common.metrics.gauge import (
+from .gauge import (
   Gauge,
   MutatorGauge,
   NamedGauge,

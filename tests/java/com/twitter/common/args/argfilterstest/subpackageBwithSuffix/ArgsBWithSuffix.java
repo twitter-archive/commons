@@ -22,7 +22,11 @@ import com.twitter.common.args.CmdLine;
 /**
  * @author John Sirois
  */
-public class ArgsBWithSuffix {
+public final class ArgsBWithSuffix {
   @CmdLine(name = "args_b_with_suffix", help = "")
   static final Arg<String> ARGS_B_WITH_SUFFIX = Arg.create();
+
+  private ArgsBWithSuffix() {
+    // Test class.
+  }
 }

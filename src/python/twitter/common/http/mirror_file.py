@@ -1,7 +1,9 @@
-import os
 import errno
-import time
 import httplib
+import os
+import socket
+import time
+
 
 class MirrorFile(object):
   def __init__(self, http_host, http_path, local_file, https=False):
@@ -15,6 +17,7 @@ class MirrorFile(object):
     self._connection_class = httplib.HTTPSConnection if https else httplib.HTTPConnection
     self._local_mtime = None
     self._web_mtime = None
+    self._exists = os.path.exists(local_file)
 
   def _get_local_timestamp(self):
     try:
@@ -33,7 +36,7 @@ class MirrorFile(object):
     conn = self._connection_class(self._http_host)
     try:
       conn.request('HEAD', self._http_path)
-    except httplib.CannotSendRequest:
+    except (httplib.CannotSendRequest, socket.error):
       return None
     try:
       res = conn.getresponse()
@@ -50,6 +53,10 @@ class MirrorFile(object):
     return None
 
   def filename(self):
+    if not self._exists:
+      ioe = IOError('%s does not exist' % self._local_filename)
+      ioe.errno = errno.ENOENT
+      raise ioe
     return self._local_filename
 
   def refresh(self):
@@ -68,7 +75,7 @@ class MirrorFile(object):
     conn = self._connection_class(self._http_host)
     try:
       conn.request('GET', self._http_path)
-    except httplib.CannotSendRequest:
+    except (httplib.CannotSendRequest, socket.error):
       return None
     try:
       res = conn.getresponse()
@@ -78,4 +85,5 @@ class MirrorFile(object):
       with open(self._local_filename, 'w') as fp:
         fp.write(res.read())
       os.utime(self._local_filename, (self._web_mtime, self._web_mtime))
+      self._exists = True
       return True

@@ -25,10 +25,12 @@ java_library(name = 'logging',
   dependencies = [
     pants('3rdparty:commons-lang'),
     pants('3rdparty:guava'),
+    pants('3rdparty:joda-time'),
   ],
   sources = [
     'Log.java',
     'LogUtil.java',
+    'LogFormatter.java'
   ]
 )
 

@@ -27,38 +27,45 @@ import logging
 import optparse
 import sys
 
-from collections import namedtuple
-DefaultLogOpts = namedtuple('DefaultLogOpts',
-  ' '.join(['twitter_common_log_stderr_log_level',
-            'twitter_common_log_disk_log_level',
-            'twitter_common_log_log_dir']))
-_DEFAULT_LOG_OPTS = DefaultLogOpts(
-  twitter_common_log_stderr_log_level='ERROR',
-  twitter_common_log_disk_log_level='INFO',
-  twitter_common_log_log_dir='/var/tmp')
+_DISK_LOG_LEVEL_OPTION = 'twitter_common_log_disk_log_level'
+
+_DEFAULT_LOG_OPTS = {
+  'twitter_common_log_stderr_log_level': 'ERROR',
+  _DISK_LOG_LEVEL_OPTION: 'INFO',
+  'twitter_common_log_log_dir': '/var/tmp'
+}
 
 try:
   from twitter.common import app
   HAVE_APP = True
 except ImportError:
+  from collections import namedtuple
+  DefaultLogOpts = namedtuple('DefaultLogOpts', _DEFAULT_LOG_OPTS.keys())
   class AppDefaultProxy(object):
+    def __init__(self):
+      self._opts = DefaultLogOpts(**_DEFAULT_LOG_OPTS)
     def get_options(self):
-      return _DEFAULT_LOG_OPTS
+      return self._opts
+    def set_option(self, key, value, force=False):
+      opts = self._opts._asdict()
+      if force or key not in opts:
+        opts[key] = value
   app = AppDefaultProxy()
   HAVE_APP = False
 
 class LogOptionsException(Exception): pass
 
 class LogOptions(object):
+  _LOG_LEVEL_NONE_KEY = 'NONE'
   LOG_LEVEL_NONE = 100
 
   _LOG_LEVELS = {
-    'DEBUG': logging.DEBUG,
-    'INFO':  logging.INFO,
-    'WARN':  logging.WARN,
-    'FATAL': logging.FATAL,
-    'ERROR': logging.ERROR,
-    'NONE':  LOG_LEVEL_NONE
+    'DEBUG':             logging.DEBUG,
+    'INFO':              logging.INFO,
+    'WARN':              logging.WARN,
+    'FATAL':             logging.FATAL,
+    'ERROR':             logging.ERROR,
+    _LOG_LEVEL_NONE_KEY: LOG_LEVEL_NONE
   }
 
   _LOG_SCHEMES = [
@@ -131,6 +138,17 @@ class LogOptions(object):
   set_stdout_log_level = set_stderr_log_level
   stdout_log_level = stderr_log_level
   stdout_log_scheme = stderr_log_scheme
+
+  @staticmethod
+  def _is_disk_logging_required():
+    return LogOptions._LOG_LEVEL_NONE_KEY != getattr(app.get_options(), _DISK_LOG_LEVEL_OPTION)
+
+  @staticmethod
+  def disable_disk_logging():
+    """
+      Disables disk logging altogether.
+    """
+    app.set_option(_DISK_LOG_LEVEL_OPTION, LogOptions._LOG_LEVEL_NONE_KEY, force=True)
 
   @staticmethod
   def set_disk_log_level(log_level):
@@ -222,7 +240,7 @@ of %s and scheme is one of %s.
 if HAVE_APP:
   app.add_option('--log_to_stdout',
               callback=LogOptions._stdout_options_callback,
-              default=_DEFAULT_LOG_OPTS.twitter_common_log_stderr_log_level,
+              default=_DEFAULT_LOG_OPTS['twitter_common_log_stderr_log_level'],
               type='string',
               action='callback',
               metavar='[scheme:]LEVEL',
@@ -231,7 +249,7 @@ if HAVE_APP:
 
   app.add_option('--log_to_stderr',
               callback=LogOptions._stderr_options_callback,
-              default=_DEFAULT_LOG_OPTS.twitter_common_log_stderr_log_level,
+              default=_DEFAULT_LOG_OPTS['twitter_common_log_stderr_log_level'],
               type='string',
               action='callback',
               metavar='[scheme:]LEVEL',
@@ -240,7 +258,7 @@ if HAVE_APP:
 
   app.add_option('--log_to_disk',
               callback=LogOptions._disk_options_callback,
-              default=_DEFAULT_LOG_OPTS.twitter_common_log_disk_log_level,
+              default=_DEFAULT_LOG_OPTS['twitter_common_log_disk_log_level'],
               type='string',
               action='callback',
               metavar='[scheme:]LEVEL',
@@ -249,7 +267,7 @@ if HAVE_APP:
 
   app.add_option('--log_dir',
               type='string',
-              default=_DEFAULT_LOG_OPTS.twitter_common_log_log_dir,
+              default=_DEFAULT_LOG_OPTS['twitter_common_log_log_dir'],
               metavar='DIR',
               dest='twitter_common_log_log_dir',
               help="The directory into which log files will be generated [default: %default].")

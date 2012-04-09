@@ -16,13 +16,29 @@
 
 package com.twitter.common.zookeeper.guice;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.net.InetSocketAddress;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import javax.annotation.Nullable;
+
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.Atomics;
+import com.google.inject.BindingAnnotation;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
+import com.google.inject.TypeLiteral;
 
 import com.twitter.common.application.ShutdownRegistry;
 import com.twitter.common.application.modules.LifecycleModule;
@@ -33,6 +49,7 @@ import com.twitter.common.args.constraints.NotEmpty;
 import com.twitter.common.args.constraints.NotNull;
 import com.twitter.common.base.Command;
 import com.twitter.common.base.ExceptionalCommand;
+import com.twitter.common.base.Supplier;
 import com.twitter.common.zookeeper.Group.JoinException;
 import com.twitter.common.zookeeper.ServerSet;
 import com.twitter.common.zookeeper.ServerSet.EndpointStatus;
@@ -52,18 +69,49 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *   <li> {@link ShutdownRegistry}
  *   <li> {@link LocalServiceRegistry}
  * </ul>
+ *
  * {@link LifecycleModule} must also be included by users so a startup action may be registered.
+ *
+ * Provided bindings:
+ * <ul>
+ *   <li> {@link Supplier<EndpointStatus>}
+ * </ul>
  *
  * @author William Farner
  */
 public class ServerSetModule extends AbstractModule {
 
-  private static final Logger LOG = Logger.getLogger(ServerSetModule.class.getName());
+  /**
+   * BindingAnnotation for the name of the inital Status to report to ZooKeeper.
+   */
+  @BindingAnnotation @Target({ PARAMETER, METHOD, FIELD }) @Retention(RUNTIME)
+  private @interface InitialStatus { }
 
   @NotNull
   @NotEmpty
   @CmdLine(name = "serverset_path", help = "ServerSet registration path")
   protected static final Arg<String> SERVERSET_PATH = Arg.create(null);
+
+  private static final Logger LOG = Logger.getLogger(ServerSetModule.class.getName());
+  private final Status initialStatus;
+
+  /**
+   * Constructs a ServerSetModule that registers a startup action that registers this process in
+   * ZooKeeper, with the initial Status {@link Status.ALIVE}.
+   */
+  public ServerSetModule() {
+    this(Status.ALIVE);
+  }
+
+  /**
+   * Constructs a ServerSetModule that registers a startup action that registers this process in
+   * ZooKeeper, with the specified initial Status.
+   *
+   * @param initialStatus initial Status to report to ZooKeeper, such as {@link Status.STARTING}.
+   */
+  public ServerSetModule(Status initialStatus) {
+    this.initialStatus = Preconditions.checkNotNull(initialStatus);
+  }
 
   @Override
   protected void configure() {
@@ -71,21 +119,44 @@ public class ServerSetModule extends AbstractModule {
     requireBinding(ShutdownRegistry.class);
     requireBinding(LocalServiceRegistry.class);
     LifecycleModule.bindStartupAction(binder(), ServerSetJoiner.class);
+
+    bind(new TypeLiteral<Supplier<EndpointStatus>>() { }).to(EndpointSupplier.class);
+    bind(EndpointSupplier.class).in(Singleton.class);
+    bind(Status.class).annotatedWith(InitialStatus.class).toInstance(initialStatus);
+  }
+
+  static class EndpointSupplier implements Supplier<EndpointStatus> {
+    private final AtomicReference<EndpointStatus> reference = Atomics.newReference();
+
+    @Nullable
+    @Override public EndpointStatus get() {
+      return reference.get();
+    }
+
+    void set(EndpointStatus endpoint) {
+      reference.set(endpoint);
+    }
   }
 
   private static class ServerSetJoiner implements Command {
     private final ZooKeeperClient zkClient;
     private final LocalServiceRegistry serviceRegistry;
     private final ShutdownRegistry shutdownRegistry;
+    private final EndpointSupplier endpointSupplier;
+    private final Status initialStatus;
 
     @Inject
     ServerSetJoiner(
         ZooKeeperClient zkClient,
         LocalServiceRegistry serviceRegistry,
-        ShutdownRegistry shutdownRegistry) {
+        ShutdownRegistry shutdownRegistry,
+        EndpointSupplier endpointSupplier,
+        @InitialStatus Status initialStatus) {
       this.zkClient = checkNotNull(zkClient);
       this.serviceRegistry = checkNotNull(serviceRegistry);
       this.shutdownRegistry = checkNotNull(shutdownRegistry);
+      this.endpointSupplier = checkNotNull(endpointSupplier);
+      this.initialStatus = checkNotNull(initialStatus);
     }
 
     @Override public void execute() throws RuntimeException {
@@ -96,12 +167,13 @@ public class ServerSetModule extends AbstractModule {
         throw new IllegalStateException("No primary service registered with LocalServiceRegistry.");
       }
 
-      final EndpointStatus status;
+      final EndpointStatus endpointStatus;
       try {
-        status = serverSet.join(
+        endpointStatus = serverSet.join(
             primarySocket.get(),
             serviceRegistry.getAuxiliarySockets(),
-            Status.ALIVE);
+            initialStatus);
+        endpointSupplier.set(endpointStatus);
       } catch (JoinException e) {
         LOG.log(Level.WARNING, "Failed to join ServerSet.", e);
         throw new RuntimeException(e);
@@ -114,7 +186,7 @@ public class ServerSetModule extends AbstractModule {
       shutdownRegistry.addAction(new ExceptionalCommand<UpdateException>() {
         @Override public void execute() throws UpdateException {
           LOG.info("Leaving ServerSet.");
-          status.update(Status.DEAD);
+          endpointStatus.update(Status.DEAD);
         }
       });
     }

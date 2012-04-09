@@ -14,10 +14,10 @@
 # limitations under the License.
 # ==================================================================================================
 
-from java_types import *
-from attribute_info import Attribute
-from signature_parser import BaseType
-import util
+from .java_types import *
+from .attribute_info import Attribute
+from .signature_parser import BaseType
+from . import util
 
 _UNPARSED = (None, 0)
 

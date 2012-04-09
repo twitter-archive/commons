@@ -30,5 +30,5 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * Binding annotation used for the startup registry.
  */
 @BindingAnnotation
-@Target({FIELD, PARAMETER, METHOD}) @Retention(RUNTIME)
-public @interface StartupStage {}
+@Target({ FIELD, PARAMETER, METHOD }) @Retention(RUNTIME)
+public @interface StartupStage { }

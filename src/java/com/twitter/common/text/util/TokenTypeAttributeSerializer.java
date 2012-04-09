@@ -37,12 +37,12 @@ public class TokenTypeAttributeSerializer implements TokenStreamSerializer.Attri
 
   @Override
   public void serialize(TokenStreamSerializer.AttributeOutputStream output) throws IOException {
-    output.writeUTF(tokenTypeAttribute.getType().name());
+    output.writeByte(tokenTypeAttribute.getType().ordinal());
   }
 
   @Override
   public void deserialize(TokenStreamSerializer.AttributeInputStream input,
                              CharSequence charSequence) throws IOException {
-    tokenTypeAttribute.setType(TokenType.valueOf(input.readUTF()));
+    tokenTypeAttribute.setType(TokenType.values()[input.readByte()]);
   }
 }

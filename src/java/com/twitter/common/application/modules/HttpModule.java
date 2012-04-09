@@ -84,13 +84,22 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *       {@code bind(Runnable.class).annotatedWith(Names.named(QuitHandler.QUIT_HANDLER_KEY))}.
  *   <li>Health checker: called to determine whether the application is healthy to serve an
  *       HTTP GET request to /health.  May be overridden by binding to:
- *       {@code bind(new TypeLiteral<ExceptionalSupplier<Boolean, ?>>() {}).annotatedWith(Names.named(HealthHandler.HEALTH_CHECKER_KEY))}.
+ *       {@code bind(new TypeLiteral<ExceptionalSupplier<Boolean, ?>>() {})
+ *            .annotatedWith(Names.named(HealthHandler.HEALTH_CHECKER_KEY))}.
  *   <li>
  * </ul>
  *
  * @author William Farner
  */
 public class HttpModule extends AbstractModule {
+
+  @Range(lower = 0, upper = 65535)
+  @CmdLine(name = "http_port",
+           help = "The port to start an HTTP server on.  Default value will choose a random port.")
+  protected static final Arg<Integer> HTTP_PORT = Arg.create(0);
+
+  @CmdLine(name = "http_primary_service", help = "True if HTTP is the primary service.")
+  protected static final Arg<Boolean> HTTP_PRIMARY_SERVICE = Arg.create(false);
 
   private static final Logger LOG = Logger.getLogger(HttpModule.class.getName());
 
@@ -109,11 +118,6 @@ public class HttpModule extends AbstractModule {
       }
     };
 
-  @Range(lower=0, upper=65535)
-  @CmdLine(name = "http_port",
-           help = "The port to start an HTTP server on.  Default value will choose a random port.")
-  protected static final Arg<Integer> HTTP_PORT = Arg.create(0);
-
   @Override
   protected void configure() {
     requireBinding(Injector.class);
@@ -125,7 +129,7 @@ public class HttpModule extends AbstractModule {
     bind(Runnable.class).annotatedWith(Names.named(QuitHandler.QUIT_HANDLER_KEY))
         .to(DefaultQuitHandler.class);
     bind(DefaultQuitHandler.class).in(Singleton.class);
-    bind(new TypeLiteral<ExceptionalSupplier<Boolean, ?>>() {})
+    bind(new TypeLiteral<ExceptionalSupplier<Boolean, ?>>() { })
         .annotatedWith(Names.named(HealthHandler.HEALTH_CHECKER_KEY))
         .toInstance(DEFAULT_HEALTH_CHECKER);
 

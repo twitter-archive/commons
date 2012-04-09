@@ -14,16 +14,33 @@
 # limitations under the License.
 # ==================================================================================================
 
+from __future__ import print_function
+
+__author__ = 'Brian Wickman'
+
+import sys
 import types
 
-# TODO(wickman)  Make this a loosely coupled dependency with try/except
-from twitter.common import log
+try:
+  from twitter.common import log
+  _log_function = log.warning
+except ImportError:
+  def _log_function(msg):
+    print(msg, file=sys.stderr)
+
+from .lru_cache import lru_cache
+
+__all__ = (
+  'deprecated',
+  'deprecated_with_warning',
+  'lru_cache'
+)
 
 def _deprecated_wrap_fn(fn, message=None):
   if not isinstance(fn, types.FunctionType):
     raise ValueError("@deprecated annotation requires a function!")
   def _function(*args, **kwargs):
-    log.warning("DEPRECATION WARNING: %s:%s is deprecated!  %s" % (
+    _log_function("DEPRECATION WARNING: %s:%s is deprecated!  %s" % (
       _function.__module__,
       _function.__name__,
       message if message is not None else ""))
@@ -58,3 +75,4 @@ class deprecated_with_warning(object):
 
   def __call__(self, function):
     return _deprecated_wrap_fn(function, self._msg)
+

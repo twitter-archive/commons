@@ -93,4 +93,3 @@ class TopologicalSortTest(unittest.TestCase):
       list(topological_sort({2:1}, require_fully_specified=True))
     assert list(topological_sort({1:None, 2:1}, require_fully_specified=True)) == [
       set([1]), set([2])]
-

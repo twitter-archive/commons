@@ -16,8 +16,6 @@
 
 package com.twitter.common.util;
 
-import com.google.common.io.Files;
-
 import java.io.File;
 
 /**
@@ -25,22 +23,32 @@ import java.io.File;
  *
  * @author Florian Leibert
  */
-public class FileUtils {
+public final class FileUtils {
 
+  private FileUtils() {
+  }
+
+  /**
+   * recursively deletes the path and all it's content and returns true if it succeeds
+   * Note that the content could be partially deleted and the method return false
+   *
+   * @param path the path to delete
+   * @return true if the path was deleted
+   */
   public static boolean forceDeletePath(File path) {
     if (path == null) {
       return false;
     }
-    if (path.exists()) {
+    if (path.exists() && path.isDirectory()) {
       File[] files = path.listFiles();
       for (File file : files) {
         if (file.isDirectory()) {
           forceDeletePath(file);
         } else {
-          file.delete ();
+          file.delete();
         }
       }
     }
-    return (path.delete());
+    return path.delete();
   }
 }

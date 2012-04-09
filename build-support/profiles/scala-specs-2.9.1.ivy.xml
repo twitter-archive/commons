@@ -27,6 +27,6 @@ limitations under the License.
   <dependencies>
     <dependency org="org.scala-lang" name="scala-library" rev="2.9.1" transitive="false"/>
     <dependency org="org.scala-tools.testing" name="specs_2.9.1" rev="1.6.9"/>
-    <dependency org="com.twitter.common" name="specs-testing" rev="0.0.2"/>
+    <dependency org="com.twitter.common" name="specs-testing" rev="0.0.4"/>
   </dependencies>
 </ivy-module>

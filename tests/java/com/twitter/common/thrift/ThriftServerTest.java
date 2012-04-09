@@ -16,8 +16,8 @@
 
 package com.twitter.common.thrift;
 
-import com.twitter.thrift.Status;
-import junit.framework.TestCase;
+import java.io.IOException;
+
 import org.apache.thrift.TException;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.transport.TNonblockingServerSocket;
@@ -25,8 +25,9 @@ import org.apache.thrift.transport.TTransportException;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.util.Map;
+import junit.framework.TestCase;
+
+import com.twitter.thrift.Status;
 
 import static org.easymock.EasyMock.createMock;
 import static org.hamcrest.CoreMatchers.is;
@@ -44,7 +45,6 @@ public class ThriftServerTest extends TestCase {
 
   private static final String SERVER_NAME = "Test";
   private static final String SERVER_VERSION = "test-version";
-  private static final int FAKE_TEST_PORT = 20000;
 
   @Before
   public void setUp() throws IOException {
@@ -129,29 +129,6 @@ public class ThriftServerTest extends TestCase {
     public void tryShutdown() throws Exception {
       if (vetoShutdown) throw new Exception("Injected failure.");
       assertThat(testServer.getStatus(), is(Status.STOPPING));
-    }
-
-    @Override
-    public String getStatusDetails() throws TException {
-      return null;
-    }
-    @Override
-    public Map<String, Long> getCounters() throws TException {
-      return null;
-    }
-    @Override
-    public long getCounter(String key) throws TException {
-      return 0;
-    }
-    @Override
-    public void setOption(String key, String value) throws TException {}
-    @Override
-    public String getOption(String key) throws TException {
-      return null;
-    }
-    @Override
-    public Map<String, String> getOptions() throws TException {
-      return null;
     }
   }
 }

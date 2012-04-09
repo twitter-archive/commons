@@ -1,7 +1,6 @@
 package com.twitter.common.args.parsers;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.BoundType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;

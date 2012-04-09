@@ -35,8 +35,14 @@ limitations under the License.
   -->
 
   <!-- matches src/... & tests/... -->
-  <suppress files="com/twitter/common/application/.*\.java" checks=".*"/>
-  <suppress files="com/twitter/common/args/.*\.java" checks=".*"/>
+  <!-- RegexpSingleLineJava thwarts System.exit, but we legitimately use that in HttpModule. -->
+  <suppress files="com/twitter/common/.*\.java" checks="MagicNumber|RegexpSinglelineJava"/>
+    <!-- RegexpSingleLineJava thwarts System.exit, but we legitimately use that in AppLauncher. -->
+  <suppress files="com/twitter/common/application/AppLauncher.java" checks="RegexpSinglelineJava"/>
+  <suppress files="com/twitter/common/args/.*\.java"
+            checks="CyclomaticComplexity|DeclarationOrder|InnerAssignment|JavaNCSS|MagicNumber|"/>
+  <suppress files="com/twitter/common/args/.*\.java"
+            checks="MethodCount|MultipleStringLiterals|NestedIfDepth|ReturnCount"/>
   <suppress files="com/twitter/common/geo/.*\.java" checks=".*"/>
   <suppress files="com/twitter/common/io/.*\.java" checks=".*"/>
   <suppress files="com/twitter/common/logging/.*\.java" checks=".*"/>

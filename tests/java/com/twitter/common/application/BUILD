@@ -25,6 +25,7 @@ java_tests(name = 'application',
     pants('src/java/com/twitter/common/args'),
     pants('src/java/com/twitter/common/base'),
     pants('src/java/com/twitter/common/net:util'),
+    pants('src/java/com/twitter/common/testing'),
   ],
   sources = rglobs('*.java')
 )

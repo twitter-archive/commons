@@ -16,6 +16,7 @@
 
 import pkgutil
 import pytest
+import sys
 from twitter.common.java.class_file import ClassFile
 
 import unittest2 as unittest
@@ -26,9 +27,10 @@ import unittest2 as unittest
 # resources don't properly work in python_tests yet, so this test is marked as expected fail.
 _EXAMPLE_RESOURCE = 'resources/example_class'
 
+@pytest.mark.skipif('sys.version_info >= (3,0)')
 class ClassFileParserTest(unittest.TestCase):
   @classmethod
-  def setup_class(cls):
+  def setUpClass(cls):
     cls._class_data = pkgutil.get_data('twitter.common.java', _EXAMPLE_RESOURCE)
     assert cls._class_data is not None
     cls._class_file = ClassFile(cls._class_data)
@@ -54,4 +56,3 @@ class ClassFileParserTest(unittest.TestCase):
     assert access_flags.super_()
     assert not access_flags.interface()
     assert not access_flags.abstract()
-

@@ -16,12 +16,12 @@
 
 python_antlr_library(
   name = 'eval',
-  module = 'twitter.pants.python.test',
+  module = 'twitter.common.python.test',
   sources = ['Eval.g', 'Expr.g'],
 )
 
 python_antlr_library(
   name = 'csv',
-  module = 'twitter.pants.python.test2',
+  module = 'twitter.common.python.test2',
   sources = ['csv.g'],
 )

@@ -18,11 +18,10 @@ __author__ = 'John Sirois'
 
 import unittest
 
-from cStringIO import StringIO
-
 from twitter.common.collections import OrderedDict
 from twitter.common.config import Properties
 from twitter.common.contextutil import temporary_file
+from twitter.common.lang import Compatibility
 
 class PropertiesTest(unittest.TestCase):
   def test_empty(self):
@@ -85,7 +84,6 @@ a=prop
     props['b'] = '''2
 '''
     props['c'] =' 3 : ='
-    out = StringIO()
+    out = Compatibility.StringIO()
     Properties.dump(props, out)
-    print out.getvalue()
     self.assertEquals('a=1\nb=2\\\n\nc=\\ 3\\ \\:\\ \\=\n', out.getvalue())

@@ -14,6 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
+__author__ = 'Alec Thomas'
+
 from client import ServerSetClient
 
 def get_random_host(serverset, zk=None):

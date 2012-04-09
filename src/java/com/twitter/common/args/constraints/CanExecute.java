@@ -27,7 +27,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *
  * @author Steven Nie
  */
-@Target({FIELD})
+@Target(FIELD)
 @Retention(RUNTIME)
 public @interface CanExecute {
 }

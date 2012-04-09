@@ -28,6 +28,9 @@ import com.twitter.common.base.ExceptionalCommand;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * CommandExecutor that invokes {@code queueDrainer} with a best-effort
  * mechanism to execute with a fixed interval between requests of {@code
@@ -39,7 +42,7 @@ public class RateLimitedCommandExecutor implements CommandExecutor {
 
   private static final Logger LOG = Logger.getLogger(RateLimitedCommandExecutor.class.getName());
 
-  final private BlockingQueue<RetryingRunnable> blockingQueue;
+  private final BlockingQueue<RetryingRunnable> blockingQueue;
 
   /**
    * Create a CommandExecutor that executes enquequed tasks in the task
@@ -48,15 +51,20 @@ public class RateLimitedCommandExecutor implements CommandExecutor {
    * @param taskExecutor executor for periodic execution of enqueued tasks.
    * @param intervalBetweenRequests interval between requests to rate limit
    * request rate.
+   * @param queueDrainer A runnable that is responsible for draining the queue.
+   * @param blockingQueue Queue to keep outstanding work in.
    */
-  public RateLimitedCommandExecutor(ScheduledExecutorService taskExecutor,
-      Amount<Long, Time> intervalBetweenRequests, Runnable queueDrainer,
+  public RateLimitedCommandExecutor(
+      ScheduledExecutorService taskExecutor,
+      Amount<Long, Time> intervalBetweenRequests,
+      Runnable queueDrainer,
       BlockingQueue<RetryingRunnable> blockingQueue) {
-    Preconditions.checkNotNull(taskExecutor);
-    Preconditions.checkNotNull(intervalBetweenRequests);
-    Preconditions.checkArgument(intervalBetweenRequests.as(Time.MILLISECONDS) > 0);
-    Preconditions.checkNotNull(queueDrainer);
-    this.blockingQueue = Preconditions.checkNotNull(blockingQueue);
+
+    checkNotNull(taskExecutor);
+    checkNotNull(intervalBetweenRequests);
+    checkArgument(intervalBetweenRequests.as(Time.MILLISECONDS) > 0);
+    checkNotNull(queueDrainer);
+    this.blockingQueue = checkNotNull(blockingQueue);
     taskExecutor.scheduleWithFixedDelay(
         getSafeRunner(queueDrainer),
         0,
@@ -66,8 +74,7 @@ public class RateLimitedCommandExecutor implements CommandExecutor {
 
   private static Runnable getSafeRunner(final Runnable runnable) {
     return new Runnable() {
-      @Override
-      public void run() {
+      @Override public void run() {
         try {
           runnable.run();
         } catch (RuntimeException t) {
@@ -78,9 +85,9 @@ public class RateLimitedCommandExecutor implements CommandExecutor {
   }
 
   @Override
-  public void execute(String name, ExceptionalCommand task,
-      Class exceptionClass, int numTries, Amount<Long, Time> retryDelay) {
-    blockingQueue.add(new RetryingRunnable(name, task, exceptionClass,
+  public <E extends Exception> void execute(String name, ExceptionalCommand<E> task,
+      Class<E> exceptionClass, int numTries, Amount<Long, Time> retryDelay) {
+    blockingQueue.add(new RetryingRunnable<E>(name, task, exceptionClass,
         numTries, retryDelay, this));
   }
 }

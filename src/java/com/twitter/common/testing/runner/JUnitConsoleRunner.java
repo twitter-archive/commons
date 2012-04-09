@@ -30,7 +30,6 @@ import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
 import org.junit.runner.Result;
-import org.junit.runner.notification.RunListener;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -210,11 +209,13 @@ public class JUnitConsoleRunner {
 
   private static final Pattern METHOD_PARSER = Pattern.compile("^([^#]+)#([^#]+)$");
 
+  private final boolean failFast;
   private final boolean suppressOutput;
   private final boolean xmlReport;
   private final File outdir;
 
-  JUnitConsoleRunner(boolean suppressOutput, boolean xmlReport, File outdir) {
+  JUnitConsoleRunner(boolean failFast, boolean suppressOutput, boolean xmlReport, File outdir) {
+    this.failFast = failFast;
     this.suppressOutput = suppressOutput;
     this.xmlReport = xmlReport;
     this.outdir = outdir;
@@ -224,12 +225,14 @@ public class JUnitConsoleRunner {
     PrintStream out = SWAPPABLE_OUT.getOriginal();
     List<Request> requests = parseRequests(out, tests);
 
-    final JUnitCore core = new JUnitCore();
-    ListenerRegistry listenerRegistry = new ListenerRegistry() {
-      @Override public void addListener(RunListener listener) {
-        core.addListener(listener);
-      }
-    };
+    JUnitCore core = new JUnitCore();
+    ForwardingListener forwardingListener =
+        failFast ? new FailFastListener() {
+          @Override protected void failFast(Result failureResult) {
+            exit(failureResult.getFailureCount());
+          }
+        } : new ForwardingListener();
+    core.addListener(forwardingListener);
 
     if (xmlReport || suppressOutput) {
       if (!outdir.exists()) {
@@ -238,17 +241,16 @@ public class JUnitConsoleRunner {
         }
       }
       StreamCapturingListener streamCapturingListener = new StreamCapturingListener(outdir);
-      listenerRegistry.addListener(streamCapturingListener);
-      listenerRegistry = streamCapturingListener;
+      forwardingListener.addListener(streamCapturingListener);
 
       if (xmlReport) {
         AntJunitXmlReportListener xmlReportListener =
             new AntJunitXmlReportListener(outdir, streamCapturingListener);
-        listenerRegistry.addListener(xmlReportListener);
+        forwardingListener.addListener(xmlReportListener);
       }
     }
 
-    listenerRegistry.addListener(new ConsoleListener(out));
+    forwardingListener.addListener(new ConsoleListener(out));
 
     int failures = 0;
     for (Request request : requests) {
@@ -318,10 +320,16 @@ public class JUnitConsoleRunner {
      * Command line option bean.
      */
     class Options {
+      private boolean failFast = false;
       private boolean suppressOutput = false;
       private boolean xmlReport = false;
       private File outdir = new File(System.getProperty("java.io.tmpdir"));
       private List<String> tests = Lists.newArrayList();
+
+      @Option(name = "-fail-fast", usage = "Causes the test suite run to fail fast.")
+      public void setFailFast(boolean failFast) {
+        this.failFast = failFast;
+      }
 
       @Option(name = "-suppress-output", usage = "Suppresses test output.")
       public void setSuppressOutput(boolean suppressOutput) {
@@ -361,7 +369,10 @@ public class JUnitConsoleRunner {
     }
 
     JUnitConsoleRunner runner =
-        new JUnitConsoleRunner(options.suppressOutput, options.xmlReport, options.outdir);
+        new JUnitConsoleRunner(options.failFast,
+            options.suppressOutput,
+            options.xmlReport,
+            options.outdir);
 
     List<String> tests = Lists.newArrayList();
     for (String test : options.tests) {
@@ -394,7 +405,7 @@ public class JUnitConsoleRunner {
     }
 
     // Support junit 4.x @Test annotated methods.
-    return Iterables.any(Arrays.asList(clazz.getDeclaredMethods()), new Predicate<Method>() {
+    return Iterables.any(Arrays.asList(clazz.getMethods()), new Predicate<Method>() {
       @Override public boolean apply(Method method) {
         return Modifier.isPublic(method.getModifiers())
             && method.isAnnotationPresent(org.junit.Test.class);

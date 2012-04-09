@@ -61,7 +61,7 @@ public abstract class EasyMockTest extends TearDownTestCase {
    * Creates an EasyMock mock with this test's control.  Will be
    * {@link IMocksControl#verify() verified} in a tear down.
    */
-  protected <T> T createMock(Class<T> type) {
+  public <T> T createMock(Class<T> type) {
     Preconditions.checkNotNull(type);
     return control.createMock(type);
   }
@@ -111,7 +111,7 @@ public abstract class EasyMockTest extends TearDownTestCase {
    * Allows for mocking of parameterized types without all the unchecked conversion warnings in a
    * safe way.
    */
-  protected <T> T createMock(Clazz<T> type) {
+  public <T> T createMock(Clazz<T> type) {
     Preconditions.checkNotNull(type);
     return type.createMock(control);
   }
@@ -119,7 +119,7 @@ public abstract class EasyMockTest extends TearDownTestCase {
   /**
    * A type-inferring convenience method for creating new captures.
    */
-  protected static <T> Capture<T> createCapture() {
+  public static <T> Capture<T> createCapture() {
     return new Capture<T>();
   }
 }

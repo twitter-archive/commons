@@ -14,6 +14,23 @@
 # limitations under the License.
 # ==================================================================================================
 
+# TODO(wickman)  This is horribly broken in Python 3.x for the following reason:
+#
+# 2.x:
+# >>> b'\n'[0:]
+# '\n'
+# >>> b'\n'[0]
+# '\n'
+#
+# 3.x:
+# >>> b'\n'[0:]
+# b'\n'
+# >>> b'\n'[0]
+# 10
+#
+# Fix it!
+
+
 _UNPARSED = (None, 0)
 
 def _list_if_none(variable):

@@ -50,7 +50,8 @@ Notice: force is NOT transitive, so any indirectly depended package will not hav
 
 jar_library(name = 'cascading2-core',
             dependencies = [
-              jar(org = 'cascading', name = 'cascading-core', rev = '2.0.0-wip-236')
+              jar(org = 'cascading', name = 'cascading-core', rev = '2.0.0-wip-238')
+                .exclude(org = 'org.apache.hadoop', name="hadoop-core")
             ])
 
 jar_library(name = 'cascading-kryo',
@@ -60,12 +61,14 @@ jar_library(name = 'cascading-kryo',
 
 jar_library(name = 'cascading2-local',
             dependencies = [
-              jar(org = 'cascading', name = 'cascading-local', rev = '2.0.0-wip-236')
+              jar(org = 'cascading', name = 'cascading-local', rev = '2.0.0-wip-238')
+                .exclude(org = 'org.apache.hadoop', name="hadoop-core")
             ])
 
 jar_library(name = 'cascading2-hadoop',
             dependencies = [
-              jar(org = 'cascading', name = 'cascading-hadoop', rev = '2.0.0-wip-236')
+              jar(org = 'cascading', name = 'cascading-hadoop', rev = '2.0.0-wip-238')
+                .exclude(org = 'org.apache.hadoop', name="hadoop-core")
             ])
 
 
@@ -76,7 +79,7 @@ jar_library(name = 'cascading-thrift',
             ])
 
 jar_library(name = 'cascading2-test',
-    dependencies = [ jar(org = 'cascading', name = 'cascading-test', rev = '2.0.0-wip-236') ]
+    dependencies = [ jar(org = 'cascading', name = 'cascading-test', rev = '2.0.0-wip-238') ]
   )
 
 jar_library(name = 'cascading.jdbc',
@@ -132,8 +135,11 @@ jar_library(name = 'commons-logging',
            )
 
 # common rev for all com.twitter%finagle* artifacts
-FINAGLE_REV = '2.0.0'
+FINAGLE_REV = '2.0.1'
 
+jar_library(name = 'finagle-b3',
+            dependencies = [ jar(org = 'com.twitter', name = 'finagle-b3', rev = FINAGLE_REV),
+                           ])
 jar_library(name = 'finagle-core',
             dependencies = [ jar(org = 'com.twitter', name = 'finagle-core', rev = FINAGLE_REV),
                              pants(':util-core'),
@@ -146,7 +152,7 @@ jar_library(name = 'finagle-thrift',
             dependencies = [ jar(org = 'com.twitter', name = 'finagle-thrift', rev = FINAGLE_REV) ])
 
 jar_library(name = 'gson',
-            dependencies = [ jar(org = 'com.google.code.gson', name = 'gson', rev = '1.6') ])
+            dependencies = [ jar(org = 'com.google.code.gson', name = 'gson', rev = '2.1') ])
 
 jar_library(name = 'guava',
             dependencies = [
@@ -193,6 +199,9 @@ jar_library(name = 'jetty',
             ]
            )
 
+jar_library(name = 'joda-time',
+            dependencies = [ jar(org = 'joda-time', name = 'joda-time', rev = '1.6') ])
+
 jar_library(name = 'json-simple',
             dependencies = [
               jar(org = 'com.googlecode.json-simple', name = 'json-simple', rev = '1.1')])
@@ -236,6 +245,14 @@ jar_library(name = 'lucene-snowball',
                   apidocs = 'http://lucene.apache.org/java/3_0_2/api/all/').with_sources()
             ]
            )
+
+jar_library(name = 'mahout-core',
+            dependencies = [ jar(org = 'org.apache.mahout', name = 'mahout-core', rev = '0.6-T1')
+                               .exclude(org = 'com.google.collections', name = 'google-collections') ])
+
+jar_library(name = 'mahout-math',
+            dependencies = [ jar(org = 'org.apache.mahout', name = 'mahout-math', rev = '0.6-T1')
+                               .exclude(org = 'com.google.collections', name = 'google-collections') ])
 
 jar_library(name = 'meat-locker',
   dependencies = [ jar(org='com.twitter', name='meat-locker', rev='0.1.6') ]
@@ -312,7 +329,7 @@ jar_library(name = 'thrift-0.5.0-finagle',
               # finagle thrift extra deps
               pants(':finagle-core'),
               pants(':finagle-thrift'),
-              pants(':util'),
+              pants(':util-core'),
             ]
            )
 
@@ -328,25 +345,7 @@ jar_library(name = 'twitter4j',
            )
 
 jar_library(name = 'twitter-text',
-            dependencies = [ jar(org = 'com.twitter', name = 'twitter-text', rev = '1.4.8') ])
-
-jar_library(name = 'twitter-search-common',
-            dependencies = [
-              jar(org = 'com.twitter.search', name = 'common' , rev = '1.5.6.1')
-                .exclude(org = 'org.apache', name="hadoop-core")
-                .exclude(org = 'org.apache.lucene', name="lucene-modules")
-                .exclude(org = 'com.twitter', name='metastore-enhanced-client')
-                .exclude(org = 'com.twitter', name='metastore-thrift')
-                .exclude(org = 'com.twitter', name='pheasant-thrift')
-                .exclude(org = 'com.twitter', name='science-distributed-search')
-                .exclude(org = 'com.twitter', name='science-distributed-search-thrift')
-                .exclude(org = 'com.twitter', name='trends-service-thrift')
-                .exclude(org = 'com.twitter.common')
-                .exclude(org = 'com.twitter.common_internal')
-                .exclude(org = 'com.twitter.search', name = 'blender-thrift')
-                .exclude(org = 'com.twitter.search', name = 'common-thrift')
-                .exclude(org = 'com.twitter.search', name = 'common-web')
-            ])
+            dependencies = [ jar(org = 'com.twitter', name = 'twitter-text', rev = '1.4.10') ])
 
 # common rev for all com.twitter%util* artifacts
 UTIL_REV = '1.8.18'
@@ -402,9 +401,15 @@ jar_library(name = 'junit',
             ]
            )
 
+jar_library(name = 'scalap',
+            dependencies = [
+              jar(org = 'org.scala-lang', name = 'scalap', rev = '2.8.1')
+            ])
+
 jar_library(name = 'specs_2.8',
             dependencies = [
               jar(org = 'org.scala-tools.testing', name = 'specs_2.8.0', rev = '1.6.5')
+                .with_sources()
             ]
            )
 jar_library(name = 'specs_2.9',

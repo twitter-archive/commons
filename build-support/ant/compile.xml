@@ -873,6 +873,17 @@ test.basedir
       <path id="junit.java.cp">
         <fileset dir="${build-support.profiles.dir}/junit.libs"/>
       </path>
+      <property name="log.compile.libs" refid="${compile.libs}"/>
+      <property name="log.compile.testlibs" refid="${compile.testlibs}"/>
+      <property name="log.junit.java.cp" refid="junit.java.cp"/>
+      <echo file="${build.dir}/junit_classpath">junit classpath:
+classes:      ${build.dir}/jvm
+test classes: ${build.dir}/tests
+compile libs: ${log.compile.libs}
+test libs:    ${log.compile.testlibs}
+junit libs:   ${log.junit.java.cp}
+      </echo>
+      <echo>junit classpath in ${build.dir}/junit_classpath</echo>
       <junit printsummary="true"
              haltonfailure="true"
              dir="${test.basedir}"
@@ -896,6 +907,10 @@ test.basedir
   </macrodef>
 
   <target name="junit-tests" unless="skip.tests">
+    <echo>usage:</echo>
+    <echo> -Dskip.tests to skip tests</echo>
+    <echo> -Dtest=MyTest to run only specific test class</echo>
+    <echo> -Dtest=MyTest -Dmethods=testMethod to run only specific methods (Comma-separated list of names of test case methods to execute)</echo>
     <if>
       <isset property="${compile.java.tests}"/>
       <then>
@@ -924,6 +939,8 @@ test.basedir
             </if>
           </then>
           <else>
+            <echo>running tests matching *Test or *IT but not Base*Test or Abstract*Test</echo>
+            <echo>reports dir: ${junit.reports.dir}</echo>
             <_junit>
               <batchtest todir="${junit.reports.dir}">
                 <fileset dir="${build.dir}/tests">

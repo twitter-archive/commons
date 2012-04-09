@@ -37,7 +37,8 @@ import com.twitter.util.Duration;
  */
 @ArgParser
 public class TimeDurationParser implements Parser<Duration> {
-  private static final Type TIME_AMOUNT_TYPE = new TypeToken<Amount<Long, Time>>() { }.getType();
+  private static final Type TIME_AMOUNT_TYPE = new TypeToken<Amount<Long, Time>>() { }
+      .getType();
 
   @Override
   public Duration parse(ParserOracle parserOracle, Type type, String raw)

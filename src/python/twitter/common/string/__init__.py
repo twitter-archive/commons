@@ -1,4 +1,6 @@
-from scanf import ScanfParser, ScanfResult
+__author__ = 'Brian Wickman'
+
+from .scanf import ScanfParser, ScanfResult
 
 def basic_scanf(fmt_string, value_string):
   """

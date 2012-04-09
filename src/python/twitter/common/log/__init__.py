@@ -14,6 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
+__author__ = 'Brian Wickman'
+
 import logging
 from twitter.common.log.initialize import (
   init,
@@ -22,12 +24,16 @@ from twitter.common.log.initialize import (
 
 try:
   from twitter.common import app
+  from twitter.common.log.options import LogOptions
 
   class LoggingSubsystem(app.Module):
     def __init__(self):
       app.Module.__init__(self, __name__, description="Logging subsystem.")
     def setup_function(self):
-      init(app.name())
+      if not LogOptions._is_disk_logging_required():
+        init()
+      else:
+        init(app.name())
 
   app.register_module(LoggingSubsystem())
 except ImportError:

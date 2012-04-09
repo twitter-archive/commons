@@ -41,6 +41,8 @@ import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
 import com.twitter.common.util.Clock;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * A simple in-memory repository for exported variables.
  *
@@ -68,15 +70,19 @@ public class TimeSeriesRepositoryImpl implements TimeSeriesRepository {
   private final LoadingCache<String, TimeSeriesImpl> timeSeries;
   private final BoundedQueue<Number> timestamps;
 
+  private final StatRegistry statRegistry;
   private final Amount<Long, Time> samplePeriod;
   private final int retainedSampleLimit;
 
   @Inject
-  public TimeSeriesRepositoryImpl(@Named(SAMPLE_PERIOD) Amount<Long, Time> samplePeriod,
+  public TimeSeriesRepositoryImpl(
+      StatRegistry statRegistry,
+      @Named(SAMPLE_PERIOD) Amount<Long, Time> samplePeriod,
       @Named(SAMPLE_RETENTION_PERIOD) final Amount<Long, Time> retentionPeriod) {
-    this.samplePeriod = Preconditions.checkNotNull(samplePeriod);
+    this.statRegistry = checkNotNull(statRegistry);
+    this.samplePeriod = checkNotNull(samplePeriod);
     Preconditions.checkArgument(samplePeriod.getValue() > 0, "Sample period must be positive.");
-    Preconditions.checkNotNull(retentionPeriod);
+    checkNotNull(retentionPeriod);
     Preconditions.checkArgument(retentionPeriod.getValue() > 0,
         "Sample retention period must be positive.");
 
@@ -110,8 +116,8 @@ public class TimeSeriesRepositoryImpl implements TimeSeriesRepository {
    */
   @Override
   public void start(ShutdownRegistry shutdownRegistry) {
-    Preconditions.checkNotNull(shutdownRegistry);
-    Preconditions.checkNotNull(samplePeriod);
+    checkNotNull(shutdownRegistry);
+    checkNotNull(samplePeriod);
     Preconditions.checkArgument(samplePeriod.getValue() > 0);
 
     final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1 /* One thread. */,
@@ -147,7 +153,7 @@ public class TimeSeriesRepositoryImpl implements TimeSeriesRepository {
     timestamps.add(clock.nowMillis());
 
     long startNanos = clock.nowNanos();
-    for (RecordingStat<? extends Number> var : Stats.getNumericVariables()) {
+    for (RecordingStat<? extends Number> var : statRegistry.getStats()) {
       timeSeries.getUnchecked(var.getName()).addSample(var.sample());
     }
     scrapeDuration.accumulate(

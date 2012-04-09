@@ -14,6 +14,16 @@
 # limitations under the License.
 # ==================================================================================================
 
+java_library(name = 'stat',
+  provides = artifact(
+    org = 'com.twitter.common',
+    name = 'stat',
+    repo = pants('build-support/commons/ivy:public'),
+  ),
+  dependencies = [],
+  sources = ['Stat.java'],
+)
+
 java_library(name = 'stats-provider',
   provides = artifact(
     org = 'com.twitter.common',
@@ -22,10 +32,25 @@ java_library(name = 'stats-provider',
   ),
   dependencies = [
     pants('3rdparty:guava'),
+    pants(':stat'),
   ],
   sources = [
-    'Stat.java',
     'StatsProvider.java',
+  ],
+)
+
+java_library(name = 'stat-registry',
+  provides = artifact(
+    org = 'com.twitter.common',
+    name = 'stat-registry',
+    repo = pants('build-support/commons/ivy:public'),
+  ),
+  dependencies = [
+    pants(':stat'),
+  ],
+  sources = [
+    'RecordingStat.java',
+    'StatRegistry.java'
   ],
 )
 
@@ -38,6 +63,7 @@ java_library(name = 'stats',
   dependencies = [
     pants('3rdparty:guava'),
     pants('3rdparty:jsr305'),
+    pants(':stat-registry'),
     pants(':stats-provider'),
     pants('src/java/com/twitter/common/application:action'),
     pants('src/java/com/twitter/common/base'),
@@ -54,7 +80,6 @@ java_library(name = 'stats',
     'PipelineStats.java',
     'Ratio.java',
     'Rate.java',
-    'RecordingStat.java',
     'RecordingStatImpl.java',
     'RequestStats.java',
     'SlidingStats.java',
@@ -86,6 +111,7 @@ java_library(name = 'time-series',
   dependencies = [
     pants('3rdparty:guava'),
     pants('3rdparty:guice'),
+    pants(':stat-registry'),
     pants(':stats'),
     pants('src/java/com/twitter/common/application:action'),
     pants('src/java/com/twitter/common/collections'),

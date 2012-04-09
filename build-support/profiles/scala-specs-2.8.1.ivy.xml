@@ -31,6 +31,6 @@ limitations under the License.
     <!-- work around transitive SNAPSHOT dep of specs_2.8.0 on scalatest in some maven repos -->
     <dependency org="org.scalatest" name="scalatest" rev="1.2" force="true"/>
 
-    <dependency org="com.twitter.common" name="specs-testing" rev="0.0.3"/>
+    <dependency org="com.twitter.common" name="specs-testing" rev="0.0.4"/>
   </dependencies>
 </ivy-module>

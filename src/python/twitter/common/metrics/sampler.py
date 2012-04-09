@@ -16,7 +16,7 @@
 
 import time
 import threading
-from metrics import MetricProvider
+from .metrics import MetricProvider
 from twitter.common.quantity import Amount, Time
 
 try:

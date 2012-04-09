@@ -35,8 +35,18 @@ import com.twitter.common.base.ExceptionalCommand;
  */
 public interface ShutdownRegistry {
 
+  /**
+   * Adds an action to the shutdown registry.
+   *
+   * @param action Action to register.
+   * @param <E> Exception type thrown by the action.
+   * @param <T> Type of command.
+   */
   <E extends Exception, T extends ExceptionalCommand<E>> void addAction(T action);
 
+  /**
+   * Implementation of a shutdown registry.
+   */
   public static class ShutdownRegistryImpl implements ShutdownRegistry, Command {
     private static final Logger LOG = Logger.getLogger(ShutdownRegistry.class.getName());
 
@@ -71,11 +81,15 @@ public interface ShutdownRegistry {
         completed = true;
         try {
           for (ExceptionalCommand<? extends Exception> action : Lists.reverse(actions)) {
+            // Part of our contract is ensuring each shutdown action executes so we must catch all
+            // exceptions.
+            // SUPPRESS CHECKSTYLE:OFF IllegalCatch
             try {
               action.execute();
             } catch (Exception e) {
               LOG.log(Level.WARNING, "Shutdown action failed.", e);
             }
+            // SUPPRESS CHECKSTYLE:ON IllegalCatch
           }
         } finally {
           actions.clear();

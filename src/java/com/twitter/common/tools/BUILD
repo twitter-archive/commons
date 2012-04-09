@@ -20,7 +20,10 @@ java_library(name = 'compiler',
     name = 'java-compiler',
     repo = pants('build-support/commons/ivy:public'),
   ),
-  sources = [ 'Compiler.java' ]
+  sources = globs('*.java'),
+  dependencies = [
+    jar(org = 'org.fusesource.jansi', name='jansi', rev='1.8').with_sources()
+  ]
 )
 
 jvm_binary(name = 'compiler-main',
@@ -29,4 +32,3 @@ jvm_binary(name = 'compiler-main',
     pants(':compiler')
   ]
 )
-

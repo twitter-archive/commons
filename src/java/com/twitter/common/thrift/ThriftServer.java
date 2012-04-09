@@ -32,7 +32,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
-import org.apache.thrift.TException;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.TProcessorFactory;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -57,14 +56,13 @@ import com.twitter.common.stats.Stats;
 import com.twitter.common.thrift.monitoring.TMonitoredProcessor;
 import com.twitter.common.thrift.monitoring.TMonitoredServerSocket;
 import com.twitter.thrift.Status;
-import com.twitter.thrift.ThriftService;
 
 /**
  * Implementation of common functionality to satisfy the twitter ThriftService interface.
  *
  * @author William Farner
  */
-public abstract class ThriftServer implements ThriftService.Iface {
+public abstract class ThriftServer {
   private static final Logger LOG = Logger.getLogger(ThriftServer.class.getName());
 
   public static final Supplier<TProtocolFactory> BINARY_PROTOCOL =
@@ -287,18 +285,15 @@ public abstract class ThriftServer implements ThriftService.Iface {
     return serverSetup.getSocket().getLocalPort();
   }
 
-  @Override
-  public String getName() throws TException {
+  public String getName() {
     return name;
   }
 
-  @Override
-  public String getVersion() throws TException {
+  public String getVersion() {
     return version;
   }
 
-  @Override
-  public Status getStatus() throws TException {
+  public Status getStatus() {
     return status;
   }
 
@@ -312,8 +307,7 @@ public abstract class ThriftServer implements ThriftService.Iface {
     this.status = status;
   }
 
-  @Override
-  public long uptime() throws TException {
+  public long uptime() {
     return TimeUnit.SECONDS.convert(System.nanoTime() - serverStartNanos, TimeUnit.NANOSECONDS);
   }
 
@@ -324,14 +318,15 @@ public abstract class ThriftServer implements ThriftService.Iface {
    *
    * @throws Exception If the shutdown request could not be honored.
    */
-  protected abstract void tryShutdown() throws Exception;
+  protected void tryShutdown() throws Exception {
+    // Default no-op.
+  }
 
   /**
    * Attempts to shut down the server.
    * The server may be shut down at any time, though the request will be ignored if the server is
    * already stopped.
    */
-  @Override
   public void shutdown() {
     if (status == Status.STOPPED) {
       LOG.info("Server already stopped, shutdown request ignored.");

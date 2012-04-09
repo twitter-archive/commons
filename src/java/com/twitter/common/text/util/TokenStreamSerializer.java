@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
@@ -44,15 +43,37 @@ import com.twitter.common.text.token.TokenStream;
  */
 public class TokenStreamSerializer {
   public static enum Version {
-    VERSION_1
+    VERSION_1,
+    VERSION_2
   }
 
-  private static final Version CURRENT_VERSION = Version.VERSION_1;
+  protected static final Version CURRENT_VERSION = Version.VERSION_2;
 
   private final List<AttributeSerializer> attributeSerializers;
 
-  private TokenStreamSerializer(List<AttributeSerializer> attributeSerializers) {
+  private final int attributeSerializersFingerprint;
+
+  public TokenStreamSerializer(List<AttributeSerializer> attributeSerializers) {
     this.attributeSerializers = attributeSerializers;
+    this.attributeSerializersFingerprint = computeFingerprint(attributeSerializers);
+  }
+
+  public static int computeFingerprint(List<AttributeSerializer> attributeSerializers) {
+    int result = 0;
+    int i = 0;
+    for (AttributeSerializer attributeSerializer : attributeSerializers) {
+      int hashCode = attributeSerializer.getClass().getName().hashCode();
+      result = result ^ ((hashCode << i) | (hashCode >> i));
+      i++;
+    }
+    return result;
+  }
+
+  /**
+   * The fingerprint of the attribute serializers that are attached to this TokenStreamSerializer.
+   */
+  public int attributeSerializersFingerprint() {
+    return attributeSerializersFingerprint;
   }
 
   /**
@@ -82,6 +103,7 @@ public class TokenStreamSerializer {
     baos = new ByteArrayOutputStream(8 + data.length);
     output = new AttributeOutputStream(baos);
     output.writeVInt(CURRENT_VERSION.ordinal());
+    output.writeInt(attributeSerializersFingerprint);
     output.writeVInt(numTokens);
     output.write(data);
     output.flush();
@@ -98,19 +120,41 @@ public class TokenStreamSerializer {
    */
   public final TokenStream deserialize(final byte[] data,
                                        final CharSequence charSequence) throws IOException {
+    return deserialize(data, 0, data.length, charSequence);
+  }
+
+  public final TokenStream deserialize(final byte[] data, int offset, int length,
+                                       final CharSequence charSequence) throws IOException {
     Preconditions.checkNotNull(data);
-    Preconditions.checkState(data.length > 0);
+    Preconditions.checkState(length > 0);
+    Preconditions.checkState(data.length >= length);
 
-    ByteArrayInputStream bais = new ByteArrayInputStream(data);
-    final AttributeInputStream input = new AttributeInputStream(bais);
+    ByteArrayInputStream bais = new ByteArrayInputStream(data, offset, length);
+    return deserialize(bais, charSequence);
+  }
 
+  public static Version readVersionAndCheckFingerprint(
+      AttributeInputStream input, int attributeSerializersFingerprint) throws IOException {
     int ordinal = input.readVInt();
     if (ordinal > CURRENT_VERSION.ordinal()) {
       throw new IOException("Version of serialized data is newer than the version this serializer" +
-                                "supports: " + ordinal + " > " + CURRENT_VERSION.ordinal());
+                            "supports: " + ordinal + " > " + CURRENT_VERSION.ordinal());
     }
+    if (ordinal >= Version.VERSION_2.ordinal()) {
+      int fp = input.readInt();
+      if (fp != attributeSerializersFingerprint) {
+        throw new IOException("Attributes of serialized data are different than attributes of " +
+                              "this serializer: " + fp + " != " + attributeSerializersFingerprint);
+      }
+    }
+    return Version.values()[ordinal];
+  }
 
-    final Version version = Version.values()[ordinal];
+  public final TokenStream deserialize(ByteArrayInputStream bais, final CharSequence charSequence)
+      throws IOException {
+    final AttributeInputStream input = new AttributeInputStream(bais);
+
+    final Version version = readVersionAndCheckFingerprint(input, attributeSerializersFingerprint);
     final int numTokens = input.readVInt();
 
     TokenStream tokenStream = new TokenStream() {
@@ -141,8 +185,6 @@ public class TokenStreamSerializer {
     for (AttributeSerializer deserializer : attributeSerializers) {
       deserializer.initialize(tokenStream, version);
     }
-
-    input.close();
 
     tokenStream.reset(charSequence);
     return tokenStream;
@@ -223,8 +265,7 @@ public class TokenStreamSerializer {
    * A DataOutputStream that supports VInt-encoding.
    */
   public static class AttributeOutputStream extends DataOutputStream {
-    @VisibleForTesting
-    AttributeOutputStream(OutputStream output) {
+    public AttributeOutputStream(OutputStream output) {
       super(output);
     }
 
@@ -244,8 +285,7 @@ public class TokenStreamSerializer {
    * A DataInputStream that supports VInt-encoding.
    */
   public static class AttributeInputStream extends DataInputStream {
-    @VisibleForTesting
-    AttributeInputStream(InputStream input) {
+    public AttributeInputStream(InputStream input) {
       super(input);
     }
 

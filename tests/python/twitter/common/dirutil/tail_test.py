@@ -139,4 +139,3 @@ class TestTail(unittest.TestCase):
     self.write_to_fp('hello 3')
     self._thread.clock().tick()
     assert self._thread.clear() == ['hello 3\n']
-

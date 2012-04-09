@@ -23,6 +23,8 @@ import com.google.inject.Inject;
 import com.twitter.common.application.Lifecycle;
 
 /**
+ * The default quit handler to use, which invokes {@link Lifecycle#shutdown()}.
+ *
  * @author William Farner
  */
 public class DefaultQuitHandler implements Runnable {

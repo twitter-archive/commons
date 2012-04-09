@@ -27,7 +27,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *
  * @author William Farner
  */
-@Target({FIELD})
+@Target(FIELD)
 @Retention(RUNTIME)
 public @interface CmdLine {
   /**
@@ -37,23 +37,17 @@ public @interface CmdLine {
    * must be disambiguated with the canonical form.
    *
    * The argument name must match the format {@code [\w\-\.]+}.
-   *
-   * @return The argument name.
    */
   String name();
 
   /**
    * The help string to display on the command line in a usage message.
-   *
-   * @return Help string.
    */
   String help();
 
   /**
    * The parser class to use for parsing this argument.  The parser must return the same type as
    * the field being annotated.
-   *
-   * @return Custom parser for this type.
    */
   // The default is fully qualified to work around an apt bug:
   // http://bugs.sun.com/view_bug.do?bug_id=6512707

@@ -14,6 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
+__author__ = 'John Sirois, Brian Wickman'
+
 import os
 import shutil
 import tarfile
@@ -114,11 +116,12 @@ def mutable_sys():
   SAVED_ATTRIBUTES = [
     'stdin', 'stdout', 'stderr',
     'argv', 'path', 'path_importer_cache', 'path_hooks',
-    '__egginsert'
+    'modules', '__egginsert'
   ]
 
   _sys_backup = dict((key, getattr(sys, key)) for key in SAVED_ATTRIBUTES if hasattr(sys, key))
   _sys_delete = set(filter(lambda key: not hasattr(sys, key), SAVED_ATTRIBUTES))
+
   try:
     yield sys
   finally:

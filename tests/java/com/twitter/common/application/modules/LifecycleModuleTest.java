@@ -19,11 +19,12 @@ import com.twitter.common.application.modules.LocalServiceRegistry.LocalService;
 import com.twitter.common.base.Command;
 import com.twitter.common.testing.EasyMockTest;
 
-import static com.twitter.common.application.modules.LifecycleModule.bindLocalService;
-import static com.twitter.common.net.InetSocketAddressHelper.getLocalAddress;
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+
+import static com.twitter.common.application.modules.LifecycleModule.bindLocalService;
+import static com.twitter.common.net.InetSocketAddressHelper.getLocalAddress;
 
 /**
  * @author William Farner

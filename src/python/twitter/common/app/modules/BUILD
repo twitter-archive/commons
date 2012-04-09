@@ -24,6 +24,7 @@ python_library(
   dependencies = [
     pants(":modules"),
     pants(":exceptions"),
+    pants(":scribe_exceptions"),
     pants(":http"),
     pants(":vars")
   ]
@@ -34,7 +35,18 @@ python_library(
   sources = ['exception_handler.py'],
   dependencies = [
     pants(':modules'),
-    pants('src/thrift/org/apache/scribe:py-scribe')
+    pants('src/python/twitter/common/exceptions')
+  ]
+)
+
+python_library(
+  name = "scribe_exceptions",
+  sources = ['scribe_exception_handler.py'],
+  dependencies = [
+    pants(':modules'),
+    pants('src/python/twitter/common/exceptions'),
+    pants('src/thrift/org/apache/scribe:py-scribe'),
+    pants('3rdparty/python:thrift-0.7')
   ]
 )
 

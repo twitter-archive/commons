@@ -113,4 +113,3 @@ def test_extra_stuff():
   for extra in extra_stuff:
     for st in ('a', u'a', '123', u'123', 'a\x12\x23'):
       assert basic_scanf('%s', st+extra, extra=True) == st
-

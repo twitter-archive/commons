@@ -25,6 +25,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -38,6 +40,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.MapDifference.ValueDifference;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
@@ -250,10 +254,17 @@ public class ServerSetImpl implements ServerSet {
     }
   }
 
+  private static final Function<ServiceInstance, Endpoint> GET_PRIMARY_ENDPOINT =
+      new Function<ServiceInstance, Endpoint>() {
+        @Override public Endpoint apply(ServiceInstance serviceInstance) {
+          return serviceInstance.getServiceEndpoint();
+        }
+      };
+
   private class ServerSetWatcher {
     private final ZooKeeperClient zkClient;
     private final HostChangeMonitor<ServiceInstance> monitor;
-    private ImmutableSet<ServiceInstance> serverSet;
+    @Nullable private ImmutableSet<ServiceInstance> serverSet;
 
     ServerSetWatcher(ZooKeeperClient zkClient, HostChangeMonitor<ServiceInstance> monitor) {
       this.zkClient = zkClient;
@@ -416,14 +427,47 @@ public class ServerSetImpl implements ServerSet {
       // ZK nodes may have changed if there was a session expiry for a server in the server set, but
       // if the server's status has not changed, we can skip any onChange updates.
       if (!currentServerSet.equals(serverSet)) {
-        serverSet = currentServerSet;
-        if (serverSet.isEmpty()) {
+        if (currentServerSet.isEmpty()) {
           LOG.warning("server set empty!");
         } else {
-          LOG.info("server set change to:\n\t" + Joiner.on("\n\t").join(serverSet));
+          if (LOG.isLoggable(Level.INFO)) {
+            if (serverSet == null) {
+              LOG.info("received initial membership " + currentServerSet);
+            } else {
+              logChange(Level.INFO, currentServerSet);
+            }
+          }
         }
+        serverSet = currentServerSet;
         monitor.onChange(serverSet);
       }
+    }
+
+    private void logChange(Level level, ImmutableSet<ServiceInstance> newServerSet) {
+      StringBuilder message = new StringBuilder("server set change: ");
+      if (serverSet.size() != newServerSet.size()) {
+        message.append("from ").append(serverSet.size())
+            .append(" members to ").append(newServerSet.size());
+      }
+
+      MapDifference<Endpoint, ServiceInstance> changes =
+          Maps.difference(
+              Maps.uniqueIndex(serverSet, GET_PRIMARY_ENDPOINT),
+              Maps.uniqueIndex(newServerSet, GET_PRIMARY_ENDPOINT));
+      Joiner joiner = Joiner.on("\n\t\t");
+      Map<Endpoint, ServiceInstance> left = changes.entriesOnlyOnLeft();
+      if (!left.isEmpty()) {
+        message.append("\n\tleft:\n\t\t").append(joiner.join(left.values()));
+      }
+      Map<Endpoint, ServiceInstance> joined = changes.entriesOnlyOnRight();
+      if (!joined.isEmpty()) {
+        message.append("\n\tjoined:\n\t\t").append(joiner.join(joined.values()));
+      }
+      Map<Endpoint, ValueDifference<ServiceInstance>> differing = changes.entriesDiffering();
+      if (!differing.isEmpty()) {
+        message.append("\n\tstatus changed:\n\t\t").append(joiner.join(differing.values()));
+      }
+      LOG.log(level, message.toString());
     }
   }
 

@@ -53,7 +53,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  *
  * @author John Sirois
  */
-public class Configuration {
+public final class Configuration {
 
   /**
    * Indicates a problem reading stored {@literal @CmdLine} arg configuration data.
@@ -66,6 +66,10 @@ public class Configuration {
       super(cause);
     }
   }
+
+  static final String DEFAULT_RESOURCE_PACKAGE = Configuration.class.getPackage().getName();
+
+  private static final Logger LOG = Logger.getLogger(Configuration.class.getName());
 
   private static final CharMatcher IDENTIFIER_START =
       CharMatcher.forPredicate(new Predicate<Character>() {
@@ -81,13 +85,54 @@ public class Configuration {
         }
       });
 
+  private static final Function<URL, InputSupplier<? extends InputStream>> URL_TO_INPUT =
+      new Function<URL, InputSupplier<? extends InputStream>>() {
+        @Override public InputSupplier<? extends InputStream> apply(final URL resource) {
+          return new InputSupplier<InputStream>() {
+            @Override public InputStream getInput() throws IOException {
+              return resource.openStream();
+            }
+          };
+        }
+      };
+
+  private static final Function<InputSupplier<? extends InputStream>,
+                                InputSupplier<? extends Reader>> INPUT_TO_READER =
+      new Function<InputSupplier<? extends InputStream>, InputSupplier<? extends Reader>>() {
+        @Override public InputSupplier<? extends Reader> apply(
+            final InputSupplier<? extends InputStream> input) {
+          return CharStreams.newReaderSupplier(input, Charsets.UTF_8);
+        }
+      };
+
+  private static final Function<URL, InputSupplier<? extends Reader>> URL_TO_READER =
+      Functions.compose(INPUT_TO_READER, URL_TO_INPUT);
+
+  private static final String DEFAULT_RESOURCE_NAME = "cmdline.arg.info.txt";
+
+  private int nextResourceIndex;
+  private final ImmutableSet<ArgInfo> positionalInfos;
+  private final ImmutableSet<ArgInfo> cmdLineInfos;
+  private final ImmutableSet<ParserInfo> parserInfos;
+  private final ImmutableSet<VerifierInfo> verifierInfos;
+
+  private Configuration(int nextResourceIndex,
+      Iterable<ArgInfo> positionalInfos, Iterable<ArgInfo> cmdLineInfos,
+      Iterable<ParserInfo> parserInfos, Iterable<VerifierInfo> verifierInfos) {
+    this.nextResourceIndex = nextResourceIndex;
+    this.positionalInfos = ImmutableSet.copyOf(positionalInfos);
+    this.cmdLineInfos = ImmutableSet.copyOf(cmdLineInfos);
+    this.parserInfos = ImmutableSet.copyOf(parserInfos);
+    this.verifierInfos = ImmutableSet.copyOf(verifierInfos);
+  }
+
   private static String checkValidIdentifier(String identifier, boolean compound) {
     Preconditions.checkNotNull(identifier);
 
     String trimmed = identifier.trim();
     Preconditions.checkArgument(!trimmed.isEmpty(), "Invalid identifier: '%s'", identifier);
 
-    String[] parts = compound ? trimmed.split("\\.") : new String[] { trimmed };
+    String[] parts = compound ? trimmed.split("\\.") : new String[] {trimmed};
     for (String part : parts) {
       Preconditions.checkArgument(
           IDENTIFIER_REST.matchesAllOf(IDENTIFIER_START.trimLeadingFrom(part)),
@@ -274,34 +319,6 @@ public class Configuration {
     }
   }
 
-  private static final Function<URL, InputSupplier<? extends InputStream>> URL_TO_INPUT =
-      new Function<URL, InputSupplier<? extends InputStream>>() {
-        @Override public InputSupplier<? extends InputStream> apply(final URL resource) {
-          return new InputSupplier<InputStream>() {
-            @Override public InputStream getInput() throws IOException {
-              return resource.openStream();
-            }
-          };
-        }
-      };
-
-  private static final Function<InputSupplier<? extends InputStream>,
-                                InputSupplier<? extends Reader>> INPUT_TO_READER =
-      new Function<InputSupplier<? extends InputStream>, InputSupplier<? extends Reader>>() {
-        @Override public InputSupplier<? extends Reader> apply(
-            final InputSupplier<? extends InputStream> input) {
-          return CharStreams.newReaderSupplier(input, Charsets.UTF_8);
-        }
-      };
-
-  private static final Function<URL, InputSupplier<? extends Reader>> URL_TO_READER =
-      Functions.compose(INPUT_TO_READER, URL_TO_INPUT);
-
-  static final String DEFAULT_RESOURCE_PACKAGE = Configuration.class.getPackage().getName();
-  private static final String DEFAULT_RESOURCE_NAME = "cmdline.arg.info.txt";
-
-  private static final Logger LOG = Logger.getLogger(Configuration.class.getName());
-
   private static String getResourceName(int index) {
     return String.format("%s.%s", DEFAULT_RESOURCE_NAME, index);
   }
@@ -311,9 +328,9 @@ public class Configuration {
         getResourceName(index));
   }
 
-  static class ConfigurationResources {
-    final int nextResourceIndex;
-    final Iterator<URL> resources;
+  static final class ConfigurationResources {
+    private final int nextResourceIndex;
+    private final Iterator<URL> resources;
 
     private ConfigurationResources(int nextResourceIndex, Iterator<URL> resources) {
       this.nextResourceIndex = nextResourceIndex;
@@ -356,14 +373,14 @@ public class Configuration {
         Configuration.class.getClassLoader().getResources(getResourcePath(index)));
   }
 
-  private static class ConfigurationParser implements LineProcessor<Configuration> {
+  private static final class ConfigurationParser implements LineProcessor<Configuration> {
+    private final int nextIndex;
+    private int lineNumber = 0;
+
     private final ImmutableList.Builder<ArgInfo> positionalInfo = ImmutableList.builder();
     private final ImmutableList.Builder<ArgInfo> fieldInfoBuilder = ImmutableList.builder();
     private final ImmutableList.Builder<ParserInfo> parserInfoBuilder = ImmutableList.builder();
     private final ImmutableList.Builder<VerifierInfo> verifierInfoBuilder = ImmutableList.builder();
-
-    final int nextIndex;
-    int lineNumber = 0;
 
     private ConfigurationParser(int nextIndex) {
       this.nextIndex = nextIndex;
@@ -372,37 +389,38 @@ public class Configuration {
     @Override
     public boolean processLine(String line) throws IOException {
       ++lineNumber;
-      line = line.trim();
-      if (!line.isEmpty() && !line.startsWith("#")) {
-        List<String> parts = Lists.newArrayList(line.split(" "));
+      String trimmed = line.trim();
+      if (!trimmed.isEmpty() && !trimmed.startsWith("#")) {
+        List<String> parts = Lists.newArrayList(trimmed.split(" "));
         if (parts.size() < 1) {
-          throw new ConfigurationException("Invalid line: %s @%d", line, lineNumber);
+          throw new ConfigurationException("Invalid line: %s @%d", trimmed, lineNumber);
         }
 
         String type = parts.remove(0);
         if ("positional".equals(type)) {
           if (parts.size() != 2) {
-            throw new ConfigurationException("Invalid positional line: %s @%d", line, lineNumber);
+            throw new ConfigurationException(
+                "Invalid positional line: %s @%d", trimmed, lineNumber);
           }
           positionalInfo.add(new ArgInfo(parts.get(0), parts.get(1)));
         } else if ("field".equals(type)) {
           if (parts.size() != 2) {
-            throw new ConfigurationException("Invalid field line: %s @%d", line, lineNumber);
+            throw new ConfigurationException("Invalid field line: %s @%d", trimmed, lineNumber);
           }
           fieldInfoBuilder.add(new ArgInfo(parts.get(0), parts.get(1)));
         } else if ("parser".equals(type)) {
           if (parts.size() != 2) {
-            throw new ConfigurationException("Invalid parser line: %s @%d", line, lineNumber);
+            throw new ConfigurationException("Invalid parser line: %s @%d", trimmed, lineNumber);
           }
           parserInfoBuilder.add(new ParserInfo(parts.get(0), parts.get(1)));
         } else if ("verifier".equals(type)) {
           if (parts.size() != 3) {
-            throw new ConfigurationException("Invalid verifier line: %s @%d", line, lineNumber);
+            throw new ConfigurationException("Invalid verifier line: %s @%d", trimmed, lineNumber);
           }
           verifierInfoBuilder.add(new VerifierInfo(parts.get(0), parts.get(1), parts.get(2)));
         } else {
           LOG.warning(String.format("Did not recognize entry type %s for line: %s @%d",
-              type, line, lineNumber));
+              type, trimmed, lineNumber));
         }
       }
       return true;
@@ -419,22 +437,6 @@ public class Configuration {
       throws ConfigurationException, IOException {
     InputSupplier<Reader> input = CharStreams.join(Iterables.transform(configs, URL_TO_READER));
     return CharStreams.readLines(input, new ConfigurationParser(nextIndex));
-  }
-
-  private int nextResourceIndex;
-  private final ImmutableSet<ArgInfo> positionalInfos;
-  private final ImmutableSet<ArgInfo> cmdLineInfos;
-  private final ImmutableSet<ParserInfo> parserInfos;
-  private final ImmutableSet<VerifierInfo> verifierInfos;
-
-  private Configuration(int nextResourceIndex,
-      Iterable<ArgInfo> positionalInfos, Iterable<ArgInfo> cmdLineInfos,
-      Iterable<ParserInfo> parserInfos, Iterable<VerifierInfo> verifierInfos) {
-    this.nextResourceIndex = nextResourceIndex;
-    this.positionalInfos = ImmutableSet.copyOf(positionalInfos);
-    this.cmdLineInfos = ImmutableSet.copyOf(cmdLineInfos);
-    this.parserInfos = ImmutableSet.copyOf(parserInfos);
-    this.verifierInfos = ImmutableSet.copyOf(verifierInfos);
   }
 
   public boolean isEmpty() {

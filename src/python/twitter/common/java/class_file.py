@@ -14,15 +14,16 @@
 # limitations under the License.
 # ==================================================================================================
 
-from java_types import *
-from class_flags import ClassFlags
-from constant import (
+from .java_types import *
+from .class_flags import ClassFlags
+from .constant import (
   Constant, LongConstant, DoubleConstant, ClassConstant,
   FieldrefConstant, InterfaceMethodrefConstant, MethodrefConstant)
-from field_info import FieldInfo
-from method_info import MethodInfo
-from attribute_info import Attribute
-from signature_parser import PackageSpecifier
+from .field_info import FieldInfo
+from .method_info import MethodInfo
+from .attribute_info import Attribute
+from .signature_parser import PackageSpecifier
+
 from hashlib import md5
 
 class ClassDecoders:
@@ -117,7 +118,7 @@ class ClassFile(object):
 
   @staticmethod
   def from_file(filename):
-    with open(filename) as fp:
+    with open(filename, 'rb') as fp:
       return ClassFile.from_fp(fp)
 
   def _decode(self):

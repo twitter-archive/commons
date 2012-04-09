@@ -36,12 +36,6 @@ def test_recordwriter_raises_on_readonly_file():
     with pytest.raises(RecordIO.InvalidFileHandle):
       RecordWriter(fp)
 
-def test_raises_on_nonfile():
-  with pytest.raises(RecordIO.InvalidFileHandle):
-    RecordWriter('/tmp/poop')
-  with pytest.raises(RecordIO.InvalidFileHandle):
-    RecordReader('/tmp/poop')
-
 def test_recordwriter_works_with_append():
   with EphemeralFile('a') as fp:
     try:

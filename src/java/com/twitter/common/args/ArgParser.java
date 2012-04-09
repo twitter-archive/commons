@@ -9,7 +9,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 /**
  * Annotation to register a command line argument parser globally.
  */
-@Target({TYPE})
+@Target(TYPE)
 @Retention(SOURCE)
 public @interface ArgParser {
 }

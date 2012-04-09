@@ -18,7 +18,12 @@ from twitter.common import log
 
 import getpass
 import urllib
-import xmlrpclib
+
+try:
+  from xmlrpclib import ServerProxy, Fault
+except ImportError:
+  from xmlrpc.client import ServerProxy, Fault
+
 
 class ConfluenceError(Exception):
   """Indicates a problem performing an action with confluence."""
@@ -39,12 +44,12 @@ class Confluence(object):
 
     raises ConfluenceError if login is unsuccessful.
     """
-    server = xmlrpclib.ServerProxy(confluence_url + '/rpc/xmlrpc')
+    server = ServerProxy(confluence_url + '/rpc/xmlrpc')
     user = getpass.getuser()
     password = getpass.getpass('Please enter confluence password for %s: ' % user)
     try:
       return Confluence(server, confluence_url, server.confluence1.login(user, password))
-    except  xmlrpclib.Fault as e:
+    except Fault as e:
       raise ConfluenceError('Failed to log in to %s: %s' % (confluence_url, e))
 
   @staticmethod
@@ -67,7 +72,7 @@ class Confluence(object):
     """
     try:
       return self._server.confluence1.getPage(self._session_token, wiki_space, page_title)
-    except xmlrpclib.Fault as e:
+    except Fault as e:
       log.warn('Failed to fetch page %s: %s' % (page_title, e))
       return None
 
@@ -78,8 +83,8 @@ class Confluence(object):
     """
     try:
       return self._server.confluence1.storePage(self._session_token, page)
-    except xmlrpclib.Fault:
-      log.error('Failed to store page %s: %s' % (page_title, e))
+    except Fault as e:
+      log.error('Failed to store page %s: %s' % (page.get('title', '[unknown title]'), e))
       return None
 
   def removepage(self, page):
@@ -89,7 +94,7 @@ class Confluence(object):
     """
     try:
       self._server.confluence1.removePage(self._session_token, page)
-    except xmlrpclib.Fault as e:
+    except Fault as e:
       raise ConfluenceError('Failed to delete page: %s' % e)
 
   def create(self, space, title, content, parent_page=None, **pageoptions):

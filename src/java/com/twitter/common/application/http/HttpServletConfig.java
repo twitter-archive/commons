@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServlet;
 import com.google.common.collect.ImmutableMap;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import static com.twitter.common.base.MorePreconditions.checkNotBlank;
 
 /**
@@ -37,6 +38,8 @@ public class HttpServletConfig {
   public final boolean silent;
 
   /**
+   * Creates a new servlet config.
+   *
    * @param path the absolute path to mount the handler on
    * @param servletClass the type of servlet that will render pages at {@code path}
    * @param silent whether or not to display a link for this handler on the landing page
@@ -47,6 +50,8 @@ public class HttpServletConfig {
   }
 
   /**
+   * Registers a new servlet config with servlet initialization parameters.
+   *
    * @param path the absolute path to mount the handler on
    * @param servletClass the type of servlet that will render pages at {@code path}
    * @param params a map of servlet init parameters to initialize the servlet with

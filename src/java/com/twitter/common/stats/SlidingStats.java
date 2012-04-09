@@ -28,8 +28,11 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class SlidingStats {
 
+  private static final int DEFAULT_WINDOW_SIZE = 1;
+
   private final AtomicLong total;
   private final AtomicLong events;
+  private final Stat<Double> perEventLatency;
 
   /**
    * Creates a new sliding statistic with the given name
@@ -38,15 +41,26 @@ public class SlidingStats {
    * @param totalUnitDisplay String to display for the total counter unit.
    */
   public SlidingStats(String name, String totalUnitDisplay) {
+    this(name, totalUnitDisplay, DEFAULT_WINDOW_SIZE);
+  }
+
+  /**
+   * Creates a new sliding statistic with the given name
+   *
+   * @param name Name for this stat collection.
+   * @param totalUnitDisplay String to display for the total counter unit.
+   * @param windowSize The window size for the per second Rate and Ratio stats.
+   */
+  public SlidingStats(String name, String totalUnitDisplay, int windowSize) {
     MorePreconditions.checkNotBlank(name);
 
     String totalDisplay = name + "_" + totalUnitDisplay + "_total";
     String eventDisplay = name + "_events";
     total = Stats.exportLong(totalDisplay);
     events = Stats.exportLong(eventDisplay);
-    Stats.export(Ratio.of(name + "_" + totalUnitDisplay + "_per_event",
-        Rate.of(totalDisplay + "_per_sec", total).build(),
-        Rate.of(eventDisplay + "_per_sec", events).build()));
+    perEventLatency = Stats.export(Ratio.of(name + "_" + totalUnitDisplay + "_per_event",
+        Rate.of(totalDisplay + "_per_sec", total).withWindowSize(windowSize).build(),
+        Rate.of(eventDisplay + "_per_sec", events).withWindowSize(windowSize).build()));
   }
 
   public AtomicLong getTotalCounter() {
@@ -55,6 +69,10 @@ public class SlidingStats {
 
   public AtomicLong getEventCounter() {
     return events;
+  }
+
+  public Stat<Double> getPerEventLatency() {
+    return perEventLatency;
   }
 
   /**

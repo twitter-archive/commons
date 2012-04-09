@@ -18,18 +18,40 @@ package com.twitter.common.args
 
 import org.specs.Specification
 
-class Struct {
-  var int: Int = 101
-  var string: String = "Nantucket"
-}
+case class TopLevel(int: Int,  string: String)
+case class WithAnnotations(
+  @Flag(
+    name = "queequeg",
+    help = "Better sleep with a sober cannibal than a drunken Christian.")
+  int: Int,
+  @Flag(
+    name = "starbuck",
+    help = "And heaved and heaved, still unrestingly heaved the black sea, as if its vast tides " +
+      "were a conscience; and the great mundane soul were in anguish and remorse for the long " +
+      "sin and suffering it had bred.")
+  string: String)
 
 /**
  * @author nkallen
  */
 class FlagsSpec extends Specification {
+  case class Nested(int: Int,  string: String)
+
   "Flags" should {
-    "be awesome" in {
-      val result = Flags[Struct](Seq("-int=7685", "-string=Rokovoko"))
+    "work with top-level class" in {
+      val result = Flags(TopLevel(101, "Nantucket"), Seq("-int=7685", "-string=Rokovoko"))
+      result.int mustEqual 7685
+      result.string mustEqual "Rokovoko"
+    }
+
+    "work with nested classes" in {
+      val result = Flags(Nested(101, "Nantucket"), Seq("-int=7685", "-string=Rokovoko"))
+      result.int mustEqual 7685
+      result.string mustEqual "Rokovoko"
+    }
+
+    "work with annotations" in {
+      val result = Flags(WithAnnotations(101, "Nantucket"), Seq("-queequeg=7685", "-starbuck=Rokovoko"))
       result.int mustEqual 7685
       result.string mustEqual "Rokovoko"
     }

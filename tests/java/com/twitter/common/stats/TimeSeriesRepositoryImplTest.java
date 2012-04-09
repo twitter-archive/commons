@@ -16,116 +16,117 @@
 
 package com.twitter.common.stats;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
+import com.twitter.common.testing.EasyMockTest;
 import com.twitter.common.util.testing.FakeClock;
-import org.easymock.IMocksControl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
-
-import static org.easymock.EasyMock.*;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.easymock.EasyMock.createStrictControl;
+import static org.easymock.EasyMock.expect;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author William Farner
  */
-public class TimeSeriesRepositoryImplTest {
+public class TimeSeriesRepositoryImplTest extends EasyMockTest {
 
   private static final Amount<Long, Time> RETENTION_PERIOD = Amount.of(10L, Time.MINUTES);
   private static final Amount<Long, Time> SAMPLE_PERIOD = Amount.of(1L, Time.SECONDS);
 
+  private StatRegistry statRegistry;
   private TimeSeriesRepositoryImpl repo;
   private FakeClock clock;
 
-  private IMocksControl control;
-
   @Before
   public void setUp() {
-    repo = new TimeSeriesRepositoryImpl(SAMPLE_PERIOD, RETENTION_PERIOD);
-    clock = new FakeClock();
-
     control = createStrictControl();
+    statRegistry = control.createMock(StatRegistry.class);
+    repo = new TimeSeriesRepositoryImpl(statRegistry, SAMPLE_PERIOD, RETENTION_PERIOD);
+    clock = new FakeClock();
   }
 
   @After
   public void after() {
-    Stats.flush();
     control.verify();
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void testSamplesInOrder() {
-    Stat<Integer> statA = control.createMock(Stat.class);
-    Stat<Integer> statB = control.createMock(Stat.class);
-    Stat<Integer> statC = control.createMock(Stat.class);
-    Stat<Integer> statD = control.createMock(Stat.class);
+    RecordingStat<Integer> statA = mockedStat();
+    RecordingStat<Integer> statB = mockedStat();
+    RecordingStat<Integer> statC = mockedStat();
+    RecordingStat<Integer> statD = mockedStat();
+
+    expect(statRegistry.getStats())
+        .andReturn(ImmutableList.<RecordingStat<? extends Number>>of(statB, statA, statC, statD));
 
     expect(statB.getName()).andReturn("statB");
-    expectLastCall().atLeastOnce();
-    expect(statA.getName()).andReturn("statA");
-    expectLastCall().atLeastOnce();
-    expect(statC.getName()).andReturn("statC");
-    expectLastCall().atLeastOnce();
-    expect(statD.getName()).andReturn("statD");
-    expectLastCall().atLeastOnce();
+    expect(statB.sample()).andReturn(1);
 
-    expect(statB.read()).andReturn(1);
-    expect(statA.read()).andReturn(2);
-    expect(statC.read()).andReturn(3);
-    expect(statD.read()).andReturn(4);
+    expect(statA.getName()).andReturn("statA");
+    expect(statA.sample()).andReturn(2);
+
+    expect(statC.getName()).andReturn("statC");
+    expect(statC.sample()).andReturn(3);
+
+    expect(statD.getName()).andReturn("statD");
+    expect(statD.sample()).andReturn(4);
 
     control.replay();
-
-    Stats.export(statB);
-    Stats.export(statA);
-    Stats.export(statC);
-    Stats.export(statD);
     repo.runSampler(clock);
   }
 
   @Test
   public void testDelayedExport() throws InterruptedException {
-    control.replay();
+    RecordingStat<Integer> earlyExport = mockedStat();
 
-    AtomicLong earlyExport = Stats.exportLong("early");
+    for (int i = 1; i <= 4; i++) {
+      expect(statRegistry.getStats())
+        .andReturn(ImmutableList.<RecordingStat<? extends Number>>of(earlyExport));
+      expect(earlyExport.getName()).andReturn("early");
+      expect(earlyExport.sample()).andReturn(i * 2);
+    }
+
+    RecordingStat<Integer> delayedExport = mockedStat();
+    expect(statRegistry.getStats())
+        .andReturn(ImmutableList.<RecordingStat<? extends Number>>of(earlyExport, delayedExport));
+    expect(earlyExport.getName()).andReturn("early");
+    expect(earlyExport.sample()).andReturn(10);
+    expect(delayedExport.getName()).andReturn("delayed");
+    expect(delayedExport.sample()).andReturn(100);
+
+    control.replay();
 
     clock.setNowMillis(1000);
 
     for (int i = 0; i < 4; i++) {
-      earlyExport.addAndGet(2);
       repo.runSampler(clock);
       clock.waitFor(1000);
     }
 
-    expectTimestamps(1000, 2000, 3000, 4000);
+    expectTimestamps(1000L, 2000L, 3000L, 4000L);
     expectSeriesData("early", 2, 4, 6, 8);
 
-    AtomicLong delayedExport = Stats.exportLong("delayed");
-    delayedExport.set(100);
-    earlyExport.addAndGet(2);
     repo.runSampler(clock);
 
-    expectTimestamps(1000, 2000, 3000, 4000, 5000);
+    expectTimestamps(1000L, 2000L, 3000L, 4000L, 5000L);
     expectSeriesData("early", 2, 4, 6, 8, 10);
-    expectSeriesData("delayed", 0, 0, 0, 0, 100);
+    expectSeriesData("delayed", 0L, 0L, 0L, 0L, 100);
   }
 
-  private void expectTimestamps(long... timestamps) {
-    List<Number> expectedTimestamps = Lists.newArrayList();
-    for (long timestamp : timestamps) expectedTimestamps.add(timestamp);
-    assertThat(Lists.newArrayList(repo.getTimestamps()), is(expectedTimestamps));
+  private RecordingStat<Integer> mockedStat() {
+    return createMock(new Clazz<RecordingStat<Integer>>() { });
   }
 
-  private void expectSeriesData(String series, long... values) {
-    List<Number> expectedValues = Lists.newArrayList();
-    for (long value : values) expectedValues.add(value);
-    assertThat(Lists.newArrayList(repo.get(series).getSamples()), is(expectedValues));
+  private void expectTimestamps(Number... timestamps) {
+    assertEquals(ImmutableList.copyOf(timestamps), ImmutableList.copyOf(repo.getTimestamps()));
+  }
+
+  private void expectSeriesData(String series, Number... values) {
+    assertEquals(ImmutableList.copyOf(values), ImmutableList.copyOf(repo.get(series).getSamples()));
   }
 }

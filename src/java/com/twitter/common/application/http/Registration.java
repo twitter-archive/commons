@@ -29,7 +29,7 @@ import com.google.inject.multibindings.Multibinder;
  *
  * @author William Farner
  */
-public class Registration {
+public final class Registration {
 
   private Registration() {
     // Utility class.

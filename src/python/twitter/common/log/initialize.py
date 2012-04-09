@@ -105,7 +105,6 @@ def _setup_disk_logging(filebase):
   handlers = []
   logroot = LogOptions.log_dir()
   safe_mkdir(logroot)
-  now = time.localtime()
 
   def gen_filter(level):
     return GenericFilter(
@@ -169,9 +168,9 @@ def teardown_disk_logging():
     root_logger.removeHandler(handler)
   _DISK_LOGGERS = []
 
-def init(filebase):
+def init(filebase=None):
   """
-    Set up default logging using:
+    Sets up default stderr logging and, if filebase is supplied, sets up disk logging using:
       {--log_dir}/filebase.{INFO,WARNING,...}
   """
   logging._acquireLock()
@@ -183,12 +182,14 @@ def init(filebase):
   # clear existing handlers
   teardown_stderr_logging()
   teardown_disk_logging()
+  for handler in root_logger.handlers:
+    root_logger.removeHandler(handler)
 
   # setup INFO...FATAL handlers
-  num_disk_handlers = 0
-  for handler in _setup_disk_logging(filebase):
-    root_logger.addHandler(handler)
-    _DISK_LOGGERS.append(handler)
+  if filebase:
+    for handler in _setup_disk_logging(filebase):
+      root_logger.addHandler(handler)
+      _DISK_LOGGERS.append(handler)
   for handler in _setup_stderr_logging():
     root_logger.addHandler(handler)
     _STDERR_LOGGERS.append(handler)

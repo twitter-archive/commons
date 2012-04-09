@@ -23,6 +23,7 @@ scala_library(name = 'flags',
   dependencies = [
     pants('src/java/com/twitter/common/args:args'),
     pants('3rdparty:util-core'),
+    pants('3rdparty:scalap'),
   ],
   sources = rglobs('*.scala'),
 )

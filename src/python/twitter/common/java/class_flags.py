@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-from java_types import *
+from .java_types import *
 
 class ClassFlags(object):
   """http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#75734

@@ -14,6 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
-from confluence import Confluence, ConfluenceError
+__author__ = 'Bill Farner'
+
+from .confluence import Confluence, ConfluenceError
 
 __all__ = ['Confluence', 'ConfluenceError']

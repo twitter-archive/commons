@@ -23,7 +23,7 @@ from antlrgen.twitter.thrift.descriptors.AntlrThriftParser import AntlrThriftPar
 from antlrgen.twitter.thrift.descriptors.AntlrThriftTreeWalker import AntlrThriftTreeWalker
 
 from twitter.thrift.text import thrift_json_encoder
-
+from twitter.thrift.descriptors.thrift_parser_error import ThriftParserError
 
 class ThriftParser(object):
   """Parses a thrift file and creates descriptors for all the entities in that file.
@@ -50,6 +50,8 @@ class ThriftParser(object):
     tokens = antlr3.CommonTokenStream(lexer)
     parser = AntlrThriftParser(tokens)
     root = parser.program().tree
+    if parser.getNumberOfSyntaxErrors() > 0:
+      raise ThriftParserError('Thrift parse failed')
 
     # Walk the AST.
     nodes = antlr3.tree.CommonTreeNodeStream(root)

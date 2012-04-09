@@ -82,4 +82,3 @@ class ThriftJsonEncoderTest(unittest.TestCase):
     json_str2 = thrift_json_encoder.thrift_to_json(x)
     print(json_str2)
     assert expected2 == json_str2
-

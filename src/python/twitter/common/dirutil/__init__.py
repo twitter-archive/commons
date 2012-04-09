@@ -14,6 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
+__author__ = 'Brian Wickman'
+
 import fcntl
 import os
 import shutil

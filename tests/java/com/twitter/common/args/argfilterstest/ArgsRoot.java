@@ -22,7 +22,11 @@ import com.twitter.common.args.CmdLine;
 /**
  * @author John Sirois
  */
-public class ArgsRoot {
+public final class ArgsRoot {
   @CmdLine(name = "args_root", help = "")
   static final Arg<String> ARGS_ROOT = Arg.create();
+
+  private ArgsRoot() {
+    // Test class.
+  }
 }

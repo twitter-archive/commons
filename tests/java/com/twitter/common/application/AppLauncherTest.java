@@ -19,7 +19,6 @@ package com.twitter.common.application;
 import java.lang.reflect.Field;
 
 import com.google.common.base.Predicates;
-import com.google.inject.Module;
 
 import org.junit.Test;
 
@@ -28,8 +27,8 @@ import com.twitter.common.args.ArgFilters;
 import com.twitter.common.args.CmdLine;
 import com.twitter.common.args.constraints.NotNull;
 
-import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -40,9 +39,9 @@ public class AppLauncherTest {
   public static class TestApp1 extends AbstractApplication {
     @NotNull
     @CmdLine(name = "user", help = "a username")
-    static final Arg<String> user = Arg.create();
+    static final Arg<String> USER = Arg.create();
 
-    static boolean hasRun;
+    private static boolean hasRun;
 
     @Override public void run() {
       hasRun = true;
@@ -53,15 +52,15 @@ public class AppLauncherTest {
   public void testLaunch1() {
     AppLauncher.launch(TestApp1.class, ArgFilters.selectClass(TestApp1.class), "-user", "jake");
     assertTrue(TestApp1.hasRun);
-    assertEquals("jake", TestApp1.user.get());
+    assertEquals("jake", TestApp1.USER.get());
   }
 
   public static class TestApp2 extends AbstractApplication {
     @NotNull
     @CmdLine(name = "user", help = "a username")
-    static final Arg<String> user = Arg.create(null);
+    static final Arg<String> USER = Arg.create(null);
 
-    static boolean hasRun;
+    private static boolean hasRun;
 
     @Override public void run() {
       hasRun = true;
@@ -73,6 +72,6 @@ public class AppLauncherTest {
     // We filter out the NotNull Arg so we should be able to launch without specifying it.
     AppLauncher.launch(TestApp2.class, Predicates.<Field>alwaysFalse());
     assertTrue(TestApp2.hasRun);
-    assertNull(TestApp2.user.get());
+    assertNull(TestApp2.USER.get());
   }
 }

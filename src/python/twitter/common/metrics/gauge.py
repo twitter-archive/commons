@@ -15,6 +15,9 @@
 # ==================================================================================================
 
 
+from twitter.common.lang import Compatibility
+
+
 # Duck-typing helpers
 def gaugelike(obj):
   return hasattr(obj, 'read') and callable(obj.read)
@@ -108,7 +111,7 @@ class AtomicGauge(NamedGauge, MutableGauge):
     atomic add, increment, decrement.
   """
   def __init__(self, name, initial_value=0):
-    if not isinstance(initial_value, (int, long)):
+    if not isinstance(initial_value, Compatibility.integer):
       raise TypeError('AtomicGauge must be initialized with an integer.')
     NamedGauge.__init__(self, name)
     MutableGauge.__init__(self, initial_value)
@@ -117,7 +120,7 @@ class AtomicGauge(NamedGauge, MutableGauge):
     """
       Add delta to metric and return updated metric.
     """
-    if not isinstance(delta, (int, long)):
+    if not isinstance(delta, Compatibility.integer):
       raise TypeError('AtomicGauge.add must be called with an integer.')
     with self.lock():
       self._value += delta

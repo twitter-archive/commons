@@ -14,6 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
+__author__ = 'Brian Wickman'
+
 import sys
 import copy
 from collections import defaultdict

@@ -30,8 +30,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class RequestStats implements RequestTimer {
 
   private static final float DEFAULT_SAMPLE_PERCENT = 10;
-  // TODO(William Farner): Add fractional percentiles, requires support in Percentile.
-  private static final double[] DEFAULT_PERCENTILES = {10, 50, 90, 99};
+  private static final double[] DEFAULT_PERCENTILES = {10, 50, 90, 99, 99.9, 99.99};
 
   private final SlidingStats requests;
   private final Percentile<Long> percentile;

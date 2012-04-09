@@ -19,6 +19,7 @@ MEDIUM = [
   'PartitionerTest.java',
   'ZooKeeperClientTest.java',
   'ZooKeeperUtilsTest.java',
+  'guice/ServerSetModuleTest.java',
 ]
 
 LARGE = [
@@ -48,7 +49,9 @@ java_tests(name = 'small',
 java_tests(name = 'medium',
   dependencies = [
     pants('3rdparty:guava'),
+    pants('3rdparty:guice'),
     pants('3rdparty:junit'),
+    pants('3rdparty:mockito'),
     pants('3rdparty:zookeeper'),
     pants('src/java/com/twitter/common/base'),
     pants('src/java/com/twitter/common/testing'),
@@ -57,6 +60,7 @@ java_tests(name = 'medium',
     pants('src/java/com/twitter/common/zookeeper:lock'),
     pants('src/java/com/twitter/common/zookeeper:partitioner'),
     pants('src/java/com/twitter/common/zookeeper:testing'),
+    pants('src/java/com/twitter/common/zookeeper/guice'),
   ],
   sources = MEDIUM
 )

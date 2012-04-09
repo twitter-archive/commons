@@ -83,6 +83,23 @@ import static com.google.common.base.Preconditions.checkArgument;
  * @author William Farner
  */
 public final class ArgScanner {
+
+  private static final Function<OptionInfo, String> GET_OPTIONINFO_NAME =
+      new Function<OptionInfo, String>() {
+        @Override public String apply(OptionInfo optionInfo) {
+          return optionInfo.getName();
+        }
+      };
+
+  public static final Ordering<OptionInfo> ORDER_BY_NAME =
+      Ordering.natural().onResultOf(GET_OPTIONINFO_NAME);
+
+  private static final Function<String, String> ARG_NAME_TO_FLAG = new Function<String, String>() {
+    @Override public String apply(String argName) {
+      return "-" + argName;
+    }
+  };
+
   private static final Predicate<OptionInfo> IS_BOOLEAN =
       new Predicate<OptionInfo>() {
         @Override public boolean apply(OptionInfo optionInfo) {
@@ -90,20 +107,59 @@ public final class ArgScanner {
         }
       };
 
+  // Regular expression to identify a possible dangling assignment.
+  // A dangling assignment occurs in two cases:
+  //   - The command line used spaces between arg names and values, causing the name and value to
+  //     end up in different command line arg array elements.
+  //   - The command line is using the short form for a boolean argument,
+  //     such as -use_feature, or -no_use_feature.
+  private static final String DANGLING_ASSIGNMENT_RE =
+      String.format("^-%s", OptionInfo.ARG_NAME_RE);
+  private static final Pattern DANGLING_ASSIGNMENT_PATTERN =
+      Pattern.compile(DANGLING_ASSIGNMENT_RE);
+
+  // Pattern to identify a full assignment, which would be disassociated from a preceding dangling
+  // assignment.
+  private static final Pattern ASSIGNMENT_PATTERN =
+      Pattern.compile(String.format("%s=.+", DANGLING_ASSIGNMENT_RE));
+
   /**
-   * Indicates a problem scanning {@literal @CmdLine} arg definitions.
+   * Extracts the name from an @OptionInfo.
    */
-  public static class ArgScanException extends RuntimeException {
-    public ArgScanException(Throwable cause) {
-      super(cause);
-    }
-  }
+  private static final Function<OptionInfo, String> GET_OPTIONINFO_NEGATED_NAME =
+      new Function<OptionInfo, String>() {
+        @Override public String apply(OptionInfo optionInfo) {
+          return optionInfo.getNegatedName();
+        }
+      };
+
+  /**
+   * Gets the canonical name for an @Arg, based on the class containing the field it annotates.
+   */
+  private static final Function<OptionInfo, String> GET_CANONICAL_ARG_NAME =
+      new Function<OptionInfo, String>() {
+        @Override public String apply(OptionInfo optionInfo) {
+          return optionInfo.getCanonicalName();
+        }
+      };
+
+  /**
+   * Gets the canonical negated name for an @Arg.
+   */
+  private static final Function<OptionInfo, String> GET_CANONICAL_NEGATED_ARG_NAME =
+      new Function<OptionInfo, String>() {
+        @Override public String apply(OptionInfo optionInfo) {
+          return optionInfo.getCanonicalNegatedName();
+        }
+      };
 
   private static final Logger LOG = Logger.getLogger(ArgScanner.class.getName());
 
   // Pattern for the required argument format.
   private static final Pattern ARG_PATTERN =
       Pattern.compile(String.format("-(%s)(?:(?:=| +)(.*))?", OptionInfo.ARG_NAME_RE));
+
+  private static final Pattern QUOTE_PATTERN = Pattern.compile("(['\"])([^\\\1]*)\\1");
 
   private final PrintStream out;
 
@@ -142,8 +198,8 @@ public final class ArgScanner {
   }
 
   /**
-   * Applies the provided argument values to any {@literal @CmdLine} or {@literal @Positional} {@code Arg} fields
-   * discovered on the classpath and accepted by the given {@code filter}.
+   * Applies the provided argument values to any {@literal @CmdLine} or {@literal @Positional}
+   * {@code Arg} fields discovered on the classpath and accepted by the given {@code filter}.
    *
    * @param filter A predicate that selects or rejects scanned {@literal @CmdLine} fields for
    *    argument application.
@@ -194,21 +250,6 @@ public final class ArgScanner {
     }
   }
 
-  // Regular expression to identify a possible dangling assignment.
-  // A dangling assignment occurs in two cases:
-  //   - The command line used spaces between arg names and values, causing the name and value to
-  //     end up in different command line arg array elements.
-  //   - The command line is using the short form for a boolean argument,
-  //     such as -use_feature, or -no_use_feature.
-  private static final String DANGLING_ASSIGNMENT_RE = String.format("^-%s", OptionInfo.ARG_NAME_RE);
-  private static final Pattern DANGLING_ASSIGNMENT_PATTERN =
-      Pattern.compile(DANGLING_ASSIGNMENT_RE);
-
-  // Pattern to identify a full assignment, which would be disassociated from a preceding dangling
-  // assignment.
-  private static final Pattern ASSIGNMENT_PATTERN =
-      Pattern.compile(String.format("%s=.+", DANGLING_ASSIGNMENT_RE));
-
   @VisibleForTesting static List<String> joinKeysToValues(Iterable<String> args) {
     List<String> joinedArgs = Lists.newArrayList();
     String unmappedKey = null;
@@ -244,8 +285,6 @@ public final class ArgScanner {
 
     return joinedArgs;
   }
-
-  private static final Pattern QUOTE_PATTERN = Pattern.compile("(['\"])([^\\\1]*)\\1");
 
   private static String stripQuotes(String str) {
     Matcher matcher = QUOTE_PATTERN.matcher(str);
@@ -283,48 +322,10 @@ public final class ArgScanner {
     return Pair.of(argMap.build(), positionalArgs);
   }
 
-  /**
-   * Extracts the name from an @OptionInfo.
-   */
-  private static final Function<OptionInfo, String> GET_OPTIONINFO_NAME = new Function<OptionInfo, String>() {
-      @Override public String apply(OptionInfo optionInfo) {
-        return optionInfo.getName();
-      }
-    };
-
-  /**
-   * Extracts the name from an @OptionInfo.
-   */
-  private static final Function<OptionInfo, String> GET_OPTIONINFO_NEGATED_NAME = new Function<OptionInfo, String>() {
-      @Override public String apply(OptionInfo optionInfo) {
-        return optionInfo.getNegatedName();
-      }
-    };
-
-  /**
-   * Gets the canonical name for an @Arg, based on the class containing the field it annotates.
-   */
-  private static final Function<OptionInfo, String> GET_CANONICAL_ARG_NAME =
-      new Function<OptionInfo, String>() {
-        @Override public String apply(OptionInfo optionInfo) {
-          return optionInfo.getCanonicalName();
-        }
-      };
-
-  /**
-   * Gets the canonical negated name for an @Arg.
-   */
-  private static final Function<OptionInfo, String> GET_CANONICAL_NEGATED_ARG_NAME =
-      new Function<OptionInfo, String>() {
-        @Override public String apply(OptionInfo optionInfo) {
-          return optionInfo.getCanonicalNegatedName();
-        }
-      };
-
   private static <T> Set<T> dropCollisions(Iterable<T> input) {
     Set<T> copy = Sets.newHashSet();
     Set<T> collisions = Sets.newHashSet();
-    for (T entry: input) {
+    for (T entry : input) {
       if (!copy.add(entry)) {
         collisions.add(entry);
       }
@@ -345,8 +346,10 @@ public final class ArgScanner {
    * @return {@code true} if the given {@code args} were successfully applied to their
    *     corresponding {@link com.twitter.common.args.Arg} fields.
    */
-  private boolean process(final ParserOracle parserOracle, Verifiers verifiers,
-      Args.ArgumentInfo argumentInfo, Map<String, String> args,
+  private boolean process(final ParserOracle parserOracle,
+      Verifiers verifiers,
+      Args.ArgumentInfo argumentInfo,
+      Map<String, String> args,
       List<String> positionalArgs) {
 
     if (!Sets.intersection(args.keySet(), ArgumentInfo.HELP_ARGS).isEmpty()) {
@@ -354,11 +357,11 @@ public final class ArgScanner {
       return false;
     }
 
-    Optional<? extends PositionalInfo<?>> positionalInfoOptional = argumentInfo.positionalInfo;
+    Optional<? extends PositionalInfo<?>> positionalInfoOptional = argumentInfo.getPositionalInfo();
     checkArgument(positionalInfoOptional.isPresent() || positionalArgs.isEmpty(),
         "Positional arguments have been supplied but there is no Arg annotated to received them.");
 
-    Iterable<? extends OptionInfo<?>> optionInfos = argumentInfo.optionInfos;
+    Iterable<? extends OptionInfo<?>> optionInfos = argumentInfo.getOptionInfos();
 
     final Set<String> argsFailedToParse = Sets.newHashSet();
     final Set<String> argsConstraintsFailed = Sets.newHashSet();
@@ -414,9 +417,9 @@ public final class ArgScanner {
 
     Set<String> commandLineArgumentInfos = Sets.newTreeSet();
 
-    Iterable<? extends ArgumentInfo<?>> allArguments = argumentInfo.optionInfos;
+    Iterable<? extends ArgumentInfo<?>> allArguments = argumentInfo.getOptionInfos();
 
-    if (positionalInfoOptional.isPresent()){
+    if (positionalInfoOptional.isPresent()) {
       PositionalInfo<?> positionalInfo = positionalInfoOptional.get();
       allArguments = Iterables.concat(optionInfos, ImmutableList.of(positionalInfo));
     }
@@ -461,19 +464,11 @@ public final class ArgScanner {
     return true;
   }
 
-  private static final Function<String,String> ARG_NAME_TO_FLAG = new Function<String, String>() {
-    @Override public String apply(String argName) {
-      return "-" + argName;
-    }
-  };
-
-  public static final Ordering<OptionInfo> ORDER_BY_NAME =
-      Ordering.natural().onResultOf(GET_OPTIONINFO_NAME);
-
   private void printHelp(Verifiers verifiers, Args.ArgumentInfo argumentInfo) {
     ImmutableList.Builder<String> requiredHelps = ImmutableList.builder();
     ImmutableList.Builder<String> optionalHelps = ImmutableList.builder();
-    for (OptionInfo<?> optionInfo : ORDER_BY_NAME.immutableSortedCopy(argumentInfo.optionInfos)) {
+    for (OptionInfo<?> optionInfo
+        : ORDER_BY_NAME.immutableSortedCopy(argumentInfo.getOptionInfos())) {
       Arg<?> arg = optionInfo.getArg();
       Object defaultValue = arg.uncheckedGet();
       ImmutableList<String> constraints = collectConstraints(verifiers, optionInfo);
@@ -488,7 +483,7 @@ public final class ArgScanner {
     infoLog("-------------------------------------------------------------------------");
     infoLog(String.format("%s to print this help message",
         Joiner.on(" or ").join(Iterables.transform(ArgumentInfo.HELP_ARGS, ARG_NAME_TO_FLAG))));
-    Optional<? extends PositionalInfo<?>> positionalInfoOptional = argumentInfo.positionalInfo;
+    Optional<? extends PositionalInfo<?>> positionalInfoOptional = argumentInfo.getPositionalInfo();
     if (positionalInfoOptional.isPresent()) {
       infoLog("\nPositional args:");
       PositionalInfo<?> positionalInfo = positionalInfoOptional.get();
@@ -538,5 +533,14 @@ public final class ArgScanner {
 
   private void infoLog(String msg) {
     out.println(msg);
+  }
+
+  /**
+   * Indicates a problem scanning {@literal @CmdLine} arg definitions.
+   */
+  public static class ArgScanException extends RuntimeException {
+    public ArgScanException(Throwable cause) {
+      super(cause);
+    }
   }
 }

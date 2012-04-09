@@ -14,10 +14,10 @@
 # limitations under the License.
 # ==================================================================================================
 
-from util import javaify
-from java_types import *
-from attribute_info import Attribute
-from field_info import FieldType
+from .util import javaify
+from .java_types import *
+from .attribute_info import Attribute
+from .field_info import FieldType
 
 class MethodInfoFlags(object):
   """http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#75568

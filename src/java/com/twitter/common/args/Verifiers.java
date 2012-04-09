@@ -35,7 +35,7 @@ import static com.twitter.common.args.apt.Configuration.VerifierInfo;
  *
  * @author William Farner
  */
-public class Verifiers {
+public final class Verifiers {
 
   private final ImmutableMap<Pair<Class<?>, Class<? extends Annotation>>,
                              Verifier<?>> registry;

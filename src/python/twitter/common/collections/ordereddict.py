@@ -25,7 +25,10 @@
 try:
     from thread import get_ident as _get_ident
 except ImportError:
-    from dummy_thread import get_ident as _get_ident
+    try:
+         from dummy_thread import get_ident as _get_ident
+    except ImportError:
+         from _dummy_thread import get_ident as _get_ident
 
 try:
     from _abcoll import KeysView, ValuesView, ItemsView

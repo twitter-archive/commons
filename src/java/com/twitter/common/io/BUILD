@@ -14,8 +14,6 @@
 # limitations under the License.
 # ==================================================================================================
 
-
-
 java_library(name = 'io',
   provides = artifact(
     org = 'com.twitter.common',
@@ -40,7 +38,7 @@ java_library(name = 'streamer',
     pants('3rdparty:guava'),
     pants('src/java/com/twitter/common/base'),
   ],
-  sources = [ 'Streamer.java', 'SerializedFileStreamer.java' ]
+  sources = [ 'Streamer.java' ]
 )
 
 java_library(name = 'thrift',

@@ -36,7 +36,7 @@ import com.twitter.common.reflect.TypeToken;
  *
  * @author William Farner
  */
-public class TypeUtil {
+public final class TypeUtil {
 
   private static final Function<Type, Type> GET_TYPE = new Function<Type, Type>() {
     @Override public Type apply(Type type) {

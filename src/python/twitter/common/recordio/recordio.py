@@ -15,11 +15,11 @@
 # ==================================================================================================
 
 import os
-import types
 import struct
 import errno
 
 from twitter.common import log
+from twitter.common.lang import Compatibility
 
 class RecordIO(object):
   class PrematureEndOfStream(Exception): pass
@@ -63,7 +63,7 @@ class RecordIO(object):
     @staticmethod
     def code(blob):
       if blob is None: return None
-      if not isinstance(blob, types.StringType):
+      if not isinstance(blob, Compatibility.string):
         raise RecordIO.InvalidTypeException("blob (type=%s) not StringType!" % type(blob))
       return blob
 
@@ -75,13 +75,11 @@ class RecordIO(object):
 
   class Stream(object):
     def __init__(self, fp, codec):
+      # TODO(wickman) Create a 2.x ABC to validate that this is a file-like object.
       def validate_filehandle():
         if fp is None:
           raise RecordIO.InvalidFileHandle(
             'Intialized with an invalid file handle: %s' % fp)
-        if not isinstance(fp, types.FileType):
-          raise RecordIO.InvalidFileHandle(
-            'RecordWriter initialized with something other than filehandle! fp=%s' % fp)
 
       def validate_codec():
         if not isinstance(codec, RecordIO.Codec):
