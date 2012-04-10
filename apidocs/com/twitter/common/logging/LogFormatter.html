@@ -3,17 +3,17 @@
 <HTML>
 <HEAD>
 <TITLE>
-RangeParser
+LogFormatter
 </TITLE>
 
 
-<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../stylesheet.css" TITLE="Style">
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../stylesheet.css" TITLE="Style">
 
 <SCRIPT type="text/javascript">
 function windowTitle()
 {
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="RangeParser";
+        parent.document.title="LogFormatter";
     }
 }
 </SCRIPT>
@@ -35,14 +35,14 @@ function windowTitle()
 <A NAME="navbar_top_firstrow"><!-- --></A>
 <TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
   <TR ALIGN="center" VALIGN="top">
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/RangeParser.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/LogFormatter.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
   </TR>
 </TABLE>
 </TD>
@@ -53,20 +53,20 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../com/twitter/common/args/parsers/PairParser.html" title="class in com.twitter.common.args.parsers"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../com/twitter/common/args/parsers/SetParser.html" title="class in com.twitter.common.args.parsers"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/logging/Log.html" title="interface in com.twitter.common.logging"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../com/twitter/common/logging/LogUtil.html" title="class in com.twitter.common.logging"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-  <A HREF="../../../../../index.html?com/twitter/common/args/parsers/RangeParser.html" target="_top"><B>FRAMES</B></A>  &nbsp;
-&nbsp;<A HREF="RangeParser.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+  <A HREF="../../../../index.html?com/twitter/common/logging/LogFormatter.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="LogFormatter.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
 &nbsp;<SCRIPT type="text/javascript">
   <!--
   if(window==top) {
-    document.writeln('<A HREF="../../../../../allclasses-noframe.html"><B>All Classes</B></A>');
+    document.writeln('<A HREF="../../../../allclasses-noframe.html"><B>All Classes</B></A>');
   }
   //-->
 </SCRIPT>
 <NOSCRIPT>
-  <A HREF="../../../../../allclasses-noframe.html"><B>All Classes</B></A>
+  <A HREF="../../../../allclasses-noframe.html"><B>All Classes</B></A>
 </NOSCRIPT>
 
 
@@ -86,17 +86,23 @@ DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&n
 <!-- ======== START OF CLASS DATA ======== -->
 <H2>
 <FONT SIZE="-1">
-com.twitter.common.args.parsers</FONT>
+com.twitter.common.logging</FONT>
 <BR>
-Class RangeParser</H2>
+Class LogFormatter</H2>
 <PRE>
 <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
-  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html" title="class in com.twitter.common.args.parsers">com.twitter.common.args.parsers.NonParameterizedTypeParser</A>&lt;<A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.2/javadoc/com/google/common/collect/Range.html?is-external=true" title="class or interface in com.google.common.collect">Range</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>&gt;&gt;
-      <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.args.parsers.RangeParser</B>
+  <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><A HREF="http://download.oracle.com/javase/6/docs/api/java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">java.util.logging.Formatter</A>
+      <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.logging.LogFormatter</B>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>A parser that handles closed ranges. For the input "4-6", it will capture [4, 5, 6].
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/logging/LogFormatter.html#line.24"><B>LogFormatter</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</A></DL>
+</PRE>
+
+<P>
+Log formatter to match the format generated by glog:
+
+ I0218 17:36:47.460234 (source) (message)
 <P>
 
 <P>
@@ -113,10 +119,13 @@ Class RangeParser</H2>
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/args/parsers/RangeParser.html#RangeParser()">RangeParser</A></B>()</CODE>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/logging/LogFormatter.html#LogFormatter()">LogFormatter</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
 <!-- ========== METHOD SUMMARY =========== -->
 
 <A NAME="method_summary"><!-- --></A>
@@ -127,17 +136,20 @@ Class RangeParser</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.2/javadoc/com/google/common/collect/Range.html?is-external=true" title="class or interface in com.google.common.collect">Range</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../com/twitter/common/args/parsers/RangeParser.html#doParse(java.lang.String)">doParse</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;raw)</CODE>
+<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/logging/LogFormatter.html#format(java.util.logging.LogRecord)">format</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</A>&nbsp;record)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<A NAME="methods_inherited_from_class_com.twitter.common.args.parsers.NonParameterizedTypeParser"><!-- --></A>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.util.logging.Formatter"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class com.twitter.common.args.parsers.<A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html" title="class in com.twitter.common.args.parsers">NonParameterizedTypeParser</A></B></TH>
+<TH ALIGN="left"><B>Methods inherited from class java.util.logging.<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html#parse(ParserOracle, java.lang.reflect.Type, java.lang.String)">parse</A></CODE></TD>
+<TD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/util/logging/Formatter.html?is-external=true#formatMessage(java.util.logging.LogRecord)" title="class or interface in java.util.logging">formatMessage</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/logging/Formatter.html?is-external=true#getHead(java.util.logging.Handler)" title="class or interface in java.util.logging">getHead</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/logging/Formatter.html?is-external=true#getTail(java.util.logging.Handler)" title="class or interface in java.util.logging">getTail</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -162,10 +174,10 @@ Class RangeParser</H2>
 </TR>
 </TABLE>
 
-<A NAME="RangeParser()"><!-- --></A><H3>
-RangeParser</H3>
+<A NAME="LogFormatter()"><!-- --></A><H3>
+LogFormatter</H3>
 <PRE>
-public <A HREF="../../../../../src-html/com/twitter/common/args/parsers/RangeParser.html#line.14"><B>RangeParser</B></A>()</PRE>
+public <A HREF="../../../../src-html/com/twitter/common/logging/LogFormatter.html#line.24"><B>LogFormatter</B></A>()</PRE>
 <DL>
 </DL>
 
@@ -179,23 +191,16 @@ public <A HREF="../../../../../src-html/com/twitter/common/args/parsers/RangePar
 </TR>
 </TABLE>
 
-<A NAME="doParse(java.lang.String)"><!-- --></A><H3>
-doParse</H3>
+<A NAME="format(java.util.logging.LogRecord)"><!-- --></A><H3>
+format</H3>
 <PRE>
-public <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.2/javadoc/com/google/common/collect/Range.html?is-external=true" title="class or interface in com.google.common.collect">Range</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>&gt; <A HREF="../../../../../src-html/com/twitter/common/args/parsers/RangeParser.html#line.16"><B>doParse</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;raw)
-                       throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</A></PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/logging/LogFormatter.html#line.51"><B>format</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</A>&nbsp;record)</PRE>
 <DL>
-<DD><B>Description copied from class: <CODE><A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html#doParse(java.lang.String)">NonParameterizedTypeParser</A></CODE></B></DD>
-<DD>Performs the parsing of the raw string.
-<P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html#doParse(java.lang.String)">doParse</A></CODE> in class <CODE><A HREF="../../../../../com/twitter/common/args/parsers/NonParameterizedTypeParser.html" title="class in com.twitter.common.args.parsers">NonParameterizedTypeParser</A>&lt;<A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.2/javadoc/com/google/common/collect/Range.html?is-external=true" title="class or interface in com.google.common.collect">Range</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>&gt;&gt;</CODE></DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/util/logging/Formatter.html?is-external=true#format(java.util.logging.LogRecord)" title="class or interface in java.util.logging">format</A></CODE> in class <CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</A></CODE></DL>
 </DD>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>raw</CODE> - Value to parse.
-<DT><B>Returns:</B><DD>The parsed value.
-<DT><B>Throws:</B>
-<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - If the value could not be parsed into the target type.</DL>
+</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
@@ -211,14 +216,14 @@ public <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.2/j
 <A NAME="navbar_bottom_firstrow"><!-- --></A>
 <TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
   <TR ALIGN="center" VALIGN="top">
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/RangeParser.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/LogFormatter.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
   </TR>
 </TABLE>
 </TD>
@@ -229,20 +234,20 @@ public <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.2/j
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../com/twitter/common/args/parsers/PairParser.html" title="class in com.twitter.common.args.parsers"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../com/twitter/common/args/parsers/SetParser.html" title="class in com.twitter.common.args.parsers"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/logging/Log.html" title="interface in com.twitter.common.logging"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../com/twitter/common/logging/LogUtil.html" title="class in com.twitter.common.logging"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-  <A HREF="../../../../../index.html?com/twitter/common/args/parsers/RangeParser.html" target="_top"><B>FRAMES</B></A>  &nbsp;
-&nbsp;<A HREF="RangeParser.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+  <A HREF="../../../../index.html?com/twitter/common/logging/LogFormatter.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="LogFormatter.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
 &nbsp;<SCRIPT type="text/javascript">
   <!--
   if(window==top) {
-    document.writeln('<A HREF="../../../../../allclasses-noframe.html"><B>All Classes</B></A>');
+    document.writeln('<A HREF="../../../../allclasses-noframe.html"><B>All Classes</B></A>');
   }
   //-->
 </SCRIPT>
 <NOSCRIPT>
-  <A HREF="../../../../../allclasses-noframe.html"><B>All Classes</B></A>
+  <A HREF="../../../../allclasses-noframe.html"><B>All Classes</B></A>
 </NOSCRIPT>
 
 

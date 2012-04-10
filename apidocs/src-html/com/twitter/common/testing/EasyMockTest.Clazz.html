@@ -64,7 +64,7 @@
 <FONT color="green">061</FONT>       * Creates an EasyMock mock with this test's control.  Will be<a name="line.61"></a>
 <FONT color="green">062</FONT>       * {@link IMocksControl#verify() verified} in a tear down.<a name="line.62"></a>
 <FONT color="green">063</FONT>       */<a name="line.63"></a>
-<FONT color="green">064</FONT>      protected &lt;T&gt; T createMock(Class&lt;T&gt; type) {<a name="line.64"></a>
+<FONT color="green">064</FONT>      public &lt;T&gt; T createMock(Class&lt;T&gt; type) {<a name="line.64"></a>
 <FONT color="green">065</FONT>        Preconditions.checkNotNull(type);<a name="line.65"></a>
 <FONT color="green">066</FONT>        return control.createMock(type);<a name="line.66"></a>
 <FONT color="green">067</FONT>      }<a name="line.67"></a>
@@ -114,7 +114,7 @@
 <FONT color="green">111</FONT>       * Allows for mocking of parameterized types without all the unchecked conversion warnings in a<a name="line.111"></a>
 <FONT color="green">112</FONT>       * safe way.<a name="line.112"></a>
 <FONT color="green">113</FONT>       */<a name="line.113"></a>
-<FONT color="green">114</FONT>      protected &lt;T&gt; T createMock(Clazz&lt;T&gt; type) {<a name="line.114"></a>
+<FONT color="green">114</FONT>      public &lt;T&gt; T createMock(Clazz&lt;T&gt; type) {<a name="line.114"></a>
 <FONT color="green">115</FONT>        Preconditions.checkNotNull(type);<a name="line.115"></a>
 <FONT color="green">116</FONT>        return type.createMock(control);<a name="line.116"></a>
 <FONT color="green">117</FONT>      }<a name="line.117"></a>
@@ -122,7 +122,7 @@
 <FONT color="green">119</FONT>      /**<a name="line.119"></a>
 <FONT color="green">120</FONT>       * A type-inferring convenience method for creating new captures.<a name="line.120"></a>
 <FONT color="green">121</FONT>       */<a name="line.121"></a>
-<FONT color="green">122</FONT>      protected static &lt;T&gt; Capture&lt;T&gt; createCapture() {<a name="line.122"></a>
+<FONT color="green">122</FONT>      public static &lt;T&gt; Capture&lt;T&gt; createCapture() {<a name="line.122"></a>
 <FONT color="green">123</FONT>        return new Capture&lt;T&gt;();<a name="line.123"></a>
 <FONT color="green">124</FONT>      }<a name="line.124"></a>
 <FONT color="green">125</FONT>    }<a name="line.125"></a>

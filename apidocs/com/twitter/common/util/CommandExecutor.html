@@ -116,10 +116,19 @@ Asynchronous executor of enqueued tasks in a rate limited manner.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
+<CODE>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; 
+<BR>
+void</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/util/CommandExecutor.html#execute(java.lang.String, com.twitter.common.base.ExceptionalCommand, java.lang.Class, int, com.twitter.common.quantity.Amount)">execute</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
-               <A HREF="../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&nbsp;task,
-               <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&nbsp;exceptionClass,
+               <A HREF="../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&lt;E&gt;&nbsp;task,
+               <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;E&gt;&nbsp;exceptionClass,
                int&nbsp;maxTries,
                <A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;retryDelay)</CODE>
 
@@ -143,16 +152,16 @@ Asynchronous executor of enqueued tasks in a rate limited manner.
 <A NAME="execute(java.lang.String, com.twitter.common.base.ExceptionalCommand, java.lang.Class, int, com.twitter.common.quantity.Amount)"><!-- --></A><H3>
 execute</H3>
 <PRE>
-void <A HREF="../../../../src-html/com/twitter/common/util/CommandExecutor.html#line.38"><B>execute</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
-             <A HREF="../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&nbsp;task,
-             <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&nbsp;exceptionClass,
-             int&nbsp;maxTries,
-             <A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;retryDelay)</PRE>
+&lt;E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; void <A HREF="../../../../src-html/com/twitter/common/util/CommandExecutor.html#line.39"><B>execute</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                                   <A HREF="../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&lt;E&gt;&nbsp;task,
+                                   <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;E&gt;&nbsp;exceptionClass,
+                                   int&nbsp;maxTries,
+                                   <A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;retryDelay)</PRE>
 <DL>
 <DD>Enqueue a task to be executed with retry semantics defined.
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>name</CODE> - Human readable name for this task.<DD><CODE>task</CODE> - task to execute.<DD><CODE>maxTries</CODE> - num of tries in case of failure.<DD><CODE>retryDelay</CODE> - interval between retries in case of failure.</DL>
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - Human readable name for this task.<DD><CODE>task</CODE> - task to execute.<DD><CODE>exceptionClass</CODE> - Concrete exception type.<DD><CODE>maxTries</CODE> - num of tries in case of failure.<DD><CODE>retryDelay</CODE> - interval between retries in case of failure.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

@@ -26,18 +26,24 @@
 <FONT color="green">023</FONT>     *<a name="line.23"></a>
 <FONT color="green">024</FONT>     * @author William Farner<a name="line.24"></a>
 <FONT color="green">025</FONT>     */<a name="line.25"></a>
-<FONT color="green">026</FONT>    public class GraphViewer {<a name="line.26"></a>
-<FONT color="green">027</FONT>      public static void registerResources(Binder binder) {<a name="line.27"></a>
-<FONT color="green">028</FONT>        Registration.registerHttpAsset(binder, "/graphview/dygraph-combined.js", GraphViewer.class,<a name="line.28"></a>
-<FONT color="green">029</FONT>            "dygraph-combined.js", "application/javascript", true);<a name="line.29"></a>
-<FONT color="green">030</FONT>        Registration.registerHttpAsset(binder,<a name="line.30"></a>
-<FONT color="green">031</FONT>            "/graphview", GraphViewer.class, "graphview.html", "text/html", false);<a name="line.31"></a>
-<FONT color="green">032</FONT>      }<a name="line.32"></a>
-<FONT color="green">033</FONT>    <a name="line.33"></a>
-<FONT color="green">034</FONT>      private GraphViewer() {<a name="line.34"></a>
-<FONT color="green">035</FONT>        // Utility class.<a name="line.35"></a>
-<FONT color="green">036</FONT>      }<a name="line.36"></a>
-<FONT color="green">037</FONT>    }<a name="line.37"></a>
+<FONT color="green">026</FONT>    public final class GraphViewer {<a name="line.26"></a>
+<FONT color="green">027</FONT>    <a name="line.27"></a>
+<FONT color="green">028</FONT>      private GraphViewer() {<a name="line.28"></a>
+<FONT color="green">029</FONT>        // Utility class.<a name="line.29"></a>
+<FONT color="green">030</FONT>      }<a name="line.30"></a>
+<FONT color="green">031</FONT>    <a name="line.31"></a>
+<FONT color="green">032</FONT>      /**<a name="line.32"></a>
+<FONT color="green">033</FONT>       * Registers required resources with the binder.<a name="line.33"></a>
+<FONT color="green">034</FONT>       *<a name="line.34"></a>
+<FONT color="green">035</FONT>       * @param binder Binder to register with.<a name="line.35"></a>
+<FONT color="green">036</FONT>       */<a name="line.36"></a>
+<FONT color="green">037</FONT>      public static void registerResources(Binder binder) {<a name="line.37"></a>
+<FONT color="green">038</FONT>        Registration.registerHttpAsset(binder, "/graphview/dygraph-combined.js", GraphViewer.class,<a name="line.38"></a>
+<FONT color="green">039</FONT>            "dygraph-combined.js", "application/javascript", true);<a name="line.39"></a>
+<FONT color="green">040</FONT>        Registration.registerHttpAsset(binder,<a name="line.40"></a>
+<FONT color="green">041</FONT>            "/graphview", GraphViewer.class, "graphview.html", "text/html", false);<a name="line.41"></a>
+<FONT color="green">042</FONT>      }<a name="line.42"></a>
+<FONT color="green">043</FONT>    }<a name="line.43"></a>
 
 
 

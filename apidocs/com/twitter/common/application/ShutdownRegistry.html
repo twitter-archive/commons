@@ -121,7 +121,7 @@ A shutdown action controller. It executes actions in the reverse order they were
 <TD><CODE><B><A HREF="../../../../com/twitter/common/application/ShutdownRegistry.ShutdownRegistryImpl.html" title="class in com.twitter.common.application">ShutdownRegistry.ShutdownRegistryImpl</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Implementation of a shutdown registry.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -148,7 +148,7 @@ void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/application/ShutdownRegistry.html#addAction(T)">addAction</A></B>(T&nbsp;action)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Adds an action to the shutdown registry.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -167,10 +167,12 @@ void</CODE></FONT></TD>
 <A NAME="addAction(com.twitter.common.base.ExceptionalCommand)"><!-- --></A><A NAME="addAction(T)"><!-- --></A><H3>
 addAction</H3>
 <PRE>
-&lt;E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>,T extends <A HREF="../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&lt;E&gt;&gt; void <A HREF="../../../../src-html/com/twitter/common/application/ShutdownRegistry.html#line.38"><B>addAction</B></A>(T&nbsp;action)</PRE>
+&lt;E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>,T extends <A HREF="../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&lt;E&gt;&gt; void <A HREF="../../../../src-html/com/twitter/common/application/ShutdownRegistry.html#line.45"><B>addAction</B></A>(T&nbsp;action)</PRE>
 <DL>
+<DD>Adds an action to the shutdown registry.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Type Parameters:</B><DD><CODE>E</CODE> - Exception type thrown by the action.<DD><CODE>T</CODE> - Type of command.<DT><B>Parameters:</B><DD><CODE>action</CODE> - Action to register.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

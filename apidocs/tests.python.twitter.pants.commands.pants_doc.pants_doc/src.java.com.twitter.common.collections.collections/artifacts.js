@@ -31,5 +31,5 @@ var artifacts = {
   }
 };
 artifacts.title = 'Twitter Commons API Docs';
-artifacts.publishDate = '03/08/2012 11:10 AM';
+artifacts.publishDate = '04/09/2012 06:10 PM';
 artifacts.hasChangelog = false;

@@ -3,7 +3,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-Application
+ZooKeeperNode.NodeDeserializer
 </TITLE>
 
 
@@ -13,7 +13,7 @@ Application
 function windowTitle()
 {
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Application";
+        parent.document.title="ZooKeeperNode.NodeDeserializer";
     }
 }
 </SCRIPT>
@@ -38,7 +38,7 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/Application.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/ZooKeeperNode.NodeDeserializer.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
@@ -53,11 +53,11 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../com/twitter/common/application/AppLauncher.html" title="class in com.twitter.common.application"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../com/twitter/common/application/Lifecycle.html" title="class in com.twitter.common.application"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperNode.html" title="class in com.twitter.common.zookeeper"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperUtils.html" title="class in com.twitter.common.zookeeper"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-  <A HREF="../../../../index.html?com/twitter/common/application/Application.html" target="_top"><B>FRAMES</B></A>  &nbsp;
-&nbsp;<A HREF="Application.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+  <A HREF="../../../../index.html?com/twitter/common/zookeeper/ZooKeeperNode.NodeDeserializer.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="ZooKeeperNode.NodeDeserializer.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
 &nbsp;<SCRIPT type="text/javascript">
   <!--
   if(window==top) {
@@ -86,22 +86,21 @@ DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHO
 <!-- ======== START OF CLASS DATA ======== -->
 <H2>
 <FONT SIZE="-1">
-com.twitter.common.application</FONT>
+com.twitter.common.zookeeper</FONT>
 <BR>
-Interface Application</H2>
+Interface ZooKeeperNode.NodeDeserializer&lt;T&gt;</H2>
 <DL>
-<DT><B>All Superinterfaces:</B> <DD><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang">Runnable</A></DD>
-</DL>
+<DT><DT><B>Type Parameters:</B><DD><CODE>T</CODE> - the type of data associated with this node</DL>
 <DL>
-<DT><B>All Known Implementing Classes:</B> <DD><A HREF="../../../../com/twitter/common/application/AbstractApplication.html" title="class in com.twitter.common.application">AbstractApplication</A></DD>
+<DT><B>Enclosing class:</B><DD><A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperNode.html" title="class in com.twitter.common.zookeeper">ZooKeeperNode</A>&lt;<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperNode.html" title="type parameter in ZooKeeperNode">T</A>&gt;</DD>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public interface <A HREF="../../../../src-html/com/twitter/common/application/Application.html#line.26"><B>Application</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang">Runnable</A></DL>
+<DT><PRE>public static interface <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperNode.html#line.313"><B>ZooKeeperNode.NodeDeserializer&lt;T&gt;</B></A></DL>
 </PRE>
 
 <P>
-An application that supports a limited lifecycle and optional binding of guice modules.
+Interface for defining zookeeper node data deserialization.
 <P>
 
 <P>
@@ -119,29 +118,12 @@ An application that supports a limited lifecycle and optional binding of guice m
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;? extends <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Module.html?is-external=true" title="class or interface in com.google.inject">Module</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/application/Application.html#getModules()">getModules</A></B>()</CODE>
+<CODE>&nbsp;<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperNode.NodeDeserializer.html" title="type parameter in ZooKeeperNode.NodeDeserializer">T</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperNode.NodeDeserializer.html#deserialize(byte[], org.apache.zookeeper.data.Stat)">deserialize</A></B>(byte[]&nbsp;data,
+                       org.apache.zookeeper.data.Stat&nbsp;stat)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns binding modules for the application.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;? extends <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Module.html?is-external=true" title="class or interface in com.google.inject">Module</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../com/twitter/common/application/Application.html#getOverridingModules()">getOverridingModules</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns an iterable containing modules that should <i>override</i> bindings made in the rest
- of the application.</TD>
-</TR>
-</TABLE>
-&nbsp;<A NAME="methods_inherited_from_class_java.lang.Runnable"><!-- --></A>
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from interface java.lang.<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang">Runnable</A></B></TH>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Runnable.html?is-external=true#run()" title="class or interface in java.lang">run</A></CODE></TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -157,37 +139,15 @@ An application that supports a limited lifecycle and optional binding of guice m
 </TR>
 </TABLE>
 
-<A NAME="getModules()"><!-- --></A><H3>
-getModules</H3>
+<A NAME="deserialize(byte[], org.apache.zookeeper.data.Stat)"><!-- --></A><H3>
+deserialize</H3>
 <PRE>
-<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;? extends <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Module.html?is-external=true" title="class or interface in com.google.inject">Module</A>&gt; <A HREF="../../../../src-html/com/twitter/common/application/Application.html#line.33"><B>getModules</B></A>()</PRE>
+<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperNode.NodeDeserializer.html" title="type parameter in ZooKeeperNode.NodeDeserializer">T</A> <A HREF="../../../../src-html/com/twitter/common/zookeeper/ZooKeeperNode.NodeDeserializer.html#line.319"><B>deserialize</B></A>(byte[]&nbsp;data,
+              org.apache.zookeeper.data.Stat&nbsp;stat)</PRE>
 <DL>
-<DD>Returns binding modules for the application.
-<P>
 <DD><DL>
-</DL>
-</DD>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>Application binding modules.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="getOverridingModules()"><!-- --></A><H3>
-getOverridingModules</H3>
-<PRE>
-<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;? extends <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Module.html?is-external=true" title="class or interface in com.google.inject">Module</A>&gt; <A HREF="../../../../src-html/com/twitter/common/application/Application.html#line.41"><B>getOverridingModules</B></A>()</PRE>
-<DL>
-<DD>Returns an iterable containing modules that should <i>override</i> bindings made in the rest
- of the application.  This is useful for providing custom bindings in place of system defaults.
-<P>
-<DD><DL>
-</DL>
-</DD>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>Application override binding modules.</DL>
+<DT><B>Parameters:</B><DD><CODE>data</CODE> - the byte array returned from ZooKeeper when a watch is triggered.<DD><CODE>stat</CODE> - a ZooKeeper <CODE>Stat</CODE> object. Populated by
+             <CODE>ZooKeeper#getData(String, boolean, Stat)</CODE>.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
@@ -206,7 +166,7 @@ getOverridingModules</H3>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/Application.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/ZooKeeperNode.NodeDeserializer.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
@@ -221,11 +181,11 @@ getOverridingModules</H3>
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../com/twitter/common/application/AppLauncher.html" title="class in com.twitter.common.application"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../com/twitter/common/application/Lifecycle.html" title="class in com.twitter.common.application"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperNode.html" title="class in com.twitter.common.zookeeper"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../com/twitter/common/zookeeper/ZooKeeperUtils.html" title="class in com.twitter.common.zookeeper"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-  <A HREF="../../../../index.html?com/twitter/common/application/Application.html" target="_top"><B>FRAMES</B></A>  &nbsp;
-&nbsp;<A HREF="Application.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+  <A HREF="../../../../index.html?com/twitter/common/zookeeper/ZooKeeperNode.NodeDeserializer.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="ZooKeeperNode.NodeDeserializer.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
 &nbsp;<SCRIPT type="text/javascript">
   <!--
   if(window==top) {

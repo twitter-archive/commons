@@ -98,7 +98,7 @@ Class TimeSeriesRepositoryImpl</H2>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/stats/TimeSeriesRepositoryImpl.html#line.49"><B>TimeSeriesRepositoryImpl</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../com/twitter/common/stats/TimeSeriesRepository.html" title="interface in com.twitter.common.stats">TimeSeriesRepository</A></DL>
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/stats/TimeSeriesRepositoryImpl.html#line.51"><B>TimeSeriesRepositoryImpl</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../com/twitter/common/stats/TimeSeriesRepository.html" title="interface in com.twitter.common.stats">TimeSeriesRepository</A></DL>
 </PRE>
 
 <P>
@@ -144,7 +144,8 @@ A simple in-memory repository for exported variables.
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/TimeSeriesRepositoryImpl.html#TimeSeriesRepositoryImpl(com.twitter.common.quantity.Amount, com.twitter.common.quantity.Amount)">TimeSeriesRepositoryImpl</A></B>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;samplePeriod,
+<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/TimeSeriesRepositoryImpl.html#TimeSeriesRepositoryImpl(com.twitter.common.stats.StatRegistry, com.twitter.common.quantity.Amount, com.twitter.common.quantity.Amount)">TimeSeriesRepositoryImpl</A></B>(<A HREF="../../../../com/twitter/common/stats/StatRegistry.html" title="interface in com.twitter.common.stats">StatRegistry</A>&nbsp;statRegistry,
+                                                 <A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;samplePeriod,
                                                  <A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;retentionPeriod)</CODE>
 
 <BR>
@@ -218,7 +219,7 @@ A simple in-memory repository for exported variables.
 <A NAME="SAMPLE_PERIOD"><!-- --></A><H3>
 SAMPLE_PERIOD</H3>
 <PRE>
-public static final <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/stats/TimeSeriesRepositoryImpl.html#line.56"><B>SAMPLE_PERIOD</B></A></PRE>
+public static final <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/stats/TimeSeriesRepositoryImpl.html#line.58"><B>SAMPLE_PERIOD</B></A></PRE>
 <DL>
 <DD>@Named binding key for the sampling period.
 <P>
@@ -230,7 +231,7 @@ public static final <A HREF="http://download.oracle.com/javase/6/docs/api/java/l
 <A NAME="SAMPLE_RETENTION_PERIOD"><!-- --></A><H3>
 SAMPLE_RETENTION_PERIOD</H3>
 <PRE>
-public static final <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/stats/TimeSeriesRepositoryImpl.html#line.62"><B>SAMPLE_RETENTION_PERIOD</B></A></PRE>
+public static final <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/stats/TimeSeriesRepositoryImpl.html#line.64"><B>SAMPLE_RETENTION_PERIOD</B></A></PRE>
 <DL>
 <DD>@Named binding key for the maximum number of retained samples.
 <P>
@@ -248,11 +249,12 @@ public static final <A HREF="http://download.oracle.com/javase/6/docs/api/java/l
 </TR>
 </TABLE>
 
-<A NAME="TimeSeriesRepositoryImpl(com.twitter.common.quantity.Amount, com.twitter.common.quantity.Amount)"><!-- --></A><H3>
+<A NAME="TimeSeriesRepositoryImpl(com.twitter.common.stats.StatRegistry, com.twitter.common.quantity.Amount, com.twitter.common.quantity.Amount)"><!-- --></A><H3>
 TimeSeriesRepositoryImpl</H3>
 <PRE>
 <FONT SIZE="-1"><A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Inject.html?is-external=true" title="class or interface in com.google.inject">@Inject</A>
-</FONT>public <A HREF="../../../../src-html/com/twitter/common/stats/TimeSeriesRepositoryImpl.html#line.75"><B>TimeSeriesRepositoryImpl</B></A>(<A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;samplePeriod,
+</FONT>public <A HREF="../../../../src-html/com/twitter/common/stats/TimeSeriesRepositoryImpl.html#line.78"><B>TimeSeriesRepositoryImpl</B></A>(<A HREF="../../../../com/twitter/common/stats/StatRegistry.html" title="interface in com.twitter.common.stats">StatRegistry</A>&nbsp;statRegistry,
+                                       <A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;samplePeriod,
                                        <A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;retentionPeriod)</PRE>
 <DL>
 </DL>
@@ -270,7 +272,7 @@ TimeSeriesRepositoryImpl</H3>
 <A NAME="start(com.twitter.common.application.ShutdownRegistry)"><!-- --></A><H3>
 start</H3>
 <PRE>
-public void <A HREF="../../../../src-html/com/twitter/common/stats/TimeSeriesRepositoryImpl.html#line.112"><B>start</B></A>(<A HREF="../../../../com/twitter/common/application/ShutdownRegistry.html" title="interface in com.twitter.common.application">ShutdownRegistry</A>&nbsp;shutdownRegistry)</PRE>
+public void <A HREF="../../../../src-html/com/twitter/common/stats/TimeSeriesRepositoryImpl.html#line.118"><B>start</B></A>(<A HREF="../../../../com/twitter/common/application/ShutdownRegistry.html" title="interface in com.twitter.common.application">ShutdownRegistry</A>&nbsp;shutdownRegistry)</PRE>
 <DL>
 <DD>Starts the variable sampler, which will fetch variables <A HREF="../../../../com/twitter/common/stats/Stats.html" title="class in com.twitter.common.stats"><CODE>Stats</CODE></A> on the given period.
 <P>
@@ -287,7 +289,7 @@ public void <A HREF="../../../../src-html/com/twitter/common/stats/TimeSeriesRep
 <A NAME="getAvailableSeries()"><!-- --></A><H3>
 getAvailableSeries</H3>
 <PRE>
-public <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt; <A HREF="../../../../src-html/com/twitter/common/stats/TimeSeriesRepositoryImpl.html#line.158"><B>getAvailableSeries</B></A>()</PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt; <A HREF="../../../../src-html/com/twitter/common/stats/TimeSeriesRepositoryImpl.html#line.164"><B>getAvailableSeries</B></A>()</PRE>
 <DL>
 <DD><B>Description copied from interface: <CODE><A HREF="../../../../com/twitter/common/stats/TimeSeriesRepository.html#getAvailableSeries()">TimeSeriesRepository</A></CODE></B></DD>
 <DD>Fetches the names of all available time series.
@@ -305,7 +307,7 @@ public <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Set.html?
 <A NAME="get(java.lang.String)"><!-- --></A><H3>
 get</H3>
 <PRE>
-public <A HREF="../../../../com/twitter/common/stats/TimeSeries.html" title="interface in com.twitter.common.stats">TimeSeries</A> <A HREF="../../../../src-html/com/twitter/common/stats/TimeSeriesRepositoryImpl.html#line.163"><B>get</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name)</PRE>
+public <A HREF="../../../../com/twitter/common/stats/TimeSeries.html" title="interface in com.twitter.common.stats">TimeSeries</A> <A HREF="../../../../src-html/com/twitter/common/stats/TimeSeriesRepositoryImpl.html#line.169"><B>get</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name)</PRE>
 <DL>
 <DD><B>Description copied from interface: <CODE><A HREF="../../../../com/twitter/common/stats/TimeSeriesRepository.html#get(java.lang.String)">TimeSeriesRepository</A></CODE></B></DD>
 <DD>Fetches a time series by name.
@@ -324,7 +326,7 @@ public <A HREF="../../../../com/twitter/common/stats/TimeSeries.html" title="int
 <A NAME="getTimestamps()"><!-- --></A><H3>
 getTimestamps</H3>
 <PRE>
-public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt; <A HREF="../../../../src-html/com/twitter/common/stats/TimeSeriesRepositoryImpl.html#line.169"><B>getTimestamps</B></A>()</PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</A>&gt; <A HREF="../../../../src-html/com/twitter/common/stats/TimeSeriesRepositoryImpl.html#line.175"><B>getTimestamps</B></A>()</PRE>
 <DL>
 <DD><B>Description copied from interface: <CODE><A HREF="../../../../com/twitter/common/stats/TimeSeriesRepository.html#getTimestamps()">TimeSeriesRepository</A></CODE></B></DD>
 <DD>Gets an ordered iterable of the timestamps that all timeseries were sampled at.

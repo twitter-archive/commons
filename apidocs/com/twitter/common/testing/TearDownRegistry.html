@@ -170,7 +170,7 @@ void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/testing/TearDownRegistry.html#addAction(T)">addAction</A></B>(T&nbsp;action)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Adds an action to the shutdown registry.</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -223,11 +223,14 @@ addAction</H3>
 <PRE>
 public &lt;E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>,T extends <A HREF="../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&lt;E&gt;&gt; void <A HREF="../../../../src-html/com/twitter/common/testing/TearDownRegistry.html#line.47"><B>addAction</B></A>(T&nbsp;action)</PRE>
 <DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../com/twitter/common/application/ShutdownRegistry.html#addAction(T)">ShutdownRegistry</A></CODE></B></DD>
+<DD>Adds an action to the shutdown registry.
+<P>
 <DD><DL>
 <DT><B>Specified by:</B><DD><CODE><A HREF="../../../../com/twitter/common/application/ShutdownRegistry.html#addAction(T)">addAction</A></CODE> in interface <CODE><A HREF="../../../../com/twitter/common/application/ShutdownRegistry.html" title="interface in com.twitter.common.application">ShutdownRegistry</A></CODE></DL>
 </DD>
 <DD><DL>
-</DL>
+<DT><B>Type Parameters:</B><DD><CODE>E</CODE> - Exception type thrown by the action.<DD><CODE>T</CODE> - Type of command.<DT><B>Parameters:</B><DD><CODE>action</CODE> - Action to register.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

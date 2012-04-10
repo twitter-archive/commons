@@ -157,7 +157,7 @@ Configuration for a static HTTP-served asset.
                                boolean&nbsp;silent)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new asset configuration.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -234,11 +234,15 @@ public final boolean <A HREF="../../../../../src-html/com/twitter/common/applica
 <A NAME="HttpAssetConfig(java.lang.String, java.net.URL, java.lang.String, boolean)"><!-- --></A><H3>
 HttpAssetConfig</H3>
 <PRE>
-public <A HREF="../../../../../src-html/com/twitter/common/application/http/HttpAssetConfig.html#line.40"><B>HttpAssetConfig</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path,
+public <A HREF="../../../../../src-html/com/twitter/common/application/http/HttpAssetConfig.html#line.48"><B>HttpAssetConfig</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path,
                        <A HREF="http://download.oracle.com/javase/6/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net">URL</A>&nbsp;asset,
                        <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;contentType,
                        boolean&nbsp;silent)</PRE>
 <DL>
+<DD>Creates a new asset configuration.
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>path</CODE> - HTTP path the asset should be accessible from.<DD><CODE>asset</CODE> - Asset resource URL.<DD><CODE>contentType</CODE> - HTTP content-type to report for the asset.<DD><CODE>silent</CODE> - Whether the asset should be visible on the default index page.</DL>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
 <HR>

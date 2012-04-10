@@ -95,19 +95,28 @@ Class Compiler</H2>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public final class <A HREF="../../../../src-html/com/twitter/common/tools/Compiler.html#line.57"><B>Compiler</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public final class <A HREF="../../../../src-html/com/twitter/common/tools/Compiler.html#line.63"><B>Compiler</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
 A simple dependency tracking compiler that maps generated classes to the owning sources.
 
- Supports a <pre>-dependencyfile</pre> option to output dependency information to in the form:
+ Supports a <pre>-Tdependencyfile</pre> option to output dependency information to in the form:
  <pre>
  [source file path] -&gt; [class file path]
  </pre>
 
  There may be multiple lines per source file if the file contains multiple top level classes or
  inner classes.  All paths are normalized to be relative to the classfile output directory.
+
+ Also supports warning customizations including:
+ <ul>
+   <li><pre>-Tcolor</pre> To turn on colorized console output.
+   <li><pre>-Tnowarnprefixes</pre> Path prefixes to skip warnings for, multiple can be separated
+   with the system path separator and the flag itself can be passed multiple times.
+   <li><pre>-Tnowarnregex</pre> Regex to apply to warning messages.  Matches are not warned and
+   the flag can be massed multiple times to specify several regexs.
+ </ul>
 <P>
 
 <P>
@@ -125,7 +134,31 @@ A simple dependency tracking compiler that maps generated classes to the owning 
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/tools/Compiler.html#COLOR_FLAG">COLOR_FLAG</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/tools/Compiler.html#DEPENDENCYFILE_FLAG">DEPENDENCYFILE_FLAG</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/tools/Compiler.html#WARN_IGNORE_MESSAGE_REGEX">WARN_IGNORE_MESSAGE_REGEX</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/tools/Compiler.html#WARN_IGNORE_PATH_PREFIXES">WARN_IGNORE_PATH_PREFIXES</A></B></CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -200,10 +233,40 @@ A simple dependency tracking compiler that maps generated classes to the owning 
 <A NAME="DEPENDENCYFILE_FLAG"><!-- --></A><H3>
 DEPENDENCYFILE_FLAG</H3>
 <PRE>
-public static final <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/tools/Compiler.html#line.59"><B>DEPENDENCYFILE_FLAG</B></A></PRE>
+public static final <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/tools/Compiler.html#line.65"><B>DEPENDENCYFILE_FLAG</B></A></PRE>
 <DL>
 <DL>
 <DT><B>See Also:</B><DD><A HREF="../../../../constant-values.html#com.twitter.common.tools.Compiler.DEPENDENCYFILE_FLAG">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLOR_FLAG"><!-- --></A><H3>
+COLOR_FLAG</H3>
+<PRE>
+public static final <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/tools/Compiler.html#line.66"><B>COLOR_FLAG</B></A></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../constant-values.html#com.twitter.common.tools.Compiler.COLOR_FLAG">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="WARN_IGNORE_PATH_PREFIXES"><!-- --></A><H3>
+WARN_IGNORE_PATH_PREFIXES</H3>
+<PRE>
+public static final <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/tools/Compiler.html#line.67"><B>WARN_IGNORE_PATH_PREFIXES</B></A></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../constant-values.html#com.twitter.common.tools.Compiler.WARN_IGNORE_PATH_PREFIXES">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="WARN_IGNORE_MESSAGE_REGEX"><!-- --></A><H3>
+WARN_IGNORE_MESSAGE_REGEX</H3>
+<PRE>
+public static final <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/tools/Compiler.html#line.68"><B>WARN_IGNORE_MESSAGE_REGEX</B></A></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../constant-values.html#com.twitter.common.tools.Compiler.WARN_IGNORE_MESSAGE_REGEX">Constant Field Values</A></DL>
 </DL>
 
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
@@ -219,7 +282,7 @@ public static final <A HREF="http://download.oracle.com/javase/6/docs/api/java/l
 <A NAME="Compiler()"><!-- --></A><H3>
 Compiler</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/tools/Compiler.html#line.208"><B>Compiler</B></A>()</PRE>
+public <A HREF="../../../../src-html/com/twitter/common/tools/Compiler.html#line.74"><B>Compiler</B></A>()</PRE>
 <DL>
 <DD>Should not be used; instead invoke <A HREF="../../../../com/twitter/common/tools/Compiler.html#main(java.lang.String[])"><CODE>main(java.lang.String[])</CODE></A> directly.  Only present to conform to
  a common compiler interface idiom expected by jmake.
@@ -239,7 +302,7 @@ public <A HREF="../../../../src-html/com/twitter/common/tools/Compiler.html#line
 <A NAME="compile(java.lang.String[])"><!-- --></A><H3>
 compile</H3>
 <PRE>
-public static int <A HREF="../../../../src-html/com/twitter/common/tools/Compiler.html#line.219"><B>compile</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;args)
+public static int <A HREF="../../../../src-html/com/twitter/common/tools/Compiler.html#line.214"><B>compile</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;args)
                    throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
 <DL>
 <DD>Passes through all args to the system java compiler and tracks classes generated for each
@@ -257,7 +320,7 @@ public static int <A HREF="../../../../src-html/com/twitter/common/tools/Compile
 <A NAME="main(java.lang.String[])"><!-- --></A><H3>
 main</H3>
 <PRE>
-public static void <A HREF="../../../../src-html/com/twitter/common/tools/Compiler.html#line.290"><B>main</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;args)
+public static void <A HREF="../../../../src-html/com/twitter/common/tools/Compiler.html#line.268"><B>main</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;args)
                  throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
 <DL>
 <DD>Passes through all args to the system java compiler and tracks classes generated for each

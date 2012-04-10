@@ -223,8 +223,8 @@ Argument scanning, parsing, and validating system.  This class is designed recur
            <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;&nbsp;args)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Applies the provided argument values to any @CmdLine or @Positional <code>Arg</code> fields
- discovered on the classpath and accepted by the given <code>filter</code>.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Applies the provided argument values to any @CmdLine or @Positional
+ <code>Arg</code> fields discovered on the classpath and accepted by the given <code>filter</code>.</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -252,7 +252,7 @@ Argument scanning, parsing, and validating system.  This class is designed recur
 <A NAME="ORDER_BY_NAME"><!-- --></A><H3>
 ORDER_BY_NAME</H3>
 <PRE>
-public static final <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.2/javadoc/com/google/common/collect/Ordering.html?is-external=true" title="class or interface in com.google.common.collect">Ordering</A>&lt;<A HREF="../../../../com/twitter/common/args/OptionInfo.html" title="class in com.twitter.common.args">OptionInfo</A>&gt; <A HREF="../../../../src-html/com/twitter/common/args/ArgScanner.html#line.470"><B>ORDER_BY_NAME</B></A></PRE>
+public static final <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.2/javadoc/com/google/common/collect/Ordering.html?is-external=true" title="class or interface in com.google.common.collect">Ordering</A>&lt;<A HREF="../../../../com/twitter/common/args/OptionInfo.html" title="class in com.twitter.common.args">OptionInfo</A>&gt; <A HREF="../../../../src-html/com/twitter/common/args/ArgScanner.html#line.94"><B>ORDER_BY_NAME</B></A></PRE>
 <DL>
 <DL>
 </DL>
@@ -271,7 +271,7 @@ public static final <A HREF="http://docs.guava-libraries.googlecode.com/git-hist
 <A NAME="ArgScanner()"><!-- --></A><H3>
 ArgScanner</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/args/ArgScanner.html#line.113"><B>ArgScanner</B></A>()</PRE>
+public <A HREF="../../../../src-html/com/twitter/common/args/ArgScanner.html#line.169"><B>ArgScanner</B></A>()</PRE>
 <DL>
 <DD>Equivalent to calling <A HREF="../../../../com/twitter/common/args/ArgScanner.html#ArgScanner(java.io.PrintStream)"><CODE>ArgScanner(PrintStream)</CODE></A> passing <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/System.html?is-external=true#out" title="class or interface in java.lang"><CODE>System.out</CODE></A>.
 <P>
@@ -281,7 +281,7 @@ public <A HREF="../../../../src-html/com/twitter/common/args/ArgScanner.html#lin
 <A NAME="ArgScanner(java.io.PrintStream)"><!-- --></A><H3>
 ArgScanner</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/args/ArgScanner.html#line.124"><B>ArgScanner</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/io/PrintStream.html?is-external=true" title="class or interface in java.io">PrintStream</A>&nbsp;out)</PRE>
+public <A HREF="../../../../src-html/com/twitter/common/args/ArgScanner.html#line.180"><B>ArgScanner</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/io/PrintStream.html?is-external=true" title="class or interface in java.io">PrintStream</A>&nbsp;out)</PRE>
 <DL>
 <DD>Creates a new ArgScanner that prints help on arg parse failure or when help is requested to
  <code>out</code> or else prints applied argument information to <code>out</code> when parsing is
@@ -304,7 +304,7 @@ public <A HREF="../../../../src-html/com/twitter/common/args/ArgScanner.html#lin
 <A NAME="parse(java.lang.Iterable)"><!-- --></A><H3>
 parse</H3>
 <PRE>
-public boolean <A HREF="../../../../src-html/com/twitter/common/args/ArgScanner.html#line.140"><B>parse</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;&nbsp;args)</PRE>
+public boolean <A HREF="../../../../src-html/com/twitter/common/args/ArgScanner.html#line.196"><B>parse</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;&nbsp;args)</PRE>
 <DL>
 <DD>Applies the provided argument values to all @CmdLine <code>Arg</code> fields discovered
  on the classpath.
@@ -325,11 +325,11 @@ public boolean <A HREF="../../../../src-html/com/twitter/common/args/ArgScanner.
 <A NAME="parse(com.google.common.base.Predicate, java.lang.Iterable)"><!-- --></A><H3>
 parse</H3>
 <PRE>
-public boolean <A HREF="../../../../src-html/com/twitter/common/args/ArgScanner.html#line.158"><B>parse</B></A>(<A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.2/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>&gt;&nbsp;filter,
+public boolean <A HREF="../../../../src-html/com/twitter/common/args/ArgScanner.html#line.214"><B>parse</B></A>(<A HREF="http://docs.guava-libraries.googlecode.com/git-history/v11.0.2/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>&gt;&nbsp;filter,
                      <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;&nbsp;args)</PRE>
 <DL>
-<DD>Applies the provided argument values to any @CmdLine or @Positional <code>Arg</code> fields
- discovered on the classpath and accepted by the given <code>filter</code>.
+<DD>Applies the provided argument values to any @CmdLine or @Positional
+ <code>Arg</code> fields discovered on the classpath and accepted by the given <code>filter</code>.
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>filter</CODE> - A predicate that selects or rejects scanned @CmdLine fields for
@@ -348,7 +348,7 @@ public boolean <A HREF="../../../../src-html/com/twitter/common/args/ArgScanner.
 <A NAME="parse(com.twitter.common.args.Args.ArgumentInfo, java.lang.Iterable)"><!-- --></A><H3>
 parse</H3>
 <PRE>
-public boolean <A HREF="../../../../src-html/com/twitter/common/args/ArgScanner.html#line.176"><B>parse</B></A>(com.twitter.common.args.Args.ArgumentInfo&nbsp;argumentInfo,
+public boolean <A HREF="../../../../src-html/com/twitter/common/args/ArgScanner.html#line.232"><B>parse</B></A>(com.twitter.common.args.Args.ArgumentInfo&nbsp;argumentInfo,
                      <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;&nbsp;args)</PRE>
 <DL>
 <DD>Parse command line arguments given a <CODE>Args.ArgumentInfo</CODE>

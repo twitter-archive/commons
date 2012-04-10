@@ -40,13 +40,13 @@
 <FONT color="green">037</FONT>    <a name="line.37"></a>
 <FONT color="green">038</FONT>      @Override<a name="line.38"></a>
 <FONT color="green">039</FONT>      public void serialize(TokenStreamSerializer.AttributeOutputStream output) throws IOException {<a name="line.39"></a>
-<FONT color="green">040</FONT>        output.writeUTF(tokenTypeAttribute.getType().name());<a name="line.40"></a>
+<FONT color="green">040</FONT>        output.writeByte(tokenTypeAttribute.getType().ordinal());<a name="line.40"></a>
 <FONT color="green">041</FONT>      }<a name="line.41"></a>
 <FONT color="green">042</FONT>    <a name="line.42"></a>
 <FONT color="green">043</FONT>      @Override<a name="line.43"></a>
 <FONT color="green">044</FONT>      public void deserialize(TokenStreamSerializer.AttributeInputStream input,<a name="line.44"></a>
 <FONT color="green">045</FONT>                                 CharSequence charSequence) throws IOException {<a name="line.45"></a>
-<FONT color="green">046</FONT>        tokenTypeAttribute.setType(TokenType.valueOf(input.readUTF()));<a name="line.46"></a>
+<FONT color="green">046</FONT>        tokenTypeAttribute.setType(TokenType.values()[input.readByte()]);<a name="line.46"></a>
 <FONT color="green">047</FONT>      }<a name="line.47"></a>
 <FONT color="green">048</FONT>    }<a name="line.48"></a>
 

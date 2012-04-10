@@ -123,6 +123,14 @@ Tracks event statistics over a sliding window of time. An event is something tha
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new sliding statistic with the given name</TD>
 </TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/SlidingStats.html#SlidingStats(java.lang.String, java.lang.String, int)">SlidingStats</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                         <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;totalUnitDisplay,
+                         int&nbsp;windowSize)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new sliding statistic with the given name</TD>
+</TR>
 </TABLE>
 &nbsp;
 <!-- ========== METHOD SUMMARY =========== -->
@@ -145,6 +153,14 @@ Tracks event statistics over a sliding window of time. An event is something tha
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicLong.html?is-external=true" title="class or interface in java.util.concurrent.atomic">AtomicLong</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/stats/SlidingStats.html#getEventCounter()">getEventCounter</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Double.html?is-external=true" title="class or interface in java.lang">Double</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/stats/SlidingStats.html#getPerEventLatency()">getPerEventLatency</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -191,13 +207,27 @@ Tracks event statistics over a sliding window of time. An event is something tha
 <A NAME="SlidingStats(java.lang.String, java.lang.String)"><!-- --></A><H3>
 SlidingStats</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/stats/SlidingStats.html#line.40"><B>SlidingStats</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+public <A HREF="../../../../src-html/com/twitter/common/stats/SlidingStats.html#line.43"><B>SlidingStats</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
                     <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;totalUnitDisplay)</PRE>
 <DL>
 <DD>Creates a new sliding statistic with the given name
 <P>
 <DL>
 <DT><B>Parameters:</B><DD><CODE>name</CODE> - Name for this stat collection.<DD><CODE>totalUnitDisplay</CODE> - String to display for the total counter unit.</DL>
+</DL>
+<HR>
+
+<A NAME="SlidingStats(java.lang.String, java.lang.String, int)"><!-- --></A><H3>
+SlidingStats</H3>
+<PRE>
+public <A HREF="../../../../src-html/com/twitter/common/stats/SlidingStats.html#line.54"><B>SlidingStats</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                    <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;totalUnitDisplay,
+                    int&nbsp;windowSize)</PRE>
+<DL>
+<DD>Creates a new sliding statistic with the given name
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - Name for this stat collection.<DD><CODE>totalUnitDisplay</CODE> - String to display for the total counter unit.<DD><CODE>windowSize</CODE> - The window size for the per second Rate and Ratio stats.</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
@@ -213,7 +243,7 @@ public <A HREF="../../../../src-html/com/twitter/common/stats/SlidingStats.html#
 <A NAME="getTotalCounter()"><!-- --></A><H3>
 getTotalCounter</H3>
 <PRE>
-public <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicLong.html?is-external=true" title="class or interface in java.util.concurrent.atomic">AtomicLong</A> <A HREF="../../../../src-html/com/twitter/common/stats/SlidingStats.html#line.52"><B>getTotalCounter</B></A>()</PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicLong.html?is-external=true" title="class or interface in java.util.concurrent.atomic">AtomicLong</A> <A HREF="../../../../src-html/com/twitter/common/stats/SlidingStats.html#line.66"><B>getTotalCounter</B></A>()</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -224,7 +254,18 @@ public <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurren
 <A NAME="getEventCounter()"><!-- --></A><H3>
 getEventCounter</H3>
 <PRE>
-public <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicLong.html?is-external=true" title="class or interface in java.util.concurrent.atomic">AtomicLong</A> <A HREF="../../../../src-html/com/twitter/common/stats/SlidingStats.html#line.56"><B>getEventCounter</B></A>()</PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/atomic/AtomicLong.html?is-external=true" title="class or interface in java.util.concurrent.atomic">AtomicLong</A> <A HREF="../../../../src-html/com/twitter/common/stats/SlidingStats.html#line.70"><B>getEventCounter</B></A>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getPerEventLatency()"><!-- --></A><H3>
+getPerEventLatency</H3>
+<PRE>
+public <A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Double.html?is-external=true" title="class or interface in java.lang">Double</A>&gt; <A HREF="../../../../src-html/com/twitter/common/stats/SlidingStats.html#line.74"><B>getPerEventLatency</B></A>()</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -235,7 +276,7 @@ public <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurren
 <A NAME="accumulate(long)"><!-- --></A><H3>
 accumulate</H3>
 <PRE>
-public void <A HREF="../../../../src-html/com/twitter/common/stats/SlidingStats.html#line.69"><B>accumulate</B></A>(long&nbsp;value)</PRE>
+public void <A HREF="../../../../src-html/com/twitter/common/stats/SlidingStats.html#line.87"><B>accumulate</B></A>(long&nbsp;value)</PRE>
 <DL>
 <DD>Accumulates counter by an offset.  This is is useful for tracking things like
  latency of operations.
@@ -252,7 +293,7 @@ public void <A HREF="../../../../src-html/com/twitter/common/stats/SlidingStats.
 <A NAME="toString()"><!-- --></A><H3>
 toString</H3>
 <PRE>
-public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/stats/SlidingStats.html#line.75"><B>toString</B></A>()</PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/stats/SlidingStats.html#line.93"><B>toString</B></A>()</PRE>
 <DL>
 <DD><DL>
 <DT><B>Overrides:</B><DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</A></CODE> in class <CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></CODE></DL>

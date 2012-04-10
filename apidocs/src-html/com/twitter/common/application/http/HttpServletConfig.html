@@ -24,46 +24,51 @@
 <FONT color="green">021</FONT>    import com.google.common.collect.ImmutableMap;<a name="line.21"></a>
 <FONT color="green">022</FONT>    <a name="line.22"></a>
 <FONT color="green">023</FONT>    import static com.google.common.base.Preconditions.checkNotNull;<a name="line.23"></a>
-<FONT color="green">024</FONT>    import static com.twitter.common.base.MorePreconditions.checkNotBlank;<a name="line.24"></a>
-<FONT color="green">025</FONT>    <a name="line.25"></a>
-<FONT color="green">026</FONT>    /**<a name="line.26"></a>
-<FONT color="green">027</FONT>     * An {@link javax.servlet.http.HttpServlet} configuration used to mount HTTP handlers via<a name="line.27"></a>
-<FONT color="green">028</FONT>     * {@link Registration#registerServlet(com.google.inject.Binder, HttpServletConfig)}.<a name="line.28"></a>
-<FONT color="green">029</FONT>     *<a name="line.29"></a>
-<FONT color="green">030</FONT>     * TODO(William Farner): Move this to a more appropriate package after initial AppLauncher check-in.<a name="line.30"></a>
-<FONT color="green">031</FONT>     *<a name="line.31"></a>
-<FONT color="green">032</FONT>     */<a name="line.32"></a>
-<FONT color="green">033</FONT>    public class HttpServletConfig {<a name="line.33"></a>
-<FONT color="green">034</FONT>      public final String path;<a name="line.34"></a>
-<FONT color="green">035</FONT>      public final Class&lt;? extends HttpServlet&gt; handlerClass;<a name="line.35"></a>
-<FONT color="green">036</FONT>      public final ImmutableMap&lt;String, String&gt; params;<a name="line.36"></a>
-<FONT color="green">037</FONT>      public final boolean silent;<a name="line.37"></a>
-<FONT color="green">038</FONT>    <a name="line.38"></a>
-<FONT color="green">039</FONT>      /**<a name="line.39"></a>
-<FONT color="green">040</FONT>       * @param path the absolute path to mount the handler on<a name="line.40"></a>
-<FONT color="green">041</FONT>       * @param servletClass the type of servlet that will render pages at {@code path}<a name="line.41"></a>
-<FONT color="green">042</FONT>       * @param silent whether or not to display a link for this handler on the landing page<a name="line.42"></a>
-<FONT color="green">043</FONT>       */<a name="line.43"></a>
-<FONT color="green">044</FONT>      public HttpServletConfig(String path, Class&lt;? extends HttpServlet&gt; servletClass,<a name="line.44"></a>
-<FONT color="green">045</FONT>          boolean silent) {<a name="line.45"></a>
-<FONT color="green">046</FONT>        this(path, servletClass, ImmutableMap.&lt;String, String&gt;of(), silent);<a name="line.46"></a>
-<FONT color="green">047</FONT>      }<a name="line.47"></a>
-<FONT color="green">048</FONT>    <a name="line.48"></a>
-<FONT color="green">049</FONT>      /**<a name="line.49"></a>
-<FONT color="green">050</FONT>       * @param path the absolute path to mount the handler on<a name="line.50"></a>
-<FONT color="green">051</FONT>       * @param servletClass the type of servlet that will render pages at {@code path}<a name="line.51"></a>
-<FONT color="green">052</FONT>       * @param params a map of servlet init parameters to initialize the servlet with<a name="line.52"></a>
-<FONT color="green">053</FONT>       * @param silent whether or not to display a link for this handler on the landing page<a name="line.53"></a>
-<FONT color="green">054</FONT>       */<a name="line.54"></a>
-<FONT color="green">055</FONT>      public HttpServletConfig(String path, Class&lt;? extends HttpServlet&gt; servletClass,<a name="line.55"></a>
-<FONT color="green">056</FONT>          ImmutableMap&lt;String, String&gt; params, boolean silent) {<a name="line.56"></a>
-<FONT color="green">057</FONT>    <a name="line.57"></a>
-<FONT color="green">058</FONT>        this.path = checkNotBlank(path);<a name="line.58"></a>
-<FONT color="green">059</FONT>        this.handlerClass = checkNotNull(servletClass);<a name="line.59"></a>
-<FONT color="green">060</FONT>        this.params = checkNotNull(params);<a name="line.60"></a>
-<FONT color="green">061</FONT>        this.silent = silent;<a name="line.61"></a>
-<FONT color="green">062</FONT>      }<a name="line.62"></a>
-<FONT color="green">063</FONT>    }<a name="line.63"></a>
+<FONT color="green">024</FONT>    <a name="line.24"></a>
+<FONT color="green">025</FONT>    import static com.twitter.common.base.MorePreconditions.checkNotBlank;<a name="line.25"></a>
+<FONT color="green">026</FONT>    <a name="line.26"></a>
+<FONT color="green">027</FONT>    /**<a name="line.27"></a>
+<FONT color="green">028</FONT>     * An {@link javax.servlet.http.HttpServlet} configuration used to mount HTTP handlers via<a name="line.28"></a>
+<FONT color="green">029</FONT>     * {@link Registration#registerServlet(com.google.inject.Binder, HttpServletConfig)}.<a name="line.29"></a>
+<FONT color="green">030</FONT>     *<a name="line.30"></a>
+<FONT color="green">031</FONT>     * TODO(William Farner): Move this to a more appropriate package after initial AppLauncher check-in.<a name="line.31"></a>
+<FONT color="green">032</FONT>     *<a name="line.32"></a>
+<FONT color="green">033</FONT>     */<a name="line.33"></a>
+<FONT color="green">034</FONT>    public class HttpServletConfig {<a name="line.34"></a>
+<FONT color="green">035</FONT>      public final String path;<a name="line.35"></a>
+<FONT color="green">036</FONT>      public final Class&lt;? extends HttpServlet&gt; handlerClass;<a name="line.36"></a>
+<FONT color="green">037</FONT>      public final ImmutableMap&lt;String, String&gt; params;<a name="line.37"></a>
+<FONT color="green">038</FONT>      public final boolean silent;<a name="line.38"></a>
+<FONT color="green">039</FONT>    <a name="line.39"></a>
+<FONT color="green">040</FONT>      /**<a name="line.40"></a>
+<FONT color="green">041</FONT>       * Creates a new servlet config.<a name="line.41"></a>
+<FONT color="green">042</FONT>       *<a name="line.42"></a>
+<FONT color="green">043</FONT>       * @param path the absolute path to mount the handler on<a name="line.43"></a>
+<FONT color="green">044</FONT>       * @param servletClass the type of servlet that will render pages at {@code path}<a name="line.44"></a>
+<FONT color="green">045</FONT>       * @param silent whether or not to display a link for this handler on the landing page<a name="line.45"></a>
+<FONT color="green">046</FONT>       */<a name="line.46"></a>
+<FONT color="green">047</FONT>      public HttpServletConfig(String path, Class&lt;? extends HttpServlet&gt; servletClass,<a name="line.47"></a>
+<FONT color="green">048</FONT>          boolean silent) {<a name="line.48"></a>
+<FONT color="green">049</FONT>        this(path, servletClass, ImmutableMap.&lt;String, String&gt;of(), silent);<a name="line.49"></a>
+<FONT color="green">050</FONT>      }<a name="line.50"></a>
+<FONT color="green">051</FONT>    <a name="line.51"></a>
+<FONT color="green">052</FONT>      /**<a name="line.52"></a>
+<FONT color="green">053</FONT>       * Registers a new servlet config with servlet initialization parameters.<a name="line.53"></a>
+<FONT color="green">054</FONT>       *<a name="line.54"></a>
+<FONT color="green">055</FONT>       * @param path the absolute path to mount the handler on<a name="line.55"></a>
+<FONT color="green">056</FONT>       * @param servletClass the type of servlet that will render pages at {@code path}<a name="line.56"></a>
+<FONT color="green">057</FONT>       * @param params a map of servlet init parameters to initialize the servlet with<a name="line.57"></a>
+<FONT color="green">058</FONT>       * @param silent whether or not to display a link for this handler on the landing page<a name="line.58"></a>
+<FONT color="green">059</FONT>       */<a name="line.59"></a>
+<FONT color="green">060</FONT>      public HttpServletConfig(String path, Class&lt;? extends HttpServlet&gt; servletClass,<a name="line.60"></a>
+<FONT color="green">061</FONT>          ImmutableMap&lt;String, String&gt; params, boolean silent) {<a name="line.61"></a>
+<FONT color="green">062</FONT>    <a name="line.62"></a>
+<FONT color="green">063</FONT>        this.path = checkNotBlank(path);<a name="line.63"></a>
+<FONT color="green">064</FONT>        this.handlerClass = checkNotNull(servletClass);<a name="line.64"></a>
+<FONT color="green">065</FONT>        this.params = checkNotNull(params);<a name="line.65"></a>
+<FONT color="green">066</FONT>        this.silent = silent;<a name="line.66"></a>
+<FONT color="green">067</FONT>      }<a name="line.67"></a>
+<FONT color="green">068</FONT>    }<a name="line.68"></a>
 
 
 

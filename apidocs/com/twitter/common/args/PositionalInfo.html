@@ -181,7 +181,7 @@ Description of a positional command line argument.
 <A NAME="PositionalInfo(java.lang.String, java.lang.String, , com.twitter.common.reflect.TypeToken, com.twitter.common.reflect.TypeToken, java.util.List, java.lang.Class)"><!-- --></A><H3>
 PositionalInfo</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/args/PositionalInfo.html#line.75"><B>PositionalInfo</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;canonicalName,
+public <A HREF="../../../../src-html/com/twitter/common/args/PositionalInfo.html#line.44"><B>PositionalInfo</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;canonicalName,
                       <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;help,
                       <any>&nbsp;arg,
                       <A HREF="../../../../com/twitter/common/reflect/TypeToken.html" title="class in com.twitter.common.reflect">TypeToken</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../com/twitter/common/args/PositionalInfo.html" title="type parameter in PositionalInfo">T</A>&gt;&gt;&nbsp;type,
@@ -205,11 +205,11 @@ public <A HREF="../../../../src-html/com/twitter/common/args/PositionalInfo.html
 <A NAME="getName()"><!-- --></A><H3>
 getName</H3>
 <PRE>
-public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/args/PositionalInfo.html#line.91"><B>getName</B></A>()</PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/args/PositionalInfo.html#line.98"><B>getName</B></A>()</PRE>
 <DL>
-<DD>Get the "name" of the positional argument. Positional arguments, unlike optional arguments, don't
- have names (like `-foo=bar`). However, when printing help info, we use the name to represent the positional
- argument.
+<DD>Get the "name" of the positional argument. Positional arguments, unlike optional arguments,
+ don't have names (like `-foo=bar`). However, when printing help info, we use the name to
+ represent the positional argument.
 <P>
 <DD><DL>
 <DT><B>Specified by:</B><DD><CODE><A HREF="../../../../com/twitter/common/args/ArgumentInfo.html#getName()">getName</A></CODE> in class <CODE><A HREF="../../../../com/twitter/common/args/ArgumentInfo.html" title="class in com.twitter.common.args">ArgumentInfo</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../com/twitter/common/args/PositionalInfo.html" title="type parameter in PositionalInfo">T</A>&gt;&gt;</CODE></DL>

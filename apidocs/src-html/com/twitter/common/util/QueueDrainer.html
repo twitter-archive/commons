@@ -41,23 +41,22 @@
 <FONT color="green">038</FONT>       * @param taskExecutor Executor to execute a task if present.<a name="line.38"></a>
 <FONT color="green">039</FONT>       * @param blockingQueue Queue to poll if there is a runnable to execute.<a name="line.39"></a>
 <FONT color="green">040</FONT>       */<a name="line.40"></a>
-<FONT color="green">041</FONT>      public QueueDrainer(Executor taskExecutor,<a name="line.41"></a>
-<FONT color="green">042</FONT>          BlockingQueue&lt;T&gt; blockingQueue) {<a name="line.42"></a>
-<FONT color="green">043</FONT>        this.taskExecutor = Preconditions.checkNotNull(taskExecutor);<a name="line.43"></a>
-<FONT color="green">044</FONT>        this.blockingQueue = Preconditions.checkNotNull(blockingQueue);<a name="line.44"></a>
-<FONT color="green">045</FONT>      }<a name="line.45"></a>
-<FONT color="green">046</FONT>    <a name="line.46"></a>
-<FONT color="green">047</FONT>      /**<a name="line.47"></a>
-<FONT color="green">048</FONT>       * Picks tasks from the Queue to execute if present else no-op.<a name="line.48"></a>
-<FONT color="green">049</FONT>       */<a name="line.49"></a>
-<FONT color="green">050</FONT>      @Override<a name="line.50"></a>
-<FONT color="green">051</FONT>      public void run() {<a name="line.51"></a>
-<FONT color="green">052</FONT>        Runnable command = blockingQueue.poll();<a name="line.52"></a>
-<FONT color="green">053</FONT>        if (command != null) {<a name="line.53"></a>
-<FONT color="green">054</FONT>          taskExecutor.execute(command);<a name="line.54"></a>
-<FONT color="green">055</FONT>        }<a name="line.55"></a>
-<FONT color="green">056</FONT>      }<a name="line.56"></a>
-<FONT color="green">057</FONT>    }<a name="line.57"></a>
+<FONT color="green">041</FONT>      public QueueDrainer(Executor taskExecutor, BlockingQueue&lt;T&gt; blockingQueue) {<a name="line.41"></a>
+<FONT color="green">042</FONT>        this.taskExecutor = Preconditions.checkNotNull(taskExecutor);<a name="line.42"></a>
+<FONT color="green">043</FONT>        this.blockingQueue = Preconditions.checkNotNull(blockingQueue);<a name="line.43"></a>
+<FONT color="green">044</FONT>      }<a name="line.44"></a>
+<FONT color="green">045</FONT>    <a name="line.45"></a>
+<FONT color="green">046</FONT>      /**<a name="line.46"></a>
+<FONT color="green">047</FONT>       * Picks tasks from the Queue to execute if present else no-op.<a name="line.47"></a>
+<FONT color="green">048</FONT>       */<a name="line.48"></a>
+<FONT color="green">049</FONT>      @Override<a name="line.49"></a>
+<FONT color="green">050</FONT>      public void run() {<a name="line.50"></a>
+<FONT color="green">051</FONT>        Runnable command = blockingQueue.poll();<a name="line.51"></a>
+<FONT color="green">052</FONT>        if (command != null) {<a name="line.52"></a>
+<FONT color="green">053</FONT>          taskExecutor.execute(command);<a name="line.53"></a>
+<FONT color="green">054</FONT>        }<a name="line.54"></a>
+<FONT color="green">055</FONT>      }<a name="line.55"></a>
+<FONT color="green">056</FONT>    }<a name="line.56"></a>
 
 
 

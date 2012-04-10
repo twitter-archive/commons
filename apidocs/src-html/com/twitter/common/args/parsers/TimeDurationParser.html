@@ -40,19 +40,20 @@
 <FONT color="green">037</FONT>     */<a name="line.37"></a>
 <FONT color="green">038</FONT>    @ArgParser<a name="line.38"></a>
 <FONT color="green">039</FONT>    public class TimeDurationParser implements Parser&lt;Duration&gt; {<a name="line.39"></a>
-<FONT color="green">040</FONT>      private static final Type TIME_AMOUNT_TYPE = new TypeToken&lt;Amount&lt;Long, Time&gt;&gt;() { }.getType();<a name="line.40"></a>
-<FONT color="green">041</FONT>    <a name="line.41"></a>
-<FONT color="green">042</FONT>      @Override<a name="line.42"></a>
-<FONT color="green">043</FONT>      public Duration parse(ParserOracle parserOracle, Type type, String raw)<a name="line.43"></a>
-<FONT color="green">044</FONT>          throws IllegalArgumentException {<a name="line.44"></a>
-<FONT color="green">045</FONT>        Parser amountParser = parserOracle.get(TypeToken.create(Amount.class));<a name="line.45"></a>
-<FONT color="green">046</FONT>    <a name="line.46"></a>
-<FONT color="green">047</FONT>        @SuppressWarnings("unchecked")<a name="line.47"></a>
-<FONT color="green">048</FONT>        Amount&lt;Long, Time&gt; parsed = (Amount&lt;Long, Time&gt;)<a name="line.48"></a>
-<FONT color="green">049</FONT>            amountParser.parse(parserOracle, TIME_AMOUNT_TYPE, raw);<a name="line.49"></a>
-<FONT color="green">050</FONT>        return Duration.fromTimeUnit(parsed.getValue(), parsed.getUnit().getTimeUnit());<a name="line.50"></a>
-<FONT color="green">051</FONT>      }<a name="line.51"></a>
-<FONT color="green">052</FONT>    }<a name="line.52"></a>
+<FONT color="green">040</FONT>      private static final Type TIME_AMOUNT_TYPE = new TypeToken&lt;Amount&lt;Long, Time&gt;&gt;() { }<a name="line.40"></a>
+<FONT color="green">041</FONT>          .getType();<a name="line.41"></a>
+<FONT color="green">042</FONT>    <a name="line.42"></a>
+<FONT color="green">043</FONT>      @Override<a name="line.43"></a>
+<FONT color="green">044</FONT>      public Duration parse(ParserOracle parserOracle, Type type, String raw)<a name="line.44"></a>
+<FONT color="green">045</FONT>          throws IllegalArgumentException {<a name="line.45"></a>
+<FONT color="green">046</FONT>        Parser amountParser = parserOracle.get(TypeToken.create(Amount.class));<a name="line.46"></a>
+<FONT color="green">047</FONT>    <a name="line.47"></a>
+<FONT color="green">048</FONT>        @SuppressWarnings("unchecked")<a name="line.48"></a>
+<FONT color="green">049</FONT>        Amount&lt;Long, Time&gt; parsed = (Amount&lt;Long, Time&gt;)<a name="line.49"></a>
+<FONT color="green">050</FONT>            amountParser.parse(parserOracle, TIME_AMOUNT_TYPE, raw);<a name="line.50"></a>
+<FONT color="green">051</FONT>        return Duration.fromTimeUnit(parsed.getValue(), parsed.getUnit().getTimeUnit());<a name="line.51"></a>
+<FONT color="green">052</FONT>      }<a name="line.52"></a>
+<FONT color="green">053</FONT>    }<a name="line.53"></a>
 
 
 

@@ -44,72 +44,79 @@
 <FONT color="green">041</FONT>      private final String canonicalName;<a name="line.41"></a>
 <FONT color="green">042</FONT>      private final TypeToken&lt;T&gt; elementType;<a name="line.42"></a>
 <FONT color="green">043</FONT>    <a name="line.43"></a>
-<FONT color="green">044</FONT>      /**<a name="line.44"></a>
-<FONT color="green">045</FONT>       * Factory method to create a PositionalInfo from a java.lang.reflect.Field.<a name="line.45"></a>
-<FONT color="green">046</FONT>       *<a name="line.46"></a>
-<FONT color="green">047</FONT>       * @param field The field must contain a Arg&lt;List&lt;?&gt;&gt;. The List&lt;?&gt; represents zero or more positional arguments.<a name="line.47"></a>
-<FONT color="green">048</FONT>       * @return a PositionalInfo<a name="line.48"></a>
-<FONT color="green">049</FONT>       */<a name="line.49"></a>
-<FONT color="green">050</FONT>      static PositionalInfo createFromField(Field field) {<a name="line.50"></a>
-<FONT color="green">051</FONT>        Preconditions.checkNotNull(field);<a name="line.51"></a>
-<FONT color="green">052</FONT>        Positional positional = field.getAnnotation(Positional.class);<a name="line.52"></a>
-<FONT color="green">053</FONT>        if (positional == null) {<a name="line.53"></a>
-<FONT color="green">054</FONT>          throw new Configuration.ConfigurationException(<a name="line.54"></a>
-<FONT color="green">055</FONT>              "No @Positional Arg annotation for field " + field);<a name="line.55"></a>
-<FONT color="green">056</FONT>        }<a name="line.56"></a>
+<FONT color="green">044</FONT>      public PositionalInfo(<a name="line.44"></a>
+<FONT color="green">045</FONT>          String canonicalName,<a name="line.45"></a>
+<FONT color="green">046</FONT>          String help,<a name="line.46"></a>
+<FONT color="green">047</FONT>          Arg&lt;List&lt;T&gt;&gt; arg,<a name="line.47"></a>
+<FONT color="green">048</FONT>          TypeToken&lt;List&lt;T&gt;&gt; type,<a name="line.48"></a>
+<FONT color="green">049</FONT>          TypeToken&lt;T&gt; elementType,<a name="line.49"></a>
+<FONT color="green">050</FONT>          List&lt;Annotation&gt; verifierAnnotations,<a name="line.50"></a>
+<FONT color="green">051</FONT>          @Nullable Class&lt;? extends Parser&lt;? extends List&lt;T&gt;&gt;&gt; parser) {<a name="line.51"></a>
+<FONT color="green">052</FONT>    <a name="line.52"></a>
+<FONT color="green">053</FONT>        super(help, arg, type, verifierAnnotations, parser);<a name="line.53"></a>
+<FONT color="green">054</FONT>        this.elementType = elementType;<a name="line.54"></a>
+<FONT color="green">055</FONT>        this.canonicalName = canonicalName;<a name="line.55"></a>
+<FONT color="green">056</FONT>      }<a name="line.56"></a>
 <FONT color="green">057</FONT>    <a name="line.57"></a>
-<FONT color="green">058</FONT>        Preconditions.checkArgument(<a name="line.58"></a>
-<FONT color="green">059</FONT>            TypeUtil.getRawType(TypeUtil.getTypeParam(field)) == List.class,<a name="line.59"></a>
-<FONT color="green">060</FONT>            "Field is annotated for positional parsing but is not of Arg&lt;List&lt;?&gt;&gt; type");<a name="line.60"></a>
-<FONT color="green">061</FONT>        Type nestedType = TypeToken.extractTypeToken(TypeUtil.getTypeParam(field));<a name="line.61"></a>
-<FONT color="green">062</FONT>    <a name="line.62"></a>
-<FONT color="green">063</FONT>        @SuppressWarnings("unchecked")<a name="line.63"></a>
-<FONT color="green">064</FONT>        PositionalInfo positionalInfo = new PositionalInfo(<a name="line.64"></a>
-<FONT color="green">065</FONT>            field.getDeclaringClass().getCanonicalName() + "." + field.getName(),<a name="line.65"></a>
-<FONT color="green">066</FONT>            positional.help(),<a name="line.66"></a>
-<FONT color="green">067</FONT>            ArgumentInfo.getArgForField(field),<a name="line.67"></a>
-<FONT color="green">068</FONT>            TypeUtil.getTypeParamTypeToken(field),<a name="line.68"></a>
-<FONT color="green">069</FONT>            TypeToken.create(nestedType),<a name="line.69"></a>
-<FONT color="green">070</FONT>            Arrays.asList(field.getAnnotations()),<a name="line.70"></a>
-<FONT color="green">071</FONT>            positional.parser());<a name="line.71"></a>
-<FONT color="green">072</FONT>        return positionalInfo;<a name="line.72"></a>
-<FONT color="green">073</FONT>      }<a name="line.73"></a>
-<FONT color="green">074</FONT>    <a name="line.74"></a>
-<FONT color="green">075</FONT>      public PositionalInfo(String canonicalName, String help, Arg&lt;List&lt;T&gt;&gt; arg,<a name="line.75"></a>
-<FONT color="green">076</FONT>          TypeToken&lt;List&lt;T&gt;&gt; type, TypeToken&lt;T&gt; elementType, List&lt;Annotation&gt; verifierAnnotations,<a name="line.76"></a>
-<FONT color="green">077</FONT>          @Nullable Class&lt;? extends Parser&lt;? extends List&lt;T&gt;&gt;&gt; parser) {<a name="line.77"></a>
-<FONT color="green">078</FONT>        super(help, arg, type, verifierAnnotations, parser);<a name="line.78"></a>
-<FONT color="green">079</FONT>        this.elementType = elementType;<a name="line.79"></a>
-<FONT color="green">080</FONT>        this.canonicalName = canonicalName;<a name="line.80"></a>
-<FONT color="green">081</FONT>      }<a name="line.81"></a>
-<FONT color="green">082</FONT>    <a name="line.82"></a>
-<FONT color="green">083</FONT>      /**<a name="line.83"></a>
-<FONT color="green">084</FONT>       * Get the "name" of the positional argument. Positional arguments, unlike optional arguments, don't<a name="line.84"></a>
-<FONT color="green">085</FONT>       * have names (like `-foo=bar`). However, when printing help info, we use the name to represent the positional<a name="line.85"></a>
-<FONT color="green">086</FONT>       * argument.<a name="line.86"></a>
-<FONT color="green">087</FONT>       *<a name="line.87"></a>
-<FONT color="green">088</FONT>       * @return the string "[positional args]"<a name="line.88"></a>
-<FONT color="green">089</FONT>       */<a name="line.89"></a>
-<FONT color="green">090</FONT>      @Override<a name="line.90"></a>
-<FONT color="green">091</FONT>      public String getName() {<a name="line.91"></a>
-<FONT color="green">092</FONT>        return "[positional args]";<a name="line.92"></a>
-<FONT color="green">093</FONT>      }<a name="line.93"></a>
-<FONT color="green">094</FONT>    <a name="line.94"></a>
-<FONT color="green">095</FONT>      String getCanonicalName() {<a name="line.95"></a>
-<FONT color="green">096</FONT>        return this.canonicalName;<a name="line.96"></a>
-<FONT color="green">097</FONT>      }<a name="line.97"></a>
-<FONT color="green">098</FONT>    <a name="line.98"></a>
-<FONT color="green">099</FONT>      void load(final ParserOracle parserOracle, List&lt;String&gt; positionalArgs) {<a name="line.99"></a>
-<FONT color="green">100</FONT>        final Parser&lt;? extends T&gt; parser = parserOracle.get(elementType);<a name="line.100"></a>
-<FONT color="green">101</FONT>        List&lt;T&gt; assignmentValue = Lists.newArrayList(Iterables.transform(positionalArgs,<a name="line.101"></a>
-<FONT color="green">102</FONT>          new Function&lt;String, T&gt;() {<a name="line.102"></a>
-<FONT color="green">103</FONT>            @Override public T apply(String argValue) {<a name="line.103"></a>
-<FONT color="green">104</FONT>              return parser.parse(parserOracle, elementType.getType(), argValue);<a name="line.104"></a>
-<FONT color="green">105</FONT>            }<a name="line.105"></a>
-<FONT color="green">106</FONT>          }));<a name="line.106"></a>
-<FONT color="green">107</FONT>        setValue(assignmentValue);<a name="line.107"></a>
-<FONT color="green">108</FONT>      }<a name="line.108"></a>
-<FONT color="green">109</FONT>    }<a name="line.109"></a>
+<FONT color="green">058</FONT>      /**<a name="line.58"></a>
+<FONT color="green">059</FONT>       * Factory method to create a PositionalInfo from a java.lang.reflect.Field.<a name="line.59"></a>
+<FONT color="green">060</FONT>       *<a name="line.60"></a>
+<FONT color="green">061</FONT>       * @param field The field must contain a Arg&lt;List&lt;?&gt;&gt;. The List&lt;?&gt; represents zero or more<a name="line.61"></a>
+<FONT color="green">062</FONT>       *     positional arguments.<a name="line.62"></a>
+<FONT color="green">063</FONT>       * @return a PositionalInfo<a name="line.63"></a>
+<FONT color="green">064</FONT>       */<a name="line.64"></a>
+<FONT color="green">065</FONT>      static PositionalInfo createFromField(Field field) {<a name="line.65"></a>
+<FONT color="green">066</FONT>        Preconditions.checkNotNull(field);<a name="line.66"></a>
+<FONT color="green">067</FONT>        Positional positional = field.getAnnotation(Positional.class);<a name="line.67"></a>
+<FONT color="green">068</FONT>        if (positional == null) {<a name="line.68"></a>
+<FONT color="green">069</FONT>          throw new Configuration.ConfigurationException(<a name="line.69"></a>
+<FONT color="green">070</FONT>              "No @Positional Arg annotation for field " + field);<a name="line.70"></a>
+<FONT color="green">071</FONT>        }<a name="line.71"></a>
+<FONT color="green">072</FONT>    <a name="line.72"></a>
+<FONT color="green">073</FONT>        Preconditions.checkArgument(<a name="line.73"></a>
+<FONT color="green">074</FONT>            TypeUtil.getRawType(TypeUtil.getTypeParam(field)) == List.class,<a name="line.74"></a>
+<FONT color="green">075</FONT>            "Field is annotated for positional parsing but is not of Arg&lt;List&lt;?&gt;&gt; type");<a name="line.75"></a>
+<FONT color="green">076</FONT>        Type nestedType = TypeToken.extractTypeToken(TypeUtil.getTypeParam(field));<a name="line.76"></a>
+<FONT color="green">077</FONT>    <a name="line.77"></a>
+<FONT color="green">078</FONT>        @SuppressWarnings("unchecked")<a name="line.78"></a>
+<FONT color="green">079</FONT>        PositionalInfo positionalInfo = new PositionalInfo(<a name="line.79"></a>
+<FONT color="green">080</FONT>            field.getDeclaringClass().getCanonicalName() + "." + field.getName(),<a name="line.80"></a>
+<FONT color="green">081</FONT>            positional.help(),<a name="line.81"></a>
+<FONT color="green">082</FONT>            ArgumentInfo.getArgForField(field),<a name="line.82"></a>
+<FONT color="green">083</FONT>            TypeUtil.getTypeParamTypeToken(field),<a name="line.83"></a>
+<FONT color="green">084</FONT>            TypeToken.create(nestedType),<a name="line.84"></a>
+<FONT color="green">085</FONT>            Arrays.asList(field.getAnnotations()),<a name="line.85"></a>
+<FONT color="green">086</FONT>            positional.parser());<a name="line.86"></a>
+<FONT color="green">087</FONT>        return positionalInfo;<a name="line.87"></a>
+<FONT color="green">088</FONT>      }<a name="line.88"></a>
+<FONT color="green">089</FONT>    <a name="line.89"></a>
+<FONT color="green">090</FONT>      /**<a name="line.90"></a>
+<FONT color="green">091</FONT>       * Get the "name" of the positional argument. Positional arguments, unlike optional arguments,<a name="line.91"></a>
+<FONT color="green">092</FONT>       * don't have names (like `-foo=bar`). However, when printing help info, we use the name to<a name="line.92"></a>
+<FONT color="green">093</FONT>       * represent the positional argument.<a name="line.93"></a>
+<FONT color="green">094</FONT>       *<a name="line.94"></a>
+<FONT color="green">095</FONT>       * @return the string "[positional args]"<a name="line.95"></a>
+<FONT color="green">096</FONT>       */<a name="line.96"></a>
+<FONT color="green">097</FONT>      @Override<a name="line.97"></a>
+<FONT color="green">098</FONT>      public String getName() {<a name="line.98"></a>
+<FONT color="green">099</FONT>        return "[positional args]";<a name="line.99"></a>
+<FONT color="green">100</FONT>      }<a name="line.100"></a>
+<FONT color="green">101</FONT>    <a name="line.101"></a>
+<FONT color="green">102</FONT>      String getCanonicalName() {<a name="line.102"></a>
+<FONT color="green">103</FONT>        return this.canonicalName;<a name="line.103"></a>
+<FONT color="green">104</FONT>      }<a name="line.104"></a>
+<FONT color="green">105</FONT>    <a name="line.105"></a>
+<FONT color="green">106</FONT>      void load(final ParserOracle parserOracle, List&lt;String&gt; positionalArgs) {<a name="line.106"></a>
+<FONT color="green">107</FONT>        final Parser&lt;? extends T&gt; parser = parserOracle.get(elementType);<a name="line.107"></a>
+<FONT color="green">108</FONT>        List&lt;T&gt; assignmentValue = Lists.newArrayList(Iterables.transform(positionalArgs,<a name="line.108"></a>
+<FONT color="green">109</FONT>          new Function&lt;String, T&gt;() {<a name="line.109"></a>
+<FONT color="green">110</FONT>            @Override public T apply(String argValue) {<a name="line.110"></a>
+<FONT color="green">111</FONT>              return parser.parse(parserOracle, elementType.getType(), argValue);<a name="line.111"></a>
+<FONT color="green">112</FONT>            }<a name="line.112"></a>
+<FONT color="green">113</FONT>          }));<a name="line.113"></a>
+<FONT color="green">114</FONT>        setValue(assignmentValue);<a name="line.114"></a>
+<FONT color="green">115</FONT>      }<a name="line.115"></a>
+<FONT color="green">116</FONT>    }<a name="line.116"></a>
 
 
 

@@ -101,8 +101,12 @@ Class ShutdownRegistry.ShutdownRegistryImpl</H2>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public static class <A HREF="../../../../src-html/com/twitter/common/application/ShutdownRegistry.html#line.40"><B>ShutdownRegistry.ShutdownRegistryImpl</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../com/twitter/common/application/ShutdownRegistry.html" title="interface in com.twitter.common.application">ShutdownRegistry</A>, <A HREF="../../../../com/twitter/common/base/Command.html" title="interface in com.twitter.common.base">Command</A></DL>
+<DT><PRE>public static class <A HREF="../../../../src-html/com/twitter/common/application/ShutdownRegistry.html#line.50"><B>ShutdownRegistry.ShutdownRegistryImpl</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../com/twitter/common/application/ShutdownRegistry.html" title="interface in com.twitter.common.application">ShutdownRegistry</A>, <A HREF="../../../../com/twitter/common/base/Command.html" title="interface in com.twitter.common.base">Command</A></DL>
 </PRE>
+
+<P>
+Implementation of a shutdown registry.
+<P>
 
 <P>
 <HR>
@@ -203,7 +207,7 @@ void</CODE></FONT></TD>
 <A NAME="ShutdownRegistry.ShutdownRegistryImpl()"><!-- --></A><H3>
 ShutdownRegistry.ShutdownRegistryImpl</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/application/ShutdownRegistry.ShutdownRegistryImpl.html#line.40"><B>ShutdownRegistry.ShutdownRegistryImpl</B></A>()</PRE>
+public <A HREF="../../../../src-html/com/twitter/common/application/ShutdownRegistry.ShutdownRegistryImpl.html#line.50"><B>ShutdownRegistry.ShutdownRegistryImpl</B></A>()</PRE>
 <DL>
 </DL>
 
@@ -220,7 +224,7 @@ public <A HREF="../../../../src-html/com/twitter/common/application/ShutdownRegi
 <A NAME="addAction(com.twitter.common.base.ExceptionalCommand)"><!-- --></A><A NAME="addAction(T)"><!-- --></A><H3>
 addAction</H3>
 <PRE>
-public &lt;E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>,T extends <A HREF="../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&lt;E&gt;&gt; void <A HREF="../../../../src-html/com/twitter/common/application/ShutdownRegistry.ShutdownRegistryImpl.html#line.54"><B>addAction</B></A>(T&nbsp;action)</PRE>
+public &lt;E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>,T extends <A HREF="../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&lt;E&gt;&gt; void <A HREF="../../../../src-html/com/twitter/common/application/ShutdownRegistry.ShutdownRegistryImpl.html#line.64"><B>addAction</B></A>(T&nbsp;action)</PRE>
 <DL>
 <DD>Registers an action to execute during <A HREF="../../../../com/twitter/common/application/ShutdownRegistry.ShutdownRegistryImpl.html#execute()"><CODE>execute()</CODE></A>. It is an error to call this method
  after calling <A HREF="../../../../com/twitter/common/application/ShutdownRegistry.ShutdownRegistryImpl.html#execute()"><CODE>execute()</CODE></A>.
@@ -229,7 +233,7 @@ public &lt;E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/
 <DT><B>Specified by:</B><DD><CODE><A HREF="../../../../com/twitter/common/application/ShutdownRegistry.html#addAction(T)">addAction</A></CODE> in interface <CODE><A HREF="../../../../com/twitter/common/application/ShutdownRegistry.html" title="interface in com.twitter.common.application">ShutdownRegistry</A></CODE></DL>
 </DD>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>action</CODE> - the action to add to the list of actions to execute during execution</DL>
+<DT><B>Type Parameters:</B><DD><CODE>E</CODE> - Exception type thrown by the action.<DD><CODE>T</CODE> - Type of command.<DT><B>Parameters:</B><DD><CODE>action</CODE> - the action to add to the list of actions to execute during execution</DL>
 </DD>
 </DL>
 <HR>
@@ -237,7 +241,7 @@ public &lt;E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/
 <A NAME="execute()"><!-- --></A><H3>
 execute</H3>
 <PRE>
-public void <A HREF="../../../../src-html/com/twitter/common/application/ShutdownRegistry.ShutdownRegistryImpl.html#line.68"><B>execute</B></A>()</PRE>
+public void <A HREF="../../../../src-html/com/twitter/common/application/ShutdownRegistry.ShutdownRegistryImpl.html#line.78"><B>execute</B></A>()</PRE>
 <DL>
 <DD>Executes an application shutdown stage by executing all registered actions. This method can
  be called multiple times but will only execute the registered actions the first time.

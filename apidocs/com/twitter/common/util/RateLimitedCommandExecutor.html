@@ -98,7 +98,7 @@ Class RateLimitedCommandExecutor</H2>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/util/RateLimitedCommandExecutor.html#line.38"><B>RateLimitedCommandExecutor</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../com/twitter/common/util/CommandExecutor.html" title="interface in com.twitter.common.util">CommandExecutor</A></DL>
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/util/RateLimitedCommandExecutor.html#line.41"><B>RateLimitedCommandExecutor</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../com/twitter/common/util/CommandExecutor.html" title="interface in com.twitter.common.util">CommandExecutor</A></DL>
 </PRE>
 
 <P>
@@ -141,10 +141,19 @@ CommandExecutor that invokes <code>queueDrainer</code> with a best-effort
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
+<CODE>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; 
+<BR>
+void</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/util/RateLimitedCommandExecutor.html#execute(java.lang.String, com.twitter.common.base.ExceptionalCommand, java.lang.Class, int, com.twitter.common.quantity.Amount)">execute</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
-               <A HREF="../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&nbsp;task,
-               <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&nbsp;exceptionClass,
+               <A HREF="../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&lt;E&gt;&nbsp;task,
+               <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;E&gt;&nbsp;exceptionClass,
                int&nbsp;numTries,
                <A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;retryDelay)</CODE>
 
@@ -177,7 +186,7 @@ CommandExecutor that invokes <code>queueDrainer</code> with a best-effort
 <A NAME="RateLimitedCommandExecutor(java.util.concurrent.ScheduledExecutorService, com.twitter.common.quantity.Amount, java.lang.Runnable, java.util.concurrent.BlockingQueue)"><!-- --></A><H3>
 RateLimitedCommandExecutor</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/util/RateLimitedCommandExecutor.html#line.52"><B>RateLimitedCommandExecutor</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/ScheduledExecutorService.html?is-external=true" title="class or interface in java.util.concurrent">ScheduledExecutorService</A>&nbsp;taskExecutor,
+public <A HREF="../../../../src-html/com/twitter/common/util/RateLimitedCommandExecutor.html#line.57"><B>RateLimitedCommandExecutor</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/ScheduledExecutorService.html?is-external=true" title="class or interface in java.util.concurrent">ScheduledExecutorService</A>&nbsp;taskExecutor,
                                   <A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;intervalBetweenRequests,
                                   <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang">Runnable</A>&nbsp;queueDrainer,
                                   <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/BlockingQueue.html?is-external=true" title="class or interface in java.util.concurrent">BlockingQueue</A>&lt;<A HREF="../../../../com/twitter/common/util/RetryingRunnable.html" title="class in com.twitter.common.util">RetryingRunnable</A>&gt;&nbsp;blockingQueue)</PRE>
@@ -187,7 +196,7 @@ public <A HREF="../../../../src-html/com/twitter/common/util/RateLimitedCommandE
 <P>
 <DL>
 <DT><B>Parameters:</B><DD><CODE>taskExecutor</CODE> - executor for periodic execution of enqueued tasks.<DD><CODE>intervalBetweenRequests</CODE> - interval between requests to rate limit
- request rate.</DL>
+ request rate.<DD><CODE>queueDrainer</CODE> - A runnable that is responsible for draining the queue.<DD><CODE>blockingQueue</CODE> - Queue to keep outstanding work in.</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
@@ -203,11 +212,11 @@ public <A HREF="../../../../src-html/com/twitter/common/util/RateLimitedCommandE
 <A NAME="execute(java.lang.String, com.twitter.common.base.ExceptionalCommand, java.lang.Class, int, com.twitter.common.quantity.Amount)"><!-- --></A><H3>
 execute</H3>
 <PRE>
-public void <A HREF="../../../../src-html/com/twitter/common/util/RateLimitedCommandExecutor.html#line.81"><B>execute</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
-                    <A HREF="../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&nbsp;task,
-                    <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&nbsp;exceptionClass,
-                    int&nbsp;numTries,
-                    <A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;retryDelay)</PRE>
+public &lt;E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt; void <A HREF="../../../../src-html/com/twitter/common/util/RateLimitedCommandExecutor.html#line.88"><B>execute</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                                          <A HREF="../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&lt;E&gt;&nbsp;task,
+                                          <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;E&gt;&nbsp;exceptionClass,
+                                          int&nbsp;numTries,
+                                          <A HREF="../../../../com/twitter/common/quantity/Amount.html" title="class in com.twitter.common.quantity">Amount</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</A>,<A HREF="../../../../com/twitter/common/quantity/Time.html" title="enum in com.twitter.common.quantity">Time</A>&gt;&nbsp;retryDelay)</PRE>
 <DL>
 <DD><B>Description copied from interface: <CODE><A HREF="../../../../com/twitter/common/util/CommandExecutor.html#execute(java.lang.String, com.twitter.common.base.ExceptionalCommand, java.lang.Class, int, com.twitter.common.quantity.Amount)">CommandExecutor</A></CODE></B></DD>
 <DD>Enqueue a task to be executed with retry semantics defined.
@@ -216,7 +225,7 @@ public void <A HREF="../../../../src-html/com/twitter/common/util/RateLimitedCom
 <DT><B>Specified by:</B><DD><CODE><A HREF="../../../../com/twitter/common/util/CommandExecutor.html#execute(java.lang.String, com.twitter.common.base.ExceptionalCommand, java.lang.Class, int, com.twitter.common.quantity.Amount)">execute</A></CODE> in interface <CODE><A HREF="../../../../com/twitter/common/util/CommandExecutor.html" title="interface in com.twitter.common.util">CommandExecutor</A></CODE></DL>
 </DD>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>name</CODE> - Human readable name for this task.<DD><CODE>task</CODE> - task to execute.<DD><CODE>numTries</CODE> - num of tries in case of failure.<DD><CODE>retryDelay</CODE> - interval between retries in case of failure.</DL>
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - Human readable name for this task.<DD><CODE>task</CODE> - task to execute.<DD><CODE>exceptionClass</CODE> - Concrete exception type.<DD><CODE>numTries</CODE> - num of tries in case of failure.<DD><CODE>retryDelay</CODE> - interval between retries in case of failure.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

@@ -35,14 +35,17 @@
 <FONT color="green">032</FONT>       *<a name="line.32"></a>
 <FONT color="green">033</FONT>       * @param name Human readable name for this task.<a name="line.33"></a>
 <FONT color="green">034</FONT>       * @param task task to execute.<a name="line.34"></a>
-<FONT color="green">035</FONT>       * @param maxTries num of tries in case of failure.<a name="line.35"></a>
-<FONT color="green">036</FONT>       * @param retryDelay interval between retries in case of failure.<a name="line.36"></a>
-<FONT color="green">037</FONT>       */<a name="line.37"></a>
-<FONT color="green">038</FONT>      void execute(String name, ExceptionalCommand task,<a name="line.38"></a>
-<FONT color="green">039</FONT>          Class exceptionClass,<a name="line.39"></a>
-<FONT color="green">040</FONT>          int maxTries,<a name="line.40"></a>
-<FONT color="green">041</FONT>          Amount&lt;Long, Time&gt; retryDelay);<a name="line.41"></a>
-<FONT color="green">042</FONT>    }<a name="line.42"></a>
+<FONT color="green">035</FONT>       * @param exceptionClass Concrete exception type.<a name="line.35"></a>
+<FONT color="green">036</FONT>       * @param maxTries num of tries in case of failure.<a name="line.36"></a>
+<FONT color="green">037</FONT>       * @param retryDelay interval between retries in case of failure.<a name="line.37"></a>
+<FONT color="green">038</FONT>       */<a name="line.38"></a>
+<FONT color="green">039</FONT>      &lt;E extends Exception&gt; void execute(<a name="line.39"></a>
+<FONT color="green">040</FONT>          String name,<a name="line.40"></a>
+<FONT color="green">041</FONT>          ExceptionalCommand&lt;E&gt; task,<a name="line.41"></a>
+<FONT color="green">042</FONT>          Class&lt;E&gt; exceptionClass,<a name="line.42"></a>
+<FONT color="green">043</FONT>          int maxTries,<a name="line.43"></a>
+<FONT color="green">044</FONT>          Amount&lt;Long, Time&gt; retryDelay);<a name="line.44"></a>
+<FONT color="green">045</FONT>    }<a name="line.45"></a>
 
 
 

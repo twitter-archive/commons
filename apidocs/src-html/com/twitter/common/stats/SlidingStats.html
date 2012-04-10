@@ -31,54 +31,72 @@
 <FONT color="green">028</FONT>     */<a name="line.28"></a>
 <FONT color="green">029</FONT>    public class SlidingStats {<a name="line.29"></a>
 <FONT color="green">030</FONT>    <a name="line.30"></a>
-<FONT color="green">031</FONT>      private final AtomicLong total;<a name="line.31"></a>
-<FONT color="green">032</FONT>      private final AtomicLong events;<a name="line.32"></a>
-<FONT color="green">033</FONT>    <a name="line.33"></a>
-<FONT color="green">034</FONT>      /**<a name="line.34"></a>
-<FONT color="green">035</FONT>       * Creates a new sliding statistic with the given name<a name="line.35"></a>
-<FONT color="green">036</FONT>       *<a name="line.36"></a>
-<FONT color="green">037</FONT>       * @param name Name for this stat collection.<a name="line.37"></a>
-<FONT color="green">038</FONT>       * @param totalUnitDisplay String to display for the total counter unit.<a name="line.38"></a>
-<FONT color="green">039</FONT>       */<a name="line.39"></a>
-<FONT color="green">040</FONT>      public SlidingStats(String name, String totalUnitDisplay) {<a name="line.40"></a>
-<FONT color="green">041</FONT>        MorePreconditions.checkNotBlank(name);<a name="line.41"></a>
-<FONT color="green">042</FONT>    <a name="line.42"></a>
-<FONT color="green">043</FONT>        String totalDisplay = name + "_" + totalUnitDisplay + "_total";<a name="line.43"></a>
-<FONT color="green">044</FONT>        String eventDisplay = name + "_events";<a name="line.44"></a>
-<FONT color="green">045</FONT>        total = Stats.exportLong(totalDisplay);<a name="line.45"></a>
-<FONT color="green">046</FONT>        events = Stats.exportLong(eventDisplay);<a name="line.46"></a>
-<FONT color="green">047</FONT>        Stats.export(Ratio.of(name + "_" + totalUnitDisplay + "_per_event",<a name="line.47"></a>
-<FONT color="green">048</FONT>            Rate.of(totalDisplay + "_per_sec", total).build(),<a name="line.48"></a>
-<FONT color="green">049</FONT>            Rate.of(eventDisplay + "_per_sec", events).build()));<a name="line.49"></a>
-<FONT color="green">050</FONT>      }<a name="line.50"></a>
-<FONT color="green">051</FONT>    <a name="line.51"></a>
-<FONT color="green">052</FONT>      public AtomicLong getTotalCounter() {<a name="line.52"></a>
-<FONT color="green">053</FONT>        return total;<a name="line.53"></a>
-<FONT color="green">054</FONT>      }<a name="line.54"></a>
-<FONT color="green">055</FONT>    <a name="line.55"></a>
-<FONT color="green">056</FONT>      public AtomicLong getEventCounter() {<a name="line.56"></a>
-<FONT color="green">057</FONT>        return events;<a name="line.57"></a>
-<FONT color="green">058</FONT>      }<a name="line.58"></a>
-<FONT color="green">059</FONT>    <a name="line.59"></a>
-<FONT color="green">060</FONT>      /**<a name="line.60"></a>
-<FONT color="green">061</FONT>       * Accumulates counter by an offset.  This is is useful for tracking things like<a name="line.61"></a>
-<FONT color="green">062</FONT>       * latency of operations.<a name="line.62"></a>
-<FONT color="green">063</FONT>       *<a name="line.63"></a>
-<FONT color="green">064</FONT>       * TODO(William Farner): Implement a wrapper to SlidingStats that expects to accumulate time, and can<a name="line.64"></a>
-<FONT color="green">065</FONT>       *    convert between time units.<a name="line.65"></a>
-<FONT color="green">066</FONT>       *<a name="line.66"></a>
-<FONT color="green">067</FONT>       * @param value The value to accumulate.<a name="line.67"></a>
-<FONT color="green">068</FONT>       */<a name="line.68"></a>
-<FONT color="green">069</FONT>      public synchronized void accumulate(long value) {<a name="line.69"></a>
-<FONT color="green">070</FONT>        total.addAndGet(value);<a name="line.70"></a>
-<FONT color="green">071</FONT>        events.incrementAndGet();<a name="line.71"></a>
+<FONT color="green">031</FONT>      private static final int DEFAULT_WINDOW_SIZE = 1;<a name="line.31"></a>
+<FONT color="green">032</FONT>    <a name="line.32"></a>
+<FONT color="green">033</FONT>      private final AtomicLong total;<a name="line.33"></a>
+<FONT color="green">034</FONT>      private final AtomicLong events;<a name="line.34"></a>
+<FONT color="green">035</FONT>      private final Stat&lt;Double&gt; perEventLatency;<a name="line.35"></a>
+<FONT color="green">036</FONT>    <a name="line.36"></a>
+<FONT color="green">037</FONT>      /**<a name="line.37"></a>
+<FONT color="green">038</FONT>       * Creates a new sliding statistic with the given name<a name="line.38"></a>
+<FONT color="green">039</FONT>       *<a name="line.39"></a>
+<FONT color="green">040</FONT>       * @param name Name for this stat collection.<a name="line.40"></a>
+<FONT color="green">041</FONT>       * @param totalUnitDisplay String to display for the total counter unit.<a name="line.41"></a>
+<FONT color="green">042</FONT>       */<a name="line.42"></a>
+<FONT color="green">043</FONT>      public SlidingStats(String name, String totalUnitDisplay) {<a name="line.43"></a>
+<FONT color="green">044</FONT>        this(name, totalUnitDisplay, DEFAULT_WINDOW_SIZE);<a name="line.44"></a>
+<FONT color="green">045</FONT>      }<a name="line.45"></a>
+<FONT color="green">046</FONT>    <a name="line.46"></a>
+<FONT color="green">047</FONT>      /**<a name="line.47"></a>
+<FONT color="green">048</FONT>       * Creates a new sliding statistic with the given name<a name="line.48"></a>
+<FONT color="green">049</FONT>       *<a name="line.49"></a>
+<FONT color="green">050</FONT>       * @param name Name for this stat collection.<a name="line.50"></a>
+<FONT color="green">051</FONT>       * @param totalUnitDisplay String to display for the total counter unit.<a name="line.51"></a>
+<FONT color="green">052</FONT>       * @param windowSize The window size for the per second Rate and Ratio stats.<a name="line.52"></a>
+<FONT color="green">053</FONT>       */<a name="line.53"></a>
+<FONT color="green">054</FONT>      public SlidingStats(String name, String totalUnitDisplay, int windowSize) {<a name="line.54"></a>
+<FONT color="green">055</FONT>        MorePreconditions.checkNotBlank(name);<a name="line.55"></a>
+<FONT color="green">056</FONT>    <a name="line.56"></a>
+<FONT color="green">057</FONT>        String totalDisplay = name + "_" + totalUnitDisplay + "_total";<a name="line.57"></a>
+<FONT color="green">058</FONT>        String eventDisplay = name + "_events";<a name="line.58"></a>
+<FONT color="green">059</FONT>        total = Stats.exportLong(totalDisplay);<a name="line.59"></a>
+<FONT color="green">060</FONT>        events = Stats.exportLong(eventDisplay);<a name="line.60"></a>
+<FONT color="green">061</FONT>        perEventLatency = Stats.export(Ratio.of(name + "_" + totalUnitDisplay + "_per_event",<a name="line.61"></a>
+<FONT color="green">062</FONT>            Rate.of(totalDisplay + "_per_sec", total).withWindowSize(windowSize).build(),<a name="line.62"></a>
+<FONT color="green">063</FONT>            Rate.of(eventDisplay + "_per_sec", events).withWindowSize(windowSize).build()));<a name="line.63"></a>
+<FONT color="green">064</FONT>      }<a name="line.64"></a>
+<FONT color="green">065</FONT>    <a name="line.65"></a>
+<FONT color="green">066</FONT>      public AtomicLong getTotalCounter() {<a name="line.66"></a>
+<FONT color="green">067</FONT>        return total;<a name="line.67"></a>
+<FONT color="green">068</FONT>      }<a name="line.68"></a>
+<FONT color="green">069</FONT>    <a name="line.69"></a>
+<FONT color="green">070</FONT>      public AtomicLong getEventCounter() {<a name="line.70"></a>
+<FONT color="green">071</FONT>        return events;<a name="line.71"></a>
 <FONT color="green">072</FONT>      }<a name="line.72"></a>
 <FONT color="green">073</FONT>    <a name="line.73"></a>
-<FONT color="green">074</FONT>      @Override<a name="line.74"></a>
-<FONT color="green">075</FONT>      public String toString() {<a name="line.75"></a>
-<FONT color="green">076</FONT>        return total + " " + events;<a name="line.76"></a>
-<FONT color="green">077</FONT>      }<a name="line.77"></a>
-<FONT color="green">078</FONT>    }<a name="line.78"></a>
+<FONT color="green">074</FONT>      public Stat&lt;Double&gt; getPerEventLatency() {<a name="line.74"></a>
+<FONT color="green">075</FONT>        return perEventLatency;<a name="line.75"></a>
+<FONT color="green">076</FONT>      }<a name="line.76"></a>
+<FONT color="green">077</FONT>    <a name="line.77"></a>
+<FONT color="green">078</FONT>      /**<a name="line.78"></a>
+<FONT color="green">079</FONT>       * Accumulates counter by an offset.  This is is useful for tracking things like<a name="line.79"></a>
+<FONT color="green">080</FONT>       * latency of operations.<a name="line.80"></a>
+<FONT color="green">081</FONT>       *<a name="line.81"></a>
+<FONT color="green">082</FONT>       * TODO(William Farner): Implement a wrapper to SlidingStats that expects to accumulate time, and can<a name="line.82"></a>
+<FONT color="green">083</FONT>       *    convert between time units.<a name="line.83"></a>
+<FONT color="green">084</FONT>       *<a name="line.84"></a>
+<FONT color="green">085</FONT>       * @param value The value to accumulate.<a name="line.85"></a>
+<FONT color="green">086</FONT>       */<a name="line.86"></a>
+<FONT color="green">087</FONT>      public synchronized void accumulate(long value) {<a name="line.87"></a>
+<FONT color="green">088</FONT>        total.addAndGet(value);<a name="line.88"></a>
+<FONT color="green">089</FONT>        events.incrementAndGet();<a name="line.89"></a>
+<FONT color="green">090</FONT>      }<a name="line.90"></a>
+<FONT color="green">091</FONT>    <a name="line.91"></a>
+<FONT color="green">092</FONT>      @Override<a name="line.92"></a>
+<FONT color="green">093</FONT>      public String toString() {<a name="line.93"></a>
+<FONT color="green">094</FONT>        return total + " " + events;<a name="line.94"></a>
+<FONT color="green">095</FONT>      }<a name="line.95"></a>
+<FONT color="green">096</FONT>    }<a name="line.96"></a>
 
 
 

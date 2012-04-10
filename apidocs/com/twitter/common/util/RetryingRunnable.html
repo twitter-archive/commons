@@ -100,7 +100,7 @@ Class RetryingRunnable&lt;E extends <A HREF="http://download.oracle.com/javase/6
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/util/RetryingRunnable.html#line.38"><B>RetryingRunnable&lt;E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang">Runnable</A></DL>
+<DT><PRE>public class <A HREF="../../../../src-html/com/twitter/common/util/RetryingRunnable.html#line.40"><B>RetryingRunnable&lt;E extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</A>&gt;</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang">Runnable</A></DL>
 </PRE>
 
 <P>
@@ -198,7 +198,7 @@ A runnable task that is retried in a user-configurable fashion.
 <A NAME="RetryingRunnable(java.lang.String, com.twitter.common.base.ExceptionalCommand, java.lang.Class, int, com.twitter.common.quantity.Amount, com.twitter.common.util.CommandExecutor, int)"><!-- --></A><H3>
 RetryingRunnable</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/util/RetryingRunnable.html#line.61"><B>RetryingRunnable</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+public <A HREF="../../../../src-html/com/twitter/common/util/RetryingRunnable.html#line.63"><B>RetryingRunnable</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
                         <A HREF="../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&lt;<A HREF="../../../../com/twitter/common/util/RetryingRunnable.html" title="type parameter in RetryingRunnable">E</A>&gt;&nbsp;task,
                         <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;<A HREF="../../../../com/twitter/common/util/RetryingRunnable.html" title="type parameter in RetryingRunnable">E</A>&gt;&nbsp;exceptionClass,
                         int&nbsp;numTries,
@@ -210,14 +210,14 @@ public <A HREF="../../../../src-html/com/twitter/common/util/RetryingRunnable.ht
  in case of failure with an interval of <code>retryDelay</code> between attempts.
 <P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>name</CODE> - Human readable name for this task.<DD><CODE>task</CODE> - the task to execute.<DD><CODE>exceptionClass</CODE> - class of the exception thrown by the task.<DD><CODE>numTries</CODE> - the total number of times to try.<DD><CODE>retryDelay</CODE> - the delay between successive tries.<DD><CODE>tryNum</CODE> - the seq number of this try.<DD><CODE>name</CODE> - </DL>
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - Human readable name for this task.<DD><CODE>task</CODE> - the task to execute.<DD><CODE>exceptionClass</CODE> - class of the exception thrown by the task.<DD><CODE>numTries</CODE> - the total number of times to try.<DD><CODE>retryDelay</CODE> - the delay between successive tries.<DD><CODE>commandExecutor</CODE> - Executor to resubmit retries to.<DD><CODE>tryNum</CODE> - the seq number of this try.</DL>
 </DL>
 <HR>
 
 <A NAME="RetryingRunnable(java.lang.String, com.twitter.common.base.ExceptionalCommand, java.lang.Class, int, com.twitter.common.quantity.Amount, com.twitter.common.util.CommandExecutor)"><!-- --></A><H3>
 RetryingRunnable</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/util/RetryingRunnable.html#line.84"><B>RetryingRunnable</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+public <A HREF="../../../../src-html/com/twitter/common/util/RetryingRunnable.html#line.94"><B>RetryingRunnable</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
                         <A HREF="../../../../com/twitter/common/base/ExceptionalCommand.html" title="interface in com.twitter.common.base">ExceptionalCommand</A>&lt;<A HREF="../../../../com/twitter/common/util/RetryingRunnable.html" title="type parameter in RetryingRunnable">E</A>&gt;&nbsp;task,
                         <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;<A HREF="../../../../com/twitter/common/util/RetryingRunnable.html" title="type parameter in RetryingRunnable">E</A>&gt;&nbsp;exceptionClass,
                         int&nbsp;numTries,
@@ -229,7 +229,7 @@ public <A HREF="../../../../src-html/com/twitter/common/util/RetryingRunnable.ht
   and sets tryNum to be the first (=1).
 <P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>name</CODE> - Human readable name for this task.<DD><CODE>task</CODE> - the task to execute.<DD><CODE>exceptionClass</CODE> - class of the exception thrown by the task.<DD><CODE>numTries</CODE> - the total number of times to try.<DD><CODE>retryDelay</CODE> - the delay between successive tries.</DL>
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - Human readable name for this task.<DD><CODE>task</CODE> - the task to execute.<DD><CODE>exceptionClass</CODE> - class of the exception thrown by the task.<DD><CODE>numTries</CODE> - the total number of times to try.<DD><CODE>retryDelay</CODE> - the delay between successive tries.<DD><CODE>commandExecutor</CODE> - Executor to resubmit retries to.</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
@@ -245,7 +245,7 @@ public <A HREF="../../../../src-html/com/twitter/common/util/RetryingRunnable.ht
 <A NAME="run()"><!-- --></A><H3>
 run</H3>
 <PRE>
-public void <A HREF="../../../../src-html/com/twitter/common/util/RetryingRunnable.html#line.92"><B>run</B></A>()</PRE>
+public void <A HREF="../../../../src-html/com/twitter/common/util/RetryingRunnable.html#line.106"><B>run</B></A>()</PRE>
 <DL>
 <DD><DL>
 <DT><B>Specified by:</B><DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Runnable.html?is-external=true#run()" title="class or interface in java.lang">run</A></CODE> in interface <CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang">Runnable</A></CODE></DL>
@@ -259,7 +259,7 @@ public void <A HREF="../../../../src-html/com/twitter/common/util/RetryingRunnab
 <A NAME="toString()"><!-- --></A><H3>
 toString</H3>
 <PRE>
-public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/util/RetryingRunnable.html#line.112"><B>toString</B></A>()</PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/util/RetryingRunnable.html#line.126"><B>toString</B></A>()</PRE>
 <DL>
 <DD><DL>
 <DT><B>Overrides:</B><DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</A></CODE> in class <CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></CODE></DL>

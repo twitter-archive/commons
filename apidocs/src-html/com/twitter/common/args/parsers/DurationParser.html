@@ -38,12 +38,12 @@
 <FONT color="green">035</FONT>     */<a name="line.35"></a>
 <FONT color="green">036</FONT>    public class DurationParser extends TypeParameterizedParser&lt;Amount&gt; {<a name="line.36"></a>
 <FONT color="green">037</FONT>    <a name="line.37"></a>
-<FONT color="green">038</FONT>      public DurationParser() {<a name="line.38"></a>
-<FONT color="green">039</FONT>        super(2);<a name="line.39"></a>
-<FONT color="green">040</FONT>      }<a name="line.40"></a>
-<FONT color="green">041</FONT>    <a name="line.41"></a>
-<FONT color="green">042</FONT>      private static final String SUFFIXES = "dhms";<a name="line.42"></a>
-<FONT color="green">043</FONT>      private static final Time[] TIME_UNITS = { Time.DAYS, Time.HOURS, Time.MINUTES, Time.SECONDS };<a name="line.43"></a>
+<FONT color="green">038</FONT>      private static final String SUFFIXES = "dhms";<a name="line.38"></a>
+<FONT color="green">039</FONT>      private static final Time[] TIME_UNITS = {Time.DAYS, Time.HOURS, Time.MINUTES, Time.SECONDS};<a name="line.39"></a>
+<FONT color="green">040</FONT>    <a name="line.40"></a>
+<FONT color="green">041</FONT>      public DurationParser() {<a name="line.41"></a>
+<FONT color="green">042</FONT>        super(2);<a name="line.42"></a>
+<FONT color="green">043</FONT>      }<a name="line.43"></a>
 <FONT color="green">044</FONT>    <a name="line.44"></a>
 <FONT color="green">045</FONT>      @Override<a name="line.45"></a>
 <FONT color="green">046</FONT>      Amount doParse(ParserOracle parserOracle, String raw, List&lt;Type&gt; paramParsers)<a name="line.46"></a>

@@ -71,7 +71,7 @@
 <FONT color="green">068</FONT>      }<a name="line.68"></a>
 <FONT color="green">069</FONT>    <a name="line.69"></a>
 <FONT color="green">070</FONT>      /**<a name="line.70"></a>
-<FONT color="green">071</FONT>       * A {@code StatsProvider} that exports gauge-style stats to the global {@link Stat}s repository<a name="line.71"></a>
+<FONT color="green">071</FONT>       * A {@link StatsProvider} that exports gauge-style stats to the global {@link Stat}s repository<a name="line.71"></a>
 <FONT color="green">072</FONT>       * for time series tracking.<a name="line.72"></a>
 <FONT color="green">073</FONT>       */<a name="line.73"></a>
 <FONT color="green">074</FONT>      public static final StatsProvider STATS_PROVIDER = new StatsProvider() {<a name="line.74"></a>
@@ -93,203 +93,234 @@
 <FONT color="green">090</FONT>      };<a name="line.90"></a>
 <FONT color="green">091</FONT>    <a name="line.91"></a>
 <FONT color="green">092</FONT>      /**<a name="line.92"></a>
-<FONT color="green">093</FONT>       * Exports a stat for tracking.<a name="line.93"></a>
-<FONT color="green">094</FONT>       * if the stat provided implements the internal {@link RecordingStat} interface, it will be<a name="line.94"></a>
-<FONT color="green">095</FONT>       * registered for time series collection and returned.  If a {@link RecordingStat} with the same<a name="line.95"></a>
-<FONT color="green">096</FONT>       * name as the provided stat has already been exported, the previously-exported stat will be<a name="line.96"></a>
-<FONT color="green">097</FONT>       * returned and no additional registration will be performed.<a name="line.97"></a>
-<FONT color="green">098</FONT>       *<a name="line.98"></a>
-<FONT color="green">099</FONT>       * @param var The variable to export.<a name="line.99"></a>
-<FONT color="green">100</FONT>       * @param &lt;T&gt; The value exported by the variable.<a name="line.100"></a>
-<FONT color="green">101</FONT>       * @return A reference to the stat that was stored.  The stat returned may not be equal to the<a name="line.101"></a>
-<FONT color="green">102</FONT>       *    stat provided.  If a variable was already returned with the same<a name="line.102"></a>
-<FONT color="green">103</FONT>       */<a name="line.103"></a>
-<FONT color="green">104</FONT>      public static synchronized &lt;T extends Number&gt; Stat&lt;T&gt; export(Stat&lt;T&gt; var) {<a name="line.104"></a>
-<FONT color="green">105</FONT>        Preconditions.checkNotNull(var);<a name="line.105"></a>
-<FONT color="green">106</FONT>        MorePreconditions.checkNotBlank(var.getName());<a name="line.106"></a>
-<FONT color="green">107</FONT>    <a name="line.107"></a>
-<FONT color="green">108</FONT>        if (var instanceof RecordingStat) {<a name="line.108"></a>
-<FONT color="green">109</FONT>          String validatedName = validateName(var.getName());<a name="line.109"></a>
-<FONT color="green">110</FONT>          @SuppressWarnings("unchecked")<a name="line.110"></a>
-<FONT color="green">111</FONT>          Stat&lt;T&gt; stat = (Stat&lt;T&gt;) NUMERIC_STATS.get(validatedName);<a name="line.111"></a>
-<FONT color="green">112</FONT>          if (stat != null) {<a name="line.112"></a>
-<FONT color="green">113</FONT>            LOG.warning("Re-using already registered variable for key " + validatedName);<a name="line.113"></a>
-<FONT color="green">114</FONT>            return stat;<a name="line.114"></a>
-<FONT color="green">115</FONT>          } else {<a name="line.115"></a>
-<FONT color="green">116</FONT>            NUMERIC_STATS.put(validatedName, (RecordingStat&lt;T&gt;) var);<a name="line.116"></a>
-<FONT color="green">117</FONT>    <a name="line.117"></a>
-<FONT color="green">118</FONT>            exportStatic(var);<a name="line.118"></a>
-<FONT color="green">119</FONT>            return var;<a name="line.119"></a>
-<FONT color="green">120</FONT>          }<a name="line.120"></a>
-<FONT color="green">121</FONT>        } else {<a name="line.121"></a>
-<FONT color="green">122</FONT>          return export(new RecordingStatImpl&lt;T&gt;(var));<a name="line.122"></a>
-<FONT color="green">123</FONT>        }<a name="line.123"></a>
-<FONT color="green">124</FONT>      }<a name="line.124"></a>
-<FONT color="green">125</FONT>    <a name="line.125"></a>
-<FONT color="green">126</FONT>      /**<a name="line.126"></a>
-<FONT color="green">127</FONT>       * Exports a string stat.<a name="line.127"></a>
-<FONT color="green">128</FONT>       * String-based statistics will not be registered for time series collection.<a name="line.128"></a>
-<FONT color="green">129</FONT>       *<a name="line.129"></a>
-<FONT color="green">130</FONT>       * @param var Stat to export.<a name="line.130"></a>
-<FONT color="green">131</FONT>       * @return A reference back to {@code var}, or the variable that was already registered under the<a name="line.131"></a>
-<FONT color="green">132</FONT>       *    same name as {@code var}.<a name="line.132"></a>
-<FONT color="green">133</FONT>       */<a name="line.133"></a>
-<FONT color="green">134</FONT>      public static Stat&lt;String&gt; exportString(Stat&lt;String&gt; var) {<a name="line.134"></a>
-<FONT color="green">135</FONT>        return exportStatic(var);<a name="line.135"></a>
-<FONT color="green">136</FONT>      }<a name="line.136"></a>
-<FONT color="green">137</FONT>    <a name="line.137"></a>
-<FONT color="green">138</FONT>      /**<a name="line.138"></a>
-<FONT color="green">139</FONT>       * Adds a collection of stats for export.<a name="line.139"></a>
-<FONT color="green">140</FONT>       *<a name="line.140"></a>
-<FONT color="green">141</FONT>       * @param vars The variables to add.<a name="line.141"></a>
+<FONT color="green">093</FONT>       * A {@link StatRegistry} that provides stats registered with the global {@link Stat}s repository.<a name="line.93"></a>
+<FONT color="green">094</FONT>       */<a name="line.94"></a>
+<FONT color="green">095</FONT>      public static final StatRegistry STAT_REGISTRY = new StatRegistry() {<a name="line.95"></a>
+<FONT color="green">096</FONT>        @Override public Iterable&lt;RecordingStat&lt;? extends Number&gt;&gt; getStats() {<a name="line.96"></a>
+<FONT color="green">097</FONT>          return Stats.getNumericVariables();<a name="line.97"></a>
+<FONT color="green">098</FONT>        }<a name="line.98"></a>
+<FONT color="green">099</FONT>      };<a name="line.99"></a>
+<FONT color="green">100</FONT>    <a name="line.100"></a>
+<FONT color="green">101</FONT>      /**<a name="line.101"></a>
+<FONT color="green">102</FONT>       * Exports a stat for tracking.<a name="line.102"></a>
+<FONT color="green">103</FONT>       * if the stat provided implements the internal {@link RecordingStat} interface, it will be<a name="line.103"></a>
+<FONT color="green">104</FONT>       * registered for time series collection and returned.  If a {@link RecordingStat} with the same<a name="line.104"></a>
+<FONT color="green">105</FONT>       * name as the provided stat has already been exported, the previously-exported stat will be<a name="line.105"></a>
+<FONT color="green">106</FONT>       * returned and no additional registration will be performed.<a name="line.106"></a>
+<FONT color="green">107</FONT>       *<a name="line.107"></a>
+<FONT color="green">108</FONT>       * @param var The variable to export.<a name="line.108"></a>
+<FONT color="green">109</FONT>       * @param &lt;T&gt; The value exported by the variable.<a name="line.109"></a>
+<FONT color="green">110</FONT>       * @return A reference to the stat that was stored.  The stat returned may not be equal to the<a name="line.110"></a>
+<FONT color="green">111</FONT>       *    stat provided.  If a variable was already returned with the same<a name="line.111"></a>
+<FONT color="green">112</FONT>       */<a name="line.112"></a>
+<FONT color="green">113</FONT>      public static synchronized &lt;T extends Number&gt; Stat&lt;T&gt; export(Stat&lt;T&gt; var) {<a name="line.113"></a>
+<FONT color="green">114</FONT>        Preconditions.checkNotNull(var);<a name="line.114"></a>
+<FONT color="green">115</FONT>        MorePreconditions.checkNotBlank(var.getName());<a name="line.115"></a>
+<FONT color="green">116</FONT>    <a name="line.116"></a>
+<FONT color="green">117</FONT>        if (var instanceof RecordingStat) {<a name="line.117"></a>
+<FONT color="green">118</FONT>          String validatedName = validateName(var.getName());<a name="line.118"></a>
+<FONT color="green">119</FONT>          @SuppressWarnings("unchecked")<a name="line.119"></a>
+<FONT color="green">120</FONT>          Stat&lt;T&gt; stat = (Stat&lt;T&gt;) NUMERIC_STATS.get(validatedName);<a name="line.120"></a>
+<FONT color="green">121</FONT>          if (stat != null) {<a name="line.121"></a>
+<FONT color="green">122</FONT>            LOG.warning("Re-using already registered variable for key " + validatedName);<a name="line.122"></a>
+<FONT color="green">123</FONT>            return stat;<a name="line.123"></a>
+<FONT color="green">124</FONT>          } else {<a name="line.124"></a>
+<FONT color="green">125</FONT>            NUMERIC_STATS.put(validatedName, (RecordingStat&lt;T&gt;) var);<a name="line.125"></a>
+<FONT color="green">126</FONT>    <a name="line.126"></a>
+<FONT color="green">127</FONT>            exportStatic(var);<a name="line.127"></a>
+<FONT color="green">128</FONT>            return var;<a name="line.128"></a>
+<FONT color="green">129</FONT>          }<a name="line.129"></a>
+<FONT color="green">130</FONT>        } else {<a name="line.130"></a>
+<FONT color="green">131</FONT>          return export(new RecordingStatImpl&lt;T&gt;(var));<a name="line.131"></a>
+<FONT color="green">132</FONT>        }<a name="line.132"></a>
+<FONT color="green">133</FONT>      }<a name="line.133"></a>
+<FONT color="green">134</FONT>    <a name="line.134"></a>
+<FONT color="green">135</FONT>      /**<a name="line.135"></a>
+<FONT color="green">136</FONT>       * Exports a string stat.<a name="line.136"></a>
+<FONT color="green">137</FONT>       * String-based statistics will not be registered for time series collection.<a name="line.137"></a>
+<FONT color="green">138</FONT>       *<a name="line.138"></a>
+<FONT color="green">139</FONT>       * @param var Stat to export.<a name="line.139"></a>
+<FONT color="green">140</FONT>       * @return A reference back to {@code var}, or the variable that was already registered under the<a name="line.140"></a>
+<FONT color="green">141</FONT>       *    same name as {@code var}.<a name="line.141"></a>
 <FONT color="green">142</FONT>       */<a name="line.142"></a>
-<FONT color="green">143</FONT>      public static void exportAll(Iterable&lt;Stat&lt;? extends Number&gt;&gt; vars) {<a name="line.143"></a>
-<FONT color="green">144</FONT>        for (Stat&lt;? extends Number&gt; var : vars) {<a name="line.144"></a>
-<FONT color="green">145</FONT>          export(var);<a name="line.145"></a>
-<FONT color="green">146</FONT>        }<a name="line.146"></a>
-<FONT color="green">147</FONT>      }<a name="line.147"></a>
-<FONT color="green">148</FONT>    <a name="line.148"></a>
-<FONT color="green">149</FONT>      /**<a name="line.149"></a>
-<FONT color="green">150</FONT>       * Exports an {@link AtomicInteger}, which will be included in time series tracking.<a name="line.150"></a>
-<FONT color="green">151</FONT>       *<a name="line.151"></a>
-<FONT color="green">152</FONT>       * @param name The name to export the stat with.<a name="line.152"></a>
-<FONT color="green">153</FONT>       * @param intVar The variable to export.<a name="line.153"></a>
-<FONT color="green">154</FONT>       * @return A reference to the {@link AtomicInteger} provided.<a name="line.154"></a>
-<FONT color="green">155</FONT>       */<a name="line.155"></a>
-<FONT color="green">156</FONT>      public static AtomicInteger export(final String name, final AtomicInteger intVar) {<a name="line.156"></a>
-<FONT color="green">157</FONT>        export(new SampledStat&lt;Integer&gt;(name, 0) {<a name="line.157"></a>
-<FONT color="green">158</FONT>          @Override public Integer doSample() { return intVar.get(); }<a name="line.158"></a>
-<FONT color="green">159</FONT>        });<a name="line.159"></a>
-<FONT color="green">160</FONT>    <a name="line.160"></a>
-<FONT color="green">161</FONT>        return intVar;<a name="line.161"></a>
-<FONT color="green">162</FONT>      }<a name="line.162"></a>
-<FONT color="green">163</FONT>    <a name="line.163"></a>
-<FONT color="green">164</FONT>      /**<a name="line.164"></a>
-<FONT color="green">165</FONT>       * Creates and exports an {@link AtomicInteger}.<a name="line.165"></a>
-<FONT color="green">166</FONT>       *<a name="line.166"></a>
-<FONT color="green">167</FONT>       * @param name The name to export the stat with.<a name="line.167"></a>
-<FONT color="green">168</FONT>       * @return A reference to the {@link AtomicInteger} created.<a name="line.168"></a>
-<FONT color="green">169</FONT>       */<a name="line.169"></a>
-<FONT color="green">170</FONT>      public static AtomicInteger exportInt(String name) {<a name="line.170"></a>
-<FONT color="green">171</FONT>        return export(name, new AtomicInteger());<a name="line.171"></a>
-<FONT color="green">172</FONT>      }<a name="line.172"></a>
-<FONT color="green">173</FONT>    <a name="line.173"></a>
-<FONT color="green">174</FONT>      /**<a name="line.174"></a>
-<FONT color="green">175</FONT>       * Exports an {@link AtomicLong}, which will be included in time series tracking.<a name="line.175"></a>
-<FONT color="green">176</FONT>       *<a name="line.176"></a>
-<FONT color="green">177</FONT>       * @param name The name to export the stat with.<a name="line.177"></a>
-<FONT color="green">178</FONT>       * @param longVar The variable to export.<a name="line.178"></a>
-<FONT color="green">179</FONT>       * @return A reference to the {@link AtomicLong} provided.<a name="line.179"></a>
-<FONT color="green">180</FONT>       */<a name="line.180"></a>
-<FONT color="green">181</FONT>      public static AtomicLong export(String name, final AtomicLong longVar) {<a name="line.181"></a>
-<FONT color="green">182</FONT>        export(new StatImpl&lt;Long&gt;(name) {<a name="line.182"></a>
-<FONT color="green">183</FONT>          @Override public Long read() { return longVar.get(); }<a name="line.183"></a>
-<FONT color="green">184</FONT>        });<a name="line.184"></a>
-<FONT color="green">185</FONT>    <a name="line.185"></a>
-<FONT color="green">186</FONT>        return longVar;<a name="line.186"></a>
-<FONT color="green">187</FONT>      }<a name="line.187"></a>
-<FONT color="green">188</FONT>    <a name="line.188"></a>
-<FONT color="green">189</FONT>      /**<a name="line.189"></a>
-<FONT color="green">190</FONT>       * Creates and exports an {@link AtomicLong}.<a name="line.190"></a>
-<FONT color="green">191</FONT>       *<a name="line.191"></a>
-<FONT color="green">192</FONT>       * @param name The name to export the stat with.<a name="line.192"></a>
-<FONT color="green">193</FONT>       * @return A reference to the {@link AtomicLong} created.<a name="line.193"></a>
-<FONT color="green">194</FONT>       */<a name="line.194"></a>
-<FONT color="green">195</FONT>      public static AtomicLong exportLong(String name) {<a name="line.195"></a>
-<FONT color="green">196</FONT>        return export(name, new AtomicLong());<a name="line.196"></a>
-<FONT color="green">197</FONT>      }<a name="line.197"></a>
-<FONT color="green">198</FONT>    <a name="line.198"></a>
-<FONT color="green">199</FONT>      /**<a name="line.199"></a>
-<FONT color="green">200</FONT>       * Exports a metric that tracks the size of a collection.<a name="line.200"></a>
-<FONT color="green">201</FONT>       *<a name="line.201"></a>
-<FONT color="green">202</FONT>       * @param name Name of the stat to export.<a name="line.202"></a>
-<FONT color="green">203</FONT>       * @param collection Collection whose size should be tracked.<a name="line.203"></a>
-<FONT color="green">204</FONT>       */<a name="line.204"></a>
-<FONT color="green">205</FONT>      public static void exportSize(String name, final Collection&lt;?&gt; collection) {<a name="line.205"></a>
-<FONT color="green">206</FONT>        export(new StatImpl&lt;Integer&gt;(name) {<a name="line.206"></a>
-<FONT color="green">207</FONT>          @Override public Integer read() {<a name="line.207"></a>
-<FONT color="green">208</FONT>            return collection.size();<a name="line.208"></a>
-<FONT color="green">209</FONT>          }<a name="line.209"></a>
-<FONT color="green">210</FONT>        });<a name="line.210"></a>
-<FONT color="green">211</FONT>      }<a name="line.211"></a>
-<FONT color="green">212</FONT>    <a name="line.212"></a>
-<FONT color="green">213</FONT>      /**<a name="line.213"></a>
-<FONT color="green">214</FONT>       * Exports a metric that tracks the size of a map.<a name="line.214"></a>
-<FONT color="green">215</FONT>       *<a name="line.215"></a>
-<FONT color="green">216</FONT>       * @param name Name of the stat to export.<a name="line.216"></a>
-<FONT color="green">217</FONT>       * @param map Map whose size should be tracked.<a name="line.217"></a>
-<FONT color="green">218</FONT>       */<a name="line.218"></a>
-<FONT color="green">219</FONT>      public static void exportSize(String name, final Map&lt;?, ?&gt; map) {<a name="line.219"></a>
-<FONT color="green">220</FONT>        export(new StatImpl&lt;Integer&gt;(name) {<a name="line.220"></a>
-<FONT color="green">221</FONT>          @Override public Integer read() {<a name="line.221"></a>
-<FONT color="green">222</FONT>            return map.size();<a name="line.222"></a>
-<FONT color="green">223</FONT>          }<a name="line.223"></a>
-<FONT color="green">224</FONT>        });<a name="line.224"></a>
-<FONT color="green">225</FONT>      }<a name="line.225"></a>
-<FONT color="green">226</FONT>    <a name="line.226"></a>
-<FONT color="green">227</FONT>      /**<a name="line.227"></a>
-<FONT color="green">228</FONT>       * Exports a metric that tracks the size of a cache.<a name="line.228"></a>
-<FONT color="green">229</FONT>       *<a name="line.229"></a>
-<FONT color="green">230</FONT>       * @param name Name of the stat to export.<a name="line.230"></a>
-<FONT color="green">231</FONT>       * @param cache Cache whose size should be tracked.<a name="line.231"></a>
-<FONT color="green">232</FONT>       */<a name="line.232"></a>
-<FONT color="green">233</FONT>      public static void exportSize(String name, final Cache&lt;?, ?&gt; cache) {<a name="line.233"></a>
-<FONT color="green">234</FONT>        export(new StatImpl&lt;Long&gt;(name) {<a name="line.234"></a>
-<FONT color="green">235</FONT>          @Override public Long read() {<a name="line.235"></a>
-<FONT color="green">236</FONT>            return cache.size();<a name="line.236"></a>
-<FONT color="green">237</FONT>          }<a name="line.237"></a>
-<FONT color="green">238</FONT>        });<a name="line.238"></a>
-<FONT color="green">239</FONT>      }<a name="line.239"></a>
-<FONT color="green">240</FONT>    <a name="line.240"></a>
-<FONT color="green">241</FONT>      /**<a name="line.241"></a>
-<FONT color="green">242</FONT>       * Exports a 'static' statistic, which will not be registered for time series tracking.<a name="line.242"></a>
-<FONT color="green">243</FONT>       *<a name="line.243"></a>
-<FONT color="green">244</FONT>       * @param var Variable to statically export.<a name="line.244"></a>
-<FONT color="green">245</FONT>       * @return A reference back to the provided {@link Stat}.<a name="line.245"></a>
-<FONT color="green">246</FONT>       */<a name="line.246"></a>
-<FONT color="green">247</FONT>      public static synchronized &lt;T&gt; Stat&lt;T&gt; exportStatic(Stat&lt;T&gt; var) {<a name="line.247"></a>
-<FONT color="green">248</FONT>        Preconditions.checkNotNull(var);<a name="line.248"></a>
-<FONT color="green">249</FONT>        MorePreconditions.checkNotBlank(var.getName());<a name="line.249"></a>
-<FONT color="green">250</FONT>    <a name="line.250"></a>
-<FONT color="green">251</FONT>        String validatedName = validateName(var.getName());<a name="line.251"></a>
-<FONT color="green">252</FONT>        @SuppressWarnings("unchecked")<a name="line.252"></a>
-<FONT color="green">253</FONT>        Stat&lt;T&gt; displaced = (Stat&lt;T&gt;) VAR_MAP.put(validatedName, var);<a name="line.253"></a>
-<FONT color="green">254</FONT>        if (displaced != null) {<a name="line.254"></a>
-<FONT color="green">255</FONT>          LOG.warning("Warning - exported variable collision on " + validatedName);<a name="line.255"></a>
-<FONT color="green">256</FONT>        }<a name="line.256"></a>
+<FONT color="green">143</FONT>      public static Stat&lt;String&gt; exportString(Stat&lt;String&gt; var) {<a name="line.143"></a>
+<FONT color="green">144</FONT>        return exportStatic(var);<a name="line.144"></a>
+<FONT color="green">145</FONT>      }<a name="line.145"></a>
+<FONT color="green">146</FONT>    <a name="line.146"></a>
+<FONT color="green">147</FONT>      /**<a name="line.147"></a>
+<FONT color="green">148</FONT>       * Adds a collection of stats for export.<a name="line.148"></a>
+<FONT color="green">149</FONT>       *<a name="line.149"></a>
+<FONT color="green">150</FONT>       * @param vars The variables to add.<a name="line.150"></a>
+<FONT color="green">151</FONT>       */<a name="line.151"></a>
+<FONT color="green">152</FONT>      public static void exportAll(Iterable&lt;Stat&lt;? extends Number&gt;&gt; vars) {<a name="line.152"></a>
+<FONT color="green">153</FONT>        for (Stat&lt;? extends Number&gt; var : vars) {<a name="line.153"></a>
+<FONT color="green">154</FONT>          export(var);<a name="line.154"></a>
+<FONT color="green">155</FONT>        }<a name="line.155"></a>
+<FONT color="green">156</FONT>      }<a name="line.156"></a>
+<FONT color="green">157</FONT>    <a name="line.157"></a>
+<FONT color="green">158</FONT>      /**<a name="line.158"></a>
+<FONT color="green">159</FONT>       * Exports an {@link AtomicInteger}, which will be included in time series tracking.<a name="line.159"></a>
+<FONT color="green">160</FONT>       *<a name="line.160"></a>
+<FONT color="green">161</FONT>       * @param name The name to export the stat with.<a name="line.161"></a>
+<FONT color="green">162</FONT>       * @param intVar The variable to export.<a name="line.162"></a>
+<FONT color="green">163</FONT>       * @return A reference to the {@link AtomicInteger} provided.<a name="line.163"></a>
+<FONT color="green">164</FONT>       */<a name="line.164"></a>
+<FONT color="green">165</FONT>      public static AtomicInteger export(final String name, final AtomicInteger intVar) {<a name="line.165"></a>
+<FONT color="green">166</FONT>        export(new SampledStat&lt;Integer&gt;(name, 0) {<a name="line.166"></a>
+<FONT color="green">167</FONT>          @Override public Integer doSample() { return intVar.get(); }<a name="line.167"></a>
+<FONT color="green">168</FONT>        });<a name="line.168"></a>
+<FONT color="green">169</FONT>    <a name="line.169"></a>
+<FONT color="green">170</FONT>        return intVar;<a name="line.170"></a>
+<FONT color="green">171</FONT>      }<a name="line.171"></a>
+<FONT color="green">172</FONT>    <a name="line.172"></a>
+<FONT color="green">173</FONT>      /**<a name="line.173"></a>
+<FONT color="green">174</FONT>       * Creates and exports an {@link AtomicInteger}.<a name="line.174"></a>
+<FONT color="green">175</FONT>       *<a name="line.175"></a>
+<FONT color="green">176</FONT>       * @param name The name to export the stat with.<a name="line.176"></a>
+<FONT color="green">177</FONT>       * @return A reference to the {@link AtomicInteger} created.<a name="line.177"></a>
+<FONT color="green">178</FONT>       */<a name="line.178"></a>
+<FONT color="green">179</FONT>      public static AtomicInteger exportInt(String name) {<a name="line.179"></a>
+<FONT color="green">180</FONT>        return exportInt(name, 0);<a name="line.180"></a>
+<FONT color="green">181</FONT>      }<a name="line.181"></a>
+<FONT color="green">182</FONT>    <a name="line.182"></a>
+<FONT color="green">183</FONT>      /**<a name="line.183"></a>
+<FONT color="green">184</FONT>       * Creates and exports an {@link AtomicInteger} with initial value.<a name="line.184"></a>
+<FONT color="green">185</FONT>       *<a name="line.185"></a>
+<FONT color="green">186</FONT>       * @param name The name to export the stat with.<a name="line.186"></a>
+<FONT color="green">187</FONT>       * @param initialValue The initial stat value.<a name="line.187"></a>
+<FONT color="green">188</FONT>       * @return A reference to the {@link AtomicInteger} created.<a name="line.188"></a>
+<FONT color="green">189</FONT>       */<a name="line.189"></a>
+<FONT color="green">190</FONT>      public static AtomicInteger exportInt(String name, int initialValue) {<a name="line.190"></a>
+<FONT color="green">191</FONT>        return export(name, new AtomicInteger(initialValue));<a name="line.191"></a>
+<FONT color="green">192</FONT>      }<a name="line.192"></a>
+<FONT color="green">193</FONT>    <a name="line.193"></a>
+<FONT color="green">194</FONT>      /**<a name="line.194"></a>
+<FONT color="green">195</FONT>       * Exports an {@link AtomicLong}, which will be included in time series tracking.<a name="line.195"></a>
+<FONT color="green">196</FONT>       *<a name="line.196"></a>
+<FONT color="green">197</FONT>       * @param name The name to export the stat with.<a name="line.197"></a>
+<FONT color="green">198</FONT>       * @param longVar The variable to export.<a name="line.198"></a>
+<FONT color="green">199</FONT>       * @return A reference to the {@link AtomicLong} provided.<a name="line.199"></a>
+<FONT color="green">200</FONT>       */<a name="line.200"></a>
+<FONT color="green">201</FONT>      public static AtomicLong export(String name, final AtomicLong longVar) {<a name="line.201"></a>
+<FONT color="green">202</FONT>        export(new StatImpl&lt;Long&gt;(name) {<a name="line.202"></a>
+<FONT color="green">203</FONT>          @Override public Long read() { return longVar.get(); }<a name="line.203"></a>
+<FONT color="green">204</FONT>        });<a name="line.204"></a>
+<FONT color="green">205</FONT>    <a name="line.205"></a>
+<FONT color="green">206</FONT>        return longVar;<a name="line.206"></a>
+<FONT color="green">207</FONT>      }<a name="line.207"></a>
+<FONT color="green">208</FONT>    <a name="line.208"></a>
+<FONT color="green">209</FONT>      /**<a name="line.209"></a>
+<FONT color="green">210</FONT>       * Creates and exports an {@link AtomicLong}.<a name="line.210"></a>
+<FONT color="green">211</FONT>       *<a name="line.211"></a>
+<FONT color="green">212</FONT>       * @param name The name to export the stat with.<a name="line.212"></a>
+<FONT color="green">213</FONT>       * @return A reference to the {@link AtomicLong} created.<a name="line.213"></a>
+<FONT color="green">214</FONT>       */<a name="line.214"></a>
+<FONT color="green">215</FONT>      public static AtomicLong exportLong(String name) {<a name="line.215"></a>
+<FONT color="green">216</FONT>        return exportLong(name, 0L);<a name="line.216"></a>
+<FONT color="green">217</FONT>      }<a name="line.217"></a>
+<FONT color="green">218</FONT>    <a name="line.218"></a>
+<FONT color="green">219</FONT>      /**<a name="line.219"></a>
+<FONT color="green">220</FONT>       * Creates and exports an {@link AtomicLong} with initial value.<a name="line.220"></a>
+<FONT color="green">221</FONT>       *<a name="line.221"></a>
+<FONT color="green">222</FONT>       * @param name The name to export the stat with.<a name="line.222"></a>
+<FONT color="green">223</FONT>       * @param initialValue The initial stat value.<a name="line.223"></a>
+<FONT color="green">224</FONT>       * @return A reference to the {@link AtomicLong} created.<a name="line.224"></a>
+<FONT color="green">225</FONT>       */<a name="line.225"></a>
+<FONT color="green">226</FONT>      public static AtomicLong exportLong(String name, long initialValue) {<a name="line.226"></a>
+<FONT color="green">227</FONT>        return export(name, new AtomicLong(initialValue));<a name="line.227"></a>
+<FONT color="green">228</FONT>      }<a name="line.228"></a>
+<FONT color="green">229</FONT>    <a name="line.229"></a>
+<FONT color="green">230</FONT>      /**<a name="line.230"></a>
+<FONT color="green">231</FONT>       * Exports a metric that tracks the size of a collection.<a name="line.231"></a>
+<FONT color="green">232</FONT>       *<a name="line.232"></a>
+<FONT color="green">233</FONT>       * @param name Name of the stat to export.<a name="line.233"></a>
+<FONT color="green">234</FONT>       * @param collection Collection whose size should be tracked.<a name="line.234"></a>
+<FONT color="green">235</FONT>       */<a name="line.235"></a>
+<FONT color="green">236</FONT>      public static void exportSize(String name, final Collection&lt;?&gt; collection) {<a name="line.236"></a>
+<FONT color="green">237</FONT>        export(new StatImpl&lt;Integer&gt;(name) {<a name="line.237"></a>
+<FONT color="green">238</FONT>          @Override public Integer read() {<a name="line.238"></a>
+<FONT color="green">239</FONT>            return collection.size();<a name="line.239"></a>
+<FONT color="green">240</FONT>          }<a name="line.240"></a>
+<FONT color="green">241</FONT>        });<a name="line.241"></a>
+<FONT color="green">242</FONT>      }<a name="line.242"></a>
+<FONT color="green">243</FONT>    <a name="line.243"></a>
+<FONT color="green">244</FONT>      /**<a name="line.244"></a>
+<FONT color="green">245</FONT>       * Exports a metric that tracks the size of a map.<a name="line.245"></a>
+<FONT color="green">246</FONT>       *<a name="line.246"></a>
+<FONT color="green">247</FONT>       * @param name Name of the stat to export.<a name="line.247"></a>
+<FONT color="green">248</FONT>       * @param map Map whose size should be tracked.<a name="line.248"></a>
+<FONT color="green">249</FONT>       */<a name="line.249"></a>
+<FONT color="green">250</FONT>      public static void exportSize(String name, final Map&lt;?, ?&gt; map) {<a name="line.250"></a>
+<FONT color="green">251</FONT>        export(new StatImpl&lt;Integer&gt;(name) {<a name="line.251"></a>
+<FONT color="green">252</FONT>          @Override public Integer read() {<a name="line.252"></a>
+<FONT color="green">253</FONT>            return map.size();<a name="line.253"></a>
+<FONT color="green">254</FONT>          }<a name="line.254"></a>
+<FONT color="green">255</FONT>        });<a name="line.255"></a>
+<FONT color="green">256</FONT>      }<a name="line.256"></a>
 <FONT color="green">257</FONT>    <a name="line.257"></a>
-<FONT color="green">258</FONT>        return var;<a name="line.258"></a>
-<FONT color="green">259</FONT>      }<a name="line.259"></a>
-<FONT color="green">260</FONT>    <a name="line.260"></a>
-<FONT color="green">261</FONT>      /**<a name="line.261"></a>
-<FONT color="green">262</FONT>       * Fetches all registered stat.<a name="line.262"></a>
-<FONT color="green">263</FONT>       *<a name="line.263"></a>
-<FONT color="green">264</FONT>       * @return An iterable of all registered stats.<a name="line.264"></a>
-<FONT color="green">265</FONT>       */<a name="line.265"></a>
-<FONT color="green">266</FONT>      public static Iterable&lt;Stat&gt; getVariables() {<a name="line.266"></a>
-<FONT color="green">267</FONT>        synchronized(VAR_MAP) {<a name="line.267"></a>
-<FONT color="green">268</FONT>          return ImmutableList.copyOf(VAR_MAP.values());<a name="line.268"></a>
-<FONT color="green">269</FONT>        }<a name="line.269"></a>
+<FONT color="green">258</FONT>      /**<a name="line.258"></a>
+<FONT color="green">259</FONT>       * Exports a metric that tracks the size of a cache.<a name="line.259"></a>
+<FONT color="green">260</FONT>       *<a name="line.260"></a>
+<FONT color="green">261</FONT>       * @param name Name of the stat to export.<a name="line.261"></a>
+<FONT color="green">262</FONT>       * @param cache Cache whose size should be tracked.<a name="line.262"></a>
+<FONT color="green">263</FONT>       */<a name="line.263"></a>
+<FONT color="green">264</FONT>      public static void exportSize(String name, final Cache&lt;?, ?&gt; cache) {<a name="line.264"></a>
+<FONT color="green">265</FONT>        export(new StatImpl&lt;Long&gt;(name) {<a name="line.265"></a>
+<FONT color="green">266</FONT>          @Override public Long read() {<a name="line.266"></a>
+<FONT color="green">267</FONT>            return cache.size();<a name="line.267"></a>
+<FONT color="green">268</FONT>          }<a name="line.268"></a>
+<FONT color="green">269</FONT>        });<a name="line.269"></a>
 <FONT color="green">270</FONT>      }<a name="line.270"></a>
 <FONT color="green">271</FONT>    <a name="line.271"></a>
-<FONT color="green">272</FONT>      static Iterable&lt;RecordingStat&lt;? extends Number&gt;&gt; getNumericVariables() {<a name="line.272"></a>
-<FONT color="green">273</FONT>        synchronized(NUMERIC_STATS) {<a name="line.273"></a>
-<FONT color="green">274</FONT>          return ImmutableList.copyOf(NUMERIC_STATS.values());<a name="line.274"></a>
-<FONT color="green">275</FONT>        }<a name="line.275"></a>
-<FONT color="green">276</FONT>      }<a name="line.276"></a>
-<FONT color="green">277</FONT>    <a name="line.277"></a>
-<FONT color="green">278</FONT>      @VisibleForTesting<a name="line.278"></a>
-<FONT color="green">279</FONT>      public static void flush() {<a name="line.279"></a>
-<FONT color="green">280</FONT>        VAR_MAP.clear();<a name="line.280"></a>
-<FONT color="green">281</FONT>        NUMERIC_STATS.clear();<a name="line.281"></a>
-<FONT color="green">282</FONT>      }<a name="line.282"></a>
-<FONT color="green">283</FONT>    <a name="line.283"></a>
-<FONT color="green">284</FONT>      @SuppressWarnings("unchecked")<a name="line.284"></a>
-<FONT color="green">285</FONT>      public static &lt;T&gt; Stat&lt;T&gt; getVariable(String name) {<a name="line.285"></a>
-<FONT color="green">286</FONT>        MorePreconditions.checkNotBlank(name);<a name="line.286"></a>
-<FONT color="green">287</FONT>        return VAR_MAP.get(name);<a name="line.287"></a>
-<FONT color="green">288</FONT>      }<a name="line.288"></a>
-<FONT color="green">289</FONT>    }<a name="line.289"></a>
+<FONT color="green">272</FONT>      /**<a name="line.272"></a>
+<FONT color="green">273</FONT>       * Exports a 'static' statistic, which will not be registered for time series tracking.<a name="line.273"></a>
+<FONT color="green">274</FONT>       *<a name="line.274"></a>
+<FONT color="green">275</FONT>       * @param var Variable to statically export.<a name="line.275"></a>
+<FONT color="green">276</FONT>       * @return A reference back to the provided {@link Stat}.<a name="line.276"></a>
+<FONT color="green">277</FONT>       */<a name="line.277"></a>
+<FONT color="green">278</FONT>      public static synchronized &lt;T&gt; Stat&lt;T&gt; exportStatic(Stat&lt;T&gt; var) {<a name="line.278"></a>
+<FONT color="green">279</FONT>        Preconditions.checkNotNull(var);<a name="line.279"></a>
+<FONT color="green">280</FONT>        MorePreconditions.checkNotBlank(var.getName());<a name="line.280"></a>
+<FONT color="green">281</FONT>    <a name="line.281"></a>
+<FONT color="green">282</FONT>        String validatedName = validateName(var.getName());<a name="line.282"></a>
+<FONT color="green">283</FONT>        @SuppressWarnings("unchecked")<a name="line.283"></a>
+<FONT color="green">284</FONT>        Stat&lt;T&gt; displaced = (Stat&lt;T&gt;) VAR_MAP.put(validatedName, var);<a name="line.284"></a>
+<FONT color="green">285</FONT>        if (displaced != null) {<a name="line.285"></a>
+<FONT color="green">286</FONT>          LOG.warning("Warning - exported variable collision on " + validatedName);<a name="line.286"></a>
+<FONT color="green">287</FONT>        }<a name="line.287"></a>
+<FONT color="green">288</FONT>    <a name="line.288"></a>
+<FONT color="green">289</FONT>        return var;<a name="line.289"></a>
+<FONT color="green">290</FONT>      }<a name="line.290"></a>
+<FONT color="green">291</FONT>    <a name="line.291"></a>
+<FONT color="green">292</FONT>      /**<a name="line.292"></a>
+<FONT color="green">293</FONT>       * Fetches all registered stat.<a name="line.293"></a>
+<FONT color="green">294</FONT>       *<a name="line.294"></a>
+<FONT color="green">295</FONT>       * @return An iterable of all registered stats.<a name="line.295"></a>
+<FONT color="green">296</FONT>       */<a name="line.296"></a>
+<FONT color="green">297</FONT>      public static Iterable&lt;Stat&gt; getVariables() {<a name="line.297"></a>
+<FONT color="green">298</FONT>        synchronized(VAR_MAP) {<a name="line.298"></a>
+<FONT color="green">299</FONT>          return ImmutableList.copyOf(VAR_MAP.values());<a name="line.299"></a>
+<FONT color="green">300</FONT>        }<a name="line.300"></a>
+<FONT color="green">301</FONT>      }<a name="line.301"></a>
+<FONT color="green">302</FONT>    <a name="line.302"></a>
+<FONT color="green">303</FONT>      static Iterable&lt;RecordingStat&lt;? extends Number&gt;&gt; getNumericVariables() {<a name="line.303"></a>
+<FONT color="green">304</FONT>        synchronized(NUMERIC_STATS) {<a name="line.304"></a>
+<FONT color="green">305</FONT>          return ImmutableList.copyOf(NUMERIC_STATS.values());<a name="line.305"></a>
+<FONT color="green">306</FONT>        }<a name="line.306"></a>
+<FONT color="green">307</FONT>      }<a name="line.307"></a>
+<FONT color="green">308</FONT>    <a name="line.308"></a>
+<FONT color="green">309</FONT>      @VisibleForTesting<a name="line.309"></a>
+<FONT color="green">310</FONT>      public static void flush() {<a name="line.310"></a>
+<FONT color="green">311</FONT>        VAR_MAP.clear();<a name="line.311"></a>
+<FONT color="green">312</FONT>        NUMERIC_STATS.clear();<a name="line.312"></a>
+<FONT color="green">313</FONT>      }<a name="line.313"></a>
+<FONT color="green">314</FONT>    <a name="line.314"></a>
+<FONT color="green">315</FONT>      @SuppressWarnings("unchecked")<a name="line.315"></a>
+<FONT color="green">316</FONT>      public static &lt;T&gt; Stat&lt;T&gt; getVariable(String name) {<a name="line.316"></a>
+<FONT color="green">317</FONT>        MorePreconditions.checkNotBlank(name);<a name="line.317"></a>
+<FONT color="green">318</FONT>        return VAR_MAP.get(name);<a name="line.318"></a>
+<FONT color="green">319</FONT>      }<a name="line.319"></a>
+<FONT color="green">320</FONT>    }<a name="line.320"></a>
 
 
 

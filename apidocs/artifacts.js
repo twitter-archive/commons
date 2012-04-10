@@ -695,6 +695,12 @@ var artifacts = {
     "org": "com.twitter.common", 
     "rev": "0.0.16"
   }, 
+  "com/twitter/common/logging/LogFormatter.java": {
+    "artifactBaseUrl": "http://maven.twttr.com", 
+    "name": "logging", 
+    "org": "com.twitter.common", 
+    "rev": "0.0.16"
+  }, 
   "com/twitter/common/logging/LogUtil.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "logging", 
@@ -1177,9 +1183,9 @@ var artifacts = {
   }, 
   "com/twitter/common/stats/RecordingStat.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
-    "name": "stats", 
+    "name": "stat-registry", 
     "org": "com.twitter.common", 
-    "rev": "0.0.41"
+    "rev": "NOT-PUBLISHED-YET"
   }, 
   "com/twitter/common/stats/RecordingStatImpl.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
@@ -1219,15 +1225,21 @@ var artifacts = {
   }, 
   "com/twitter/common/stats/Stat.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
-    "name": "stats-provider", 
+    "name": "stat", 
     "org": "com.twitter.common", 
-    "rev": "0.0.20"
+    "rev": "NOT-PUBLISHED-YET"
   }, 
   "com/twitter/common/stats/StatImpl.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "stats", 
     "org": "com.twitter.common", 
     "rev": "0.0.41"
+  }, 
+  "com/twitter/common/stats/StatRegistry.java": {
+    "artifactBaseUrl": "http://maven.twttr.com", 
+    "name": "stat-registry", 
+    "org": "com.twitter.common", 
+    "rev": "NOT-PUBLISHED-YET"
   }, 
   "com/twitter/common/stats/Statistics.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
@@ -1272,6 +1284,12 @@ var artifacts = {
     "rev": "0.0.6"
   }, 
   "com/twitter/common/testing/runner/ConsoleListener.java": {
+    "artifactBaseUrl": "http://maven.twttr.com", 
+    "name": "junit-runner", 
+    "org": "com.twitter.common", 
+    "rev": "0.0.6"
+  }, 
+  "com/twitter/common/testing/runner/FailFastListener.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "junit-runner", 
     "org": "com.twitter.common", 
@@ -1709,7 +1727,31 @@ var artifacts = {
     "org": "com.twitter.common", 
     "rev": "0.0.28"
   }, 
+  "com/twitter/common/tools/AnsiColorDiagnosticListener.java": {
+    "artifactBaseUrl": "http://maven.twttr.com", 
+    "name": "java-compiler", 
+    "org": "com.twitter.common.tools", 
+    "rev": "0.0.4"
+  }, 
   "com/twitter/common/tools/Compiler.java": {
+    "artifactBaseUrl": "http://maven.twttr.com", 
+    "name": "java-compiler", 
+    "org": "com.twitter.common.tools", 
+    "rev": "0.0.4"
+  }, 
+  "com/twitter/common/tools/DependencyTrackingFileManager.java": {
+    "artifactBaseUrl": "http://maven.twttr.com", 
+    "name": "java-compiler", 
+    "org": "com.twitter.common.tools", 
+    "rev": "0.0.4"
+  }, 
+  "com/twitter/common/tools/DiagnosticFilters.java": {
+    "artifactBaseUrl": "http://maven.twttr.com", 
+    "name": "java-compiler", 
+    "org": "com.twitter.common.tools", 
+    "rev": "0.0.4"
+  }, 
+  "com/twitter/common/tools/FilteredDiagnosticListener.java": {
     "artifactBaseUrl": "http://maven.twttr.com", 
     "name": "java-compiler", 
     "org": "com.twitter.common.tools", 
@@ -1993,5 +2035,5 @@ var artifacts = {
   }
 };
 artifacts.title = 'Twitter Commons API Docs';
-artifacts.publishDate = '03/08/2012 11:10 AM';
+artifacts.publishDate = '04/09/2012 06:09 PM';
 artifacts.hasChangelog = false;

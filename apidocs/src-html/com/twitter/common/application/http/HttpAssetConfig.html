@@ -40,13 +40,21 @@
 <FONT color="green">037</FONT>      public final AssetHandler handler;<a name="line.37"></a>
 <FONT color="green">038</FONT>      public final boolean silent;<a name="line.38"></a>
 <FONT color="green">039</FONT>    <a name="line.39"></a>
-<FONT color="green">040</FONT>      public HttpAssetConfig(String path, URL asset, String contentType, boolean silent) {<a name="line.40"></a>
-<FONT color="green">041</FONT>        this.path = checkNotBlank(path);<a name="line.41"></a>
-<FONT color="green">042</FONT>        this.handler = new AssetHandler(<a name="line.42"></a>
-<FONT color="green">043</FONT>            new StaticAsset(Resources.newInputStreamSupplier(asset), contentType, true));<a name="line.43"></a>
-<FONT color="green">044</FONT>        this.silent = silent;<a name="line.44"></a>
-<FONT color="green">045</FONT>      }<a name="line.45"></a>
-<FONT color="green">046</FONT>    }<a name="line.46"></a>
+<FONT color="green">040</FONT>      /**<a name="line.40"></a>
+<FONT color="green">041</FONT>       * Creates a new asset configuration.<a name="line.41"></a>
+<FONT color="green">042</FONT>       *<a name="line.42"></a>
+<FONT color="green">043</FONT>       * @param path HTTP path the asset should be accessible from.<a name="line.43"></a>
+<FONT color="green">044</FONT>       * @param asset Asset resource URL.<a name="line.44"></a>
+<FONT color="green">045</FONT>       * @param contentType HTTP content-type to report for the asset.<a name="line.45"></a>
+<FONT color="green">046</FONT>       * @param silent Whether the asset should be visible on the default index page.<a name="line.46"></a>
+<FONT color="green">047</FONT>       */<a name="line.47"></a>
+<FONT color="green">048</FONT>      public HttpAssetConfig(String path, URL asset, String contentType, boolean silent) {<a name="line.48"></a>
+<FONT color="green">049</FONT>        this.path = checkNotBlank(path);<a name="line.49"></a>
+<FONT color="green">050</FONT>        this.handler = new AssetHandler(<a name="line.50"></a>
+<FONT color="green">051</FONT>            new StaticAsset(Resources.newInputStreamSupplier(asset), contentType, true));<a name="line.51"></a>
+<FONT color="green">052</FONT>        this.silent = silent;<a name="line.52"></a>
+<FONT color="green">053</FONT>      }<a name="line.53"></a>
+<FONT color="green">054</FONT>    }<a name="line.54"></a>
 
 
 

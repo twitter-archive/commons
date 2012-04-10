@@ -74,9 +74,9 @@ function windowTitle()
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
 </TABLE>
 <A NAME="skip-navbar_top"></A>
@@ -95,7 +95,7 @@ Class TokenStreamSerializer</H2>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/text/util/TokenStreamSerializer.html#line.45"><B>TokenStreamSerializer</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/text/util/TokenStreamSerializer.html#line.44"><B>TokenStreamSerializer</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
@@ -161,6 +161,39 @@ Helper class to serialize a TokenStream into a byte array.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 </TABLE>
+&nbsp;<!-- =========== FIELD SUMMARY =========== -->
+
+<A NAME="field_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Field Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected static&nbsp;<A HREF="../../../../../com/twitter/common/text/util/TokenStreamSerializer.Version.html" title="enum in com.twitter.common.text.util">TokenStreamSerializer.Version</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/text/util/TokenStreamSerializer.html#CURRENT_VERSION">CURRENT_VERSION</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/text/util/TokenStreamSerializer.html#TokenStreamSerializer(java.util.List)">TokenStreamSerializer</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../com/twitter/common/text/util/TokenStreamSerializer.AttributeSerializer.html" title="interface in com.twitter.common.text.util">TokenStreamSerializer.AttributeSerializer</A>&gt;&nbsp;attributeSerializers)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
 &nbsp;
 <!-- ========== METHOD SUMMARY =========== -->
 
@@ -172,11 +205,27 @@ Helper class to serialize a TokenStream into a byte array.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/text/util/TokenStreamSerializer.html#attributeSerializersFingerprint()">attributeSerializersFingerprint</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The fingerprint of the attribute serializers that are attached to this TokenStreamSerializer.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../../../../com/twitter/common/text/util/TokenStreamSerializer.Builder.html" title="class in com.twitter.common.text.util">TokenStreamSerializer.Builder</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/text/util/TokenStreamSerializer.html#builder()">builder</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a new Builder to build a TokenStreamSerializer.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/text/util/TokenStreamSerializer.html#computeFingerprint(java.util.List)">computeFingerprint</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../com/twitter/common/text/util/TokenStreamSerializer.AttributeSerializer.html" title="interface in com.twitter.common.text.util">TokenStreamSerializer.AttributeSerializer</A>&gt;&nbsp;attributeSerializers)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -186,6 +235,35 @@ Helper class to serialize a TokenStream into a byte array.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Deserializes the previously serialized TokenStream using the provided AttributeSerializer(s).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/text/util/TokenStreamSerializer.html#deserialize(byte[], int, int, java.lang.CharSequence)">deserialize</A></B>(byte[]&nbsp;data,
+                       int&nbsp;offset,
+                       int&nbsp;length,
+                       <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;charSequence)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/text/util/TokenStreamSerializer.html#deserialize(java.io.ByteArrayInputStream, java.lang.CharSequence)">deserialize</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/io/ByteArrayInputStream.html?is-external=true" title="class or interface in java.io">ByteArrayInputStream</A>&nbsp;bais,
+                       <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;charSequence)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../com/twitter/common/text/util/TokenStreamSerializer.Version.html" title="enum in com.twitter.common.text.util">TokenStreamSerializer.Version</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/text/util/TokenStreamSerializer.html#readVersionAndCheckFingerprint(com.twitter.common.text.util.TokenStreamSerializer.AttributeInputStream, int)">readVersionAndCheckFingerprint</A></B>(<A HREF="../../../../../com/twitter/common/text/util/TokenStreamSerializer.AttributeInputStream.html" title="class in com.twitter.common.text.util">TokenStreamSerializer.AttributeInputStream</A>&nbsp;input,
+                                                             int&nbsp;attributeSerializersFingerprint)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -208,6 +286,42 @@ Helper class to serialize a TokenStream into a byte array.
 &nbsp;
 <P>
 
+<!-- ============ FIELD DETAIL =========== -->
+
+<A NAME="field_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Field Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="CURRENT_VERSION"><!-- --></A><H3>
+CURRENT_VERSION</H3>
+<PRE>
+protected static final <A HREF="../../../../../com/twitter/common/text/util/TokenStreamSerializer.Version.html" title="enum in com.twitter.common.text.util">TokenStreamSerializer.Version</A> <A HREF="../../../../../src-html/com/twitter/common/text/util/TokenStreamSerializer.html#line.50"><B>CURRENT_VERSION</B></A></PRE>
+<DL>
+<DL>
+</DL>
+</DL>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="TokenStreamSerializer(java.util.List)"><!-- --></A><H3>
+TokenStreamSerializer</H3>
+<PRE>
+public <A HREF="../../../../../src-html/com/twitter/common/text/util/TokenStreamSerializer.html#line.56"><B>TokenStreamSerializer</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../com/twitter/common/text/util/TokenStreamSerializer.AttributeSerializer.html" title="interface in com.twitter.common.text.util">TokenStreamSerializer.AttributeSerializer</A>&gt;&nbsp;attributeSerializers)</PRE>
+<DL>
+</DL>
+
 <!-- ============ METHOD DETAIL ========== -->
 
 <A NAME="method_detail"><!-- --></A>
@@ -218,10 +332,34 @@ Helper class to serialize a TokenStream into a byte array.
 </TR>
 </TABLE>
 
+<A NAME="computeFingerprint(java.util.List)"><!-- --></A><H3>
+computeFingerprint</H3>
+<PRE>
+public static int <A HREF="../../../../../src-html/com/twitter/common/text/util/TokenStreamSerializer.html#line.61"><B>computeFingerprint</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../com/twitter/common/text/util/TokenStreamSerializer.AttributeSerializer.html" title="interface in com.twitter.common.text.util">TokenStreamSerializer.AttributeSerializer</A>&gt;&nbsp;attributeSerializers)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="attributeSerializersFingerprint()"><!-- --></A><H3>
+attributeSerializersFingerprint</H3>
+<PRE>
+public int <A HREF="../../../../../src-html/com/twitter/common/text/util/TokenStreamSerializer.html#line.75"><B>attributeSerializersFingerprint</B></A>()</PRE>
+<DL>
+<DD>The fingerprint of the attribute serializers that are attached to this TokenStreamSerializer.
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="serialize(com.twitter.common.text.token.TokenStream)"><!-- --></A><H3>
 serialize</H3>
 <PRE>
-public final byte[] <A HREF="../../../../../src-html/com/twitter/common/text/util/TokenStreamSerializer.html#line.63"><B>serialize</B></A>(<A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;tokenStream)
+public final byte[] <A HREF="../../../../../src-html/com/twitter/common/text/util/TokenStreamSerializer.html#line.84"><B>serialize</B></A>(<A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A>&nbsp;tokenStream)
                        throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
 <DL>
 <DD>Serialize the given TokenStream into a byte array using the provided AttributeSerializer(s).
@@ -239,7 +377,7 @@ public final byte[] <A HREF="../../../../../src-html/com/twitter/common/text/uti
 <A NAME="deserialize(byte[], java.lang.CharSequence)"><!-- --></A><H3>
 deserialize</H3>
 <PRE>
-public final <A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A> <A HREF="../../../../../src-html/com/twitter/common/text/util/TokenStreamSerializer.html#line.99"><B>deserialize</B></A>(byte[]&nbsp;data,
+public final <A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A> <A HREF="../../../../../src-html/com/twitter/common/text/util/TokenStreamSerializer.html#line.121"><B>deserialize</B></A>(byte[]&nbsp;data,
                                      <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;charSequence)
                               throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
 <DL>
@@ -256,10 +394,57 @@ public final <A HREF="../../../../../com/twitter/common/text/token/TokenStream.h
 </DL>
 <HR>
 
+<A NAME="deserialize(byte[], int, int, java.lang.CharSequence)"><!-- --></A><H3>
+deserialize</H3>
+<PRE>
+public final <A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A> <A HREF="../../../../../src-html/com/twitter/common/text/util/TokenStreamSerializer.html#line.126"><B>deserialize</B></A>(byte[]&nbsp;data,
+                                     int&nbsp;offset,
+                                     int&nbsp;length,
+                                     <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;charSequence)
+                              throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="readVersionAndCheckFingerprint(com.twitter.common.text.util.TokenStreamSerializer.AttributeInputStream, int)"><!-- --></A><H3>
+readVersionAndCheckFingerprint</H3>
+<PRE>
+public static <A HREF="../../../../../com/twitter/common/text/util/TokenStreamSerializer.Version.html" title="enum in com.twitter.common.text.util">TokenStreamSerializer.Version</A> <A HREF="../../../../../src-html/com/twitter/common/text/util/TokenStreamSerializer.html#line.136"><B>readVersionAndCheckFingerprint</B></A>(<A HREF="../../../../../com/twitter/common/text/util/TokenStreamSerializer.AttributeInputStream.html" title="class in com.twitter.common.text.util">TokenStreamSerializer.AttributeInputStream</A>&nbsp;input,
+                                                                           int&nbsp;attributeSerializersFingerprint)
+                                                                    throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="deserialize(java.io.ByteArrayInputStream, java.lang.CharSequence)"><!-- --></A><H3>
+deserialize</H3>
+<PRE>
+public final <A HREF="../../../../../com/twitter/common/text/token/TokenStream.html" title="class in com.twitter.common.text.token">TokenStream</A> <A HREF="../../../../../src-html/com/twitter/common/text/util/TokenStreamSerializer.html#line.153"><B>deserialize</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/io/ByteArrayInputStream.html?is-external=true" title="class or interface in java.io">ByteArrayInputStream</A>&nbsp;bais,
+                                     <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</A>&nbsp;charSequence)
+                              throws <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="builder()"><!-- --></A><H3>
 builder</H3>
 <PRE>
-public static <A HREF="../../../../../com/twitter/common/text/util/TokenStreamSerializer.Builder.html" title="class in com.twitter.common.text.util">TokenStreamSerializer.Builder</A> <A HREF="../../../../../src-html/com/twitter/common/text/util/TokenStreamSerializer.html#line.168"><B>builder</B></A>()</PRE>
+public static <A HREF="../../../../../com/twitter/common/text/util/TokenStreamSerializer.Builder.html" title="class in com.twitter.common.text.util">TokenStreamSerializer.Builder</A> <A HREF="../../../../../src-html/com/twitter/common/text/util/TokenStreamSerializer.html#line.210"><B>builder</B></A>()</PRE>
 <DL>
 <DD>Returns a new Builder to build a TokenStreamSerializer.
 <P>
@@ -319,9 +504,9 @@ public static <A HREF="../../../../../com/twitter/common/text/util/TokenStreamSe
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
 </TABLE>
 <A NAME="skip-navbar_bottom"></A>

@@ -154,7 +154,7 @@ Description of a command line option/flag such as -foo=bar.
              <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;T&gt;&nbsp;type)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new optioninfo.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -199,7 +199,7 @@ Description of a command line option/flag such as -foo=bar.
 <A NAME="OptionInfo(java.lang.String, java.lang.String, , com.twitter.common.reflect.TypeToken, java.lang.String, java.util.List, java.lang.Class)"><!-- --></A><H3>
 OptionInfo</H3>
 <PRE>
-public <A HREF="../../../../src-html/com/twitter/common/args/OptionInfo.html#line.79"><B>OptionInfo</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+public <A HREF="../../../../src-html/com/twitter/common/args/OptionInfo.html#line.49"><B>OptionInfo</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
                   <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;help,
                   <any>&nbsp;arg,
                   <A HREF="../../../../com/twitter/common/reflect/TypeToken.html" title="class in com.twitter.common.reflect">TypeToken</A>&lt;<A HREF="../../../../com/twitter/common/args/OptionInfo.html" title="type parameter in OptionInfo">T</A>&gt;&nbsp;type,
@@ -223,13 +223,16 @@ public <A HREF="../../../../src-html/com/twitter/common/args/OptionInfo.html#lin
 <A NAME="create(java.lang.String, java.lang.String, java.lang.String, java.lang.Class)"><!-- --></A><H3>
 create</H3>
 <PRE>
-public static &lt;T&gt; <A HREF="../../../../com/twitter/common/args/OptionInfo.html" title="class in com.twitter.common.args">OptionInfo</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/args/OptionInfo.html#line.68"><B>create</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+public static &lt;T&gt; <A HREF="../../../../com/twitter/common/args/OptionInfo.html" title="class in com.twitter.common.args">OptionInfo</A>&lt;T&gt; <A HREF="../../../../src-html/com/twitter/common/args/OptionInfo.html#line.85"><B>create</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
                                        <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;help,
                                        <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;prefix,
                                        <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;T&gt;&nbsp;type)</PRE>
 <DL>
+<DD>Creates a new optioninfo.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Type Parameters:</B><DD><CODE>T</CODE> - Option type.<DT><B>Parameters:</B><DD><CODE>name</CODE> - Name of the option.<DD><CODE>help</CODE> - Help string.<DD><CODE>prefix</CODE> - Prefix scope for the option.<DD><CODE>type</CODE> - Concrete option target type.
+<DT><B>Returns:</B><DD>A new optioninfo.</DL>
 </DD>
 </DL>
 <HR>
@@ -237,7 +240,7 @@ public static &lt;T&gt; <A HREF="../../../../com/twitter/common/args/OptionInfo.
 <A NAME="getName()"><!-- --></A><H3>
 getName</H3>
 <PRE>
-public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/args/OptionInfo.html#line.90"><B>getName</B></A>()</PRE>
+public <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <A HREF="../../../../src-html/com/twitter/common/args/OptionInfo.html#line.100"><B>getName</B></A>()</PRE>
 <DL>
 <DD>The name of the optional parameter. This is used as a command-line optional argument, as in:
  -name=value.

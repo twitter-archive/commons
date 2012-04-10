@@ -99,7 +99,7 @@ limitations under the License.
                 conf="default;sources"
                 transitive="false"
     >
-      <exclude org="com.google.collections" module="google-collections"/>
+      <exclude matcher="exactOrRegexp" org="com.google.collections" module="google-collections"/>
     </dependency>
     <dependency org="commons-beanutils"
                 name="commons-beanutils"
@@ -152,6 +152,13 @@ limitations under the License.
     </dependency>
     <dependency org="com.google.code.gson"
                 name="gson"
+                rev="2.1"
+                conf="default"
+                transitive="false"
+    >
+    </dependency>
+    <dependency org="joda-time"
+                name="joda-time"
                 rev="1.6"
                 conf="default"
                 transitive="false"
@@ -205,7 +212,7 @@ limitations under the License.
                 conf="default"
                 transitive="false"
     >
-      <exclude org="com.google.collections" module="google-collections"/>
+      <exclude matcher="exactOrRegexp" org="com.google.collections" module="google-collections"/>
     </dependency>
     <dependency org="org.easymock"
                 name="easymock"
@@ -258,8 +265,15 @@ limitations under the License.
     </dependency>
     <dependency org="com.twitter"
                 name="twitter-text"
-                rev="1.4.8"
+                rev="1.4.10"
                 conf="default"
+                transitive="false"
+    >
+    </dependency>
+    <dependency org="org.fusesource.jansi"
+                name="jansi"
+                rev="1.8"
+                conf="default;sources"
                 transitive="false"
     >
     </dependency>
@@ -269,10 +283,10 @@ limitations under the License.
                 conf="default;sources"
                 transitive="false"
     >
-      <exclude org="jline" module="jline"/>
-      <exclude org="javax.jms" module="jms"/>
-      <exclude org="com.sun.jdmk" module="jmxtools"/>
-      <exclude org="com.sun.jmx" module="jmxri"/>
+      <exclude matcher="exactOrRegexp" org="jline" module="jline"/>
+      <exclude matcher="exactOrRegexp" org="javax.jms" module="jms"/>
+      <exclude matcher="exactOrRegexp" org="com.sun.jdmk" module="jmxtools"/>
+      <exclude matcher="exactOrRegexp" org="com.sun.jmx" module="jmxri"/>
     </dependency>
   </dependencies>
 </ivy-module>
