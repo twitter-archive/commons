@@ -34,23 +34,18 @@
 <FONT color="green">031</FONT>          MetricRegistry registry) {<a name="line.31"></a>
 <FONT color="green">032</FONT>        totalEvents = registry.registerLong(eventMetricName);<a name="line.32"></a>
 <FONT color="green">033</FONT>        totalValue = registry.registerLong(valueMetricName);<a name="line.33"></a>
-<FONT color="green">034</FONT>        Rate eventRate = Rate.of(eventMetricName, totalEvents);<a name="line.34"></a>
-<FONT color="green">035</FONT>        Rate valueRate = Rate.of(valueMetricName, totalValue);<a name="line.35"></a>
-<FONT color="green">036</FONT>        registry.register(eventRate);<a name="line.36"></a>
-<FONT color="green">037</FONT>        registry.register(valueRate);<a name="line.37"></a>
-<FONT color="green">038</FONT>        registry.register(Ratio.of(eventRate, valueRate));<a name="line.38"></a>
-<FONT color="green">039</FONT>      }<a name="line.39"></a>
-<FONT color="green">040</FONT>    <a name="line.40"></a>
-<FONT color="green">041</FONT>      /**<a name="line.41"></a>
-<FONT color="green">042</FONT>       * Accumulates a value and increments the event counter.<a name="line.42"></a>
-<FONT color="green">043</FONT>       *<a name="line.43"></a>
-<FONT color="green">044</FONT>       * @param value Value to accumulate.<a name="line.44"></a>
-<FONT color="green">045</FONT>       */<a name="line.45"></a>
-<FONT color="green">046</FONT>      public synchronized void accumulate(long value) {<a name="line.46"></a>
-<FONT color="green">047</FONT>        totalEvents.incrementAndGet();<a name="line.47"></a>
-<FONT color="green">048</FONT>        totalValue.addAndGet(value);<a name="line.48"></a>
-<FONT color="green">049</FONT>      }<a name="line.49"></a>
-<FONT color="green">050</FONT>    }<a name="line.50"></a>
+<FONT color="green">034</FONT>      }<a name="line.34"></a>
+<FONT color="green">035</FONT>    <a name="line.35"></a>
+<FONT color="green">036</FONT>      /**<a name="line.36"></a>
+<FONT color="green">037</FONT>       * Accumulates a value and increments the event counter.<a name="line.37"></a>
+<FONT color="green">038</FONT>       *<a name="line.38"></a>
+<FONT color="green">039</FONT>       * @param value Value to accumulate.<a name="line.39"></a>
+<FONT color="green">040</FONT>       */<a name="line.40"></a>
+<FONT color="green">041</FONT>      public synchronized void accumulate(long value) {<a name="line.41"></a>
+<FONT color="green">042</FONT>        totalEvents.incrementAndGet();<a name="line.42"></a>
+<FONT color="green">043</FONT>        totalValue.addAndGet(value);<a name="line.43"></a>
+<FONT color="green">044</FONT>      }<a name="line.44"></a>
+<FONT color="green">045</FONT>    }<a name="line.45"></a>
 
 
 

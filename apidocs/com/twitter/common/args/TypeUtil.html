@@ -95,7 +95,7 @@ Class TypeUtil</H2>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public final class <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.39"><B>TypeUtil</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public final class <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.38"><B>TypeUtil</B></A><DT>extends <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
@@ -116,6 +116,14 @@ Utility class to extract generic type information.
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../com/twitter/common/args/TypeUtil.html#extractTypeToken(java.lang.reflect.Type)">extractTypeToken</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Extracts the actual type parameter for a singly parameterized type.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -143,11 +151,11 @@ Utility class to extract generic type information.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="../../../../com/twitter/common/reflect/TypeToken.html" title="class in com.twitter.common.reflect">TypeToken</A>&lt;?&gt;</CODE></FONT></TD>
+<CODE>static&nbsp;<A HREF="http://docs.guava-libraries.googlecode.com/git-history/v12.0/javadoc/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</A>&lt;?&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/twitter/common/args/TypeUtil.html#getTypeParamTypeToken(java.lang.reflect.Field)">getTypeParamTypeToken</A></B>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>&nbsp;field)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Convenience method to call <CODE>#getTypeParams(Field)</CODE>, with the requirement that there
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Convenience method to call <A HREF="../../../../com/twitter/common/args/TypeUtil.html#getTypeParam(java.lang.reflect.Field)"><CODE>getTypeParam(Field)</CODE></A>, with the requirement that there
  is exactly one type parameter on the field.</TD>
 </TR>
 </TABLE>
@@ -176,7 +184,7 @@ Utility class to extract generic type information.
 <A NAME="getTypeParams(java.lang.reflect.Type)"><!-- --></A><H3>
 getTypeParams</H3>
 <PRE>
-public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&gt; <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.60"><B>getTypeParams</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type)</PRE>
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&gt; <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.59"><B>getTypeParams</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type)</PRE>
 <DL>
 <DD>Gets the types that a type is type-parameterized with, in declaration order.
 <P>
@@ -190,7 +198,7 @@ public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/util/Li
 <A NAME="getRawType(java.lang.reflect.Type)"><!-- --></A><H3>
 getRawType</H3>
 <PRE>
-public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;?&gt; <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.74"><B>getRawType</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type)</PRE>
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&lt;?&gt; <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.73"><B>getRawType</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type)</PRE>
 <DL>
 <DD>Finds the raw class of type.
 <P>
@@ -204,9 +212,9 @@ public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Cl
 <A NAME="getTypeParamTypeToken(java.lang.reflect.Field)"><!-- --></A><H3>
 getTypeParamTypeToken</H3>
 <PRE>
-public static <A HREF="../../../../com/twitter/common/reflect/TypeToken.html" title="class in com.twitter.common.reflect">TypeToken</A>&lt;?&gt; <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.91"><B>getTypeParamTypeToken</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>&nbsp;field)</PRE>
+public static <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v12.0/javadoc/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</A>&lt;?&gt; <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.90"><B>getTypeParamTypeToken</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>&nbsp;field)</PRE>
 <DL>
-<DD>Convenience method to call <CODE>#getTypeParams(Field)</CODE>, with the requirement that there
+<DD>Convenience method to call <A HREF="../../../../com/twitter/common/args/TypeUtil.html#getTypeParam(java.lang.reflect.Field)"><CODE>getTypeParam(Field)</CODE></A>, with the requirement that there
  is exactly one type parameter on the field.
 <P>
 <DD><DL>
@@ -219,13 +227,30 @@ public static <A HREF="../../../../com/twitter/common/reflect/TypeToken.html" ti
 <A NAME="getTypeParam(java.lang.reflect.Field)"><!-- --></A><H3>
 getTypeParam</H3>
 <PRE>
-public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A> <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.104"><B>getTypeParam</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>&nbsp;field)</PRE>
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A> <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.103"><B>getTypeParam</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Field.html?is-external=true" title="class or interface in java.lang.reflect">Field</A>&nbsp;field)</PRE>
 <DL>
 <DD>Gets the type parameter from a field.  Assumes that there is at least one type parameter.
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>field</CODE> - The field to extract the type parameter from.
 <DT><B>Returns:</B><DD>The field type parameter.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="extractTypeToken(java.lang.reflect.Type)"><!-- --></A><H3>
+extractTypeToken</H3>
+<PRE>
+public static <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A> <A HREF="../../../../src-html/com/twitter/common/args/TypeUtil.html#line.115"><B>extractTypeToken</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</A>&nbsp;type)</PRE>
+<DL>
+<DD>Extracts the actual type parameter for a singly parameterized type.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>type</CODE> - The parameterized type to extract the type argument from.
+<DT><B>Returns:</B><DD>The type of the single specified type parameter for <code>type</code>.
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - if the supplied type does not have exactly one specified type
+     parameter</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

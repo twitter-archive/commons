@@ -90,14 +90,14 @@ com.twitter.common.text.token.attribute</FONT>
 <BR>
 Interface TokenGroupAttribute</H2>
 <DL>
-<DT><B>All Superinterfaces:</B> <DD><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/Attribute.html?is-external=true" title="class or interface in org.apache.lucene.util">Attribute</A></DD>
+<DT><B>All Superinterfaces:</B> <DD>org.apache.lucene.util.Attribute</DD>
 </DL>
 <DL>
 <DT><B>All Known Implementing Classes:</B> <DD><A HREF="../../../../../../com/twitter/common/text/token/attribute/TokenGroupAttributeImpl.html" title="class in com.twitter.common.text.token.attribute">TokenGroupAttributeImpl</A></DD>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public interface <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/TokenGroupAttribute.html#line.27"><B>TokenGroupAttribute</B></A><DT>extends <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/Attribute.html?is-external=true" title="class or interface in org.apache.lucene.util">Attribute</A></DL>
+<DT><PRE>public interface <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/TokenGroupAttribute.html#line.27"><B>TokenGroupAttribute</B></A><DT>extends org.apache.lucene.util.Attribute</DL>
 </PRE>
 
 <P>
@@ -196,7 +196,7 @@ getTokenGroupStream</H3>
 <DL>
 <DD>Returns a <code>TokenGroupStream</code>, which provides access to individual tokens in this group.
  Use <A HREF="../../../../../../com/twitter/common/text/token/TokenGroupStream.html#incrementToken()"><CODE>TokenGroupStream.incrementToken()</CODE></A> to iterate over the member Tokens in this group,
- and <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeSource.html?is-external=true#getAttribute(java.lang.Class)" title="class or interface in org.apache.lucene.util"><CODE>AttributeSource.getAttribute(Class)</CODE></A> to obtain the attribute(s) of each token.
+ and <CODE>AttributeSource.getAttribute(Class)</CODE> to obtain the attribute(s) of each token.
 <P>
 <DD><DL>
 </DL>

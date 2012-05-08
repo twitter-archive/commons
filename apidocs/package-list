@@ -20,7 +20,6 @@ com.twitter.common.net.monitoring
 com.twitter.common.net.pool
 com.twitter.common.objectsize
 com.twitter.common.quantity
-com.twitter.common.reflect
 com.twitter.common.stats
 com.twitter.common.testing
 com.twitter.common.testing.runner
@@ -48,3 +47,4 @@ com.twitter.common.util.testing
 com.twitter.common.zookeeper
 com.twitter.common.zookeeper.guice
 com.twitter.common.zookeeper.testing
+com.twitter.common.zookeeper.testing.angrybird

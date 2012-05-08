@@ -32,11 +32,11 @@
 <FONT color="green">029</FONT>    import com.google.common.collect.ImmutableList;<a name="line.29"></a>
 <FONT color="green">030</FONT>    import com.google.common.collect.ImmutableSet;<a name="line.30"></a>
 <FONT color="green">031</FONT>    import com.google.common.collect.Iterables;<a name="line.31"></a>
-<FONT color="green">032</FONT>    <a name="line.32"></a>
-<FONT color="green">033</FONT>    import com.twitter.common.args.constraints.NotNullVerifier;<a name="line.33"></a>
-<FONT color="green">034</FONT>    import com.twitter.common.base.MorePreconditions;<a name="line.34"></a>
-<FONT color="green">035</FONT>    import com.twitter.common.collections.Pair;<a name="line.35"></a>
-<FONT color="green">036</FONT>    import com.twitter.common.reflect.TypeToken;<a name="line.36"></a>
+<FONT color="green">032</FONT>    import com.google.common.reflect.TypeToken;<a name="line.32"></a>
+<FONT color="green">033</FONT>    <a name="line.33"></a>
+<FONT color="green">034</FONT>    import com.twitter.common.args.constraints.NotNullVerifier;<a name="line.34"></a>
+<FONT color="green">035</FONT>    import com.twitter.common.base.MorePreconditions;<a name="line.35"></a>
+<FONT color="green">036</FONT>    import com.twitter.common.collections.Pair;<a name="line.36"></a>
 <FONT color="green">037</FONT>    <a name="line.37"></a>
 <FONT color="green">038</FONT>    import static com.google.common.base.Preconditions.checkArgument;<a name="line.38"></a>
 <FONT color="green">039</FONT>    <a name="line.39"></a>
@@ -172,12 +172,15 @@
 <FONT color="green">169</FONT>        for (Pair&lt;? extends Verifier&lt;? super T&gt;, Annotation&gt; pair : getVerifiers(verifierOracle)) {<a name="line.169"></a>
 <FONT color="green">170</FONT>          Verifier&lt;? super T&gt; verifier = pair.getFirst();<a name="line.170"></a>
 <FONT color="green">171</FONT>          Annotation annotation = pair.getSecond();<a name="line.171"></a>
-<FONT color="green">172</FONT>          Class&lt;T&gt; rawType = type.getRawType();<a name="line.172"></a>
-<FONT color="green">173</FONT>          String constraint = verifier.toString(rawType, annotation);<a name="line.173"></a>
-<FONT color="green">174</FONT>          constraints.add(constraint);<a name="line.174"></a>
-<FONT color="green">175</FONT>        }<a name="line.175"></a>
-<FONT color="green">176</FONT>      }<a name="line.176"></a>
-<FONT color="green">177</FONT>    }<a name="line.177"></a>
+<FONT color="green">172</FONT>    <a name="line.172"></a>
+<FONT color="green">173</FONT>          @SuppressWarnings("unchecked") // type.getType() is T<a name="line.173"></a>
+<FONT color="green">174</FONT>          Class&lt;? extends T&gt; rawType = (Class&lt;? extends T&gt;) type.getType();<a name="line.174"></a>
+<FONT color="green">175</FONT>    <a name="line.175"></a>
+<FONT color="green">176</FONT>          String constraint = verifier.toString(rawType, annotation);<a name="line.176"></a>
+<FONT color="green">177</FONT>          constraints.add(constraint);<a name="line.177"></a>
+<FONT color="green">178</FONT>        }<a name="line.178"></a>
+<FONT color="green">179</FONT>      }<a name="line.179"></a>
+<FONT color="green">180</FONT>    }<a name="line.180"></a>
 
 
 

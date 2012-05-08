@@ -99,7 +99,7 @@ Class ServerSetModule</H2>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/zookeeper/guice/ServerSetModule.html#line.82"><B>ServerSetModule</B></A><DT>extends <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/AbstractModule.html?is-external=true" title="class or interface in com.google.inject">AbstractModule</A></DL>
+<DT><PRE>public class <A HREF="../../../../../src-html/com/twitter/common/zookeeper/guice/ServerSetModule.html#line.83"><B>ServerSetModule</B></A><DT>extends <A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/AbstractModule.html?is-external=true" title="class or interface in com.google.inject">AbstractModule</A></DL>
 </PRE>
 
 <P>
@@ -151,8 +151,13 @@ A module that registers all ports in the <A HREF="../../../../../com/twitter/com
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/zookeeper/guice/ServerSetModule.html#ServerSetModule()">ServerSetModule</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs a ServerSetModule that registers a startup action that registers this process in
- ZooKeeper, with the initial Status <CODE>Status.ALIVE</CODE>.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Calls <A HREF="../../../../../com/twitter/common/zookeeper/guice/ServerSetModule.html#ServerSetModule(com.google.common.base.Optional)"><CODE>ServerSetModule(Optional)</CODE></A> with an absent value.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/zookeeper/guice/ServerSetModule.html#ServerSetModule(com.google.common.base.Optional)">ServerSetModule</A></B>(<A HREF="http://docs.guava-libraries.googlecode.com/git-history/v12.0/javadoc/com/google/common/base/Optional.html?is-external=true" title="class or interface in com.google.common.base">Optional</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;&nbsp;auxPortAsPrimary)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Calls <A HREF="../../../../../com/twitter/common/zookeeper/guice/ServerSetModule.html#ServerSetModule(Status, com.google.common.base.Optional)"><CODE>ServerSetModule(Status, Optional)</CODE></A> with initial status <CODE>Status#ALIVE</CODE>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../com/twitter/common/zookeeper/guice/ServerSetModule.html#ServerSetModule(Status)">ServerSetModule</A></B>(Status&nbsp;initialStatus)</CODE>
@@ -160,6 +165,15 @@ A module that registers all ports in the <A HREF="../../../../../com/twitter/com
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs a ServerSetModule that registers a startup action that registers this process in
  ZooKeeper, with the specified initial Status.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../com/twitter/common/zookeeper/guice/ServerSetModule.html#ServerSetModule(Status, com.google.common.base.Optional)">ServerSetModule</A></B>(Status&nbsp;initialStatus,
+                               <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v12.0/javadoc/com/google/common/base/Optional.html?is-external=true" title="class or interface in com.google.common.base">Optional</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;&nbsp;auxPortAsPrimary)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs a ServerSetModule that registers a startup action to register this process in
+ ZooKeeper, with the specified initial status and auxiliary port to represent as the primary
+ service port.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -231,24 +245,50 @@ SERVERSET_PATH</H3>
 <A NAME="ServerSetModule()"><!-- --></A><H3>
 ServerSetModule</H3>
 <PRE>
-public <A HREF="../../../../../src-html/com/twitter/common/zookeeper/guice/ServerSetModule.html#line.102"><B>ServerSetModule</B></A>()</PRE>
+public <A HREF="../../../../../src-html/com/twitter/common/zookeeper/guice/ServerSetModule.html#line.109"><B>ServerSetModule</B></A>()</PRE>
 <DL>
-<DD>Constructs a ServerSetModule that registers a startup action that registers this process in
- ZooKeeper, with the initial Status <CODE>Status.ALIVE</CODE>.
+<DD>Calls <A HREF="../../../../../com/twitter/common/zookeeper/guice/ServerSetModule.html#ServerSetModule(com.google.common.base.Optional)"><CODE>ServerSetModule(Optional)</CODE></A> with an absent value.
 <P>
+</DL>
+<HR>
+
+<A NAME="ServerSetModule(com.google.common.base.Optional)"><!-- --></A><H3>
+ServerSetModule</H3>
+<PRE>
+public <A HREF="../../../../../src-html/com/twitter/common/zookeeper/guice/ServerSetModule.html#line.118"><B>ServerSetModule</B></A>(<A HREF="http://docs.guava-libraries.googlecode.com/git-history/v12.0/javadoc/com/google/common/base/Optional.html?is-external=true" title="class or interface in com.google.common.base">Optional</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;&nbsp;auxPortAsPrimary)</PRE>
+<DL>
+<DD>Calls <A HREF="../../../../../com/twitter/common/zookeeper/guice/ServerSetModule.html#ServerSetModule(Status, com.google.common.base.Optional)"><CODE>ServerSetModule(Status, Optional)</CODE></A> with initial status <CODE>Status#ALIVE</CODE>.
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>auxPortAsPrimary</CODE> - Name of the auxiliary port to use as the primary port.</DL>
 </DL>
 <HR>
 
 <A NAME="ServerSetModule(Status)"><!-- --></A><H3>
 ServerSetModule</H3>
 <PRE>
-public <A HREF="../../../../../src-html/com/twitter/common/zookeeper/guice/ServerSetModule.html#line.112"><B>ServerSetModule</B></A>(Status&nbsp;initialStatus)</PRE>
+public <A HREF="../../../../../src-html/com/twitter/common/zookeeper/guice/ServerSetModule.html#line.128"><B>ServerSetModule</B></A>(Status&nbsp;initialStatus)</PRE>
 <DL>
 <DD>Constructs a ServerSetModule that registers a startup action that registers this process in
  ZooKeeper, with the specified initial Status.
 <P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>initialStatus</CODE> - initial Status to report to ZooKeeper, such as <CODE>Status.STARTING</CODE>.</DL>
+<DT><B>Parameters:</B><DD><CODE>initialStatus</CODE> - initial Status to report to ZooKeeper.</DL>
+</DL>
+<HR>
+
+<A NAME="ServerSetModule(Status, com.google.common.base.Optional)"><!-- --></A><H3>
+ServerSetModule</H3>
+<PRE>
+public <A HREF="../../../../../src-html/com/twitter/common/zookeeper/guice/ServerSetModule.html#line.140"><B>ServerSetModule</B></A>(Status&nbsp;initialStatus,
+                       <A HREF="http://docs.guava-libraries.googlecode.com/git-history/v12.0/javadoc/com/google/common/base/Optional.html?is-external=true" title="class or interface in com.google.common.base">Optional</A>&lt;<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;&nbsp;auxPortAsPrimary)</PRE>
+<DL>
+<DD>Constructs a ServerSetModule that registers a startup action to register this process in
+ ZooKeeper, with the specified initial status and auxiliary port to represent as the primary
+ service port.
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>initialStatus</CODE> - initial Status to report to ZooKeeper.<DD><CODE>auxPortAsPrimary</CODE> - Name of the auxiliary port to use as the primary port.</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
@@ -264,7 +304,7 @@ public <A HREF="../../../../../src-html/com/twitter/common/zookeeper/guice/Serve
 <A NAME="configure()"><!-- --></A><H3>
 configure</H3>
 <PRE>
-protected void <A HREF="../../../../../src-html/com/twitter/common/zookeeper/guice/ServerSetModule.html#line.117"><B>configure</B></A>()</PRE>
+protected void <A HREF="../../../../../src-html/com/twitter/common/zookeeper/guice/ServerSetModule.html#line.146"><B>configure</B></A>()</PRE>
 <DL>
 <DD><DL>
 <DT><B>Specified by:</B><DD><CODE><A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/AbstractModule.html?is-external=true#configure()" title="class or interface in com.google.inject">configure</A></CODE> in class <CODE><A HREF="http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/AbstractModule.html?is-external=true" title="class or interface in com.google.inject">AbstractModule</A></CODE></DL>

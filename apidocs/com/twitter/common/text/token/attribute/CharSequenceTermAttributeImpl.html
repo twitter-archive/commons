@@ -91,15 +91,15 @@ com.twitter.common.text.token.attribute</FONT>
 Class CharSequenceTermAttributeImpl</H2>
 <PRE>
 <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
-  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">org.apache.lucene.util.AttributeImpl</A>
+  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by ">org.apache.lucene.util.AttributeImpl
       <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.text.token.attribute.CharSequenceTermAttributeImpl</B>
 </PRE>
 <DL>
-<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html" title="interface in com.twitter.common.text.token.attribute">CharSequenceTermAttribute</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang">Cloneable</A>, <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/Attribute.html?is-external=true" title="class or interface in org.apache.lucene.util">Attribute</A></DD>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html" title="interface in com.twitter.common.text.token.attribute">CharSequenceTermAttribute</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang">Cloneable</A>, org.apache.lucene.util.Attribute</DD>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.39"><B>CharSequenceTermAttributeImpl</B></A><DT>extends <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A><DT>implements <A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html" title="interface in com.twitter.common.text.token.attribute">CharSequenceTermAttribute</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang">Cloneable</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</A></DL>
+<DT><PRE>public class <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.39"><B>CharSequenceTermAttributeImpl</B></A><DT>extends org.apache.lucene.util.AttributeImpl<DT>implements <A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttribute.html" title="interface in com.twitter.common.text.token.attribute">CharSequenceTermAttribute</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang">Cloneable</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</A></DL>
 </PRE>
 
 <P>
@@ -110,7 +110,7 @@ Implementation of <code>CharSequenceTermAttribute</code>. The implementation dif
  a span in the underlying <code>CharSequence</code> by start index (offset) and end index.
  <p>
  Note that this class explicitly suppresses the ability for instance to be serialized, inherited
- via <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util"><CODE>AttributeImpl</CODE></A>.
+ via <CODE>AttributeImpl</CODE>.
 <P>
 
 <P>
@@ -155,7 +155,7 @@ Implementation of <code>CharSequenceTermAttribute</code>. The implementation dif
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#copyTo(org.apache.lucene.util.AttributeImpl)">copyTo</A></B>(<A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A>&nbsp;target)</CODE>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#copyTo(org.apache.lucene.util.AttributeImpl)">copyTo</A></B>(org.apache.lucene.util.AttributeImpl&nbsp;target)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Passing a <code>CharSequenceTermAttribute</code> instead of a <code>TermAttribute</code> will
@@ -218,7 +218,7 @@ Implementation of <code>CharSequenceTermAttribute</code>. The implementation dif
 <TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#hashCode()">hashCode</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This is largely based on <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/ArrayUtil.html?is-external=true#hashCode(char[], int, int)" title="class or interface in org.apache.lucene.util"><CODE>ArrayUtil.hashCode(char[], int, int)</CODE></A>.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This is largely based on <CODE>ArrayUtil.hashCode(char[], int, int)</CODE>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -266,10 +266,10 @@ Implementation of <code>CharSequenceTermAttribute</code>. The implementation dif
 &nbsp;<A NAME="methods_inherited_from_class_org.apache.lucene.util.AttributeImpl"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class org.apache.lucene.util.<A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A></B></TH>
+<TH ALIGN="left"><B>Methods inherited from class org.apache.lucene.util.AttributeImpl</B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true#clone()" title="class or interface in org.apache.lucene.util">clone</A>, <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true#toString()" title="class or interface in org.apache.lucene.util">toString</A></CODE></TD>
+<TD><CODE>clone, toString</CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -397,7 +397,7 @@ clear</H3>
 public void <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.75"><B>clear</B></A>()</PRE>
 <DL>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true#clear()" title="class or interface in org.apache.lucene.util">clear</A></CODE> in class <CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A></CODE></DL>
+<DT><B>Specified by:</B><DD><CODE>clear</CODE> in class <CODE>org.apache.lucene.util.AttributeImpl</CODE></DL>
 </DD>
 <DD><DL>
 </DL>
@@ -408,13 +408,13 @@ public void <A HREF="../../../../../../src-html/com/twitter/common/text/token/at
 <A NAME="copyTo(org.apache.lucene.util.AttributeImpl)"><!-- --></A><H3>
 copyTo</H3>
 <PRE>
-public void <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.85"><B>copyTo</B></A>(<A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A>&nbsp;target)</PRE>
+public void <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.85"><B>copyTo</B></A>(org.apache.lucene.util.AttributeImpl&nbsp;target)</PRE>
 <DL>
 <DD>Passing a <code>CharSequenceTermAttribute</code> instead of a <code>TermAttribute</code> will
  obviate the construction of an extra String.
 <P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true#copyTo(org.apache.lucene.util.AttributeImpl)" title="class or interface in org.apache.lucene.util">copyTo</A></CODE> in class <CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A></CODE></DL>
+<DT><B>Specified by:</B><DD><CODE>copyTo</CODE> in class <CODE>org.apache.lucene.util.AttributeImpl</CODE></DL>
 </DD>
 <DD><DL>
 </DL>
@@ -428,7 +428,7 @@ equals</H3>
 public boolean <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.93"><B>equals</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>&nbsp;other)</PRE>
 <DL>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true#equals(java.lang.Object)" title="class or interface in org.apache.lucene.util">equals</A></CODE> in class <CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A></CODE></DL>
+<DT><B>Specified by:</B><DD><CODE>equals</CODE> in class <CODE>org.apache.lucene.util.AttributeImpl</CODE></DL>
 </DD>
 <DD><DL>
 </DL>
@@ -441,10 +441,10 @@ hashCode</H3>
 <PRE>
 public int <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/CharSequenceTermAttributeImpl.html#line.127"><B>hashCode</B></A>()</PRE>
 <DL>
-<DD>This is largely based on <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/ArrayUtil.html?is-external=true#hashCode(char[], int, int)" title="class or interface in org.apache.lucene.util"><CODE>ArrayUtil.hashCode(char[], int, int)</CODE></A>.
+<DD>This is largely based on <CODE>ArrayUtil.hashCode(char[], int, int)</CODE>.
 <P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true#hashCode()" title="class or interface in org.apache.lucene.util">hashCode</A></CODE> in class <CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A></CODE></DL>
+<DT><B>Specified by:</B><DD><CODE>hashCode</CODE> in class <CODE>org.apache.lucene.util.AttributeImpl</CODE></DL>
 </DD>
 <DD><DL>
 </DL>

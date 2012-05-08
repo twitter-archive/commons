@@ -225,203 +225,219 @@
 <FONT color="green">222</FONT>      }<a name="line.222"></a>
 <FONT color="green">223</FONT>    <a name="line.223"></a>
 <FONT color="green">224</FONT>      void run(Iterable&lt;String&gt; tests) {<a name="line.224"></a>
-<FONT color="green">225</FONT>        PrintStream out = SWAPPABLE_OUT.getOriginal();<a name="line.225"></a>
-<FONT color="green">226</FONT>        List&lt;Request&gt; requests = parseRequests(out, tests);<a name="line.226"></a>
-<FONT color="green">227</FONT>    <a name="line.227"></a>
-<FONT color="green">228</FONT>        JUnitCore core = new JUnitCore();<a name="line.228"></a>
-<FONT color="green">229</FONT>        ForwardingListener forwardingListener =<a name="line.229"></a>
-<FONT color="green">230</FONT>            failFast ? new FailFastListener() {<a name="line.230"></a>
-<FONT color="green">231</FONT>              @Override protected void failFast(Result failureResult) {<a name="line.231"></a>
-<FONT color="green">232</FONT>                exit(failureResult.getFailureCount());<a name="line.232"></a>
-<FONT color="green">233</FONT>              }<a name="line.233"></a>
-<FONT color="green">234</FONT>            } : new ForwardingListener();<a name="line.234"></a>
-<FONT color="green">235</FONT>        core.addListener(forwardingListener);<a name="line.235"></a>
-<FONT color="green">236</FONT>    <a name="line.236"></a>
-<FONT color="green">237</FONT>        if (xmlReport || suppressOutput) {<a name="line.237"></a>
-<FONT color="green">238</FONT>          if (!outdir.exists()) {<a name="line.238"></a>
-<FONT color="green">239</FONT>            if (!outdir.mkdirs()) {<a name="line.239"></a>
-<FONT color="green">240</FONT>              throw new IllegalStateException("Failed to create output directory: " + outdir);<a name="line.240"></a>
-<FONT color="green">241</FONT>            }<a name="line.241"></a>
-<FONT color="green">242</FONT>          }<a name="line.242"></a>
-<FONT color="green">243</FONT>          StreamCapturingListener streamCapturingListener = new StreamCapturingListener(outdir);<a name="line.243"></a>
-<FONT color="green">244</FONT>          forwardingListener.addListener(streamCapturingListener);<a name="line.244"></a>
-<FONT color="green">245</FONT>    <a name="line.245"></a>
-<FONT color="green">246</FONT>          if (xmlReport) {<a name="line.246"></a>
-<FONT color="green">247</FONT>            AntJunitXmlReportListener xmlReportListener =<a name="line.247"></a>
-<FONT color="green">248</FONT>                new AntJunitXmlReportListener(outdir, streamCapturingListener);<a name="line.248"></a>
-<FONT color="green">249</FONT>            forwardingListener.addListener(xmlReportListener);<a name="line.249"></a>
-<FONT color="green">250</FONT>          }<a name="line.250"></a>
-<FONT color="green">251</FONT>        }<a name="line.251"></a>
-<FONT color="green">252</FONT>    <a name="line.252"></a>
-<FONT color="green">253</FONT>        forwardingListener.addListener(new ConsoleListener(out));<a name="line.253"></a>
+<FONT color="green">225</FONT>        final PrintStream out = System.out;<a name="line.225"></a>
+<FONT color="green">226</FONT>        System.setOut(new PrintStream(SWAPPABLE_OUT));<a name="line.226"></a>
+<FONT color="green">227</FONT>        System.setErr(new PrintStream(SWAPPABLE_ERR));<a name="line.227"></a>
+<FONT color="green">228</FONT>    <a name="line.228"></a>
+<FONT color="green">229</FONT>        List&lt;Request&gt; requests = parseRequests(out, tests);<a name="line.229"></a>
+<FONT color="green">230</FONT>    <a name="line.230"></a>
+<FONT color="green">231</FONT>        JUnitCore core = new JUnitCore();<a name="line.231"></a>
+<FONT color="green">232</FONT>        final AbortableListener abortableListener = new AbortableListener(failFast) {<a name="line.232"></a>
+<FONT color="green">233</FONT>          @Override protected void abort(Result failureResult) {<a name="line.233"></a>
+<FONT color="green">234</FONT>            exit(failureResult.getFailureCount());<a name="line.234"></a>
+<FONT color="green">235</FONT>          }<a name="line.235"></a>
+<FONT color="green">236</FONT>        };<a name="line.236"></a>
+<FONT color="green">237</FONT>        core.addListener(abortableListener);<a name="line.237"></a>
+<FONT color="green">238</FONT>    <a name="line.238"></a>
+<FONT color="green">239</FONT>        if (xmlReport || suppressOutput) {<a name="line.239"></a>
+<FONT color="green">240</FONT>          if (!outdir.exists()) {<a name="line.240"></a>
+<FONT color="green">241</FONT>            if (!outdir.mkdirs()) {<a name="line.241"></a>
+<FONT color="green">242</FONT>              throw new IllegalStateException("Failed to create output directory: " + outdir);<a name="line.242"></a>
+<FONT color="green">243</FONT>            }<a name="line.243"></a>
+<FONT color="green">244</FONT>          }<a name="line.244"></a>
+<FONT color="green">245</FONT>          StreamCapturingListener streamCapturingListener = new StreamCapturingListener(outdir);<a name="line.245"></a>
+<FONT color="green">246</FONT>          abortableListener.addListener(streamCapturingListener);<a name="line.246"></a>
+<FONT color="green">247</FONT>    <a name="line.247"></a>
+<FONT color="green">248</FONT>          if (xmlReport) {<a name="line.248"></a>
+<FONT color="green">249</FONT>            AntJunitXmlReportListener xmlReportListener =<a name="line.249"></a>
+<FONT color="green">250</FONT>                new AntJunitXmlReportListener(outdir, streamCapturingListener);<a name="line.250"></a>
+<FONT color="green">251</FONT>            abortableListener.addListener(xmlReportListener);<a name="line.251"></a>
+<FONT color="green">252</FONT>          }<a name="line.252"></a>
+<FONT color="green">253</FONT>        }<a name="line.253"></a>
 <FONT color="green">254</FONT>    <a name="line.254"></a>
-<FONT color="green">255</FONT>        int failures = 0;<a name="line.255"></a>
-<FONT color="green">256</FONT>        for (Request request : requests) {<a name="line.256"></a>
-<FONT color="green">257</FONT>          Result result = core.run(request);<a name="line.257"></a>
-<FONT color="green">258</FONT>          failures += result.getFailureCount();<a name="line.258"></a>
-<FONT color="green">259</FONT>        }<a name="line.259"></a>
-<FONT color="green">260</FONT>        exit(failures);<a name="line.260"></a>
-<FONT color="green">261</FONT>      }<a name="line.261"></a>
-<FONT color="green">262</FONT>    <a name="line.262"></a>
-<FONT color="green">263</FONT>      private List&lt;Request&gt; parseRequests(PrintStream out, Iterable&lt;String&gt; specs) {<a name="line.263"></a>
-<FONT color="green">264</FONT>        /**<a name="line.264"></a>
-<FONT color="green">265</FONT>         * Datatype representing an individual test method.<a name="line.265"></a>
-<FONT color="green">266</FONT>         */<a name="line.266"></a>
-<FONT color="green">267</FONT>        class TestMethod {<a name="line.267"></a>
-<FONT color="green">268</FONT>          private final Class&lt;?&gt; clazz;<a name="line.268"></a>
-<FONT color="green">269</FONT>          private final String name;<a name="line.269"></a>
-<FONT color="green">270</FONT>          TestMethod(Class&lt;?&gt; clazz, String name) {<a name="line.270"></a>
-<FONT color="green">271</FONT>            this.clazz = clazz;<a name="line.271"></a>
-<FONT color="green">272</FONT>            this.name = name;<a name="line.272"></a>
-<FONT color="green">273</FONT>          }<a name="line.273"></a>
+<FONT color="green">255</FONT>        abortableListener.addListener(new ConsoleListener(out));<a name="line.255"></a>
+<FONT color="green">256</FONT>    <a name="line.256"></a>
+<FONT color="green">257</FONT>        Thread abnormalExitHook = new Thread() {<a name="line.257"></a>
+<FONT color="green">258</FONT>          @Override public void run() {<a name="line.258"></a>
+<FONT color="green">259</FONT>            try {<a name="line.259"></a>
+<FONT color="green">260</FONT>              abortableListener.abort(new UnknownError("Abnormal VM exit - test crashed."));<a name="line.260"></a>
+<FONT color="green">261</FONT>            } catch (Exception e) {<a name="line.261"></a>
+<FONT color="green">262</FONT>              out.println(e);<a name="line.262"></a>
+<FONT color="green">263</FONT>              e.printStackTrace(out);<a name="line.263"></a>
+<FONT color="green">264</FONT>            }<a name="line.264"></a>
+<FONT color="green">265</FONT>          }<a name="line.265"></a>
+<FONT color="green">266</FONT>        };<a name="line.266"></a>
+<FONT color="green">267</FONT>        abnormalExitHook.setDaemon(true);<a name="line.267"></a>
+<FONT color="green">268</FONT>        Runtime.getRuntime().addShutdownHook(abnormalExitHook);<a name="line.268"></a>
+<FONT color="green">269</FONT>    <a name="line.269"></a>
+<FONT color="green">270</FONT>        int failures = 0;<a name="line.270"></a>
+<FONT color="green">271</FONT>        for (Request request : requests) {<a name="line.271"></a>
+<FONT color="green">272</FONT>          Result result = core.run(request);<a name="line.272"></a>
+<FONT color="green">273</FONT>          failures += result.getFailureCount();<a name="line.273"></a>
 <FONT color="green">274</FONT>        }<a name="line.274"></a>
-<FONT color="green">275</FONT>        Set&lt;TestMethod&gt; testMethods = Sets.newLinkedHashSet();<a name="line.275"></a>
-<FONT color="green">276</FONT>        Set&lt;Class&lt;?&gt;&gt; classes = Sets.newLinkedHashSet();<a name="line.276"></a>
-<FONT color="green">277</FONT>        for (String spec : specs) {<a name="line.277"></a>
-<FONT color="green">278</FONT>          Matcher matcher = METHOD_PARSER.matcher(spec);<a name="line.278"></a>
-<FONT color="green">279</FONT>          try {<a name="line.279"></a>
-<FONT color="green">280</FONT>            if (matcher.matches()) {<a name="line.280"></a>
-<FONT color="green">281</FONT>              Class&lt;?&gt; testClass = Class.forName(matcher.group(1));<a name="line.281"></a>
-<FONT color="green">282</FONT>              if (isTest(testClass)) {<a name="line.282"></a>
-<FONT color="green">283</FONT>                String method = matcher.group(2);<a name="line.283"></a>
-<FONT color="green">284</FONT>                testMethods.add(new TestMethod(testClass, method));<a name="line.284"></a>
-<FONT color="green">285</FONT>              }<a name="line.285"></a>
-<FONT color="green">286</FONT>            } else {<a name="line.286"></a>
-<FONT color="green">287</FONT>              Class&lt;?&gt; testClass = Class.forName(spec);<a name="line.287"></a>
-<FONT color="green">288</FONT>              if (isTest(testClass)) {<a name="line.288"></a>
-<FONT color="green">289</FONT>                classes.add(testClass);<a name="line.289"></a>
-<FONT color="green">290</FONT>              }<a name="line.290"></a>
-<FONT color="green">291</FONT>            }<a name="line.291"></a>
-<FONT color="green">292</FONT>          } catch (NoClassDefFoundError e) {<a name="line.292"></a>
-<FONT color="green">293</FONT>            warnNotFound(spec, out, e);<a name="line.293"></a>
-<FONT color="green">294</FONT>          } catch (ClassNotFoundException e) {<a name="line.294"></a>
-<FONT color="green">295</FONT>            warnNotFound(spec, out, e);<a name="line.295"></a>
-<FONT color="green">296</FONT>          }<a name="line.296"></a>
-<FONT color="green">297</FONT>        }<a name="line.297"></a>
-<FONT color="green">298</FONT>        List&lt;Request&gt; requests = Lists.newArrayList();<a name="line.298"></a>
-<FONT color="green">299</FONT>        if (!classes.isEmpty()) {<a name="line.299"></a>
-<FONT color="green">300</FONT>          requests.add(Request.classes(classes.toArray(new Class&lt;?&gt;[classes.size()])));<a name="line.300"></a>
-<FONT color="green">301</FONT>        }<a name="line.301"></a>
-<FONT color="green">302</FONT>        for (TestMethod testMethod : testMethods) {<a name="line.302"></a>
-<FONT color="green">303</FONT>          requests.add(Request.method(testMethod.clazz, testMethod.name));<a name="line.303"></a>
-<FONT color="green">304</FONT>        }<a name="line.304"></a>
-<FONT color="green">305</FONT>        return requests;<a name="line.305"></a>
-<FONT color="green">306</FONT>      }<a name="line.306"></a>
-<FONT color="green">307</FONT>    <a name="line.307"></a>
-<FONT color="green">308</FONT>      private void warnNotFound(String spec, PrintStream out, Throwable t) {<a name="line.308"></a>
-<FONT color="green">309</FONT>        out.printf("WARNING: Skipping %s: %s\n", spec, t);<a name="line.309"></a>
-<FONT color="green">310</FONT>      }<a name="line.310"></a>
-<FONT color="green">311</FONT>    <a name="line.311"></a>
-<FONT color="green">312</FONT>      /**<a name="line.312"></a>
-<FONT color="green">313</FONT>       * Launcher for JUnitConsoleRunner.<a name="line.313"></a>
-<FONT color="green">314</FONT>       */<a name="line.314"></a>
-<FONT color="green">315</FONT>      public static void main(String[] args) {<a name="line.315"></a>
-<FONT color="green">316</FONT>        System.setOut(new PrintStream(SWAPPABLE_OUT));<a name="line.316"></a>
-<FONT color="green">317</FONT>        System.setErr(new PrintStream(SWAPPABLE_ERR));<a name="line.317"></a>
-<FONT color="green">318</FONT>    <a name="line.318"></a>
-<FONT color="green">319</FONT>        /**<a name="line.319"></a>
-<FONT color="green">320</FONT>         * Command line option bean.<a name="line.320"></a>
-<FONT color="green">321</FONT>         */<a name="line.321"></a>
-<FONT color="green">322</FONT>        class Options {<a name="line.322"></a>
-<FONT color="green">323</FONT>          private boolean failFast = false;<a name="line.323"></a>
-<FONT color="green">324</FONT>          private boolean suppressOutput = false;<a name="line.324"></a>
-<FONT color="green">325</FONT>          private boolean xmlReport = false;<a name="line.325"></a>
-<FONT color="green">326</FONT>          private File outdir = new File(System.getProperty("java.io.tmpdir"));<a name="line.326"></a>
-<FONT color="green">327</FONT>          private List&lt;String&gt; tests = Lists.newArrayList();<a name="line.327"></a>
+<FONT color="green">275</FONT>    <a name="line.275"></a>
+<FONT color="green">276</FONT>        Runtime.getRuntime().removeShutdownHook(abnormalExitHook);<a name="line.276"></a>
+<FONT color="green">277</FONT>        exit(failures);<a name="line.277"></a>
+<FONT color="green">278</FONT>      }<a name="line.278"></a>
+<FONT color="green">279</FONT>    <a name="line.279"></a>
+<FONT color="green">280</FONT>      private List&lt;Request&gt; parseRequests(PrintStream out, Iterable&lt;String&gt; specs) {<a name="line.280"></a>
+<FONT color="green">281</FONT>        /**<a name="line.281"></a>
+<FONT color="green">282</FONT>         * Datatype representing an individual test method.<a name="line.282"></a>
+<FONT color="green">283</FONT>         */<a name="line.283"></a>
+<FONT color="green">284</FONT>        class TestMethod {<a name="line.284"></a>
+<FONT color="green">285</FONT>          private final Class&lt;?&gt; clazz;<a name="line.285"></a>
+<FONT color="green">286</FONT>          private final String name;<a name="line.286"></a>
+<FONT color="green">287</FONT>          TestMethod(Class&lt;?&gt; clazz, String name) {<a name="line.287"></a>
+<FONT color="green">288</FONT>            this.clazz = clazz;<a name="line.288"></a>
+<FONT color="green">289</FONT>            this.name = name;<a name="line.289"></a>
+<FONT color="green">290</FONT>          }<a name="line.290"></a>
+<FONT color="green">291</FONT>        }<a name="line.291"></a>
+<FONT color="green">292</FONT>        Set&lt;TestMethod&gt; testMethods = Sets.newLinkedHashSet();<a name="line.292"></a>
+<FONT color="green">293</FONT>        Set&lt;Class&lt;?&gt;&gt; classes = Sets.newLinkedHashSet();<a name="line.293"></a>
+<FONT color="green">294</FONT>        for (String spec : specs) {<a name="line.294"></a>
+<FONT color="green">295</FONT>          Matcher matcher = METHOD_PARSER.matcher(spec);<a name="line.295"></a>
+<FONT color="green">296</FONT>          try {<a name="line.296"></a>
+<FONT color="green">297</FONT>            if (matcher.matches()) {<a name="line.297"></a>
+<FONT color="green">298</FONT>              Class&lt;?&gt; testClass = Class.forName(matcher.group(1));<a name="line.298"></a>
+<FONT color="green">299</FONT>              if (isTest(testClass)) {<a name="line.299"></a>
+<FONT color="green">300</FONT>                String method = matcher.group(2);<a name="line.300"></a>
+<FONT color="green">301</FONT>                testMethods.add(new TestMethod(testClass, method));<a name="line.301"></a>
+<FONT color="green">302</FONT>              }<a name="line.302"></a>
+<FONT color="green">303</FONT>            } else {<a name="line.303"></a>
+<FONT color="green">304</FONT>              Class&lt;?&gt; testClass = Class.forName(spec);<a name="line.304"></a>
+<FONT color="green">305</FONT>              if (isTest(testClass)) {<a name="line.305"></a>
+<FONT color="green">306</FONT>                classes.add(testClass);<a name="line.306"></a>
+<FONT color="green">307</FONT>              }<a name="line.307"></a>
+<FONT color="green">308</FONT>            }<a name="line.308"></a>
+<FONT color="green">309</FONT>          } catch (NoClassDefFoundError e) {<a name="line.309"></a>
+<FONT color="green">310</FONT>            warnNotFound(spec, out, e);<a name="line.310"></a>
+<FONT color="green">311</FONT>          } catch (ClassNotFoundException e) {<a name="line.311"></a>
+<FONT color="green">312</FONT>            warnNotFound(spec, out, e);<a name="line.312"></a>
+<FONT color="green">313</FONT>          }<a name="line.313"></a>
+<FONT color="green">314</FONT>        }<a name="line.314"></a>
+<FONT color="green">315</FONT>        List&lt;Request&gt; requests = Lists.newArrayList();<a name="line.315"></a>
+<FONT color="green">316</FONT>        if (!classes.isEmpty()) {<a name="line.316"></a>
+<FONT color="green">317</FONT>          requests.add(Request.classes(classes.toArray(new Class&lt;?&gt;[classes.size()])));<a name="line.317"></a>
+<FONT color="green">318</FONT>        }<a name="line.318"></a>
+<FONT color="green">319</FONT>        for (TestMethod testMethod : testMethods) {<a name="line.319"></a>
+<FONT color="green">320</FONT>          requests.add(Request.method(testMethod.clazz, testMethod.name));<a name="line.320"></a>
+<FONT color="green">321</FONT>        }<a name="line.321"></a>
+<FONT color="green">322</FONT>        return requests;<a name="line.322"></a>
+<FONT color="green">323</FONT>      }<a name="line.323"></a>
+<FONT color="green">324</FONT>    <a name="line.324"></a>
+<FONT color="green">325</FONT>      private void warnNotFound(String spec, PrintStream out, Throwable t) {<a name="line.325"></a>
+<FONT color="green">326</FONT>        out.printf("WARNING: Skipping %s: %s\n", spec, t);<a name="line.326"></a>
+<FONT color="green">327</FONT>      }<a name="line.327"></a>
 <FONT color="green">328</FONT>    <a name="line.328"></a>
-<FONT color="green">329</FONT>          @Option(name = "-fail-fast", usage = "Causes the test suite run to fail fast.")<a name="line.329"></a>
-<FONT color="green">330</FONT>          public void setFailFast(boolean failFast) {<a name="line.330"></a>
-<FONT color="green">331</FONT>            this.failFast = failFast;<a name="line.331"></a>
-<FONT color="green">332</FONT>          }<a name="line.332"></a>
-<FONT color="green">333</FONT>    <a name="line.333"></a>
-<FONT color="green">334</FONT>          @Option(name = "-suppress-output", usage = "Suppresses test output.")<a name="line.334"></a>
-<FONT color="green">335</FONT>          public void setSuppressOutput(boolean suppressOutput) {<a name="line.335"></a>
-<FONT color="green">336</FONT>            this.suppressOutput = suppressOutput;<a name="line.336"></a>
-<FONT color="green">337</FONT>          }<a name="line.337"></a>
-<FONT color="green">338</FONT>    <a name="line.338"></a>
-<FONT color="green">339</FONT>          @Option(name = "-xmlreport",<a name="line.339"></a>
-<FONT color="green">340</FONT>                  usage = "Create ant compatible junit xml report files in -outdir.")<a name="line.340"></a>
-<FONT color="green">341</FONT>          public void setXmlReport(boolean xmlReport) {<a name="line.341"></a>
-<FONT color="green">342</FONT>            this.xmlReport = xmlReport;<a name="line.342"></a>
-<FONT color="green">343</FONT>          }<a name="line.343"></a>
-<FONT color="green">344</FONT>    <a name="line.344"></a>
-<FONT color="green">345</FONT>          @Option(name = "-outdir",<a name="line.345"></a>
-<FONT color="green">346</FONT>                  usage = "Directory to output test captures too.  Only used if -suppress-output or "<a name="line.346"></a>
-<FONT color="green">347</FONT>                          + "-xmlreport is set.")<a name="line.347"></a>
-<FONT color="green">348</FONT>          public void setOutdir(File outdir) {<a name="line.348"></a>
-<FONT color="green">349</FONT>            this.outdir = outdir;<a name="line.349"></a>
-<FONT color="green">350</FONT>          }<a name="line.350"></a>
-<FONT color="green">351</FONT>    <a name="line.351"></a>
-<FONT color="green">352</FONT>          @Argument(usage = "Names of junit test classes or test methods to run.  Names prefixed "<a name="line.352"></a>
-<FONT color="green">353</FONT>                            + "with @ are considered arg file paths and these will be loaded and the "<a name="line.353"></a>
-<FONT color="green">354</FONT>                            + "whitespace delimited arguments found inside added to the list",<a name="line.354"></a>
-<FONT color="green">355</FONT>                    required = true,<a name="line.355"></a>
-<FONT color="green">356</FONT>                    metaVar = "TESTS",<a name="line.356"></a>
-<FONT color="green">357</FONT>                    handler = StringArrayOptionHandler.class)<a name="line.357"></a>
-<FONT color="green">358</FONT>          public void setTests(String[] tests) {<a name="line.358"></a>
-<FONT color="green">359</FONT>            this.tests = Arrays.asList(tests);<a name="line.359"></a>
-<FONT color="green">360</FONT>          }<a name="line.360"></a>
-<FONT color="green">361</FONT>        }<a name="line.361"></a>
-<FONT color="green">362</FONT>        Options options = new Options();<a name="line.362"></a>
-<FONT color="green">363</FONT>        CmdLineParser parser = new CmdLineParser(options);<a name="line.363"></a>
-<FONT color="green">364</FONT>        try {<a name="line.364"></a>
-<FONT color="green">365</FONT>          parser.parseArgument(args);<a name="line.365"></a>
-<FONT color="green">366</FONT>        } catch (CmdLineException e) {<a name="line.366"></a>
-<FONT color="green">367</FONT>          e.getParser().printUsage(System.out);<a name="line.367"></a>
-<FONT color="green">368</FONT>          exit(1);<a name="line.368"></a>
-<FONT color="green">369</FONT>        }<a name="line.369"></a>
-<FONT color="green">370</FONT>    <a name="line.370"></a>
-<FONT color="green">371</FONT>        JUnitConsoleRunner runner =<a name="line.371"></a>
-<FONT color="green">372</FONT>            new JUnitConsoleRunner(options.failFast,<a name="line.372"></a>
-<FONT color="green">373</FONT>                options.suppressOutput,<a name="line.373"></a>
-<FONT color="green">374</FONT>                options.xmlReport,<a name="line.374"></a>
-<FONT color="green">375</FONT>                options.outdir);<a name="line.375"></a>
+<FONT color="green">329</FONT>      /**<a name="line.329"></a>
+<FONT color="green">330</FONT>       * Launcher for JUnitConsoleRunner.<a name="line.330"></a>
+<FONT color="green">331</FONT>       */<a name="line.331"></a>
+<FONT color="green">332</FONT>      public static void main(String[] args) {<a name="line.332"></a>
+<FONT color="green">333</FONT>        /**<a name="line.333"></a>
+<FONT color="green">334</FONT>         * Command line option bean.<a name="line.334"></a>
+<FONT color="green">335</FONT>         */<a name="line.335"></a>
+<FONT color="green">336</FONT>        class Options {<a name="line.336"></a>
+<FONT color="green">337</FONT>          private boolean failFast = false;<a name="line.337"></a>
+<FONT color="green">338</FONT>          private boolean suppressOutput = false;<a name="line.338"></a>
+<FONT color="green">339</FONT>          private boolean xmlReport = false;<a name="line.339"></a>
+<FONT color="green">340</FONT>          private File outdir = new File(System.getProperty("java.io.tmpdir"));<a name="line.340"></a>
+<FONT color="green">341</FONT>          private List&lt;String&gt; tests = Lists.newArrayList();<a name="line.341"></a>
+<FONT color="green">342</FONT>    <a name="line.342"></a>
+<FONT color="green">343</FONT>          @Option(name = "-fail-fast", usage = "Causes the test suite run to fail fast.")<a name="line.343"></a>
+<FONT color="green">344</FONT>          public void setFailFast(boolean failFast) {<a name="line.344"></a>
+<FONT color="green">345</FONT>            this.failFast = failFast;<a name="line.345"></a>
+<FONT color="green">346</FONT>          }<a name="line.346"></a>
+<FONT color="green">347</FONT>    <a name="line.347"></a>
+<FONT color="green">348</FONT>          @Option(name = "-suppress-output", usage = "Suppresses test output.")<a name="line.348"></a>
+<FONT color="green">349</FONT>          public void setSuppressOutput(boolean suppressOutput) {<a name="line.349"></a>
+<FONT color="green">350</FONT>            this.suppressOutput = suppressOutput;<a name="line.350"></a>
+<FONT color="green">351</FONT>          }<a name="line.351"></a>
+<FONT color="green">352</FONT>    <a name="line.352"></a>
+<FONT color="green">353</FONT>          @Option(name = "-xmlreport",<a name="line.353"></a>
+<FONT color="green">354</FONT>                  usage = "Create ant compatible junit xml report files in -outdir.")<a name="line.354"></a>
+<FONT color="green">355</FONT>          public void setXmlReport(boolean xmlReport) {<a name="line.355"></a>
+<FONT color="green">356</FONT>            this.xmlReport = xmlReport;<a name="line.356"></a>
+<FONT color="green">357</FONT>          }<a name="line.357"></a>
+<FONT color="green">358</FONT>    <a name="line.358"></a>
+<FONT color="green">359</FONT>          @Option(name = "-outdir",<a name="line.359"></a>
+<FONT color="green">360</FONT>                  usage = "Directory to output test captures too.  Only used if -suppress-output or "<a name="line.360"></a>
+<FONT color="green">361</FONT>                          + "-xmlreport is set.")<a name="line.361"></a>
+<FONT color="green">362</FONT>          public void setOutdir(File outdir) {<a name="line.362"></a>
+<FONT color="green">363</FONT>            this.outdir = outdir;<a name="line.363"></a>
+<FONT color="green">364</FONT>          }<a name="line.364"></a>
+<FONT color="green">365</FONT>    <a name="line.365"></a>
+<FONT color="green">366</FONT>          @Argument(usage = "Names of junit test classes or test methods to run.  Names prefixed "<a name="line.366"></a>
+<FONT color="green">367</FONT>                            + "with @ are considered arg file paths and these will be loaded and the "<a name="line.367"></a>
+<FONT color="green">368</FONT>                            + "whitespace delimited arguments found inside added to the list",<a name="line.368"></a>
+<FONT color="green">369</FONT>                    required = true,<a name="line.369"></a>
+<FONT color="green">370</FONT>                    metaVar = "TESTS",<a name="line.370"></a>
+<FONT color="green">371</FONT>                    handler = StringArrayOptionHandler.class)<a name="line.371"></a>
+<FONT color="green">372</FONT>          public void setTests(String[] tests) {<a name="line.372"></a>
+<FONT color="green">373</FONT>            this.tests = Arrays.asList(tests);<a name="line.373"></a>
+<FONT color="green">374</FONT>          }<a name="line.374"></a>
+<FONT color="green">375</FONT>        }<a name="line.375"></a>
 <FONT color="green">376</FONT>    <a name="line.376"></a>
-<FONT color="green">377</FONT>        List&lt;String&gt; tests = Lists.newArrayList();<a name="line.377"></a>
-<FONT color="green">378</FONT>        for (String test : options.tests) {<a name="line.378"></a>
-<FONT color="green">379</FONT>          if (test.startsWith("@")) {<a name="line.379"></a>
-<FONT color="green">380</FONT>            try {<a name="line.380"></a>
-<FONT color="green">381</FONT>              String argFileContents = Files.toString(new File(test.substring(1)), Charsets.UTF_8);<a name="line.381"></a>
-<FONT color="green">382</FONT>              tests.addAll(Arrays.asList(argFileContents.split("\\s+")));<a name="line.382"></a>
-<FONT color="green">383</FONT>            } catch (IOException e) {<a name="line.383"></a>
-<FONT color="green">384</FONT>              System.err.printf("Failed to load args from arg file %s: %s\n", test, e.getMessage());<a name="line.384"></a>
-<FONT color="green">385</FONT>              exit(1);<a name="line.385"></a>
-<FONT color="green">386</FONT>            }<a name="line.386"></a>
-<FONT color="green">387</FONT>          } else {<a name="line.387"></a>
-<FONT color="green">388</FONT>            tests.add(test);<a name="line.388"></a>
-<FONT color="green">389</FONT>          }<a name="line.389"></a>
-<FONT color="green">390</FONT>        }<a name="line.390"></a>
-<FONT color="green">391</FONT>        runner.run(tests);<a name="line.391"></a>
-<FONT color="green">392</FONT>      }<a name="line.392"></a>
-<FONT color="green">393</FONT>    <a name="line.393"></a>
-<FONT color="green">394</FONT>      private static boolean isTest(final Class&lt;?&gt; clazz) {<a name="line.394"></a>
-<FONT color="green">395</FONT>        // Must be a public concrete class to be a runnable junit Test.<a name="line.395"></a>
-<FONT color="green">396</FONT>        if (clazz.isInterface()<a name="line.396"></a>
-<FONT color="green">397</FONT>            || Modifier.isAbstract(clazz.getModifiers())<a name="line.397"></a>
-<FONT color="green">398</FONT>            || !Modifier.isPublic(clazz.getModifiers())) {<a name="line.398"></a>
-<FONT color="green">399</FONT>          return false;<a name="line.399"></a>
-<FONT color="green">400</FONT>        }<a name="line.400"></a>
-<FONT color="green">401</FONT>    <a name="line.401"></a>
-<FONT color="green">402</FONT>        // Support junit 3.x Test hierarchy.<a name="line.402"></a>
-<FONT color="green">403</FONT>        if (junit.framework.Test.class.isAssignableFrom(clazz)) {<a name="line.403"></a>
-<FONT color="green">404</FONT>          return true;<a name="line.404"></a>
+<FONT color="green">377</FONT>        Options options = new Options();<a name="line.377"></a>
+<FONT color="green">378</FONT>        CmdLineParser parser = new CmdLineParser(options);<a name="line.378"></a>
+<FONT color="green">379</FONT>        try {<a name="line.379"></a>
+<FONT color="green">380</FONT>          parser.parseArgument(args);<a name="line.380"></a>
+<FONT color="green">381</FONT>        } catch (CmdLineException e) {<a name="line.381"></a>
+<FONT color="green">382</FONT>          e.getParser().printUsage(System.out);<a name="line.382"></a>
+<FONT color="green">383</FONT>          exit(1);<a name="line.383"></a>
+<FONT color="green">384</FONT>        }<a name="line.384"></a>
+<FONT color="green">385</FONT>    <a name="line.385"></a>
+<FONT color="green">386</FONT>        JUnitConsoleRunner runner =<a name="line.386"></a>
+<FONT color="green">387</FONT>            new JUnitConsoleRunner(options.failFast,<a name="line.387"></a>
+<FONT color="green">388</FONT>                options.suppressOutput,<a name="line.388"></a>
+<FONT color="green">389</FONT>                options.xmlReport,<a name="line.389"></a>
+<FONT color="green">390</FONT>                options.outdir);<a name="line.390"></a>
+<FONT color="green">391</FONT>    <a name="line.391"></a>
+<FONT color="green">392</FONT>        List&lt;String&gt; tests = Lists.newArrayList();<a name="line.392"></a>
+<FONT color="green">393</FONT>        for (String test : options.tests) {<a name="line.393"></a>
+<FONT color="green">394</FONT>          if (test.startsWith("@")) {<a name="line.394"></a>
+<FONT color="green">395</FONT>            try {<a name="line.395"></a>
+<FONT color="green">396</FONT>              String argFileContents = Files.toString(new File(test.substring(1)), Charsets.UTF_8);<a name="line.396"></a>
+<FONT color="green">397</FONT>              tests.addAll(Arrays.asList(argFileContents.split("\\s+")));<a name="line.397"></a>
+<FONT color="green">398</FONT>            } catch (IOException e) {<a name="line.398"></a>
+<FONT color="green">399</FONT>              System.err.printf("Failed to load args from arg file %s: %s\n", test, e.getMessage());<a name="line.399"></a>
+<FONT color="green">400</FONT>              exit(1);<a name="line.400"></a>
+<FONT color="green">401</FONT>            }<a name="line.401"></a>
+<FONT color="green">402</FONT>          } else {<a name="line.402"></a>
+<FONT color="green">403</FONT>            tests.add(test);<a name="line.403"></a>
+<FONT color="green">404</FONT>          }<a name="line.404"></a>
 <FONT color="green">405</FONT>        }<a name="line.405"></a>
 <FONT color="green">406</FONT>    <a name="line.406"></a>
-<FONT color="green">407</FONT>        // Support junit 4.x @Test annotated methods.<a name="line.407"></a>
-<FONT color="green">408</FONT>        return Iterables.any(Arrays.asList(clazz.getMethods()), new Predicate&lt;Method&gt;() {<a name="line.408"></a>
-<FONT color="green">409</FONT>          @Override public boolean apply(Method method) {<a name="line.409"></a>
-<FONT color="green">410</FONT>            return Modifier.isPublic(method.getModifiers())<a name="line.410"></a>
-<FONT color="green">411</FONT>                &amp;&amp; method.isAnnotationPresent(org.junit.Test.class);<a name="line.411"></a>
-<FONT color="green">412</FONT>          }<a name="line.412"></a>
-<FONT color="green">413</FONT>        });<a name="line.413"></a>
-<FONT color="green">414</FONT>      }<a name="line.414"></a>
-<FONT color="green">415</FONT>    <a name="line.415"></a>
-<FONT color="green">416</FONT>      private static void exit(int code) {<a name="line.416"></a>
-<FONT color="green">417</FONT>        // We're a main - its fine to exit.<a name="line.417"></a>
-<FONT color="green">418</FONT>        // SUPPRESS CHECKSTYLE RegexpSinglelineJava<a name="line.418"></a>
-<FONT color="green">419</FONT>        System.exit(code);<a name="line.419"></a>
-<FONT color="green">420</FONT>      }<a name="line.420"></a>
-<FONT color="green">421</FONT>    }<a name="line.421"></a>
+<FONT color="green">407</FONT>        runner.run(tests);<a name="line.407"></a>
+<FONT color="green">408</FONT>      }<a name="line.408"></a>
+<FONT color="green">409</FONT>    <a name="line.409"></a>
+<FONT color="green">410</FONT>      private static boolean isTest(final Class&lt;?&gt; clazz) {<a name="line.410"></a>
+<FONT color="green">411</FONT>        // Must be a public concrete class to be a runnable junit Test.<a name="line.411"></a>
+<FONT color="green">412</FONT>        if (clazz.isInterface()<a name="line.412"></a>
+<FONT color="green">413</FONT>            || Modifier.isAbstract(clazz.getModifiers())<a name="line.413"></a>
+<FONT color="green">414</FONT>            || !Modifier.isPublic(clazz.getModifiers())) {<a name="line.414"></a>
+<FONT color="green">415</FONT>          return false;<a name="line.415"></a>
+<FONT color="green">416</FONT>        }<a name="line.416"></a>
+<FONT color="green">417</FONT>    <a name="line.417"></a>
+<FONT color="green">418</FONT>        // Support junit 3.x Test hierarchy.<a name="line.418"></a>
+<FONT color="green">419</FONT>        if (junit.framework.Test.class.isAssignableFrom(clazz)) {<a name="line.419"></a>
+<FONT color="green">420</FONT>          return true;<a name="line.420"></a>
+<FONT color="green">421</FONT>        }<a name="line.421"></a>
+<FONT color="green">422</FONT>    <a name="line.422"></a>
+<FONT color="green">423</FONT>        // Support junit 4.x @Test annotated methods.<a name="line.423"></a>
+<FONT color="green">424</FONT>        return Iterables.any(Arrays.asList(clazz.getMethods()), new Predicate&lt;Method&gt;() {<a name="line.424"></a>
+<FONT color="green">425</FONT>          @Override public boolean apply(Method method) {<a name="line.425"></a>
+<FONT color="green">426</FONT>            return Modifier.isPublic(method.getModifiers())<a name="line.426"></a>
+<FONT color="green">427</FONT>                &amp;&amp; method.isAnnotationPresent(org.junit.Test.class);<a name="line.427"></a>
+<FONT color="green">428</FONT>          }<a name="line.428"></a>
+<FONT color="green">429</FONT>        });<a name="line.429"></a>
+<FONT color="green">430</FONT>      }<a name="line.430"></a>
+<FONT color="green">431</FONT>    <a name="line.431"></a>
+<FONT color="green">432</FONT>      private static void exit(int code) {<a name="line.432"></a>
+<FONT color="green">433</FONT>        // We're a main - its fine to exit.<a name="line.433"></a>
+<FONT color="green">434</FONT>        // SUPPRESS CHECKSTYLE RegexpSinglelineJava<a name="line.434"></a>
+<FONT color="green">435</FONT>        System.exit(code);<a name="line.435"></a>
+<FONT color="green">436</FONT>      }<a name="line.436"></a>
+<FONT color="green">437</FONT>    }<a name="line.437"></a>
 
 
 

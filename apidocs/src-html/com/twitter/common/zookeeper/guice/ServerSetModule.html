@@ -22,179 +22,234 @@
 <FONT color="green">019</FONT>    import java.lang.annotation.Retention;<a name="line.19"></a>
 <FONT color="green">020</FONT>    import java.lang.annotation.Target;<a name="line.20"></a>
 <FONT color="green">021</FONT>    import java.net.InetSocketAddress;<a name="line.21"></a>
-<FONT color="green">022</FONT>    import java.util.concurrent.atomic.AtomicReference;<a name="line.22"></a>
-<FONT color="green">023</FONT>    import java.util.logging.Level;<a name="line.23"></a>
-<FONT color="green">024</FONT>    import java.util.logging.Logger;<a name="line.24"></a>
-<FONT color="green">025</FONT>    <a name="line.25"></a>
-<FONT color="green">026</FONT>    import static java.lang.annotation.ElementType.FIELD;<a name="line.26"></a>
-<FONT color="green">027</FONT>    import static java.lang.annotation.ElementType.METHOD;<a name="line.27"></a>
-<FONT color="green">028</FONT>    import static java.lang.annotation.ElementType.PARAMETER;<a name="line.28"></a>
-<FONT color="green">029</FONT>    import static java.lang.annotation.RetentionPolicy.RUNTIME;<a name="line.29"></a>
-<FONT color="green">030</FONT>    <a name="line.30"></a>
-<FONT color="green">031</FONT>    import javax.annotation.Nullable;<a name="line.31"></a>
-<FONT color="green">032</FONT>    <a name="line.32"></a>
-<FONT color="green">033</FONT>    import com.google.common.base.Optional;<a name="line.33"></a>
-<FONT color="green">034</FONT>    import com.google.common.base.Preconditions;<a name="line.34"></a>
-<FONT color="green">035</FONT>    import com.google.common.util.concurrent.Atomics;<a name="line.35"></a>
-<FONT color="green">036</FONT>    import com.google.inject.BindingAnnotation;<a name="line.36"></a>
-<FONT color="green">037</FONT>    import com.google.inject.AbstractModule;<a name="line.37"></a>
-<FONT color="green">038</FONT>    import com.google.inject.Inject;<a name="line.38"></a>
-<FONT color="green">039</FONT>    import com.google.inject.Provides;<a name="line.39"></a>
-<FONT color="green">040</FONT>    import com.google.inject.Singleton;<a name="line.40"></a>
-<FONT color="green">041</FONT>    import com.google.inject.TypeLiteral;<a name="line.41"></a>
-<FONT color="green">042</FONT>    <a name="line.42"></a>
-<FONT color="green">043</FONT>    import com.twitter.common.application.ShutdownRegistry;<a name="line.43"></a>
-<FONT color="green">044</FONT>    import com.twitter.common.application.modules.LifecycleModule;<a name="line.44"></a>
-<FONT color="green">045</FONT>    import com.twitter.common.application.modules.LocalServiceRegistry;<a name="line.45"></a>
-<FONT color="green">046</FONT>    import com.twitter.common.args.Arg;<a name="line.46"></a>
-<FONT color="green">047</FONT>    import com.twitter.common.args.CmdLine;<a name="line.47"></a>
-<FONT color="green">048</FONT>    import com.twitter.common.args.constraints.NotEmpty;<a name="line.48"></a>
-<FONT color="green">049</FONT>    import com.twitter.common.args.constraints.NotNull;<a name="line.49"></a>
-<FONT color="green">050</FONT>    import com.twitter.common.base.Command;<a name="line.50"></a>
-<FONT color="green">051</FONT>    import com.twitter.common.base.ExceptionalCommand;<a name="line.51"></a>
-<FONT color="green">052</FONT>    import com.twitter.common.base.Supplier;<a name="line.52"></a>
-<FONT color="green">053</FONT>    import com.twitter.common.zookeeper.Group.JoinException;<a name="line.53"></a>
-<FONT color="green">054</FONT>    import com.twitter.common.zookeeper.ServerSet;<a name="line.54"></a>
-<FONT color="green">055</FONT>    import com.twitter.common.zookeeper.ServerSet.EndpointStatus;<a name="line.55"></a>
-<FONT color="green">056</FONT>    import com.twitter.common.zookeeper.ServerSet.UpdateException;<a name="line.56"></a>
-<FONT color="green">057</FONT>    import com.twitter.common.zookeeper.ServerSetImpl;<a name="line.57"></a>
-<FONT color="green">058</FONT>    import com.twitter.common.zookeeper.ZooKeeperClient;<a name="line.58"></a>
-<FONT color="green">059</FONT>    import com.twitter.thrift.Status;<a name="line.59"></a>
-<FONT color="green">060</FONT>    <a name="line.60"></a>
-<FONT color="green">061</FONT>    import static com.google.common.base.Preconditions.checkNotNull;<a name="line.61"></a>
-<FONT color="green">062</FONT>    <a name="line.62"></a>
-<FONT color="green">063</FONT>    /**<a name="line.63"></a>
-<FONT color="green">064</FONT>     * A module that registers all ports in the {@link LocalServiceRegistry} in an {@link ServerSet}.<a name="line.64"></a>
-<FONT color="green">065</FONT>     *<a name="line.65"></a>
-<FONT color="green">066</FONT>     * Required bindings:<a name="line.66"></a>
-<FONT color="green">067</FONT>     * &lt;ul&gt;<a name="line.67"></a>
-<FONT color="green">068</FONT>     *   &lt;li&gt; {@link ZooKeeperClient}<a name="line.68"></a>
-<FONT color="green">069</FONT>     *   &lt;li&gt; {@link ShutdownRegistry}<a name="line.69"></a>
-<FONT color="green">070</FONT>     *   &lt;li&gt; {@link LocalServiceRegistry}<a name="line.70"></a>
-<FONT color="green">071</FONT>     * &lt;/ul&gt;<a name="line.71"></a>
-<FONT color="green">072</FONT>     *<a name="line.72"></a>
-<FONT color="green">073</FONT>     * {@link LifecycleModule} must also be included by users so a startup action may be registered.<a name="line.73"></a>
-<FONT color="green">074</FONT>     *<a name="line.74"></a>
-<FONT color="green">075</FONT>     * Provided bindings:<a name="line.75"></a>
-<FONT color="green">076</FONT>     * &lt;ul&gt;<a name="line.76"></a>
-<FONT color="green">077</FONT>     *   &lt;li&gt; {@link Supplier&lt;EndpointStatus&gt;}<a name="line.77"></a>
-<FONT color="green">078</FONT>     * &lt;/ul&gt;<a name="line.78"></a>
-<FONT color="green">079</FONT>     *<a name="line.79"></a>
-<FONT color="green">080</FONT>     * @author William Farner<a name="line.80"></a>
-<FONT color="green">081</FONT>     */<a name="line.81"></a>
-<FONT color="green">082</FONT>    public class ServerSetModule extends AbstractModule {<a name="line.82"></a>
-<FONT color="green">083</FONT>    <a name="line.83"></a>
-<FONT color="green">084</FONT>      /**<a name="line.84"></a>
-<FONT color="green">085</FONT>       * BindingAnnotation for the name of the inital Status to report to ZooKeeper.<a name="line.85"></a>
-<FONT color="green">086</FONT>       */<a name="line.86"></a>
-<FONT color="green">087</FONT>      @BindingAnnotation @Target({ PARAMETER, METHOD, FIELD }) @Retention(RUNTIME)<a name="line.87"></a>
-<FONT color="green">088</FONT>      private @interface InitialStatus { }<a name="line.88"></a>
-<FONT color="green">089</FONT>    <a name="line.89"></a>
-<FONT color="green">090</FONT>      @NotNull<a name="line.90"></a>
-<FONT color="green">091</FONT>      @NotEmpty<a name="line.91"></a>
-<FONT color="green">092</FONT>      @CmdLine(name = "serverset_path", help = "ServerSet registration path")<a name="line.92"></a>
-<FONT color="green">093</FONT>      protected static final Arg&lt;String&gt; SERVERSET_PATH = Arg.create(null);<a name="line.93"></a>
-<FONT color="green">094</FONT>    <a name="line.94"></a>
-<FONT color="green">095</FONT>      private static final Logger LOG = Logger.getLogger(ServerSetModule.class.getName());<a name="line.95"></a>
-<FONT color="green">096</FONT>      private final Status initialStatus;<a name="line.96"></a>
-<FONT color="green">097</FONT>    <a name="line.97"></a>
-<FONT color="green">098</FONT>      /**<a name="line.98"></a>
-<FONT color="green">099</FONT>       * Constructs a ServerSetModule that registers a startup action that registers this process in<a name="line.99"></a>
-<FONT color="green">100</FONT>       * ZooKeeper, with the initial Status {@link Status.ALIVE}.<a name="line.100"></a>
-<FONT color="green">101</FONT>       */<a name="line.101"></a>
-<FONT color="green">102</FONT>      public ServerSetModule() {<a name="line.102"></a>
-<FONT color="green">103</FONT>        this(Status.ALIVE);<a name="line.103"></a>
-<FONT color="green">104</FONT>      }<a name="line.104"></a>
+<FONT color="green">022</FONT>    import java.util.Map;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import java.util.concurrent.atomic.AtomicReference;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import java.util.logging.Level;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import java.util.logging.Logger;<a name="line.25"></a>
+<FONT color="green">026</FONT>    <a name="line.26"></a>
+<FONT color="green">027</FONT>    import static java.lang.annotation.ElementType.FIELD;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import static java.lang.annotation.ElementType.METHOD;<a name="line.28"></a>
+<FONT color="green">029</FONT>    import static java.lang.annotation.ElementType.PARAMETER;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import static java.lang.annotation.RetentionPolicy.RUNTIME;<a name="line.30"></a>
+<FONT color="green">031</FONT>    <a name="line.31"></a>
+<FONT color="green">032</FONT>    import javax.annotation.Nullable;<a name="line.32"></a>
+<FONT color="green">033</FONT>    <a name="line.33"></a>
+<FONT color="green">034</FONT>    import com.google.common.base.Optional;<a name="line.34"></a>
+<FONT color="green">035</FONT>    import com.google.common.base.Preconditions;<a name="line.35"></a>
+<FONT color="green">036</FONT>    import com.google.common.util.concurrent.Atomics;<a name="line.36"></a>
+<FONT color="green">037</FONT>    import com.google.inject.BindingAnnotation;<a name="line.37"></a>
+<FONT color="green">038</FONT>    import com.google.inject.AbstractModule;<a name="line.38"></a>
+<FONT color="green">039</FONT>    import com.google.inject.Inject;<a name="line.39"></a>
+<FONT color="green">040</FONT>    import com.google.inject.Provides;<a name="line.40"></a>
+<FONT color="green">041</FONT>    import com.google.inject.Singleton;<a name="line.41"></a>
+<FONT color="green">042</FONT>    import com.google.inject.TypeLiteral;<a name="line.42"></a>
+<FONT color="green">043</FONT>    <a name="line.43"></a>
+<FONT color="green">044</FONT>    import com.twitter.common.application.ShutdownRegistry;<a name="line.44"></a>
+<FONT color="green">045</FONT>    import com.twitter.common.application.modules.LifecycleModule;<a name="line.45"></a>
+<FONT color="green">046</FONT>    import com.twitter.common.application.modules.LocalServiceRegistry;<a name="line.46"></a>
+<FONT color="green">047</FONT>    import com.twitter.common.args.Arg;<a name="line.47"></a>
+<FONT color="green">048</FONT>    import com.twitter.common.args.CmdLine;<a name="line.48"></a>
+<FONT color="green">049</FONT>    import com.twitter.common.args.constraints.NotEmpty;<a name="line.49"></a>
+<FONT color="green">050</FONT>    import com.twitter.common.args.constraints.NotNull;<a name="line.50"></a>
+<FONT color="green">051</FONT>    import com.twitter.common.base.Command;<a name="line.51"></a>
+<FONT color="green">052</FONT>    import com.twitter.common.base.ExceptionalCommand;<a name="line.52"></a>
+<FONT color="green">053</FONT>    import com.twitter.common.base.Supplier;<a name="line.53"></a>
+<FONT color="green">054</FONT>    import com.twitter.common.zookeeper.Group.JoinException;<a name="line.54"></a>
+<FONT color="green">055</FONT>    import com.twitter.common.zookeeper.ServerSet;<a name="line.55"></a>
+<FONT color="green">056</FONT>    import com.twitter.common.zookeeper.ServerSet.EndpointStatus;<a name="line.56"></a>
+<FONT color="green">057</FONT>    import com.twitter.common.zookeeper.ServerSet.UpdateException;<a name="line.57"></a>
+<FONT color="green">058</FONT>    import com.twitter.common.zookeeper.ServerSetImpl;<a name="line.58"></a>
+<FONT color="green">059</FONT>    import com.twitter.common.zookeeper.ZooKeeperClient;<a name="line.59"></a>
+<FONT color="green">060</FONT>    import com.twitter.thrift.Status;<a name="line.60"></a>
+<FONT color="green">061</FONT>    <a name="line.61"></a>
+<FONT color="green">062</FONT>    import static com.google.common.base.Preconditions.checkNotNull;<a name="line.62"></a>
+<FONT color="green">063</FONT>    <a name="line.63"></a>
+<FONT color="green">064</FONT>    /**<a name="line.64"></a>
+<FONT color="green">065</FONT>     * A module that registers all ports in the {@link LocalServiceRegistry} in an {@link ServerSet}.<a name="line.65"></a>
+<FONT color="green">066</FONT>     *<a name="line.66"></a>
+<FONT color="green">067</FONT>     * Required bindings:<a name="line.67"></a>
+<FONT color="green">068</FONT>     * &lt;ul&gt;<a name="line.68"></a>
+<FONT color="green">069</FONT>     *   &lt;li&gt; {@link ZooKeeperClient}<a name="line.69"></a>
+<FONT color="green">070</FONT>     *   &lt;li&gt; {@link ShutdownRegistry}<a name="line.70"></a>
+<FONT color="green">071</FONT>     *   &lt;li&gt; {@link LocalServiceRegistry}<a name="line.71"></a>
+<FONT color="green">072</FONT>     * &lt;/ul&gt;<a name="line.72"></a>
+<FONT color="green">073</FONT>     *<a name="line.73"></a>
+<FONT color="green">074</FONT>     * {@link LifecycleModule} must also be included by users so a startup action may be registered.<a name="line.74"></a>
+<FONT color="green">075</FONT>     *<a name="line.75"></a>
+<FONT color="green">076</FONT>     * Provided bindings:<a name="line.76"></a>
+<FONT color="green">077</FONT>     * &lt;ul&gt;<a name="line.77"></a>
+<FONT color="green">078</FONT>     *   &lt;li&gt; {@link Supplier&lt;EndpointStatus&gt;}<a name="line.78"></a>
+<FONT color="green">079</FONT>     * &lt;/ul&gt;<a name="line.79"></a>
+<FONT color="green">080</FONT>     *<a name="line.80"></a>
+<FONT color="green">081</FONT>     * @author William Farner<a name="line.81"></a>
+<FONT color="green">082</FONT>     */<a name="line.82"></a>
+<FONT color="green">083</FONT>    public class ServerSetModule extends AbstractModule {<a name="line.83"></a>
+<FONT color="green">084</FONT>    <a name="line.84"></a>
+<FONT color="green">085</FONT>      /**<a name="line.85"></a>
+<FONT color="green">086</FONT>       * BindingAnnotation for defaults to use in the service instance node.<a name="line.86"></a>
+<FONT color="green">087</FONT>       */<a name="line.87"></a>
+<FONT color="green">088</FONT>      @BindingAnnotation @Target({ PARAMETER, METHOD, FIELD }) @Retention(RUNTIME)<a name="line.88"></a>
+<FONT color="green">089</FONT>      private @interface Default { }<a name="line.89"></a>
+<FONT color="green">090</FONT>    <a name="line.90"></a>
+<FONT color="green">091</FONT>      @NotNull<a name="line.91"></a>
+<FONT color="green">092</FONT>      @NotEmpty<a name="line.92"></a>
+<FONT color="green">093</FONT>      @CmdLine(name = "serverset_path", help = "ServerSet registration path")<a name="line.93"></a>
+<FONT color="green">094</FONT>      protected static final Arg&lt;String&gt; SERVERSET_PATH = Arg.create(null);<a name="line.94"></a>
+<FONT color="green">095</FONT>    <a name="line.95"></a>
+<FONT color="green">096</FONT>      @CmdLine(name = "aux_port_as_primary",<a name="line.96"></a>
+<FONT color="green">097</FONT>          help = "Name of the auxiliary port to use as the primary port in the server set."<a name="line.97"></a>
+<FONT color="green">098</FONT>              + " This may only be used when no other primary port is specified.")<a name="line.98"></a>
+<FONT color="green">099</FONT>      private static final Arg&lt;String&gt; AUX_PORT_AS_PRIMARY = Arg.create(null);<a name="line.99"></a>
+<FONT color="green">100</FONT>    <a name="line.100"></a>
+<FONT color="green">101</FONT>      private static final Logger LOG = Logger.getLogger(ServerSetModule.class.getName());<a name="line.101"></a>
+<FONT color="green">102</FONT>    <a name="line.102"></a>
+<FONT color="green">103</FONT>      private final Status initialStatus;<a name="line.103"></a>
+<FONT color="green">104</FONT>      private final Optional&lt;String&gt; auxPortAsPrimary;<a name="line.104"></a>
 <FONT color="green">105</FONT>    <a name="line.105"></a>
 <FONT color="green">106</FONT>      /**<a name="line.106"></a>
-<FONT color="green">107</FONT>       * Constructs a ServerSetModule that registers a startup action that registers this process in<a name="line.107"></a>
-<FONT color="green">108</FONT>       * ZooKeeper, with the specified initial Status.<a name="line.108"></a>
-<FONT color="green">109</FONT>       *<a name="line.109"></a>
-<FONT color="green">110</FONT>       * @param initialStatus initial Status to report to ZooKeeper, such as {@link Status.STARTING}.<a name="line.110"></a>
-<FONT color="green">111</FONT>       */<a name="line.111"></a>
-<FONT color="green">112</FONT>      public ServerSetModule(Status initialStatus) {<a name="line.112"></a>
-<FONT color="green">113</FONT>        this.initialStatus = Preconditions.checkNotNull(initialStatus);<a name="line.113"></a>
-<FONT color="green">114</FONT>      }<a name="line.114"></a>
-<FONT color="green">115</FONT>    <a name="line.115"></a>
-<FONT color="green">116</FONT>      @Override<a name="line.116"></a>
-<FONT color="green">117</FONT>      protected void configure() {<a name="line.117"></a>
-<FONT color="green">118</FONT>        requireBinding(ZooKeeperClient.class);<a name="line.118"></a>
-<FONT color="green">119</FONT>        requireBinding(ShutdownRegistry.class);<a name="line.119"></a>
-<FONT color="green">120</FONT>        requireBinding(LocalServiceRegistry.class);<a name="line.120"></a>
-<FONT color="green">121</FONT>        LifecycleModule.bindStartupAction(binder(), ServerSetJoiner.class);<a name="line.121"></a>
-<FONT color="green">122</FONT>    <a name="line.122"></a>
-<FONT color="green">123</FONT>        bind(new TypeLiteral&lt;Supplier&lt;EndpointStatus&gt;&gt;() { }).to(EndpointSupplier.class);<a name="line.123"></a>
-<FONT color="green">124</FONT>        bind(EndpointSupplier.class).in(Singleton.class);<a name="line.124"></a>
-<FONT color="green">125</FONT>        bind(Status.class).annotatedWith(InitialStatus.class).toInstance(initialStatus);<a name="line.125"></a>
-<FONT color="green">126</FONT>      }<a name="line.126"></a>
-<FONT color="green">127</FONT>    <a name="line.127"></a>
-<FONT color="green">128</FONT>      static class EndpointSupplier implements Supplier&lt;EndpointStatus&gt; {<a name="line.128"></a>
-<FONT color="green">129</FONT>        private final AtomicReference&lt;EndpointStatus&gt; reference = Atomics.newReference();<a name="line.129"></a>
-<FONT color="green">130</FONT>    <a name="line.130"></a>
-<FONT color="green">131</FONT>        @Nullable<a name="line.131"></a>
-<FONT color="green">132</FONT>        @Override public EndpointStatus get() {<a name="line.132"></a>
-<FONT color="green">133</FONT>          return reference.get();<a name="line.133"></a>
-<FONT color="green">134</FONT>        }<a name="line.134"></a>
-<FONT color="green">135</FONT>    <a name="line.135"></a>
-<FONT color="green">136</FONT>        void set(EndpointStatus endpoint) {<a name="line.136"></a>
-<FONT color="green">137</FONT>          reference.set(endpoint);<a name="line.137"></a>
-<FONT color="green">138</FONT>        }<a name="line.138"></a>
-<FONT color="green">139</FONT>      }<a name="line.139"></a>
-<FONT color="green">140</FONT>    <a name="line.140"></a>
-<FONT color="green">141</FONT>      private static class ServerSetJoiner implements Command {<a name="line.141"></a>
-<FONT color="green">142</FONT>        private final ZooKeeperClient zkClient;<a name="line.142"></a>
-<FONT color="green">143</FONT>        private final LocalServiceRegistry serviceRegistry;<a name="line.143"></a>
-<FONT color="green">144</FONT>        private final ShutdownRegistry shutdownRegistry;<a name="line.144"></a>
-<FONT color="green">145</FONT>        private final EndpointSupplier endpointSupplier;<a name="line.145"></a>
-<FONT color="green">146</FONT>        private final Status initialStatus;<a name="line.146"></a>
-<FONT color="green">147</FONT>    <a name="line.147"></a>
-<FONT color="green">148</FONT>        @Inject<a name="line.148"></a>
-<FONT color="green">149</FONT>        ServerSetJoiner(<a name="line.149"></a>
-<FONT color="green">150</FONT>            ZooKeeperClient zkClient,<a name="line.150"></a>
-<FONT color="green">151</FONT>            LocalServiceRegistry serviceRegistry,<a name="line.151"></a>
-<FONT color="green">152</FONT>            ShutdownRegistry shutdownRegistry,<a name="line.152"></a>
-<FONT color="green">153</FONT>            EndpointSupplier endpointSupplier,<a name="line.153"></a>
-<FONT color="green">154</FONT>            @InitialStatus Status initialStatus) {<a name="line.154"></a>
-<FONT color="green">155</FONT>          this.zkClient = checkNotNull(zkClient);<a name="line.155"></a>
-<FONT color="green">156</FONT>          this.serviceRegistry = checkNotNull(serviceRegistry);<a name="line.156"></a>
-<FONT color="green">157</FONT>          this.shutdownRegistry = checkNotNull(shutdownRegistry);<a name="line.157"></a>
-<FONT color="green">158</FONT>          this.endpointSupplier = checkNotNull(endpointSupplier);<a name="line.158"></a>
-<FONT color="green">159</FONT>          this.initialStatus = checkNotNull(initialStatus);<a name="line.159"></a>
-<FONT color="green">160</FONT>        }<a name="line.160"></a>
-<FONT color="green">161</FONT>    <a name="line.161"></a>
-<FONT color="green">162</FONT>        @Override public void execute() throws RuntimeException {<a name="line.162"></a>
-<FONT color="green">163</FONT>          ServerSet serverSet = new ServerSetImpl(zkClient, SERVERSET_PATH.get());<a name="line.163"></a>
-<FONT color="green">164</FONT>    <a name="line.164"></a>
-<FONT color="green">165</FONT>          Optional&lt;InetSocketAddress&gt; primarySocket = serviceRegistry.getPrimarySocket();<a name="line.165"></a>
-<FONT color="green">166</FONT>          if (!primarySocket.isPresent()) {<a name="line.166"></a>
-<FONT color="green">167</FONT>            throw new IllegalStateException("No primary service registered with LocalServiceRegistry.");<a name="line.167"></a>
-<FONT color="green">168</FONT>          }<a name="line.168"></a>
-<FONT color="green">169</FONT>    <a name="line.169"></a>
-<FONT color="green">170</FONT>          final EndpointStatus endpointStatus;<a name="line.170"></a>
-<FONT color="green">171</FONT>          try {<a name="line.171"></a>
-<FONT color="green">172</FONT>            endpointStatus = serverSet.join(<a name="line.172"></a>
-<FONT color="green">173</FONT>                primarySocket.get(),<a name="line.173"></a>
-<FONT color="green">174</FONT>                serviceRegistry.getAuxiliarySockets(),<a name="line.174"></a>
-<FONT color="green">175</FONT>                initialStatus);<a name="line.175"></a>
-<FONT color="green">176</FONT>            endpointSupplier.set(endpointStatus);<a name="line.176"></a>
-<FONT color="green">177</FONT>          } catch (JoinException e) {<a name="line.177"></a>
-<FONT color="green">178</FONT>            LOG.log(Level.WARNING, "Failed to join ServerSet.", e);<a name="line.178"></a>
-<FONT color="green">179</FONT>            throw new RuntimeException(e);<a name="line.179"></a>
-<FONT color="green">180</FONT>          } catch (InterruptedException e) {<a name="line.180"></a>
-<FONT color="green">181</FONT>            LOG.log(Level.WARNING, "Interrupted while joining ServerSet.", e);<a name="line.181"></a>
-<FONT color="green">182</FONT>            Thread.currentThread().interrupt();<a name="line.182"></a>
-<FONT color="green">183</FONT>            throw new RuntimeException(e);<a name="line.183"></a>
-<FONT color="green">184</FONT>          }<a name="line.184"></a>
+<FONT color="green">107</FONT>       * Calls {@link #ServerSetModule(Optional)} with an absent value.<a name="line.107"></a>
+<FONT color="green">108</FONT>       */<a name="line.108"></a>
+<FONT color="green">109</FONT>      public ServerSetModule() {<a name="line.109"></a>
+<FONT color="green">110</FONT>        this(Optional.&lt;String&gt;absent());<a name="line.110"></a>
+<FONT color="green">111</FONT>      }<a name="line.111"></a>
+<FONT color="green">112</FONT>    <a name="line.112"></a>
+<FONT color="green">113</FONT>      /**<a name="line.113"></a>
+<FONT color="green">114</FONT>       * Calls {@link #ServerSetModule(Status, Optional)} with initial status {@link Status#ALIVE}.<a name="line.114"></a>
+<FONT color="green">115</FONT>       *<a name="line.115"></a>
+<FONT color="green">116</FONT>       * @param auxPortAsPrimary Name of the auxiliary port to use as the primary port.<a name="line.116"></a>
+<FONT color="green">117</FONT>       */<a name="line.117"></a>
+<FONT color="green">118</FONT>      public ServerSetModule(Optional&lt;String&gt; auxPortAsPrimary) {<a name="line.118"></a>
+<FONT color="green">119</FONT>        this(Status.ALIVE, auxPortAsPrimary);<a name="line.119"></a>
+<FONT color="green">120</FONT>      }<a name="line.120"></a>
+<FONT color="green">121</FONT>    <a name="line.121"></a>
+<FONT color="green">122</FONT>      /**<a name="line.122"></a>
+<FONT color="green">123</FONT>       * Constructs a ServerSetModule that registers a startup action that registers this process in<a name="line.123"></a>
+<FONT color="green">124</FONT>       * ZooKeeper, with the specified initial Status.<a name="line.124"></a>
+<FONT color="green">125</FONT>       *<a name="line.125"></a>
+<FONT color="green">126</FONT>       * @param initialStatus initial Status to report to ZooKeeper.<a name="line.126"></a>
+<FONT color="green">127</FONT>       */<a name="line.127"></a>
+<FONT color="green">128</FONT>      public ServerSetModule(Status initialStatus) {<a name="line.128"></a>
+<FONT color="green">129</FONT>        this(initialStatus, Optional.&lt;String&gt;absent());<a name="line.129"></a>
+<FONT color="green">130</FONT>      }<a name="line.130"></a>
+<FONT color="green">131</FONT>    <a name="line.131"></a>
+<FONT color="green">132</FONT>      /**<a name="line.132"></a>
+<FONT color="green">133</FONT>       * Constructs a ServerSetModule that registers a startup action to register this process in<a name="line.133"></a>
+<FONT color="green">134</FONT>       * ZooKeeper, with the specified initial status and auxiliary port to represent as the primary<a name="line.134"></a>
+<FONT color="green">135</FONT>       * service port.<a name="line.135"></a>
+<FONT color="green">136</FONT>       *<a name="line.136"></a>
+<FONT color="green">137</FONT>       * @param initialStatus initial Status to report to ZooKeeper.<a name="line.137"></a>
+<FONT color="green">138</FONT>       * @param auxPortAsPrimary Name of the auxiliary port to use as the primary port.<a name="line.138"></a>
+<FONT color="green">139</FONT>       */<a name="line.139"></a>
+<FONT color="green">140</FONT>      public ServerSetModule(Status initialStatus, Optional&lt;String&gt; auxPortAsPrimary) {<a name="line.140"></a>
+<FONT color="green">141</FONT>        this.initialStatus = Preconditions.checkNotNull(initialStatus);<a name="line.141"></a>
+<FONT color="green">142</FONT>        this.auxPortAsPrimary = Preconditions.checkNotNull(auxPortAsPrimary);<a name="line.142"></a>
+<FONT color="green">143</FONT>      }<a name="line.143"></a>
+<FONT color="green">144</FONT>    <a name="line.144"></a>
+<FONT color="green">145</FONT>      @Override<a name="line.145"></a>
+<FONT color="green">146</FONT>      protected void configure() {<a name="line.146"></a>
+<FONT color="green">147</FONT>        requireBinding(ZooKeeperClient.class);<a name="line.147"></a>
+<FONT color="green">148</FONT>        requireBinding(ShutdownRegistry.class);<a name="line.148"></a>
+<FONT color="green">149</FONT>        requireBinding(LocalServiceRegistry.class);<a name="line.149"></a>
+<FONT color="green">150</FONT>        LifecycleModule.bindStartupAction(binder(), ServerSetJoiner.class);<a name="line.150"></a>
+<FONT color="green">151</FONT>    <a name="line.151"></a>
+<FONT color="green">152</FONT>        bind(new TypeLiteral&lt;Supplier&lt;EndpointStatus&gt;&gt;() { }).to(EndpointSupplier.class);<a name="line.152"></a>
+<FONT color="green">153</FONT>        bind(EndpointSupplier.class).in(Singleton.class);<a name="line.153"></a>
+<FONT color="green">154</FONT>        bind(Status.class).annotatedWith(Default.class).toInstance(initialStatus);<a name="line.154"></a>
+<FONT color="green">155</FONT>    <a name="line.155"></a>
+<FONT color="green">156</FONT>        Optional&lt;String&gt; primaryPortName;<a name="line.156"></a>
+<FONT color="green">157</FONT>        if (AUX_PORT_AS_PRIMARY.hasAppliedValue()) {<a name="line.157"></a>
+<FONT color="green">158</FONT>          primaryPortName = Optional.of(AUX_PORT_AS_PRIMARY.get());<a name="line.158"></a>
+<FONT color="green">159</FONT>        } else {<a name="line.159"></a>
+<FONT color="green">160</FONT>          primaryPortName = auxPortAsPrimary;<a name="line.160"></a>
+<FONT color="green">161</FONT>        }<a name="line.161"></a>
+<FONT color="green">162</FONT>    <a name="line.162"></a>
+<FONT color="green">163</FONT>        bind(new TypeLiteral&lt;Optional&lt;String&gt;&gt;() { }).annotatedWith(Default.class)<a name="line.163"></a>
+<FONT color="green">164</FONT>            .toInstance(primaryPortName);<a name="line.164"></a>
+<FONT color="green">165</FONT>      }<a name="line.165"></a>
+<FONT color="green">166</FONT>    <a name="line.166"></a>
+<FONT color="green">167</FONT>      @Provides<a name="line.167"></a>
+<FONT color="green">168</FONT>      @Singleton<a name="line.168"></a>
+<FONT color="green">169</FONT>      ServerSet provideServerSet(ZooKeeperClient zkClient) {<a name="line.169"></a>
+<FONT color="green">170</FONT>        return new ServerSetImpl(zkClient, SERVERSET_PATH.get());<a name="line.170"></a>
+<FONT color="green">171</FONT>      }<a name="line.171"></a>
+<FONT color="green">172</FONT>    <a name="line.172"></a>
+<FONT color="green">173</FONT>      static class EndpointSupplier implements Supplier&lt;EndpointStatus&gt; {<a name="line.173"></a>
+<FONT color="green">174</FONT>        private final AtomicReference&lt;EndpointStatus&gt; reference = Atomics.newReference();<a name="line.174"></a>
+<FONT color="green">175</FONT>    <a name="line.175"></a>
+<FONT color="green">176</FONT>        @Nullable<a name="line.176"></a>
+<FONT color="green">177</FONT>        @Override public EndpointStatus get() {<a name="line.177"></a>
+<FONT color="green">178</FONT>          return reference.get();<a name="line.178"></a>
+<FONT color="green">179</FONT>        }<a name="line.179"></a>
+<FONT color="green">180</FONT>    <a name="line.180"></a>
+<FONT color="green">181</FONT>        void set(EndpointStatus endpoint) {<a name="line.181"></a>
+<FONT color="green">182</FONT>          reference.set(endpoint);<a name="line.182"></a>
+<FONT color="green">183</FONT>        }<a name="line.183"></a>
+<FONT color="green">184</FONT>      }<a name="line.184"></a>
 <FONT color="green">185</FONT>    <a name="line.185"></a>
-<FONT color="green">186</FONT>          shutdownRegistry.addAction(new ExceptionalCommand&lt;UpdateException&gt;() {<a name="line.186"></a>
-<FONT color="green">187</FONT>            @Override public void execute() throws UpdateException {<a name="line.187"></a>
-<FONT color="green">188</FONT>              LOG.info("Leaving ServerSet.");<a name="line.188"></a>
-<FONT color="green">189</FONT>              endpointStatus.update(Status.DEAD);<a name="line.189"></a>
-<FONT color="green">190</FONT>            }<a name="line.190"></a>
-<FONT color="green">191</FONT>          });<a name="line.191"></a>
-<FONT color="green">192</FONT>        }<a name="line.192"></a>
-<FONT color="green">193</FONT>      }<a name="line.193"></a>
-<FONT color="green">194</FONT>    }<a name="line.194"></a>
+<FONT color="green">186</FONT>      private static class ServerSetJoiner implements Command {<a name="line.186"></a>
+<FONT color="green">187</FONT>        private final ServerSet serverSet;<a name="line.187"></a>
+<FONT color="green">188</FONT>        private final LocalServiceRegistry serviceRegistry;<a name="line.188"></a>
+<FONT color="green">189</FONT>        private final ShutdownRegistry shutdownRegistry;<a name="line.189"></a>
+<FONT color="green">190</FONT>        private final EndpointSupplier endpointSupplier;<a name="line.190"></a>
+<FONT color="green">191</FONT>        private final Status initialStatus;<a name="line.191"></a>
+<FONT color="green">192</FONT>        private final Optional&lt;String&gt; auxPortAsPrimary;<a name="line.192"></a>
+<FONT color="green">193</FONT>    <a name="line.193"></a>
+<FONT color="green">194</FONT>        @Inject<a name="line.194"></a>
+<FONT color="green">195</FONT>        ServerSetJoiner(<a name="line.195"></a>
+<FONT color="green">196</FONT>            ServerSet serverSet,<a name="line.196"></a>
+<FONT color="green">197</FONT>            LocalServiceRegistry serviceRegistry,<a name="line.197"></a>
+<FONT color="green">198</FONT>            ShutdownRegistry shutdownRegistry,<a name="line.198"></a>
+<FONT color="green">199</FONT>            EndpointSupplier endpointSupplier,<a name="line.199"></a>
+<FONT color="green">200</FONT>            @Default Status initialStatus,<a name="line.200"></a>
+<FONT color="green">201</FONT>            @Default Optional&lt;String&gt; auxPortAsPrimary) {<a name="line.201"></a>
+<FONT color="green">202</FONT>    <a name="line.202"></a>
+<FONT color="green">203</FONT>          this.serverSet = checkNotNull(serverSet);<a name="line.203"></a>
+<FONT color="green">204</FONT>          this.serviceRegistry = checkNotNull(serviceRegistry);<a name="line.204"></a>
+<FONT color="green">205</FONT>          this.shutdownRegistry = checkNotNull(shutdownRegistry);<a name="line.205"></a>
+<FONT color="green">206</FONT>          this.endpointSupplier = checkNotNull(endpointSupplier);<a name="line.206"></a>
+<FONT color="green">207</FONT>          this.initialStatus = checkNotNull(initialStatus);<a name="line.207"></a>
+<FONT color="green">208</FONT>          this.auxPortAsPrimary = checkNotNull(auxPortAsPrimary);<a name="line.208"></a>
+<FONT color="green">209</FONT>        }<a name="line.209"></a>
+<FONT color="green">210</FONT>    <a name="line.210"></a>
+<FONT color="green">211</FONT>        @Override public void execute() {<a name="line.211"></a>
+<FONT color="green">212</FONT>          Optional&lt;InetSocketAddress&gt; primarySocket = serviceRegistry.getPrimarySocket();<a name="line.212"></a>
+<FONT color="green">213</FONT>          Map&lt;String, InetSocketAddress&gt; auxSockets = serviceRegistry.getAuxiliarySockets();<a name="line.213"></a>
+<FONT color="green">214</FONT>    <a name="line.214"></a>
+<FONT color="green">215</FONT>          InetSocketAddress primary;<a name="line.215"></a>
+<FONT color="green">216</FONT>          if (primarySocket.isPresent()) {<a name="line.216"></a>
+<FONT color="green">217</FONT>            primary = primarySocket.get();<a name="line.217"></a>
+<FONT color="green">218</FONT>          } else if (auxPortAsPrimary.isPresent()) {<a name="line.218"></a>
+<FONT color="green">219</FONT>            primary = auxSockets.get(auxPortAsPrimary.get());<a name="line.219"></a>
+<FONT color="green">220</FONT>            if (primary == null) {<a name="line.220"></a>
+<FONT color="green">221</FONT>              throw new IllegalStateException("No auxiliary port named " + auxPortAsPrimary.get());<a name="line.221"></a>
+<FONT color="green">222</FONT>            }<a name="line.222"></a>
+<FONT color="green">223</FONT>          } else {<a name="line.223"></a>
+<FONT color="green">224</FONT>            throw new IllegalStateException("No primary service registered with LocalServiceRegistry,"<a name="line.224"></a>
+<FONT color="green">225</FONT>                + " and -aux_port_as_primary was not specified.");<a name="line.225"></a>
+<FONT color="green">226</FONT>          }<a name="line.226"></a>
+<FONT color="green">227</FONT>    <a name="line.227"></a>
+<FONT color="green">228</FONT>          final EndpointStatus endpointStatus;<a name="line.228"></a>
+<FONT color="green">229</FONT>          try {<a name="line.229"></a>
+<FONT color="green">230</FONT>            endpointStatus = serverSet.join(primary, auxSockets, initialStatus);<a name="line.230"></a>
+<FONT color="green">231</FONT>            endpointSupplier.set(endpointStatus);<a name="line.231"></a>
+<FONT color="green">232</FONT>          } catch (JoinException e) {<a name="line.232"></a>
+<FONT color="green">233</FONT>            LOG.log(Level.WARNING, "Failed to join ServerSet.", e);<a name="line.233"></a>
+<FONT color="green">234</FONT>            throw new RuntimeException(e);<a name="line.234"></a>
+<FONT color="green">235</FONT>          } catch (InterruptedException e) {<a name="line.235"></a>
+<FONT color="green">236</FONT>            LOG.log(Level.WARNING, "Interrupted while joining ServerSet.", e);<a name="line.236"></a>
+<FONT color="green">237</FONT>            Thread.currentThread().interrupt();<a name="line.237"></a>
+<FONT color="green">238</FONT>            throw new RuntimeException(e);<a name="line.238"></a>
+<FONT color="green">239</FONT>          }<a name="line.239"></a>
+<FONT color="green">240</FONT>    <a name="line.240"></a>
+<FONT color="green">241</FONT>          shutdownRegistry.addAction(new ExceptionalCommand&lt;UpdateException&gt;() {<a name="line.241"></a>
+<FONT color="green">242</FONT>            @Override public void execute() throws UpdateException {<a name="line.242"></a>
+<FONT color="green">243</FONT>              LOG.info("Leaving ServerSet.");<a name="line.243"></a>
+<FONT color="green">244</FONT>              endpointStatus.update(Status.DEAD);<a name="line.244"></a>
+<FONT color="green">245</FONT>            }<a name="line.245"></a>
+<FONT color="green">246</FONT>          });<a name="line.246"></a>
+<FONT color="green">247</FONT>        }<a name="line.247"></a>
+<FONT color="green">248</FONT>      }<a name="line.248"></a>
+<FONT color="green">249</FONT>    }<a name="line.249"></a>
 
 
 

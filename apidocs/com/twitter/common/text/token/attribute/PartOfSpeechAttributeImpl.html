@@ -91,15 +91,15 @@ com.twitter.common.text.token.attribute</FONT>
 Class PartOfSpeechAttributeImpl</H2>
 <PRE>
 <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
-  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">org.apache.lucene.util.AttributeImpl</A>
+  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by ">org.apache.lucene.util.AttributeImpl
       <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>com.twitter.common.text.token.attribute.PartOfSpeechAttributeImpl</B>
 </PRE>
 <DL>
-<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../../com/twitter/common/text/token/attribute/PartOfSpeechAttribute.html" title="interface in com.twitter.common.text.token.attribute">PartOfSpeechAttribute</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang">Cloneable</A>, <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/Attribute.html?is-external=true" title="class or interface in org.apache.lucene.util">Attribute</A></DD>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../../com/twitter/common/text/token/attribute/PartOfSpeechAttribute.html" title="interface in com.twitter.common.text.token.attribute">PartOfSpeechAttribute</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</A>, <A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang">Cloneable</A>, org.apache.lucene.util.Attribute</DD>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/PartOfSpeechAttributeImpl.html#line.32"><B>PartOfSpeechAttributeImpl</B></A><DT>extends <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A><DT>implements <A HREF="../../../../../../com/twitter/common/text/token/attribute/PartOfSpeechAttribute.html" title="interface in com.twitter.common.text.token.attribute">PartOfSpeechAttribute</A></DL>
+<DT><PRE>public class <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/PartOfSpeechAttributeImpl.html#line.32"><B>PartOfSpeechAttributeImpl</B></A><DT>extends org.apache.lucene.util.AttributeImpl<DT>implements <A HREF="../../../../../../com/twitter/common/text/token/attribute/PartOfSpeechAttribute.html" title="interface in com.twitter.common.text.token.attribute">PartOfSpeechAttribute</A></DL>
 </PRE>
 
 <P>
@@ -107,7 +107,7 @@ Implementation of <code>PartOfSpeechAttribute</code> interface.
  The default value of PartOfSpeech is -1.
  <p>
  Note that this class explicitly suppresses the ability for instance to be serialized, inherited
- via <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util"><CODE>AttributeImpl</CODE></A>.
+ via <CODE>AttributeImpl</CODE>.
 <P>
 
 <P>
@@ -170,7 +170,7 @@ Implementation of <code>PartOfSpeechAttribute</code> interface.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/PartOfSpeechAttributeImpl.html#copyTo(org.apache.lucene.util.AttributeImpl)">copyTo</A></B>(<A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A>&nbsp;obj)</CODE>
+<TD><CODE><B><A HREF="../../../../../../com/twitter/common/text/token/attribute/PartOfSpeechAttributeImpl.html#copyTo(org.apache.lucene.util.AttributeImpl)">copyTo</A></B>(org.apache.lucene.util.AttributeImpl&nbsp;obj)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -211,10 +211,10 @@ Implementation of <code>PartOfSpeechAttribute</code> interface.
 &nbsp;<A NAME="methods_inherited_from_class_org.apache.lucene.util.AttributeImpl"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class org.apache.lucene.util.<A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A></B></TH>
+<TH ALIGN="left"><B>Methods inherited from class org.apache.lucene.util.AttributeImpl</B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true#clone()" title="class or interface in org.apache.lucene.util">clone</A>, <A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true#toString()" title="class or interface in org.apache.lucene.util">toString</A></CODE></TD>
+<TD><CODE>clone, toString</CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -262,7 +262,7 @@ clear</H3>
 public void <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/PartOfSpeechAttributeImpl.html#line.38"><B>clear</B></A>()</PRE>
 <DL>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true#clear()" title="class or interface in org.apache.lucene.util">clear</A></CODE> in class <CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A></CODE></DL>
+<DT><B>Specified by:</B><DD><CODE>clear</CODE> in class <CODE>org.apache.lucene.util.AttributeImpl</CODE></DL>
 </DD>
 <DD><DL>
 </DL>
@@ -273,10 +273,10 @@ public void <A HREF="../../../../../../src-html/com/twitter/common/text/token/at
 <A NAME="copyTo(org.apache.lucene.util.AttributeImpl)"><!-- --></A><H3>
 copyTo</H3>
 <PRE>
-public void <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/PartOfSpeechAttributeImpl.html#line.43"><B>copyTo</B></A>(<A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A>&nbsp;obj)</PRE>
+public void <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/PartOfSpeechAttributeImpl.html#line.43"><B>copyTo</B></A>(org.apache.lucene.util.AttributeImpl&nbsp;obj)</PRE>
 <DL>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true#copyTo(org.apache.lucene.util.AttributeImpl)" title="class or interface in org.apache.lucene.util">copyTo</A></CODE> in class <CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A></CODE></DL>
+<DT><B>Specified by:</B><DD><CODE>copyTo</CODE> in class <CODE>org.apache.lucene.util.AttributeImpl</CODE></DL>
 </DD>
 <DD><DL>
 </DL>
@@ -290,7 +290,7 @@ equals</H3>
 public boolean <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/PartOfSpeechAttributeImpl.html#line.50"><B>equals</B></A>(<A HREF="http://download.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>&nbsp;obj)</PRE>
 <DL>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true#equals(java.lang.Object)" title="class or interface in org.apache.lucene.util">equals</A></CODE> in class <CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A></CODE></DL>
+<DT><B>Specified by:</B><DD><CODE>equals</CODE> in class <CODE>org.apache.lucene.util.AttributeImpl</CODE></DL>
 </DD>
 <DD><DL>
 </DL>
@@ -304,7 +304,7 @@ hashCode</H3>
 public int <A HREF="../../../../../../src-html/com/twitter/common/text/token/attribute/PartOfSpeechAttributeImpl.html#line.56"><B>hashCode</B></A>()</PRE>
 <DL>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true#hashCode()" title="class or interface in org.apache.lucene.util">hashCode</A></CODE> in class <CODE><A HREF="http://lucene.apache.org/java/3_0_2/api/all/org/apache/lucene/util/AttributeImpl.html?is-external=true" title="class or interface in org.apache.lucene.util">AttributeImpl</A></CODE></DL>
+<DT><B>Specified by:</B><DD><CODE>hashCode</CODE> in class <CODE>org.apache.lucene.util.AttributeImpl</CODE></DL>
 </DD>
 <DD><DL>
 </DL>

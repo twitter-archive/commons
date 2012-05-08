@@ -39,7 +39,7 @@
 <FONT color="green">036</FONT>     */<a name="line.36"></a>
 <FONT color="green">037</FONT>    public class VarsJsonHandler extends HttpServlet {<a name="line.37"></a>
 <FONT color="green">038</FONT>    <a name="line.38"></a>
-<FONT color="green">039</FONT>      private final Supplier&lt;Iterable&lt;Stat&gt;&gt; statSupplier;<a name="line.39"></a>
+<FONT color="green">039</FONT>      private final Supplier&lt;Iterable&lt;Stat&lt;?&gt;&gt;&gt; statSupplier;<a name="line.39"></a>
 <FONT color="green">040</FONT>    <a name="line.40"></a>
 <FONT color="green">041</FONT>      /**<a name="line.41"></a>
 <FONT color="green">042</FONT>       * Creates a new handler that will report stats from the provided supplier.<a name="line.42"></a>
@@ -47,7 +47,7 @@
 <FONT color="green">044</FONT>       * @param statSupplier Stats supplier.<a name="line.44"></a>
 <FONT color="green">045</FONT>       */<a name="line.45"></a>
 <FONT color="green">046</FONT>      @Inject<a name="line.46"></a>
-<FONT color="green">047</FONT>      VarsJsonHandler(Supplier&lt;Iterable&lt;Stat&gt;&gt; statSupplier) {<a name="line.47"></a>
+<FONT color="green">047</FONT>      VarsJsonHandler(Supplier&lt;Iterable&lt;Stat&lt;?&gt;&gt;&gt; statSupplier) {<a name="line.47"></a>
 <FONT color="green">048</FONT>        this.statSupplier = Preconditions.checkNotNull(statSupplier);<a name="line.48"></a>
 <FONT color="green">049</FONT>      }<a name="line.49"></a>
 <FONT color="green">050</FONT>    <a name="line.50"></a>

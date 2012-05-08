@@ -31,9 +31,9 @@
 <FONT color="green">028</FONT>    import com.google.common.base.Preconditions;<a name="line.28"></a>
 <FONT color="green">029</FONT>    import com.google.common.collect.Iterables;<a name="line.29"></a>
 <FONT color="green">030</FONT>    import com.google.common.collect.Lists;<a name="line.30"></a>
-<FONT color="green">031</FONT>    <a name="line.31"></a>
-<FONT color="green">032</FONT>    import com.twitter.common.args.apt.Configuration;<a name="line.32"></a>
-<FONT color="green">033</FONT>    import com.twitter.common.reflect.TypeToken;<a name="line.33"></a>
+<FONT color="green">031</FONT>    import com.google.common.reflect.TypeToken;<a name="line.31"></a>
+<FONT color="green">032</FONT>    <a name="line.32"></a>
+<FONT color="green">033</FONT>    import com.twitter.common.args.apt.Configuration;<a name="line.33"></a>
 <FONT color="green">034</FONT>    <a name="line.34"></a>
 <FONT color="green">035</FONT>    /**<a name="line.35"></a>
 <FONT color="green">036</FONT>     * Description of a positional command line argument.<a name="line.36"></a>
@@ -76,7 +76,7 @@
 <FONT color="green">073</FONT>        Preconditions.checkArgument(<a name="line.73"></a>
 <FONT color="green">074</FONT>            TypeUtil.getRawType(TypeUtil.getTypeParam(field)) == List.class,<a name="line.74"></a>
 <FONT color="green">075</FONT>            "Field is annotated for positional parsing but is not of Arg&lt;List&lt;?&gt;&gt; type");<a name="line.75"></a>
-<FONT color="green">076</FONT>        Type nestedType = TypeToken.extractTypeToken(TypeUtil.getTypeParam(field));<a name="line.76"></a>
+<FONT color="green">076</FONT>        Type nestedType = TypeUtil.extractTypeToken(TypeUtil.getTypeParam(field));<a name="line.76"></a>
 <FONT color="green">077</FONT>    <a name="line.77"></a>
 <FONT color="green">078</FONT>        @SuppressWarnings("unchecked")<a name="line.78"></a>
 <FONT color="green">079</FONT>        PositionalInfo positionalInfo = new PositionalInfo(<a name="line.79"></a>
@@ -84,7 +84,7 @@
 <FONT color="green">081</FONT>            positional.help(),<a name="line.81"></a>
 <FONT color="green">082</FONT>            ArgumentInfo.getArgForField(field),<a name="line.82"></a>
 <FONT color="green">083</FONT>            TypeUtil.getTypeParamTypeToken(field),<a name="line.83"></a>
-<FONT color="green">084</FONT>            TypeToken.create(nestedType),<a name="line.84"></a>
+<FONT color="green">084</FONT>            TypeToken.of(nestedType),<a name="line.84"></a>
 <FONT color="green">085</FONT>            Arrays.asList(field.getAnnotations()),<a name="line.85"></a>
 <FONT color="green">086</FONT>            positional.parser());<a name="line.86"></a>
 <FONT color="green">087</FONT>        return positionalInfo;<a name="line.87"></a>

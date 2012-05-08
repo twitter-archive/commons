@@ -53,7 +53,7 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../com/twitter/common/reflect/package-summary.html"><B>PREV PACKAGE</B></A>&nbsp;
+&nbsp;<A HREF="../../../../com/twitter/common/quantity/package-summary.html"><B>PREV PACKAGE</B></A>&nbsp;
 &nbsp;<A HREF="../../../../com/twitter/common/testing/package-summary.html"><B>NEXT PACKAGE</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/stats/package-summary.html" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -85,6 +85,10 @@ Package com.twitter.common.stats
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Interface Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/stats/Histogram.html" title="interface in com.twitter.common.stats">Histogram</A></B></TD>
+<TD>An interface for Histogram</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/stats/Stat.html" title="interface in com.twitter.common.stats">Stat&lt;T&gt;</A></B></TD>
@@ -119,6 +123,10 @@ Package com.twitter.common.stats
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Class Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/stats/ApproximateHistogram.html" title="class in com.twitter.common.stats">ApproximateHistogram</A></B></TD>
+<TD>Implements Histogram structure for computing approximate quantiles.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/stats/CounterMap.html" title="class in com.twitter.common.stats">CounterMap&lt;K&gt;</A></B></TD>
@@ -160,6 +168,14 @@ Package com.twitter.common.stats
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/stats/PipelineStats.html" title="class in com.twitter.common.stats">PipelineStats</A></B></TD>
 <TD>Tracks the latency of different pipeline stages in a process.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/stats/Precision.html" title="class in com.twitter.common.stats">Precision</A></B></TD>
+<TD>Precision expresses the maximum epsilon tolerated for a typical size of input
+ e.g.: Precision(0.01, 1000) express that we tolerate a error of 1% for 1000 entries
+       it means that max difference between the real quantile and the estimate one is
+       error = 0.01*1000 = 10
+       For an entry like (1 to 1000), q(0.5) will be [490 <= x <= 510] (real q(0.5) = 500)</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../com/twitter/common/stats/PrintableHistogram.html" title="class in com.twitter.common.stats">PrintableHistogram</A></B></TD>
@@ -251,7 +267,7 @@ Package com.twitter.common.stats
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../com/twitter/common/reflect/package-summary.html"><B>PREV PACKAGE</B></A>&nbsp;
+&nbsp;<A HREF="../../../../com/twitter/common/quantity/package-summary.html"><B>PREV PACKAGE</B></A>&nbsp;
 &nbsp;<A HREF="../../../../com/twitter/common/testing/package-summary.html"><B>NEXT PACKAGE</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html?com/twitter/common/stats/package-summary.html" target="_top"><B>FRAMES</B></A>  &nbsp;
