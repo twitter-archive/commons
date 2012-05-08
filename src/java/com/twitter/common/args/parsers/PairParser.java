@@ -20,13 +20,13 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.reflect.TypeToken;
 
 import com.twitter.common.args.ArgParser;
 import com.twitter.common.args.Parser;
 import com.twitter.common.args.ParserOracle;
 import com.twitter.common.args.Parsers;
 import com.twitter.common.collections.Pair;
-import com.twitter.common.reflect.TypeToken;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -45,10 +45,10 @@ public class PairParser extends TypeParameterizedParser<Pair> {
   @Override
   Pair doParse(ParserOracle parserOracle, String raw, List<Type> typeParams) {
     Type leftType = typeParams.get(0);
-    Parser leftParser = parserOracle.get(TypeToken.create(leftType));
+    Parser leftParser = parserOracle.get(TypeToken.of(leftType));
 
     Type rightType = typeParams.get(1);
-    Parser rightParser = parserOracle.get(TypeToken.create(rightType));
+    Parser rightParser = parserOracle.get(TypeToken.of(rightType));
 
     List<String> parts = ImmutableList.copyOf(Parsers.MULTI_VALUE_SPLITTER.split(raw));
     checkArgument(parts.size() == 2,

@@ -23,19 +23,17 @@ from contextlib import contextmanager
 from zipfile import ZipFile
 
 from twitter.pants import goal, is_internal
-from twitter.pants.base.build_file import BuildFile
 from twitter.pants.base.parse_context import ParseContext
 from twitter.pants.python.python_chroot import PythonChroot
 from twitter.pants.targets import JavaLibrary, JvmBinary, ScalaLibrary
 from twitter.pants.tasks import Task
 
-def reinstall():
+def reinstall(context):
   pex = os.path.join(ROOT_DIR, 'pants.pex')
-  def build_pex():
+  with ParseContext.temp(os.path.basename(__file__)):
     pants_exe = pants('src/python/twitter/pants').resolve().next()
     chroot = PythonChroot(pants_exe, ROOT_DIR)
-    chroot.dump().write(pex)
-  ParseContext(BuildFile(ROOT_DIR, os.path.basename(__file__))).do_in_context(build_pex)
+    chroot.dump().build(pex)
 
   print('\nPants reinstalled from live local source.')
 
@@ -45,10 +43,12 @@ def reinstall():
   # When we re-run, pass on the remaining goals and flags so we can pick up where we leave off here.
   index = sys.argv.index('reinstall')
   args.extend(sys.argv[index+1:])
-  print('Respawning with: %s\n' % ' '.join(args))
 
+  print('Respawning with: %s\n' % ' '.join(args))
   sys.stdout.flush()
   sys.stderr.flush()
+
+  context.lock.release()
   os.execv(pex, args)
 
 goal(

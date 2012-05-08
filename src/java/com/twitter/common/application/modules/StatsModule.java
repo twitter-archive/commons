@@ -89,9 +89,9 @@ public class StatsModule extends AbstractModule {
         .toInstance(SAMPLING_INTERVAL.get());
     bind(TimeSeriesRepository.class).to(TimeSeriesRepositoryImpl.class).in(Singleton.class);
 
-    bind(new TypeLiteral<Supplier<Iterable<Stat>>>() { }).toInstance(
-        new Supplier<Iterable<Stat>>() {
-          @Override public Iterable<Stat> get() {
+    bind(new TypeLiteral<Supplier<Iterable<Stat<?>>>>() { }).toInstance(
+        new Supplier<Iterable<Stat<?>>>() {
+          @Override public Iterable<Stat<?>> get() {
             return Stats.getVariables();
           }
         }

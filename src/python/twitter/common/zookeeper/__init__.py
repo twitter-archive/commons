@@ -14,8 +14,6 @@
 # limitations under the License.
 # ==================================================================================================
 
-__author__ = 'Alec Thomas'
-
 from .client import ZooKeeper
 
 __all__ = ['ZooKeeper']

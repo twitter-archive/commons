@@ -7,10 +7,11 @@ python_test_suite(
 
 python_tests(
   name = 'client',
+  timeout = Amount(5, Time.MINUTES),
   dependencies = [
     pants('3rdparty/python:thrift-0.7'),
-    pants('src/python/twitter/common/zookeeper'),
     pants('src/python/twitter/common/zookeeper/serversets'),
+    pants('src/python/twitter/common/zookeeper:testing'),
   ],
   sources = globs('client_test.py'),
 )

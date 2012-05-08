@@ -68,7 +68,7 @@ def temporary_dir(root_dir=None, cleanup=True):
     yield path
   finally:
     if cleanup:
-      shutil.rmtree(path)
+      shutil.rmtree(path, ignore_errors=True)
 
 
 @contextmanager

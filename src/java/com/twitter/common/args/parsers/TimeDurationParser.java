@@ -18,12 +18,13 @@ package com.twitter.common.args.parsers;
 
 import java.lang.reflect.Type;
 
+import com.google.common.reflect.TypeToken;
+
 import com.twitter.common.args.ArgParser;
 import com.twitter.common.args.Parser;
 import com.twitter.common.args.ParserOracle;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
-import com.twitter.common.reflect.TypeToken;
 import com.twitter.util.Duration;
 
 
@@ -43,7 +44,7 @@ public class TimeDurationParser implements Parser<Duration> {
   @Override
   public Duration parse(ParserOracle parserOracle, Type type, String raw)
       throws IllegalArgumentException {
-    Parser amountParser = parserOracle.get(TypeToken.create(Amount.class));
+    Parser amountParser = parserOracle.get(TypeToken.of(Amount.class));
 
     @SuppressWarnings("unchecked")
     Amount<Long, Time> parsed = (Amount<Long, Time>)

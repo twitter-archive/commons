@@ -22,6 +22,15 @@ public class Metrics implements MetricRegistry, MetricProvider {
   }
 
   /**
+   * Create a new Metrics detached from the static root.
+   *
+   * @return the detached metric registry.
+   */
+  public static Metrics createDetached() {
+    return new Metrics();
+  }
+
+  /**
    * Returns a handle to the root metric registry.
    *
    * @return Root metric registry.

@@ -29,17 +29,14 @@ def _tail_lines(fd, linesback=10):
 
   while True:
     try:
-      fd.seek(-1 * avgcharsperline * linesback, 2)
+      fd.seek(int(-1 * avgcharsperline * linesback), 2)
     except IOError:
       fd.seek(0)
 
-    if fd.tell() == 0:
-      atstart = 1
-    else:
-      atstart = 0
+    atstart = fd.tell() == 0
 
     lines = fd.read().splitlines()
-    if (len(lines) > (linesback+1)) or atstart:
+    if atstart or len(lines) > (linesback + 1):
       break
 
     avgcharsperline = avgcharsperline * 1.3
@@ -49,7 +46,7 @@ def _tail_lines(fd, linesback=10):
   else:
     start = 0
 
-  return lines[start:len(lines)-1]
+  return lines[start:start+linesback]
 
 def wait_until_opened(filename, forever=True, clock=time):
   while True:
@@ -64,18 +61,30 @@ def wait_until_opened(filename, forever=True, clock=time):
       else:
         raise
 
-def tail_f(filename, forever=True, clock=time):
+
+def tail(filename, lines=10):
+  with open(filename, 'r') as fp:
+    for line in _tail_lines(fp, lines):
+      yield line
+
+
+def tail_f(filename, forever=True, include_last=False, clock=time):
   fd = wait_until_opened(filename, forever, clock)
 
   # wind back to near the end of the file...
-  _tail_lines(fd, 10)
+  last_lines = _tail_lines(fd, 10)
 
   while True:
     if fd is None:
       return
 
     where = fd.tell()
-    line = fd.readline()
+
+    if last_lines:
+      yield last_lines.pop(0)
+      continue
+    else:
+      line = fd.readline()
 
     if line:
       yield line

@@ -27,9 +27,9 @@ import javax.annotation.Nullable;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
+import com.google.common.reflect.TypeToken;
 
 import com.twitter.common.args.apt.Configuration;
-import com.twitter.common.reflect.TypeToken;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -87,7 +87,7 @@ public class OptionInfo<T> extends ArgumentInfo<T> {
         checkValidName(name),
         help,
         Arg.<T>create(),
-        TypeToken.create(type),
+        TypeToken.of(type),
         prefix,
         ImmutableList.<Annotation>of(),
         null);

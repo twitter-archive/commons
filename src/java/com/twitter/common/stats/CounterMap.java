@@ -55,8 +55,9 @@ public class CounterMap <K> implements Iterable<Map.Entry<K, Integer>>, Cloneabl
     if (value == null) {
       value = 0;
     }
-    map.put(key, count + value);
-    return count + value;
+    int newValue = count + value;
+    map.put(key, newValue);
+    return newValue;
   }
 
   /**

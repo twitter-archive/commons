@@ -56,7 +56,7 @@ class ServerSetClient(object):
     options = app.get_options()
     self._retries = options.serverset_retries if retries is None else retries
     self._zk = zk or ZooKeeper()
-    self._update_endpoints()
+    self._start()
 
   def validate(f):
     """An internal method decorator used to validate if the ZK connection has been marked bad."""
@@ -89,22 +89,28 @@ class ServerSetClient(object):
 
     :yields: ServiceInstance instances.
     """
-    self._update_endpoints()
+    self._start()
     with self._lock:
       snapshot = self._endpoints[:]
     return iter(snapshot)
 
-  def _update_endpoints(self):
+  def _start(self):
+    self._update_endpoints(None, zookeeper.CHILD_EVENT, zookeeper.CONNECTED_STATE, None)
+
+  def _update_endpoints(self, _1, event, state, _2):
     """Update endpoints from ZK.
 
     This function will block until the ZK servers respond or retry limit is hit.
 
     :raises ReconnectFailed: If reconnection fails.
     """
+    if not (state == zookeeper.CONNECTED_STATE and event == zookeeper.CHILD_EVENT) and not (
+        state == zookeeper.EXPIRED_SESSION_STATE):
+      return
+
     try:
       endpoints = []
-      endpoint_names = self._zk.get_children(
-          self._endpoint, lambda *args: self._update_endpoints())
+      endpoint_names = self._zk.get_children(self._endpoint, self._update_endpoints)
       endpoint_names.sort()
       for endpoint in endpoint_names:
         data = self._zk.get(posixpath.join(self._endpoint, endpoint))
@@ -121,17 +127,9 @@ class ServerSetClient(object):
         if self._watcher:
           self._watcher(self._endpoint, self._endpoints, endpoints)
         self._endpoints = endpoints
-    except zookeeper.ConnectionLossException:
-      log.error('Lost connection to ZooKeeper, reestablishing.')
+    except ZooKeeper.Error as e:
+      log.error('Lost connection to ZooKeeper: %s, reestablishing.' % e)
       self._reconnect()
-    except zookeeper.ZooKeeperException as e:
-      # TODO(alec): We could implement some retry-logic here, but it is simpler
-      # for now to push that logic up to the consumer.
-      log.error('Error updating endpoints, marking bad: %s' % e)
-      self._endpoints = []
-      self._error = str(e)
-      self._zk = None
-      raise
 
   # Nuke internal decorator
   del validate
@@ -140,8 +138,8 @@ class ServerSetClient(object):
     """Reconnect to ZK and update endpoints once complete."""
     for _ in range(self._retries):
       try:
-        self._zk.reconnect()
-        self._update_endpoints()
+        self._zk.restart()
+        self._start()
         break
       except ZooKeeper.ConnectionTimeout:
         log.warning('Connection establishment to %r timed out, retrying.' % self._zk)

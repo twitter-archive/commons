@@ -18,15 +18,15 @@ import static org.easymock.EasyMock.expect;
  */
 public abstract class StatSupplierTestBase extends EasyMockTest {
 
-  protected Supplier<Iterable<Stat>> statSupplier;
+  protected Supplier<Iterable<Stat<?>>> statSupplier;
 
   @Before
   public void statSupplierSetUp() {
-    statSupplier = createMock(new Clazz<Supplier<Iterable<Stat>>>() {});
+    statSupplier = createMock(new Clazz<Supplier<Iterable<Stat<?>>>>() {});
   }
 
   protected void expectVarScrape(Map<String, Object> response) {
-    List<Stat> vars = Lists.newArrayList();
+    List<Stat<?>> vars = Lists.newArrayList();
     for (Map.Entry<String, Object> entry : response.entrySet()) {
       Stat stat = createMock(Stat.class);
       expect(stat.getName()).andReturn(entry.getKey());

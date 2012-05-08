@@ -21,12 +21,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.reflect.TypeToken;
+
 import com.twitter.common.args.ArgParser;
 import com.twitter.common.args.Parser;
 import com.twitter.common.args.ParserOracle;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Unit;
-import com.twitter.common.reflect.TypeToken;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -47,7 +48,7 @@ public class AmountParser extends TypeParameterizedParser<Amount> {
   @Override
   Amount doParse(ParserOracle parserOracle, String raw, List<Type> typeParams) {
     Type valueType = typeParams.get(0);
-    Parser parser = parserOracle.get(TypeToken.create(valueType));
+    Parser parser = parserOracle.get(TypeToken.of(valueType));
 
     Matcher matcher = AMOUNT_PATTERN.matcher(raw);
     checkArgument(matcher.matches(),
@@ -57,7 +58,7 @@ public class AmountParser extends TypeParameterizedParser<Amount> {
     String unitRaw = matcher.group(2);
 
     Type unitType = typeParams.get(1);
-    Parser<Unit> unitParser = parserOracle.get(TypeToken.create(Unit.class));
+    Parser<Unit> unitParser = parserOracle.get(TypeToken.of(Unit.class));
     Unit unit = unitParser.parse(parserOracle, unitType, unitRaw);
     checkArgument(unit.getClass() == unitType, String.format(
         "Unit type (%s) does not match argument type (%s).",

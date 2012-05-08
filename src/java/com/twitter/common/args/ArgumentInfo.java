@@ -29,11 +29,11 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.reflect.TypeToken;
 
 import com.twitter.common.args.constraints.NotNullVerifier;
 import com.twitter.common.base.MorePreconditions;
 import com.twitter.common.collections.Pair;
-import com.twitter.common.reflect.TypeToken;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -169,7 +169,10 @@ public abstract class ArgumentInfo<T> {
     for (Pair<? extends Verifier<? super T>, Annotation> pair : getVerifiers(verifierOracle)) {
       Verifier<? super T> verifier = pair.getFirst();
       Annotation annotation = pair.getSecond();
-      Class<T> rawType = type.getRawType();
+
+      @SuppressWarnings("unchecked") // type.getType() is T
+      Class<? extends T> rawType = (Class<? extends T>) type.getType();
+
       String constraint = verifier.toString(rawType, annotation);
       constraints.add(constraint);
     }

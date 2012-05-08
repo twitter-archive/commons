@@ -26,11 +26,13 @@ java_library(name = 'logging',
     pants('3rdparty:commons-lang'),
     pants('3rdparty:guava'),
     pants('3rdparty:joda-time'),
+    pants('src/java/com/twitter/common/args'),
   ],
   sources = [
     'Log.java',
     'LogUtil.java',
-    'LogFormatter.java'
+    'LogFormatter.java',
+    'RootLogConfig.java'
   ]
 )
 

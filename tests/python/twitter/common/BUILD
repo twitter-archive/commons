@@ -30,5 +30,6 @@ python_test_suite(name = 'all',
     pants('tests/python/twitter/common/recordio:all'),
     pants('tests/python/twitter/common/resourcepool'),
     pants('tests/python/twitter/common/util'),
+    pants('tests/python/twitter/common/zookeeper:all'),
   ]
 )

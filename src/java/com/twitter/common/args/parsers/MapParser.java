@@ -23,12 +23,12 @@ import java.util.Map;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.reflect.TypeToken;
 
 import com.twitter.common.args.ArgParser;
 import com.twitter.common.args.Parser;
 import com.twitter.common.args.ParserOracle;
 import com.twitter.common.args.Parsers;
-import com.twitter.common.reflect.TypeToken;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -51,10 +51,10 @@ public class MapParser extends TypeParameterizedParser<Map> {
   @Override
   Map doParse(ParserOracle parserOracle, String raw, List<Type> typeParams) {
     Type keyType = typeParams.get(0);
-    Parser keyParser = parserOracle.get(TypeToken.create(keyType));
+    Parser keyParser = parserOracle.get(TypeToken.of(keyType));
 
     Type valueType = typeParams.get(1);
-    Parser valueParser = parserOracle.get(TypeToken.create(valueType));
+    Parser valueParser = parserOracle.get(TypeToken.of(valueType));
 
     ImmutableMap.Builder map = ImmutableMap.builder();
     for (String keyAndValue : Parsers.MULTI_VALUE_SPLITTER.split(raw)) {

@@ -31,11 +31,6 @@ public class Events {
       MetricRegistry registry) {
     totalEvents = registry.registerLong(eventMetricName);
     totalValue = registry.registerLong(valueMetricName);
-    Rate eventRate = Rate.of(eventMetricName, totalEvents);
-    Rate valueRate = Rate.of(valueMetricName, totalValue);
-    registry.register(eventRate);
-    registry.register(valueRate);
-    registry.register(Ratio.of(eventRate, valueRate));
   }
 
   /**

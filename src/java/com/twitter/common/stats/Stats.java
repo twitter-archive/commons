@@ -17,20 +17,23 @@
 package com.twitter.common.stats;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
+import com.google.common.collect.MapMaker;
 
 import com.twitter.common.base.MorePreconditions;
 
@@ -47,13 +50,15 @@ public class Stats {
   private static final Logger LOG = Logger.getLogger(Stats.class.getName());
   private static final Pattern NOT_NAME_CHAR = Pattern.compile("[^A-Za-z0-9_]");
 
-  private static final Map<String, Stat> VAR_MAP =
-      Collections.synchronizedMap(Maps.<String, Stat>newHashMap());
+  private static final ConcurrentMap<String, Stat<?>> VAR_MAP = new MapMaker().makeMap();
 
   // Store stats in the order they were registered, so that derived variables are
   // sampled after their inputs.
-  private static final Map<String, RecordingStat<? extends Number>> NUMERIC_STATS =
-      Collections.synchronizedMap(new LinkedHashMap<String, RecordingStat<? extends Number>>());
+  private static final Collection<RecordingStat<? extends Number>> ORDERED_NUMERIC_STATS =
+      new ConcurrentLinkedQueue<RecordingStat<? extends Number>>();
+
+  private static final Cache<String, RecordingStat<? extends Number>> NUMERIC_STATS =
+      CacheBuilder.newBuilder().build();
 
   public static String normalizeName(String name) {
     return NOT_NAME_CHAR.matcher(name).replaceAll("_");
@@ -98,6 +103,31 @@ public class Stats {
     }
   };
 
+  private static class ExportStat implements Callable<RecordingStat<? extends Number>> {
+    private final AtomicBoolean called = new AtomicBoolean(false);
+
+    private final RecordingStat<? extends Number> stat;
+    private final String name;
+
+    private <T extends Number> ExportStat(String name, Stat<T> stat) {
+      this.name = name;
+      this.stat = (stat instanceof RecordingStat)
+          ? (RecordingStat<? extends Number>) stat
+          : new RecordingStatImpl<T>(stat);
+    }
+
+    @Override
+    public RecordingStat<? extends Number> call() {
+      try {
+        exportStaticInternal(name, stat);
+        ORDERED_NUMERIC_STATS.add(stat);
+        return stat;
+      } finally {
+        called.set(true);
+      }
+    }
+  }
+
   /**
    * Exports a stat for tracking.
    * if the stat provided implements the internal {@link RecordingStat} interface, it will be
@@ -110,25 +140,20 @@ public class Stats {
    * @return A reference to the stat that was stored.  The stat returned may not be equal to the
    *    stat provided.  If a variable was already returned with the same
    */
-  public static synchronized <T extends Number> Stat<T> export(Stat<T> var) {
-    Preconditions.checkNotNull(var);
-    MorePreconditions.checkNotBlank(var.getName());
-
-    if (var instanceof RecordingStat) {
-      String validatedName = validateName(var.getName());
+  public static <T extends Number> Stat<T> export(Stat<T> var) {
+    String validatedName = validateName(MorePreconditions.checkNotBlank(var.getName()));
+    ExportStat exportStat = new ExportStat(validatedName, var);
+    try {
       @SuppressWarnings("unchecked")
-      Stat<T> stat = (Stat<T>) NUMERIC_STATS.get(validatedName);
-      if (stat != null) {
+      Stat<T> exported = (Stat<T>) NUMERIC_STATS.get(validatedName, exportStat);
+      return exported;
+    } catch (ExecutionException e) {
+      throw new IllegalStateException(
+          "Unexpected error exporting stat " + validatedName, e.getCause());
+    } finally {
+      if (!exportStat.called.get()) {
         LOG.warning("Re-using already registered variable for key " + validatedName);
-        return stat;
-      } else {
-        NUMERIC_STATS.put(validatedName, (RecordingStat<T>) var);
-
-        exportStatic(var);
-        return var;
       }
-    } else {
-      return export(new RecordingStatImpl<T>(var));
     }
   }
 
@@ -275,18 +300,16 @@ public class Stats {
    * @param var Variable to statically export.
    * @return A reference back to the provided {@link Stat}.
    */
-  public static synchronized <T> Stat<T> exportStatic(Stat<T> var) {
-    Preconditions.checkNotNull(var);
-    MorePreconditions.checkNotBlank(var.getName());
-
-    String validatedName = validateName(var.getName());
-    @SuppressWarnings("unchecked")
-    Stat<T> displaced = (Stat<T>) VAR_MAP.put(validatedName, var);
-    if (displaced != null) {
-      LOG.warning("Warning - exported variable collision on " + validatedName);
-    }
-
+  public static <T> Stat<T> exportStatic(Stat<T> var) {
+    String validatedName = validateName(MorePreconditions.checkNotBlank(var.getName()));
+    exportStaticInternal(validatedName, var);
     return var;
+  }
+
+  private static void exportStaticInternal(String name, Stat<?> stat) {
+    if (VAR_MAP.put(name, stat) != null) {
+      LOG.warning("Warning - exported variable collision on " + name);
+    }
   }
 
   /**
@@ -294,27 +317,25 @@ public class Stats {
    *
    * @return An iterable of all registered stats.
    */
-  public static Iterable<Stat> getVariables() {
-    synchronized(VAR_MAP) {
-      return ImmutableList.copyOf(VAR_MAP.values());
-    }
+  public static Iterable<Stat<?>> getVariables() {
+    return ImmutableList.copyOf(VAR_MAP.values());
   }
 
   static Iterable<RecordingStat<? extends Number>> getNumericVariables() {
-    synchronized(NUMERIC_STATS) {
-      return ImmutableList.copyOf(NUMERIC_STATS.values());
-    }
+    return ImmutableList.copyOf(ORDERED_NUMERIC_STATS);
   }
 
   @VisibleForTesting
   public static void flush() {
     VAR_MAP.clear();
-    NUMERIC_STATS.clear();
+    ORDERED_NUMERIC_STATS.clear();
+    NUMERIC_STATS.invalidateAll();
   }
 
-  @SuppressWarnings("unchecked")
   public static <T> Stat<T> getVariable(String name) {
     MorePreconditions.checkNotBlank(name);
-    return VAR_MAP.get(name);
+    @SuppressWarnings("unchecked")
+    Stat<T> stat = (Stat<T>) VAR_MAP.get(name);
+    return stat;
   }
 }

@@ -23,13 +23,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.google.common.reflect.TypeToken;
 
 import com.twitter.common.args.apt.Configuration;
 import com.twitter.common.args.apt.Configuration.ParserInfo;
-import com.twitter.common.reflect.TypeToken;
 
 import static com.google.common.base.Preconditions.checkArgument;
-
 import static com.twitter.common.args.apt.Configuration.ConfigurationException;
 
 /**

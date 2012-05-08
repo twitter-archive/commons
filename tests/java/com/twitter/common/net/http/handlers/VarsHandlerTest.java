@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +27,7 @@ public class VarsHandlerTest extends StatSupplierTestBase {
 
   @Before
   public void setUp() {
-    statSupplier = createMock(new Clazz<Supplier<Iterable<Stat>>>() {});
+    statSupplier = createMock(new Clazz<Supplier<Iterable<Stat<?>>>>() {});
     request = createMock(HttpServletRequest.class);
     vars = new VarsHandler(statSupplier);
   }

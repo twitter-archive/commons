@@ -97,6 +97,19 @@ limitations under the License.
                   checkmodified="true">
         <artifact pattern="${root.dir}/3rdparty/[artifact]-[revision].[ext]"/>
       </filesystem>
+
+      <!-- Fall back to local repositories-->
+      <!-- sbt standard -->
+      <ibiblio name="local.sbt"
+               m2compatible="true"
+               usepoms="true"
+               root="file://${user.home}/.ivy2/local"/>
+
+      <!-- mvn standard -->
+      <ibiblio name="local.m2"
+               m2compatible="true"
+               usepoms="true"
+               root="file://${user.home}/.m2/repository"/>
     </chain>
   </macrodef>
 

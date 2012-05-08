@@ -12,6 +12,7 @@ import org.junit.Test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -51,6 +52,36 @@ public class MetricsTest {
     bazFoo.getAndSet(3);
 
     checkSamples(ImmutableMap.<String, Number>of("foo", 10L, "bar.foo", 2L, "bar.baz.foo", 3L));
+  }
+
+  @Test
+  public void testDetachedRoot() {
+    String name = "foo";
+    long value  = 10L;
+    Metrics detached = Metrics.createDetached();
+    AtomicLong foo = detached.registerLong(name);
+    foo.getAndSet(value);
+
+    Number readValue = detached.sample().get(name);
+    assertEquals(readValue, value);
+
+    foo.incrementAndGet();
+
+    Number readValue2 = detached.sample().get(name);
+    assertEquals(readValue2, value + 1);
+
+    assertNull(Metrics.root().sample().get(name));
+  }
+
+  @Test
+  public void testOverwrite() {
+    AtomicLong foo = metrics.registerLong("foo");
+    foo.getAndSet(10);
+
+    AtomicLong foo2 = metrics.registerLong("foo");
+    foo2.getAndSet(100);
+
+    checkSamples(ImmutableMap.<String, Number>of("foo", 100L));
   }
 
   private void checkSamples(Map<String, Number> expected) {

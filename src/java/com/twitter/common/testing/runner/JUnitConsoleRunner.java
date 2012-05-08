@@ -222,17 +222,19 @@ public class JUnitConsoleRunner {
   }
 
   void run(Iterable<String> tests) {
-    PrintStream out = SWAPPABLE_OUT.getOriginal();
+    final PrintStream out = System.out;
+    System.setOut(new PrintStream(SWAPPABLE_OUT));
+    System.setErr(new PrintStream(SWAPPABLE_ERR));
+
     List<Request> requests = parseRequests(out, tests);
 
     JUnitCore core = new JUnitCore();
-    ForwardingListener forwardingListener =
-        failFast ? new FailFastListener() {
-          @Override protected void failFast(Result failureResult) {
-            exit(failureResult.getFailureCount());
-          }
-        } : new ForwardingListener();
-    core.addListener(forwardingListener);
+    final AbortableListener abortableListener = new AbortableListener(failFast) {
+      @Override protected void abort(Result failureResult) {
+        exit(failureResult.getFailureCount());
+      }
+    };
+    core.addListener(abortableListener);
 
     if (xmlReport || suppressOutput) {
       if (!outdir.exists()) {
@@ -241,22 +243,37 @@ public class JUnitConsoleRunner {
         }
       }
       StreamCapturingListener streamCapturingListener = new StreamCapturingListener(outdir);
-      forwardingListener.addListener(streamCapturingListener);
+      abortableListener.addListener(streamCapturingListener);
 
       if (xmlReport) {
         AntJunitXmlReportListener xmlReportListener =
             new AntJunitXmlReportListener(outdir, streamCapturingListener);
-        forwardingListener.addListener(xmlReportListener);
+        abortableListener.addListener(xmlReportListener);
       }
     }
 
-    forwardingListener.addListener(new ConsoleListener(out));
+    abortableListener.addListener(new ConsoleListener(out));
+
+    Thread abnormalExitHook = new Thread() {
+      @Override public void run() {
+        try {
+          abortableListener.abort(new UnknownError("Abnormal VM exit - test crashed."));
+        } catch (Exception e) {
+          out.println(e);
+          e.printStackTrace(out);
+        }
+      }
+    };
+    abnormalExitHook.setDaemon(true);
+    Runtime.getRuntime().addShutdownHook(abnormalExitHook);
 
     int failures = 0;
     for (Request request : requests) {
       Result result = core.run(request);
       failures += result.getFailureCount();
     }
+
+    Runtime.getRuntime().removeShutdownHook(abnormalExitHook);
     exit(failures);
   }
 
@@ -313,9 +330,6 @@ public class JUnitConsoleRunner {
    * Launcher for JUnitConsoleRunner.
    */
   public static void main(String[] args) {
-    System.setOut(new PrintStream(SWAPPABLE_OUT));
-    System.setErr(new PrintStream(SWAPPABLE_ERR));
-
     /**
      * Command line option bean.
      */
@@ -359,6 +373,7 @@ public class JUnitConsoleRunner {
         this.tests = Arrays.asList(tests);
       }
     }
+
     Options options = new Options();
     CmdLineParser parser = new CmdLineParser(options);
     try {
@@ -388,6 +403,7 @@ public class JUnitConsoleRunner {
         tests.add(test);
       }
     }
+
     runner.run(tests);
   }
 

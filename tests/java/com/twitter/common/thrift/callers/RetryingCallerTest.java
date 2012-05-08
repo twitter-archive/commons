@@ -16,16 +16,18 @@
 
 package com.twitter.common.thrift.callers;
 
-import com.google.common.cache.Cache;
+import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicLong;
+
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableSet;
-import com.twitter.common.stats.StatsProvider;
+
 import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.reflect.Method;
-import java.util.concurrent.atomic.AtomicLong;
+import com.twitter.common.stats.StatsProvider;
 
 import static org.easymock.EasyMock.expect;
 import static org.hamcrest.CoreMatchers.is;
@@ -121,7 +123,7 @@ public class RetryingCallerTest extends AbstractCallerTest {
     return new NullPointerException();
   }
 
-  private Cache<Method, AtomicLong> memoizeGetCounter = CacheBuilder.newBuilder().build(
+  private LoadingCache<Method, AtomicLong> memoizeGetCounter = CacheBuilder.newBuilder().build(
       new CacheLoader<Method, AtomicLong>() {
         @Override public AtomicLong load(Method method) {
           AtomicLong atomicLong = new AtomicLong();

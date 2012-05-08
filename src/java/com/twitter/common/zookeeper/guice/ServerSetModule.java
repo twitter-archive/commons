@@ -19,6 +19,7 @@ package com.twitter.common.zookeeper.guice;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.net.InetSocketAddress;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -82,35 +83,63 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ServerSetModule extends AbstractModule {
 
   /**
-   * BindingAnnotation for the name of the inital Status to report to ZooKeeper.
+   * BindingAnnotation for defaults to use in the service instance node.
    */
   @BindingAnnotation @Target({ PARAMETER, METHOD, FIELD }) @Retention(RUNTIME)
-  private @interface InitialStatus { }
+  private @interface Default { }
 
   @NotNull
   @NotEmpty
   @CmdLine(name = "serverset_path", help = "ServerSet registration path")
   protected static final Arg<String> SERVERSET_PATH = Arg.create(null);
 
+  @CmdLine(name = "aux_port_as_primary",
+      help = "Name of the auxiliary port to use as the primary port in the server set."
+          + " This may only be used when no other primary port is specified.")
+  private static final Arg<String> AUX_PORT_AS_PRIMARY = Arg.create(null);
+
   private static final Logger LOG = Logger.getLogger(ServerSetModule.class.getName());
+
   private final Status initialStatus;
+  private final Optional<String> auxPortAsPrimary;
 
   /**
-   * Constructs a ServerSetModule that registers a startup action that registers this process in
-   * ZooKeeper, with the initial Status {@link Status.ALIVE}.
+   * Calls {@link #ServerSetModule(Optional)} with an absent value.
    */
   public ServerSetModule() {
-    this(Status.ALIVE);
+    this(Optional.<String>absent());
+  }
+
+  /**
+   * Calls {@link #ServerSetModule(Status, Optional)} with initial status {@link Status#ALIVE}.
+   *
+   * @param auxPortAsPrimary Name of the auxiliary port to use as the primary port.
+   */
+  public ServerSetModule(Optional<String> auxPortAsPrimary) {
+    this(Status.ALIVE, auxPortAsPrimary);
   }
 
   /**
    * Constructs a ServerSetModule that registers a startup action that registers this process in
    * ZooKeeper, with the specified initial Status.
    *
-   * @param initialStatus initial Status to report to ZooKeeper, such as {@link Status.STARTING}.
+   * @param initialStatus initial Status to report to ZooKeeper.
    */
   public ServerSetModule(Status initialStatus) {
+    this(initialStatus, Optional.<String>absent());
+  }
+
+  /**
+   * Constructs a ServerSetModule that registers a startup action to register this process in
+   * ZooKeeper, with the specified initial status and auxiliary port to represent as the primary
+   * service port.
+   *
+   * @param initialStatus initial Status to report to ZooKeeper.
+   * @param auxPortAsPrimary Name of the auxiliary port to use as the primary port.
+   */
+  public ServerSetModule(Status initialStatus, Optional<String> auxPortAsPrimary) {
     this.initialStatus = Preconditions.checkNotNull(initialStatus);
+    this.auxPortAsPrimary = Preconditions.checkNotNull(auxPortAsPrimary);
   }
 
   @Override
@@ -122,7 +151,23 @@ public class ServerSetModule extends AbstractModule {
 
     bind(new TypeLiteral<Supplier<EndpointStatus>>() { }).to(EndpointSupplier.class);
     bind(EndpointSupplier.class).in(Singleton.class);
-    bind(Status.class).annotatedWith(InitialStatus.class).toInstance(initialStatus);
+    bind(Status.class).annotatedWith(Default.class).toInstance(initialStatus);
+
+    Optional<String> primaryPortName;
+    if (AUX_PORT_AS_PRIMARY.hasAppliedValue()) {
+      primaryPortName = Optional.of(AUX_PORT_AS_PRIMARY.get());
+    } else {
+      primaryPortName = auxPortAsPrimary;
+    }
+
+    bind(new TypeLiteral<Optional<String>>() { }).annotatedWith(Default.class)
+        .toInstance(primaryPortName);
+  }
+
+  @Provides
+  @Singleton
+  ServerSet provideServerSet(ZooKeeperClient zkClient) {
+    return new ServerSetImpl(zkClient, SERVERSET_PATH.get());
   }
 
   static class EndpointSupplier implements Supplier<EndpointStatus> {
@@ -139,40 +184,50 @@ public class ServerSetModule extends AbstractModule {
   }
 
   private static class ServerSetJoiner implements Command {
-    private final ZooKeeperClient zkClient;
+    private final ServerSet serverSet;
     private final LocalServiceRegistry serviceRegistry;
     private final ShutdownRegistry shutdownRegistry;
     private final EndpointSupplier endpointSupplier;
     private final Status initialStatus;
+    private final Optional<String> auxPortAsPrimary;
 
     @Inject
     ServerSetJoiner(
-        ZooKeeperClient zkClient,
+        ServerSet serverSet,
         LocalServiceRegistry serviceRegistry,
         ShutdownRegistry shutdownRegistry,
         EndpointSupplier endpointSupplier,
-        @InitialStatus Status initialStatus) {
-      this.zkClient = checkNotNull(zkClient);
+        @Default Status initialStatus,
+        @Default Optional<String> auxPortAsPrimary) {
+
+      this.serverSet = checkNotNull(serverSet);
       this.serviceRegistry = checkNotNull(serviceRegistry);
       this.shutdownRegistry = checkNotNull(shutdownRegistry);
       this.endpointSupplier = checkNotNull(endpointSupplier);
       this.initialStatus = checkNotNull(initialStatus);
+      this.auxPortAsPrimary = checkNotNull(auxPortAsPrimary);
     }
 
-    @Override public void execute() throws RuntimeException {
-      ServerSet serverSet = new ServerSetImpl(zkClient, SERVERSET_PATH.get());
-
+    @Override public void execute() {
       Optional<InetSocketAddress> primarySocket = serviceRegistry.getPrimarySocket();
-      if (!primarySocket.isPresent()) {
-        throw new IllegalStateException("No primary service registered with LocalServiceRegistry.");
+      Map<String, InetSocketAddress> auxSockets = serviceRegistry.getAuxiliarySockets();
+
+      InetSocketAddress primary;
+      if (primarySocket.isPresent()) {
+        primary = primarySocket.get();
+      } else if (auxPortAsPrimary.isPresent()) {
+        primary = auxSockets.get(auxPortAsPrimary.get());
+        if (primary == null) {
+          throw new IllegalStateException("No auxiliary port named " + auxPortAsPrimary.get());
+        }
+      } else {
+        throw new IllegalStateException("No primary service registered with LocalServiceRegistry,"
+            + " and -aux_port_as_primary was not specified.");
       }
 
       final EndpointStatus endpointStatus;
       try {
-        endpointStatus = serverSet.join(
-            primarySocket.get(),
-            serviceRegistry.getAuxiliarySockets(),
-            initialStatus);
+        endpointStatus = serverSet.join(primary, auxSockets, initialStatus);
         endpointSupplier.set(endpointStatus);
       } catch (JoinException e) {
         LOG.log(Level.WARNING, "Failed to join ServerSet.", e);

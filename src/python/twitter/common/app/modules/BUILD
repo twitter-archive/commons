@@ -25,6 +25,7 @@ python_library(
     pants(":modules"),
     pants(":exceptions"),
     pants(":scribe_exceptions"),
+    pants(":serverset"),
     pants(":http"),
     pants(":vars")
   ]
@@ -56,6 +57,15 @@ python_library(
   dependencies = [
     pants(':modules'),
     pants('src/python/twitter/common/http')
+  ]
+)
+
+python_library(
+  name = "serverset",
+  sources = ['serverset.py'],
+  dependencies = [
+    pants(':modules'),
+    pants('src/python/twitter/common/zookeeper/serverset')
   ]
 )
 

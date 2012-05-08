@@ -17,8 +17,6 @@
 ## See accompanying file LICENSE or visit the Scribe site at:
 ## http://developers.facebook.com/scribe/
 
-include "fb303.thrift"
-
 namespace cpp scribe.thrift
 namespace java org.apache.scribe
 
@@ -34,7 +32,7 @@ struct LogEntry
   2:  string message
 }
 
-service scribe extends fb303.FacebookService
+service scribe
 {
   ResultCode Log(1: list<LogEntry> messages);
 }

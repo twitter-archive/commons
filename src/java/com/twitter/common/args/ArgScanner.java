@@ -455,12 +455,12 @@ public final class ArgScanner {
       throw new IllegalArgumentException(sb.toString());
     }
 
-    infoLog("-------------------------------------------------------------------------");
-    infoLog("Command line argument values");
+    LOG.info("-------------------------------------------------------------------------");
+    LOG.info("Command line argument values");
     for (String commandLineArgumentInfo : commandLineArgumentInfos) {
-      infoLog(commandLineArgumentInfo);
+      LOG.info(commandLineArgumentInfo);
     }
-    infoLog("-------------------------------------------------------------------------");
+    LOG.info("-------------------------------------------------------------------------");
     return true;
   }
 

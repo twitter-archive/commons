@@ -46,7 +46,7 @@ java_tests(name = 'small',
   sources = globs('*.java') - MEDIUM - LARGE
 )
 
-java_tests(name = 'medium',
+java_tests(name = 'medium-main',
   dependencies = [
     pants('3rdparty:guava'),
     pants('3rdparty:guice'),
@@ -63,6 +63,13 @@ java_tests(name = 'medium',
     pants('src/java/com/twitter/common/zookeeper/guice'),
   ],
   sources = MEDIUM
+)
+
+jar_library(name = 'medium',
+  dependencies = [
+    pants(':medium-main'),
+    pants('tests/java/com/twitter/common/zookeeper/testing/angrybird')
+  ]
 )
 
 java_tests(name = 'large',

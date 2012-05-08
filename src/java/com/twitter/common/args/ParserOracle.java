@@ -16,7 +16,7 @@
 
 package com.twitter.common.args;
 
-import com.twitter.common.reflect.TypeToken;
+import com.google.common.reflect.TypeToken;
 
 /**
  * A registry of Parsers for different supported argument types.

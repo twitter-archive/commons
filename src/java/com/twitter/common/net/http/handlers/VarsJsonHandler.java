@@ -36,7 +36,7 @@ import com.twitter.common.stats.Stat;
  */
 public class VarsJsonHandler extends HttpServlet {
 
-  private final Supplier<Iterable<Stat>> statSupplier;
+  private final Supplier<Iterable<Stat<?>>> statSupplier;
 
   /**
    * Creates a new handler that will report stats from the provided supplier.
@@ -44,7 +44,7 @@ public class VarsJsonHandler extends HttpServlet {
    * @param statSupplier Stats supplier.
    */
   @Inject
-  VarsJsonHandler(Supplier<Iterable<Stat>> statSupplier) {
+  VarsJsonHandler(Supplier<Iterable<Stat<?>>> statSupplier) {
     this.statSupplier = Preconditions.checkNotNull(statSupplier);
   }
 

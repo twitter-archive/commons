@@ -28,9 +28,9 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.reflect.TypeToken;
 
 import com.twitter.common.args.apt.Configuration;
-import com.twitter.common.reflect.TypeToken;
 
 /**
  * Description of a positional command line argument.
@@ -73,7 +73,7 @@ public class PositionalInfo<T> extends ArgumentInfo<List<T>> {
     Preconditions.checkArgument(
         TypeUtil.getRawType(TypeUtil.getTypeParam(field)) == List.class,
         "Field is annotated for positional parsing but is not of Arg<List<?>> type");
-    Type nestedType = TypeToken.extractTypeToken(TypeUtil.getTypeParam(field));
+    Type nestedType = TypeUtil.extractTypeToken(TypeUtil.getTypeParam(field));
 
     @SuppressWarnings("unchecked")
     PositionalInfo positionalInfo = new PositionalInfo(
@@ -81,7 +81,7 @@ public class PositionalInfo<T> extends ArgumentInfo<List<T>> {
         positional.help(),
         ArgumentInfo.getArgForField(field),
         TypeUtil.getTypeParamTypeToken(field),
-        TypeToken.create(nestedType),
+        TypeToken.of(nestedType),
         Arrays.asList(field.getAnnotations()),
         positional.parser());
     return positionalInfo;

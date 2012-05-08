@@ -22,9 +22,6 @@ import shutil
 import stat
 import errno
 
-from twitter.common.dirutil.tail import tail_f
-from twitter.common.dirutil.du import du
-
 def safe_mkdir(directory, clean=False):
   """
     Ensure a directory is present.  If it's not there, create it.  If it is,
@@ -120,15 +117,25 @@ def lock_file(filename, mode='r+', blocking=False):
   return fp
 
 
-def unlock_file(fp):
+def unlock_file(fp, close=False):
   """
     Unlock a file pointer.
 
+    If close=True the file pointer will be closed after unlocking.
+
     Always returns True.
   """
-  fcntl.flock(fp, fcntl.LOCK_UN)
+  try:
+    fcntl.flock(fp, fcntl.LOCK_UN)
+  finally:
+    if close:
+      fp.close()
   return True
 
+
+from twitter.common.dirutil.du import du
+from twitter.common.dirutil.lock import Lock
+from twitter.common.dirutil.tail import tail_f
 
 __all__ = [
   'chmod_plus_x',
@@ -138,4 +145,5 @@ __all__ = [
   'safe_open',
   'tail_f',
   'unlock_file',
+  'Lock'
 ]

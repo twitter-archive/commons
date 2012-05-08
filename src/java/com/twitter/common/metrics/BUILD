@@ -27,6 +27,7 @@ java_library(name = 'metrics',
     pants('src/java/com/twitter/common/base'),
     pants('src/java/com/twitter/common/quantity'),
     pants('src/java/com/twitter/common/util:executor-service-shutdown'),
+    pants('src/java/com/twitter/common/stats:util'),
   ],
   sources = glob('*.java'),
 )

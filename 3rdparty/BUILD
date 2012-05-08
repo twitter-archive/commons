@@ -50,36 +50,41 @@ Notice: force is NOT transitive, so any indirectly depended package will not hav
 
 jar_library(name = 'cascading2-core',
             dependencies = [
-              jar(org = 'cascading', name = 'cascading-core', rev = '2.0.0-wip-238')
+              jar(org = 'cascading', name = 'cascading-core', rev = '2.0.0-wip-291')
                 .exclude(org = 'org.apache.hadoop', name="hadoop-core")
             ])
 
 jar_library(name = 'cascading-kryo',
             dependencies = [
-              jar(org = 'cascading.kryo', name = 'cascading.kryo', rev = '0.2.0')
+              jar(org = 'cascading.kryo', name = 'cascading.kryo', rev = '0.3.1')
+            ])
+
+jar_library(name = 'maple',
+            dependencies = [
+              jar(org = 'com.twitter', name = 'maple', rev = '0.1.7')
             ])
 
 jar_library(name = 'cascading2-local',
             dependencies = [
-              jar(org = 'cascading', name = 'cascading-local', rev = '2.0.0-wip-238')
+              jar(org = 'cascading', name = 'cascading-local', rev = '2.0.0-wip-291')
                 .exclude(org = 'org.apache.hadoop', name="hadoop-core")
             ])
 
 jar_library(name = 'cascading2-hadoop',
             dependencies = [
-              jar(org = 'cascading', name = 'cascading-hadoop', rev = '2.0.0-wip-238')
+              jar(org = 'cascading', name = 'cascading-hadoop', rev = '2.0.0-wip-291')
                 .exclude(org = 'org.apache.hadoop', name="hadoop-core")
             ])
 
 
 jar_library(name = 'cascading-thrift',
             dependencies = [
-              jar(org = 'backtype', name = 'cascading-thrift', rev = '0.2.2')
+              jar(org = 'backtype', name = 'cascading-thrift', rev = '0.2.5')
                 .exclude(org = 'org.apache.thrift')
             ])
 
 jar_library(name = 'cascading2-test',
-    dependencies = [ jar(org = 'cascading', name = 'cascading-test', rev = '2.0.0-wip-238') ]
+    dependencies = [ jar(org = 'cascading', name = 'cascading-test', rev = '2.0.0-wip-291') ]
   )
 
 jar_library(name = 'cascading.jdbc',
@@ -135,7 +140,7 @@ jar_library(name = 'commons-logging',
            )
 
 # common rev for all com.twitter%finagle* artifacts
-FINAGLE_REV = '2.0.1'
+FINAGLE_REV = '3.0.0'
 
 jar_library(name = 'finagle-b3',
             dependencies = [ jar(org = 'com.twitter', name = 'finagle-b3', rev = FINAGLE_REV),
@@ -157,8 +162,8 @@ jar_library(name = 'gson',
 jar_library(name = 'guava',
             dependencies = [
               jar(
-                org = 'com.google.guava', name = 'guava', rev = '11.0.2',
-                apidocs = 'http://docs.guava-libraries.googlecode.com/git-history/v11.0.2/javadoc/'
+                org = 'com.google.guava', name = 'guava', rev = '12.0',
+                apidocs = 'http://docs.guava-libraries.googlecode.com/git-history/v12.0/javadoc/'
               ).with_sources(),
 
               # This dependency should not need to be explicit but its currently required to work
@@ -246,14 +251,6 @@ jar_library(name = 'lucene-snowball',
             ]
            )
 
-jar_library(name = 'mahout-core',
-            dependencies = [ jar(org = 'org.apache.mahout', name = 'mahout-core', rev = '0.6-T1')
-                               .exclude(org = 'com.google.collections', name = 'google-collections') ])
-
-jar_library(name = 'mahout-math',
-            dependencies = [ jar(org = 'org.apache.mahout', name = 'mahout-math', rev = '0.6-T1')
-                               .exclude(org = 'com.google.collections', name = 'google-collections') ])
-
 jar_library(name = 'meat-locker',
   dependencies = [ jar(org='com.twitter', name='meat-locker', rev='0.1.6') ]
   )
@@ -269,6 +266,12 @@ jar_library(name = 'protobuf-2.3.0',
 
 jar_library(name = 'protobuf-java',
             dependencies = [ pants(':protobuf-2.3.0') ])
+
+jar_library(name = 'scala-compiler',
+            dependencies = [
+              jar(org='org.scala-lang', name='scala-compiler', rev='2.8.1').with_sources()
+            ]
+           )
 
 jar_library(name = 'scala-library',
             dependencies = [
@@ -333,6 +336,11 @@ jar_library(name = 'thrift-0.5.0-finagle',
             ]
            )
 
+jar_library(name = 'thrift-0.7.0',
+            dependencies = [
+	      jar(org = 'org.apache.thrift', name = 'libthrift', rev = '0.7.0'),
+            ]
+           )
 
 jar_library(name = 'thrift',
             dependencies = [ pants(':thrift-0.5') ])
@@ -348,9 +356,12 @@ jar_library(name = 'twitter-text',
             dependencies = [ jar(org = 'com.twitter', name = 'twitter-text', rev = '1.4.10') ])
 
 # common rev for all com.twitter%util* artifacts
-UTIL_REV = '1.8.18'
+UTIL_REV = '3.0.0'
 jar_library(name = 'util',
-            dependencies = [ jar(org = 'com.twitter', name = 'util', rev = UTIL_REV) ])
+            dependencies = [
+              jar(org = 'com.twitter', name = 'util', rev = UTIL_REV)
+                  .exclude(org = 'com.twitter.common.zookeeper')
+            ])
 
 jar_library(name = 'util-core',
             dependencies = [ jar(org = 'com.twitter', name = 'util-core', rev = UTIL_REV) ])
@@ -380,6 +391,12 @@ jar_library(name = 'twadoop',
               jar(org ='com.twitter.twadoop', name='twadoop', rev = '1.0')
             ]
            )
+
+jar_library(name = 'commons-net',
+           dependencies = [
+             jar(org = 'commons-net', name = 'commons-net', rev = '3.1')
+           ]
+          )
 
 ###############
 # Test support
@@ -422,8 +439,13 @@ jar_library(name = 'specs', dependencies = [ pants(':specs_2.8') ])
 jar_library(name = 'tl4j',
             dependencies = [
               jar(org = 'com.google.testing', name = 'test-libraries-for-java', rev = '1.1.1')
+                # tl4j by default pulls in junit-4.6, which conflicts with 4.10 needed by our
+                # testing code (e.g. ConcurrentJunitRunner). So exclude it here so that the junit
+                # target defined above is used instead. tl4j seems to be happy with junit-4.10.
+                .exclude(org = 'junit', name='junit')
             ]
            )
+
 
 # TODO(John Sirois): support an ivy 'runtime' configuration and punch through a way to indicate this
 # via pants

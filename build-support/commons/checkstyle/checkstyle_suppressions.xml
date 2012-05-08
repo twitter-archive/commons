@@ -55,4 +55,5 @@ limitations under the License.
   <suppress files="com/twitter/common/thrift/.*\.java" checks=".*"/>
   <suppress files="com/twitter/common/util/.*\.java" checks=".*"/>
   <suppress files="com/twitter/common/zookeeper/.*\.java" checks=".*"/>
+  <suppress files="com/twitter/common/metrics/.*\.java" checks="MagicNumber"/>
 </suppressions>

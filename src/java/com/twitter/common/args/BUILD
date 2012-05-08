@@ -36,7 +36,6 @@ annotation_processor(name = 'core',
   dependencies = [
     pants('3rdparty:guava'),
     pants('3rdparty:jsr305'),
-    pants('src/java/com/twitter/common/reflect')
   ],
   sources = CORE_SOURCES,
 )
@@ -70,7 +69,6 @@ java_library(name = 'args',
     pants('src/java/com/twitter/common/base'),
     pants('src/java/com/twitter/common/net:util'),
     pants('src/java/com/twitter/common/quantity'),
-    pants('src/java/com/twitter/common/reflect'),
   ],
   sources = rglobs('*.java') - APT_SOURCES - CORE_SOURCES - DURATION_PARSER
 )
@@ -83,8 +81,8 @@ java_library(name = 'duration_parser',
   ),
   dependencies = [
     pants(':args'),
+    pants('3rdparty:guava'),
     pants('3rdparty:util-core'),
-    pants('src/java/com/twitter/common/reflect'),
   ],
   sources = DURATION_PARSER
 )

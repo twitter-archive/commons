@@ -26,8 +26,7 @@ import java.util.List;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-
-import com.twitter.common.reflect.TypeToken;
+import com.google.common.reflect.TypeToken;
 
 /**
  * Utility class to extract generic type information.
@@ -82,7 +81,7 @@ public final class TypeUtil {
   }
 
   /**
-   * Convenience method to call {@link #getTypeParams(Field)}, with the requirement that there
+   * Convenience method to call {@link #getTypeParam(Field)}, with the requirement that there
    * is exactly one type parameter on the field.
    *
    * @param field The field to extract type parameters from.
@@ -92,7 +91,7 @@ public final class TypeUtil {
     List<Type> typeParams = getTypeParams(field.getGenericType());
     Preconditions.checkArgument(typeParams.size() == 1,
         "Expected exactly one type parameter for field " + field);
-    return TypeToken.create(typeParams.get(0));
+    return TypeToken.of(typeParams.get(0));
   }
 
   /**
@@ -102,6 +101,23 @@ public final class TypeUtil {
    * @return The field type parameter.
    */
   public static Type getTypeParam(Field field) {
-    return TypeToken.extractTypeToken(field.getGenericType());
+    return extractTypeToken(field.getGenericType());
+  }
+
+  /**
+   * Extracts the actual type parameter for a singly parameterized type.
+   *
+   * @param type The parameterized type to extract the type argument from.
+   * @return The type of the single specified type parameter for {@code type}.
+   * @throws IllegalArgumentException if the supplied type does not have exactly one specified type
+   *     parameter
+   */
+  public static Type extractTypeToken(Type type) {
+    Preconditions.checkNotNull(type);
+    Preconditions.checkArgument(type instanceof ParameterizedType, "Missing type parameter.");
+    Type[] typeArguments = ((ParameterizedType) type).getActualTypeArguments();
+    Preconditions.checkArgument(typeArguments.length == 1,
+        "Expected a type with exactly 1 type argument");
+    return typeArguments[0];
   }
 }

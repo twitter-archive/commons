@@ -22,10 +22,10 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.reflect.TypeToken;
 
 import com.twitter.common.args.apt.Configuration;
 import com.twitter.common.collections.Pair;
-import com.twitter.common.reflect.TypeToken;
 
 import static com.twitter.common.args.apt.Configuration.ConfigurationException;
 import static com.twitter.common.args.apt.Configuration.VerifierInfo;

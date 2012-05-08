@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
-import com.twitter.common.util.testing.FakeClock;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -25,12 +24,10 @@ public class MetricsIT {
 
   private static final Amount<Long, Time> ONE_SECOND = Amount.of(1L, Time.SECONDS);
 
-  private FakeClock clock;
   private Metrics root;
 
   @Before
   public void setUp() {
-    clock = new FakeClock();
     root = new Metrics();
   }
 
@@ -42,25 +39,15 @@ public class MetricsIT {
   @Test
   public void testDerivedVars() {
     AtomicLong longVar = root.registerLong("long");
-
     MetricRegistry barScope = root.scope("bar");
-    Rate longRate = Rate.of("long", longVar, clock);
-    barScope.register(longRate);
-    Rate longRateRate = Rate.of(longRate, clock);
-    root.register(longRateRate);
+    AtomicLong longVar2 = barScope.registerLong("long");
+    checkSamples(ImmutableMap.<String, Number>of("long", 0L, "bar.long", 0L));
 
-    checkSamples(ImmutableMap.<String, Number>of(
-        "long", 0L, "bar." + longRate.getName(), 0d, longRateRate.getName(), 0d));
-
-    clock.advance(ONE_SECOND);
     longVar.addAndGet(10);
-    checkSamples(ImmutableMap.<String, Number>of(
-        "long", 10L, "bar." + longRate.getName(), 10d, longRateRate.getName(), 10d));
+    checkSamples(ImmutableMap.<String, Number>of("long", 10L, "bar.long", 0L));
 
-    clock.advance(ONE_SECOND);
-    longVar.addAndGet(2);
-    checkSamples(ImmutableMap.<String, Number>of(
-        "long", 12L, "bar." + longRate.getName(), 2d, longRateRate.getName(), -8d));
+    longVar2.addAndGet(20);
+    checkSamples(ImmutableMap.<String, Number>of("long", 10L, "bar.long", 20L));
   }
 
   private void checkSamples(Map<String, Number> expected) {

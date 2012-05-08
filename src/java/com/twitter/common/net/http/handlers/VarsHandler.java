@@ -16,6 +16,9 @@
 
 package com.twitter.common.net.http.handlers;
 
+import java.util.Collections;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.base.Function;
@@ -26,9 +29,6 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
 import com.twitter.common.stats.Stat;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * HTTP handler that prints all registered variables and their current values.
@@ -43,7 +43,7 @@ public class VarsHandler extends TextResponseHandler {
     }
   };
 
-  private final Supplier<Iterable<Stat>> statSupplier;
+  private final Supplier<Iterable<Stat<?>>> statSupplier;
 
   /**
    * Creates a new handler that will report stats from the provided supplier.
@@ -51,7 +51,7 @@ public class VarsHandler extends TextResponseHandler {
    * @param statSupplier Stats supplier.
    */
   @Inject
-  VarsHandler(Supplier<Iterable<Stat>> statSupplier) {
+  VarsHandler(Supplier<Iterable<Stat<?>>> statSupplier) {
     this.statSupplier = Preconditions.checkNotNull(statSupplier);
   }
 

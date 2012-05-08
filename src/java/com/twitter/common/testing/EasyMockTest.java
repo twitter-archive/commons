@@ -22,6 +22,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 
 import com.google.common.base.Preconditions;
+import com.google.common.reflect.TypeToken;
 import com.google.common.testing.TearDown;
 import com.google.common.testing.junit4.TearDownTestCase;
 
@@ -29,8 +30,6 @@ import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.junit.Before;
-
-import com.twitter.common.reflect.TypeToken;
 
 import static org.easymock.EasyMock.createControl;
 
@@ -78,20 +77,20 @@ public abstract class EasyMockTest extends TearDownTestCase {
     }
 
     private Class<?> findRawType() {
-      if (type instanceof Class<?>) { // Plain old
-        return (Class<?>) type;
+      if (getType() instanceof Class<?>) { // Plain old
+        return (Class<?>) getType();
 
-      } else if (type instanceof ParameterizedType) { // Nested type parameter
-        ParameterizedType parametrizedType = (ParameterizedType) type;
+      } else if (getType() instanceof ParameterizedType) { // Nested type parameter
+        ParameterizedType parametrizedType = (ParameterizedType) getType();
         Type rawType = parametrizedType.getRawType();
         return (Class<?>) rawType;
-      } else if (type instanceof GenericArrayType) {
-        throw new IllegalStateException("cannot mock arrays, rejecting type: " + type);
-      } else if (type instanceof WildcardType) {
+      } else if (getType() instanceof GenericArrayType) {
+        throw new IllegalStateException("cannot mock arrays, rejecting type: " + getType());
+      } else if (getType() instanceof WildcardType) {
         throw new IllegalStateException(
-            "wildcarded instantiations are not allowed in java, rejecting type: " + type);
+            "wildcarded instantiations are not allowed in java, rejecting type: " + getType());
       } else {
-        throw new IllegalArgumentException("Could not decode raw type for: " + type);
+        throw new IllegalArgumentException("Could not decode raw type for: " + getType());
       }
     }
 
