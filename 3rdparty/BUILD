@@ -156,6 +156,13 @@ jar_library(name = 'finagle-http',
 jar_library(name = 'finagle-thrift',
             dependencies = [ jar(org = 'com.twitter', name = 'finagle-thrift', rev = FINAGLE_REV) ])
 
+jar_library(name = 'finagle-serversets',
+            dependencies = [
+              jar(org = 'com.twitter', name = 'finagle-serversets', rev = FINAGLE_REV)
+                .exclude(org='com.twitter.common')
+                .exclude(org='com.twitter.common.zookeeper')
+            ])
+
 jar_library(name = 'gson',
             dependencies = [ jar(org = 'com.google.code.gson', name = 'gson', rev = '2.1') ])
 
