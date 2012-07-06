@@ -87,7 +87,7 @@ class JavaCompile(NailgunTask):
 
     self._flatten = \
       context.options.java_compile_flatten if context.options.java_compile_flatten is not None else \
-      context.config.get('java-compile', 'default_to_flatten')
+      context.config.getbool('java-compile', 'default_to_flatten')
 
     workdir = context.config.get('java-compile', 'workdir')
     self._classes_dir = os.path.join(workdir, 'classes')

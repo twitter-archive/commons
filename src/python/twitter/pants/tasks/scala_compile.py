@@ -68,11 +68,11 @@ class ScalaCompile(NailgunTask):
     NailgunTask.__init__(self, context, workdir=context.config.get('scala-compile', 'nailgun_dir'))
     self._incremental = \
       context.options.scala_compile_incremental if context.options.scala_compile_incremental is not None else \
-      context.config.get('scala-compile', 'default_to_incremental')
+      context.config.getbool('scala-compile', 'default_to_incremental')
 
     self._flatten = \
       context.options.scala_compile_flatten if context.options.scala_compile_flatten is not None else \
-      context.config.get('scala-compile', 'default_to_flatten')
+      context.config.getbool('scala-compile', 'default_to_flatten')
 
     self._compile_profile = context.config.get('scala-compile', 'compile-profile')  # The target scala version.
     self._zinc_profile = context.config.get('scala-compile', 'zinc-profile')
