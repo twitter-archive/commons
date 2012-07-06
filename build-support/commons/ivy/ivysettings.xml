@@ -46,6 +46,12 @@ limitations under the License.
                usepoms="true"
                root="http://mirrors.ibiblio.org/pub/mirrors/maven2/"/>
 
+      <!-- Possibly temporary, until com.typesafe.zinc and its deps get propagated to the maven2 mirror above. -->
+      <ibiblio name="maven-central"
+               m2compatible="true"
+               usepoms="true"
+               root="http://nexus.prod.foursquare.com/nexus/content/repositories/central/"/>
+
       <ibiblio name="maven.twttr.com-maven"
                m2compatible="true"
                usepoms="true"

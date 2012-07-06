@@ -77,13 +77,17 @@ class JavaCompile(NailgunTask):
                                  "enabled.")
 
     option_group.add_option(mkflag("flatten"), mkflag("flatten", negate=True),
-      dest="java_compile_flatten", default=True,
-      action="callback", callback=mkflag.set_bool,
-      help="[%default] Compile java code for all dependencies in a "
-           "single pass.")
+                            dest="java_compile_flatten",
+                            action="callback", callback=mkflag.set_bool,
+                            help="[%default] Compile java code for all dependencies in a "
+                                 "single pass.")
 
   def __init__(self, context):
     NailgunTask.__init__(self, context, workdir=context.config.get('java-compile', 'nailgun_dir'))
+
+    self._flatten = \
+      context.options.java_compile_flatten if context.options.java_compile_flatten is not None else \
+      context.config.get('java-compile', 'default_to_flatten')
 
     workdir = context.config.get('java-compile', 'workdir')
     self._classes_dir = os.path.join(workdir, 'classes')
@@ -101,16 +105,17 @@ class JavaCompile(NailgunTask):
     else:
       self._args.extend(context.config.getlist('java-compile', 'no_warning_args'))
 
-    self._flatten = context.options.java_compile_flatten
     self._confs = context.config.getlist('java-compile', 'confs')
 
   def execute(self, targets):
     if not self._flatten and len(targets) > 1:
       topologically_sorted_targets = filter(JavaCompile._is_java, reversed(InternalTarget.sort_targets(targets)))
       for target in topologically_sorted_targets:
-        self.execute([target])
-      return
+        self.execute_single_pass([target])
+    else:
+      self.execute_single_pass(targets)
 
+  def execute_single_pass(self, targets):
     self.context.log.info('Compiling targets %s' % str(targets))
 
     java_targets = filter(JavaCompile._is_java, targets)
