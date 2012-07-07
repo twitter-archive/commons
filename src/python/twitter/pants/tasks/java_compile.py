@@ -92,7 +92,8 @@ class JavaCompile(NailgunTask):
     workdir = context.config.get('java-compile', 'workdir')
     self._classes_dir = os.path.join(workdir, 'classes')
     self._resources_dir = os.path.join(workdir, 'resources')
-    self._dependencies_file = os.path.join(workdir, 'dependencies')
+    self._depfile_dir = os.path.join(workdir, 'depfiles')
+    self._deps = Dependencies(self._classes_dir)
 
     self._jmake_profile = context.config.get('java-compile', 'jmake-profile')
     self._compiler_profile = context.config.get('java-compile', 'compiler-profile')
@@ -108,6 +109,9 @@ class JavaCompile(NailgunTask):
     self._confs = context.config.getlist('java-compile', 'confs')
 
   def execute(self, targets):
+    safe_mkdir(self._classes_dir)
+    safe_mkdir(self._depfile_dir)
+
     if not self._flatten and len(targets) > 1:
       topologically_sorted_targets = filter(JavaCompile._is_java, reversed(InternalTarget.sort_targets(targets)))
       for target in topologically_sorted_targets:
@@ -115,15 +119,11 @@ class JavaCompile(NailgunTask):
     else:
       self.execute_single_pass(targets)
 
-    # TODO: When compiling in multiple passes, the depemitter must, on each pass, read in the old dep file and
-    # write it out again with the new deps added. This will be O(n^2) in the number of passes. It will be better
-    # to have each pass write to a separate depfile and aggregate them in memory.
     if self.context.products.isrequired('classes'):
       genmap = self.context.products.get('classes')
 
       # Map generated classes to the owning targets and sources.
-      dependencies = Dependencies(self._classes_dir, self._dependencies_file)
-      for target, classes_by_source in dependencies.findclasses(targets).items():
+      for target, classes_by_source in self._deps.findclasses(targets).items():
         for source, classes in classes_by_source.items():
           genmap.add(source, self._classes_dir, classes)
           genmap.add(target, self._classes_dir, classes)
@@ -139,6 +139,16 @@ class JavaCompile(NailgunTask):
 
   def execute_single_pass(self, targets):
     self.context.log.info('Compiling targets %s' % str(targets))
+
+    # Compute the id of this execution pass. We try to make it human-readable.
+    if len(targets) == 1:
+      pass_id = targets[0].id
+    elif len(self.context.target_roots) == 1:
+      pass_id = self.context.target_roots[0].id
+    else:
+      pass_id = self.context.id
+
+    depfile = os.path.join(self._depfile_dir, pass_id) + '.dependencies'
 
     java_targets = filter(JavaCompile._is_java, targets)
     if java_targets:
@@ -156,7 +166,7 @@ class JavaCompile(NailgunTask):
                                     '\n  '.join(str(t) for t in sources_by_target.keys()))
             else:
               classpath = [jar for conf, jar in cp if conf in self._confs]
-              result = self.compile(classpath, sources, fingerprint)
+              result = self.compile(classpath, sources, fingerprint, depfile)
               if result != 0:
                 default_message = 'Unexpected error - %s returned %d' % (_JMAKE_MAIN, result)
                 raise TaskError(_JMAKE_ERROR_CODES.get(result, default_message))
@@ -170,6 +180,11 @@ class JavaCompile(NailgunTask):
                   for processor in f:
                     processors.add(processor.strip())
               self.write_processor_info(processor_info_file, processors)
+
+    # Read in the deps created either just now or by a previous compiler run on these targets.
+    deps = Dependencies(self._classes_dir)
+    deps.load(depfile)
+    self._deps.merge(deps)
 
   def calculate_sources(self, targets):
     sources = defaultdict(set)
@@ -186,9 +201,7 @@ class JavaCompile(NailgunTask):
       collect_sources(target)
     return sources, processors, self.context.identify(targets)
 
-  def compile(self, classpath, sources, fingerprint):
-    safe_mkdir(self._classes_dir)
-
+  def compile(self, classpath, sources, fingerprint, depfile):
     jmake_classpath = nailgun_profile_classpath(self, self._jmake_profile)
 
     args = [
@@ -201,7 +214,7 @@ class JavaCompile(NailgunTask):
     args.extend([
       '-jcpath', ':'.join(compiler_classpath),
       '-jcmainclass', 'com.twitter.common.tools.Compiler',
-      '-C-Tdependencyfile', '-C%s' % self._dependencies_file,
+      '-C-Tdependencyfile', '-C%s' % depfile,
     ])
 
     args.extend(self._args)

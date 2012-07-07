@@ -104,12 +104,16 @@ class ScalaCompile(NailgunTask):
       self._args.extend(context.config.getlist('scala-compile', 'no_warning_args'))
 
     self._confs = context.config.getlist('scala-compile', 'confs')
-    self._depfile = os.path.join(workdir, 'dependencies')
+    self._depfile_dir = os.path.join(workdir, 'depfiles')
+    self._deps = Dependencies(self._classes_dir)
     self._zinc_home = os.path.join(context.config.get('ivy-profiles', 'workdir'), self._zinc_profile + '.libs')
     self._jar_workdir = context.config.get('jar-create', 'workdir')
 
 
   def execute(self, targets):
+    safe_mkdir(self._classes_dir)
+    safe_mkdir(self._depfile_dir)
+
     if not self._flatten and len(targets) > 1:
       topologically_sorted_targets = filter(is_scala, reversed(InternalTarget.sort_targets(targets)))
       upstream_analysis_caches = OrderedDict()  # output dir -> analysis cache file for the classes in that dir.
@@ -118,15 +122,11 @@ class ScalaCompile(NailgunTask):
     else:
       self.execute_single_pass(targets, {})
 
-    # TODO: When compiling in multiple passes, the depemitter plugin must, on each pass, read in the old dep file and
-    # write it out again with the new deps added. This will be O(n^2) in the number of passes. It will be better
-    # to have each pass write to a separate depfile and aggregate them in memory.
     if self.context.products.isrequired('classes'):
       genmap = self.context.products.get('classes')
 
       # Map generated classes to the owning targets and sources.
-      dependencies = Dependencies(self._classes_dir, self._depfile)
-      for target, classes_by_source in dependencies.findclasses(targets).items():
+      for target, classes_by_source in self._deps.findclasses(targets).items():
         for source, classes in classes_by_source.items():
           genmap.add(source, self._classes_dir, classes)
           genmap.add(target, self._classes_dir, classes)
@@ -142,27 +142,29 @@ class ScalaCompile(NailgunTask):
     """Execute a single compiler pass, updating upstream_analysis_caches if needed."""
     self.context.log.info('Compiling targets %s' % str(targets))
 
-    output_dir = self._classes_dir
+    # Compute the id of this execution pass. We try to make it human-readable.
+    if len(targets) == 1:
+      pass_id = targets[0].id
+    elif len(self.context.target_roots) == 1:
+      pass_id = self.context.target_roots[0].id
+    else:
+      pass_id = self.context.id
+
+    depfile = os.path.join(self._depfile_dir, pass_id) + '.dependencies'
+
     if self._incremental:
-      # Compute the id of this execution pass. We try to make it human-readable.
-      if len(targets) == 1:
-        pass_id = targets[0].id
-      elif len(self.context.target_roots) == 1:
-        pass_id = self.context.target_roots[0].id
-      else:
-        pass_id = self.context.id
-      analysis_cache = os.path.join(self._analysis_cache_dir, pass_id)
       if self._flatten:
-        # We must distinguish the flat and non-flat analysis caches.
-        # The flat one also contain info on all dependencies.
-        analysis_cache += '.flat'
+        output_dir = self._classes_dir
+        analysis_cache = os.path.join(self._analysis_cache_dir, pass_id) + '.flat'
       else:
         # When compiling incrementally *and* in multiple passes, each pass must output to
         # its own directory, so zinc can then associate those with the analysis caches of
         # previous passes. So we compile into a pass-specific directory and then copy the
         # results out to the real output dir.
         output_dir = os.path.join(self._incremental_classes_dir, pass_id)
+        analysis_cache = os.path.join(self._analysis_cache_dir, pass_id)
     else:
+      output_dir = self._classes_dir
       analysis_cache = None
 
     scala_targets = filter(is_scala, targets)
@@ -189,7 +191,7 @@ class ScalaCompile(NailgunTask):
                                   '\n  '.join(str(t) for t in sources_by_target.keys()))
           else:
             classpath = [jar for conf, jar in cp if conf in self._confs]
-            result = self.compile(classpath, sources, output_dir, analysis_cache, upstream_analysis_caches)
+            result = self.compile(classpath, sources, output_dir, analysis_cache, upstream_analysis_caches, depfile)
             if result != 0:
               raise TaskError('%s returned %d' % (self._main, result))
             if output_dir != self._classes_dir:
@@ -201,6 +203,11 @@ class ScalaCompile(NailgunTask):
                     os.mkdir(dir)
                 for f in [os.path.join(dirpath, x) for x in filenames]:
                   shutil.copy(f, os.path.join(self._classes_dir, os.path.relpath(f, output_dir)))
+
+    # Read in the deps created either just now or by a previous compiler run on these targets.
+    deps = Dependencies(output_dir)
+    deps.load(depfile)
+    self._deps.merge(deps)
 
     if self._incremental and not self._flatten:
       upstream_analysis_caches[output_dir] = analysis_cache
@@ -221,8 +228,8 @@ class ScalaCompile(NailgunTask):
       collect_sources(target)
     return sources
 
-  def compile(self, classpath, sources, output_dir, analysis_cache, upstream_analysis_caches):
-    safe_mkdir(self._classes_dir)
+  def compile(self, classpath, sources, output_dir, analysis_cache, upstream_analysis_caches, depfile):
+    safe_mkdir(output_dir)
 
     compiler_classpath = nailgun_profile_classpath(self, self._compile_profile)
 
@@ -232,7 +239,7 @@ class ScalaCompile(NailgunTask):
     compiler_args.extend([
       # Support for outputting a dependencies file of source -> class
       '-Xplugin:%s' % self.get_depemitter_plugin(),
-      '-P:depemitter:file:%s' % self._depfile
+      '-P:depemitter:file:%s' % depfile
     ])
     compiler_args.extend(self._args)
 
