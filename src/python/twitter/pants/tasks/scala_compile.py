@@ -97,6 +97,7 @@ class ScalaCompile(NailgunTask):
       self._main = context.config.get('scala-compile', 'main')
 
     self._args = context.config.getlist('scala-compile', 'args')
+    self._jvm_args = context.config.getlist('scala-compile', 'jvm_args')
     if context.options.scala_compile_warnings:
       self._args.extend(context.config.getlist('scala-compile', 'warning_args'))
     else:
@@ -263,7 +264,7 @@ class ScalaCompile(NailgunTask):
 
     args.extend(sources)
     self.context.log.debug('Executing: %s %s' % (self._main, ' '.join(args)))
-    return self.runjava(self._main, classpath=run_classpath, args=args)
+    return self.runjava(self._main, classpath=run_classpath, args=args, jvmargs=self._jvm_args)
 
   def get_depemitter_plugin(self):
     depemitter_classpath = nailgun_profile_classpath(self, self._depemitter_profile)
