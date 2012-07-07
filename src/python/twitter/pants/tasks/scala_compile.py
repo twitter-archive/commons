@@ -56,7 +56,7 @@ class ScalaCompile(NailgunTask):
                             dest="scala_compile_flatten",
                             action="callback", callback=mkflag.set_bool,
                             help="[%default] Compile scala code for all dependencies in a "
-                                 "single pass.")
+                                 "single compilation.")
 
     option_group.add_option(mkflag("incremental"), mkflag("incremental", negate=True),
                             dest="scala_compile_incremental",
@@ -111,98 +111,104 @@ class ScalaCompile(NailgunTask):
 
 
   def execute(self, targets):
-    safe_mkdir(self._classes_dir)
-    safe_mkdir(self._depfile_dir)
+    scala_targets = filter(is_scala, reversed(InternalTarget.sort_targets(targets)))
+    if scala_targets:
+      safe_mkdir(self._classes_dir)
+      safe_mkdir(self._depfile_dir)
 
-    if not self._flatten and len(targets) > 1:
-      topologically_sorted_targets = filter(is_scala, reversed(InternalTarget.sort_targets(targets)))
-      upstream_analysis_caches = OrderedDict()  # output dir -> analysis cache file for the classes in that dir.
-      for target in topologically_sorted_targets:
-        self.execute_single_pass([target], upstream_analysis_caches)
-    else:
-      self.execute_single_pass(targets, {})
+      with self.context.state('classpath', []) as cp:
+        for conf in self._confs:
+          cp.insert(0, (conf, self._resources_dir))
+          # If we're compiling incrementally and not flattening, we don't want the classes dir on the classpath
+          # yet, as we want zinc to see only the per-compilation output dirs, so it can map them to analysis caches.
+          if not (self._incremental and not self._flatten):
+            cp.insert(0, (conf, self._classes_dir))
 
-    if self.context.products.isrequired('classes'):
-      genmap = self.context.products.get('classes')
+      if not self._flatten and len(scala_targets) > 1:
+        upstream_analysis_caches = OrderedDict()  # output dir -> analysis cache file for the classes in that dir.
+        for target in scala_targets:
+          self.execute_single_compilation([target], cp, upstream_analysis_caches)
+      else:
+        self.execute_single_compilation(scala_targets, cp, {})
 
-      # Map generated classes to the owning targets and sources.
-      for target, classes_by_source in self._deps.findclasses(targets).items():
-        for source, classes in classes_by_source.items():
-          genmap.add(source, self._classes_dir, classes)
-          genmap.add(target, self._classes_dir, classes)
+      if self._incremental and not self._flatten:
+        # Now we can add the global output dir, so that subsequent goals can see it.
+        with self.context.state('classpath', []) as cp:
+          for conf in self._confs:
+            cp.insert(0, (conf, self._classes_dir))
 
-      # TODO(John Sirois): Map target.resources in the same way
-      # Create and Map scala plugin info files to the owning targets.
-      for target in targets:
-        if is_scalac_plugin(target) and target.classname:
-          basedir = self.write_plugin_info(target)
-          genmap.add(target, basedir, [_PLUGIN_INFO_FILE])
+      if self.context.products.isrequired('classes'):
+        genmap = self.context.products.get('classes')
 
-  def execute_single_pass(self, targets, upstream_analysis_caches):
-    """Execute a single compiler pass, updating upstream_analysis_caches if needed."""
-    self.context.log.info('Compiling targets %s' % str(targets))
+        # Map generated classes to the owning targets and sources.
+        for target, classes_by_source in self._deps.findclasses(scala_targets).items():
+          for source, classes in classes_by_source.items():
+            genmap.add(source, self._classes_dir, classes)
+            genmap.add(target, self._classes_dir, classes)
 
-    # Compute the id of this execution pass. We try to make it human-readable.
-    if len(targets) == 1:
-      pass_id = targets[0].id
+        # TODO(John Sirois): Map target.resources in the same way
+        # Create and Map scala plugin info files to the owning targets.
+        for target in scala_targets:
+          if is_scalac_plugin(target) and target.classname:
+            basedir = self.write_plugin_info(target)
+            genmap.add(target, basedir, [_PLUGIN_INFO_FILE])
+
+  def execute_single_compilation(self, scala_targets, cp, upstream_analysis_caches):
+    """Execute a single compilation, updating upstream_analysis_caches if needed."""
+    self.context.log.info('Compiling targets %s' % str(scala_targets))
+
+    # Compute the id of this compilation. We try to make it human-readable.
+    if len(scala_targets) == 1:
+      compilation_id = scala_targets[0].id
     elif len(self.context.target_roots) == 1:
-      pass_id = self.context.target_roots[0].id
+      compilation_id = self.context.target_roots[0].id
     else:
-      pass_id = self.context.id
+      compilation_id = self.context.id
 
-    depfile = os.path.join(self._depfile_dir, pass_id) + '.dependencies'
+    depfile = os.path.join(self._depfile_dir, compilation_id) + '.dependencies'
 
     if self._incremental:
       if self._flatten:
         output_dir = self._classes_dir
-        analysis_cache = os.path.join(self._analysis_cache_dir, pass_id) + '.flat'
+        analysis_cache = os.path.join(self._analysis_cache_dir, compilation_id) + '.flat'
       else:
-        # When compiling incrementally *and* in multiple passes, each pass must output to
-        # its own directory, so zinc can then associate those with the analysis caches of
-        # previous passes. So we compile into a pass-specific directory and then copy the
-        # results out to the real output dir.
-        output_dir = os.path.join(self._incremental_classes_dir, pass_id)
-        analysis_cache = os.path.join(self._analysis_cache_dir, pass_id)
+        # When compiling incrementally *and* in multiple compilations, each compilation must output to
+        # its own directory, so zinc can then associate those with the analysis caches of previous compilations.
+        # So we compile into a compilation-specific directory and then copy the results out to the real output dir.
+        output_dir = os.path.join(self._incremental_classes_dir, compilation_id)
+        analysis_cache = os.path.join(self._analysis_cache_dir, compilation_id)
     else:
       output_dir = self._classes_dir
       analysis_cache = None
 
-    scala_targets = filter(is_scala, targets)
-    if scala_targets:
-      with self.context.state('classpath', []) as cp:
-        for conf in self._confs:
-          cp.insert(0, (conf, self._resources_dir))
-          if not self._incremental or self._flatten:
-            cp.insert(0, (conf, self._classes_dir))
-
-      if self._incremental and self._flatten:
-        # We must defer dependency analysis to zinc. If we exclude files from a repeat build, zinc will assume
-        # the files were deleted and will nuke the corresponding class files.
-        invalidate_globally = True
-      else:
-        invalidate_globally = False
-      with self.changed(scala_targets, invalidate_dependants=True,
-                        invalidate_globally=invalidate_globally) as changed_targets:
-        sources_by_target = self.calculate_sources(changed_targets)
-        if sources_by_target:
-          sources = reduce(lambda all, sources: all.union(sources), sources_by_target.values())
-          if not sources:
-            self.context.log.warn('Skipping scala compile for targets with no sources:\n  %s' %
-                                  '\n  '.join(str(t) for t in sources_by_target.keys()))
-          else:
-            classpath = [jar for conf, jar in cp if conf in self._confs]
-            result = self.compile(classpath, sources, output_dir, analysis_cache, upstream_analysis_caches, depfile)
-            if result != 0:
-              raise TaskError('%s returned %d' % (self._main, result))
-            if output_dir != self._classes_dir:
-              # Copy class files emitted in this pass to the central classes dir.
-              for (dirpath, dirnames, filenames) in os.walk(output_dir):
-                for d in [os.path.join(dirpath, x) for x in dirnames]:
-                  dir = os.path.join(self._classes_dir, os.path.relpath(d, output_dir))
-                  if not os.path.isdir(dir):
-                    os.mkdir(dir)
-                for f in [os.path.join(dirpath, x) for x in filenames]:
-                  shutil.copy(f, os.path.join(self._classes_dir, os.path.relpath(f, output_dir)))
+    if self._incremental and self._flatten:
+      # We must defer dependency analysis to zinc. If we exclude files from a repeat build, zinc will assume
+      # the files were deleted and will nuke the corresponding class files.
+      invalidate_globally = True
+    else:
+      invalidate_globally = False
+    with self.changed(scala_targets, invalidate_dependants=True,
+                      invalidate_globally=invalidate_globally) as changed_targets:
+      sources_by_target = self.calculate_sources(changed_targets)
+      if sources_by_target:
+        sources = reduce(lambda all, sources: all.union(sources), sources_by_target.values())
+        if not sources:
+          self.context.log.warn('Skipping scala compile for targets with no sources:\n  %s' %
+                                '\n  '.join(str(t) for t in sources_by_target.keys()))
+        else:
+          classpath = [jar for conf, jar in cp if conf in self._confs]
+          result = self.compile(classpath, sources, output_dir, analysis_cache, upstream_analysis_caches, depfile)
+          if result != 0:
+            raise TaskError('%s returned %d' % (self._main, result))
+          if output_dir != self._classes_dir:
+            # Copy class files emitted in this compilation to the central classes dir.
+            for (dirpath, dirnames, filenames) in os.walk(output_dir):
+              for d in [os.path.join(dirpath, x) for x in dirnames]:
+                dir = os.path.join(self._classes_dir, os.path.relpath(d, output_dir))
+                if not os.path.isdir(dir):
+                  os.mkdir(dir)
+              for f in [os.path.join(dirpath, x) for x in filenames]:
+                shutil.copy(f, os.path.join(self._classes_dir, os.path.relpath(f, output_dir)))
 
     # Read in the deps created either just now or by a previous compiler run on these targets.
     deps = Dependencies(output_dir)

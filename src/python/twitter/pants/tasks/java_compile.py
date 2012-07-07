@@ -80,7 +80,7 @@ class JavaCompile(NailgunTask):
                             dest="java_compile_flatten",
                             action="callback", callback=mkflag.set_bool,
                             help="[%default] Compile java code for all dependencies in a "
-                                 "single pass.")
+                                 "single compilation.")
 
   def __init__(self, context):
     NailgunTask.__init__(self, context, workdir=context.config.get('java-compile', 'nailgun_dir'))
@@ -109,77 +109,76 @@ class JavaCompile(NailgunTask):
     self._confs = context.config.getlist('java-compile', 'confs')
 
   def execute(self, targets):
-    safe_mkdir(self._classes_dir)
-    safe_mkdir(self._depfile_dir)
-
-    if not self._flatten and len(targets) > 1:
-      topologically_sorted_targets = filter(JavaCompile._is_java, reversed(InternalTarget.sort_targets(targets)))
-      for target in topologically_sorted_targets:
-        self.execute_single_pass([target])
-    else:
-      self.execute_single_pass(targets)
-
-    if self.context.products.isrequired('classes'):
-      genmap = self.context.products.get('classes')
-
-      # Map generated classes to the owning targets and sources.
-      for target, classes_by_source in self._deps.findclasses(targets).items():
-        for source, classes in classes_by_source.items():
-          genmap.add(source, self._classes_dir, classes)
-          genmap.add(target, self._classes_dir, classes)
-
-      # TODO(John Sirois): Map target.resources in the same way
-      # 'Map' (rewrite) annotation processor service info files to the owning targets.
-      for target in targets:
-        if is_apt(target) and target.processors:
-          basedir = os.path.join(self._resources_dir, target.id)
-          processor_info_file = os.path.join(basedir, _PROCESSOR_INFO_FILE)
-          self.write_processor_info(processor_info_file, target.processors)
-          genmap.add(target, basedir, [_PROCESSOR_INFO_FILE])
-
-  def execute_single_pass(self, targets):
-    self.context.log.info('Compiling targets %s' % str(targets))
-
-    # Compute the id of this execution pass. We try to make it human-readable.
-    if len(targets) == 1:
-      pass_id = targets[0].id
-    elif len(self.context.target_roots) == 1:
-      pass_id = self.context.target_roots[0].id
-    else:
-      pass_id = self.context.id
-
-    depfile = os.path.join(self._depfile_dir, pass_id) + '.dependencies'
-
-    java_targets = filter(JavaCompile._is_java, targets)
+    java_targets = filter(JavaCompile._is_java, reversed(InternalTarget.sort_targets(targets)))
     if java_targets:
+      safe_mkdir(self._classes_dir)
+      safe_mkdir(self._depfile_dir)
+
       with self.context.state('classpath', []) as cp:
         for conf in self._confs:
           cp.insert(0, (conf, self._resources_dir))
           cp.insert(0, (conf, self._classes_dir))
 
-        with self.changed(java_targets, invalidate_dependants=True) as changed:
-          sources_by_target, processors, fingerprint = self.calculate_sources(changed)
-          if sources_by_target:
-            sources = reduce(lambda all, sources: all.union(sources), sources_by_target.values())
-            if not sources:
-              self.context.log.warn('Skipping java compile for targets with no sources:\n  %s' %
-                                    '\n  '.join(str(t) for t in sources_by_target.keys()))
-            else:
-              classpath = [jar for conf, jar in cp if conf in self._confs]
-              result = self.compile(classpath, sources, fingerprint, depfile)
-              if result != 0:
-                default_message = 'Unexpected error - %s returned %d' % (_JMAKE_MAIN, result)
-                raise TaskError(_JMAKE_ERROR_CODES.get(result, default_message))
+      if not self._flatten and len(java_targets) > 1:
+        for target in java_targets:
+          self.execute_single_compilation([target], cp)
+      else:
+        self.execute_single_compilation(java_targets, cp)
 
-            if processors:
-              # Produce a monolithic apt processor service info file for further compilation rounds
-              # and the unit test classpath.
-              processor_info_file = os.path.join(self._classes_dir, _PROCESSOR_INFO_FILE)
-              if os.path.exists(processor_info_file):
-                with safe_open(processor_info_file, 'r') as f:
-                  for processor in f:
-                    processors.add(processor.strip())
-              self.write_processor_info(processor_info_file, processors)
+      if self.context.products.isrequired('classes'):
+        genmap = self.context.products.get('classes')
+
+        # Map generated classes to the owning targets and sources.
+        for target, classes_by_source in self._deps.findclasses(java_targets).items():
+          for source, classes in classes_by_source.items():
+            genmap.add(source, self._classes_dir, classes)
+            genmap.add(target, self._classes_dir, classes)
+
+        # TODO(John Sirois): Map target.resources in the same way
+        # 'Map' (rewrite) annotation processor service info files to the owning targets.
+        for target in java_targets:
+          if is_apt(target) and target.processors:
+            basedir = os.path.join(self._resources_dir, target.id)
+            processor_info_file = os.path.join(basedir, _PROCESSOR_INFO_FILE)
+            self.write_processor_info(processor_info_file, target.processors)
+            genmap.add(target, basedir, [_PROCESSOR_INFO_FILE])
+
+  def execute_single_compilation(self, java_targets, cp):
+    self.context.log.info('Compiling targets %s' % str(java_targets))
+
+    # Compute the id of this compilation. We try to make it human-readable.
+    if len(java_targets) == 1:
+      compilation_id = java_targets[0].id
+    elif len(self.context.target_roots) == 1:
+      compilation_id = self.context.target_roots[0].id
+    else:
+      compilation_id = self.context.id
+
+    depfile = os.path.join(self._depfile_dir, compilation_id) + '.dependencies'
+
+    with self.changed(java_targets, invalidate_dependants=True) as changed:
+      sources_by_target, processors, fingerprint = self.calculate_sources(changed)
+      if sources_by_target:
+        sources = reduce(lambda all, sources: all.union(sources), sources_by_target.values())
+        if not sources:
+          self.context.log.warn('Skipping java compile for targets with no sources:\n  %s' %
+                                '\n  '.join(str(t) for t in sources_by_target.keys()))
+        else:
+          classpath = [jar for conf, jar in cp if conf in self._confs]
+          result = self.compile(classpath, sources, fingerprint, depfile)
+          if result != 0:
+            default_message = 'Unexpected error - %s returned %d' % (_JMAKE_MAIN, result)
+            raise TaskError(_JMAKE_ERROR_CODES.get(result, default_message))
+
+        if processors:
+          # Produce a monolithic apt processor service info file for further compilation rounds
+          # and the unit test classpath.
+          processor_info_file = os.path.join(self._classes_dir, _PROCESSOR_INFO_FILE)
+          if os.path.exists(processor_info_file):
+            with safe_open(processor_info_file, 'r') as f:
+              for processor in f:
+                processors.add(processor.strip())
+          self.write_processor_info(processor_info_file, processors)
 
     # Read in the deps created either just now or by a previous compiler run on these targets.
     deps = Dependencies(self._classes_dir)
