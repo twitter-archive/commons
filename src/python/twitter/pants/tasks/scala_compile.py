@@ -117,6 +117,23 @@ class ScalaCompile(NailgunTask):
     else:
       self.execute_single_pass(targets, {})
 
+    if self.context.products.isrequired('classes'):
+      genmap = self.context.products.get('classes')
+
+      # Map generated classes to the owning targets and sources.
+      dependencies = Dependencies(self._classes_dir, self._depfile)
+      for target, classes_by_source in dependencies.findclasses(targets).items():
+        for source, classes in classes_by_source.items():
+          genmap.add(source, self._classes_dir, classes)
+          genmap.add(target, self._classes_dir, classes)
+
+      # TODO(John Sirois): Map target.resources in the same way
+      # Create and Map scala plugin info files to the owning targets.
+      for target in targets:
+        if is_scalac_plugin(target) and target.classname:
+          basedir = self.write_plugin_info(target)
+          genmap.add(target, basedir, [_PLUGIN_INFO_FILE])
+
   def execute_single_pass(self, targets, upstream_analysis_caches):
     """Execute a single compiler pass, updating upstream_analysis_caches if needed."""
     self.context.log.info('Compiling targets %s' % str(targets))
@@ -180,23 +197,6 @@ class ScalaCompile(NailgunTask):
                     os.mkdir(dir)
                 for f in [os.path.join(dirpath, x) for x in filenames]:
                   shutil.copy(f, os.path.join(self._classes_dir, os.path.relpath(f, output_dir)))
-
-          if self.context.products.isrequired('classes'):
-            genmap = self.context.products.get('classes')
-
-            # Map generated classes to the owning targets and sources.
-            dependencies = Dependencies(self._classes_dir, self._depfile)
-            for target, classes_by_source in dependencies.findclasses(targets).items():
-              for source, classes in classes_by_source.items():
-                genmap.add(source, self._classes_dir, classes)
-                genmap.add(target, self._classes_dir, classes)
-
-            # TODO(John Sirois): Map target.resources in the same way
-            # Create and Map scala plugin info files to the owning targets.
-            for target in targets:
-              if is_scalac_plugin(target) and target.classname:
-                basedir = self.write_plugin_info(target)
-                genmap.add(target, basedir, [_PLUGIN_INFO_FILE])
 
     if self._incremental and not self._flatten:
       upstream_analysis_caches[output_dir] = analysis_cache

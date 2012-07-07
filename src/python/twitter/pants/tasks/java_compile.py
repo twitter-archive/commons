@@ -115,6 +115,25 @@ class JavaCompile(NailgunTask):
     else:
       self.execute_single_pass(targets)
 
+    if self.context.products.isrequired('classes'):
+      genmap = self.context.products.get('classes')
+
+      # Map generated classes to the owning targets and sources.
+      dependencies = Dependencies(self._classes_dir, self._dependencies_file)
+      for target, classes_by_source in dependencies.findclasses(targets).items():
+        for source, classes in classes_by_source.items():
+          genmap.add(source, self._classes_dir, classes)
+          genmap.add(target, self._classes_dir, classes)
+
+      # TODO(John Sirois): Map target.resources in the same way
+      # 'Map' (rewrite) annotation processor service info files to the owning targets.
+      for target in targets:
+        if is_apt(target) and target.processors:
+          basedir = os.path.join(self._resources_dir, target.id)
+          processor_info_file = os.path.join(basedir, _PROCESSOR_INFO_FILE)
+          self.write_processor_info(processor_info_file, target.processors)
+          genmap.add(target, basedir, [_PROCESSOR_INFO_FILE])
+
   def execute_single_pass(self, targets):
     self.context.log.info('Compiling targets %s' % str(targets))
 
@@ -148,25 +167,6 @@ class JavaCompile(NailgunTask):
                   for processor in f:
                     processors.add(processor.strip())
               self.write_processor_info(processor_info_file, processors)
-
-      if self.context.products.isrequired('classes'):
-        genmap = self.context.products.get('classes')
-
-        # Map generated classes to the owning targets and sources.
-        dependencies = Dependencies(self._classes_dir, self._dependencies_file)
-        for target, classes_by_source in dependencies.findclasses(targets).items():
-          for source, classes in classes_by_source.items():
-            genmap.add(source, self._classes_dir, classes)
-            genmap.add(target, self._classes_dir, classes)
-
-        # TODO(John Sirois): Map target.resources in the same way
-        # 'Map' (rewrite) annotation processor service info files to the owning targets.
-        for target in targets:
-          if is_apt(target) and target.processors:
-            basedir = os.path.join(self._resources_dir, target.id)
-            processor_info_file = os.path.join(basedir, _PROCESSOR_INFO_FILE)
-            self.write_processor_info(processor_info_file, target.processors)
-            genmap.add(target, basedir, [_PROCESSOR_INFO_FILE])
 
   def calculate_sources(self, targets):
     sources = defaultdict(set)
