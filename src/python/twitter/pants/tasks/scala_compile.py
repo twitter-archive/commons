@@ -117,6 +117,9 @@ class ScalaCompile(NailgunTask):
     else:
       self.execute_single_pass(targets, {})
 
+    # TODO: When compiling in multiple passes, the depemitter plugin must, on each pass, read in the old dep file and
+    # write it out again with the new deps added. This will be O(n^2) in the number of passes. It will be better
+    # to have each pass write to a separate depfile and aggregate them in memory.
     if self.context.products.isrequired('classes'):
       genmap = self.context.products.get('classes')
 
