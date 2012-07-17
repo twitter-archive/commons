@@ -13,12 +13,24 @@
   ],
   "enums": [
     {
+      "annotations": [
+        {
+          "key": "enumannotation",
+          "value": "foo"
+        }
+      ],
       "elements": [
         {
           "name": "ADD",
           "value": 0
         },
         {
+          "annotations": [
+            {
+              "key": "enumvalueannotation",
+              "value": "foo"
+            }
+          ],
           "name": "SUBTRACT",
           "value": 2
         },
@@ -36,6 +48,12 @@
   ],
   "exceptions": [
     {
+      "annotations": [
+        {
+          "key": "exceptionannotation",
+          "value": "foo"
+        }
+      ],
       "fields": [
         {
           "annotations": [
@@ -94,9 +112,21 @@
   ],
   "services": [
     {
+      "annotations": [
+        {
+          "key": "serviceannotation",
+          "value": "foo"
+        }
+      ],
       "extendz": "shared.SharedService",
       "functions": [
         {
+          "annotations": [
+            {
+              "key": "functionannotation",
+              "value": "bar"
+            }
+          ],
           "argz": [],
           "name": "ping"
         },

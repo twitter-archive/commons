@@ -145,12 +145,14 @@ struct Const {
 
 struct EnumElement {
   1: required string name,
-  2: required i32 value
+  2: required i32 value,
+  99: optional list<Annotation> annotations = []
 }
 
 struct Enum {
   1: required string name,
-  2: required list<EnumElement> elements
+  2: required list<EnumElement> elements,
+  99: optional list<Annotation> annotations = []
 }
 
 
@@ -184,7 +186,8 @@ struct Union {
 
 struct Exception {
   1: required string name,
-  2: required list<Field> fields
+  2: required list<Field> fields,
+  99: optional list<Annotation> annotations = []
 }
 
 
@@ -195,13 +198,15 @@ struct Function {
   2: optional string returnTypeId,  // Unspecified means void.
   3: optional bool oneWay = 0,  // Thrift doesn't allow 'false'/'true' when specifying the default.
   4: required list<Field> argz,
-  5: required list<Field> throwz
+  5: required list<Field> throwz,
+  99: optional list<Annotation> annotations = []
 }
 
 struct Service {
   1: required string name,
   2: optional string extendz,
-  3: required list<Function> functions
+  3: required list<Function> functions,
+  99: optional list<Annotation> annotations = []
 }
 
 
