@@ -16,10 +16,9 @@
 
 from __future__ import print_function
 
+import os.path
 import pkgutil
 import pytest
-import unittest
-import os.path
 
 from twitter.thrift.descriptors.thrift_parser import ThriftParser
 from twitter.thrift.descriptors.thrift_parser_error import ThriftParserError
@@ -29,18 +28,17 @@ def pytest_funcarg__generate_golden_data(request):
   """py.test magic for passing the --generate_golden_data flag=/path/to/golden/data to the test."""
   return request.config.option.generate_golden_data
 
-@pytest.mark.xfail(reason="pytest 2.6")
 def test_thrift_parser(generate_golden_data):
   """Tests that we can parse a complex file that tickles as many cases and corner cases
   as we can think of. We verify the result against golden data."""
   TEST_DATA_FILE = 'test_data/test_data.thrift'
   GOLDEN_DATA_FILE = TEST_DATA_FILE + '.golden'
-  TEST_DATA_PATH = __name__
+  TEST_DATA_PATH = 'twitter.thrift.descriptors'
 
   test_data = pkgutil.get_data(TEST_DATA_PATH, TEST_DATA_FILE)
   golden_data = pkgutil.get_data(TEST_DATA_PATH, GOLDEN_DATA_FILE)
   parser = ThriftParser()
-  print('Parsing file %s...' % TEST_DATA_FILE,)
+  print('Parsing file %s...' % TEST_DATA_FILE)
   program = parser.parse_string(test_data)
   print('OK.')
   res = thrift_json_encoder.thrift_to_json(program)
@@ -54,7 +52,6 @@ def test_thrift_parser(generate_golden_data):
 
     assert golden_data == res
 
-@pytest.mark.xfail(reason="pytest 2.6")
 def test_parse_various_files():
   """Tests that we can parse, without choking, test files that are part of the original
   thrift parser's test suite. We just check that parsing succeeds, and don't verify the
@@ -65,12 +62,13 @@ def test_parse_various_files():
     "DocTest.thrift", "ManyTypedefs.thrift", "SmallTest.thrift", "ThriftTest.thrift"
   ]
   TEST_DATA_DIR = 'test_data'
-  TEST_DATA_PATH = __name__
+  TEST_DATA_PATH = 'twitter.thrift.descriptors'
 
   parser = ThriftParser()
   for test_data_file in TEST_DATA_FILES:
     test_data = pkgutil.get_data(TEST_DATA_PATH, os.path.join(TEST_DATA_DIR, test_data_file))
     print('Parsing file %s...' % test_data_file, end='')
+    # TODO: The parser may fail silently and return a partial program. Fix this.
     program = parser.parse_string(test_data)
     print('OK.')
 

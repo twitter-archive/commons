@@ -19,7 +19,7 @@
 // an instance of the Program thrift struct.
 //
 // There are grammar elements (such as senum, xsdAttributes, cppType) that are not reflected
-// in the descriptors. We allow those to be presen in the input, but don't act on them.
+// in the descriptors. We allow those to be present in the input, but don't act on them.
 
 // Note the naming conventions: Grammar rules and thrift descriptor fields are camelCase,
 // python variables in the generated code are words_with_underscores_.
@@ -175,17 +175,19 @@ scope {
   $enum::elements = []
   $enum::last_value = -1
 }
-  : ^(ENUM IDENTIFIER enumDef*) {
+  : ^(ENUM IDENTIFIER enumDef* annotations_=typeAnnotations) {
       enum_ = thrift_descriptors.Enum()
       enum_.name = $IDENTIFIER.text
       enum_.elements = $enum::elements
+      if annotations_ is not None:
+        enum_.annotations = annotations_
       self._append('enums', enum_)
     }
   ;
 
 enumDef
 @init {
-  def add_enum_element(location, name, value=None):
+  def add_enum_element(location, name, value=None, annotations=None):
     if value is None:
       value = $enum::last_value + 1
     elif value <= $enum::last_value:
@@ -196,14 +198,15 @@ enumDef
     enum_element_ = thrift_descriptors.EnumElement()
     enum_element_.name = name
     enum_element_.value = value
+    enum_element_.annotations=annotations
     $enum::elements.append(enum_element_)
     $enum::last_value = value
 }
-  : ^(ENUM_DEF IDENTIFIER int_constant_=intConstant) {
-      add_enum_element($IDENTIFIER, $IDENTIFIER.text, int_constant_)
+  : ^(ENUM_DEF IDENTIFIER int_constant_=intConstant annotations_=typeAnnotations) {
+      add_enum_element($IDENTIFIER, $IDENTIFIER.text, int_constant_, annotations_)
     }
-  | ^(ENUM_DEF IDENTIFIER) {
-      add_enum_element($IDENTIFIER, $IDENTIFIER.text)
+  | ^(ENUM_DEF IDENTIFIER annotations_=typeAnnotations) {
+      add_enum_element($IDENTIFIER, $IDENTIFIER.text, annotations=annotations_)
     }
   ;
 
@@ -229,13 +232,13 @@ union
     }
   ;
 
-// For some reason exceptions are not allowed to have annotations.
-// TODO(benjy): Allow it?
 xception
-  : ^(EXCEPTION IDENTIFIER fields_=fields) {
+  : ^(EXCEPTION IDENTIFIER fields_=fields annotations_=typeAnnotations) {
       exception_ = thrift_descriptors.Exception()
       exception_.name = $IDENTIFIER.text
       exception_.fields = fields_
+      if annotations_ is not None:
+        exception_.annotations = annotations_
       self._append('exceptions', exception_)
     }
   ;
@@ -252,12 +255,14 @@ scope {
   $service::function_list = []
   $service::used_function_names = set()
 }
-  : ^(SERVICE IDENTIFIER extendz_=extendz? function*) {
+  : ^(SERVICE IDENTIFIER extendz_=extendz? function* annotations_=typeAnnotations) {
       service_ = thrift_descriptors.Service()
       service_.name = $IDENTIFIER.text
       if extendz_ is not None:
         service_.extendz = extendz_
       service_.functions = $service::function_list
+      if annotations_ is not None:
+        service_.annotations = annotations_
       self._append('services', service_)
     }
   ;
@@ -266,7 +271,7 @@ extendz returns [extendz_]:
   ^(EXTENDS IDENTIFIER) { extendz_ = $IDENTIFIER.text };
 
 function returns [function_]
-  : ^(FUNCTION oneway_=ONEWAY? return_type_=functionType IDENTIFIER argz_=fields throwz_=throwz?) {
+  : ^(FUNCTION oneway_=ONEWAY? return_type_=functionType IDENTIFIER argz_=fields throwz_=throwz? annotations_=typeAnnotations) {
       function_name_ = $IDENTIFIER.text
       if function_name_ in $service::used_function_names:
         raise self._error($IDENTIFIER, 'Function name ' + function_name_ + ' already used in this service')
@@ -281,6 +286,8 @@ function returns [function_]
       function_.argz = argz_
       if throwz_ is not None:
         function_.throwz = throwz_
+      if annotations_ is not None:
+        function_.annotations = annotations_
       $service::function_list.append(function_)
       $service::used_function_names.add(function_name_)
     }

@@ -88,19 +88,31 @@ tokens {
   XSD_OPTIONAL;
 }
 
+// Try and turn off recovery as much as possible, so we can fail fast.
+// Unfortunately this doesn't seem to work well. In many cases the parser
+// will fail silently and return a partial program.
+// TODO: Fix this.
+
 @rulecatch {
   except RecognitionException as e:
-    raise e
+      raise e
 }
 
 @members {
   def mismatch(self, input, ttype, follow):
-    raise MismatchedTokenException(ttype, input)
+      raise MismatchedTokenException(ttype, input)
 
-  def recoverFromMismatchSet(self, input, ttype, follow):
-    raise RecognitionException(ttype, input)
+  def recoverFromMismatchedToken(self, input, ttype, follow):
+      raise RecognitionException(ttype, input)
+
+  def recoverFromMismatchedSet(self, input, re, follow):
+      raise re
 }
 
+@lexer::members {
+  def recover(self, e):
+      raise e
+}
 
 /* ******************** */
 
@@ -144,14 +156,14 @@ commaOrSemicolon:
   (',' | ';');
 
 enum:
-  'enum' IDENTIFIER '{' enumDef* '}' -> ^(ENUM IDENTIFIER enumDef*);
+  'enum' IDENTIFIER '{' enumDef* '}' typeAnnotations? -> ^(ENUM IDENTIFIER enumDef* typeAnnotations?);
 
 enumDef:
-  IDENTIFIER '=' intConstant commaOrSemicolon? -> ^(ENUM_DEF IDENTIFIER intConstant) |
-  IDENTIFIER commaOrSemicolon?                 -> ^(ENUM_DEF IDENTIFIER);
+  IDENTIFIER '=' intConstant typeAnnotations? commaOrSemicolon? -> ^(ENUM_DEF IDENTIFIER intConstant typeAnnotations?) |
+  IDENTIFIER typeAnnotations? commaOrSemicolon?                 -> ^(ENUM_DEF IDENTIFIER typeAnnotations?);
 
 senum:
-  'senum' IDENTIFIER '{' senumDef* '}' -> ;
+  'senum' IDENTIFIER '{' senumDef* '}' typeAnnotations? -> ;
 
 senumDef:
   LITERAL commaOrSemicolon?;
@@ -198,17 +210,17 @@ xsdAttributes:
   'xsd_attributes' '{' field* '}' -> ^(XSD_ATTRIBUTES field*);
 
 xception:
-  'exception' IDENTIFIER '{' field* '}' -> ^(EXCEPTION IDENTIFIER field*);
+  'exception' IDENTIFIER '{' field* '}' typeAnnotations? -> ^(EXCEPTION IDENTIFIER field* typeAnnotations?);
 
 service:
-  'service' IDENTIFIER extends? '{' function* '}' -> ^(SERVICE IDENTIFIER extends? function*);
+  'service' IDENTIFIER extends? '{' function* '}' typeAnnotations? -> ^(SERVICE IDENTIFIER extends? function* typeAnnotations?);
 
 extends:
   'extends' IDENTIFIER -> ^(EXTENDS IDENTIFIER);
 
 function:
-  oneway? functionType IDENTIFIER '(' field* ')' throwz? commaOrSemicolon?
-  -> ^(FUNCTION oneway? functionType IDENTIFIER field* throwz?);
+  oneway? functionType IDENTIFIER '(' field* ')' throwz? typeAnnotations? commaOrSemicolon?
+  -> ^(FUNCTION oneway? functionType IDENTIFIER field* throwz? typeAnnotations?);
 
 oneway:
   'oneway' -> ONEWAY;
