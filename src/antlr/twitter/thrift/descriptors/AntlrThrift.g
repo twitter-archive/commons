@@ -95,12 +95,15 @@ tokens {
 
 @rulecatch {
   except RecognitionException as e:
-    raise e
+      raise e
 }
 
 @members {
   def mismatch(self, input, ttype, follow):
-    raise MismatchedTokenException(ttype, input)
+      raise MismatchedTokenException(ttype, input)
+
+  def recoverFromMismatchedToken(self, input, ttype, follow):
+      raise RecognitionException(ttype, input)
 
   def recoverFromMismatchedToken(self, input, ttype, follow):
     raise RecognitionException(ttype, input)
