@@ -95,23 +95,23 @@ tokens {
 
 @rulecatch {
   except RecognitionException as e:
-      raise e
+    raise e
 }
 
 @members {
   def mismatch(self, input, ttype, follow):
-      raise MismatchedTokenException(ttype, input)
+    raise MismatchedTokenException(ttype, input)
 
   def recoverFromMismatchedToken(self, input, ttype, follow):
-      raise RecognitionException(ttype, input)
+    raise RecognitionException(ttype, input)
 
   def recoverFromMismatchedSet(self, input, re, follow):
-      raise re
+    raise re
 }
 
 @lexer::members {
   def recover(self, e):
-      raise e
+    raise e
 }
 
 /* ******************** */
