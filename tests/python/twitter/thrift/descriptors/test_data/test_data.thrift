@@ -18,10 +18,10 @@ const map cpp_type "MyMap" <string,string> (containertypeannotation="foo") MAPCO
 
 enum Operation {
   ADD,
-  SUBTRACT = 2,
+  SUBTRACT = 2 (enumvalueannotation="foo"),
   MULTIPLY = 3,
   DIVIDE = 0xa
-}
+} (enumannotation="foo")
 
 // A comment
 
@@ -47,18 +47,18 @@ exception InvalidOperation {
      comment. */
   1: i32 what (fieldannotation="foo"),
   2: string why
-}
+} (exceptionannotation="foo")
 
 service Calculator extends shared.SharedService {
 
-   void ping(),
+   void ping() (functionannotation="bar"),
 
    i32 add(1:i32 num1 /* an embedded comment */, 2:i32 num2),
 
    i32 calculate(1:i32 logid, 2:Work w) throws (1:InvalidOperation ouch),
 
    oneway void zip(),
-}
+} (serviceannotation="foo")
 
 service CalculatorExtreme extends shared.SharedService {
     void pingExtreme(),
