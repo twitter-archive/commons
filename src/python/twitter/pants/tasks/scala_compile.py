@@ -17,7 +17,6 @@
 __author__ = 'John Sirois'
 
 import os
-import shutil
 import textwrap
 
 from collections import defaultdict
@@ -26,6 +25,7 @@ from twitter.common.collections import OrderedDict
 from twitter.common.dirutil import safe_mkdir, safe_open
 
 from twitter.pants import is_scala, is_scalac_plugin
+from twitter.pants.base.target import Target
 from twitter.pants.targets.scala_library import ScalaLibrary
 from twitter.pants.targets.scala_tests import ScalaTests
 from twitter.pants.targets import resolve_target_sources
@@ -85,11 +85,11 @@ class ScalaCompile(NailgunTask):
     for target in context.targets(is_scala):
       target.update_dependencies(scaladeps)
 
-    workdir = context.config.get('scala-compile', 'workdir')
-    self._incremental_classes_dir = os.path.join(workdir, 'incremental.classes')
-    self._classes_dir = os.path.join(workdir, 'classes')
-    self._analysis_cache_dir = os.path.join(workdir, 'analysis_cache')
-    self._resources_dir = os.path.join(workdir, 'resources')
+    self._workdir = context.config.get('scala-compile', 'workdir')
+    self._incremental_classes_dir = os.path.join(self._workdir, 'incremental.classes')
+    self._classes_dir = os.path.join(self._workdir, 'classes')
+    self._analysis_cache_dir = os.path.join(self._workdir, 'analysis_cache')
+    self._resources_dir = os.path.join(self._workdir, 'resources')
 
     self._main = context.config.get('scala-compile', 'main')
 
@@ -101,7 +101,7 @@ class ScalaCompile(NailgunTask):
       self._args.extend(context.config.getlist('scala-compile', 'no_warning_args'))
 
     self._confs = context.config.getlist('scala-compile', 'confs')
-    self._depfile_dir = os.path.join(workdir, 'depfiles')
+    self._depfile_dir = os.path.join(self._workdir, 'depfiles')
     self._deps = Dependencies(self._classes_dir)
 
   def invalidate_for(self):
@@ -152,7 +152,7 @@ class ScalaCompile(NailgunTask):
     """Execute a single compilation, updating upstream_analysis_caches if needed."""
     self.context.log.info('Compiling targets %s' % str(scala_targets))
 
-    compilation_id = self.context.maybe_readable_identify(scala_targets)
+    compilation_id = Target.maybe_readable_identify(scala_targets)
 
     # Each compilation must output to its own directory, so zinc can then associate those with the appropriate
     # analysis caches of previous compilations. We then copy the results out to the real output dir.
@@ -164,8 +164,11 @@ class ScalaCompile(NailgunTask):
     # the files were deleted and will nuke the corresponding class files.
     invalidate_globally = self._flatten
 
-    with self.changed(scala_targets, invalidate_dependants=True,
-                      invalidate_globally=invalidate_globally) as changed_targets:
+    with self.changed(scala_targets,
+                      invalidate_dependants=True,
+                      invalidate_globally=invalidate_globally,
+                      build_artifacts=[output_dir, depfile, analysis_cache],
+                      artifact_root=self._workdir) as changed_targets:
       sources_by_target = self.calculate_sources(changed_targets)
       if sources_by_target:
         sources = reduce(lambda all, sources: all.union(sources), sources_by_target.values())

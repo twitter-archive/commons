@@ -14,21 +14,17 @@
 # limitations under the License.
 # ==================================================================================================
 
-from twitter.pants.base.build_cache import BuildCache
-from twitter.common.contextutil import temporary_dir
-from contextlib import contextmanager
 import os
-import hashlib
 import shutil
 import tempfile
 
+from twitter.pants.base.artifact_cache import ArtifactCache
+from twitter.pants.base.build_invalidator import CacheKey
+from twitter.common.contextutil import temporary_dir
+from contextlib import contextmanager
+
 
 TEST_CONTENT = 'muppet'
-
-
-def expected_hash(tf):
-  return hashlib.sha1(os.path.basename(tf.name) + TEST_CONTENT).hexdigest()
-
 
 @contextmanager
 def test_env(content=TEST_CONTENT):
@@ -36,41 +32,12 @@ def test_env(content=TEST_CONTENT):
     with tempfile.NamedTemporaryFile() as f:
       f.write(content)
       f.flush()
-      yield f, BuildCache(d)
-
-
-def test_cache_key_hash():
-  with test_env() as (f, cache):
-    key = cache.key_for('test', [f.name])
-    assert key.hash == expected_hash(f)
-
-
-def test_needs_update_missing_key():
-  with test_env() as (f, cache):
-    key = cache.key_for('test', [f.name])
-    assert cache.needs_update(key)
-
-
-def test_needs_update_after_change():
-  with test_env() as (f, cache):
-    key = cache.key_for('test', [f.name])
-    assert cache.needs_update(key)
-    cache.update(key, [f.name])
-    assert not cache.needs_update(key)
-    f.truncate()
-    f.write('elmo')
-    f.flush()
-    key = cache.key_for('test', [f.name])
-    assert cache.needs_update(key)
-    cache.update(key, [f.name])
-    assert not cache.needs_update(key)
-
+      yield f, ArtifactCache(d)
 
 def test_use_cache():
   with test_env() as (f, cache):
-    key = cache.key_for('test', [f.name])
-    cache.update(key, [f.name])
-    key = cache.key_for('test', [f.name])
+    key = CacheKey('muppet_key', 'fake_hash')
+    cache.insert(key, [f.name])
     with temporary_dir() as staging:
       abs_fn = os.path.join(staging, os.path.basename(f.name))
       assert not os.path.exists(abs_fn)

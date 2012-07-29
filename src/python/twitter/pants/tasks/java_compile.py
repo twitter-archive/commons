@@ -23,6 +23,7 @@ import os
 from twitter.common import log
 from twitter.common.dirutil import safe_open, safe_mkdir
 from twitter.pants import is_apt
+from twitter.pants.base.target import Target
 from twitter.pants.targets import JavaLibrary, JavaTests
 from twitter.pants.targets.internal import InternalTarget
 from twitter.pants.tasks import TaskError
@@ -149,7 +150,7 @@ class JavaCompile(NailgunTask):
   def execute_single_compilation(self, java_targets, cp):
     self.context.log.info('Compiling targets %s' % str(java_targets))
 
-    compilation_id = self.context.maybe_readable_identify(java_targets)
+    compilation_id = Target.maybe_readable_identify(java_targets)
 
     if self._flatten:
       # If compiling in flat mode, we let all dependencies aggregate into a single well-known depfile. This
@@ -203,7 +204,7 @@ class JavaCompile(NailgunTask):
 
     for target in targets:
       collect_sources(target)
-    return sources, processors, self.context.identify(targets)
+    return sources, processors, Target.identify(targets)
 
   def compile(self, classpath, sources, fingerprint, depfile):
     jmake_classpath = nailgun_profile_classpath(self, self._jmake_profile)
