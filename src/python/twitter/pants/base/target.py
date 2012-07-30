@@ -14,6 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
+import hashlib
 import os
 import collections
 
@@ -34,6 +35,23 @@ class Target(object):
 
   _targets_by_address = {}
   _addresses_by_buildfile = collections.defaultdict(OrderedSet)
+
+  @staticmethod
+  def identify(targets):
+    """Generates an id for a set of targets."""
+    id = hashlib.md5()
+    for target in targets:
+      id.update(target.id)
+    return id.hexdigest()
+
+  @staticmethod
+  def maybe_readable_identify(targets):
+    """Generates an id for a set of targets, but if the set is a single target, makes it the target id."""
+    if len(targets) == 1:
+      id = targets[0].id
+    else:
+      id = Target.identify(targets)
+    return id
 
   @classmethod
   def get_all_addresses(cls, buildfile):
