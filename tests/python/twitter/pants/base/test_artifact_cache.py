@@ -36,7 +36,7 @@ def test_env(content=TEST_CONTENT):
 
 def test_use_cache():
   with test_env() as (f, cache):
-    key = CacheKey('muppet_key', 'fake_hash')
+    key = CacheKey('muppet_key', 'fake_hash', 42)
     cache.insert(key, [f.name])
     with temporary_dir() as staging:
       abs_fn = os.path.join(staging, os.path.basename(f.name))
