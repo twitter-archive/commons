@@ -156,6 +156,9 @@ def _run():
   try:
     result = command.run(lock)
     _do_exit(result)
+  except KeyboardInterrupt:
+    command.cleanup()
+    raise
   finally:
     lock.release()
 
