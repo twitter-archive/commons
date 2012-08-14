@@ -23,6 +23,7 @@ import os
 from twitter.common import log
 from twitter.common.dirutil import safe_open, safe_mkdir
 from twitter.pants import is_apt
+from twitter.pants.base.target import Target
 from twitter.pants.targets import JavaLibrary, JavaTests
 from twitter.pants.targets.internal import InternalTarget
 from twitter.pants.tasks import TaskError
@@ -108,6 +109,9 @@ class JavaCompile(NailgunTask):
 
     self._confs = context.config.getlist('java-compile', 'confs')
 
+  def product_type(self):
+    return 'classes'
+
   def invalidate_for(self):
     return [self._flatten]
 
@@ -122,11 +126,16 @@ class JavaCompile(NailgunTask):
           cp.insert(0, (conf, self._resources_dir))
           cp.insert(0, (conf, self._classes_dir))
 
-      if not self._flatten:
-        for target in java_targets:
-          self.execute_single_compilation([target], cp)
-      else:
-        self.execute_single_compilation(java_targets, cp)
+      with self.invalidated(java_targets, invalidate_dependants=True) as invalidated:
+        if invalidated.has_invalid_targets():
+          if self._flatten:
+            # The deps go to a single well-known file, so we need only pass in the invalid targets here.
+            self.execute_single_compilation(invalidated.combined_invalid_versioned_targets(), cp)
+          else:
+            # We must pass all targets,even valid ones, to execute_single_compilation(), so it can
+            # track the per-target deps correctly.
+            for vt in invalidated.all_versioned_targets():
+              self.execute_single_compilation(vt, cp)
 
       if self.context.products.isrequired('classes'):
         genmap = self.context.products.get('classes')
@@ -146,10 +155,11 @@ class JavaCompile(NailgunTask):
             self.write_processor_info(processor_info_file, target.processors)
             genmap.add(target, basedir, [_PROCESSOR_INFO_FILE])
 
-  def execute_single_compilation(self, java_targets, cp):
-    self.context.log.info('Compiling targets %s' % str(java_targets))
+  def execute_single_compilation(self, versioned_targets, cp):
+    compilation_id = Target.maybe_readable_identify(versioned_targets.targets)
 
-    compilation_id = self.context.maybe_readable_identify(java_targets)
+    # TODO: Use the artifact cache. In flat mode we may want to look for the artifact for all targets,
+    # not just the invalid ones, as it might be more likely to be present. Or we could look for both.
 
     if self._flatten:
       # If compiling in flat mode, we let all dependencies aggregate into a single well-known depfile. This
@@ -161,29 +171,29 @@ class JavaCompile(NailgunTask):
       # compilation will read in the entire depfile, add its stuff to it and write it out again).
       depfile = os.path.join(self._depfile_dir, compilation_id) + '.dependencies'
 
-    with self.changed(java_targets, invalidate_dependants=True) as changed:
-      sources_by_target, processors, fingerprint = self.calculate_sources(changed)
-      if sources_by_target:
-        sources = reduce(lambda all, sources: all.union(sources), sources_by_target.values())
-        if not sources:
-          self.context.log.warn('Skipping java compile for targets with no sources:\n  %s' %
-                                '\n  '.join(str(t) for t in sources_by_target.keys()))
-        else:
-          classpath = [jar for conf, jar in cp if conf in self._confs]
-          result = self.compile(classpath, sources, fingerprint, depfile)
-          if result != 0:
-            default_message = 'Unexpected error - %s returned %d' % (_JMAKE_MAIN, result)
-            raise TaskError(_JMAKE_ERROR_CODES.get(result, default_message))
+    self.context.log.info('Compiling targets %s' % str(versioned_targets.targets))
+    sources_by_target, processors, fingerprint = self.calculate_sources(versioned_targets.targets)
+    if sources_by_target:
+      sources = reduce(lambda all, sources: all.union(sources), sources_by_target.values())
+      if not sources:
+        self.context.log.warn('Skipping java compile for targets with no sources:\n  %s' %
+                              '\n  '.join(str(t) for t in sources_by_target.keys()))
+      else:
+        classpath = [jar for conf, jar in cp if conf in self._confs]
+        result = self.compile(classpath, sources, fingerprint, depfile)
+        if result != 0:
+          default_message = 'Unexpected error - %s returned %d' % (_JMAKE_MAIN, result)
+          raise TaskError(_JMAKE_ERROR_CODES.get(result, default_message))
 
-        if processors:
-          # Produce a monolithic apt processor service info file for further compilation rounds
-          # and the unit test classpath.
-          processor_info_file = os.path.join(self._classes_dir, _PROCESSOR_INFO_FILE)
-          if os.path.exists(processor_info_file):
-            with safe_open(processor_info_file, 'r') as f:
-              for processor in f:
-                processors.add(processor.strip())
-          self.write_processor_info(processor_info_file, processors)
+      if processors:
+        # Produce a monolithic apt processor service info file for further compilation rounds
+        # and the unit test classpath.
+        processor_info_file = os.path.join(self._classes_dir, _PROCESSOR_INFO_FILE)
+        if os.path.exists(processor_info_file):
+          with safe_open(processor_info_file, 'r') as f:
+            for processor in f:
+              processors.add(processor.strip())
+        self.write_processor_info(processor_info_file, processors)
 
     # Read in the deps created either just now or by a previous compiler run on these targets.
     deps = Dependencies(self._classes_dir)
@@ -203,7 +213,7 @@ class JavaCompile(NailgunTask):
 
     for target in targets:
       collect_sources(target)
-    return sources, processors, self.context.identify(targets)
+    return sources, processors, Target.identify(targets)
 
   def compile(self, classpath, sources, fingerprint, depfile):
     jmake_classpath = nailgun_profile_classpath(self, self._jmake_profile)
