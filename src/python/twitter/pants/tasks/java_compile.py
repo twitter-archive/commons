@@ -21,7 +21,7 @@ from collections import defaultdict
 import os
 
 from twitter.common import log
-from twitter.common.dirutil import safe_open, safe_mkdir
+from twitter.common.dirutil import safe_open, safe_mkdir, touch
 from twitter.pants import is_apt
 from twitter.pants.base.target import Target
 from twitter.pants.targets import JavaLibrary, JavaTests
@@ -176,6 +176,7 @@ class JavaCompile(NailgunTask):
     if sources_by_target:
       sources = reduce(lambda all, sources: all.union(sources), sources_by_target.values())
       if not sources:
+        touch(depfile)  # Create an empty depfile, since downstream code may assume that one exists.
         self.context.log.warn('Skipping java compile for targets with no sources:\n  %s' %
                               '\n  '.join(str(t) for t in sources_by_target.keys()))
       else:

@@ -170,6 +170,8 @@ class ScalaCompile(NailgunTask):
     depfile = os.path.join(self._depfile_dir, compilation_id) + '.dependencies'
     analysis_cache = os.path.join(self._analysis_cache_dir, compilation_id) + '.analysis_cache'
 
+    safe_mkdir(output_dir)
+
     if not versioned_target_set.valid:
       with self.check_artifact_cache(versioned_target_set,
                                      build_artifacts=[output_dir, depfile, analysis_cache],
@@ -226,7 +228,6 @@ class ScalaCompile(NailgunTask):
     return sources
 
   def compile(self, classpath, sources, output_dir, analysis_cache, upstream_analysis_caches, depfile):
-    safe_mkdir(output_dir)
     compiler_classpath = nailgun_profile_classpath(self, self._compile_profile)
     compiler_args = []
 
