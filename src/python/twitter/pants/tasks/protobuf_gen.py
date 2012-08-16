@@ -147,7 +147,7 @@ class ProtobufGen(CodeGen):
                                       provides=target.provides,
                                       sources=genfiles,
                                       dependencies=self.javadeps)
-    tgt.id = target.id
+    tgt.id = target.id + '.protobuf_gen'
     tgt.is_codegen = True
     for dependee in dependees:
       dependee.update_dependencies([tgt])
