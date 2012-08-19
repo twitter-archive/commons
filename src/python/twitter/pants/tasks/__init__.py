@@ -187,37 +187,32 @@ class Task(object):
     num_invalid_targets = len(invalidation_result.invalid_targets())
 
     # Do some reporting.
-    if invalidate_dependants:
-      if cache_manager.foreign_invalidated_targets:
-        self.context.log.info('Invalidated %d dependant targets '
-                              'for the next round' % cache_manager.foreign_invalidated_targets)
+    if cache_manager.foreign_invalidated_targets:
+      self.context.log.info('Invalidated %d dependent targets '
+                            'for the next round' % cache_manager.foreign_invalidated_targets)
 
-      if cache_manager.changed_files:
-        msg = 'Operating on %d files in %d changed targets' % (
-          cache_manager.changed_files,
-          num_invalid_targets
-        )
-        if cache_manager.invalidated_files:
-          msg += ' and %d files in %d invalidated dependent targets' % (
-            cache_manager.invalidated_files,
-            cache_manager.invalidated_targets
-          )
-        self.context.log.info(msg)
-    elif cache_manager.changed_files:
-      self.context.log.info('Operating on %d files in %d changed targets' % (
+    if cache_manager.changed_files:
+      msg = 'Operating on %d files in %d changed targets' % (
         cache_manager.changed_files,
-        num_invalid_targets
-      ))
+        cache_manager.changed_targets,
+      )
+      if cache_manager.invalidated_files:
+        msg += ' and %d files in %d invalidated dependent targets' % (
+          cache_manager.invalidated_files,
+          cache_manager.invalidated_targets
+        )
+      self.context.log.info(msg)
 
     # Yield the result, and then update the cache.
     try:
       if num_invalid_targets > 0:
-        self.context.log.debug('Invalidated targets %s' % invalidation_result.invalid_targets)
+        self.context.log.debug('Invalidated targets %s' % invalidation_result.invalid_targets())
       yield invalidation_result
       for vt in invalidation_result.invalid_versioned_targets():
         cache_manager.update(vt.cache_key)
 
     except TargetError as e:
+      # TODO: This partial updating isn't used (yet?). Nowhere in the code do we raise a TargetError.
       for vt in invalidation_result.invalid_versioned_targets():
         if len(vt.targets) != 1:
           raise Exception, 'Logic error: vt should represent a single target'
