@@ -52,6 +52,7 @@ class CacheManager(object):
 
     # Counts, purely for display purposes.
     self.changed_files = 0
+    self.changed_targets = 0
     self.invalidated_files = 0
     self.invalidated_targets = 0
     self.foreign_invalidated_targets = 0
@@ -67,7 +68,8 @@ class CacheManager(object):
       valid = False
     else:
       valid = True
-    return VersionedTargetSet([target], cache_key, valid)
+    ret = VersionedTargetSet([target], cache_key, valid)
+    return ret
 
   def update(self, cache_key):
     """Mark a changed or invalidated target as successfully processed."""
@@ -127,13 +129,14 @@ class CacheManager(object):
         sha.update(str(external_target))
 
   def _invalidate(self, target, cache_key, indirect=False):
+    self._invalidator.invalidate(cache_key)
     if target in self._targets:
       if indirect:
         self.invalidated_files += cache_key.num_sources
         self.invalidated_targets += 1
       else:
         self.changed_files += cache_key.num_sources
+        self.changed_targets += 1
     else:
       # invalidate a target to be processed in a subsequent round - this handles goal groups
-      self._invalidator.invalidate(cache_key)
       self.foreign_invalidated_targets += 1
