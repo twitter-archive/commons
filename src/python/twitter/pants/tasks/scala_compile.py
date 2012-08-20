@@ -112,7 +112,7 @@ class ScalaCompile(NailgunTask):
     return 'classes'
 
   def invalidate_for(self):
-    return [self._flatten]
+    return self._flatten
 
   def execute(self, targets):
     scala_targets = filter(ScalaCompile._has_scala_sources, reversed(InternalTarget.sort_targets(targets)))

@@ -113,7 +113,7 @@ class JavaCompile(NailgunTask):
     return 'classes'
 
   def invalidate_for(self):
-    return [self._flatten]
+    return self._flatten
 
   def execute(self, targets):
     java_targets = filter(JavaCompile._has_java_sources, reversed(InternalTarget.sort_targets(targets)))

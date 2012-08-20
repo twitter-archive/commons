@@ -121,17 +121,19 @@ class Task(object):
 
   def invalidate_for(self):
     """
-      Subclasses can override and return an object that should be checked for changes when using
-      changed to manage target invalidation.  If the pickled form of returned object changes
+      Subclasses can override and return an object that should be checked for changes when
+      managing target invalidation.  If the pickled form of returned object changes
       between runs all targets will be invalidated.
     """
+    return None
 
   def invalidate_for_files(self):
     """
       Subclasses can override and return a list of full paths to extra, non-source files that should
-      be checked for changes when using changed to manage target invalidation. This is useful for tracking
+      be checked for changes when managing target invalidation. This is useful for tracking
       changes to pre-built build tools, e.g., the thrift compiler.
     """
+    return []
 
   @contextmanager
   def invalidated(self, targets, only_buildfiles=False, invalidate_dependants=False):
@@ -148,20 +150,14 @@ class Task(object):
       :returns: an InvalidationResult reflecting the invalidated targets.
     """
     # invalidate_for() may return an iterable that isn't a set, so we ensure a set here.
-    extra_data = self.invalidate_for()
-    if extra_data is not None:
-      extra_data = set(extra_data)
+    extra_data = []
+    extra_data.append(self.invalidate_for())
 
-    extra_files = self.invalidate_for_files()
-    if extra_files is not None:
-      extra_files = set(extra_files)
-      if extra_data is None:
-        extra_data = set()
-      for f in extra_files:
-        sha = hashlib.sha1()
-        with open(f, "rb") as fd:
-          sha.update(fd.read())
-        extra_data = extra_data.add(sha.hexdigest())
+    for f in self.invalidate_for_files():
+      sha = hashlib.sha1()
+      with open(f, "rb") as fd:
+        sha.update(fd.read())
+      extra_data.append(sha.hexdigest())
 
     cache_manager = CacheManager(self._cache_key_generator, self._build_invalidator_dir,
       targets, extra_data, only_buildfiles)

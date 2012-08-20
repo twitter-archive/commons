@@ -34,7 +34,10 @@ class ArtifactCache(object):
   def insert(self, cache_key, build_artifacts, artifact_root=None):
     """Cache the output of a build.
 
-    If there is an existing set of artifacts for this build they are
+    If there is an existing set of artifacts for this key they are deleted.
+
+    TODO: Check that they're equal? If they aren't it's a grave bug, since the key is supposed
+    to be a fingerprint of all possible inputs to the build.
 
     :param cache_key: A CacheKey object.
     :param build_artifacts: List of paths to generated artifacts under artifact_root.
@@ -51,8 +54,7 @@ class ArtifactCache(object):
           'Weird: artifact=%s, rel_path=%s' % (artifact, rel_path)
         artifact_dest = os.path.join(cache_dir, rel_path)
         dir_name = os.path.dirname(artifact_dest)
-        if not os.path.exists(dir_name):
-          os.makedirs(dir_name)
+        safe_mkdir(dir_name)
         if os.path.isdir(artifact):
           shutil.copytree(artifact, artifact_dest)
         else:
@@ -64,7 +66,6 @@ class ArtifactCache(object):
         print('IMPORTANT: failed to delete %s on error. Your artifact cache may be corrupted. '
               'Please delete manually.' % cache_dir)
       raise e
-
 
   def has(self, cache_key):
     return os.path.isdir(self._cache_dir_for_key(cache_key))
