@@ -27,8 +27,6 @@ import java.util.Map;
  */
 public interface HttpServerDispatch {
 
-  public static final String BINDING_KEY = "com.twitter.common.net.http.HttpServerDispatch";
-
   /**
    * Opens the HTTP server on the given port.
    *
@@ -46,8 +44,15 @@ public interface HttpServerDispatch {
    */
   boolean listen(int minPort, int maxPort);
 
+  /**
+   * @return true if the underlying HttpServer is started, false otherwise.
+   */
   boolean isStarted();
 
+  /**
+   * @return the port the underlying HttpServer is listening on, which requires
+   * the underlying HttpServer to be started and listening.
+   */
   int getPort();
 
   /**

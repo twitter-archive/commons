@@ -47,8 +47,8 @@ import com.twitter.common.net.http.handlers.TextResponseHandler;
  *
  * @author William Farner
  */
-public class DefaultJettyHttpServerDispatch implements HttpServerDispatch {
-  private static final Logger LOG = Logger.getLogger(DefaultJettyHttpServerDispatch.class.getName());
+public class JettyHttpServerDispatch implements HttpServerDispatch {
+  private static final Logger LOG = Logger.getLogger(JettyHttpServerDispatch.class.getName());
 
   // Registered handlers. Used only for display.
   protected final Set<String> registeredHandlers = Sets.newHashSet();
@@ -98,6 +98,16 @@ public class DefaultJettyHttpServerDispatch implements HttpServerDispatch {
     return port;
   }
 
+  /**
+   * Opens a new Connector which is a Jetty specific way of handling the
+   * lifecycle and configuration of the Jetty server. The connector will
+   * open a Socket on an available port between minPort and maxPort.
+   * A subclass can override this method to modify connector configurations
+   * such as queue-size or header-buffer-size.
+   * @param minPort the minimum port number to bind to.
+   * @param maxPort the maximum port number to bind to.
+   * @return
+   */
   protected Connector openConnector(int minPort, int maxPort) {
     if (minPort != 0 || maxPort != 0) {
       Preconditions.checkState(minPort > 0, "Invalid port range.");
@@ -117,7 +127,6 @@ public class DefaultJettyHttpServerDispatch implements HttpServerDispatch {
       LOG.info("Attempting to listen on port " + port);
 
       try {
-        // TODO(John Sirois): consider making Connector impl parametrizable
         AbstractConnector connector = new SelectChannelConnector();
         connector.setPort(port);
         // Create the server with a maximum TCP backlog of 50, meaning that when the request queue
@@ -164,6 +173,11 @@ public class DefaultJettyHttpServerDispatch implements HttpServerDispatch {
     context.addServlet(servletHolder, path.replaceFirst("/?$", "/*"));
   }
 
+  /**
+   * Returns the root servlet context which can be used to register new filters
+   * and servlets, etc.
+   * @return
+   */
   public Context getRootContext() {
     Preconditions.checkState(context != null, "Context is not yet available. " +
         "Ensure that listen(...) is called prior to calling this method.");
