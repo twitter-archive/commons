@@ -23,6 +23,7 @@ import java.util.Map;
 /**
  * A HTTP server dispatcher. Supports registering handlers for different
  * URI paths, which will be called when a request is received.
+ *
  * @author Florian Leibert
  */
 public interface HttpServerDispatch {
@@ -51,7 +52,7 @@ public interface HttpServerDispatch {
 
   /**
    * @return the port the underlying HttpServer is listening on, which requires
-   * the underlying HttpServer to be started and listening.
+   *         the underlying HttpServer to be started and listening.
    */
   int getPort();
 
@@ -63,11 +64,11 @@ public interface HttpServerDispatch {
   /**
    * Registers a URI handler, replacing the existing handler if it exists.
    *
-   * @param path The URI path that the handler should be called for.
-   * @param handler The handler to call.
+   * @param path       The URI path that the handler should be called for.
+   * @param handler    The handler to call.
    * @param initParams An optional map of servlet init parameter names and their values.
-   * @param silent Whether to display the registered handler in the root "/" response.
-   *               Useful for handlers that you want to avoid accidental clicks on.
+   * @param silent     Whether to display the registered handler in the root "/" response.
+   *                   Useful for handlers that you want to avoid accidental clicks on.
    */
   void registerHandler(String path, HttpServlet handler,
                        @Nullable Map<String, String> initParams, boolean silent);
