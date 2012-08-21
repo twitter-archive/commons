@@ -307,9 +307,9 @@ public class JUnitConsoleRunner {
           }
         }
       } catch (NoClassDefFoundError e) {
-        warnNotFound(spec, out, e);
+        notFoundError(spec, out, e);
       } catch (ClassNotFoundException e) {
-        warnNotFound(spec, out, e);
+        notFoundError(spec, out, e);
       }
     }
     List<Request> requests = Lists.newArrayList();
@@ -322,8 +322,9 @@ public class JUnitConsoleRunner {
     return requests;
   }
 
-  private void warnNotFound(String spec, PrintStream out, Throwable t) {
-    out.printf("WARNING: Skipping %s: %s\n", spec, t);
+  private void notFoundError(String spec, PrintStream out, Throwable t) {
+    out.printf("FATAL: Error during test discovery for %s: %s\n", spec, t);
+    throw new RuntimeException("Classloading error during test discovery for " + spec, t);
   }
 
   /**
