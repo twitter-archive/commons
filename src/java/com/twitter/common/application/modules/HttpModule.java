@@ -43,6 +43,7 @@ import com.twitter.common.args.constraints.Range;
 import com.twitter.common.base.Command;
 import com.twitter.common.base.ExceptionalSupplier;
 import com.twitter.common.base.Supplier;
+import com.twitter.common.net.http.JettyHttpServerDispatch;
 import com.twitter.common.net.http.HttpServerDispatch;
 import com.twitter.common.net.http.handlers.AbortHandler;
 import com.twitter.common.net.http.handlers.ContentionPrinter;
@@ -136,7 +137,8 @@ public class HttpModule extends AbstractModule {
     // Allow template reloading in interactive mode for easy debugging of string templates.
     bindConstant().annotatedWith(CacheTemplates.class).to(CACHE_TEMPLATES);
 
-    bind(HttpServerDispatch.class).in(Singleton.class);
+    bind(HttpServerDispatch.class).to(JettyHttpServerDispatch.class)
+        .in(Singleton.class);
     Registration.registerServlet(binder(), "/abortabortabort", AbortHandler.class, true);
     Registration.registerServlet(binder(), "/contention", ContentionPrinter.class, false);
     Registration.registerServlet(binder(), "/graphdata", TimeSeriesDataSource.class, true);
