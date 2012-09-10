@@ -40,9 +40,9 @@ class InternalTarget(Target):
     def descend(internal_dep):
       if internal_dep in dep_stack:
         raise InternalTarget.CycleException(dep_stack, internal_dep)
-      if hasattr(internal_dep, 'internal_dependencies'):
+      if hasattr(internal_dep, 'direct_internal_dependencies'):
         dep_stack.add(internal_dep)
-        for dep in internal_dep.internal_dependencies:
+        for dep in internal_dep.direct_internal_dependencies:
           descend(dep)
         dep_stack.remove(internal_dep)
 
@@ -154,6 +154,11 @@ class InternalTarget(Target):
     Target.__init__(self, name, is_meta)
 
     self.add_label('internal')
+    # Pitfall: self.dependencies and self.internal_dependencies are all transitive dependencies of this target.
+    # self.direct_dependencies are just the ones this target declares as dependencies.
+    self.direct_dependencies = OrderedSet(dependencies)
+    self.direct_internal_dependencies = \
+      OrderedSet([x for x in self.direct_dependencies if isinstance(x, InternalTarget)])
     self.dependencies = OrderedSet()
     self.internal_dependencies = OrderedSet()
     self.jar_dependencies = OrderedSet()
