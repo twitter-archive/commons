@@ -115,7 +115,8 @@ struct Type {
 
 struct Typedef {
   1: required string typeId,
-  2: required string typeAlias
+  2: required string typeAlias,
+  99: optional list<Annotation> annotations = []
 }
 
 // A registry of all the types referenced in a thrift program.

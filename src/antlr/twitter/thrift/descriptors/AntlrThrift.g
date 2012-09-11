@@ -100,10 +100,10 @@ tokens {
 
 @members {
   def mismatch(self, input, ttype, follow):
-      raise MismatchedTokenException(ttype, input)
+    raise MismatchedTokenException(ttype, input)
 
   def recoverFromMismatchedToken(self, input, ttype, follow):
-      raise RecognitionException(ttype, input)
+    raise RecognitionException(ttype, input)
 
   def recoverFromMismatchedToken(self, input, ttype, follow):
     raise RecognitionException(ttype, input)
@@ -153,7 +153,7 @@ typeDefinition:
   xception;
 
 typedef:
-  'typedef' fieldType IDENTIFIER -> ^(TYPEDEF fieldType IDENTIFIER);
+  'typedef' fieldType IDENTIFIER typeAnnotations? -> ^(TYPEDEF fieldType IDENTIFIER typeAnnotations?);
 
 commaOrSemicolon:
   (',' | ';');

@@ -560,6 +560,12 @@
   },
   "typedefs": [
     {
+      "annotations": [
+        {
+          "key": "typedefannotation",
+          "value": "foo"
+        }
+      ],
       "typeAlias": "MyInteger",
       "typeId": "T0"
     }
