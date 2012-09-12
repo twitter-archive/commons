@@ -50,7 +50,7 @@ import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException
 public class CandidateImpl implements Candidate {
   private static final Logger LOG = Logger.getLogger(CandidateImpl.class.getName());
 
-  private static final String UNKOWN_CANDIDATE_ADDRESS = "<unknown>";
+  private static final String UNKOWN_CANDIDATE_DATA = "<unknown>";
 
   private static final Function<Iterable<String>, String> MOST_RECENT_JUDGE =
       new Function<Iterable<String>, String>() {
@@ -61,29 +61,41 @@ public class CandidateImpl implements Candidate {
 
   private final Group group;
   private final Function<Iterable<String>, String> judge;
+  private final Supplier<byte[]> dataSupplier;
 
   /**
-   * Equivalent to {@link #CandidateImpl(Group, com.google.common.base.Function)} using a judge that
+   * Equivalent to {@link #CandidateImpl(Group, com.google.common.base.Function, Supplier)} using a judge that
    * always picks the lowest numbered candidate ephemeral node - by proxy the oldest or 1st
-   * candidate.
+   * candidate and a default supplier that populates the data in the underlying znode with the ip address of this host.
    */
   public CandidateImpl(Group group) {
-    this(group, MOST_RECENT_JUDGE);
+    this(group, MOST_RECENT_JUDGE, new Supplier<byte[]>() {
+      @Override
+      public byte[] get() {
+        try {
+          return InetAddress.getLocalHost().getHostAddress().getBytes();
+        } catch (UnknownHostException e) {
+          LOG.log(Level.WARNING, "Failed to determine local address!", e);
+          return UNKOWN_CANDIDATE_DATA.getBytes();
+        }
+      }
+    });
   }
 
   /**
    * Creates a candidate that can be used to offer leadership for the given {@code group}.  The
    * {@code judge} is used to pick the current leader from all group members whenever the group
-   * membership changes.  To form a well-behaved election group with one leader, all candidates
+   * membership changes. To form a well-behaved election group with one leader, all candidates
    * should use the same judge.
    */
-  public CandidateImpl(Group group, Function<Iterable<String>, String> judge) {
+  public CandidateImpl(Group group, Function<Iterable<String>, String> judge, Supplier<byte[]> dataSupplier) {
     this.group = Preconditions.checkNotNull(group);
     this.judge = Preconditions.checkNotNull(judge);
+    this.dataSupplier = Preconditions.checkNotNull(dataSupplier);
   }
 
   @Override
-  public String getLeaderId()
+  public String getLeaderData()
       throws ZooKeeperConnectionException, KeeperException, InterruptedException {
 
     String leaderId = getLeader(group.getMemberIds());
@@ -92,15 +104,14 @@ public class CandidateImpl implements Candidate {
     }
 
     byte[] data = group.getMemberData(leaderId);
-    return data == null ? UNKOWN_CANDIDATE_ADDRESS : new String(data);
+    return data == null ? UNKOWN_CANDIDATE_DATA : new String(data);
   }
 
   @Override
   public Supplier<Boolean> offerLeadership(final Leader leader)
       throws JoinException, WatchException, InterruptedException {
 
-    Supplier<byte[]> leaderAddress = Suppliers.ofInstance(getAddress().getBytes());
-    final Membership membership = group.join(leaderAddress, new Command() {
+    final Membership membership = group.join(dataSupplier, new Command() {
       @Override public void execute() {
         leader.onDefeated();
       }
@@ -157,7 +168,7 @@ public class CandidateImpl implements Candidate {
       return InetAddress.getLocalHost().getHostAddress();
     } catch (UnknownHostException e) {
       LOG.log(Level.WARNING, "Failed to determine local address!", e);
-      return UNKOWN_CANDIDATE_ADDRESS;
+      return UNKOWN_CANDIDATE_DATA;
     }
   }
 

@@ -33,12 +33,12 @@ public interface Candidate {
   /**
    * Returns the current group leader by querying ZooKeeper synchronously.
    *
-   * @return the id of the current group leader or {@code null} if there is none
+   * @return the data of the current group leader's znode or {@code null} if there is none
    * @throws ZooKeeperConnectionException if there was a problem connecting to ZooKeeper
    * @throws KeeperException if there was a problem reading the leader information
    * @throws InterruptedException if this thread is interrupted getting the leader
    */
-  public String getLeaderId()
+  public String getLeaderData()
       throws ZooKeeperConnectionException, KeeperException, InterruptedException;
 
   /**
