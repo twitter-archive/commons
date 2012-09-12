@@ -37,9 +37,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author John Sirois
@@ -170,13 +168,15 @@ public class CandidateImplTest extends BaseZooKeeperTest {
     };
 
     ZooKeeperClient zkClient1 = createZkClient(TIMEOUT);
-    final CandidateImpl candidate1 = new CandidateImpl(createGroup(zkClient1), judge) {
+    final CandidateImpl candidate1 =
+        new CandidateImpl(createGroup(zkClient1), judge, CandidateImpl.IP_ADDRESS_DATA_SUPPLIER) {
       @Override public String toString() {
         return "Leader1";
       }
     };
     ZooKeeperClient zkClient2 = createZkClient(TIMEOUT);
-    final CandidateImpl candidate2 = new CandidateImpl(createGroup(zkClient2), judge) {
+    final CandidateImpl candidate2 =
+        new CandidateImpl(createGroup(zkClient2), judge, CandidateImpl.IP_ADDRESS_DATA_SUPPLIER) {
       @Override public String toString() {
         return "Leader2";
       }
@@ -194,4 +194,30 @@ public class CandidateImplTest extends BaseZooKeeperTest {
     assertTrue("Since the judge picks the newest member joining a group as leader candidate 1 "
                + "should be defeated and candidate 2 leader", candidate2Leader.get());
   }
+
+  @Test
+  public void testCustomDataSupplier() throws Exception {
+
+    final String suppliedValue = "SAMPLE_DATA";
+    ZooKeeperClient zkClient1 = createZkClient(TIMEOUT);
+    final CandidateImpl candidate1 =
+        new CandidateImpl(createGroup(zkClient1),
+            CandidateImpl.MOST_RECENT_JUDGE, new Supplier<byte[]>() {
+          @Override
+          public byte[] get() {
+            return suppliedValue.getBytes();
+          }
+        }) {
+      @Override public String toString() {
+        return "Leader1";
+      }
+    };
+
+    Reign candidate1Reign = new Reign("1", candidate1);
+
+    candidate1.offerLeadership(candidate1Reign);
+
+    assertArrayEquals(candidate1.getLeaderData(), suppliedValue.getBytes());
+  }
+
 }

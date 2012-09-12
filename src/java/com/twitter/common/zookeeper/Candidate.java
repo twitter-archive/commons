@@ -38,7 +38,7 @@ public interface Candidate {
    * @throws KeeperException if there was a problem reading the leader information
    * @throws InterruptedException if this thread is interrupted getting the leader
    */
-  public String getLeaderData()
+  public byte[] getLeaderData()
       throws ZooKeeperConnectionException, KeeperException, InterruptedException;
 
   /**
