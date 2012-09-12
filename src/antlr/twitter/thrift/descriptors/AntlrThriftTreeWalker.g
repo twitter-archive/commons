@@ -156,10 +156,12 @@ typeDefinition:
   xception;
 
 typedef
-  : ^(TYPEDEF type_=fieldType IDENTIFIER) {
+  : ^(TYPEDEF type_=fieldType IDENTIFIER annotations_=typeAnnotations) {
       typedef_ = thrift_descriptors.Typedef()
       typedef_.typeId = type_.id
       typedef_.typeAlias = $IDENTIFIER.text
+      if annotations_ is not None:
+        typedef_.annotations = annotations_
       self._append('typedefs', typedef_)
       self._registerTypedef($IDENTIFIER, typedef_)
     }

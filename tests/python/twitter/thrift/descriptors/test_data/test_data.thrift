@@ -11,7 +11,7 @@ smalltalk_category Thrift-Tutorial
 namespace * tutorial.for.all
 xsd_namespace "tutorial"
 
-typedef i32 MyInteger
+typedef i32 MyInteger (typedefannotation="foo")
 
 const i32 (basictypeannotation="foo") INT32CONSTANT = 9853
 const map cpp_type "MyMap" <string,string> (containertypeannotation="foo") MAPCONSTANT = {'hello':'world', 'goodnight':'moon'}
