@@ -35,7 +35,7 @@ exception foo_error {
   2: string error_msg
 } (foo = "bar")
 
-typedef string ( unicode.encoding = "UTF-16" ) non_latin_string
+typedef string ( unicode.encoding = "UTF-16" ) non_latin_string (foo="bar")
 typedef list< double ( cpp.fixed_point = "16" ) > tiny_float_list
 
 enum weekdays {
@@ -59,3 +59,4 @@ senum seasons {
 service foo_service {
   void foo() ( foo = "bar" )
 } (a.b="c")
+
