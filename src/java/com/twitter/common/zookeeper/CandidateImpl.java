@@ -78,7 +78,7 @@ public class CandidateImpl implements Candidate {
    * Equivalent to {@link #CandidateImpl(Group, com.google.common.base.Function, Supplier)} using a judge that
    * always picks the lowest numbered candidate ephemeral node - by proxy the oldest or 1st
    * candidate and a default supplier that populates the data in the underlying znode with the byte representation
-   * of the ip address according to {@link java.net.InetAddress#getLocalHost()}
+   * of the ip address according to {@link java.net.InetAddress#getLocalHost()}.
    */
   public CandidateImpl(Group group) {
     this(group, MOST_RECENT_JUDGE, IP_ADDRESS_DATA_SUPPLIER);
