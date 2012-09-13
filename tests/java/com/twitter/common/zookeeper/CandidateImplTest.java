@@ -215,7 +215,9 @@ public class CandidateImplTest extends BaseZooKeeperTest {
 
     Reign candidate1Reign = new Reign("1", candidate1);
 
-    candidate1.offerLeadership(candidate1Reign);
+    Supplier<Boolean> candidate1Leader = candidate1.offerLeadership(candidate1Reign);
+    candidateBuffer.takeLast();
+    assertTrue(candidate1Leader.get());
 
     assertArrayEquals(candidate1.getLeaderData(), suppliedValue.getBytes());
   }

@@ -55,11 +55,11 @@ public class CandidateImpl implements Candidate {
   private final Function<Iterable<String>, String> judge;
   private final Supplier<byte[]> dataSupplier;
 
-  public static final Supplier<byte[]> IP_ADDRESS_DATA_SUPPLIER = new Supplier<byte[]>() {
+  static final Supplier<byte[]> IP_ADDRESS_DATA_SUPPLIER = new Supplier<byte[]>() {
     @Override
     public byte[] get() {
       try {
-        return InetAddress.getLocalHost().getHostAddress().getBytes();
+        return InetAddress.getLocalHost().getAddress();
       } catch (UnknownHostException e) {
         LOG.log(Level.WARNING, "Failed to determine local address!", e);
         return new byte[0];
@@ -77,7 +77,8 @@ public class CandidateImpl implements Candidate {
   /**
    * Equivalent to {@link #CandidateImpl(Group, com.google.common.base.Function, Supplier)} using a judge that
    * always picks the lowest numbered candidate ephemeral node - by proxy the oldest or 1st
-   * candidate and a default supplier that populates the data in the underlying znode with the ip address of this host.
+   * candidate and a default supplier that populates the data in the underlying znode with the byte representation
+   * of the ip address according to {@link java.net.InetAddress#getLocalHost()}
    */
   public CandidateImpl(Group group) {
     this(group, MOST_RECENT_JUDGE, IP_ADDRESS_DATA_SUPPLIER);
