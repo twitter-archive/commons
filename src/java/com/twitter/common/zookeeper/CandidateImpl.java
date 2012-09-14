@@ -50,40 +50,55 @@ import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException
 public class CandidateImpl implements Candidate {
   private static final Logger LOG = Logger.getLogger(CandidateImpl.class.getName());
 
-  private static final String UNKOWN_CANDIDATE_ADDRESS = "<unknown>";
+  private final Group group;
 
-  private static final Function<Iterable<String>, String> MOST_RECENT_JUDGE =
+  private final Function<Iterable<String>, String> judge;
+  private final Supplier<byte[]> dataSupplier;
+
+  static final Supplier<byte[]> IP_ADDRESS_DATA_SUPPLIER = new Supplier<byte[]>() {
+    @Override
+    public byte[] get() {
+      try {
+        return InetAddress.getLocalHost().getAddress();
+      } catch (UnknownHostException e) {
+        LOG.log(Level.WARNING, "Failed to determine local address!", e);
+        return new byte[0];
+      }
+    }
+  };
+
+  public static final Function<Iterable<String>, String> MOST_RECENT_JUDGE =
       new Function<Iterable<String>, String>() {
         @Override public String apply(Iterable<String> candidates) {
           return Ordering.natural().min(candidates);
         }
       };
 
-  private final Group group;
-  private final Function<Iterable<String>, String> judge;
-
   /**
-   * Equivalent to {@link #CandidateImpl(Group, com.google.common.base.Function)} using a judge that
+   * Equivalent to {@link #CandidateImpl(Group, com.google.common.base.Function, Supplier)} using a judge that
    * always picks the lowest numbered candidate ephemeral node - by proxy the oldest or 1st
-   * candidate.
+   * candidate and a default supplier that populates the data in the underlying znode with the byte representation
+   * of the ip address according to {@link java.net.InetAddress#getLocalHost()}.
    */
   public CandidateImpl(Group group) {
-    this(group, MOST_RECENT_JUDGE);
+    this(group, MOST_RECENT_JUDGE, IP_ADDRESS_DATA_SUPPLIER);
   }
 
   /**
    * Creates a candidate that can be used to offer leadership for the given {@code group}.  The
    * {@code judge} is used to pick the current leader from all group members whenever the group
-   * membership changes.  To form a well-behaved election group with one leader, all candidates
-   * should use the same judge.
+   * membership changes. To form a well-behaved election group with one leader, all candidates
+   * should use the same judge. The dataSupplier is the source of the data that will be stored
+   * in the leader-znode and which is available to all participants via the getLeaderData method.
    */
-  public CandidateImpl(Group group, Function<Iterable<String>, String> judge) {
+  public CandidateImpl(Group group, Function<Iterable<String>, String> judge, Supplier<byte[]> dataSupplier) {
     this.group = Preconditions.checkNotNull(group);
     this.judge = Preconditions.checkNotNull(judge);
+    this.dataSupplier = Preconditions.checkNotNull(dataSupplier);
   }
 
   @Override
-  public String getLeaderId()
+  public byte[] getLeaderData()
       throws ZooKeeperConnectionException, KeeperException, InterruptedException {
 
     String leaderId = getLeader(group.getMemberIds());
@@ -92,15 +107,14 @@ public class CandidateImpl implements Candidate {
     }
 
     byte[] data = group.getMemberData(leaderId);
-    return data == null ? UNKOWN_CANDIDATE_ADDRESS : new String(data);
+    return data == null ? new byte[0] : data;
   }
 
   @Override
   public Supplier<Boolean> offerLeadership(final Leader leader)
       throws JoinException, WatchException, InterruptedException {
 
-    Supplier<byte[]> leaderAddress = Suppliers.ofInstance(getAddress().getBytes());
-    final Membership membership = group.join(leaderAddress, new Command() {
+    final Membership membership = group.join(dataSupplier, new Command() {
       @Override public void execute() {
         leader.onDefeated();
       }
@@ -150,15 +164,6 @@ public class CandidateImpl implements Candidate {
           return !abdicated.get() && elected.get();
         }
       };
-  }
-
-  private String getAddress() {
-    try {
-      return InetAddress.getLocalHost().getHostAddress();
-    } catch (UnknownHostException e) {
-      LOG.log(Level.WARNING, "Failed to determine local address!", e);
-      return UNKOWN_CANDIDATE_ADDRESS;
-    }
   }
 
   private String getLeader(Iterable<String> memberIds) {
