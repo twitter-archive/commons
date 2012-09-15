@@ -63,7 +63,7 @@ def test_cache_spec_parsing():
   artifact_root = '/bogus/artifact/root'
 
   def check(expected_type, spec):
-    cache = create_artifact_cache(artifact_root, spec)
+    cache = create_artifact_cache(None, artifact_root, spec)
     assert isinstance(cache, expected_type)
     assert cache.artifact_root == artifact_root
 
@@ -77,7 +77,7 @@ def test_cache_spec_parsing():
 def test_local_cache():
   with temporary_dir() as artifact_root:
     with temporary_dir() as cache_root:
-      artifact_cache = FileBasedArtifactCache(artifact_root, cache_root)
+      artifact_cache = FileBasedArtifactCache(None, artifact_root, cache_root)
       do_test_artifact_cache(artifact_cache)
 
 def test_restful_cache():

@@ -27,7 +27,7 @@ from zipfile import ZIP_STORED, ZIP_DEFLATED
 # Note throughout the distinction between the artifact_root (which is where the artifacts are originally built
 # and where the cache restores them to) and the cache root path/URL (which is where the artifacts are cached).
 
-def create_artifact_cache(artifact_root, spec):
+def create_artifact_cache(context, artifact_root, spec):
   """
     Returns an artifact cache for the specified spec. If config is a string, it's interpreted
     as a path or URL prefix to a cache root. If it's a list of strings, it returns an appropriate
@@ -37,13 +37,13 @@ def create_artifact_cache(artifact_root, spec):
     raise Exception, 'Empty artifact cache spec'
   if isinstance(spec, basestring):
     if spec.startswith('/'):
-      return FileBasedArtifactCache(artifact_root, spec)
+      return FileBasedArtifactCache(context, artifact_root, spec)
     elif spec.startswith('http://'):
-      return RESTfulArtifactCache(artifact_root, spec)
+      return RESTfulArtifactCache(context, artifact_root, spec)
     else:
       raise Exception, 'Invalid artifact cache spec: %s' % spec
   elif isinstance(spec, (list, tuple)):
-    caches = [ create_artifact_cache(artifact_root, x) for x in spec ]
+    caches = [ create_artifact_cache(context, artifact_root, x) for x in spec ]
     return CombinedArtifactCache(caches)
 
 
@@ -56,11 +56,12 @@ class ArtifactCache(object):
 
     Subclasses implement the methods below to provide this functionality.
   """
-  def __init__(self, artifact_root):
+  def __init__(self, context, artifact_root):
     """Create an ArtifactCache.
 
     All artifacts must be under artifact_root.
     """
+    self.context = context
     self.artifact_root = artifact_root
 
   def insert(self, cache_key, build_artifacts):
@@ -116,13 +117,13 @@ class ArtifactCache(object):
 
 class FileBasedArtifactCache(ArtifactCache):
   """An artifact cache that stores the artifacts in local files."""
-  def __init__(self, artifact_root, cache_root, copy_fn=None):
+  def __init__(self, context, artifact_root, cache_root, copy_fn=None):
     """
     cache_root: The locally cached files are stored under this directory.
     copy_fn: An optional function with the signature copy_fn(absolute_src_path, relative_dst_path) that
         will copy cached files into the desired destination. If unspecified, a simple file copy is used.
     """
-    ArtifactCache.__init__(self, artifact_root)
+    ArtifactCache.__init__(self, context, artifact_root)
     self._cache_root = cache_root
     self._copy_fn = copy_fn if copy_fn else \
       lambda src, rel_dst: shutil.copy(src, os.path.join(self.artifact_root, rel_dst))
@@ -167,13 +168,13 @@ class FileBasedArtifactCache(ArtifactCache):
 
 class RESTfulArtifactCache(ArtifactCache):
   """An artifact cache that stores the artifacts on a RESTful service."""
-  def __init__(self, artifact_root, url_base, compress=True):
+  def __init__(self, context, artifact_root, url_base, compress=True):
     """
     url_base: The prefix for urls on some RESTful service. We must be able to PUT and GET to any
               path under this base.
     compress: Whether to compress the artifacts before storing them.
     """
-    ArtifactCache.__init__(self, artifact_root)
+    ArtifactCache.__init__(self, context, artifact_root)
     parsed_url = urlparse.urlparse(url_base)
     if parsed_url.scheme != 'http':
       raise Exception, 'RESTfulArtifactCache only supports HTTP'
@@ -188,11 +189,17 @@ class RESTfulArtifactCache(ArtifactCache):
     path = self._path_for_key(cache_key)
     with temporary_file() as zipfile:
       with open_zip(zipfile, 'w', compression=self.compression) as zipout:
+        def write_file_to_zip(path):
+          rel_path = os.path.relpath(path, self.artifact_root)
+          zipout.write(path, rel_path)
+
         for artifact in build_artifacts or ():
-          rel_path = os.path.relpath(artifact, self.artifact_root)
-          assert not rel_path.startswith('..'), \
-            'Artifact %s is not under artifact root %s' % (artifact, self.artifact_root)
-          zipout.write(artifact, rel_path)
+          if os.path.isfile(artifact):
+            write_file_to_zip(artifact)
+          elif os.path.isdir(artifact):
+            for dirname, _, files in os.walk(artifact):
+              for file in files:
+                write_file_to_zip(os.path.join(dirname, file))
 
       with open(zipfile.name, 'rb') as infile:
         if not self._request('PUT', path, body=infile):
@@ -233,6 +240,8 @@ class RESTfulArtifactCache(ArtifactCache):
 
   # Returns a response if we get a 200, None if we get a 404 and raises an exception otherwise.
   def _request(self, method, path, body=None):
+    if self.context:
+      self.context.log.info('Sending %s request to http://%s%s' % (method, self._netloc, path))
     self._conn = self._connect()
     self._conn.request(method, path, body=body)
     response = self._conn.getresponse()
@@ -250,10 +259,11 @@ class CombinedArtifactCache(ArtifactCache):
   def __init__(self, artifact_caches):
     if len(artifact_caches) == 0:
       raise Exception, 'Must provide at least one underlying artifact cache'
+    context = artifact_caches[0].context
     artifact_root = artifact_caches[0].artifact_root
-    if any([x.artifact_root != artifact_root for x in artifact_caches]):
+    if any([x.context != context or x.artifact_root != artifact_root for x in artifact_caches]):
       raise Exception, 'Combined artifact caches must all have the same artifact root.'
-    ArtifactCache.__init__(self, artifact_root)
+    ArtifactCache.__init__(self, context, artifact_root)
     self._artifact_caches = artifact_caches
 
   def insert(self, cache_key, build_artifacts):

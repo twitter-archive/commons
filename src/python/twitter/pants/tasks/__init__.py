@@ -112,7 +112,7 @@ class Task(object):
     """
     if len(spec) > 0:
       pants_workdir = self.context.config.getdefault('pants_workdir')
-      self._artifact_cache =create_artifact_cache(pants_workdir, spec)
+      self._artifact_cache =create_artifact_cache(self.context, pants_workdir, spec)
 
 
   def product_type(self):
@@ -216,26 +216,23 @@ class Task(object):
       return
     artifact_key = versioned_targets.cache_key
     targets = versioned_targets.targets
-    if self.context.options.read_from_artifact_cache and self._artifact_cache.has(artifact_key):
-      self.context.log.info('Using cached artifacts for %s' % targets)
-      self._artifact_cache.use_cached_files(artifact_key)
-      yield True  # Caller need not rebuild
-    else:
-      self.context.log.info('No cached artifacts for %s' % targets)
-      yield False  # Caller must rebuild.
+    using_cached = False
+    if self.context.options.read_from_artifact_cache:
+      if self._artifact_cache.use_cached_files(artifact_key):
+        self.context.log.info('Using cached artifacts for %s' % targets)
+        using_cached = True
+      else:
+        self.context.log.info('No cached artifacts for %s' % targets)
 
-      if self.context.options.write_to_artifact_cache:
-        if self._artifact_cache.has(artifact_key):
-          # If we get here it means read_from_artifact_cache is false, so we've rebuilt.
-          # We can verify that what we built is identical to the cached version.
-          # If not, there's a dangerous bug, so we want to warn about this loudly.
-          if self.context.options.verify_artifact_cache:
-            pass  # TODO: verification logic
-        else:
-          # if the caller provided paths to artifacts but we didn't previously have them in the cache,
-          # we assume that they are now created, and store them in the artifact cache.
-          self.context.log.info('Caching artifacts for %s' % str(targets))
-          self._artifact_cache.insert(artifact_key, build_artifacts)
+    yield using_cached
+
+    if not using_cached and self.context.options.write_to_artifact_cache:
+      if self.context.options.verify_artifact_cache:
+        pass  # TODO: verification logic
+      self.context.log.info('Caching artifacts for %s' % str(targets))
+      self._artifact_cache.insert(artifact_key, build_artifacts)
+
+
 
 __all__ = (
   'TaskError',

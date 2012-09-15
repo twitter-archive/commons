@@ -92,7 +92,8 @@ class PythonChroot(object):
 
     artifact_cache_root = \
       os.path.join(self._config.get('python-setup', 'artifact_cache'), '%s' % PythonIdentity.get())
-    self._artifact_cache = FileBasedArtifactCache(self._root, artifact_cache_root, self._builder.add_dependency_file)
+    self._artifact_cache = FileBasedArtifactCache(None, self._root, artifact_cache_root,
+      self._builder.add_dependency_file)
 
     # TODO(wickman) Should this be in the binary builder?
     if isinstance(self._target, PythonBinary):
