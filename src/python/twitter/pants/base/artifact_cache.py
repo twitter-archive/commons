@@ -163,7 +163,9 @@ class FileBasedArtifactCache(ArtifactCache):
     safe_rmtree(cache_dir)
 
   def _cache_dir_for_key(self, cache_key):
-    return os.path.join(self._cache_root, cache_key.hash)
+    # Note: it's important to use the id as well as the hash, because two different targets
+    # may have the same hash if both have no sources, but we may still want to differentiate them.
+    return os.path.join(self._cache_root, cache_key.id, cache_key.hash)
 
 
 class RESTfulArtifactCache(ArtifactCache):
@@ -215,7 +217,7 @@ class RESTfulArtifactCache(ArtifactCache):
     response = self._request('GET', path)
     if response is None:
       return False
-    read_size = 4 * 1024*1024 # 4 MB
+    read_size = 4 * 1024 * 1024 # 4 MB
     done = False
     with temporary_file() as outfile:
       while not done:
@@ -223,7 +225,7 @@ class RESTfulArtifactCache(ArtifactCache):
         outfile.write(data)
         if len(data) < read_size:
           done = True
-        outfile.close()
+      outfile.close()
       with open_zip(outfile.name, 'r') as zipfile:
         zipfile.extractall(self.artifact_root)
     return True
@@ -233,7 +235,9 @@ class RESTfulArtifactCache(ArtifactCache):
     self._request('DELETE', path)
 
   def _path_for_key(self, cache_key):
-    return '%s/%s.zip' % (self._path_prefix, cache_key.hash)
+    # Note: it's important to use the id as well as the hash, because two different targets
+    # may have the same hash if both have no sources, but we may still want to differentiate them.
+    return '%s/%s/%s.zip' % (self._path_prefix, cache_key.id, cache_key.hash)
 
   def _connect(self):
     return httplib.HTTPConnection(self._netloc)
