@@ -51,6 +51,10 @@ class JUnitRun(JvmTask):
                                    "specified using any of: [classname], [classname]#[methodname], "
                                    "[filename] or [filename]#[methodname]")
 
+    option_group.add_option(mkflag("only-write-cmd-line"), dest = "only_write_cmd_line",
+                            action="store", default=None,
+                            help = "[%default] Instead of running, just write the cmd line to this file")
+
     outdir = mkflag("outdir")
     option_group.add_option(outdir, dest="junit_run_outdir",
                             help="Emit output in to this directory.")
@@ -165,6 +169,9 @@ class JUnitRun(JvmTask):
       self.flags.append('-outdir')
       self.flags.append(self.outdir)
 
+    self.only_write_cmd_line = context.options.only_write_cmd_line
+
+
   def execute(self, targets):
     if not self.context.options.junit_run_skip:
       tests = list(self.normalize_test_classes() if self.test_classes
@@ -173,15 +180,25 @@ class JUnitRun(JvmTask):
         junit_classpath = self.classpath(profile_classpath(self.junit_profile), confs=self.confs)
 
         def run_tests(classpath, main, jvmargs=None):
-          with safe_args(tests) as all_tests:
-            result = runjava(
-              jvmargs=(jvmargs or []) + self.java_args,
-              classpath=classpath,
-              main=main,
-              args=self.flags + all_tests
-            )
-            if result != 0:
-              raise TaskError()
+          if self.only_write_cmd_line is None:
+            with safe_args(tests) as all_tests:
+             result = runjava(
+                jvmargs=(jvmargs or []) + self.java_args,
+                classpath=classpath,
+                main=main,
+                args=self.flags + all_tests,
+              )
+          else:
+            with safe_open(self.only_write_cmd_line, 'w') as fd:
+              result = runjava(
+                jvmargs=(jvmargs or []) + self.java_args,
+                classpath=classpath,
+                main=main,
+                args=self.flags + tests,
+                only_write_cmd_line_to=fd
+              )
+          if result != 0:
+            raise TaskError()
 
         if self.coverage:
           emma_classpath = profile_classpath(self.emma_profile)
@@ -251,6 +268,7 @@ class JUnitRun(JvmTask):
           finally:
             generate_reports()
         else:
+          self.context.lock.release()
           run_tests(junit_classpath, 'com.twitter.common.testing.runner.JUnitConsoleRunner')
 
   def get_coverage_patterns(self, targets):
