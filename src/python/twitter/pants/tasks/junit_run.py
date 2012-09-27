@@ -120,11 +120,6 @@ class JUnitRun(JvmTask):
                             help = "[%%default] Redirects test output to files in %s.  "
                                    "Implied by %s" % (outdir, xmlreport))
 
-    option_group.add_option(mkflag("parallel-classes"), mkflag("parallel-classes", negate=True),
-                            dest = "junit_run_parallel_classes",
-                            action="callback", callback=mkflag.set_bool, default=False,
-                            help = "[%%default] Runs test classes in parallel")
-
   def __init__(self, context):
     Task.__init__(self, context)
 
@@ -182,10 +177,9 @@ class JUnitRun(JvmTask):
       self.flags.append('-suppress-output')
       self.flags.append('-outdir')
       self.flags.append(self.outdir)
-    if context.options.junit_run_parallel_classes:
-      self.flags.append('-parallel-classes')
 
     self.only_write_cmd_line = context.options.only_write_cmd_line
+
 
   def execute(self, targets):
     if not self.context.options.junit_run_skip:

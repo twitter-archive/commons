@@ -26,7 +26,6 @@ import com.google.common.collect.Sets;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 
-import org.junit.experimental.ParallelComputer;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
@@ -214,15 +213,12 @@ public class JUnitConsoleRunner {
   private final boolean suppressOutput;
   private final boolean xmlReport;
   private final File outdir;
-  private final boolean parallelClasses;
 
-  JUnitConsoleRunner(boolean failFast, boolean suppressOutput, boolean xmlReport, File outdir,
-                     boolean parallelClasses) {
+  JUnitConsoleRunner(boolean failFast, boolean suppressOutput, boolean xmlReport, File outdir) {
     this.failFast = failFast;
     this.suppressOutput = suppressOutput;
     this.xmlReport = xmlReport;
     this.outdir = outdir;
-    this.parallelClasses = parallelClasses;
   }
 
   void run(Iterable<String> tests) {
@@ -318,8 +314,7 @@ public class JUnitConsoleRunner {
     }
     List<Request> requests = Lists.newArrayList();
     if (!classes.isEmpty()) {
-      requests.add(Request.classes(ParallelComputer.classes(),
-                                   classes.toArray(new Class<?>[classes.size()])));
+      requests.add(Request.classes(classes.toArray(new Class<?>[classes.size()])));
     }
     for (TestMethod testMethod : testMethods) {
       requests.add(Request.method(testMethod.clazz, testMethod.name));
@@ -341,7 +336,6 @@ public class JUnitConsoleRunner {
      */
     class Options {
       private boolean failFast = false;
-      private boolean parallelClasses = false;
       private boolean suppressOutput = false;
       private boolean xmlReport = false;
       private File outdir = new File(System.getProperty("java.io.tmpdir"));
@@ -350,11 +344,6 @@ public class JUnitConsoleRunner {
       @Option(name = "-fail-fast", usage = "Causes the test suite run to fail fast.")
       public void setFailFast(boolean failFast) {
         this.failFast = failFast;
-      }
-
-      @Option(name = "-parallel-classes", usage = "Runs test classes in parallel.")
-      public void setParallelClasses(boolean parallelClasses) {
-        this.parallelClasses = parallelClasses;
       }
 
       @Option(name = "-suppress-output", usage = "Suppresses test output.")
@@ -399,8 +388,7 @@ public class JUnitConsoleRunner {
         new JUnitConsoleRunner(options.failFast,
             options.suppressOutput,
             options.xmlReport,
-            options.outdir,
-            options.parallelClasses);
+            options.outdir);
 
     List<String> tests = Lists.newArrayList();
     for (String test : options.tests) {
