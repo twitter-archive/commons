@@ -84,6 +84,8 @@ def temporary_file(root_dir=None, cleanup=True):
   # and that's unacceptable behavior for most cases where I want to use temporary_file
   fh, path = tempfile.mkstemp(dir=root_dir)
   os.close(fh)
+  # Note that there's a race condition here. Another process could open the file at this point.
+  # This is potentially a security hole. TODO: Why not just yield fh here?
   fd = open(path, 'w+')
   try:
     yield fd
@@ -133,18 +135,21 @@ def mutable_sys():
 
 
 @contextmanager
-def open_zip(path, *args, **kwargs):
+def open_zip(path_or_file, *args, **kwargs):
   """
     A with-context for zip files.  Passes through positional and kwargs to zipfile.ZipFile.
   """
-  with closing(zipfile.ZipFile(path, *args, **kwargs)) as zip:
+  with closing(zipfile.ZipFile(path_or_file, *args, **kwargs)) as zip:
     yield zip
 
 
 @contextmanager
-def open_tar(path, *args, **kwargs):
+def open_tar(path_or_file, *args, **kwargs):
   """
     A with-context for tar files.  Passes through positional and kwargs to tarfile.open.
+
+    If path_or_file is a file, caller must close it separately.
   """
-  with closing(tarfile.open(path, *args, **kwargs)) as tar:
+  (path, fileobj) = (path_or_file, None) if isinstance(path_or_file, basestring) else (None, path_or_file)
+  with closing(tarfile.open(path, *args, fileobj=fileobj, **kwargs)) as tar:
     yield tar
