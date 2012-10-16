@@ -51,6 +51,13 @@ class JUnitRun(JvmTask):
                                    "specified using any of: [classname], [classname]#[methodname], "
                                    "[filename] or [filename]#[methodname]")
 
+    option_group.add_option(mkflag("runner"), dest = "junit_runner", action="store", default=None,
+                            help = "Use the specified custom JUnit runner")
+
+    option_group.add_option(mkflag("only-write-cmd-line"), dest = "only_write_cmd_line",
+                            action="store", default=None,
+                            help = "[%default] Instead of running, just write the cmd line to this file")
+
     outdir = mkflag("outdir")
     option_group.add_option(outdir, dest="junit_run_outdir",
                             help="Emit output in to this directory.")
@@ -120,6 +127,12 @@ class JUnitRun(JvmTask):
     self.junit_profile = context.config.get('junit-run', 'junit_profile')
     self.emma_profile = context.config.get('junit-run', 'emma_profile')
 
+    self.junit_runner = (
+      context.options.junit_runner
+      or context.config.get('junit-run', 'runner',
+                            default='com.twitter.common.testing.runner.JUnitConsoleRunner')
+    )
+
     self.java_args = context.config.getlist('junit-run', 'args', default=[])
     if context.options.junit_run_jvmargs:
       self.java_args.extend(context.options.junit_run_jvmargs)
@@ -165,6 +178,9 @@ class JUnitRun(JvmTask):
       self.flags.append('-outdir')
       self.flags.append(self.outdir)
 
+    self.only_write_cmd_line = context.options.only_write_cmd_line
+
+
   def execute(self, targets):
     if not self.context.options.junit_run_skip:
       tests = list(self.normalize_test_classes() if self.test_classes
@@ -173,15 +189,25 @@ class JUnitRun(JvmTask):
         junit_classpath = self.classpath(profile_classpath(self.junit_profile), confs=self.confs)
 
         def run_tests(classpath, main, jvmargs=None):
-          with safe_args(tests) as all_tests:
-            result = runjava(
-              jvmargs=(jvmargs or []) + self.java_args,
-              classpath=classpath,
-              main=main,
-              args=self.flags + all_tests
-            )
-            if result != 0:
-              raise TaskError()
+          if self.only_write_cmd_line is None:
+            with safe_args(tests) as all_tests:
+             result = runjava(
+                jvmargs=(jvmargs or []) + self.java_args,
+                classpath=classpath,
+                main=main,
+                args=self.flags + all_tests,
+              )
+          else:
+            with safe_open(self.only_write_cmd_line, 'w') as fd:
+              result = runjava(
+                jvmargs=(jvmargs or []) + self.java_args,
+                classpath=classpath,
+                main=main,
+                args=self.flags + tests,
+                only_write_cmd_line_to=fd
+              )
+          if result != 0:
+            raise TaskError()
 
         if self.coverage:
           emma_classpath = profile_classpath(self.emma_profile)
@@ -245,13 +271,14 @@ class JUnitRun(JvmTask):
             # dependency on emma libs that must be satisfied on the classpath.
             run_tests(
               [self.coverage_instrument_dir] + junit_classpath + emma_classpath,
-              'com.twitter.common.testing.runner.JUnitConsoleRunner',
+              self.junit_runner,
               jvmargs=['-Demma.coverage.out.file=%s' % self.coverage_file]
             )
           finally:
             generate_reports()
         else:
-          run_tests(junit_classpath, 'com.twitter.common.testing.runner.JUnitConsoleRunner')
+          self.context.lock.release()
+          run_tests(junit_classpath, self.junit_runner)
 
   def get_coverage_patterns(self, targets):
     if self.coverage_filters:
