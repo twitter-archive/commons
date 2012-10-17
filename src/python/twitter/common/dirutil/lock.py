@@ -61,6 +61,10 @@ class Lock(object):
   def __init__(self, lock_fd):
     self._lock_fd = lock_fd
 
+  def is_unlocked(self):
+    """Checks whether or not this lock object is currently actively holding a lock."""
+    return self._lock_fd is None
+
   def release(self):
     """Releases this lock if held and returns True; otherwise, returns False to indicate the lock
     was already released.
