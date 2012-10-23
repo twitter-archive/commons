@@ -104,10 +104,18 @@ class NailgunTask(Task):
     cp = (self._classpath or []) + (classpath or [])
     if self._daemon:
       nailgun = self._get_nailgun_client()
+
+      def call_nailgun(main_class, *args):
+        if self.dry_run:
+          print('********** NailgunClient dry run: %s %s' % (main_class, ' '.join(args)))
+          return 0
+        else:
+          return nailgun(main_class, *args)
+
       try:
         if cp:
-          nailgun('ng-cp', *[os.path.relpath(jar, get_buildroot()) for jar in cp])
-        return nailgun(main, *args)
+          call_nailgun('ng-cp', *[os.path.relpath(jar, get_buildroot()) for jar in cp])
+        return call_nailgun(main, *args)
       except NailgunError as e:
         self._ng_shutdown()
         raise e
@@ -198,7 +206,7 @@ class NailgunTask(Task):
 
   def _create_ngclient(self, port):
     return NailgunClient(port=port, work_dir=get_buildroot(), ins=self._stdin, out=self._stdout,
-                         err=self._stderr, dry_run=self.dry_run)
+                         err=self._stderr)
 
   def _spawn_nailgun_server(self):
     log.info('No ng server found, spawning...')
