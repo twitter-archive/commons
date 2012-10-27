@@ -147,7 +147,7 @@ public class RegexExtractor extends TokenStream {
 
     public T setRegexPattern(Pattern pattern) {
       Preconditions.checkNotNull(pattern);
-      extractor.regexPattern = pattern;
+      extractor.setRegexPattern(pattern);
       return self();
     }
 

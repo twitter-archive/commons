@@ -25,6 +25,6 @@ limitations under the License.
   <info organisation="com.twitter" module="pants-libs"/>
 
   <dependencies>
-    <dependency org="com.sun.tools" name="jmake" rev="1.3.7"/>
+    <dependency org="com.sun.tools" name="jmake" rev="1.3.7-2"/>
   </dependencies>
 </ivy-module>

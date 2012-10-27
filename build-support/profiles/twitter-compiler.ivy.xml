@@ -25,6 +25,6 @@ limitations under the License.
   <info organisation="com.twitter" module="pants-libs"/>
 
   <dependencies>
-    <dependency org="com.twitter.common.tools" name="java-compiler" rev="0.0.10"/>
+    <dependency org="com.twitter.common.tools" name="java-compiler" rev="0.0.12"/>
   </dependencies>
 </ivy-module>

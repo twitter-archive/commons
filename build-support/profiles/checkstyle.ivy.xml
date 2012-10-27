@@ -25,7 +25,7 @@ limitations under the License.
   <info organisation="com.twitter" module="pants-libs"/>
 
   <dependencies>
-    <dependency org="com.puppycrawl.tools" name="checkstyle" rev="5.5"/>
+    <dependency org="com.puppycrawl.tools" name="checkstyle" rev="5.6"/>
     <dependency org="com.twitter.common" name="checkstyle" rev="0.0.1">
       <exclude org="com.google.guava" module="guava"/>
     </dependency>
