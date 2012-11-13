@@ -237,7 +237,7 @@ class IvyWriter(DependencyWriter):
       publications=set(confs) if confs else set(),
     ))
 
-  def _jardep(self, jar, transitive=True, ext=None, url=None, configurations='default'):
+  def _jardep(self, jar, transitive=True, configurations='default'):
     return TemplateData(
       org=jar.org,
       module=jar.name,
@@ -245,16 +245,13 @@ class IvyWriter(DependencyWriter):
       force=jar.force,
       excludes=[self.create_exclude(exclude) for exclude in jar.excludes],
       transitive=transitive,
-      ext=ext,
-      url=url,
+      artifacts=jar.artifacts,
       configurations=configurations,
     )
 
   def jardep(self, jar):
     return self._jardep(jar,
       transitive=jar.transitive,
-      ext=jar.ext,
-      url=jar.url,
       configurations=';'.join(jar._configurations)
     )
 
