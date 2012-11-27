@@ -107,3 +107,11 @@ class ProcessHandleProcfs(ProcessHandleParserBase):
     except OSError:
       # Likely permission denied or no such file or directory
       return None
+
+  def cmdline(self):
+    try:
+      with open('/proc/%s/cmdline' % self.pid(), 'r') as infile:
+        return infile.read()
+    except OSError:
+      # Likely permission denied or no such file or directory
+      return None
