@@ -262,8 +262,11 @@ if plat.startswith('linux') or plat.startswith('macosx'):
                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     (stdout_data, _) = popen.communicate()
     stdout_data_lines = [line for line in stdout_data.strip().split('\n') if line]
-    # Get the return codes of each piped cmd.
-    piped_return_codes = [int(x) for x in stdout_data_lines[-1].split(' ') if x]
+    try:
+      # Get the return codes of each piped cmd.
+      piped_return_codes = [int(x) for x in stdout_data_lines[-1].split(' ') if x]
+    except ValueError:
+      raise NailgunError('Failed to parse result (%s) for command (%s)' % (stdout_data_lines, cmd))
     # Drop the echoing of PIPESTATUS, which our caller doesn't care about.
     stdout_data_lines = stdout_data_lines[:-1]
     failed = any(piped_return_codes)
