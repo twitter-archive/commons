@@ -258,7 +258,7 @@ if plat.startswith('linux') or plat.startswith('macosx'):
   # Returns the cmd's output, as a list of lines, including the newline characters.
   def _run_cmd(cmd):
     runcmd = cmd + ' && echo "\n${PIPESTATUS[*]}"'
-    popen = subprocess.Popen(runcmd, shell=True, bufsize=-1, close_fds=True,
+    popen = subprocess.Popen(runcmd, shell=True, executable='/bin/bash', bufsize=-1, close_fds=True,
                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     (stdout_data, _) = popen.communicate()
     stdout_data_lines = [line for line in stdout_data.strip().split('\n') if line]
