@@ -47,6 +47,12 @@ class ProcessHandle(object):
     """
     raise NotImplementedError
 
+  def cmdline(self):
+    """
+      The full command line of the process.
+    """
+    raise NotImplementedError
+
 
 class ProcessHandleParser(ScanfParser):
   """
