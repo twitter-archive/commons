@@ -18,6 +18,6 @@ python_library(
   name = 'decorators',
   sources = globs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/log')
+    pants('src/python/twitter/common/log'),
   ]
 )
