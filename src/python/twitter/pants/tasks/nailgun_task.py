@@ -251,6 +251,8 @@ class NailgunTask(Task):
 
 # Pick implementations for killall and _find. We try to avoid needing psutil, as it uses
 # native code and so is not portable, leading to packaging and deployment headaches.
+# TODO: Extract this to a class and add a paired test guarded by
+# http://pytest.org/latest/skipping.html#skipping.
 plat = Platform.current()
 if plat.startswith('linux') or plat.startswith('macosx'):
   # TODO: add other platforms as needed, after checking that these cmds work there as expected.
