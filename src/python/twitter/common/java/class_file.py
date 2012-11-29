@@ -92,9 +92,15 @@ class ClassFile(object):
     InterfaceMethodrefConstant,
     MethodrefConstant)
 
-  def __init__(self, data):
+  def __init__(self, data, decode_full=True):
+    """
+    Parameters:
+      data: the contents of a classfile as a bytestream
+      decode_full: optimization flag. If True, the entire classfile is decoded.
+         If false, then decoding stops once the constant pool has been decoded.
+    """
     self._data = data
-    self._decode()
+    self._decode(decode_full)
     self._track_dependencies()
 
   def _linkage_constants(self):
@@ -112,16 +118,46 @@ class ClassFile(object):
     self._external_references = set(
       c(self._constant_pool) for c in self._linkage_constants())
 
-  @staticmethod
-  def from_fp(fp):
-    return ClassFile(fp.read())
+  def external_references(self):
+    return self._external_references
+
+  def get_external_class_references(self):
+    """
+    Retrieve all of the classes referenced by this class.
+    All class references appear in the constant pool, so to get this list, we only need
+    to retrieve the pool.
+
+    Returns: a set of class specifier strings in JVM format (e.g., "java/util/String")
+    """
+    result = set()
+    for c in self._constant_pool:
+      if c is not None:
+        result = result.union(c.get_external_class_references(self._constant_pool))
+    return result
 
   @staticmethod
-  def from_file(filename):
+  def from_fp(fp, decode_full=True):
+    """
+    Parameters:
+      fp: a file pointer for reading the contents of a classfile
+      decode_full: optimization flag. If True, the entire classfile is decoded.
+         If false, then decoding stops once the constant pool has been decoded.
+    """
+
+    return ClassFile(fp.read(), decode_full)
+
+  @staticmethod
+  def from_file(filename, decode_full=True):
+    """
+    Parameters:
+      filename: the filename of the class file.
+      decode_full: optimization flag. If True, the entire classfile is decoded.
+         If false, then decoding stops once the constant pool has been decoded.
+    """
     with open(filename, 'rb') as fp:
-      return ClassFile.from_fp(fp)
+      return ClassFile.from_fp(fp, decode_full)
 
-  def _decode(self):
+  def _decode(self, decode_full):
     data = self._data
 
     (self._magic, self._minor_version, self._major_version), data = \
@@ -132,6 +168,9 @@ class ClassFile(object):
     (self._constant_pool_count,), data = JavaNativeType.parse(data, u2)
     self._constant_pool, data = ClassDecoders.decode_constant_pool(
       data, self._constant_pool_count)
+
+    if not decode_full:
+      return
 
     (access_flags, this_class, super_class), data = JavaNativeType.parse(data, u2, u2, u2)
     self._access_flags  = ClassFlags(access_flags)

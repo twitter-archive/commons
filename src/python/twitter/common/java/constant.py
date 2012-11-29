@@ -16,6 +16,7 @@
 
 from .util import javaify
 from .java_types import *
+import re
 
 """
   Parse constants as defined in
@@ -33,6 +34,16 @@ class ConstantBase(object):
   def size(self):
     return sum(map(lambda typ: typ.size(), self.__class__.TYPES))
 
+  def get_external_class_references(self, constants):
+    """
+    Retrieve all of the classes referenced by this class.
+
+    Parameters:
+      constants: the constant pool that this constant is a member of.
+    Returns: a set of all classes referenced by this pool entry.
+    """
+    return set([])
+
 class ClassConstant(ConstantBase):
   """
     u1 tag
@@ -46,6 +57,17 @@ class ClassConstant(ConstantBase):
 
   def __call__(self, constants):
     return str(constants[self._name_index].bytes())
+
+  def get_external_class_references(self, constants):
+    classname = self(constants)
+    if classname.startswith("["):
+      matches = ClassPatternRE.findall(classname)
+      if matches is None:
+        return set()
+      else:
+        return set(matches)
+    else:
+      return set([self(constants)])
 
 class FieldrefConstant(ConstantBase):
   """
@@ -64,6 +86,9 @@ class FieldrefConstant(ConstantBase):
       constants[self._class_index](constants),
       constants[self._name_and_type_index](constants))
 
+  def get_external_class_references(self, constants):
+    return constants[self._class_index].get_external_class_references(constants)
+
 class MethodrefConstant(ConstantBase):
   """
     u1 tag
@@ -81,6 +106,11 @@ class MethodrefConstant(ConstantBase):
       constants[self._class_index](constants),
       constants[self._name_and_type_index](constants))
 
+  def get_external_class_references(self, constants):
+    return (constants[self._class_index].get_external_class_references(constants).union(
+            constants[self._name_and_type_index].get_external_class_references(constants)))
+
+
 class InterfaceMethodrefConstant(ConstantBase):
   """
     u1 tag
@@ -97,6 +127,10 @@ class InterfaceMethodrefConstant(ConstantBase):
     return '%s.%s' % (
       constants[self._class_index](constants),
       constants[self._name_and_type_index](constants))
+
+  def get_external_class_references(self, constants):
+    return (constants[self._class_index].get_external_class_references(constants).union(
+            constants[self._name_and_type_index].get_external_class_references(constants)))
 
 class StringConstant(ConstantBase):
   """
@@ -169,6 +203,17 @@ class NameAndTypeConstant(ConstantBase):
       constants[self._name_index].bytes(),
       constants[self._descriptor_index].bytes())
 
+  # Here, we unfortunately need to get a bit fuzzy.
+  # We need to extract type identifiers from the descriptor string.
+  # With some of the tricks that languages like Scala play with class
+  # names, that can get tricky to get right.
+  def get_external_class_references(self, constants):
+    matches = ClassPatternRE.findall(constants[self._descriptor_index].bytes())
+    if matches is None:
+      return set([])
+    else:
+      return set(matches)
+
 class Utf8Constant(ConstantBase):
   """
     u1 tag
@@ -218,7 +263,30 @@ class Constant(object):
 
   @staticmethod
   def parse(data):
-    print('parse data[0] = %s' % data[0])
     tag = u1(data[0]).get()
     constant = Constant._BASE_TYPES[tag](data)
     return constant
+
+
+# A regular expression matcher for recognizing class references
+# in Java type signature strings. This is for use in ClassConstant and NameAndTypeConstant.
+#
+# The class file format for a class reference is a capital L,
+# followed by the class name in path format, terminated by semicolon.
+#
+# Type signatures appear in two places:
+# - in a method reference, describing the type signature of the method.
+# - in a class reference to an array type (e.g., "]Ljava/lang/Object;" for
+#    an array of object.)
+#
+# Parametric types cause some trouble here. A parametric can appear
+# as LTypeA<LTypeB;>;.
+#
+# We cheat a bit here, and say that L introduces a type, and it's
+# ended by either <, >, or ;.
+#
+# So if we saw a string (like this actual one)
+# "Lscala/Option<Lcom/foursquare/auth/AuthorizableUser;>;"
+# our regex would match "Lscala/Option<", and "Lcom/foursquare/auth/AuthorizableUser;"
+# as referenced class names.
+ClassPatternRE = re.compile("L([A-Za-z_0-9/$]*)[<>;]")
