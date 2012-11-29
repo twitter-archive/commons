@@ -55,20 +55,20 @@ java_tests(name = 'medium-main',
     pants('3rdparty:zookeeper'),
     pants('src/java/com/twitter/common/base'),
     pants('src/java/com/twitter/common/testing'),
+    pants('src/java/com/twitter/common/zookeeper/guice'),
     pants('src/java/com/twitter/common/zookeeper:client'),
     pants('src/java/com/twitter/common/zookeeper:group'),
     pants('src/java/com/twitter/common/zookeeper:lock'),
     pants('src/java/com/twitter/common/zookeeper:partitioner'),
     pants('src/java/com/twitter/common/zookeeper:testing'),
-    pants('src/java/com/twitter/common/zookeeper/guice'),
   ],
   sources = MEDIUM
 )
 
 jar_library(name = 'medium',
   dependencies = [
+    pants('tests/java/com/twitter/common/zookeeper/testing/angrybird'),
     pants(':medium-main'),
-    pants('tests/java/com/twitter/common/zookeeper/testing/angrybird')
   ]
 )
 
@@ -100,9 +100,9 @@ java_tests(name = 'large',
 
 jar_library(name = 'all',
   dependencies = [
-    pants(':small'),
-    pants(':medium'),
     pants(':large'),
+    pants(':medium'),
+    pants(':small'),
   ]
 )
 

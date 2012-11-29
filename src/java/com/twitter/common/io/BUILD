@@ -50,8 +50,8 @@ java_library(name = 'thrift',
   dependencies = [
     pants('3rdparty:guava'),
     pants('3rdparty:thrift'),
-    pants(':io'),
     pants('src/java/com/twitter/common/base'),
+    pants(':io'),
   ],
   sources = [ 'ThriftCodec.java' ]
 )
@@ -63,10 +63,10 @@ java_library(name = 'json',
     repo = pants('build-support/commons/ivy:public'),
   ),
   dependencies = [
-    pants('3rdparty:guava'),
     pants('3rdparty:gson'),
-    pants(':io'),
+    pants('3rdparty:guava'),
     pants('src/java/com/twitter/common/base'),
+    pants(':io'),
   ],
   sources = [ 'JsonCodec.java' ]
 )

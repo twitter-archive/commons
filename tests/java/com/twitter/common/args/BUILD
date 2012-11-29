@@ -38,8 +38,8 @@ java_tests(name = 'medium',
 
 jar_library(name = 'all',
   dependencies = [
+    pants(':medium'),
     pants(':small'),
-    pants(':medium')
   ]
 )
 

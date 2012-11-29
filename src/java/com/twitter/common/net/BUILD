@@ -53,12 +53,12 @@ java_library(name = 'url-resolver',
   dependencies = [
     pants('3rdparty:guava'),
     pants('3rdparty:jsr305'),
-    pants(':util'),
     pants('src/java/com/twitter/common/base'),
     pants('src/java/com/twitter/common/quantity'),
     pants('src/java/com/twitter/common/stats:util'),
     pants('src/java/com/twitter/common/util'),
     pants('src/java/com/twitter/common/util/caching'),
+    pants(':util'),
   ],
   sources = URL_RESOLVER_SOURCES
 )
@@ -74,12 +74,12 @@ java_library(name = 'pool',
     pants('3rdparty:commons-codec'),
     pants('3rdparty:guava'),
     pants('3rdparty:jsr305'),
-    pants(':dynamic-host-set'),
     pants('src/java/com/twitter/common/base'),
     pants('src/java/com/twitter/common/quantity'),
     pants('src/java/com/twitter/common/stats'),
     pants('src/java/com/twitter/common/util'),
     pants('src/java/com/twitter/common/util:system-mocks'),
+    pants(':dynamic-host-set'),
   ],
   sources = globs('pool/*.java', 'monitoring/*.java', 'loadbalancing/*.java')
     - DYNAMIC_HOST_SET_SOURCES

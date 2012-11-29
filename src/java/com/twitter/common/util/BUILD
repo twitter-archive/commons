@@ -64,17 +64,17 @@ java_library(name = 'util',
     repo = pants('build-support/commons/ivy:public'),
   ),
   dependencies = [
-    pants(':executor-service-shutdown'),
+    #   on the util target just to get logging - fix.
+    # TODO(William Farner): Untangle this false dependency, there are likely people relying
     pants('3rdparty:commons-lang'),
     pants('3rdparty:guava'),
     pants('3rdparty:jsr305'),
-    # TODO(William Farner): Untangle this false dependency, there are likely people relying
-    #   on the util target just to get logging - fix.
-    pants(':logging'),
     pants('src/java/com/twitter/common/base'),
     pants('src/java/com/twitter/common/collections'),
     pants('src/java/com/twitter/common/quantity'),
     pants('src/java/com/twitter/common/stats'),
+    pants(':executor-service-shutdown'),
+    pants(':logging'),
   ],
   sources = globs('*.java', 'concurrent/*.java')
     - EXECUTOR_SERVICE_SHUTDOWN_SOURCES - SYSTEM_MOCKS_SOURCES - SAMPLER_SOURCES - KESTREL_SOURCES,
@@ -123,8 +123,8 @@ java_library(name = 'testing',
   ),
   dependencies = [
     pants('3rdparty:guava'),
-    pants(':system-mocks'),
     pants('src/java/com/twitter/common/quantity'),
+    pants(':system-mocks'),
   ],
   sources = globs('testing/*.java'),
 )

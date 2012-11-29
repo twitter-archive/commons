@@ -39,9 +39,9 @@ java_library(name = 'logging',
 java_library(name = 'buffered',
   dependencies = [
     pants('3rdparty:guava'),
-    pants(':logging'),
     pants('src/java/com/twitter/common/quantity'),
     pants('src/java/com/twitter/common/stats'),
+    pants(':logging'),
   ],
   sources = [ 'BufferedLog.java' ]
 )
@@ -55,10 +55,10 @@ java_library(name = 'scribe',
   dependencies = [
     pants('3rdparty:guava'),
     pants('3rdparty:thrift'),
-    pants(':logging'),
     pants('src/java/com/twitter/common/quantity'),
     pants('src/java/com/twitter/common/thrift'),
     pants('src/thrift/org/apache/scribe:scribe_client-0.1.2'),
+    pants(':logging'),
   ],
   sources = [ 'ScribeLog.java' ]
 )

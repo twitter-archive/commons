@@ -44,9 +44,9 @@ java_library(name = 'timed',
     pants('3rdparty:commons-lang'),
     pants('3rdparty:guava'),
     pants('3rdparty:guice'),
-    pants(':inject'),
     pants('src/java/com/twitter/common/stats'),
     pants('src/java/com/twitter/common/stats:time-series'),
+    pants(':inject'),
   ],
   sources = TIMED_SOURCES
 )

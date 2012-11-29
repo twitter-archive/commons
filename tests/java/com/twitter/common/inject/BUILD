@@ -24,7 +24,7 @@ java_tests(name = 'inject',
     pants('3rdparty:guice'),
     pants('3rdparty:guice-multibindings'),
     pants('3rdparty:junit'),
-    pants("src/java/com/twitter/common/inject"),
+    pants('src/java/com/twitter/common/inject'),
   ],
   sources = glob('*.java')
 )

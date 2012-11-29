@@ -47,10 +47,10 @@ annotation_processor(name = 'apt',
     repo = pants('build-support/commons/ivy:public'),
   ),
   dependencies = [
-    pants(':core'),
     pants('3rdparty:commons-lang'),
     pants('3rdparty:guava'),
     pants('3rdparty:jsr305'),
+    pants(':core'),
   ],
   sources = APT_SOURCES,
   processors = [ 'com.twitter.common.args.apt.CmdLineProcessor' ]
@@ -63,12 +63,12 @@ java_library(name = 'args',
     repo = pants('build-support/commons/ivy:public'),
   ),
   dependencies = [
-    pants(':apt'),
-    pants(':core'),
     pants('3rdparty:guava'),
     pants('src/java/com/twitter/common/base'),
     pants('src/java/com/twitter/common/net:util'),
     pants('src/java/com/twitter/common/quantity'),
+    pants(':apt'),
+    pants(':core'),
   ],
   sources = rglobs('*.java') - APT_SOURCES - CORE_SOURCES - DURATION_PARSER
 )
@@ -80,9 +80,9 @@ java_library(name = 'duration_parser',
     repo = pants('build-support/commons/ivy:public'),
   ),
   dependencies = [
-    pants(':args'),
     pants('3rdparty:guava'),
     pants('3rdparty:util-core'),
+    pants(':args'),
   ],
   sources = DURATION_PARSER
 )

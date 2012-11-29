@@ -57,6 +57,6 @@ java_library(name = 'junit-runner',
 jvm_binary(name = 'junit-runner-main',
   main = 'com.twitter.common.testing.runner.JUnitConsoleRunner',
   dependencies = [
-    pants(":junit-runner")
+    pants(':junit-runner'),
   ]
 )

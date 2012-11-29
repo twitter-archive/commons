@@ -41,7 +41,7 @@ java_library(name = 'lifecycle',
     pants('3rdparty:guice-multibindings'),
     pants('src/java/com/twitter/common/application:action'),
     pants('src/java/com/twitter/common/base'),
-    pants('src/java/com/twitter/common/net:util')
+    pants('src/java/com/twitter/common/net:util'),
   ],
   sources = ['LifecycleModule.java', 'LocalServiceRegistry.java']
 )
@@ -55,14 +55,14 @@ java_library(name = 'http',
   ),
   dependencies = [
     pants('3rdparty:guice'),
-    pants(':lifecycle'),
-    pants('src/java/com/twitter/common/application:action'),
     pants('src/java/com/twitter/common/application/http'),
+    pants('src/java/com/twitter/common/application:action'),
     pants('src/java/com/twitter/common/args'),
     pants('src/java/com/twitter/common/base'),
     pants('src/java/com/twitter/common/net/http'),
     pants('src/java/com/twitter/common/net/http/handlers'),
     pants('src/java/com/twitter/common/net/http/handlers:time-series'),
+    pants(':lifecycle'),
   ],
   sources = ['HttpModule.java']
 )
@@ -74,12 +74,12 @@ java_library(name = 'log',
     repo = pants('build-support/commons/ivy:public'),
   ),
   dependencies = [
-    pants(':lifecycle'),
     pants('3rdparty:guice'),
     pants('src/java/com/twitter/common/args'),
     pants('src/java/com/twitter/common/logging'),
     pants('src/java/com/twitter/common/net/http/handlers'),
     pants('src/java/com/twitter/common/stats:time-series'),
+    pants(':lifecycle'),
   ],
   sources = ['LogModule.java']
 )
@@ -92,14 +92,14 @@ java_library(name = 'stats',
   ),
   dependencies = [
     pants('3rdparty:guice'),
-    pants(':lifecycle'),
     pants('src/java/com/twitter/common/application:action'),
     pants('src/java/com/twitter/common/args'),
-    pants('src/java/com/twitter/common/quantity'),
     pants('src/java/com/twitter/common/base'),
+    pants('src/java/com/twitter/common/quantity'),
     pants('src/java/com/twitter/common/stats:jvm'),
     pants('src/java/com/twitter/common/stats:time-series'),
     pants('src/java/com/twitter/common/util'),
+    pants(':lifecycle'),
   ],
   sources = ['StatsModule.java']
 )
@@ -113,12 +113,12 @@ java_library(name = 'stats_export',
   dependencies = [
     pants('3rdparty:guava'),
     pants('3rdparty:guice'),
-    pants(':lifecycle'),
     pants('src/java/com/twitter/common/application:action'),
     pants('src/java/com/twitter/common/args'),
     pants('src/java/com/twitter/common/base'),
-    pants('src/java/com/twitter/common/stats'),
     pants('src/java/com/twitter/common/quantity'),
+    pants('src/java/com/twitter/common/stats'),
+    pants(':lifecycle'),
   ],
   sources = ['StatsExportModule.java']
 )

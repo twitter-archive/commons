@@ -22,9 +22,9 @@ java_tests(name = 'metrics',
     pants('3rdparty:guava'),
     pants('3rdparty:junit'),
     pants('src/java/com/twitter/common/metrics'),
+    pants('src/java/com/twitter/common/testing'),
     pants('src/java/com/twitter/common/util:system-mocks'),
     pants('src/java/com/twitter/common/util:testing'),
-    pants('src/java/com/twitter/common/testing'),
   ],
   sources = glob('*.java')
 )

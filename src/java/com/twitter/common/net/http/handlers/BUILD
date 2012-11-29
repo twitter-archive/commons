@@ -29,7 +29,7 @@ java_library(name = 'text',
     repo = pants('build-support/commons/ivy:public'),
   ),
   dependencies = [
-    pants('3rdparty:servlet-api')
+    pants('3rdparty:servlet-api'),
   ],
   sources = TEXT_SOURCES
 )
@@ -63,11 +63,11 @@ java_library(name = 'handlers',
     pants('3rdparty:guice'),
     pants('3rdparty:servlet-api'),
     pants('3rdparty:stringtemplate'),
-    pants(':text'),
-    pants(':string-template'),
     pants('src/java/com/twitter/common/base'),
     pants('src/java/com/twitter/common/quantity'),
     pants('src/java/com/twitter/common/stats'),
+    pants(':string-template'),
+    pants(':text'),
   ],
   sources = globs('*.java')
     - TEXT_SOURCES - STRING_TEMPLATE_SOURCES - THRIFT_SOURCES - TIME_SERIES_SOURCES,
@@ -85,15 +85,14 @@ java_library(name = 'thrift',
     repo = pants('build-support/commons/ivy:public'),
   ),
   dependencies = [
+    # TODO(John Sirois): the only need is for the non-existent thrift:monitoring
     pants('3rdparty:guava'),
     pants('3rdparty:guice'),
     pants('3rdparty:servlet-api'),
     pants('3rdparty:stringtemplate'),
-    pants(':string-template'),
     pants('src/java/com/twitter/common/base'),
-
-    # TODO(John Sirois): the only need is for the non-existent thrift:monitoring
     pants('src/java/com/twitter/common/thrift'),
+    pants(':string-template'),
   ],
   sources = THRIFT_SOURCES,
   resources = [ 'thrift.st' ]
