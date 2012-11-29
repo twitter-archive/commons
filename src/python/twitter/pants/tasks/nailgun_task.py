@@ -262,6 +262,8 @@ if plat.startswith('linux') or plat.startswith('macosx'):
                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     (stdout_data, _) = popen.communicate()
     stdout_data_lines = [line for line in stdout_data.strip().split('\n') if line]
+    if not stdout_data_lines:
+      raise NailgunError('No output for command (%s)' % runcmd)
     try:
       # Get the return codes of each piped cmd.
       piped_return_codes = [int(x) for x in stdout_data_lines[-1].split(' ') if x]
@@ -275,15 +277,16 @@ if plat.startswith('linux') or plat.startswith('macosx'):
                         (cmd, piped_return_codes, ''.join(stdout_data_lines)))
     return stdout_data_lines
 
-  def _find_matching_pids(str):
-    # Grep all processes whose cmd-lines contain str, except for the grep process itself.
-    data = _run_cmd('ps ax | grep -F -e \'%s\' | (grep -v grep || true) | cut -b 1-5' % str)
+  def _find_matching_pids(strs):
+    # Grep all processes whose cmd-lines contain all the strs, except for the grep process itself.
+    filters = ' | '.join(["grep -F -e '%s'" % s for s in strs])
+    data = _run_cmd("ps axwww | %s | (grep -v grep || true) | cut -b 1-5" % filters)
     pids = [int(x.strip()) for x in data if x]
     return pids
 
   def _find_ngs(everywhere=False):
     arg = NailgunTask.PANTS_NG_ARG_PREFIX if everywhere else NailgunTask.PANTS_NG_ARG
-    return _find_matching_pids(arg)
+    return _find_matching_pids([arg])
 
   def killall(log, everywhere=False):
     for pid in _find_ngs(everywhere=everywhere):
@@ -298,7 +301,7 @@ if plat.startswith('linux') or plat.startswith('macosx'):
   DIGITS_RE = re.compile('^\d+$')
   def _find(pidfile):
     pidfile_arg = NailgunTask.create_pidfile_arg(pidfile)
-    pids = _find_matching_pids(pidfile_arg)
+    pids = _find_matching_pids([NailgunTask.PANTS_NG_ARG, pidfile_arg])
     if len(pids) != 1:
       return None
     pid = pids[0]

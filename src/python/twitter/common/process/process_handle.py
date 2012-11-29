@@ -49,7 +49,7 @@ class ProcessHandle(object):
 
   def cmdline(self):
     """
-      The full command line of the process, with spaces replaced by NUL bytes.
+      The full command line of the process.
     """
     raise NotImplementedError
 

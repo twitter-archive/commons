@@ -111,7 +111,7 @@ class ProcessHandleProcfs(ProcessHandleParserBase):
   def cmdline(self):
     try:
       with open('/proc/%s/cmdline' % self.pid(), 'r') as infile:
-        return infile.read()
+        return infile.read().replace('\0', ' ')
     except OSError:
       # Likely permission denied or no such file or directory
       return None
