@@ -16,8 +16,6 @@
 
 package com.twitter.common.collections;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -75,7 +73,7 @@ public final class Multimaps {
     private final int minSize;
 
     AtLeastSize(int minSize) {
-      checkArgument(minSize >= 0);
+      Preconditions.checkArgument(minSize >= 0);
       this.minSize = minSize;
     }
 
