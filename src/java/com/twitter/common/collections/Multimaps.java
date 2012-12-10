@@ -18,6 +18,11 @@ package com.twitter.common.collections;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ArrayListMultimap;
@@ -26,11 +31,6 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
-
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Utility class for functions related to Multimaps in the java collections library.
@@ -70,7 +70,7 @@ public final class Multimaps {
 
     return pruned;
   }
-  
+
   private static final class AtLeastSize implements Predicate<Collection<?>> {
     private final int minSize;
 
@@ -96,7 +96,7 @@ public final class Multimaps {
    * @return A new multimap, containing the pruned keys/values.
    * @throws IllegalArgumentException if minSize < 0
    */
-  public static <K, V> Multimap<K, V> prune(Multimap<K, V> map, final int minSize) {
+  public static <K, V> Multimap<K, V> prune(Multimap<K, V> map, int minSize) {
     return prune(map, new AtLeastSize(minSize));
   }
 
@@ -130,7 +130,7 @@ public final class Multimaps {
       }
     };
     Set<K> topKeys = Sets.newHashSetWithExpectedSize(topValues);
-    for (Multiset.Entry<K> entry 
+    for (Multiset.Entry<K> entry
          : groupOrdering.greatestOf(map.keys().entrySet(), topValues)) {
       topKeys.add(entry.getElement());
     }
