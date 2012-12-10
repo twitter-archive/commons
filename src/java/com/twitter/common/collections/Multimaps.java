@@ -32,8 +32,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nullable;
-
 /**
  * Utility class for functions related to Multimaps in the java collections library.
  *
@@ -96,6 +94,7 @@ public final class Multimaps {
    * @param <K> The key type in the multimap.
    * @param <V> The value type in the multimap.
    * @return A new multimap, containing the pruned keys/values.
+   * @throws IllegalArgumentException if minSize < 0
    */
   public static <K, V> Multimap<K, V> prune(Multimap<K, V> map, final int minSize) {
     return prune(map, new AtLeastSize(minSize));
@@ -108,6 +107,7 @@ public final class Multimaps {
    * @param minSize The minimum size to return associated keys for.
    * @param <K> The key type for the multimap.
    * @return The keys associated with groups of size greater than or equal to {@code minSize}.
+   * @throws IllegalArgumentException if minSize < 0
    */
   public static <K> Set<K> getLargeGroups(Multimap<K, ?> map, int minSize) {
     return Sets.newHashSet(
