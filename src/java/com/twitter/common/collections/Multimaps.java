@@ -17,13 +17,17 @@
 package com.twitter.common.collections;
 
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Multiset;
+import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 
 /**
@@ -49,22 +53,34 @@ public final class Multimaps {
    * @return A new multimap, containing the pruned keys/values.
    */
   public static <K, V> Multimap<K, V> prune(Multimap<K, V> map,
-      Predicate<Collection<V>> filterRule) {
+      Predicate<? super Collection<V>> filterRule) {
     Preconditions.checkNotNull(map);
     Preconditions.checkNotNull(filterRule);
-    Set<K> prunedKeys = Sets.newHashSet();
-    for (K key : map.keySet()) {
-      if (!filterRule.apply(map.get(key))) {
-        prunedKeys.add(key);
+    Multimap<K, V> pruned = ArrayListMultimap.create();
+    Iterator<Map.Entry<K, Collection<V>>> asMapItr = map.asMap().entrySet().iterator();
+    while (asMapItr.hasNext()) {
+      Map.Entry<K, Collection<V>> asMapEntry = asMapItr.next();
+      if (!filterRule.apply(asMapEntry.getValue())) {
+        pruned.putAll(asMapEntry.getKey(), asMapEntry.getValue());
+        asMapItr.remove();
       }
     }
 
-    Multimap<K, V> pruned = ArrayListMultimap.create();
-    for (K key : prunedKeys) {
-      pruned.putAll(key, map.removeAll(key));
+    return pruned;
+  }
+
+  private static final class AtLeastSize implements Predicate<Collection<?>> {
+    private final int minSize;
+
+    AtLeastSize(int minSize) {
+      Preconditions.checkArgument(minSize >= 0);
+      this.minSize = minSize;
     }
 
-    return pruned;
+    @Override
+    public boolean apply(Collection<?> c) {
+      return c.size() >= minSize;
+    }
   }
 
   /**
@@ -76,13 +92,10 @@ public final class Multimaps {
    * @param <K> The key type in the multimap.
    * @param <V> The value type in the multimap.
    * @return A new multimap, containing the pruned keys/values.
+   * @throws IllegalArgumentException if minSize < 0
    */
-  public static <K, V> Multimap<K, V> prune(Multimap<K, V> map, final int minSize) {
-    return prune(map, new Predicate<Collection<V>>() {
-      @Override public boolean apply(Collection<V> input) {
-        return input.size() >= minSize;
-      }
-    });
+  public static <K, V> Multimap<K, V> prune(Multimap<K, V> map, int minSize) {
+    return prune(map, new AtLeastSize(minSize));
   }
 
   /**
@@ -92,16 +105,11 @@ public final class Multimaps {
    * @param minSize The minimum size to return associated keys for.
    * @param <K> The key type for the multimap.
    * @return The keys associated with groups of size greater than or equal to {@code minSize}.
+   * @throws IllegalArgumentException if minSize < 0
    */
   public static <K> Set<K> getLargeGroups(Multimap<K, ?> map, int minSize) {
-    Set<K> largeKeys = Sets.newHashSet();
-    for (K key : map.keySet()) {
-      if (map.get(key).size() >= minSize) {
-        largeKeys.add(key);
-      }
-    }
-
-    return largeKeys;
+    return Sets.newHashSet(
+        Maps.filterValues(map.asMap(), new AtLeastSize(minSize)).keySet());
   }
 
   /**
@@ -112,51 +120,18 @@ public final class Multimaps {
    * @return The keys associated with the largest groups, of maximum size {@code topValues}.
    */
   public static <K> Set<K> getLargestGroups(Multimap<K, ?> map, int topValues) {
-    /**
-     * A grouping of values in the multimap.
-     */
-    class Grouping implements Comparable<Grouping> {
-      private K key;
-      private int size;
-
-      public Grouping(K key, int size) {
-        this.key = key;
-        this.size = size;
-      }
-
+    Ordering<Multiset.Entry<K>> groupOrdering = new Ordering<Multiset.Entry<K>>() {
       @Override
-      public int hashCode() {
-        return size;
+      public int compare(Multiset.Entry<K> entry1, Multiset.Entry<K> entry2) {
+        return entry1.getCount() - entry2.getCount();
+        // overflow-safe, since sizes are nonnegative
       }
-      @Override
-      public int compareTo(Grouping grouping) {
-        return size - grouping.size;
-      }
-      @Override
-      public boolean equals(Object o) {
-        if (!(o instanceof Grouping)) {
-          return false;
-        }
-        Grouping other = (Grouping) o;
-        return key.equals(other.key);
-      }
+    };
+    Set<K> topKeys = Sets.newHashSetWithExpectedSize(topValues);
+    for (Multiset.Entry<K> entry
+         : groupOrdering.greatestOf(map.keys().entrySet(), topValues)) {
+      topKeys.add(entry.getElement());
     }
-
-    SortedSet<Grouping> topGroups = Sets.newTreeSet();
-    for (K key : map.keySet()) {
-      topGroups.add(new Grouping(key, map.get(key).size()));
-
-      // Remove the smallest value.
-      if (topGroups.size() > topValues) {
-        topGroups.remove(topGroups.first());
-      }
-    }
-
-    Set<K> topKeys = Sets.newHashSet();
-    for (Grouping group : topGroups) {
-      topKeys.add(group.key);
-    }
-
     return topKeys;
   }
 }
