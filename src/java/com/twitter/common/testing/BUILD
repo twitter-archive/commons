@@ -17,20 +17,20 @@ from twitter.pants import artifact, globs, pants, java_library, jvm_binary
 
 java_library(name = 'testing',
   dependencies = [
-    pants('3rdparty:easymock'),
-    pants('3rdparty:guava'),
-    pants('3rdparty:junit'),
-    pants('3rdparty:tl4j'),
+    '3rdparty:easymock',
+    '3rdparty:guava',
+    '3rdparty:junit',
+    '3rdparty:tl4j',
   ],
   sources = [ 'EasyMockTest.java' ]
 )
 
 java_library(name = 'action',
   dependencies = [
-    pants('3rdparty:guava'),
-    pants('3rdparty:tl4j'),
-    pants('src/java/com/twitter/common/application:action'),
-    pants('src/java/com/twitter/common/base'),
+    '3rdparty:guava',
+    '3rdparty:tl4j',
+    'src/java/com/twitter/common/application:action',
+    'src/java/com/twitter/common/base',
   ],
   sources = [ 'TearDownRegistry.java' ]
 )
@@ -39,12 +39,12 @@ java_library(name = 'junit-runner',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'junit-runner',
-    repo = pants('build-support/commons/ivy:public'),
+    repo = 'build-support/commons/ivy:public',
   ),
   dependencies = [
-    pants('3rdparty:args4j'),
-    pants('3rdparty:guava'),
-    pants('3rdparty:junit'),
+    '3rdparty:args4j',
+    '3rdparty:guava',
+    '3rdparty:junit',
   ],
   sources = globs('runner/*.java')
 ).with_description("""
@@ -57,6 +57,6 @@ java_library(name = 'junit-runner',
 jvm_binary(name = 'junit-runner-main',
   main = 'com.twitter.common.testing.runner.JUnitConsoleRunner',
   dependencies = [
-    pants(':junit-runner'),
+    ':junit-runner',
   ]
 )

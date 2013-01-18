@@ -18,10 +18,10 @@
 
 java_tests(name = 'quantity',
   dependencies = [
-    pants('3rdparty:guava'),
-    pants('3rdparty:junit'),
-    pants('3rdparty:tl4j'),
-    pants('src/java/com/twitter/common/quantity'),
+    '3rdparty:guava',
+    '3rdparty:junit',
+    '3rdparty:tl4j',
+    'src/java/com/twitter/common/quantity',
   ],
   sources = globs('*.java'),
 )

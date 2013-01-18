@@ -18,12 +18,12 @@ scala_library(name = 'flags',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'flags',
-    repo = pants('build-support/commons/ivy:public'),
+    repo = 'build-support/commons/ivy:public',
   ),
   dependencies = [
-    pants('src/java/com/twitter/common/args:args'),
-    pants('3rdparty:util-core'),
-    pants('3rdparty:scalap'),
+    'src/java/com/twitter/common/args:args',
+    '3rdparty:util-core',
+    '3rdparty:scalap',
   ],
   sources = rglobs('*.scala'),
 )

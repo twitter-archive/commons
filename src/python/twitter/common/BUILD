@@ -17,12 +17,12 @@
 python_library(
   name = "common",
   dependencies = [
-    pants('src/python/twitter/common/collections'),
-    pants('src/python/twitter/common/config'),
-    pants('src/python/twitter/common/contextutil'),
-    pants('src/python/twitter/common/decorators'),
-    pants('src/python/twitter/common/dirutil'),
-    pants('src/python/twitter/common/lang'),
-    pants('src/python/twitter/common/quantity'),
+    'src/python/twitter/common/collections',
+    'src/python/twitter/common/config',
+    'src/python/twitter/common/contextutil',
+    'src/python/twitter/common/decorators',
+    'src/python/twitter/common/dirutil',
+    'src/python/twitter/common/lang',
+    'src/python/twitter/common/quantity',
   ]
 )

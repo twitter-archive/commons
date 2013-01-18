@@ -18,6 +18,6 @@ python_library(
   name = 'concurrent',
   sources = globs('*.py'),
   dependencies = [
-    pants('3rdparty/python:futures'),
+    '3rdparty/python:futures',
   ]
 )

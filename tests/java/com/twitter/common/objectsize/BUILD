@@ -19,8 +19,8 @@ from glob import glob
 
 java_tests(name = 'objectsize',
   dependencies = [
-    pants('3rdparty:junit'),
-    pants('src/java/com/twitter/common/objectsize'),
+    '3rdparty:junit',
+    'src/java/com/twitter/common/objectsize',
   ],
   sources = glob('*.java')
 )

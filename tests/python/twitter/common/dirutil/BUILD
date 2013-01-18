@@ -17,6 +17,6 @@
 python_tests(name = 'dirutil',
   sources = globs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/dirutil'),
+    'src/python/twitter/common/dirutil',
   ]
 )

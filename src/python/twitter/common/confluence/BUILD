@@ -18,6 +18,6 @@ python_library(
   name = 'confluence',
   sources = rglobs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/log'),
+    'src/python/twitter/common/log',
   ]
 )

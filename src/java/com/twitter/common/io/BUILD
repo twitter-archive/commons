@@ -18,13 +18,13 @@ java_library(name = 'io',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'io',
-    repo = pants('build-support/commons/ivy:public'),
+    repo = 'build-support/commons/ivy:public',
   ),
   dependencies = [
-    pants('3rdparty:commons-io'),
-    pants('3rdparty:commons-lang'),
-    pants('3rdparty:guava'),
-    pants('src/java/com/twitter/common/base'),
+    '3rdparty:commons-io',
+    '3rdparty:commons-lang',
+    '3rdparty:guava',
+    'src/java/com/twitter/common/base',
   ],
   sources = [
     'Codec.java',
@@ -35,8 +35,8 @@ java_library(name = 'io',
 
 java_library(name = 'streamer',
   dependencies = [
-    pants('3rdparty:guava'),
-    pants('src/java/com/twitter/common/base'),
+    '3rdparty:guava',
+    'src/java/com/twitter/common/base',
   ],
   sources = [ 'Streamer.java' ]
 )
@@ -45,13 +45,13 @@ java_library(name = 'thrift',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'io-thrift',
-    repo = pants('build-support/commons/ivy:public'),
+    repo = 'build-support/commons/ivy:public',
   ),
   dependencies = [
-    pants('3rdparty:guava'),
-    pants('3rdparty:thrift'),
-    pants('src/java/com/twitter/common/base'),
-    pants(':io'),
+    '3rdparty:guava',
+    '3rdparty:thrift',
+    'src/java/com/twitter/common/base',
+    ':io',
   ],
   sources = [ 'ThriftCodec.java' ]
 )
@@ -60,13 +60,13 @@ java_library(name = 'json',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'io-json',
-    repo = pants('build-support/commons/ivy:public'),
+    repo = 'build-support/commons/ivy:public',
   ),
   dependencies = [
-    pants('3rdparty:gson'),
-    pants('3rdparty:guava'),
-    pants('src/java/com/twitter/common/base'),
-    pants(':io'),
+    '3rdparty:gson',
+    '3rdparty:guava',
+    'src/java/com/twitter/common/base',
+    ':io',
   ],
   sources = [ 'JsonCodec.java' ]
 )

@@ -2,8 +2,8 @@ python_library(
   name = 'serverset',
   sources = globs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/lang'),
-    pants('src/python/twitter/common/zookeeper/group'),
-    pants('src/thrift/com/twitter/thrift:py-thrift'),
+    'src/python/twitter/common/lang',
+    'src/python/twitter/common/zookeeper/group',
+    'src/thrift/com/twitter/thrift:py-thrift',
   ]
 )
