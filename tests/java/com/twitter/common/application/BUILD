@@ -16,16 +16,16 @@
 
 java_tests(name = 'application',
   dependencies = [
-    pants('3rdparty:easymock'),
-    pants('3rdparty:guava'),
-    pants('3rdparty:guice'),
-    pants('3rdparty:junit'),
-    pants('src/java/com/twitter/common/application'),
-    pants('src/java/com/twitter/common/application:action'),
-    pants('src/java/com/twitter/common/args'),
-    pants('src/java/com/twitter/common/base'),
-    pants('src/java/com/twitter/common/net:util'),
-    pants('src/java/com/twitter/common/testing'),
+    '3rdparty:easymock',
+    '3rdparty:guava',
+    '3rdparty:guice',
+    '3rdparty:junit',
+    'src/java/com/twitter/common/application',
+    'src/java/com/twitter/common/application:action',
+    'src/java/com/twitter/common/args',
+    'src/java/com/twitter/common/base',
+    'src/java/com/twitter/common/net:util',
+    'src/java/com/twitter/common/testing',
   ],
   sources = rglobs('*.java')
 )

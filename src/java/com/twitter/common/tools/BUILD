@@ -18,7 +18,7 @@ java_library(name = 'compiler',
   provides = artifact(
     org = 'com.twitter.common.tools',
     name = 'java-compiler',
-    repo = pants('build-support/commons/ivy:public'),
+    repo = 'build-support/commons/ivy:public',
   ),
   sources = globs('*.java'),
   dependencies = [
@@ -29,6 +29,6 @@ java_library(name = 'compiler',
 jvm_binary(name = 'compiler-main',
   main = 'com.twitter.common.tools.Compiler',
   dependencies = [
-    pants(':compiler')
+    ':compiler'
   ]
 )

@@ -18,10 +18,10 @@ python_library(
   name = "app",
   sources = globs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/app/modules'),
-    pants('src/python/twitter/common/dirutil'),
-    pants('src/python/twitter/common/lang'),
-    pants('src/python/twitter/common/options'),
-    pants('src/python/twitter/common/util'),
+    'src/python/twitter/common/app/modules',
+    'src/python/twitter/common/dirutil',
+    'src/python/twitter/common/lang',
+    'src/python/twitter/common/options',
+    'src/python/twitter/common/util',
   ]
 )

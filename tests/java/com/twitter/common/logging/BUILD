@@ -19,13 +19,13 @@ from glob import glob
 
 java_tests(name = 'logging',
   dependencies = [
-    pants('3rdparty:easymock'),
-    pants('3rdparty:guava'),
-    pants('3rdparty:hamcrest-core'),
-    pants('3rdparty:junit'),
-    pants('src/java/com/twitter/common/logging:buffered'),
-    pants('src/java/com/twitter/common/logging:logging'),
-    pants('src/java/com/twitter/common/quantity'),
+    '3rdparty:easymock',
+    '3rdparty:guava',
+    '3rdparty:hamcrest-core',
+    '3rdparty:junit',
+    'src/java/com/twitter/common/logging:buffered',
+    'src/java/com/twitter/common/logging:logging',
+    'src/java/com/twitter/common/quantity',
   ],
   sources = glob('*.java')
 )

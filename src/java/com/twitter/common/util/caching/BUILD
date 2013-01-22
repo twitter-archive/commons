@@ -20,13 +20,13 @@ java_library(name = 'caching',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'util-caching',
-    repo = pants('build-support/commons/ivy:public'),
+    repo = 'build-support/commons/ivy:public',
   ),
   dependencies = [
-    pants('3rdparty:guava'),
-    pants('src/java/com/twitter/common/base'),
-    pants('src/java/com/twitter/common/collections'),
-    pants('src/java/com/twitter/common/stats'),
+    '3rdparty:guava',
+    'src/java/com/twitter/common/base',
+    'src/java/com/twitter/common/collections',
+    'src/java/com/twitter/common/stats',
   ],
   sources = globs('*.java')
 )

@@ -22,6 +22,6 @@ scala_library(name = 'jvm-run-example-lib',
 jvm_binary(name = 'jvm-run-example',
   main = 'com.twitter.common.example.JvmRunExample',
   dependencies = [
-    pants(':jvm-run-example-lib'),
+    ':jvm-run-example-lib',
   ]
 )

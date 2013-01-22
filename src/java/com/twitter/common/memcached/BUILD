@@ -21,22 +21,22 @@ java_library(name = 'memcached',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'memcached',
-    repo = pants('build-support/commons/ivy:public'),
+    repo = 'build-support/commons/ivy:public',
   ),
   dependencies = [
-    pants('3rdparty:guava'),
-    pants('3rdparty:spy-memcached'),
+    '3rdparty:guava',
+    '3rdparty:spy-memcached',
   ],
   sources = [ 'Memcached.java' ]
 )
 
 java_library(name = 'thrift-transcoder',
   dependencies = [
-    pants('3rdparty:guava'),
-    pants('3rdparty:spy-memcached'),
-    pants('3rdparty:thrift'),
-    pants('src/java/com/twitter/common/io'),
-    pants('src/java/com/twitter/common/io:thrift'),
+    '3rdparty:guava',
+    '3rdparty:spy-memcached',
+    '3rdparty:thrift',
+    'src/java/com/twitter/common/io',
+    'src/java/com/twitter/common/io:thrift',
   ],
   sources = [ 'ThriftTranscoder.java' ]
 )

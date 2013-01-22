@@ -16,10 +16,10 @@
 
 java_tests(name = 'small',
   dependencies = [
-    pants('3rdparty:junit'),
-    pants('src/java/com/twitter/common/args'),
-    pants('src/java/com/twitter/common/args:apt'),
-    pants('src/java/com/twitter/common/args:duration_parser'),
+    '3rdparty:junit',
+    'src/java/com/twitter/common/args',
+    'src/java/com/twitter/common/args:apt',
+    'src/java/com/twitter/common/args:duration_parser',
   ],
   sources = rglobs('argfilterstest/*.java') + [ 'ArgFiltersTest.java', 'ParsersTest.java' ]
            + rglobs('parsers/*.java')
@@ -27,20 +27,20 @@ java_tests(name = 'small',
 
 java_tests(name = 'medium',
   dependencies = [
-    pants('3rdparty:junit'),
-    pants('src/java/com/twitter/common/args'),
-    pants('src/java/com/twitter/common/base'),
-    pants('src/java/com/twitter/common/net:util'),
-    pants('src/java/com/twitter/common/quantity'),
+    '3rdparty:junit',
+    'src/java/com/twitter/common/args',
+    'src/java/com/twitter/common/base',
+    'src/java/com/twitter/common/net:util',
+    'src/java/com/twitter/common/quantity',
   ],
   sources = [ 'ArgScannerTest.java' ]
 )
 
 jar_library(name = 'all',
   dependencies = [
-    pants(':medium'),
-    pants(':small'),
+    ':medium',
+    ':small',
   ]
 )
 
-jar_library(name = 'args', dependencies = [ pants(':all') ])
+jar_library(name = 'args', dependencies = [ ':all' ])

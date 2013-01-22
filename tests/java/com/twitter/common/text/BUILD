@@ -17,11 +17,11 @@
 
 java_tests(name = 'text',
   dependencies = [
-    pants('3rdparty:easymock'),
-    pants('3rdparty:junit'),
-    pants('src/java/com/twitter/common/collections:collections'),
-    pants('src/java/com/twitter/common/text:text'),
-    pants('src/java/com/twitter/common/util:util'),
+    '3rdparty:easymock',
+    '3rdparty:junit',
+    'src/java/com/twitter/common/collections:collections',
+    'src/java/com/twitter/common/text:text',
+    'src/java/com/twitter/common/util:util',
   ],
   sources = rglobs('*.java'),
 )

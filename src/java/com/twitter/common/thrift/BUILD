@@ -20,28 +20,28 @@ java_library(name = 'thrift',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'thrift',
-    repo = pants('build-support/commons/ivy:public'),
+    repo = 'build-support/commons/ivy:public',
   ),
   dependencies = [
-    pants('3rdparty:guava'),
-    pants('3rdparty:jsr305'),
-    pants('3rdparty:thrift'),
-    pants('src/java/com/twitter/common/base'),
-    pants('src/java/com/twitter/common/net:pool'),
-    pants('src/java/com/twitter/common/net:util'),
-    pants('src/java/com/twitter/common/quantity'),
-    pants('src/java/com/twitter/common/stats'),
-    pants('src/java/com/twitter/common/util'),
-    pants('src/java/com/twitter/common/util:system-mocks'),
-    pants('src/thrift/com/twitter/thrift'),
+    '3rdparty:guava',
+    '3rdparty:jsr305',
+    '3rdparty:thrift',
+    'src/java/com/twitter/common/base',
+    'src/java/com/twitter/common/net:pool',
+    'src/java/com/twitter/common/net:util',
+    'src/java/com/twitter/common/quantity',
+    'src/java/com/twitter/common/stats',
+    'src/java/com/twitter/common/util',
+    'src/java/com/twitter/common/util:system-mocks',
+    'src/thrift/com/twitter/thrift',
   ],
   sources = globs('*.java', 'callers/*.java', 'monitoring/*.java')
 )
 
 java_library(name = 'testing',
   dependencies = [
-    pants('3rdparty:guava'),
-    pants('3rdparty:thrift'),
+    '3rdparty:guava',
+    '3rdparty:thrift',
   ],
   sources = globs('testing/*.java')
 )
