@@ -18,12 +18,12 @@
 
 scala_tests(name = 'stats',
   dependencies = [
-    pants('3rdparty:easymock'),
-    pants('3rdparty:easymockclassextension'),
-    pants('3rdparty:ostrich'),
-    pants('3rdparty:specs'),
-    pants('src/java/com/twitter/common/stats:stats-provider'),
-    pants('src/scala/com/twitter/common/stats'),
+    '3rdparty:easymock',
+    '3rdparty:easymockclassextension',
+    '3rdparty:ostrich',
+    '3rdparty:specs',
+    'src/java/com/twitter/common/stats:stats-provider',
+    'src/scala/com/twitter/common/stats',
   ],
   sources = globs('*.scala')
 )

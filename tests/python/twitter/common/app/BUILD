@@ -17,6 +17,6 @@
 python_tests(name = 'app',
   sources = globs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/app'),
+    'src/python/twitter/common/app',
   ]
 )

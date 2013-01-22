@@ -18,6 +18,6 @@
 #python_tests(name = 'finagle',
 #  sources = globs('*.py'),
 #  dependencies = [
-#    pants('src/python/twitter/common/rpc/finagle')
+#    'src/python/twitter/common/rpc/finagle'
 #  ]
 #)

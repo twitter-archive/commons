@@ -17,5 +17,5 @@
 python_library(
   name = "process",
   sources = rglobs("*.py"),
-  dependencies = [pants('src/python/twitter/common/string')]
+  dependencies = ['src/python/twitter/common/string']
 )

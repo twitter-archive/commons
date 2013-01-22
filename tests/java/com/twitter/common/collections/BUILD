@@ -19,9 +19,9 @@ from glob import glob
 
 java_tests(name = 'collections',
   dependencies = [
-    pants('3rdparty:guava'),
-    pants('3rdparty:junit'),
-    pants('src/java/com/twitter/common/collections'),
+    '3rdparty:guava',
+    '3rdparty:junit',
+    'src/java/com/twitter/common/collections',
   ],
   sources = glob('*.java'),
 )

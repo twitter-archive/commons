@@ -16,20 +16,20 @@
 
 java_tests(name = 'lifecycle',
   dependencies = [
-    pants('3rdparty:easymock'),
-    pants('3rdparty:guava'),
-    pants('3rdparty:guice'),
-    pants('3rdparty:junit'),
-    pants('src/java/com/twitter/common/application/modules:lifecycle'),
-    pants('src/java/com/twitter/common/application:action'),
-    pants('src/java/com/twitter/common/base'),
-    pants('src/java/com/twitter/common/testing'),
+    '3rdparty:easymock',
+    '3rdparty:guava',
+    '3rdparty:guice',
+    '3rdparty:junit',
+    'src/java/com/twitter/common/application/modules:lifecycle',
+    'src/java/com/twitter/common/application:action',
+    'src/java/com/twitter/common/base',
+    'src/java/com/twitter/common/testing',
   ],
   sources = [ 'LifecycleModuleTest.java' ]
 )
 
 jar_library(name = 'all',
   dependencies = [
-    pants(':lifecycle'),
+    ':lifecycle',
   ]
 )

@@ -19,13 +19,13 @@ java_library(name = 'checkstyle',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'checkstyle',
-    repo = pants('build-support/commons/ivy:public'),
+    repo = 'build-support/commons/ivy:public',
   ),
   dependencies = [
-    pants('3rdparty:antlr2'),
-    pants('3rdparty:checkstyle'),
-    pants('3rdparty:commons-beanutils'),
-    pants('3rdparty:guava'),
+    '3rdparty:antlr2',
+    '3rdparty:checkstyle',
+    '3rdparty:commons-beanutils',
+    '3rdparty:guava',
   ],
   sources = globs('*.java'),
 )

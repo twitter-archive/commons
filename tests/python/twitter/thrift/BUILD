@@ -16,8 +16,8 @@
 
 python_test_suite(name = 'all',
   dependencies = [
-    pants('tests/python/twitter/thrift/descriptors'),
-    pants('tests/python/twitter/thrift/text'),
-    pants('tests/python/twitter/thrift/util'),
+    'tests/python/twitter/thrift/descriptors',
+    'tests/python/twitter/thrift/text',
+    'tests/python/twitter/thrift/util',
   ]
 )
