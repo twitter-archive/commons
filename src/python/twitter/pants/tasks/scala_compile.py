@@ -108,13 +108,6 @@ class ScalaCompile(NailgunTask):
 
     self._plugin_jars = nailgun_profile_classpath(self, plugins_profile) if plugins_profile else []
 
-    # All scala targets implicitly depend on the selected scala runtime.
-    scaladeps = []
-    for spec in context.config.getlist('scala-compile', 'scaladeps'):
-      scaladeps.extend(context.resolve(spec))
-    for target in context.targets(is_scala):
-      target.update_dependencies(scaladeps)
-
     self._workdir = context.config.get('scala-compile', 'workdir') if workdir is None else workdir
     self._classes_dir = os.path.join(self._workdir, 'classes')
     self._analysis_cache_dir = os.path.join(self._workdir, 'analysis_cache')
@@ -184,7 +177,7 @@ class ScalaCompile(NailgunTask):
       upstream_cache_files = set()
       for (_, cache_list_entry) in upstream_analysis_caches.itermappings():
         for d in cache_list_entry.keys():
-          for cache in cache_list_entry[d]: 
+          for cache in cache_list_entry[d]:
             upstream_cache_files.add(os.path.join(d, cache))
 
       deps_cache = JvmDependencyCache(self, scala_targets, upstream_cache_files)
