@@ -60,7 +60,7 @@ class ZincMergedAnalysisCache(object):
     try:
       zincfile = open(zincfile, "r")
     except IOError:
-      print "Warning: analysis cache file %s not found" % zincfile
+      print "Warning: analysis cache file %s not found" % cachepath
       return
     mode = None
     for line in zincfile:
