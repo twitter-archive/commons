@@ -91,6 +91,6 @@ class ZincMergedAnalysisCache(object):
           else:
             print "Unprocessed line, mode = %s" % mode
     except IOError:
-      print "Warning: analysis cache file %s not found" % zincfile
+      print "Warning: analysis cache file %s not found" % cachepath
       return
 
