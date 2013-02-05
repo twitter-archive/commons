@@ -16,6 +16,7 @@
 
 __author__ = 'John Sirois, Brian Wickman'
 
+import errno
 import os
 import shutil
 import tarfile
@@ -62,6 +63,9 @@ def temporary_dir(root_dir=None, cleanup=True):
     You may specify the following keyword args:
       root_dir [path]: The parent directory to create the temporary directory.
       cleanup [True/False]: Whether or not to clean up the temporary directory.
+
+    Important note: If you fork inside the context, make sure only one tine
+    performs cleanup (e.g., by calling os._exit() in the child).
   """
   path = tempfile.mkdtemp(dir=root_dir)
   try:
@@ -72,13 +76,44 @@ def temporary_dir(root_dir=None, cleanup=True):
 
 
 @contextmanager
-def temporary_file(root_dir=None, cleanup=True):
+def temporary_file_path(root_dir=None, cleanup=True):
   """
-    A with-context that creates a temporary file.
+    A with-context that creates a temporary file and returns its path.
 
     You may specify the following keyword args:
       root_dir [path]: The parent directory to create the temporary file.
       cleanup [True/False]: Whether or not to clean up the temporary file.
+
+    Important note: If you fork inside the context, make sure only one tine
+    performs cleanup (e.g., by calling os._exit() in the child).
+  """
+  # argh, I would love to use os.fdopen here but then fp.name == '<fdopen>'
+  # and that's unacceptable behavior for most cases where I want to use temporary_file
+  fh, path = tempfile.mkstemp(dir=root_dir)
+  os.close(fh)
+  try:
+    yield path
+  finally:
+    if cleanup:
+      try:
+        os.unlink(path)
+      except OSError, e:
+        if e.errno == errno.ENOENT:
+          pass
+        else:
+          raise e
+
+@contextmanager
+def temporary_file(root_dir=None, cleanup=True):
+  """
+    A with-context that creates a temporary file and returns a writeable file descriptor to it.
+
+    You may specify the following keyword args:
+      root_dir [path]: The parent directory to create the temporary file.
+      cleanup [True/False]: Whether or not to clean up the temporary file.
+
+    Important note: If you fork inside the context, make sure only one tine
+    performs cleanup (e.g., by calling os._exit() in the child).
   """
   # argh, I would love to use os.fdopen here but then fp.name == '<fdopen>'
   # and that's unacceptable behavior for most cases where I want to use temporary_file
