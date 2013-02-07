@@ -87,8 +87,6 @@ def temporary_file_path(root_dir=None, cleanup=True):
     Important note: If you fork inside the context, make sure only one tine
     performs cleanup (e.g., by calling os._exit() in the child).
   """
-  # argh, I would love to use os.fdopen here but then fp.name == '<fdopen>'
-  # and that's unacceptable behavior for most cases where I want to use temporary_file
   fh, path = tempfile.mkstemp(dir=root_dir)
   os.close(fh)
   try:
