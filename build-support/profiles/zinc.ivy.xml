@@ -25,7 +25,7 @@ limitations under the License.
   <info organisation="com.twitter" module="pants-libs"/>
 
   <dependencies>
-    <dependency org="com.typesafe.zinc" name="zinc" rev="0.2.1" />
+    <dependency org="com.typesafe.zinc" name="zinc" rev="0.2.2" />
     <!-- We do our own nailgunning, we don't use zinc's nailgun integration. -->
     <exclude org="com.martiansoftware" module="nailgun"/>
     <!-- This isn't hosted anywhere convenient, and we don't need it anyway. -->
