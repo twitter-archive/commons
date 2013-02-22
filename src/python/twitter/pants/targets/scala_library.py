@@ -16,6 +16,7 @@
 
 import os
 
+from twitter.pants import globs
 from twitter.pants.targets import resolve_target_sources
 from twitter.pants.targets.exportable_jvm_library import ExportableJvmLibrary
 
@@ -23,7 +24,7 @@ class ScalaLibrary(ExportableJvmLibrary):
   """Defines a target that produces a scala library."""
 
   def __init__(self, name,
-               sources = None,
+               sources = globs('*.scala'),
                java_sources = None,
                provides = None,
                dependencies = None,
