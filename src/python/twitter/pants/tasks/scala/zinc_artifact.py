@@ -55,22 +55,24 @@ class ZincArtifactFactory(object):
   def merged_artifact(self, artifacts):
     """The artifact merged from those of the specified artifacts."""
     targets = list(itertools.chain.from_iterable([a.targets for a in artifacts]))
-    sources_by_target = dict(itertools.chain.from_iterable([a.sources_by_target.items() for a in artifacts]))
+    sources_by_target = dict(itertools.chain.from_iterable(
+      [a.sources_by_target.items() for a in artifacts]))
     factory = self
-    return _MergedZincArtifact(artifacts, factory, targets, sources_by_target, *self._artifact_args(targets))
+    return _MergedZincArtifact(artifacts, factory, targets, sources_by_target,
+                               *self._artifact_args(targets))
 
   # Useful for when we only need access to the analysis file, and don't have an artifact object.
   def analysis_file_for_targets(self, targets):
     return self._artifact_args(targets)[2]
 
   # There are two versions of the zinc analysis file: The one zinc creates on compilation, which
-  # contains full paths and is therefore not portable, and the portable version, that we create by rebasing
-  # the full path prefixes to placeholders. We refer to this as "relativizing" the analysis file.
-  # The inverse, replacing placeholders with full path prefixes so we can use the file again when compiling,
-  # is referred to as "localizing" the analysis file.
+  # contains full paths and is therefore not portable, and the portable version, that we create by
+  # rebasing the full path prefixes to placeholders. We refer to this as "relativizing" the
+  # analysis file. The inverse, replacing placeholders with full path prefixes so we can use the
+  # file again when compiling, is referred to as "localizing" the analysis file.
   #
-  # This is necessary only when using the artifact cache: We must relativize before uploading to the cache,
-  # and localize after pulling from the cache.
+  # This is necessary only when using the artifact cache: We must relativize before uploading to
+  # the cache, and localize after pulling from the cache.
   @staticmethod
   def portable(analysis_file):
     """Returns the path to the portable version of the zinc analysis file."""
@@ -79,8 +81,8 @@ class ZincArtifactFactory(object):
   def _artifact_args(self, targets):
     """Returns the artifact paths for the given target set."""
     artifact_id = Target.maybe_readable_identify(targets)
-    # Each compilation must output to its own directory, so zinc can then associate those with the appropriate
-    # analysis files of previous compilations.
+    # Each compilation must output to its own directory, so zinc can then associate those with the
+    # appropriate analysis files of previous compilations.
     classes_dir = os.path.join(self._classes_dirs_base, artifact_id)
     analysis_file = os.path.join(self._analysis_files_base, artifact_id) + '.analysis'
     return artifact_id, classes_dir, analysis_file
@@ -89,7 +91,8 @@ class ZincArtifactFactory(object):
   def _calculate_sources(target):
     """Find a target's source files."""
     sources = []
-    srcs = [os.path.join(target.target_base, src) for src in target.sources if src.endswith('.scala')]
+    srcs = \
+      [os.path.join(target.target_base, src) for src in target.sources if src.endswith('.scala')]
     sources.extend(srcs)
     if (isinstance(target, ScalaLibrary) or isinstance(target, ScalaTests)) and target.java_sources:
       sources.extend(resolve_target_sources(target.java_sources, '.java'))
@@ -134,12 +137,13 @@ class _MergedZincArtifact(_ZincArtifact):
   """An artifact merged from some underlying artifacts.
 
   A merged artifact consists of:
-    A) A classes directory containing all the classes from all the underlying artifacts' classes directories.
-    B) A zinc analysis file containing all the information from all the underlying artifact's analysis files.
+    A) A classes dir containing all the classes from all the underlying artifacts' classes dirs.
+    B) An analysis file containing all the information from all the underlying artifact's analyses.
   """
   def __init__(self, underlying_artifacts, factory , targets, sources_by_target,
                artifact_id, classes_dir, analysis_file):
-    _ZincArtifact.__init__(self, factory, targets, sources_by_target, artifact_id, classes_dir, analysis_file)
+    _ZincArtifact.__init__(self, factory, targets, sources_by_target, artifact_id,
+                           classes_dir, analysis_file)
     self.underlying_artifacts = underlying_artifacts
 
   def merge(self):
@@ -175,9 +179,11 @@ class _MergedZincArtifact(_ZincArtifact):
           analysis_file_tmp = os.path.join(tmpdir, artifact.artifact_id)
           shutil.copyfile(artifact.analysis_file, analysis_file_tmp)
           artifact_analysis_files.append(analysis_file_tmp)
-          if self.factory.zinc_utils.run_zinc_rebase(analysis_file_tmp, [(artifact.classes_dir, self.classes_dir)]):
+          if self.factory.zinc_utils.run_zinc_rebase(analysis_file_tmp,
+                                                     [(artifact.classes_dir, self.classes_dir)]):
             self.factory.context.log.warn(
-              'Zinc failed to rebase analysis file %s. Target may require a full rebuild.' % analysis_file_tmp)
+              'Zinc failed to rebase analysis file %s. Target may require a full rebuild.' %
+              analysis_file_tmp)
 
       if self.factory.zinc_utils.run_zinc_merge(artifact_analysis_files, self.analysis_file):
         self.factory.context.log.warn(
@@ -202,7 +208,8 @@ class _MergedZincArtifact(_ZincArtifact):
         artifact_package_dir = os.path.join(artifact.classes_dir, package)
         merged_package_dir = os.path.join(self.classes_dir, package)
 
-        ancestor_symlink = _MergedZincArtifact.find_ancestor_package_symlink(self.classes_dir, merged_package_dir)
+        ancestor_symlink = \
+          _MergedZincArtifact.find_ancestor_package_symlink(self.classes_dir, merged_package_dir)
         if not os.path.exists(merged_package_dir) and not ancestor_symlink:
           # A heuristic to prevent tons of file copying: If we're the only classes
           # in this package, we can just symlink.
@@ -263,13 +270,13 @@ class _MergedZincArtifact(_ZincArtifact):
 
     split_args = [(x.sources, x.dst_analysis_file) for x in splits]
     if self.factory.zinc_utils.run_zinc_split(analysis_to_split, split_args):
-      raise TaskError, 'zinc failed to split analysis files %s from %s' % \
-                       (':'.join([x.dst_analysis_file for x in splits]), analysis_to_split)
+      raise TaskError('zinc failed to split analysis files %s from %s' % \
+                      (':'.join([x.dst_analysis_file for x in splits]), analysis_to_split))
     for split in splits:
       if os.path.exists(split.dst_analysis_file):
         if self.factory.zinc_utils.run_zinc_rebase(split.dst_analysis_file,
                                                    [(self.classes_dir, split.dst_classes_dir)]):
-          raise TaskError, 'Zinc failed to rebase analysis file %s' % split.dst_analysis_file
+          raise TaskError('Zinc failed to rebase analysis file %s' % split.dst_analysis_file)
 
   def _split_classes_dir(self, state, diff):
     """Split the merged classes dir into one dir per underlying artifact."""
@@ -277,7 +284,7 @@ class _MergedZincArtifact(_ZincArtifact):
       return
 
     def map_classes_by_package(classes):
-      # E.g., com/foo/bar/Bar.scala, com/foo/bar/Baz.scala becomes com/foo/bar -> [Bar.scala, Baz.scala].
+      # E.g., com/foo/bar/Bar.scala, com/foo/bar/Baz.scala to com/foo/bar -> [Bar.scala, Baz.scala].
       ret = defaultdict(list)
       for cls in classes:
         ret[os.path.dirname(cls)].append(os.path.basename(cls))
@@ -291,11 +298,13 @@ class _MergedZincArtifact(_ZincArtifact):
       deleted_classnames_by_package = None
 
     for artifact in self.underlying_artifacts:
-      classnames_by_package = map_classes_by_package(state.classes_by_target.get(artifact.targets[0], []))
+      classnames_by_package = \
+        map_classes_by_package(state.classes_by_target.get(artifact.targets[0], []))
 
       # We iterate from longest to shortest package name, so that we see child packages
       # before parent packages. This guarantees that we only symlink leaf packages.
-      package_classnames_pairs = sorted(classnames_by_package.items(), key=lambda kv: len(kv[0]), reverse=True)
+      package_classnames_pairs = \
+        sorted(classnames_by_package.items(), key=lambda kv: len(kv[0]), reverse=True)
 
       for package, classnames in package_classnames_pairs:
         artifact_package_dir = os.path.join(artifact.classes_dir, package)
@@ -324,7 +333,8 @@ class _MergedZincArtifact(_ZincArtifact):
           shutil.move(merged_package_dir, artifact_package_dir)
           os.symlink(artifact_package_dir, merged_package_dir)
         else:
-          new_or_changed_classnames = set(new_or_changed_classnames_by_package.get(package, [])) if diff else None
+          new_or_changed_classnames = \
+            set(new_or_changed_classnames_by_package.get(package, [])) if diff else None
           for classname in classnames:
             if not diff or classname in new_or_changed_classnames:
               src = os.path.join(merged_package_dir, classname)

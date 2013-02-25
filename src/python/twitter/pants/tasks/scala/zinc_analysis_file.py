@@ -43,10 +43,12 @@ class ZincAnalysisCollection(object):
     # But PrettyEnumeration *is* included in the list of classes in external_deps.
     self.source_deps = defaultdict(set)
 
-    # Map from scala sources to the classes that they depend on. (Not class files, source files, but just classes.
+    # Map from scala sources to the classes that they depend on.
+    # (Not class files but just classes.)
     self.external_deps = defaultdict(set)
 
-    # Map from scala sources to the classes that they provide. (Again, not class files, fully-qualified class names.)
+    # Map from scala sources to the classes that they provide.
+    # (Again, not class files, fully-qualified class names.)
     self.class_names = defaultdict(set)
 
     for c in self.analysis_files:

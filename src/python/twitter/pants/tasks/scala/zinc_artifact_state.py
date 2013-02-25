@@ -32,16 +32,18 @@ class ZincArtifactState(object):
   def __init__(self, artifact):
     self.artifact = artifact
 
-    # Fingerprint the text version, as the binary version may vary even when the analysis is identical.
+    # Fingerprint the text version, as the binary one may vary even when the analysis is identical.
     relfile = self.artifact.relations_file
-    self.analysis_fprint = ZincArtifactState._fprint_file(relfile) if os.path.exists(relfile) else None
+    self.analysis_fprint = \
+      ZincArtifactState._fprint_file(relfile) if os.path.exists(relfile) else None
 
     self.classes_by_src = ZincArtifactState._compute_classes_by_src(self.artifact)
-    self.classes_by_target = ZincArtifactState._compute_classes_by_target(self.classes_by_src,
-                                                                          self.artifact.sources_by_target)
+    self.classes_by_target = \
+      ZincArtifactState._compute_classes_by_target(self.classes_by_src,
+                                                   self.artifact.sources_by_target)
     self.classes = set()
-    # Note: It's important to use classes_by_src here, not classes_by_target, because a now-deleted src
-    # won't be reflected in any target, which will screw up our computation of deleted classes.
+    # Note: It's important to use classes_by_src here, not classes_by_target, because a now-deleted
+    # src won't be reflected in any target, which will screw up our computation of deleted classes.
     for classes in self.classes_by_src.values():
       self.classes.update(classes)
 
@@ -80,7 +82,7 @@ class ZincArtifactStateDiff(object):
   """The diff between two states of the same zinc artifact."""
   def __init__(self, old_state, new_state):
     if old_state.artifact != new_state.artifact:
-      raise TaskError, 'Cannot diff state of two different artifacts.'
+      raise TaskError('Cannot diff state of two different artifacts.')
     self.artifact = old_state.artifact
     self.new_or_changed_classes = set(filter(
       lambda f: os.path.getmtime(os.path.join(self.artifact.classes_dir, f)) > old_state.timestamp,
