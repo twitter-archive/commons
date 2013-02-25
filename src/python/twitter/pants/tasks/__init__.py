@@ -36,8 +36,9 @@ class Task(object):
   def setup_parser(cls, option_group, args, mkflag):
     """Set up the cmd-line parser.
 
-    Subclasses can add flags to the pants command line using the given option group.  Flag names
-    should be created with mkflag([name]) to ensure flags are properly namespaced amongst other tasks.
+    Subclasses can add flags to the pants command line using the given option group.
+    Flag names should be created with mkflag([name]) to ensure flags are properly namespaced
+    amongst other tasks.
     """
 
   def __init__(self, context):
@@ -45,14 +46,15 @@ class Task(object):
     self.dry_run = self.can_dry_run() and self.context.options.dry_run
     self._cache_key_generator = CacheKeyGenerator()
     self._artifact_cache = None
-    self._build_invalidator_dir = os.path.join(context.config.get('tasks', 'build_invalidator'), self.product_type())
+    self._build_invalidator_dir = \
+      os.path.join(context.config.get('tasks', 'build_invalidator'), self.product_type())
 
   def setup_artifact_cache(self, spec):
-    """Subclasses can call this in their __init__ method to set up artifact caching for that task type.
+    """Subclasses can call this in their __init__() to set up artifact caching for that task type.
 
     spec should be a list of urls/file path prefixes, which are used in that order.
-    By default, no artifact caching is used. Subclasses must not only set up the cache, but check it
-    explicitly with check_artifact_cache().
+    By default, no artifact caching is used. Subclasses must not only set up the cache, but
+    check it explicitly with check_artifact_cache().
     """
     if len(spec) > 0:
       pants_workdir = self.context.config.getdefault('pants_workdir')
@@ -81,7 +83,7 @@ class Task(object):
     return False
 
   def execute(self, targets):
-    """Executes this task against the given targets which may be a subset of the current context targets."""
+    """Executes this task against targets, which may be a subset of the current context targets."""
     raise TaskError('execute() not implemented')
 
   def invalidate_for(self):
@@ -110,18 +112,18 @@ class Task(object):
 
     targets: The targets to check for changes.
 
-    only_buildfiles: If True, then only the target's BUILD files are checked for changes, not its sources.
+    only_buildfiles: If True, then only the target's BUILD files are checked for changes,
+                     not its sources.
 
     invalidate_dependents: If True then any targets depending on changed targets are invalidated.
 
-    partition_size_hint: Each VersionedTargetSet in the yielded list will represent targets containing roughly
-    this number of source files, if possible. Set to sys.maxint for a single VersionedTargetSet. Set to 0 for
-    one VersionedTargetSet per target. It is up to the caller to do the right thing with whatever partitioning
-    it asks for.
+    partition_size_hint: Each VersionedTargetSet in the yielded list will represent targets
+                         containing roughly this number of source files, if possible. Set to
+                         sys.maxint for a single VersionedTargetSet. Set to 0 for one
+                         VersionedTargetSet per target. It is up to the caller to do the right
+                         thing with whatever partitioning it asks for.
 
-    Yields a pair of (invalidation_check, cached_vts) where invalidation_check is an InvalidationCheck object
-    reflecting the (partitioned) targets, and cached_vts is a list of VersionedTargets that were satisfied
-    from the artifact cache.
+    Yields an InvalidationCheck object reflecting the (partitioned) targets.
 
     If no exceptions are thrown by work in the block, the build cache is updated for the targets.
     Note: the artifact cache is not updated, that must be done manually.
@@ -141,13 +143,13 @@ class Task(object):
     initial_invalidation_check = cache_manager.check(targets, partition_size_hint)
 
     # See if we have entire partitions cached.
-    partitions_to_check = [vt for vt in initial_invalidation_check.all_vts_partitioned if not vt.valid]
+    partitions_to_check = \
+      [vt for vt in initial_invalidation_check.all_vts_partitioned if not vt.valid]
     cached_partitions, uncached_partitions = self.check_artifact_cache(partitions_to_check)
 
     # See if we have any individual targets from the uncached partitions.
-    vts_to_check = \
-      [vt for vt in itertools.chain.from_iterable([x.versioned_targets for x in uncached_partitions])
-       if not vt.valid]
+    vts_to_check = [vt for vt in itertools.chain.from_iterable(
+      [x.versioned_targets for x in uncached_partitions]) if not vt.valid]
     cached_targets, uncached_targets = self.check_artifact_cache(vts_to_check)
 
     # Now that we've checked the cache, re-partition whatever is still invalid.
@@ -163,7 +165,8 @@ class Task(object):
         num_invalid_targets += len(vt.targets)
         num_invalid_sources += vt.cache_key.num_sources
     if num_invalid_partitions > 0:
-      self.context.log.info('Operating on %d files in %d invalidated targets in %d target partitions' % \
+      self.context.log.info('Operating on %d files in %d invalidated targets in %d ' \
+                            'target partitions' % \
                             (num_invalid_sources, num_invalid_targets, num_invalid_partitions))
 
     # Yield the result, and then mark the targets as up to date.
