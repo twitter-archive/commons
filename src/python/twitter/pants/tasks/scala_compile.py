@@ -214,9 +214,9 @@ class ScalaCompile(NailgunTask):
   def _add_products_to_genmap(self, artifact, state):
     """Must be called on all targets, whether they needed compilation or not."""
     genmap = self.context.products.get('classes')
-    for source, classes in state.classes_by_src:
+    for source, classes in state.classes_by_src.items():
       genmap.add(source, artifact.classes_dir, classes)
-    for target, classes in state.classes_by_target:
+    for target, classes in state.classes_by_target.items():
       genmap.add(target, artifact.classes_dir, classes)
       # TODO(John Sirois): Map target.resources in the same way
       # Create and Map scala plugin info files to the owning targets.
