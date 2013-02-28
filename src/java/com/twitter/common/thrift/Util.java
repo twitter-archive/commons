@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
@@ -40,6 +42,24 @@ import com.twitter.thrift.ServiceInstance;
  * @author William Farner
  */
 public class Util {
+
+  /**
+   * Maps a {@link ServiceInstance} to an {@link InetSocketAddress} given the {@code endpointName}.
+   *
+   * @param endpointName the name of the end-point on the service's additional end-points,
+   *      if {@code null} maps to the primary service end-point
+   */
+  public static Function<ServiceInstance, InetSocketAddress> getAddress(
+      @Nullable final String endpointName) {
+    return new Function<ServiceInstance, InetSocketAddress>() {
+          @Override public InetSocketAddress apply(ServiceInstance serviceInstance) {
+            Endpoint endpoint = (endpointName == null)
+                ? serviceInstance.getServiceEndpoint()
+                : serviceInstance.getAdditionalEndpoints().get(endpointName);
+            return InetSocketAddress.createUnresolved(endpoint.getHost(), endpoint.getPort());
+          }
+        };
+  }
 
   public static Function<ServiceInstance, InetSocketAddress> GET_ADDRESS =
       new Function<ServiceInstance, InetSocketAddress>() {
