@@ -49,6 +49,9 @@ class ZincArtifactState(object):
 
     self.timestamp = time.time()
 
+  def find_filesystem_classes(self):
+    return ZincArtifactState._find_filesystem_classes(self.artifact)
+
   @staticmethod
   def _fprint_file(path):
     """Compute the md5 hash of a file."""
@@ -77,6 +80,18 @@ class ZincArtifactState(object):
       for src in srcs:
         classes_by_target[target].update(classes_by_src.get(src, []))
     return classes_by_target
+
+  @staticmethod
+  def _find_filesystem_classes(artifact):
+    """Finds all the classfiles that are actually on the filesystem.
+
+    Does not follow symlinks."""
+    classes = []
+    classes_dir_prefix_len = len(artifact.classes_dir) + 1
+    for (dirpath, _, filenames) in os.walk(artifact.classes_dir, followlinks=False):
+      for f in filenames:
+        classes.append(os.path.join(dirpath, f)[classes_dir_prefix_len:])
+    return classes
 
 class ZincArtifactStateDiff(object):
   """The diff between two states of the same zinc artifact."""

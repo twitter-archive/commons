@@ -23,7 +23,7 @@ import shutil
 from collections import defaultdict, namedtuple
 
 from twitter.common.contextutil import temporary_dir
-from twitter.common.dirutil import safe_mkdir
+from twitter.common.dirutil import safe_mkdir, safe_rmtree
 
 from twitter.pants.base.target import Target
 from twitter.pants.targets import resolve_target_sources
@@ -199,6 +199,7 @@ class _MergedZincArtifact(_ZincArtifact):
     """
     if len(self.underlying_artifacts) <= 1:
       return
+    symlinkable_packages = self._symlinkable_packages(state)
     for artifact in self.underlying_artifacts:
       classnames_by_package = defaultdict(list)
       for cls in state.classes_by_target.get(artifact.targets[0], []):
@@ -208,22 +209,16 @@ class _MergedZincArtifact(_ZincArtifact):
         artifact_package_dir = os.path.join(artifact.classes_dir, package)
         merged_package_dir = os.path.join(self.classes_dir, package)
 
-        ancestor_symlink = \
-          _MergedZincArtifact.find_ancestor_package_symlink(self.classes_dir, merged_package_dir)
-        if not os.path.exists(merged_package_dir) and not ancestor_symlink:
-          # A heuristic to prevent tons of file copying: If we're the only classes
-          # in this package, we can just symlink.
-          safe_mkdir(os.path.dirname(merged_package_dir))
-          os.symlink(artifact_package_dir, merged_package_dir)
+        if package in symlinkable_packages:
+          if os.path.islink(merged_package_dir):
+            assert os.readlink(merged_package_dir) == artifact_package_dir
+          elif os.path.exists(merged_package_dir):
+            safe_rmtree(merged_package_dir)
+            os.symlink(artifact_package_dir, merged_package_dir)
+          else:
+            safe_mkdir(os.path.dirname(merged_package_dir))
+            os.symlink(artifact_package_dir, merged_package_dir)
         else:
-          # Another target already "owns" this package, so we can't use the symlink heuristic.
-          # Instead, we fall back to copying. Note that the other target could have been from
-          # a prior invocation of execute(), so it may not be in self.underlying_artifacts.
-          if ancestor_symlink:
-            # Must undo a previous symlink heuristic in this case.
-            package_dir_for_some_other_target = os.readlink(ancestor_symlink)
-            os.unlink(ancestor_symlink)
-            shutil.copytree(package_dir_for_some_other_target, ancestor_symlink)
           safe_mkdir(merged_package_dir)
           for classname in classnames:
             src = os.path.join(artifact_package_dir, classname)
@@ -297,42 +292,30 @@ class _MergedZincArtifact(_ZincArtifact):
       new_or_changed_classnames_by_package = None
       deleted_classnames_by_package = None
 
+    symlinkable_packages = self._symlinkable_packages(state)
     for artifact in self.underlying_artifacts:
       classnames_by_package = \
         map_classes_by_package(state.classes_by_target.get(artifact.targets[0], []))
 
-      # We iterate from longest to shortest package name, so that we see child packages
-      # before parent packages. This guarantees that we only symlink leaf packages.
-      package_classnames_pairs = \
-        sorted(classnames_by_package.items(), key=lambda kv: len(kv[0]), reverse=True)
-
-      for package, classnames in package_classnames_pairs:
+      for package, classnames in classnames_by_package.items():
         artifact_package_dir = os.path.join(artifact.classes_dir, package)
         merged_package_dir = os.path.join(self.classes_dir, package)
 
-        if os.path.islink(merged_package_dir):
-          linked = os.readlink(merged_package_dir)
-          if linked != artifact_package_dir:
-            # Two targets have classes in this package.
-            # First get rid of this now-invalid symlink, replacing it with a copy.
-            os.unlink(merged_package_dir)
-            shutil.copytree(linked, merged_package_dir)
-            # Now remove our classes from the other target's dir.
-            our_classnames = set(classnames)
-            for f in os.listdir(linked):
-              if f in our_classnames:
-                os.unlink(os.path.join(linked, f))
-            # Make sure we copy our files, and don't attempt the symlink heuristic below.
-            safe_mkdir(artifact_package_dir)
+        if package in symlinkable_packages:
+          if os.path.islink(merged_package_dir):
+            current_link = os.readlink(merged_package_dir)
+            if current_link != artifact_package_dir:
+              # The code moved to a different target.
+              os.unlink(merged_package_dir)
+              safe_rmtree(artifact_package_dir)
+              shutil.move(current_link, artifact_package_dir)
+              os.symlink(artifact_package_dir, merged_package_dir)
           else:
-            continue
-        # If we get here then merged_package_dir is not a symlink.
-
-        if not os.path.exists(artifact_package_dir):
-          # Apply the symlink heuristic on this new package.
-          shutil.move(merged_package_dir, artifact_package_dir)
-          os.symlink(artifact_package_dir, merged_package_dir)
+            safe_rmtree(artifact_package_dir)
+            shutil.move(merged_package_dir, artifact_package_dir)
+            os.symlink(artifact_package_dir, merged_package_dir)
         else:
+          safe_mkdir(artifact_package_dir)
           new_or_changed_classnames = \
             set(new_or_changed_classnames_by_package.get(package, [])) if diff else None
           for classname in classnames:
@@ -346,12 +329,29 @@ class _MergedZincArtifact(_ZincArtifact):
               if os.path.exists(path):
                 os.unlink(path)
 
-  @staticmethod
-  def find_ancestor_package_symlink(base, dir):
-    """Returns the first ancestor package of dir (including itself) under base that is a symlink."""
-    while len(dir) > len(base):
-      if os.path.islink(dir):
-        return dir
-      dir = os.path.dirname(dir)
-    return None
+  def _symlinkable_packages(self, state):
+    targets_by_pkg = self._targets_by_package(state)
+    package_targets_pairs = sorted(targets_by_pkg.items(), key=lambda x: len(x[0]), reverse=True)
+    ret = set(targets_by_pkg.keys())  # Putatively assume all are symlinkable.
+
+    # Note that we'll visit child packages before their parents.
+    for package, targets in package_targets_pairs:
+      # If a package a non-empty ancestor, neither it nor its ancestors are symlinkable.
+      parent = os.path.dirname(package)
+      while parent:
+        if parent in ret:
+          ret.remove(parent)
+          ret.discard(package)
+        parent = os.path.dirname(parent)
+      # If multiple targets have classes in a package, it's not symlinkable.
+      if len(targets) > 1:
+        ret.discard(package)
+    return ret
+
+  def _targets_by_package(self, state):
+    targets_by_package = defaultdict(set)
+    for target, classes in state.classes_by_target.items():
+      for cls in classes:
+        targets_by_package[os.path.dirname(cls)].add(target)
+    return targets_by_package
 
