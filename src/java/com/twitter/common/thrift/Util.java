@@ -48,20 +48,20 @@ public class Util {
   /**
    * Maps a {@link ServiceInstance} to an {@link InetSocketAddress} given the {@code endpointName}.
    *
-   * @param optionaEndpointName the name of the end-point on the service's additional end-points,
+   * @param optionalEndpointName the name of the end-point on the service's additional end-points,
    *      if not set, maps to the primary service end-point
    */
   public static Function<ServiceInstance, InetSocketAddress> getAddress(
-      final Optional<String> optionaEndpointName) {
-    if (!optionaEndpointName.isPresent()) {
+      final Optional<String> optionalEndpointName) {
+    if (!optionalEndpointName.isPresent()) {
       return GET_ADDRESS;
     }
 
+    final String endpointName = optionalEndpointName.get();
     return getAddress(
         new Function<ServiceInstance, Endpoint>() {
           @Override public Endpoint apply(@Nullable ServiceInstance serviceInstance) {
             Map<String, Endpoint> endpoints = serviceInstance.getAdditionalEndpoints();
-            String endpointName = optionaEndpointName.get();
             Preconditions.checkArgument(endpoints.containsKey(endpointName),
                 "Did not find end-point %s on %s", endpointName, serviceInstance);
             return endpoints.get(endpointName);
