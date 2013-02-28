@@ -33,6 +33,7 @@ import java.util.logging.Logger;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -121,6 +122,7 @@ public class ThriftFactory<T> {
   private Amount<Long,Time> socketTimeout = null;
   private Closure<Connection<TTransport, InetSocketAddress>> postCreateCallback = Closures.noop();
   private StatsProvider statsProvider = Stats.STATS_PROVIDER;
+  private Optional<String> endpointName;
   private String serviceName;
   private boolean sslTransport;
 
@@ -189,7 +191,7 @@ public class ThriftFactory<T> {
     Function<TTransport, T> clientFactory = getClientFactory();
 
     ObjectPool<Connection<TTransport, InetSocketAddress>> connectionPool =
-        createConnectionPool(hostSet, loadBalancer, managedThreadPool, false);
+        createConnectionPool(hostSet, loadBalancer, managedThreadPool, false, endpointName);
 
     return new Thrift<T>(managedThreadPool, connectionPool, loadBalancer, serviceName,
         serviceInterface, clientFactory, false, sslTransport);
@@ -304,7 +306,7 @@ public class ThriftFactory<T> {
     Function<TTransport, T> asyncClientFactory = getAsyncClientFactory();
 
     ObjectPool<Connection<TTransport, InetSocketAddress>> connectionPool =
-        createConnectionPool(hostSet, loadBalancer, noop, true);
+        createConnectionPool(hostSet, loadBalancer, noop, true, endpointName);
 
     return new Thrift<T>(connectionPool, loadBalancer,
         serviceName, serviceInterface, asyncClientFactory, true);
@@ -350,7 +352,8 @@ public class ThriftFactory<T> {
   private ObjectPool<Connection<TTransport, InetSocketAddress>> createConnectionPool(
       DynamicHostSet<ServiceInstance> hostSet, LoadBalancer<InetSocketAddress> loadBalancer,
       Closure<Collection<InetSocketAddress>> onBackendsChosen,
-      final boolean nonblocking) throws ThriftFactoryException {
+      final boolean nonblocking, Optional<String> serviceEndpointName)
+          throws ThriftFactoryException {
 
     Function<InetSocketAddress, ObjectPool<Connection<TTransport, InetSocketAddress>>>
         endpointPoolFactory =
@@ -364,7 +367,7 @@ public class ThriftFactory<T> {
     try {
       return new DynamicPool<ServiceInstance, TTransport, InetSocketAddress>(hostSet,
           endpointPoolFactory, loadBalancer, onBackendsChosen, connectionRestoreInterval,
-          Util.GET_ADDRESS, Util.IS_ALIVE);
+          Util.getAddress(serviceEndpointName), Util.IS_ALIVE);
     } catch (DynamicHostSet.MonitorException e) {
       throw new ThriftFactoryException("Failed to monitor host set.", e);
     }
@@ -528,6 +531,19 @@ public class ThriftFactory<T> {
   public ThriftFactory<T> withServiceName(String serviceName) {
     this.serviceName = MorePreconditions.checkNotBlank(serviceName);
 
+    return this;
+  }
+
+  /**
+   * Set the end-point to use from {@link ServiceInstance#getAdditionalEndpoints()}.
+   * If not set, the default behavior is to use {@link ServiceInstance#getServiceEndpoint()}.
+   *
+   * @param endpointName the (optional) name of the end-point, if unset - the
+   *     default/primary end-point is selected
+   * @return a reference to the factory for chaining
+   */
+  public ThriftFactory<T> withEndpointName(String endpointName) {
+    this.endpointName = Optional.of(endpointName);
     return this;
   }
 
