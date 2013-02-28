@@ -33,6 +33,7 @@ import java.util.logging.Logger;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -121,7 +122,7 @@ public class ThriftFactory<T> {
   private Amount<Long,Time> socketTimeout = null;
   private Closure<Connection<TTransport, InetSocketAddress>> postCreateCallback = Closures.noop();
   private StatsProvider statsProvider = Stats.STATS_PROVIDER;
-  private String endpointName;
+  private Optional<String> endpointName;
   private String serviceName;
   private boolean sslTransport;
 
@@ -351,7 +352,8 @@ public class ThriftFactory<T> {
   private ObjectPool<Connection<TTransport, InetSocketAddress>> createConnectionPool(
       DynamicHostSet<ServiceInstance> hostSet, LoadBalancer<InetSocketAddress> loadBalancer,
       Closure<Collection<InetSocketAddress>> onBackendsChosen,
-      final boolean nonblocking, String serviceEndpointName) throws ThriftFactoryException {
+      final boolean nonblocking, Optional<String> serviceEndpointName)
+          throws ThriftFactoryException {
 
     Function<InetSocketAddress, ObjectPool<Connection<TTransport, InetSocketAddress>>>
         endpointPoolFactory =
@@ -534,15 +536,18 @@ public class ThriftFactory<T> {
 
   /**
    * Set the end-point to use from {@link ServiceInstance#getAdditionalEndpoints()}.
-   * If {@code null}, use {@link ServiceInstance#getServiceEndpoint()} (default behavior).
+   * If not set, use {@link ServiceInstance#getServiceEndpoint()} (default behavior).
    *
-   * @param endpointName the name of the end-point
+   * @param endpointName the (optional) name of the end-point, if unset - the
+   *     default/primary end-point is selected
    * @return a reference to the factory for chaining
    */
-  public ThriftFactory<T> withEndpointName(String endpointName) {
-    this.endpointName = endpointName;
+  public ThriftFactory<T> withEndpointName(Optional<String> endpointName) {
+    this.endpointName = Preconditions.checkNotNull(endpointName);
     return this;
   }
+
+
 
   private static <T> Function<TTransport, T> createClientFactory(Class<T> serviceInterface) {
     final Constructor<? extends T> implementationConstructor =
