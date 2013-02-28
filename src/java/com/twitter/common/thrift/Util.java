@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -46,25 +48,46 @@ public class Util {
   /**
    * Maps a {@link ServiceInstance} to an {@link InetSocketAddress} given the {@code endpointName}.
    *
-   * @param endpointName the name of the end-point on the service's additional end-points,
+   * @param optionaEndpointName the name of the end-point on the service's additional end-points,
    *      if not set, maps to the primary service end-point
    */
   public static Function<ServiceInstance, InetSocketAddress> getAddress(
-      final Optional<String> endpointName) {
+      final Optional<String> optionaEndpointName) {
+    if (!optionaEndpointName.isPresent()) {
+      return GET_ADDRESS;
+    }
+
+    return getAddress(
+        new Function<ServiceInstance, Endpoint>() {
+          @Override public Endpoint apply(@Nullable ServiceInstance serviceInstance) {
+            Map<String, Endpoint> endpoints = serviceInstance.getAdditionalEndpoints();
+            String endpointName = optionaEndpointName.get();
+            Preconditions.checkArgument(endpoints.containsKey(endpointName),
+                "Did not find end-point %s on %s", endpointName, serviceInstance);
+            return endpoints.get(endpointName);
+          }
+        });
+  }
+
+  private static Function<ServiceInstance, InetSocketAddress> getAddress(
+      final Function<ServiceInstance, Endpoint> serviceToEndpoint) {
     return new Function<ServiceInstance, InetSocketAddress>() {
           @Override public InetSocketAddress apply(ServiceInstance serviceInstance) {
-            Endpoint endpoint = endpointName.isPresent()
-                ? serviceInstance.getAdditionalEndpoints().get(endpointName.get())
-                : serviceInstance.getServiceEndpoint();
-            Preconditions.checkNotNull(endpoint, "Did not find end-point %s on %s",
-                endpointName.get(), serviceInstance);
+            Endpoint endpoint = serviceToEndpoint.apply(serviceInstance);
             return InetSocketAddress.createUnresolved(endpoint.getHost(), endpoint.getPort());
           }
         };
   }
 
+  private static Function<ServiceInstance, Endpoint> GET_PRIMARY_ENDPOINT =
+      new Function<ServiceInstance, Endpoint>() {
+        @Override public Endpoint apply(ServiceInstance input) {
+          return input.getServiceEndpoint();
+        }
+      };
+
   public static Function<ServiceInstance, InetSocketAddress> GET_ADDRESS =
-      getAddress(Optional.<String>absent());
+      getAddress(GET_PRIMARY_ENDPOINT);
 
   public static final Predicate<ServiceInstance> IS_ALIVE = new Predicate<ServiceInstance>() {
     @Override public boolean apply(ServiceInstance serviceInstance) {

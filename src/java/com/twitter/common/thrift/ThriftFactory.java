@@ -536,18 +536,16 @@ public class ThriftFactory<T> {
 
   /**
    * Set the end-point to use from {@link ServiceInstance#getAdditionalEndpoints()}.
-   * If not set, use {@link ServiceInstance#getServiceEndpoint()} (default behavior).
+   * If not set, the default behavior is to use {@link ServiceInstance#getServiceEndpoint()}.
    *
    * @param endpointName the (optional) name of the end-point, if unset - the
    *     default/primary end-point is selected
    * @return a reference to the factory for chaining
    */
-  public ThriftFactory<T> withEndpointName(Optional<String> endpointName) {
-    this.endpointName = Preconditions.checkNotNull(endpointName);
+  public ThriftFactory<T> withEndpointName(String endpointName) {
+    this.endpointName = Optional.of(endpointName);
     return this;
   }
-
-
 
   private static <T> Function<TTransport, T> createClientFactory(Class<T> serviceInterface) {
     final Constructor<? extends T> implementationConstructor =
