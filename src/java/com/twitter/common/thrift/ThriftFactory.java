@@ -122,7 +122,7 @@ public class ThriftFactory<T> {
   private Amount<Long,Time> socketTimeout = null;
   private Closure<Connection<TTransport, InetSocketAddress>> postCreateCallback = Closures.noop();
   private StatsProvider statsProvider = Stats.STATS_PROVIDER;
-  private Optional<String> endpointName;
+  private Optional<String> endpointName = Optional.absent();
   private String serviceName;
   private boolean sslTransport;
 
