@@ -40,17 +40,25 @@ class Target(object):
   @staticmethod
   def identify(targets):
     """Generates an id for a set of targets."""
-    # If you change this implementation, consider changing CacheKeyGenerator.combine_cache_keys to match.
-    return hash_all([target.id for target in targets])
+    return Target.combine_ids(target.id for target in targets)
 
   @staticmethod
   def maybe_readable_identify(targets):
-    """Generates an id for a set of targets, but if the set is a single target, makes it the target id."""
-    if len(targets) == 1:
-      id = targets[0].id
-    else:
-      id = Target.identify(targets)
-    return id
+    """Generates an id for a set of targets.
+
+    If the set is a single target, just use that target's id."""
+    return Target.maybe_readable_combine_ids([target.id for target in targets])
+
+  @staticmethod
+  def combine_ids(ids):
+    """Generates a combined id for a set of ids."""
+    return hash_all(sorted(ids))  # We sort so that the id isn't sensitive to order.
+
+  @staticmethod
+  def maybe_readable_combine_ids(ids):
+    """Generates combined id for a set of ids, but if the set is a single id, just use that."""
+    ids = list(ids)  # We can't len a generator.
+    return ids[0] if len(ids) == 1 else Target.combine_ids(ids)
 
   @classmethod
   def get_all_addresses(cls, buildfile):
