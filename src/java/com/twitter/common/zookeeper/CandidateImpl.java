@@ -85,6 +85,16 @@ public class CandidateImpl implements Candidate {
   }
 
   /**
+   * Creates a candidate that can be used to offer leadership for the given {@code group} using
+   * a judge that always picks the lowest numbered candidate ephemeral node - by proxy the oldest
+   * or 1st. The dataSupplier is the source of the data that will be stored in the leader-znode
+   * and which is available to all participants via the getLeaderData method.
+   */
+  public CandidateImpl(Group group, Supplier<byte[]> dataSupplier) {
+    this(group, MOST_RECENT_JUDGE, dataSupplier);
+  }
+
+  /**
    * Creates a candidate that can be used to offer leadership for the given {@code group}.  The
    * {@code judge} is used to pick the current leader from all group members whenever the group
    * membership changes. To form a well-behaved election group with one leader, all candidates
