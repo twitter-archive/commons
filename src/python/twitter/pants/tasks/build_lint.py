@@ -35,6 +35,12 @@ class BuildLint(Task):
       action="callback", callback=mkflag.set_bool,
       help="[%default] apply lint rules transitively to all dependency buildfiles.")
 
+    option_group.add_option(mkflag("include-intransitive-deps"), mkflag("include-intransitive-deps", negate=True),
+      dest="builtlint_include_intransitive", default=False,
+      action="callback", callback=mkflag.set_bool,
+      help="[%default] correct both simple missing dependencies and intransitive missing deps")
+      
+
     option_group.add_option(mkflag("action"), dest="buildlint_actions", default=[],
       action="append", type="choice", choices=['diff', 'rewrite'],
       help="diff=print out diffs, rewrite=apply changes to BUILD files directly.")
@@ -52,22 +58,26 @@ class BuildLint(Task):
   def execute(self, targets):
     # Map from buildfile path to map of target name -> missing deps for that target.
     buildfile_paths = defaultdict(lambda: defaultdict(list))
-    genmap = self.context.products.get('missing_deps')
+    genmap_trans = self.context.products.get('missing_deps')
+    genmap_intrans = self.context.products.get('missing_intransitive_deps')
 
-    def add_buildfile_for_target(target):
+    def add_buildfile_for_target(target, genmap):
       missing_dep_map = genmap[target]
       missing_deps = missing_dep_map[self.context._buildroot] if missing_dep_map else defaultdict(list)
-      buildfile_paths[target.address.buildfile.full_path][target.name] = missing_deps
+      buildfile_paths[target.address.buildfile.full_path][target.name] += missing_deps
 
     if self.transitive:
       for target in targets:
-        add_buildfile_for_target(target)
+        add_buildfile_for_target(target, genmap_trans)
+        add_buildfile_for_target(target, genmap_intrans)
     else:
       for target in self.context.target_roots:
-        add_buildfile_for_target(target)
+        add_buildfile_for_target(target, genmap_trans)
+        add_buildfile_for_target(target, genmap_intrans)
 
     for buildfile_path, missing_dep_map in buildfile_paths.items():
       self._fix_lint(buildfile_path, missing_dep_map)
+
 
   # We use heuristics to find target names and their list of dependencies.
   # Attempts to use the Python AST proved to be extremely complex and not worth the trouble.
