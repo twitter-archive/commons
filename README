@@ -14,10 +14,12 @@ don't already have it in your python environment.
 == Usage ==
 
 To build all jvm code and run all tests:
-$ ./pants tests/java/com/twitter/common:all-tests!
+$ ./pants goal test tests/{java,scala}/com/twitter/common::
 
 To get help on pants:
 $ ./pants help
+
+Read more http://twitter.github.com/commons/
 
 TODO(John Sirois): migrate pants documentation to the public wiki
 
