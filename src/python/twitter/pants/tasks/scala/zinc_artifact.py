@@ -323,7 +323,6 @@ class _MergedZincArtifact(_ZincArtifact):
           else:
             safe_rmtree(artifact_package_dir)
             shutil.move(merged_package_dir, artifact_package_dir)
-            print "========> Sylinking %s to %s" % (artifact_package_dir, merged_package_dir)
             os.symlink(artifact_package_dir, merged_package_dir)
         else:
           safe_mkdir(artifact_package_dir)
