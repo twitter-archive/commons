@@ -212,6 +212,8 @@ class _MergedZincArtifact(_ZincArtifact):
         classnames_by_package[os.path.dirname(cls)].append(os.path.basename(cls))
 
       for package, classnames in classnames_by_package.items():
+        if package == "":
+          raise  TaskError("Found class files %s with empty package" % classnames)
         artifact_package_dir = os.path.join(artifact.classes_dir, package)
         merged_package_dir = os.path.join(self.classes_dir, package)
 
@@ -304,6 +306,8 @@ class _MergedZincArtifact(_ZincArtifact):
         map_classes_by_package(state.classes_by_target.get(artifact.targets[0], []))
 
       for package, classnames in classnames_by_package.items():
+        if package == "":
+          raise  TaskError("Found class files %s with empty package" % classnames)
         artifact_package_dir = os.path.join(artifact.classes_dir, package)
         merged_package_dir = os.path.join(self.classes_dir, package)
 
@@ -319,6 +323,7 @@ class _MergedZincArtifact(_ZincArtifact):
           else:
             safe_rmtree(artifact_package_dir)
             shutil.move(merged_package_dir, artifact_package_dir)
+            print "========> Sylinking %s to %s" % (artifact_package_dir, merged_package_dir)
             os.symlink(artifact_package_dir, merged_package_dir)
         else:
           safe_mkdir(artifact_package_dir)
