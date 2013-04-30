@@ -14,21 +14,20 @@
 # limitations under the License.
 # ==================================================================================================
 
-
-
-java_library(name = 'logging',
-  provides = artifact(
-    org = 'com.twitter.common',
-    name = 'logging',
-    repo = 'build-support/commons/ivy:public',
+java_library(name='logging',
+  provides=artifact(
+    org='com.twitter.common',
+    name='logging',
+    repo=pants('build-support/commons/ivy:public'),
   ),
-  dependencies = [
-    '3rdparty:commons-lang',
-    '3rdparty:guava',
-    '3rdparty:joda-time',
-    'src/java/com/twitter/common/args',
+  dependencies=[
+    pants('3rdparty:commons-lang'),
+    pants('3rdparty:guava'),
+    pants('3rdparty:joda-time'),
+    pants('src/java/com/twitter/common/args'),
   ],
-  sources = [
+  sources=[
+    'Glog.java',
     'Log.java',
     'LogUtil.java',
     'LogFormatter.java',
@@ -36,29 +35,17 @@ java_library(name = 'logging',
   ]
 )
 
-java_library(name = 'buffered',
-  dependencies = [
-    '3rdparty:guava',
-    'src/java/com/twitter/common/quantity',
-    'src/java/com/twitter/common/stats',
-    ':logging',
-  ],
-  sources = [ 'BufferedLog.java' ]
-)
-
-java_library(name = 'scribe',
-  provides = artifact(
-    org = 'com.twitter.common',
-    name = 'logging-scribe',
-    repo = 'build-support/commons/ivy:public',
+java_library(name='buffered',
+  provides=artifact(
+    org='com.twitter.common',
+    name='logging-buffered',
+    repo=pants('build-support/commons/ivy:public'),
   ),
-  dependencies = [
-    '3rdparty:guava',
-    '3rdparty:thrift',
-    'src/java/com/twitter/common/quantity',
-    'src/java/com/twitter/common/thrift',
-    'src/thrift/org/apache/scribe:scribe_client-0.1.2',
-    ':logging',
+  dependencies=[
+    pants('3rdparty:guava'),
+    pants(':logging'),
+    pants('src/java/com/twitter/common/quantity'),
+    pants('src/java/com/twitter/common/stats'),
   ],
-  sources = [ 'ScribeLog.java' ]
+  sources=[ 'BufferedLog.java' ]
 )

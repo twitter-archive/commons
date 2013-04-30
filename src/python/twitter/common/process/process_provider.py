@@ -1,7 +1,10 @@
+from abc import abstractmethod
 from copy import copy
 from collections import defaultdict
 
-class ProcessProvider(object):
+from twitter.common.lang import Interface
+
+class ProcessProvider(Interface):
   """
     A provider of process handles.  Basically an interface in front of procfs or ps.
   """
@@ -89,21 +92,21 @@ class ProcessProvider(object):
     self._process_lines(self._collect_set(pidset))
 
   # Required by provider implementations.
+  @abstractmethod
   def _collect_all(self):
     """Collect and return all process information into unstructured line-based data."""
-    raise NotImplementedError
 
+  @abstractmethod
   def _collect_set(self, pidset):
     """Collect and return a subset of process information into unstructured line-based data."""
-    raise NotImplementedError
 
+  @abstractmethod
   def _translate_line_to_pid_pair(self, line):
     """Given a line, extract a pid and ppid from it."""
-    raise NotImplementedError
 
+  @abstractmethod
   def _translate_line_to_handle(self, line):
     """Given a line, extract a ProcessHandle from it."""
-    raise NotImplementedError
 
   @staticmethod
   def _platform_compatible():

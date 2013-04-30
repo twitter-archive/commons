@@ -117,12 +117,20 @@ public class TokenStreamSerializer {
    *
    * This method only deserializes all Attributes; the CharSequence instance containing the text
    * must be provided separately.
+   * @param data  the byte-serialized representation of the tokenstream.
+   * @param charSequence  the text that was tokenized.
+   * @return  a TokenStream object. Notice that, in order to support lucene-like TokenStream
+   *          behavior, this object's reset method must only be used as reset(null) and will reset
+   *          the TokenStream to its starting point.
    */
   public final TokenStream deserialize(final byte[] data,
                                        final CharSequence charSequence) throws IOException {
     return deserialize(data, 0, data.length, charSequence);
   }
 
+  /**
+   * Other form of deserialize that reads data from a "slice" in a byte array.
+   */
   public final TokenStream deserialize(final byte[] data, int offset, int length,
                                        final CharSequence charSequence) throws IOException {
     Preconditions.checkNotNull(data);
@@ -133,33 +141,48 @@ public class TokenStreamSerializer {
     return deserialize(bais, charSequence);
   }
 
+  /**
+   * An unckecked Exception that we throw for version mismatch between the
+   * serializer and the deserializer.
+   */
+  public static class VersionMismatchException extends RuntimeException {
+    public VersionMismatchException(String msg) {
+      super(msg);
+    }
+  }
+
   public static Version readVersionAndCheckFingerprint(
       AttributeInputStream input, int attributeSerializersFingerprint) throws IOException {
     int ordinal = input.readVInt();
     if (ordinal > CURRENT_VERSION.ordinal()) {
-      throw new IOException("Version of serialized data is newer than the version this serializer" +
-                            "supports: " + ordinal + " > " + CURRENT_VERSION.ordinal());
+      throw new VersionMismatchException(
+          "Version of serialized data is newer than the version this serializer" +
+          "supports: " + ordinal + " > " + CURRENT_VERSION.ordinal());
     }
     if (ordinal >= Version.VERSION_2.ordinal()) {
       int fp = input.readInt();
       if (fp != attributeSerializersFingerprint) {
-        throw new IOException("Attributes of serialized data are different than attributes of " +
-                              "this serializer: " + fp + " != " + attributeSerializersFingerprint);
+        throw new VersionMismatchException(
+            "Attributes of serialized data are different than attributes of " +
+            "this serializer: " + fp + " != " + attributeSerializersFingerprint);
       }
     }
     return Version.values()[ordinal];
   }
 
-  public final TokenStream deserialize(ByteArrayInputStream bais, final CharSequence charSequence)
+  /**
+   * Other form of deserialize for a ByteArrayInputStream.
+   */
+  public final TokenStream deserialize(final ByteArrayInputStream bais, final CharSequence charSequence)
       throws IOException {
     final AttributeInputStream input = new AttributeInputStream(bais);
 
-    final Version version = readVersionAndCheckFingerprint(input, attributeSerializersFingerprint);
-    final int numTokens = input.readVInt();
-
     TokenStream tokenStream = new TokenStream() {
-      CharSequence chars;
-      int token = 0;
+      CharSequence chars = charSequence;
+      // All other members are initialized in reset.
+      int token;
+      Version version;
+      int numTokens;
 
       @Override public boolean incrementToken() {
         if (token < numTokens) {
@@ -176,17 +199,25 @@ public class TokenStreamSerializer {
       }
 
       @Override
-      public void reset(CharSequence input) {
-        chars = input;
+      public void reset(CharSequence newChars) {
+        Preconditions.checkArgument(newChars == null || newChars == chars,
+            "this TokenStream does not do actual tokenization and only supports reset(null)");
+        try {
+          input.reset();
+          bais.reset();
+          version = readVersionAndCheckFingerprint(input, attributeSerializersFingerprint);
+          numTokens = input.readVInt();
+          for (AttributeSerializer deserializer : attributeSerializers) {
+            deserializer.initialize(this, version);
+          }
+        } catch (IOException e) {
+          throw new IllegalStateException("Unexpected exception, but...", e);
+        }
         token = 0;
       }
     };
 
-    for (AttributeSerializer deserializer : attributeSerializers) {
-      deserializer.initialize(tokenStream, version);
-    }
-
-    tokenStream.reset(charSequence);
+    tokenStream.reset(null);
     return tokenStream;
   };
 

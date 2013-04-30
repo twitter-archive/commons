@@ -72,7 +72,7 @@ def subprocess_call(cmdline):
 def install_virtualenv(context, interpreter):
   virtualenv_cache = context.config.get('python-setup', 'bootstrap_cache')
   virtualenv_target = context.config.get('python-setup', 'virtualenv_target')
-  pip_repos = context.config.getlist('python-setup', 'repos')
+  pip_repos = context.config.getlist('python-repos', 'repos')
   if not os.path.exists(virtualenv_target):
     raise TaskError('Could not find installed virtualenv!')
 

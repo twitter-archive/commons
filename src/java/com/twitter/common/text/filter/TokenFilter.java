@@ -29,11 +29,8 @@ public abstract class TokenFilter extends TokenProcessor {
 
   @Override
   public boolean incrementToken() {
-    TokenStream inputStream = getInputStream();
-
-    while (inputStream.incrementToken()) {
+    while (incrementInputStream()) {
       if (acceptToken()) {
-        restoreState(inputStream.captureState());
         return true;
       }
     }

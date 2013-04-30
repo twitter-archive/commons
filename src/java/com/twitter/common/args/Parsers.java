@@ -29,6 +29,7 @@ import com.twitter.common.args.apt.Configuration;
 import com.twitter.common.args.apt.Configuration.ParserInfo;
 
 import static com.google.common.base.Preconditions.checkArgument;
+
 import static com.twitter.common.args.apt.Configuration.ConfigurationException;
 
 /**

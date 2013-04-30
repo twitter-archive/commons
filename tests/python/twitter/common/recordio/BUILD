@@ -16,23 +16,26 @@
 
 python_test_suite(name = 'all',
   dependencies = [
-    ':recordio',
-    ':recordio-thrift'
+    pants(':recordio'),
+    pants(':recordio-thrift')
   ]
 )
 
 python_tests(name = 'recordio',
   sources = ['recordio_test.py'],
   dependencies = [
-    'src/python/twitter/common/recordio',
-    'src/thrift/com/twitter/test:py-thrift'
-  ]
+    pants('src/python/twitter/common/recordio'),
+    pants('src/thrift/com/twitter/test:py-thrift'),
+    python_requirement('mox')
+  ],
+  coverage = 'twitter.common.recordio'
 )
 
 python_tests(name = 'recordio-thrift',
   sources = ['thrift_recordio_test.py'],
   dependencies = [
-    'src/python/twitter/common/recordio:recordio-thrift',
-    'src/thrift/com/twitter/test:py-thrift'
-  ]
+    pants('src/python/twitter/common/recordio:recordio-thrift'),
+    pants('src/thrift/com/twitter/test:py-thrift')
+  ],
+  coverage = 'twitter.common.recordio'
 )

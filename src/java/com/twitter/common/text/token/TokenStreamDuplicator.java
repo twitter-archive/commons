@@ -19,7 +19,6 @@ package com.twitter.common.text.token;
 import java.util.Iterator;
 import java.util.List;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -31,7 +30,6 @@ import com.google.common.collect.Lists;
  */
 public class TokenStreamDuplicator extends TokenProcessor {
   private final TokenStream inputStream;
-
   private final List<State> states = Lists.newArrayList();
   private final List<DuplicatedTokenStream> duplicatedStreams = Lists.newArrayList();
 
@@ -49,14 +47,12 @@ public class TokenStreamDuplicator extends TokenProcessor {
 
   @Override
   public void reset(CharSequence input) {
-    Preconditions.checkNotNull(input);
-    // reset input stream
-    inputStream.reset(input);
+    super.reset(input);
 
     // capture all states from input stream
     states.clear();
-    while (inputStream.incrementToken()) {
-      states.add(inputStream.captureState());
+    while (incrementInputStream()) {
+      states.add(captureState());
     }
     stateIt = states.iterator();
 

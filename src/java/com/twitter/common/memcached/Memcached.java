@@ -35,7 +35,6 @@ import net.spy.memcached.DefaultConnectionFactory;
 import net.spy.memcached.MemcachedClient;
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.NodeLocator;
-import net.spy.memcached.vbucket.config.Config;
 
 /**
  * Helper class for creating a memcached client.
@@ -147,7 +146,7 @@ public class Memcached {
     }
 
     @Override
-    public void updateLocator(List<MemcachedNode> memcachedNodes, Config config) {
+    public void updateLocator(List<MemcachedNode> memcachedNodes) {
       updateNodes(memcachedNodes);
     }
 

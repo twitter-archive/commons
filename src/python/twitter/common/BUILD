@@ -15,14 +15,29 @@
 # ==================================================================================================
 
 python_library(
-  name = "common",
+  name = 'common',
   dependencies = [
-    'src/python/twitter/common/collections',
-    'src/python/twitter/common/config',
-    'src/python/twitter/common/contextutil',
-    'src/python/twitter/common/decorators',
-    'src/python/twitter/common/dirutil',
-    'src/python/twitter/common/lang',
-    'src/python/twitter/common/quantity',
-  ]
+    pants('src/python/twitter/common/collections'),
+    pants('src/python/twitter/common/config'),
+    pants('src/python/twitter/common/contextutil'),
+    pants('src/python/twitter/common/decorators'),
+    pants('src/python/twitter/common/dirutil'),
+    pants('src/python/twitter/common/exceptions'),
+    pants('src/python/twitter/common/lang'),
+    pants('src/python/twitter/common/log'),
+    pants('src/python/twitter/common/metrics'),
+    pants('src/python/twitter/common/options'),
+    pants('src/python/twitter/common/quantity'),
+    pants('src/python/twitter/common/string'),
+    pants('src/python/twitter/common/util'),
+  ],
+  provides = setup_py(
+    name = 'twitter.common-core',
+    version = '0.0.0',
+    description = "Twitter's core Python libraries.",
+    namespace_packages = [
+      'twitter',
+      'twitter.common'
+    ]
+  )
 )

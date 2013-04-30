@@ -49,7 +49,6 @@ public final class FileUtils {
      */
     public Temporary(File basedir) {
       Preconditions.checkNotNull(basedir);
-      Preconditions.checkArgument(basedir.exists());
       this.basedir = basedir;
     }
 

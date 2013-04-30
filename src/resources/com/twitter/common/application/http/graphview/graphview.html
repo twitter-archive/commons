@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'
+    'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>
+
+<!--
+=================================================================================================
+Copyright 2011 Twitter, Inc.
+_________________________________________________________________________________________________
+Licensed under the Apache License, Version 2.0 (the 'License');
+you may not use this work except in compliance with the License.
+You may obtain a copy of the License in the LICENSE file, or at:
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an 'AS IS' BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+=================================================================================================
+-->
+
+<html>
+  <head>
+    <title>Server Graphing</title>
+    <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js'></script>
+    <script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js'></script>
+    <link href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/themes/base/jquery.ui.all.css'
+          rel='stylesheet'>
+    <link href='http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css'
+          rel='stylesheet'>
+    <script src='http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js'></script>
+    <script src='graphview/dygraph-combined.js'></script>
+    <script src='graphview/dygraph-extra.js'></script>
+    <script src='graphview/grapher.js'></script>
+    <script src='graphview/parser.js'></script>
+  </head>
+  <body>
+    <h2>Metrics</h2>
+    <div style='width: 50%; margin:20px; float:left;'>
+      <select id='availableMetrics'></select>
+      <br />
+      <div>
+        <textarea id='query'
+                  rows='4'
+                  style='width:100%; box-sizing:border-box;'
+                  placeholder='Type arithmetic expressions using metrics (lines plot separately).'></textarea>
+        <button class='btn' id='submit' type='button' style='float:right;'>Plot</button>
+      </div>
+      <pre id='errors' style='display: none; clear: both'></pre>
+      <br />
+      <br />
+      <table>
+        <tr>
+          <td>
+            <label for='yMin'>Y min</label>
+            <input class='input-mini' type='text' size='4' id='yMin' />
+          </td>
+          <td>
+            <label for='yMax'>Y max</label>
+            <input class='input-mini' type='text' size='4' id='yMax' />
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label for='smoothing'>Smooth</label>
+            <div class='input-append'>
+              <input class='input-mini' type='text' size='4' id='smoothing' />
+              <span class='add-on'>pt</span>
+            </div>
+          </td>
+          <td align='right' valign='bottom'>
+            <div>
+              <label for='realTime'>Pause</label>
+              <input type='checkbox' id='realTime' />
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div style='width:40%; float:left; margin:20px;'>
+      <div id='links'></div>
+      <div id='dygraph' style='width:100%;'></div>
+      <div id='legend'></div>
+    </div>
+  </body>
+</html>

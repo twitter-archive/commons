@@ -18,3 +18,8 @@ python_thrift_library(
   name = 'py-thrift',
   sources = rglobs('*.thrift')
 )
+
+java_thrift_library(
+  name = 'java-thrift',
+  sources = rglobs('*.thrift')
+)

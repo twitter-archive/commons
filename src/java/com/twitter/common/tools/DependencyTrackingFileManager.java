@@ -86,7 +86,8 @@ final class DependencyTrackingFileManager
       FileObject sibling) throws IOException {
 
     JavaFileObject file = super.getJavaFileForOutput(location, className, kind, sibling);
-    if (Kind.CLASS == kind) {
+    // We only map loose source files to class file output.
+    if (Kind.CLASS == kind && sibling != null && sibling.toUri().getPath() != null) {
       addMapping(toOutputRelpath(sibling), toOutputRelpath(file));
     }
     return file;

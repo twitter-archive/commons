@@ -20,6 +20,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.google.common.base.Ticker;
 
 import com.twitter.common.collections.Pair;
 import com.twitter.common.quantity.Amount;
@@ -42,17 +43,17 @@ public class Rate<T extends Number> extends SampledStat<Double> {
   private static final long NANOS_PER_SEC = Amount.of(1L, Time.SECONDS).as(Time.NANOSECONDS);
 
   private final Supplier<T> inputAccessor;
-  private final Clock clock;
+  private final Ticker ticker;
   private final double scaleFactor;
 
   private final LinkedBlockingDeque<Pair<Long, Double>> samples;
 
   private Rate(String name, Supplier<T> inputAccessor, int windowSize, double scaleFactor,
-      Clock clock) {
+      Ticker ticker) {
     super(name, 0d);
 
     this.inputAccessor = Preconditions.checkNotNull(inputAccessor);
-    this.clock = Preconditions.checkNotNull(clock);
+    this.ticker = Preconditions.checkNotNull(ticker);
     samples = new LinkedBlockingDeque<Pair<Long, Double>>(windowSize);
     Preconditions.checkArgument(scaleFactor != 0, "Scale factor must be non-zero!");
     this.scaleFactor = scaleFactor;
@@ -73,7 +74,7 @@ public class Rate<T extends Number> extends SampledStat<Double> {
   @Override
   public Double doSample() {
     T newSample = inputAccessor.get();
-    long newTimestamp = clock.nowNanos();
+    long newTimestamp = ticker.read();
 
     double rate = 0;
     if (!samples.isEmpty()) {
@@ -96,7 +97,7 @@ public class Rate<T extends Number> extends SampledStat<Double> {
     private int windowSize = DEFAULT_WINDOW_SIZE;
     private double scaleFactor = DEFAULT_SCALE_FACTOR;
     private Supplier<T> inputAccessor;
-    private Clock clock = Clock.SYSTEM_CLOCK;
+    private Ticker ticker = Ticker.systemTicker();
 
     Builder(String name, final T input) {
       this.name = name;
@@ -127,13 +128,13 @@ public class Rate<T extends Number> extends SampledStat<Double> {
     }
 
     @VisibleForTesting
-    Builder<T> withClock(Clock clock ) {
-      this.clock = clock;
+    Builder<T> withTicker(Ticker ticker ) {
+      this.ticker = ticker;
       return this;
     }
 
     public Rate<T> build() {
-      return new Rate<T>(name, inputAccessor, windowSize, scaleFactor, clock);
+      return new Rate<T>(name, inputAccessor, windowSize, scaleFactor, ticker);
     }
   }
 }

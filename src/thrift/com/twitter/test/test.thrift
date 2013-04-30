@@ -15,6 +15,7 @@
 // =================================================================================================
 
 namespace py twitter_test.thrift
+namespace java com.twitter.test.test
 
 struct IntType {
   1: i64 value

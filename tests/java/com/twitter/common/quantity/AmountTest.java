@@ -112,4 +112,9 @@ public class AmountTest {
     assertEquals(Double.valueOf(15 * 60 * 1000), decimalDuration.as(Time.MILLISECONDS));
     assertEquals(Double.valueOf(0.25), decimalDuration.as(Time.HOURS));
   }
+
+  @Test(expected = Amount.TypeOverflowException.class)
+  public void testAmountThrowsTypeOverflowException() {
+    Amount.of(1000, Time.DAYS).asChecked(Time.MILLISECONDS);
+  }
 }

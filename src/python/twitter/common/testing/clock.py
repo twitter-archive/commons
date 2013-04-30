@@ -1,8 +1,10 @@
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 import threading
+import time
 
-class ClockInterface(object):
-  __metaclass__ = ABCMeta
+from twitter.common.lang import Interface
+
+class ClockInterface(Interface):
 
   @abstractmethod
   def time(self):
@@ -17,51 +19,58 @@ class ClockInterface(object):
     pass
 
 
+class Handshake(object):
+  def __init__(self):
+    self._syn_event = threading.Event()
+    self._ack_event = threading.Event()
+
+  def syn(self):
+    self._syn_event.wait()
+    self._ack_event.set()
+
+  def ack(self):
+    self._syn_event.set()
+    self._ack_event.wait()
+
+
 class ThreadedClock(ClockInterface):
-  FLOAT_FUDGE = 0.1
-
-  def __init__(self, hz=100):
-    self._rate = 1.0/hz
+  def __init__(self):
     self._time = 0
-    self._cond = threading.Condition()
-    self._waiters = []
-    self._awaken = False
-    self.reset()
-
-  def reset(self):
-    self._time = 0
+    self._waiters = []  # queue of [stop time, Handshake]
 
   def time(self):
     return self._time
 
-  def tick(self, amount=None):
-    amount = amount or self._rate
-    stop_at = self._time + amount
+  def _pop_waiter(self, end):
+    times_up = sorted((waiter for waiter in self._waiters if waiter[0] <= end),
+                       key=lambda element: element[0])
+    if times_up:
+      waiter = times_up[0]
+      self._waiters.remove(waiter)
+      return waiter
+
+  def tick(self, amount):
+    # yield thread, in case any others are waiting to sleep() on this clock
+    time.sleep(0.1)
+    now = self._time
+    end = now + amount
+
     while True:
-      self._time += self._rate
-      for stamp, cond in self._waiters[:]:
-        if self._time >= stamp - (self._rate * self.FLOAT_FUDGE):
-          with cond:
-            cond.notify()
-          while True:
-            with self._cond:
-              if self._awaken:
-                break
-              self._cond.wait()
-          self._awaken = False
-      if self._time >= stop_at:
+      waiter = self._pop_waiter(end)
+      if not waiter:
         break
 
+      waiter_time, waiter_handshake = waiter
+      print('Time now: %s' % self._time)
+      self._time = waiter_time
+      waiter_handshake.ack()
+
+    print('Time now: %s' % self._time)
+    self._time = end
+
   def sleep(self, amount):
-    wait_until = self._time + amount
-    assert amount >= 0
-    if amount == 0:
-      return
-    my_condition = threading.Condition()
-    self._waiters.append((wait_until, my_condition))
-    with my_condition:
-      my_condition.wait()
-    self._waiters.remove((wait_until, my_condition))
-    with self._cond:
-      self._awaken = True
-      self._cond.notify()
+    waiter_end = self._time + amount
+    waiter_handshake = Handshake()
+
+    self._waiters.append((waiter_end, waiter_handshake))
+    waiter_handshake.syn()

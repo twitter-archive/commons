@@ -19,16 +19,17 @@ from glob import glob
 
 java_tests(name = 'io',
   dependencies = [
-    '3rdparty:guava',
-    '3rdparty:junit',
-    '3rdparty:thrift',
-    '3rdparty:tl4j',
-    'src/java/com/twitter/common/base',
-    'src/java/com/twitter/common/io',
-    'src/java/com/twitter/common/io:json',
-    'src/java/com/twitter/common/io:streamer',
-    'src/java/com/twitter/common/io:thrift',
-    'src/java/com/twitter/common/thrift:testing',
+    pants('3rdparty:guava'),
+    pants('3rdparty:junit'),
+    pants('3rdparty:thrift'),
+    pants('3rdparty:tl4j'),
+    pants('src/java/com/twitter/common/base'),
+    pants('src/java/com/twitter/common/io'),
+    pants('src/java/com/twitter/common/io:base64zlibcodec'),
+    pants('src/java/com/twitter/common/io:json'),
+    pants('src/java/com/twitter/common/io:streamer'),
+    pants('src/java/com/twitter/common/io:thrift'),
+    pants('src/java/com/twitter/common/thrift:testing'),
   ],
   sources = glob('*.java')
 )

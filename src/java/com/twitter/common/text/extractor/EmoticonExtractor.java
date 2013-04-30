@@ -20,15 +20,21 @@ import java.util.regex.Pattern;
 
 import com.google.common.base.Preconditions;
 
+import com.twitter.common.text.detector.PunctuationDetector;
+
 /**
  * Extracts emoticons (e.g., :), :-( ) from a text.
  */
 public class EmoticonExtractor extends RegexExtractor {
-  public static final Pattern SMILEY_REGEX_PATTERN = Pattern.compile(":[)DpP]|:[ -]\\)");
+  private static final String EMOTICON_DELIMITER =
+          PunctuationDetector.SPACE_REGEX + "|" + PunctuationDetector.PUNCTUATION_REGEX;
+
+  public static final Pattern SMILEY_REGEX_PATTERN = Pattern.compile(":[)DdpP]|:[ -]\\)|<3");
   public static final Pattern FROWNY_REGEX_PATTERN = Pattern.compile(":[(<]|:[ -]\\(");
-  public static final Pattern EMOTICON_REGEX_PATTERN = Pattern.compile("(?:^|\\s)("
-      + SMILEY_REGEX_PATTERN.pattern() + "|" + FROWNY_REGEX_PATTERN.pattern()
-      + ")(?=$|\\s)");
+  public static final Pattern EMOTICON_REGEX_PATTERN =
+          Pattern.compile("(?<=^|" + EMOTICON_DELIMITER + ")("
+            + SMILEY_REGEX_PATTERN.pattern() + "|" + FROWNY_REGEX_PATTERN.pattern()
+            + ")+(?=$|" + EMOTICON_DELIMITER + ")");
 
   /** The term of art for referring to {positive, negative} sentiment is polarity. */
   public enum Polarity {
@@ -39,7 +45,6 @@ public class EmoticonExtractor extends RegexExtractor {
   /** Default constructor. **/
   public EmoticonExtractor() {
     setRegexPattern(EMOTICON_REGEX_PATTERN, 1, 1);
-    setTriggeringChar(':');
   }
 
   /**

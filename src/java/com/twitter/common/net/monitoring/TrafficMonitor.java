@@ -40,6 +40,7 @@ import com.twitter.common.net.loadbalancing.RequestTracker;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
 import com.twitter.common.util.Clock;
+import com.twitter.common.util.concurrent.ExecutorServiceShutdown;
 
 /**
  * Monitors activity on established connections between two hosts.  This can be used for a server
@@ -63,6 +64,7 @@ public class TrafficMonitor<K> implements ConnectionMonitor<K>, RequestTracker<K
 
   private AtomicLong lifetimeRequests = new AtomicLong();
   private final Clock clock;
+  private final ScheduledExecutorService gcExecutor;
 
   /**
    * Creates a new traffic monitor using the default cleanup interval.
@@ -116,9 +118,8 @@ public class TrafficMonitor<K> implements ConnectionMonitor<K>, RequestTracker<K
         @Override public void run() { gc(); }
     };
 
-    ScheduledExecutorService gcExecutor =
-        new ScheduledThreadPoolExecutor(1, new ThreadFactoryBuilder().setDaemon(true)
-            .setNameFormat("TrafficMonitor-gc-%d").build());
+    gcExecutor = new ScheduledThreadPoolExecutor(1, new ThreadFactoryBuilder().setDaemon(true)
+        .setNameFormat("TrafficMonitor-gc-%d").build());
     gcExecutor.scheduleAtFixedRate(gc, gcInterval.as(Time.SECONDS), gcInterval.as(Time.SECONDS),
         TimeUnit.SECONDS);
   }
@@ -187,6 +188,13 @@ public class TrafficMonitor<K> implements ConnectionMonitor<K>, RequestTracker<K
             return idlePeriod > gcInterval.as(Time.NANOSECONDS);
           }
         });
+  }
+
+  /**
+   * Shuts down TrafficMonitor by stopping background gc task.
+   */
+  public void shutdown() {
+    new ExecutorServiceShutdown(gcExecutor, Amount.of(0L, Time.SECONDS)).execute();
   }
 
   /**

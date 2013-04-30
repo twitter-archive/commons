@@ -14,10 +14,10 @@
 # limitations under the License.
 # ==================================================================================================
 
-from twitter.common.lang import SingletonMetaclass, Compatibility
+from twitter.common.lang import Compatibility, Singleton
 from twitter.common.util import topological_sort, DependencyCycle
 
-class AppModule(object):
+class AppModule(Singleton):
   """
     Base class for application module registration:
       - module setup
@@ -27,7 +27,6 @@ class AppModule(object):
     If your application needs setup/teardown functionality, override the
     setup_function and teardown_function respectively.
   """
-  __metaclass__ = SingletonMetaclass
 
   class Unimplemented(Exception): pass
   class DependencyCycle(Exception): pass
@@ -48,7 +47,7 @@ class AppModule(object):
     AppModule._MODULE_REGISTRY = {}
     AppModule._MODULE_DEPENDENCIES = {}
 
-  def __init__(self, label, dependencies = None, description = None):
+  def __init__(self, label, dependencies=None, description=None):
     """
       @label = the label that identifies this module for dependency management
       @dependencies = a string or list of strings of modules this module depends upon (optional)

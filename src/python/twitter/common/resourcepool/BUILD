@@ -17,5 +17,5 @@
 python_library(
   name = 'resourcepool',
   sources = globs('*.py'),
-  dependencies = ['src/python/twitter/common/quantity'],
+  dependencies = [pants('src/python/twitter/common/quantity')],
 )

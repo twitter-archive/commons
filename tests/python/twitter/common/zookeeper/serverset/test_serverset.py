@@ -15,10 +15,16 @@
 # ==================================================================================================
 
 import threading
+import time
 import unittest
+
 from twitter.common.zookeeper.client import ZooKeeper
+from twitter.common.zookeeper.group import Membership
+from twitter.common.zookeeper.serverset import (
+  Endpoint,
+  ServerSet,
+  ServiceInstance)
 from twitter.common.zookeeper.test_server import ZookeeperServer
-from twitter.common.zookeeper.serverset import ServerSet, Endpoint, ServiceInstance
 
 
 class TestServerSet(unittest.TestCase):
@@ -49,6 +55,48 @@ class TestServerSet(unittest.TestCase):
     ss2.join(self.INSTANCE2)
     assert list(ss1) == [ServiceInstance(self.INSTANCE1), ServiceInstance(self.INSTANCE2)]
     assert list(ss2) == [ServiceInstance(self.INSTANCE1), ServiceInstance(self.INSTANCE2)]
+
+  def test_shard_id_registers(self):
+    ss1 = ServerSet(ZooKeeper(self._server.ensemble), self.SERVICE_PATH)
+    ss2 = ServerSet(ZooKeeper(self._server.ensemble), self.SERVICE_PATH)
+    ss1.join(self.INSTANCE1, shard=0)
+    ss2.join(self.INSTANCE2, shard=1)
+    assert list(ss1) == [ServiceInstance(self.INSTANCE1, shard=0), ServiceInstance(self.INSTANCE2, shard=1)]
+    assert list(ss2) == [ServiceInstance(self.INSTANCE1, shard=0), ServiceInstance(self.INSTANCE2, shard=1)]
+
+  def test_canceled_join_long_time(self):
+    zk = ZooKeeper(self._server.ensemble)
+    session_id = zk.session_id()
+    ss = ServerSet(zk, self.SERVICE_PATH)
+    join_signal = threading.Event()
+    memberships = []
+
+    def on_expire():
+      pass
+
+    def do_join():
+      memberships.append(ss.join(self.INSTANCE1, expire_callback=on_expire))
+
+    class JoinThread(threading.Thread):
+      def run(_):
+        while True:
+          join_signal.wait()
+          join_signal.clear()
+          do_join()
+
+    joiner = JoinThread()
+    joiner.daemon = True
+    joiner.start()
+
+    do_join()
+    assert len(memberships) == 1 and memberships[0] is not Membership.error()
+    self._server.expire(session_id)
+    self._server.shutdown()
+    join_signal.set()
+    self._server.start()
+    while len(memberships) == 1:
+      time.sleep(0.1)
+    assert len(memberships) == 2 and memberships[1] is not Membership.error()
 
   def test_client_watcher(self):
     canceled_endpoints = []

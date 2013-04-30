@@ -51,7 +51,7 @@ public class VarsHandler extends TextResponseHandler {
    * @param statSupplier Stats supplier.
    */
   @Inject
-  VarsHandler(Supplier<Iterable<Stat<?>>> statSupplier) {
+  public VarsHandler(Supplier<Iterable<Stat<?>>> statSupplier) {
     this.statSupplier = Preconditions.checkNotNull(statSupplier);
   }
 

@@ -1,42 +1,5 @@
-// =================================================================================================
-// Copyright 2011 Twitter, Inc.
-// -------------------------------------------------------------------------------------------------
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this work except in compliance with the License.
-// You may obtain a copy of the License in the LICENSE file, or at:
-//
-//  http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-// =================================================================================================
-
 package com.twitter.common.net.http.handlers;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.io.Files;
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
-import com.twitter.common.base.ExceptionalClosure;
-import com.twitter.common.quantity.Amount;
-import com.twitter.common.quantity.Data;
-import org.antlr.stringtemplate.StringTemplate;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -51,15 +14,35 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Charsets;
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.io.Files;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+
+import org.antlr.stringtemplate.StringTemplate;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+
+import com.twitter.common.base.Closure;
+import com.twitter.common.base.MorePreconditions;
+import com.twitter.common.quantity.Amount;
+import com.twitter.common.quantity.Data;
+
 /**
  * HTTP handler to page through log files. Supports GET and POST requests.  GET requests are
  * responsible for fetching chrome and javascript, while the POST requests are used to fetch actual
  * log data.
- *
- * TODO(William Farner): Change all links (Next, Prev, filter) to issue AJAX requests rather than
- *     reloading the page.
- *
- * @author William Farner
  */
 public class LogPrinter extends StringTemplateServlet {
   private static final Logger LOG = Logger.getLogger(LogPrinter.class.getName());
@@ -91,6 +74,10 @@ public class LogPrinter extends StringTemplateServlet {
   /**
    * A POST request is made from javascript, to request the contents of a log file.  In order to
    * fulfill the request, the 'file' parameter must be set in the request.
+   *
+   * If file starts with a '/' then the file parameter will be treated as an absolute file path.
+   * If file does not start with a '/' then the path will be assumed to be
+   * relative to the log directory.
    *
    * @param req Servlet request.
    * @param resp Servlet response.
@@ -165,8 +152,8 @@ public class LogPrinter extends StringTemplateServlet {
         LOG.warning("Failed to download file " + request.file.getPath() + ": " + e.getMessage());
       }
     } else {
-      writeTemplate(resp, new ExceptionalClosure<StringTemplate, LogConfigException>() {
-        @Override public void execute(StringTemplate template) throws LogConfigException {
+      writeTemplate(resp, new Closure<StringTemplate>() {
+        @Override public void execute(StringTemplate template) {
 
           // TODO(William Farner): Consider using unix file utility to check if the requested file is a
           //    text file, and allow the user to download the file if it is not.
@@ -243,20 +230,16 @@ public class LogPrinter extends StringTemplateServlet {
       dir = req.getParameter(DIR_PARAM) == null ? null : new File(req.getParameter(DIR_PARAM));
       file = req.getParameter(FILE_PARAM) ==  null ? null
           : new LogFile(req.getParameter(FILE_PARAM));
-      download = req.getParameter(DOWNLOAD_PARAM) == null ? false
-          : Boolean.parseBoolean(req.getParameter(DOWNLOAD_PARAM));
-      tailing = req.getParameter(TAIL_PARAM) != null
-                && Boolean.parseBoolean(req.getParameter(TAIL_PARAM));
-      page = req.getParameter(PAGE_PARAM) == null ? DEFAULT_PAGE
-          : Integer.parseInt(req.getParameter(PAGE_PARAM));
+      download = HttpServletRequestParams.getBool(req, DOWNLOAD_PARAM, false);
+      tailing = HttpServletRequestParams.getBool(req, TAIL_PARAM, false);
+      page = HttpServletRequestParams.getInt(req, PAGE_PARAM, DEFAULT_PAGE);
       Preconditions.checkArgument(page >= 0);
 
-      startPos = req.getParameter(START_POS_PARAM) == null ? -1
-          : Long.parseLong(req.getParameter(START_POS_PARAM));
+      startPos = HttpServletRequestParams.getLong(req, START_POS_PARAM, -1);
       if (file != null) {
         Preconditions.checkArgument(startPos >= -1 && startPos <= file.getFile().length());
       }
-      filter = req.getParameter(FILTER_PARAM) == null ? "" : req.getParameter(FILTER_PARAM);
+      filter = HttpServletRequestParams.getString(req, FILTER_PARAM, "");
     }
 
     public boolean isFileViewRequest() {
@@ -284,7 +267,8 @@ public class LogPrinter extends StringTemplateServlet {
   /**
    * Class to wrap a log file and offer functions to StringTemplate via reflection.
    */
-  private class LogFile {
+   @VisibleForTesting
+   class LogFile {
     private final File file;
 
     public LogFile(File file) {
@@ -292,7 +276,8 @@ public class LogPrinter extends StringTemplateServlet {
     }
 
     public LogFile(String filePath) {
-      this(new File(filePath));
+      MorePreconditions.checkNotBlank(filePath, "filePath must not be null or empty");
+      this.file = filePath.startsWith("/") ? new File(filePath) : new File(logDir, filePath);
     }
 
     public File getFile() {
@@ -384,13 +369,25 @@ public class LogPrinter extends StringTemplateServlet {
     }
   }
 
+  private static String sanitize(String text) {
+    text = StringEscapeUtils.escapeHtml(text);
+
+    StringBuilder newString = new StringBuilder();
+    for (char ch : text.toCharArray()) {
+      if ((ch > 0x001F && ch < 0x00FD) || ch == '\t' || ch == '\r') {
+        // Directly include anything from 0x1F (SPACE) to 0xFD (tilde)
+        // as well as tab and carriage-return.
+        newString.append(ch);
+      } else {
+        // Encode everything else.
+        newString.append("&#").append((int) ch).append(";");
+      }
+    }
+    return StringEscapeUtils.escapeXml(newString.toString());
+  }
+
   private String logChunkXml(String text, long lastBytePosition) {
-    // TODO(William Farner): There still seems to be a problem with the sanitization here, data is sent
-    // back to the client that breaks XML syntax when some non-ascii characters appear in the log
-    // (i think).
-    String sanitized = StringEscapeUtils.escapeXml(
-        StringEscapeUtils.escapeHtml(text).replaceAll("\n", "&#10;"));
-    return String.format(XML_RESP_FORMAT, sanitized , lastBytePosition);
+    return String.format(XML_RESP_FORMAT, sanitize(text) , lastBytePosition);
   }
 
   @VisibleForTesting

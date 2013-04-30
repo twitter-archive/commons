@@ -61,10 +61,10 @@ public class EmoticonTokenCombinerTest {
         TokenType.TOKEN, TokenType.TOKEN, TokenType.TOKEN, TokenType.EMOTICON);
 
     stream.reset("First smiley. :p Second smiley :D False smiley :((");
-    verify(ImmutableList.of("First", "smiley", ".", ":p", "Second", "smiley", ":D", "False", "smiley", ":", "(", "("),
+    verify(ImmutableList.of("First", "smiley", ".", ":p", "Second", "smiley", ":D", "False", "smiley", ":(", "("),
         TokenType.TOKEN, TokenType.TOKEN, TokenType.PUNCTUATION, TokenType.EMOTICON,
         TokenType.TOKEN, TokenType.TOKEN, TokenType.EMOTICON,
-        TokenType.TOKEN, TokenType.TOKEN, TokenType.PUNCTUATION, TokenType.PUNCTUATION, TokenType.PUNCTUATION);
+        TokenType.TOKEN, TokenType.TOKEN, TokenType.EMOTICON, TokenType.PUNCTUATION);
   }
 
   private void verify(List<String> tokens, TokenType... types) {

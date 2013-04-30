@@ -30,6 +30,8 @@ import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
 import org.junit.runner.Result;
+import org.junit.runner.RunWith;
+import org.junit.runners.model.InitializationError;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -213,12 +215,22 @@ public class JUnitConsoleRunner {
   private final boolean suppressOutput;
   private final boolean xmlReport;
   private final File outdir;
+  private final boolean perTestTimer;
+  private final boolean defaultParallel;
+  private final int parallelThreads;
 
-  JUnitConsoleRunner(boolean failFast, boolean suppressOutput, boolean xmlReport, File outdir) {
+
+
+  JUnitConsoleRunner(boolean failFast, boolean suppressOutput, boolean xmlReport,
+                     boolean perTestTimer, File outdir,
+                     boolean defaultParallel, int parallelThreads) {
     this.failFast = failFast;
     this.suppressOutput = suppressOutput;
     this.xmlReport = xmlReport;
+    this.perTestTimer = perTestTimer;
     this.outdir = outdir;
+    this.defaultParallel = defaultParallel;
+    this.parallelThreads = parallelThreads;
   }
 
   void run(Iterable<String> tests) {
@@ -252,12 +264,18 @@ public class JUnitConsoleRunner {
       }
     }
 
-    abortableListener.addListener(new ConsoleListener(out));
+    if (perTestTimer) {
+      abortableListener.addListener(new PerClassConsoleListener(out));
+    } else {
+      abortableListener.addListener(new ConsoleListener(out));
+    }
 
     Thread abnormalExitHook = new Thread() {
       @Override public void run() {
         try {
           abortableListener.abort(new UnknownError("Abnormal VM exit - test crashed."));
+	// We want to trap and log no matter why abort failed for a better end user message.
+	// SUPPRESS CHECKSTYLE RegexpSinglelineJava
         } catch (Exception e) {
           out.println(e);
           e.printStackTrace(out);
@@ -268,9 +286,19 @@ public class JUnitConsoleRunner {
     Runtime.getRuntime().addShutdownHook(abnormalExitHook);
 
     int failures = 0;
-    for (Request request : requests) {
-      Result result = core.run(request);
-      failures += result.getFailureCount();
+    try {
+      if (this.parallelThreads > 1) {
+        ConcurrentCompositeRequest request = new ConcurrentCompositeRequest(
+            requests, this.defaultParallel, this.parallelThreads);
+        failures = core.run(request).getFailureCount();
+      } else {
+        for (Request request : requests) {
+          Result result = core.run(request);
+          failures += result.getFailureCount();
+        }
+      }
+    } catch (InitializationError initializationError) {
+      failures = 1;
     }
 
     Runtime.getRuntime().removeShutdownHook(abnormalExitHook);
@@ -310,14 +338,32 @@ public class JUnitConsoleRunner {
         notFoundError(spec, out, e);
       } catch (ClassNotFoundException e) {
         notFoundError(spec, out, e);
+      } catch (LinkageError e) {
+        // Any of a number of runtime linking errors can occur when trying to load a class,
+        // fail with the test spec so the class failing to link is known.
+        notFoundError(spec, out, e);
+      // See the comment below for justification.
+      // SUPPRESS CHECKSTYLE RegexpSinglelineJava
+      } catch (RuntimeException e) {
+        // The class may fail with some variant of RTE in its static initializers, trap these
+        // and dump the bad spec in question to help narrow down issue.
+        notFoundError(spec, out, e);
       }
     }
     List<Request> requests = Lists.newArrayList();
+
     if (!classes.isEmpty()) {
-      requests.add(Request.classes(classes.toArray(new Class<?>[classes.size()])));
+      if (this.perTestTimer || this.parallelThreads > 1) {
+        for (Class<?> clazz : classes) {
+          requests.add(new AnnotatedClassRequest(clazz));
+        }
+      } else {
+        requests.add(Request.classes(classes.toArray(new Class<?>[classes.size()])));
+      }
     }
     for (TestMethod testMethod : testMethods) {
-      requests.add(Request.method(testMethod.clazz, testMethod.name));
+      requests.add(new AnnotatedClassRequest(testMethod.clazz)
+          .filterWith(Description.createTestDescription(testMethod.clazz, testMethod.name)));
     }
     return requests;
   }
@@ -338,8 +384,17 @@ public class JUnitConsoleRunner {
       private boolean failFast = false;
       private boolean suppressOutput = false;
       private boolean xmlReport = false;
+      private boolean perTestTimer = false;
+      private boolean defaultParallel = false;
+      private int parallelThreads = 0;
       private File outdir = new File(System.getProperty("java.io.tmpdir"));
       private List<String> tests = Lists.newArrayList();
+
+      private CmdLineParser parser;
+
+      void setParser(CmdLineParser parser) {
+        this.parser = parser;
+      }
 
       @Option(name = "-fail-fast", usage = "Causes the test suite run to fail fast.")
       public void setFailFast(boolean failFast) {
@@ -364,6 +419,31 @@ public class JUnitConsoleRunner {
         this.outdir = outdir;
       }
 
+      @Option(name = "-per-test-timer",
+          usage = "Show progress and timer for each test class.")
+      public void setPerTestTimer(boolean perTestTimer) {
+        this.perTestTimer = perTestTimer;
+      }
+
+      @Option(name = "-default-parallel",
+          usage = "Whether to run test classes without @TestParallel or @TestSerial in parallel.")
+      public void setDefaultParallel(boolean defaultParallel) {
+        this.defaultParallel = defaultParallel;
+      }
+
+      @Option(name = "-parallel-threads",
+          usage = "Number of threads to execute tests in parallel. Must be positive, "
+              + "or 0 to set automatically.")
+      public void setParallelThreads(int parallelThreads) throws CmdLineException {
+        if (parallelThreads < 0) {
+          throw new CmdLineException(parser, "-parallelThreads cannot be negative");
+        }
+        this.parallelThreads = parallelThreads;
+        if (parallelThreads == 0) {
+          this.parallelThreads = Runtime.getRuntime().availableProcessors();
+        }
+      }
+
       @Argument(usage = "Names of junit test classes or test methods to run.  Names prefixed "
                         + "with @ are considered arg file paths and these will be loaded and the "
                         + "whitespace delimited arguments found inside added to the list",
@@ -377,6 +457,7 @@ public class JUnitConsoleRunner {
 
     Options options = new Options();
     CmdLineParser parser = new CmdLineParser(options);
+    options.setParser(parser);
     try {
       parser.parseArgument(args);
     } catch (CmdLineException e) {
@@ -388,7 +469,10 @@ public class JUnitConsoleRunner {
         new JUnitConsoleRunner(options.failFast,
             options.suppressOutput,
             options.xmlReport,
-            options.outdir);
+            options.perTestTimer,
+            options.outdir,
+            options.defaultParallel,
+            options.parallelThreads);
 
     List<String> tests = Lists.newArrayList();
     for (String test : options.tests) {
@@ -418,6 +502,11 @@ public class JUnitConsoleRunner {
 
     // Support junit 3.x Test hierarchy.
     if (junit.framework.Test.class.isAssignableFrom(clazz)) {
+      return true;
+    }
+
+    // Support classes using junit 4.x custom runners.
+    if (clazz.isAnnotationPresent(RunWith.class)) {
       return true;
     }
 

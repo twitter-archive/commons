@@ -33,6 +33,15 @@ def test_basic_registration_and_clear():
   rm.clear()
   assert rm.sample() == {}
 
+def test_nontrivial_gauges():
+  for label_value in ['a', 0, 2.5, [1,2,"3"], {'a': 'b'}, {'c': None}, False]:
+    lb = Label('ping', label_value)
+    rm = RootMetrics()
+    rm.register(lb)
+    assert rm.sample() == {'ping': label_value}
+    rm.clear()
+    assert rm.sample() == {}
+
 def test_basic_scoping():
   lb = Label('ping', 'pong')
   rm = RootMetrics()
@@ -54,7 +63,7 @@ def test_scoped_registration_uses_references():
 def test_register_string():
   rm = RootMetrics()
   hello_gauge = rm.register('hello')
-  assert rm.sample() == { 'hello': 'None' }
+  assert rm.sample() == { 'hello': None }
   hello_gauge.write('poop')
   assert rm.sample() == { 'hello': 'poop' }
   rm.clear()

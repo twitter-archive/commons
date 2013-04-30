@@ -17,6 +17,6 @@
 python_tests(name = 'lang',
   sources = globs('*.py'),
   dependencies = [
-    'src/python/twitter/common/lang'
+    pants('src/python/twitter/common/lang')
   ]
 )

@@ -16,11 +16,12 @@
 
 from __future__ import print_function
 
+import inspect
 import sys
 import threading
 import traceback
-import inspect
 
+from twitter.common.decorators import identify_thread
 from twitter.common.lang import Compatibility
 
 try:
@@ -34,6 +35,7 @@ except:
 
 __all__ = (
   'BasicExceptionHandler',
+  'ExceptionalThread',
 )
 
 
@@ -51,9 +53,8 @@ class BasicExceptionHandler(object):
     twitter.common.log if it is available.
 
     To use:
-      import sys
       from twitter.common.exceptions import BasicExceptionHandler
-      sys.excepthook = BasicExceptionHandler.handle_error
+      BasicExceptionHandler.install()
 
     Then raise away!
   """
@@ -106,3 +107,24 @@ class BasicExceptionHandler(object):
   @staticmethod
   def uninstall():
     sys.excepthook = sys.__excepthook__
+
+
+class ExceptionalThread(threading.Thread):
+  """Pattern from http://bugs.python.org/issue1230540
+
+     To instantiate a thread that can propagate exceptions properly, extend
+     from ExceptionalThread instead of Thread.
+  """
+
+  def __init__(self, *args, **kw):
+    super(ExceptionalThread, self).__init__(*args, **kw)
+    self.__real_run, self.run = self.run, self._excepting_run
+
+  @identify_thread
+  def _excepting_run(self, *args, **kw):
+    try:
+      self.__real_run(*args, **kw)
+    except (KeyboardInterrupt, SystemExit):
+      raise
+    except:
+      sys.excepthook(*sys.exc_info())

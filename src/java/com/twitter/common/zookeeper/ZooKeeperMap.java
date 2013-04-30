@@ -60,8 +60,6 @@ import java.util.logging.Logger;
  * src/scripts/HenAccess.py in the hen repository.
  *
  * @param <V> the type of values this map stores
- *
- * @author Adam Samet
  */
 public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
 

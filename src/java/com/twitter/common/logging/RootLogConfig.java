@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 
 import com.twitter.common.args.Arg;
 import com.twitter.common.args.CmdLine;
@@ -42,10 +43,6 @@ public class RootLogConfig {
     private Level getLevel() {
       return level;
     }
-
-    private int intValue() {
-      return level.intValue();
-    }
   }
 
   @CmdLine(name = "logtostderr", help = "Log messages to stderr instead of logfiles.")
@@ -69,27 +66,82 @@ public class RootLogConfig {
   private static Arg<Map<Class<?>, LogLevel>> VMODULE =
       Arg.<Map<Class<?>, LogLevel>>create(new HashMap<Class<?>, LogLevel>());
 
-  // TODO(franco): change this flag's default to true, then remove after enough forewarning.
   @CmdLine(name = "use_glog_formatter", help = "True to use the glog formatter exclusively.")
-  private static Arg<Boolean> USE_GLOG_FORMATTER = Arg.create(false);
+  private static Arg<Boolean> USE_GLOG_FORMATTER = Arg.create(true);
+
+  /**
+   * Represents a logging configuration for java.util.logging.
+   */
+  public static final class Configuration {
+    boolean logToStderr = false;
+    boolean alsoLogToStderr = false;
+    boolean useGLogFormatter = true;
+    LogLevel vlog = LogLevel.INFO;
+    ImmutableMap<Class<?>, LogLevel> vmodule = ImmutableMap.of();
+    String rootLoggerName = "";
+
+    Configuration() {
+      // Guard for internal use only.
+    }
+
+    /**
+     * Returns {@code true} if configured to log just to stderr.
+     */
+    public boolean isLogToStderr() {
+      return logToStderr;
+    }
+
+    /**
+     * Returns {@code true} if configured to log to stderr in addition to log files..
+     */
+    public boolean isAlsoLogToStderr() {
+      return alsoLogToStderr;
+    }
+
+    /**
+     * Returns {@code true} if configured to log in google-glog format.
+     */
+    public boolean isUseGLogFormatter() {
+      return useGLogFormatter;
+    }
+
+    /**
+     * Returns the default global log level.
+     */
+    public LogLevel getVlog() {
+      return vlog;
+    }
+
+    /**
+     * Returns the custom log levels configured for individual classes.
+     */
+    public ImmutableMap<Class<?>, LogLevel> getVmodule() {
+      return vmodule;
+    }
+
+    /**
+     * Applies this configuration to the root log.
+     */
+    public void apply() {
+      RootLogConfig.configure(this);
+    }
+  }
 
   /**
    * A builder-pattern class used to perform the configuration programmatically
    * (i.e. not through flags).
    * Example:
    * <code>
-   *    RootLogConfig.builder().logToStderr(true).apply();
+   *    RootLogConfig.builder().logToStderr(true).build().apply();
    * </code>
    */
-  public static class Configuration {
-    private boolean logToStderr = false;
-    private boolean alsoLogToStderr = false;
-    private boolean useGLogFormatter = false;
-    private LogLevel vlog = null;
-    private Map<Class<?>, LogLevel> vmodule = null;
-    private String rootLoggerName = "";
+  public static final class Builder {
+    private final Configuration configuration;
 
-    private Configuration() {}
+    private Builder() {
+      this.configuration = new Configuration();
+    }
+
     /**
      * Only log messages to stderr, instead of log files. Overrides alsologtostderr.
      * Default: false.
@@ -97,8 +149,8 @@ public class RootLogConfig {
      * @param flag True to enable, false to disable.
      * @return this Configuration object.
      */
-    public Configuration logToStderr(boolean flag) {
-      this.logToStderr = flag;
+    public Builder logToStderr(boolean flag) {
+      configuration.logToStderr = flag;
       return this;
     }
 
@@ -110,8 +162,8 @@ public class RootLogConfig {
      * @param flag True to enable, false to disable.
      * @return this Configuration object.
      */
-    public Configuration alsoLogToStderr(boolean flag) {
-      this.alsoLogToStderr = flag;
+    public Builder alsoLogToStderr(boolean flag) {
+      configuration.alsoLogToStderr = flag;
       return this;
     }
 
@@ -122,8 +174,8 @@ public class RootLogConfig {
      * @param flag True to enable, false to disable.
      * @return this Configuration object.
      */
-    public Configuration useGLogFormatter(boolean flag) {
-      this.useGLogFormatter = flag;
+    public Builder useGLogFormatter(boolean flag) {
+      configuration.useGLogFormatter = flag;
       return this;
     }
 
@@ -135,9 +187,9 @@ public class RootLogConfig {
      * @param level LogLevel enumerator for the minimum log message verbosity level that is output.
      * @return this Configuration object.
      */
-    public Configuration vlog(LogLevel level) {
+    public Builder vlog(LogLevel level) {
       Preconditions.checkNotNull(level);
-      this.vlog = level;
+      configuration.vlog = level;
       return this;
     }
 
@@ -149,49 +201,51 @@ public class RootLogConfig {
      * @param pairs Map of classes and correspoding log levels.
      * @return this Configuration object.
      */
-    public Configuration vmodule(Map<Class<?>, LogLevel> pairs) {
+    public Builder vmodule(Map<Class<?>, LogLevel> pairs) {
       Preconditions.checkNotNull(pairs);
-      this.vmodule = pairs;
+      configuration.vmodule = ImmutableMap.copyOf(pairs);
       return this;
     }
 
     /**
-     * Applies this configuration to the root log.
+     * Returns the built up configuration.
      */
-    public void apply() {
-      RootLogConfig.configure(this);
+    public Configuration build() {
+      return configuration;
     }
 
     // Intercepts the root logger, for testing purposes only.
     @VisibleForTesting
-    Configuration rootLoggerName(String name) {
+    Builder rootLoggerName(String name) {
       Preconditions.checkNotNull(name);
       Preconditions.checkArgument(!name.isEmpty());
-      this.rootLoggerName = name;
+      configuration.rootLoggerName = name;
       return this;
     }
   }
 
   /**
    * Creates a new Configuration builder object.
-   * @return The newly built Configuration.
+   *
+   * @return The builder.
    */
-  public static Configuration builder() {
-    return new Configuration();
+  public static Builder builder() {
+    return new Builder();
   }
 
   /**
-   *  Configures the root log properties using flags.
-   *  This is the entry point used by AbstractApplication via LogModule.
+   * Creates a logging configuration using flags
+   *
+   * @return The logging configuration specified via command line flags.
    */
-  public static void configureFromFlags() {
-    builder()
+  public static Configuration configurationFromFlags() {
+    return builder()
         .logToStderr(LOGTOSTDERR.get())
         .alsoLogToStderr(ALSOLOGTOSTDERR.get())
         .useGLogFormatter(USE_GLOG_FORMATTER.get())
         .vlog(VLOG.get())
         .vmodule(VMODULE.get())
-        .apply();
+        .build();
   }
 
   private static void configure(Configuration configuration) {

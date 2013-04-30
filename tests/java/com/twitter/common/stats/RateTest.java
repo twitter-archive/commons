@@ -16,12 +16,13 @@
 
 package com.twitter.common.stats;
 
-import com.twitter.common.util.Clock;
-import com.twitter.common.util.testing.FakeClock;
+import com.twitter.common.util.testing.FakeTicker;
 import org.easymock.IMocksControl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.twitter.common.util.testing.FakeTicker;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -34,11 +35,11 @@ import static org.hamcrest.CoreMatchers.*;
  */
 public class RateTest {
 
-  private static final int ONE_SEC = 1000;
+  private static final int ONE_SEC = 1000000000;
   private static final double EPSILON = 1E-6;
 
   private IMocksControl control;
-  private Clock clock;
+  private FakeTicker ticker;
 
   private Stat<Integer> input;
 
@@ -47,7 +48,7 @@ public class RateTest {
   public void setUp() {
     control = createControl();
 
-    clock = new FakeClock();
+    ticker = new FakeTicker();
     input = control.createMock(Stat.class);
   }
 
@@ -107,21 +108,21 @@ public class RateTest {
   @Test
   public void testVariableRateAtomicLong() throws Exception {
     AtomicLong value = new AtomicLong();
-    Rate<AtomicLong> rate = Rate.of("test", value).withClock(clock).build();
+    Rate<AtomicLong> rate = Rate.of("test", value).withTicker(ticker).build();
 
-    clock.waitFor(ONE_SEC);
+    ticker.waitNanos(ONE_SEC);
     value.set(10);
     assertEquals(0d, rate.sample(), EPSILON);
 
-    clock.waitFor(ONE_SEC);
+    ticker.waitNanos(ONE_SEC);
     value.set(20);
     assertEquals(10d, rate.sample(), EPSILON);
 
-    clock.waitFor(ONE_SEC);
+    ticker.waitNanos(ONE_SEC);
     value.set(50);
     assertEquals(30d, rate.sample(), EPSILON);
 
-    clock.waitFor(ONE_SEC);
+    ticker.waitNanos(ONE_SEC);
     value.set(100);
     assertEquals(50d, rate.sample(), EPSILON);
 
@@ -152,7 +153,7 @@ public class RateTest {
 
     control.replay();
 
-    assertResults(Rate.of(input).withWindowSize(3).withClock(clock).build(), 0, -5, 0, 0);
+    assertResults(Rate.of(input).withWindowSize(3).withTicker(ticker).build(), 0, -5, 0, 0);
   }
 
   @Test
@@ -161,24 +162,24 @@ public class RateTest {
 
     control.replay();
 
-    Rate<Integer> rate = Rate.of(input).withClock(clock).build();
-    Rate<Double> rateOfRate = Rate.of(rate).withClock(clock).build();
+    Rate<Integer> rate = Rate.of(input).withTicker(ticker).build();
+    Rate<Double> rateOfRate = Rate.of(rate).withTicker(ticker).build();
 
     assertThat(rate.sample(), is(0d));
     assertThat(rateOfRate.sample(), is(0d));
-    clock.waitFor(ONE_SEC);
+    ticker.waitNanos(ONE_SEC);
     assertThat(rate.sample(), is(10d));
     assertThat(rateOfRate.sample(), is(10d));
-    clock.waitFor(ONE_SEC);
+    ticker.waitNanos(ONE_SEC);
     assertThat(rate.sample(), is(10d));
     assertThat(rateOfRate.sample(), is(0d));
-    clock.waitFor(ONE_SEC);
+    ticker.waitNanos(ONE_SEC);
     assertThat(rate.sample(), is(10d));
     assertThat(rateOfRate.sample(), is(0d));
-    clock.waitFor(ONE_SEC);
+    ticker.waitNanos(ONE_SEC);
     assertThat(rate.sample(), is(10d));
     assertThat(rateOfRate.sample(), is(0d));
-    clock.waitFor(ONE_SEC);
+    ticker.waitNanos(ONE_SEC);
     assertThat(rate.sample(), is(10d));
     assertThat(rateOfRate.sample(), is(0d));
   }
@@ -189,7 +190,7 @@ public class RateTest {
 
     control.replay();
 
-    assertResults(Rate.of(input).withClock(clock).withScaleFactor(10).build(), 100, 100, 100);
+    assertResults(Rate.of(input).withTicker(ticker).withScaleFactor(10).build(), 100, 100, 100);
   }
 
   @Test
@@ -198,7 +199,7 @@ public class RateTest {
 
     control.replay();
 
-    assertResults(Rate.of(input).withClock(clock).withScaleFactor(0.1).build(), 1, 1, 1);
+    assertResults(Rate.of(input).withTicker(ticker).withScaleFactor(0.1).build(), 1, 1, 1);
   }
 
   private void expectCalls(int... samples) {
@@ -210,17 +211,17 @@ public class RateTest {
   }
 
   private void assertResults(double... results) throws Exception {
-    assertResults(Rate.of(input).withClock(clock).build(), results);
+    assertResults(Rate.of(input).withTicker(ticker).build(), results);
   }
 
   private void assertResults(Rate<Integer> rate, double... results) throws Exception {
     // First result is always zero.
     assertEquals(0d, rate.sample(), EPSILON);
-    clock.waitFor(ONE_SEC);
+    ticker.waitNanos(ONE_SEC);
 
     for (double result : results) {
       assertEquals(result, rate.sample(), EPSILON);
-      clock.waitFor(ONE_SEC);
+      ticker.waitNanos(ONE_SEC);
     }
   }
 }

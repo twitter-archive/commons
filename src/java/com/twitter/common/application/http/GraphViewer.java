@@ -20,13 +20,21 @@ import com.google.inject.Binder;
 
 /**
  * A utility class to register the file resources for the graph viewer.
- *
- * @author William Farner
  */
 public final class GraphViewer {
 
   private GraphViewer() {
     // Utility class.
+  }
+
+  private static void registerJs(Binder binder, String assetName) {
+    Registration.registerHttpAsset(
+        binder,
+        "/graphview/" + assetName,
+        GraphViewer.class,
+        "graphview/" + assetName,
+        "application/javascript",
+        true);
   }
 
   /**
@@ -35,9 +43,11 @@ public final class GraphViewer {
    * @param binder Binder to register with.
    */
   public static void registerResources(Binder binder) {
-    Registration.registerHttpAsset(binder, "/graphview/dygraph-combined.js", GraphViewer.class,
-        "dygraph-combined.js", "application/javascript", true);
+    registerJs(binder, "dygraph-combined.js");
+    registerJs(binder, "dygraph-extra.js");
+    registerJs(binder, "grapher.js");
+    registerJs(binder, "parser.js");
     Registration.registerHttpAsset(binder,
-        "/graphview", GraphViewer.class, "graphview.html", "text/html", false);
+        "/graphview", GraphViewer.class, "graphview/graphview.html", "text/html", false);
   }
 }

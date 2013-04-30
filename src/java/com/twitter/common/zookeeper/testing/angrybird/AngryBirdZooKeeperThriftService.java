@@ -72,8 +72,8 @@ public class AngryBirdZooKeeperThriftService implements ZooKeeperThriftServer.Se
 
   @Override
   public Future<ExpireResponse> expireFollower(ExpireFollowerRequest request) {
-    return sessionIdToExpireResponse(
-        zkServer.expireFollower(request.zkPath, Optional.of(request.nodeId)));
+    return sessionIdToExpireResponse(zkServer.expireFollower(request.zkPath, 
+                                     Optional.fromNullable(request.getNodeId())));
   }
 
   @Override

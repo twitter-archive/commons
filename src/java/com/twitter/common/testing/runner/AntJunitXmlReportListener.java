@@ -1,6 +1,10 @@
 package com.twitter.common.testing.runner;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.FilterWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
@@ -370,9 +374,66 @@ class AntJunitXmlReportListener extends RunListener {
         suite.setOut(new String(streamSource.readOut(testClass), Charsets.UTF_8));
         suite.setErr(new String(streamSource.readErr(testClass), Charsets.UTF_8));
 
-        JAXB.marshal(suite, new File(outdir, String.format("TEST-%s.xml", suite.name)));
+        Writer xmlOut = new FileWriter(new File(outdir, String.format("TEST-%s.xml", suite.name)));
+
+        // Only output valid XML1.0 characters - JAXB does not handle this.
+        JAXB.marshal(suite, new XmlWriter(xmlOut) {
+          @Override protected void handleInvalid(int c) throws IOException {
+            out.write(' ');
+          }
+        });
       }
     }
+  }
+
+  private abstract static class XmlWriter extends FilterWriter {
+    protected XmlWriter(Writer out) {
+      super(out);
+    }
+
+    @Override
+    public void write(char[] cbuf, int off, int len) throws IOException {
+      for (int i = off; i < len; i++) {
+        write(cbuf[i]);
+      }
+    }
+
+    @Override
+    public void write(String str, int off, int len) throws IOException {
+      for (int i = off; i < len; i++) {
+        write(str.charAt(i));
+      }
+    }
+
+    @Override
+    public void write(int c) throws IOException {
+      // Only output valid XML1.0 characters by default.
+      // See the spec here: http://www.w3.org/TR/2000/REC-xml-20001006#NT-Char
+
+      // This is a complex boolean expression but it follows the spec referenced above exactly and
+      // so it seems to provide clarity.
+      // SUPPRESS CHECKSTYLE RegexpSinglelineJava
+      if (c == 0x9
+          || c == 0xA
+          || c == 0xD
+          || ((0x20 <= c) && (c <= 0xD7FF))
+          || ((0xE000 <= c) && (c <= 0xFFFD))
+          || ((0x10000 <= c) && (c <= 0x10FFFF))) {
+
+        out.write(c);
+      } else {
+        handleInvalid(c);
+      }
+    }
+
+    /**
+     * Subclasses can handle invalid XML 1.0 characters as appropriate.
+     *
+     * @param c The invalid character.
+     * @throws IOException If there is a problem using this stream while handling the invalid
+     *     character.
+     */
+    protected abstract void handleInvalid(int c) throws IOException;
   }
 
   private static String convertTimeSpanNs(long timespanNs) {

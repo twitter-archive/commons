@@ -57,8 +57,6 @@ import com.twitter.common.base.ExceptionalCommand;
  * overridable default bindings for things like quit/abort hooks and a health check function.
  * A {@link LifecycleModule} is also automatically applied to perform startup and shutdown
  * actions.
- *
- * @author William Farner
  */
 public final class AppLauncher {
 
@@ -119,8 +117,7 @@ public final class AppLauncher {
         .addAll(application.getModules())
         .build();
 
-    Injector injector = Guice.createInjector(GUICE_STAGE.get(),
-        Modules.override(Modules.combine(modules)).with(application.getOverridingModules()));
+    Injector injector = Guice.createInjector(GUICE_STAGE.get(), Modules.combine(modules));
     injector.injectMembers(this);
     injector.injectMembers(application);
   }

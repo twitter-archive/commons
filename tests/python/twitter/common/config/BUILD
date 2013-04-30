@@ -17,7 +17,7 @@
 python_tests(name = 'config',
   sources = globs('*.py'),
   dependencies = [
-    'src/python/twitter/common/config',
-    'src/python/twitter/common/contextutil'
+    pants('src/python/twitter/common/config'),
+    pants('src/python/twitter/common/contextutil')
   ]
 )

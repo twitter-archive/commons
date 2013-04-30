@@ -19,9 +19,11 @@ package com.twitter.common.application.modules;
 import java.io.File;
 import java.util.logging.Logger;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
+import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
@@ -33,6 +35,7 @@ import com.twitter.common.args.constraints.IsDirectory;
 import com.twitter.common.base.Command;
 import com.twitter.common.logging.LogUtil;
 import com.twitter.common.logging.RootLogConfig;
+import com.twitter.common.logging.RootLogConfig.Configuration;
 import com.twitter.common.net.http.handlers.LogPrinter;
 import com.twitter.common.stats.StatImpl;
 import com.twitter.common.stats.Stats;
@@ -47,6 +50,8 @@ import com.twitter.common.stats.Stats;
  * Bindings provided by this module:
  * <ul>
  *   <li>{@code @Named(LogPrinter.LOG_DIR_KEY) File} - Log directory.
+ *   <li>{@code Optional&lt;RootLogConfig.Configuraton&gt;} - If glog is enabled the configuration
+ *       used.
  * </ul>
  *
  * Default bindings that may be overridden:
@@ -68,10 +73,9 @@ public class LogModule extends AbstractModule {
            help = "The directory where application logs are written.")
   private static final Arg<File> LOG_DIR = Arg.create(null);
 
-  // TODO(franco): change this flag's default to true, then remove after enough forewarning.
   @CmdLine(name = "use_glog",
            help = "True to use the new glog-based configuration for the root logger.")
-  private static final Arg<Boolean> USE_GLOG = Arg.create(false);
+  private static final Arg<Boolean> USE_GLOG = Arg.create(true);
 
   @Override
   protected void configure() {
@@ -79,9 +83,14 @@ public class LogModule extends AbstractModule {
     bind(File.class).annotatedWith(Names.named(LogPrinter.LOG_DIR_KEY)).toInstance(getLogDir());
 
     LifecycleModule.bindStartupAction(binder(), ExportLogDir.class);
+
+    Configuration configuration = null;
     if (USE_GLOG.get()) {
-      RootLogConfig.configureFromFlags();
+      configuration = RootLogConfig.configurationFromFlags();
+      configuration.apply();
     }
+    bind(new TypeLiteral<Optional<Configuration>>() { })
+        .toInstance(Optional.fromNullable(configuration));
   }
 
   private File getLogDir() {

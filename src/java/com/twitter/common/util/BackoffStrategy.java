@@ -33,7 +33,8 @@ public interface BackoffStrategy {
   /**
    * Returns whether to continue backing off.
    *
+   * @param lastBackoffMs the last used backoff in milliseconds
    * @return whether to continue backing off
    */
-  boolean shouldContinue();
+  boolean shouldContinue(long lastBackoffMs);
 }

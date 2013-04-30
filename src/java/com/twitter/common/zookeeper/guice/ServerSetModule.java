@@ -24,20 +24,14 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
 import javax.annotation.Nullable;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Atomics;
-import com.google.inject.BindingAnnotation;
 import com.google.inject.AbstractModule;
+import com.google.inject.BindingAnnotation;
 import com.google.inject.Inject;
-import com.google.inject.Provides;
+import com.google.inject.Key;
 import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 
@@ -46,8 +40,7 @@ import com.twitter.common.application.modules.LifecycleModule;
 import com.twitter.common.application.modules.LocalServiceRegistry;
 import com.twitter.common.args.Arg;
 import com.twitter.common.args.CmdLine;
-import com.twitter.common.args.constraints.NotEmpty;
-import com.twitter.common.args.constraints.NotNull;
+import com.twitter.common.args.constraints.NotNegative;
 import com.twitter.common.base.Command;
 import com.twitter.common.base.ExceptionalCommand;
 import com.twitter.common.base.Supplier;
@@ -55,18 +48,20 @@ import com.twitter.common.zookeeper.Group.JoinException;
 import com.twitter.common.zookeeper.ServerSet;
 import com.twitter.common.zookeeper.ServerSet.EndpointStatus;
 import com.twitter.common.zookeeper.ServerSet.UpdateException;
-import com.twitter.common.zookeeper.ServerSetImpl;
-import com.twitter.common.zookeeper.ZooKeeperClient;
 import com.twitter.thrift.Status;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * A module that registers all ports in the {@link LocalServiceRegistry} in an {@link ServerSet}.
  *
  * Required bindings:
  * <ul>
- *   <li> {@link ZooKeeperClient}
+ *   <li> {@link ServerSet}
  *   <li> {@link ShutdownRegistry}
  *   <li> {@link LocalServiceRegistry}
  * </ul>
@@ -77,81 +72,112 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * <ul>
  *   <li> {@link Supplier<EndpointStatus>}
  * </ul>
- *
- * @author William Farner
  */
 public class ServerSetModule extends AbstractModule {
 
   /**
    * BindingAnnotation for defaults to use in the service instance node.
    */
-  @BindingAnnotation @Target({ PARAMETER, METHOD, FIELD }) @Retention(RUNTIME)
-  private @interface Default { }
+  @BindingAnnotation @Target({PARAMETER, METHOD, FIELD}) @Retention(RUNTIME)
+  private @interface Default {}
 
-  @NotNull
-  @NotEmpty
-  @CmdLine(name = "serverset_path", help = "ServerSet registration path")
-  protected static final Arg<String> SERVERSET_PATH = Arg.create(null);
+  /**
+   * Binding annotation to give the ServerSetJoiner a fixed known ServerSet that is appropriate to
+   * {@link ServerSet#join} on.
+   */
+  @BindingAnnotation @Target({METHOD, PARAMETER}) @Retention(RUNTIME)
+  private @interface Joinable {}
+
+  private static final Key<ServerSet> JOINABLE_SS = Key.get(ServerSet.class, Joinable.class);
 
   @CmdLine(name = "aux_port_as_primary",
       help = "Name of the auxiliary port to use as the primary port in the server set."
           + " This may only be used when no other primary port is specified.")
   private static final Arg<String> AUX_PORT_AS_PRIMARY = Arg.create(null);
 
+  @NotNegative
+  @CmdLine(name = "shard_id", help = "Shard ID for this application.")
+  private static final Arg<Integer> SHARD_ID = Arg.create();
+
   private static final Logger LOG = Logger.getLogger(ServerSetModule.class.getName());
 
-  private final Status initialStatus;
+  /**
+   * Builds a Module tht can be used to join a {@link ServerSet} with the ports configured in a
+   * {@link LocalServiceRegistry}.
+   */
+  public static class Builder {
+    private Key<ServerSet> key = Key.get(ServerSet.class);
+    private Optional<String> auxPortAsPrimary = Optional.absent();
+
+    /**
+     * Sets the key of the ServerSet to join.
+     *
+     * @param key Key of the ServerSet to join.
+     * @return This builder for chaining calls.
+     */
+    public Builder key(Key<ServerSet> key) {
+      this.key = key;
+      return this;
+    }
+
+    /**
+     * Allows joining an auxillary port with the specified {@code name} as the primary port of the
+     * ServerSet.
+     *
+     * @param auxPortName The name of the auxillary port to join as the primary ServerSet port.
+     * @return This builder for chaining calls.
+     */
+    public Builder namedPrimaryPort(String auxPortName) {
+      this.auxPortAsPrimary = Optional.of(auxPortName);
+      return this;
+    }
+
+    /**
+     * Creates a Module that will register a startup action that joins a ServerSet when installed.
+     *
+     * @return A Module.
+     */
+    public ServerSetModule build() {
+      return new ServerSetModule(key, auxPortAsPrimary);
+    }
+  }
+
+  /**
+   * Creates a builder that can be used to configure and create a ServerSetModule.
+   *
+   * @return A ServerSetModule builder.
+   */
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  private final Key<ServerSet> serverSetKey;
   private final Optional<String> auxPortAsPrimary;
-
-  /**
-   * Calls {@link #ServerSetModule(Optional)} with an absent value.
-   */
-  public ServerSetModule() {
-    this(Optional.<String>absent());
-  }
-
-  /**
-   * Calls {@link #ServerSetModule(Status, Optional)} with initial status {@link Status#ALIVE}.
-   *
-   * @param auxPortAsPrimary Name of the auxiliary port to use as the primary port.
-   */
-  public ServerSetModule(Optional<String> auxPortAsPrimary) {
-    this(Status.ALIVE, auxPortAsPrimary);
-  }
-
-  /**
-   * Constructs a ServerSetModule that registers a startup action that registers this process in
-   * ZooKeeper, with the specified initial Status.
-   *
-   * @param initialStatus initial Status to report to ZooKeeper.
-   */
-  public ServerSetModule(Status initialStatus) {
-    this(initialStatus, Optional.<String>absent());
-  }
 
   /**
    * Constructs a ServerSetModule that registers a startup action to register this process in
    * ZooKeeper, with the specified initial status and auxiliary port to represent as the primary
    * service port.
    *
-   * @param initialStatus initial Status to report to ZooKeeper.
+   * @param serverSetKey The key the ServerSet to join is bound under.
    * @param auxPortAsPrimary Name of the auxiliary port to use as the primary port.
    */
-  public ServerSetModule(Status initialStatus, Optional<String> auxPortAsPrimary) {
-    this.initialStatus = Preconditions.checkNotNull(initialStatus);
-    this.auxPortAsPrimary = Preconditions.checkNotNull(auxPortAsPrimary);
+  ServerSetModule(Key<ServerSet> serverSetKey, Optional<String> auxPortAsPrimary) {
+
+    this.serverSetKey = checkNotNull(serverSetKey);
+    this.auxPortAsPrimary = checkNotNull(auxPortAsPrimary);
   }
 
   @Override
   protected void configure() {
-    requireBinding(ZooKeeperClient.class);
+    requireBinding(serverSetKey);
     requireBinding(ShutdownRegistry.class);
     requireBinding(LocalServiceRegistry.class);
+
     LifecycleModule.bindStartupAction(binder(), ServerSetJoiner.class);
 
     bind(new TypeLiteral<Supplier<EndpointStatus>>() { }).to(EndpointSupplier.class);
     bind(EndpointSupplier.class).in(Singleton.class);
-    bind(Status.class).annotatedWith(Default.class).toInstance(initialStatus);
 
     Optional<String> primaryPortName;
     if (AUX_PORT_AS_PRIMARY.hasAppliedValue()) {
@@ -162,12 +188,8 @@ public class ServerSetModule extends AbstractModule {
 
     bind(new TypeLiteral<Optional<String>>() { }).annotatedWith(Default.class)
         .toInstance(primaryPortName);
-  }
 
-  @Provides
-  @Singleton
-  ServerSet provideServerSet(ZooKeeperClient zkClient) {
-    return new ServerSetImpl(zkClient, SERVERSET_PATH.get());
+    bind(JOINABLE_SS).to(serverSetKey);
   }
 
   static class EndpointSupplier implements Supplier<EndpointStatus> {
@@ -188,23 +210,20 @@ public class ServerSetModule extends AbstractModule {
     private final LocalServiceRegistry serviceRegistry;
     private final ShutdownRegistry shutdownRegistry;
     private final EndpointSupplier endpointSupplier;
-    private final Status initialStatus;
     private final Optional<String> auxPortAsPrimary;
 
     @Inject
     ServerSetJoiner(
-        ServerSet serverSet,
+        @Joinable ServerSet serverSet,
         LocalServiceRegistry serviceRegistry,
         ShutdownRegistry shutdownRegistry,
         EndpointSupplier endpointSupplier,
-        @Default Status initialStatus,
         @Default Optional<String> auxPortAsPrimary) {
 
       this.serverSet = checkNotNull(serverSet);
       this.serviceRegistry = checkNotNull(serviceRegistry);
       this.shutdownRegistry = checkNotNull(shutdownRegistry);
       this.endpointSupplier = checkNotNull(endpointSupplier);
-      this.initialStatus = checkNotNull(initialStatus);
       this.auxPortAsPrimary = checkNotNull(auxPortAsPrimary);
     }
 
@@ -227,7 +246,12 @@ public class ServerSetModule extends AbstractModule {
 
       final EndpointStatus endpointStatus;
       try {
-        endpointStatus = serverSet.join(primary, auxSockets, initialStatus);
+        if (SHARD_ID.hasAppliedValue()) {
+          endpointStatus = serverSet.join(primary, auxSockets, SHARD_ID.get());
+        } else {
+          endpointStatus = serverSet.join(primary, auxSockets);
+        }
+
         endpointSupplier.set(endpointStatus);
       } catch (JoinException e) {
         LOG.log(Level.WARNING, "Failed to join ServerSet.", e);
@@ -241,7 +265,7 @@ public class ServerSetModule extends AbstractModule {
       shutdownRegistry.addAction(new ExceptionalCommand<UpdateException>() {
         @Override public void execute() throws UpdateException {
           LOG.info("Leaving ServerSet.");
-          endpointStatus.update(Status.DEAD);
+          endpointStatus.leave();
         }
       });
     }

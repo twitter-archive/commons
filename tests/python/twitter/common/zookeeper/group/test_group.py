@@ -1,12 +1,22 @@
+import os
 import pytest
 import threading
 import time
 import unittest
 import zookeeper
 
-from twitter.common.zookeeper.client import ZooKeeper
+from twitter.common.zookeeper.client import ZooKeeper, ZooDefs
 from twitter.common.zookeeper.test_server import ZookeeperServer
 from twitter.common.zookeeper.group.group import ActiveGroup, Group, Membership
+
+
+if os.getenv('ZOOKEEPER_TEST_DEBUG'):
+  from twitter.common import log
+  from twitter.common.log.options import LogOptions
+  LogOptions.set_stderr_log_level('DEBUG')
+  LogOptions.set_disk_log_level('NONE')
+  LogOptions.set_log_dir('/tmp')
+  log.init('client_test')
 
 
 class AlternateGroup(Group):
@@ -142,6 +152,77 @@ class TestGroup(unittest.TestCase):
     membership = zkg1.join('hello world')
     assert zkg2.info(membership) == 'hello world'
 
+  def test_authentication(self):
+    secure_zk = self.make_zk(self._server.ensemble, authentication=('digest', 'username:password'))
+
+    # auth => unauth
+    zkg = self.GroupImpl(self._zk, '/test')
+    secure_zkg = self.GroupImpl(secure_zk, '/test', acl=ZooDefs.Acls.EVERYONE_READ_CREATOR_ALL)
+    membership = zkg.join('hello world')
+    assert secure_zkg.info(membership) == 'hello world'
+    membership = secure_zkg.join('secure hello world')
+    assert zkg.info(membership) == 'secure hello world'
+
+    # unauth => auth
+    zkg = self.GroupImpl(self._zk, '/secure-test')
+    secure_zkg = self.GroupImpl(secure_zk, '/secure-test', acl=ZooDefs.Acls.EVERYONE_READ_CREATOR_ALL)
+    membership = secure_zkg.join('hello world')
+    assert zkg.info(membership) == 'hello world'
+    assert zkg.join('unsecure hello world') == Membership.error()
+
+    # unauth => auth monitor
+    zkg = self.GroupImpl(self._zk, '/secure-test2')
+    secure_zkg = self.GroupImpl(secure_zk, '/secure-test2', acl=ZooDefs.Acls.EVERYONE_READ_CREATOR_ALL)
+    membership_event = threading.Event()
+    members = set()
+    def new_membership(m):
+      members.update(m)
+      membership_event.set()
+    zkg.monitor(callback=new_membership)
+    membership = secure_zkg.join('hello world')
+    membership_event.wait(timeout=1.0)
+    assert membership_event.is_set()
+    assert members == set([membership])
+
+  def test_monitor_through_parent_death(self):
+    zkg = self.GroupImpl(self._zk, '/test')
+
+    membership_event = threading.Event()
+    members = set()
+    def new_membership(m):
+      members.update(m)
+      membership_event.set()
+    zkg.monitor(callback=new_membership)
+
+    membership = zkg.join('hello world')
+    assert membership != Membership.error()
+
+    membership_event.wait(timeout=self.MAX_EVENT_WAIT_SECS)
+    assert membership_event.is_set()
+    assert members == set([membership])
+
+    membership_event.clear()
+    members.clear()
+    zkg.monitor(set([membership]), callback=new_membership)
+    zkg.cancel(membership)
+
+    membership_event.wait(timeout=self.MAX_EVENT_WAIT_SECS)
+    assert membership_event.is_set()
+    assert members == set()
+
+    membership_event.clear()
+    members.clear()
+    zkg.monitor(callback=new_membership)
+
+    self._zk.delete('/test')
+
+    membership = zkg.join('hello world 2')
+    assert membership != Membership.error()
+
+    membership_event.wait(timeout=self.MAX_EVENT_WAIT_SECS)
+    assert membership_event.is_set()
+    assert members == set([membership])
+
   def test_info_after_expiration(self):
     zkg = self.GroupImpl(self._zk, '/test')
     membership = zkg.join('hello world')
@@ -238,6 +319,17 @@ class TestGroup(unittest.TestCase):
     assert membership_event.is_set()
     assert members == set([membership])
 
+  def test_children_filtering(self):
+    zk = self.make_zk(self._server.ensemble)
+    zk.create('/test', '', ZooDefs.Acls.OPEN_ACL_UNSAFE)
+    zk.create('/test/alt_member_', '',  ZooDefs.Acls.OPEN_ACL_UNSAFE,
+        zookeeper.SEQUENCE | zookeeper.EPHEMERAL)
+    zk.create('/test/candidate_', '',  ZooDefs.Acls.OPEN_ACL_UNSAFE,
+        zookeeper.SEQUENCE | zookeeper.EPHEMERAL)
+    zkg = self.GroupImpl(self._zk, '/test')
+    assert list(zkg) == []
+    assert zkg.monitor(membership=set(['frank', 'larry'])) == set()
+
   def test_monitor_then_info(self):
     zkg1 = self.GroupImpl(self._zk, '/test')
     zkg2 = self.GroupImpl(self._zk, '/test')
@@ -300,6 +392,15 @@ class TestGroup(unittest.TestCase):
     assert zkg1.info(m2) == Membership.error()
     assert zkg2.info(m1) == Membership.error()
     assert zkg2.info(m2) == 'herp derp'
+
+  def test_hard_root_acl(self):
+    secure_zk = self.make_zk(self._server.ensemble, authentication=('digest', 'username:password'))
+    secure_zk.create('/test', '', ZooDefs.Acls.EVERYONE_READ_CREATOR_ALL)
+    secure_zk.set_acl('/', 0, ZooDefs.Acls.READ_ACL_UNSAFE)
+    secure_zkg = self.GroupImpl(secure_zk, '/test', acl=ZooDefs.Acls.EVERYONE_READ_CREATOR_ALL)
+    membership = secure_zkg.join('secure hello world')
+    assert membership != Membership.error()
+    assert secure_zkg.info(membership) == 'secure hello world'
 
 
 class TestActiveGroup(TestGroup):

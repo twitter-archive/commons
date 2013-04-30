@@ -16,16 +16,15 @@
 
 package com.twitter.common.net.loadbalancing;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
-import com.twitter.common.base.Closure;
-import com.twitter.common.net.pool.ResourceExhaustedException;
-import com.twitter.common.net.loadbalancing.LoadBalancingStrategy.ConnectionResult;
-
 import java.util.Collection;
 import java.util.Set;
-import java.util.logging.Logger;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
+
+import com.twitter.common.base.Closure;
+import com.twitter.common.net.loadbalancing.LoadBalancingStrategy.ConnectionResult;
+import com.twitter.common.net.pool.ResourceExhaustedException;
 
 /**
  * Implementation of a load balancer, that uses a pluggable {@link LoadBalancingStrategy} to define
@@ -39,7 +38,6 @@ import java.util.logging.Logger;
  * @author William Farner
  */
 public class LoadBalancerImpl<K> implements LoadBalancer<K> {
-  private static final Logger LOG = Logger.getLogger(LoadBalancerImpl.class.getName());
 
   private final LoadBalancingStrategy<K> strategy;
 

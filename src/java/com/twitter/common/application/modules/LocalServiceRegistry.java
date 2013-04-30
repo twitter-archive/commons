@@ -27,8 +27,10 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
@@ -41,6 +43,7 @@ import com.twitter.common.application.modules.LifecycleModule.LaunchException;
 import com.twitter.common.application.modules.LifecycleModule.Service;
 import com.twitter.common.application.modules.LifecycleModule.ServiceRunner;
 import com.twitter.common.base.Command;
+import com.twitter.common.base.MorePreconditions;
 import com.twitter.common.net.InetSocketAddressHelper;
 
 /**
@@ -60,8 +63,6 @@ import com.twitter.common.net.InetSocketAddressHelper;
  *   }
  * }
  * </pre>
- *
- * @author William Farner
  */
 public class LocalServiceRegistry {
 
@@ -85,7 +86,7 @@ public class LocalServiceRegistry {
   private static final Function<LocalService, String> GET_NAME =
       new Function<LocalService, String>() {
         @Override public String apply(LocalService service) {
-          return service.name.get();
+          return Iterables.getOnlyElement(service.names);
         }
       };
 
@@ -107,6 +108,19 @@ public class LocalServiceRegistry {
     this.runnerProvider = Preconditions.checkNotNull(runnerProvider);
     this.shutdownRegistry = Preconditions.checkNotNull(shutdownRegistry);
   }
+
+  private static final Function<LocalService, Iterable<LocalService>> AUX_NAME_BREAKOUT =
+      new Function<LocalService, Iterable<LocalService>>() {
+        @Override public Iterable<LocalService> apply(final LocalService service) {
+          Preconditions.checkArgument(!service.primary);
+          Function<String, LocalService> oneNameService = new Function<String, LocalService>() {
+            @Override public LocalService apply(String name) {
+              return LocalService.auxiliaryService(name, service.port, service.shutdownCommand);
+            }
+          };
+          return Iterables.transform(service.names, oneNameService);
+        }
+      };
 
   /**
    * Launches the local services if not already launched, otherwise this is a no-op.
@@ -140,10 +154,14 @@ public class LocalServiceRegistry {
           throw new IllegalArgumentException("More than one primary local service: " + primaries);
       }
 
+      Iterable<LocalService> auxSinglyNamed = Iterables.concat(
+          FluentIterable.from(localServices)
+              .filter(Predicates.not(IS_PRIMARY))
+              .transform(AUX_NAME_BREAKOUT));
+
       Map<String, LocalService> byName;
       try {
-        byName = Maps.uniqueIndex(
-            Iterables.filter(localServices, Predicates.not(IS_PRIMARY)), GET_NAME);
+        byName = Maps.uniqueIndex(auxSinglyNamed, GET_NAME);
       } catch (IllegalArgumentException e) {
         throw new IllegalArgumentException("Auxiliary services with identical names.", e);
       }
@@ -179,23 +197,23 @@ public class LocalServiceRegistry {
    */
   public static final class LocalService {
     private final boolean primary;
-    private final Optional<String> name;
+    private final Set<String> names;
     private final int port;
     private final Command shutdownCommand;
 
-    private LocalService(boolean primary, Optional<String> name, int port,
+    private LocalService(boolean primary, Set<String> names, int port,
         Command shutdownCommand) {
       this.primary = primary;
-      this.name = name;
+      this.names = names;
       this.port = port;
-      this.shutdownCommand = shutdownCommand;
+      this.shutdownCommand = Preconditions.checkNotNull(shutdownCommand);
     }
 
     @Override
     public String toString() {
       return new ToStringBuilder(this)
           .append("primary", primary)
-          .append("name", name)
+          .append("name", names)
           .append("port", port)
           .toString();
     }
@@ -208,7 +226,7 @@ public class LocalServiceRegistry {
      * @return A new primary local service.
      */
     public static LocalService primaryService(int port, Command shutdownCommand) {
-      return new LocalService(true, Optional.<String>absent(), port, shutdownCommand);
+      return new LocalService(true, ImmutableSet.<String>of(), port, shutdownCommand);
     }
 
     /**
@@ -220,7 +238,24 @@ public class LocalServiceRegistry {
      * @return A new auxiliary local service.
      */
     public static LocalService auxiliaryService(String name, int port, Command shutdownCommand) {
-      return new LocalService(false, Optional.of(name), port, shutdownCommand);
+      return auxiliaryService(ImmutableSet.of(name), port, shutdownCommand);
+    }
+
+    /**
+     * Creates an auxiliary service identified by multiple names.
+     *
+     * @param names Service names.
+     * @param port Service port.
+     * @param shutdownCommand A command that will shut down the service.
+     * @return A new auxiliary local service.
+     */
+    public static LocalService auxiliaryService(
+        Set<String> names,
+        int port,
+        Command shutdownCommand) {
+
+      MorePreconditions.checkNotBlank(names);
+      return new LocalService(false, names, port, shutdownCommand);
     }
   }
 }

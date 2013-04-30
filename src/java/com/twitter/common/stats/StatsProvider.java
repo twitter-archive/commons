@@ -31,7 +31,7 @@ public interface StatsProvider {
    * Creates and exports a counter for tracking.
    *
    * @param name The name to export the stat with.
-   * @return A reference to counter that will be tracked for incrementing.
+   * @return A reference to the counter that will be tracked for incrementing.
    */
   AtomicLong makeCounter(String name);
 
@@ -44,6 +44,14 @@ public interface StatsProvider {
    * @return A reference to the stat that was stored.
    */
   <T extends Number> Stat<T> makeGauge(String name, Supplier<T> gauge);
+
+  /**
+   * Gets a stats provider that does not track stats in an internal time series repository.
+   * The stored variables will only be available as instantaneous values.
+   *
+   * @return A stats provider that creates untracked stats.
+   */
+  StatsProvider untracked();
 
   /**
    * A stat for tracking service requests.

@@ -17,32 +17,24 @@
 package com.twitter.common.text.combiner;
 
 import java.util.Map;
+import java.util.Queue;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
-import org.apache.lucene.util.AttributeSource;
 
 import com.twitter.common.text.token.TokenProcessor;
 import com.twitter.common.text.token.TokenStream;
-import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;
 import com.twitter.common.text.token.attribute.TokenType;
-import com.twitter.common.text.token.attribute.TokenTypeAttribute;
 
 /**
  * Combines multiple tokens into a single one if they define an entity identified
  * by an extractor TokenStream.
  */
 public class ExtractorBasedTokenCombiner extends TokenProcessor {
-  private final CharSequenceTermAttribute termAttr;
-  private final CharSequenceTermAttribute inputTermAttr;
-  private final TokenTypeAttribute typeAttr;
-
   private TokenStream extractor = null;
-  private CharSequenceTermAttribute extractorTermAttr;
   private TokenType type = null;
-
-  private AttributeSource.State state;
+  private Queue<State> nextStates = Lists.newLinkedList();
 
   // this map stores the start offsets and end offsets
   // of the tokens detected by extractor.
@@ -50,15 +42,10 @@ public class ExtractorBasedTokenCombiner extends TokenProcessor {
 
   public ExtractorBasedTokenCombiner(TokenStream inputStream) {
     super(inputStream);
-    Preconditions.checkArgument(hasAttribute(CharSequenceTermAttribute.class));
-    termAttr = getAttribute(CharSequenceTermAttribute.class);
-    typeAttr = addAttribute(TokenTypeAttribute.class);
-    inputTermAttr = inputStream.getAttribute(CharSequenceTermAttribute.class);
   }
 
   protected void setExtractor(TokenStream extractor) {
     this.extractor = extractor;
-    extractorTermAttr = extractor.getAttribute(CharSequenceTermAttribute.class);
   }
 
   protected void setType(TokenType type) {
@@ -74,56 +61,61 @@ public class ExtractorBasedTokenCombiner extends TokenProcessor {
     offsetMap.clear();
     extractor.reset(input);
     while (extractor.incrementToken()) {
-      offsetMap.put(extractorTermAttr.getOffset(),
-          extractorTermAttr.getOffset() + extractorTermAttr.getLength());
+      offsetMap.put(extractor.offset(), extractor.offset() + extractor.length());
     }
   }
 
   @Override
   public boolean incrementToken() {
-    clearAttributes();
-    if (state != null) {
-      restoreState(state);
-      state = null;
-    } else {
-      if (!getInputStream().incrementToken()) {
-        return false;
-      }
-
-      restoreState(getInputStream().captureState());
+    if (!nextStates.isEmpty()) {
+      restoreState(nextStates.poll());
+      return true;
     }
 
-    if (offsetMap.containsKey(termAttr.getOffset())) {
-      int startOffset = termAttr.getOffset();
+    if (!incrementInputStream()) {
+      return false;
+    }
+
+    if (offsetMap.containsKey(offset())) {
+      int startOffset = offset();
       int endOffset = offsetMap.get(startOffset);
 
       // if the current token matches the given pattern,
       // simply update its TypeAttribute.
-      if (endOffset == inputTermAttr.getOffset() + inputTermAttr.getLength()) {
+      if (endOffset == startOffset + length()) {
         if (type != null) {
-          typeAttr.setType(type);
+          updateType(type);
         }
         return true;
       }
 
-      while (getInputStream().incrementToken()) {
-        state = getInputStream().captureState();
+      // store the attributes of the current token
+      nextStates.add(captureState());
 
-        int currentEndOffset = inputTermAttr.getOffset() + inputTermAttr.getLength();
+      while (incrementInputStream()) {
+        // store the next token's status
+        nextStates.add(captureState());
+
+        int currentEndOffset = offset() + length();
         if (currentEndOffset == endOffset) {
           //found it!
-          termAttr.setLength(endOffset - startOffset);
+          // restore attributes of the first token.
+          restoreState(nextStates.poll());
+          updateOffsetAndLength(startOffset, endOffset - startOffset);
           if (type != null) {
-            typeAttr.setType(type);
+            updateType(type);
           }
-          state = null;
-
+          nextStates.clear();
           break;
         } else if (currentEndOffset > endOffset) {
-          // cannot find it and currentEndOffset
-          // grows beyond expected (tokenization mismatch??)
+          // cannot find it and currentEndOffset.
+          // grows beyond expected. (tokenization mismatch??)
           break;
         }
+      }
+
+      if (!nextStates.isEmpty()) {
+        restoreState(nextStates.poll());
       }
     }
 

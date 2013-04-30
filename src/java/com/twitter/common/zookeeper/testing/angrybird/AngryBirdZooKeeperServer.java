@@ -82,7 +82,7 @@ public class AngryBirdZooKeeperServer extends ZooKeeperTestServer {
    * @param nodeId (optional) expire a specific follower node if found
    * @return the session id of the matching candidate if a match is found
    */
-  public final Optional<Long> expireFollower(String path, Optional<Integer> nodeId) {
+  public final Optional<Long> expireFollower(String path, Optional<String> nodeId) {
     return closeSession(getFollowerSessionIdFromPath(path, nodeId));
   }
 
@@ -90,7 +90,7 @@ public class AngryBirdZooKeeperServer extends ZooKeeperTestServer {
     if (!sessionId.isPresent()) {
       LOG.warning("No session found for expiration!");
     } else {
-      LOG.info("Closing session: " + sessionId);
+      LOG.info("Closing session: " + sessionId.get());
       zooKeeperServer.closeSession(sessionId.get().longValue());
     }
 
@@ -188,7 +188,7 @@ public class AngryBirdZooKeeperServer extends ZooKeeperTestServer {
    * @param candidateId (optional) specific candidate id of follower to expire, otherwise random.
    * @return session id of the corresponding zk session if a match is found
    */
-  private Optional<Long> getFollowerSessionIdFromPath(String zkPath, Optional<Integer> nodeId) {
+  private Optional<Long> getFollowerSessionIdFromPath(String zkPath, Optional<String> nodeId) {
     Optional<Long> leaderSessionId = getLeaderSessionIdFromPath(zkPath);
     if (!leaderSessionId.isPresent()) {
       return leaderSessionId;
@@ -209,7 +209,7 @@ public class AngryBirdZooKeeperServer extends ZooKeeperTestServer {
             TestEndpoint endpoint;
             try {
               endpoint = parseEndpoint(new String(zkDb.getData(path, new Stat(), null)));
-              if (endpoint.getNodeId() == nodeId.get()) {
+              if (endpoint.getNodeId().equals(nodeId.get())) {
                 return Optional.of(sessionId);
               }
             } catch (ParseException e) {
@@ -231,7 +231,7 @@ public class AngryBirdZooKeeperServer extends ZooKeeperTestServer {
       throw new ParseException("Unknown znode data: Expected format id@host:port", 0);
     }
 
-    int nodeId = Integer.parseInt(endpointComponents.get(0));
+    String nodeId = endpointComponents.get(0);
     HostAndPort pair;
     try {
       pair = HostAndPort.fromString(endpointComponents.get(1));

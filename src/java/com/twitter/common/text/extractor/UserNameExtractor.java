@@ -25,9 +25,9 @@ import com.twitter.Regex;
 public class UserNameExtractor extends RegexExtractor {
   /** Default constructor. **/
   public UserNameExtractor() {
-    setRegexPattern(Regex.AUTO_LINK_USERNAMES_OR_LISTS,
-        Regex.AUTO_LINK_USERNAME_OR_LISTS_GROUP_AT,
-        Regex.AUTO_LINK_USERNAME_OR_LISTS_GROUP_USERNAME);
+    setRegexPattern(Regex.VALID_MENTION_OR_LIST,
+        Regex.VALID_MENTION_OR_LIST_GROUP_AT,
+        Regex.VALID_MENTION_OR_LIST_GROUP_USERNAME);
     setTriggeringChar('@');
   }
 }

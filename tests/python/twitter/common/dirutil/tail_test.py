@@ -81,7 +81,7 @@ class TailThread(threading.Thread):
 class TestTail(unittest.TestCase):
   @classmethod
   def write_to_fp(cls, msg):
-    print(msg, file=cls._fp)
+    cls._fp.write(msg)
     cls._fp.flush()
 
   @classmethod
@@ -109,33 +109,33 @@ class TestTail(unittest.TestCase):
   def test_simple_tail(self):
     self.write_to_fp('hello')
     self._thread.clock().tick()
-    assert self._thread.clear() == ['hello\n']
+    assert self._thread.clear() == ['hello']
     self.write_to_fp('hello 2')
     assert self._thread.clear() == []
     self._thread.clock().tick()
-    assert self._thread.clear() == ['hello 2\n']
+    assert self._thread.clear() == ['hello 2']
 
   def test_tail_through_reset(self):
     self._thread.clock().reset()
     assert self._thread.clock().time() == 0
     self.write_to_fp('hello')
     self._thread.clock().tick()
-    assert self._thread.clear() == ['hello\n']
+    assert self._thread.clear() == ['hello']
     self.reset_fp()
     self.write_to_fp('hello 2')
     self._thread.clock().tick()
-    assert self._thread.clear() == ['hello 2\n']
+    assert self._thread.clear() == ['hello 2']
 
   def test_tail_through_truncation(self):
     self.write_to_fp('hello')
     self._thread.clock().tick()
-    assert self._thread.clear() == ['hello\n']
+    assert self._thread.clear() == ['hello']
 
     self.write_to_fp('hello 2')
     self._thread.clock().tick()
-    assert self._thread.clear() == ['hello 2\n']
+    assert self._thread.clear() == ['hello 2']
 
     self._fp.truncate(0)
     self.write_to_fp('hello 3')
     self._thread.clock().tick()
-    assert self._thread.clear() == ['hello 3\n']
+    assert self._thread.clear() == ['hello 3']

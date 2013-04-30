@@ -102,6 +102,13 @@ struct ServiceInstance {
 
   /*
    * The status of this service instance.
+   * NOTE: Only status ALIVE should be used. This field is pending removal.
+   * TODO(Sathya Hariesh): Remove the status field.
    */
   3: Status status;
+
+  /*
+   * The shard identifier for this instance.
+   */
+  4: optional i32 shard;
 }

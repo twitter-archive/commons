@@ -21,7 +21,6 @@ limitations under the License.
   <property name="root.dir" value="${ivy.settings.dir}/../.." override="false"/>
   <properties file="${root.dir}/build.properties" override="false"/>
 
-
   <settings defaultResolver="chain-repos"/>
 
   <!--
@@ -30,9 +29,25 @@ limitations under the License.
   <include file="${ivysettings.file}"/>
 
   <resolvers>
-    <_chain_resolvers name="chain-repos"/>
-  </resolvers>
+    <chain name="chain-repos" returnFirst="true">
+      <_remote_resolvers name="remote-repos"/>
 
+      <!-- Fall back to local repositories-->
+      <!-- sbt standard -->
+      <ibiblio name="local.sbt"
+               m2compatible="true"
+               usepoms="true"
+               checkmodified="true"
+               root="file://${user.home}/.ivy2/local"/>
+
+      <!-- mvn standard -->
+      <ibiblio name="local.m2"
+               m2compatible="true"
+               usepoms="true"
+               checkmodified="true"
+               root="file://${user.home}/.m2/repository"/>
+    </chain>
+  </resolvers>
 
   <!-- don't use the default shared cache with other projects because it gets polluted,
        but do share it for this project so that deploys that re-clone each time share it -->
