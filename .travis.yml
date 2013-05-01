@@ -7,7 +7,7 @@ python:
 jdk:
   - openjdk7
 
-script: "./build-support/python/clean.sh && ./pants goal clean-all test tests/{java,scala}/com/twitter/common:: && ./pants tests/python/twitter/common:all && ./pants tests/python/twitter/pants:all"
+script: "./build-support/python/clean.sh && ./pants goal clean-all test tests/{java,scala}/com/twitter/common:: && ./pants tests/python/twitter/common:all --no-ng-daemons -vx && ./pants tests/python/twitter/pants:all"
 
 notifications:
   email:
