@@ -1,11 +1,13 @@
 language: python
+
 python:
   - "2.6"
+  - "2.7"
+  - "3.3"
+jdk:
+  - openjdk7
 
-before_install:
-  - sudo apt-get install -qq openjdk-6-jdk
-
-script: ./pants goal clean-all test tests/java/com/twitter/common:all
+script: "./build-support/python/clean.sh && ./pants goal clean-all test tests/{java,scala}/com/twitter/common:: && ./pants tests/python/twitter/common:all && ./pants tests/python/twitter/pants:all"
 
 notifications:
   email:
