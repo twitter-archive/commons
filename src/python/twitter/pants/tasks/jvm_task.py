@@ -28,15 +28,19 @@ class JvmTask(Task):
     with self.context.state('classpath', []) as cp:
       classpath.extend(path for conf, path in cp if not confs or conf in confs)
 
-    if self.context.config.getbool('jvm', 'parallel_test_paths', default=False):
-      # TODO(John Sirois): Kill this when science tests are converted to use explicit test target
-      # resources: http://jira.local.twitter.com/browse/AWESOME-108
+    def add_resource_paths(predicate):
       bases = set()
       for target in self.context.targets():
-        if is_jvm(target) and is_test(target):
+        if predicate(target):
           if target.target_base not in bases:
             sibling_resources_base = os.path.join(os.path.dirname(target.target_base), 'resources')
             classpath.append(os.path.join(get_buildroot(), sibling_resources_base))
             bases.add(target.target_base)
+
+    if self.context.config.getbool('jvm', 'parallel_src_paths', default=False):
+      add_resource_paths(lambda t: is_jvm(t) and not is_test(t))
+
+    if self.context.config.getbool('jvm', 'parallel_test_paths', default=False):
+      add_resource_paths(lambda t: is_jvm(t) and is_test(t))
 
     return classpath
