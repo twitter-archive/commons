@@ -1,5 +1,7 @@
 package com.twitter.common.stats;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Precision expresses the maximum epsilon tolerated for a typical size of input
  * e.g.: Precision(0.01, 1000) express that we tolerate a error of 1% for 1000 entries
@@ -18,6 +20,9 @@ public class Precision {
    * @param n size of the data set
    */
   public Precision(double epsilon, int n) {
+    Preconditions.checkArgument(0.0 < epsilon, "Epsilon must be positive!");
+    Preconditions.checkArgument(1 < n, "N (expected number of elements) must be greater than 1!");
+
     this.epsilon = epsilon;
     this.n = n;
   }

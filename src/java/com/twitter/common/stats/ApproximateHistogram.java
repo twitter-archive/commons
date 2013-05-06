@@ -1,7 +1,6 @@
 package com.twitter.common.stats;
 
 import java.util.Arrays;
-import java.util.logging.Logger;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -45,7 +44,6 @@ import com.twitter.common.quantity.Data;
  * the temporary buffer and put it in [3] if it's empty and so on...
  */
 public final class ApproximateHistogram implements Histogram {
-  private static final Logger LOG = Logger.getLogger(Histogram.class.getName());
   private static final Precision DEFAULT_PRECISION = new Precision(0.0001, 1000 * 1000);
   private static final Amount<Long, Data> DEFAULT_MAX_MEMORY = Amount.of(4L, Data.KB);
   private static final int ELEMSIZE = 8; // sizeof long

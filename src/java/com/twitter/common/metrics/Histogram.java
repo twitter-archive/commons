@@ -1,7 +1,5 @@
 package com.twitter.common.metrics;
 
-import java.util.logging.Logger;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
@@ -17,8 +15,7 @@ import com.twitter.common.stats.Statistics;
  * It can be queried for quantiles or basic statistics (min, max, avg, count).
  */
 public class Histogram {
-  static final double[] DEFAULT_QUANTILES = {.25, .50, .75, .90, .95, .99, .999, .9999};
-  private static final Logger LOG = Logger.getLogger(Histogram.class.getName());
+  static final double[] DEFAULT_QUANTILES = {.50, .90, .95, .99, .999, .9999};
 
   private final com.twitter.common.stats.Histogram histogram;
   private final String name;
