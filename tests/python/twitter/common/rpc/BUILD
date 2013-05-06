@@ -17,14 +17,13 @@
 python_tests(name = 'rpc',
   sources = globs('*.py'),
   dependencies = [
-    'src/python/twitter/common/rpc'
+    pants('src/python/twitter/common/rpc')
   ]
 )
 
 python_test_suite(name = 'all',
   dependencies = [
-    ':rpc',
-    # Disabled pending fix for non-existant src/thrift/com/twitter/service
-    #'tests/python/twitter/common/rpc/finagle'
+    pants(':rpc'),
+    pants('tests/python/twitter/common/rpc/finagle')
   ]
 )

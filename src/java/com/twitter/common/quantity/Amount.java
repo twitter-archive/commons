@@ -32,12 +32,23 @@ import com.twitter.common.collections.Pair;
 public abstract class Amount<T extends Number & Comparable<T>, U extends Unit<U>>
     implements Comparable<Amount<T, U>> {
 
-  private final Pair<T, U> amount;
+  /**
+   * Thrown when a checked operation on an amount would overflow.
+   */
 
-  private Amount(T value, U unit) {
+  public static class TypeOverflowException extends RuntimeException {
+    public TypeOverflowException() {
+      super();
+    }
+  }
+
+  private final Pair<T, U> amount;
+  private final T maxValue;
+
+  private Amount(T value, U unit, T maxValue) {
     Preconditions.checkNotNull(value);
     Preconditions.checkNotNull(unit);
-
+    this.maxValue = maxValue;
     this.amount = Pair.of(value, unit);
   }
 
@@ -51,6 +62,17 @@ public abstract class Amount<T extends Number & Comparable<T>, U extends Unit<U>
 
   public T as(U unit) {
     return asUnit(unit);
+  }
+
+  /**
+   * Throws TypeOverflowException if an overflow occurs during scaling.
+   */
+  public T asChecked(U unit) {
+    T retVal = asUnit(unit);
+    if (retVal.equals(maxValue)) {
+      throw new TypeOverflowException();
+    }
+    return retVal;
   }
 
   private T asUnit(Unit<?> unit) {
@@ -132,7 +154,7 @@ public abstract class Amount<T extends Number & Comparable<T>, U extends Unit<U>
    * @return an amount quantifying the given {@code number} of {@code unit}s
    */
   public static <U extends Unit<U>> Amount<Double, U> of(double number, U unit) {
-    return new Amount<Double, U>(number, unit) {
+    return new Amount<Double, U>(number, unit, Double.MAX_VALUE) {
       @Override protected Double scale(double multiplier) {
         return getValue() * multiplier;
       }
@@ -148,7 +170,7 @@ public abstract class Amount<T extends Number & Comparable<T>, U extends Unit<U>
    * @return an amount quantifying the given {@code number} of {@code unit}s
    */
   public static <U extends Unit<U>> Amount<Float, U> of(float number, U unit) {
-    return new Amount<Float, U>(number, unit) {
+    return new Amount<Float, U>(number, unit, Float.MAX_VALUE) {
       @Override protected Float scale(double multiplier) {
         return (float) (getValue() * multiplier);
       }
@@ -164,7 +186,7 @@ public abstract class Amount<T extends Number & Comparable<T>, U extends Unit<U>
    * @return an amount quantifying the given {@code number} of {@code unit}s
    */
   public static <U extends Unit<U>> Amount<Long, U> of(long number, U unit) {
-    return new Amount<Long, U>(number, unit) {
+    return new Amount<Long, U>(number, unit, Long.MAX_VALUE) {
       @Override protected Long scale(double multiplier) {
         return (long) (getValue() * multiplier);
       }
@@ -180,7 +202,7 @@ public abstract class Amount<T extends Number & Comparable<T>, U extends Unit<U>
    * @return an amount quantifying the given {@code number} of {@code unit}s
    */
   public static <U extends Unit<U>> Amount<Integer, U> of(int number, U unit) {
-    return new Amount<Integer, U>(number, unit) {
+    return new Amount<Integer, U>(number, unit, Integer.MAX_VALUE) {
       @Override protected Integer scale(double multiplier) {
         return (int) (getValue() * multiplier);
       }

@@ -14,80 +14,71 @@
 # limitations under the License.
 # ==================================================================================================
 
+"""Generic interfaces for record-based IO streams.
+
+This module contains a RecordIO specification which defines interfaces for reading and writing to
+sequential record streams using codecs. A record consists of a header (containing the length of the
+frame), and a frame containing the encoded data.
+
+To create a new RecordIO implementation, subclass RecordReader, RecordWriter, and Codec.
+A basic example, StringRecordIO, is provided.
+
+"""
+
+import errno
+from abc import abstractmethod
 import os
 import struct
-import errno
 
 from twitter.common import log
-from twitter.common.lang import Compatibility
+from twitter.common.lang import Compatibility, Interface
+
+from .filelike import FileLike
+
 
 class RecordIO(object):
-  class PrematureEndOfStream(Exception): pass
-  class RecordSizeExceeded(Exception): pass
-  class InvalidTypeException(Exception): pass
-  class InvalidFileHandle(Exception): pass
-  class InvalidArgument(Exception): pass
-  class UnimplementedException(Exception): pass
-  class InvalidCodec(Exception): pass
+  class Error(Exception): pass
+  class PrematureEndOfStream(Error): pass
+  class RecordSizeExceeded(Error): pass
+  class InvalidTypeException(Error): pass
+  class InvalidFileHandle(Error): pass
+  class InvalidArgument(Error): pass
+  class InvalidCodec(Error): pass
 
-  # Maximum record size
-  SANITY_CHECK_BYTES = 64 * 1024 * 1024
+  RECORD_HEADER_SIZE = 4
+  MAXIMUM_RECORD_SIZE = 64 * 1024 * 1024
 
-
-  class Codec(object):
+  class Codec(Interface):
     """
       An encoder/decoder interface for bespoke RecordReader/Writers.
     """
-    def __init__(self):
-      pass
-
+    @abstractmethod
     def encode(self, blob):
       """
         Given: blob in custom format
         Return: serialized byte data
+        Raises: InvalidTypeException if a bad blob type is supplied
       """
-      raise RecordIO.UnimplementedException("Codec.encode pure virtual.")
 
+    @abstractmethod
     def decode(self, blob):
       """
         Given: deserialized byte data
         Return: blob in custom format
+        Raises: InvalidTypeException if a bad blob type is supplied
       """
-      raise RecordIO.UnimplementedException("Codec.decode pure virtual.")
 
-
-  class StringCodec(Codec):
-    def __init__(self):
-      RecordIO.Codec.__init__(self)
-
-    @staticmethod
-    def code(blob):
-      if blob is None: return None
-      if not isinstance(blob, Compatibility.string):
-        raise RecordIO.InvalidTypeException("blob (type=%s) not StringType!" % type(blob))
-      return blob
-
-    def encode(self, blob):
-      return RecordIO.StringCodec.code(blob)
-
-    def decode(self, blob):
-      return RecordIO.StringCodec.code(blob)
-
-  class Stream(object):
+  class _Stream(object):
+    """
+      Shared initialization functionality for Reader/Writer
+    """
     def __init__(self, fp, codec):
-      # TODO(wickman) Create a 2.x ABC to validate that this is a file-like object.
-      def validate_filehandle():
-        if fp is None:
-          raise RecordIO.InvalidFileHandle(
-            'Intialized with an invalid file handle: %s' % fp)
-
-      def validate_codec():
-        if not isinstance(codec, RecordIO.Codec):
-          raise RecordIO.InvalidTypeException("Expected codec to be subclass of RecordIO.Codec")
-
-      validate_filehandle()
-      validate_codec()
-      self._fp = fp
+      try:
+        self._fp = FileLike.get(fp)
+      except ValueError as err:
+        raise RecordIO.InvalidFileHandle(err)
+      if not isinstance(codec, RecordIO.Codec):
+        raise RecordIO.InvalidCodec("Codec must be subclass of RecordIO.Codec")
       self._codec = codec
 
     def close(self):
@@ -96,62 +87,66 @@ class RecordIO(object):
       """
       self._fp.close()
 
-  class Reader(Stream):
+  class Reader(_Stream):
     def __init__(self, fp, codec):
       """
-        Initialize a Reader from the file pointer fp.
+        Initialize a Reader from file-like fp, with RecordIO.Codec codec
       """
-      RecordIO.Stream.__init__(self, fp, codec)
+      RecordIO._Stream.__init__(self, fp, codec)
       if ('w' in self._fp.mode or 'a' in self._fp.mode) and '+' not in self._fp.mode:
         raise RecordIO.InvalidFileHandle(
           'Filehandle supplied to RecordReader does not appear to be readable!')
 
     def __iter__(self):
       """
+      Return an iterator over the entire contents of the underlying file handle.
+
         May raise:
           RecordIO.PrematureEndOfStream
       """
-      fd = os.dup(self._fp.fileno())
       try:
-        cur_fp = os.fdopen(fd, self._fp.mode)
-        cur_fp.seek(0)
-      except OSError as e:
-        log.error('Failed to duplicate fd on %s, error = %s' % (self._fp.name, e))
-        try:
-          os.close(fd)
-        except OSError as e:
-          if e.errno != errno.EBADF:
-            log.error('Failed to close duped fd on %s, error = %s' % (self._fp.name, e))
+        dup_fp = self._fp.dup()
+      except self._fp.Error:
+        log.error('Failed to dup %r' % self._fp)
         return
 
       try:
         while True:
-          blob = RecordIO.Reader.do_read(cur_fp, self._codec)
+          blob = RecordIO.Reader.do_read(dup_fp, self._codec)
           if blob:
             yield blob
           else:
             break
-      finally:
-        cur_fp.close()
+      except RecordIO.Error as e:
+        log.error('Caught exception in __iter__: %s' % e)
+        dup_fp.close()
 
     @staticmethod
     def do_read(fp, decoder):
-      blob = fp.read(4)
-      if len(blob) == 0:
-        log.debug("%s has no data (cur offset = %d)" % (fp.name, fp.tell()))
-        # Reset EOF
-        # TODO(wickman)  Should we also do this in the PrematureEndOfStream case before
-        # raising, or rely upon the exception handler to take care of that for us?
+      """
+        Read a single record from the given filehandle and decode using the supplied decoder.
+
+        May raise:
+          RecordIO.PrematureEndOfStream if the stream is truncated in the middle of
+            an expected message
+          RecordIO.RecordSizeExceeded if the message exceeds RecordIO.MAXIMUM_RECORD_SIZE
+
+      """
+      # read header
+      header = fp.read(RecordIO.RECORD_HEADER_SIZE)
+      if len(header) == 0:
+        log.debug("%s has no data (current offset = %d)" % (fp.name, fp.tell()))
+        # Reset EOF (appears to be only necessary on OS X)
         fp.seek(fp.tell())
         return None
-      if len(blob) != 4:
-        raise RecordIO.PrematureEndOfStream("Expected 4 bytes, got %d" % len(blob))
-      blob_len = struct.unpack('>L', blob)[0]
-      if blob_len > RecordIO.SANITY_CHECK_BYTES:
+      elif len(header) != RecordIO.RECORD_HEADER_SIZE:
+        raise RecordIO.PrematureEndOfStream(
+            "Expected %d bytes, got %d" % (RecordIO.RECORD_HEADER_SIZE, len(header)))
+      blob_len = struct.unpack('>L', header)[0]
+      if blob_len > RecordIO.MAXIMUM_RECORD_SIZE:
         raise RecordIO.RecordSizeExceeded()
 
       # read frame
-      # -----
       read_blob = fp.read(blob_len)
       if len(read_blob) != blob_len:
         raise RecordIO.PrematureEndOfStream()
@@ -167,8 +162,8 @@ class RecordIO(object):
 
         May raise:
           RecordIO.PrematureEndOfStream if the stream is truncated in the middle of
-            and expected message
-          RecordIO.RecordSizeExceeded if the message exceeds RecordIO.SANITY_CHECK_BYTES
+            an expected message
+          RecordIO.RecordSizeExceeded if the message exceeds RecordIO.MAXIMUM_RECORD_SIZE
       """
       return RecordIO.Reader.do_read(self._fp, self._codec)
 
@@ -183,24 +178,22 @@ class RecordIO(object):
           RecordIO.RecordSizeExceeded
       """
       pos = self._fp.tell()
-      read_blob = None
       try:
-        read_blob = self.read()
+        return self.read()
       except RecordIO.PrematureEndOfStream as e:
         log.debug('Got premature end of stream [%s], skipping - %s' % (self._fp.name, e))
         self._fp.seek(pos)
         return None
-      return read_blob
 
-  class Writer(Stream):
+  class Writer(_Stream):
     def __init__(self, fp, codec, sync=False):
       """
-        Initialize a Writer from the file pointer fp.
+        Initialize a Writer from the FileLike fp, with RecordIO.Codec codec.
 
         If sync=True is supplied, then all mutations are fsynced after write, otherwise
         standard filesystem buffering is employed.
       """
-      RecordIO.Stream.__init__(self, fp, codec)
+      RecordIO._Stream.__init__(self, fp, codec)
       if 'w' not in self._fp.mode and 'a' not in self._fp.mode and '+' not in self._fp.mode:
         raise RecordIO.InvalidFileHandle(
           'Filehandle supplied to RecordWriter does not appear to be writeable!')
@@ -210,85 +203,97 @@ class RecordIO(object):
       self._sync = bool(value)
 
     @staticmethod
-    def _fsync(fp):
-      try:
-        fp.flush()
-        os.fsync(fp.fileno())
-      except:
-        log.error("Failed to fsync on %s!  Continuing..." % fp.name)
-
-    @staticmethod
-    def do_write(fp, input, codec, sync=False):
+    def do_write(fp, record, codec, sync=False):
       """
-        Write a record to the current fp using the supplied codec.
+        Write a record to the specified fp using the supplied codec.
 
         Returns True on success, False on any filesystem failure.
-
-        May raise:
-          RecordIO.UnknownTypeException if blob is not a string.
       """
-      blob = codec.encode(input)
-      blob_len = len(blob)
+      blob = codec.encode(record)
+      header = struct.pack(">L", len(blob))
       try:
-        fp.write(struct.pack(">L", blob_len))
+        fp.write(header)
         fp.write(blob)
-      except Exception as e:
+      except (IOError, OSError) as e:
         log.debug("Got exception in write(%s): %s" % (fp.name, e))
         return False
       if sync:
-        RecordIO.Writer._fsync(fp)
+        fp.flush()
       return True
 
     @staticmethod
-    def append(filename, input, codec):
+    def append(filename, record, codec):
       """
         Given a filename stored in RecordIO format, open the file, append a
-        blob to it and close.
+        record to it and close.
 
         Returns True if it succeeds, or False if it fails for any reason.
+        Raises IOError, OSError if there is a problem opening filename for appending.
       """
-      rv = False
       if not isinstance(codec, RecordIO.Codec):
         raise RecordIO.InvalidCodec("append called with an invalid codec!")
       if not os.path.exists(filename):
         return False
       try:
+        fp = None
         with open(filename, "a+") as fp:
-          rv = RecordIO.Writer.do_write(fp, input, codec)
-      except Exception as e:
+          return RecordIO.Writer.do_write(fp, record, codec)
+      except (IOError, OSError) as e:
         if fp:
           log.debug("Unexpected exception (%s), but continuing" % e)
+          return False
         else:
-          raise e
-      return rv
+          raise
 
     def write(self, blob):
       """
         Append the blob to the current RecordWriter.
 
         Returns True on success, False on any filesystem failure.
-
-        May raise:
-          RecordIO.UnknownTypeException if blob is not a string.
       """
       return RecordIO.Writer.do_write(self._fp, blob, self._codec, sync=self._sync)
 
-class RecordWriter(RecordIO.Writer):
+
+class StringCodec(RecordIO.Codec):
+  """
+    A simple string-based implementation of Codec.
+
+    Performs no actual encoding/decoding; simply verifies that input is a string
+  """
+  @staticmethod
+  def _validate(blob):
+    if not isinstance(blob, Compatibility.string):
+      raise RecordIO.InvalidTypeException("blob (type=%s) not StringType!" % type(blob))
+    return blob
+
+  def encode(self, blob):
+    return self._validate(blob)
+
+  def decode(self, blob):
+    return self._validate(blob)
+
+
+class StringRecordReader(RecordIO.Reader):
+  """
+    Simple RecordReader that deserializes strings.
+  """
+  def __init__(self, fp):
+    RecordIO.Reader.__init__(self, fp, StringCodec())
+
+
+class StringRecordWriter(RecordIO.Writer):
   """
     Write framed string records to a stream.
 
     Max record size is 64MB for the sake of sanity.
   """
   def __init__(self, fp):
-    RecordIO.Writer.__init__(self, fp, RecordIO.StringCodec())
+    RecordIO.Writer.__init__(self, fp, StringCodec())
 
   @staticmethod
-  def append(filename, blob, codec=RecordIO.StringCodec()):
+  def append(filename, blob, codec=StringCodec()):
     return RecordIO.Writer.append(filename, blob, codec)
 
-class RecordReader(RecordIO.Reader):
-  """
-    Read framed string record from a RecordWriter stream.
-  """
-  def __init__(self, fp):
-    RecordIO.Reader.__init__(self, fp, RecordIO.StringCodec())
+
+RecordReader = StringRecordReader
+RecordWriter = StringRecordWriter

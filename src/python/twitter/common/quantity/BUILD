@@ -18,6 +18,6 @@ python_library(
   name = "quantity",
   sources = rglobs("*.py"),
   dependencies = [
-    'src/python/twitter/common/lang',
+    pants('src/python/twitter/common/lang')
   ]
 )

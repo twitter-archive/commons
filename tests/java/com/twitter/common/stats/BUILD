@@ -19,16 +19,17 @@ from glob import glob
 
 java_tests(name = 'stats',
   dependencies = [
-    '3rdparty:easymock',
-    '3rdparty:guava',
-    '3rdparty:junit',
-    'src/java/com/twitter/common/quantity',
-    'src/java/com/twitter/common/stats',
-    'src/java/com/twitter/common/stats:time-series',
-    'src/java/com/twitter/common/stats:util',
-    'src/java/com/twitter/common/testing',
-    'src/java/com/twitter/common/util:system-mocks',
-    'src/java/com/twitter/common/util:testing',
+    pants('3rdparty:easymock'),
+    pants('3rdparty:guava'),
+    pants('3rdparty:junit'),
+    pants('3rdparty:mockito'),
+    pants('src/java/com/twitter/common/quantity'),
+    pants('src/java/com/twitter/common/stats'),
+    pants('src/java/com/twitter/common/stats:time-series'),
+    pants('src/java/com/twitter/common/stats:util'),
+    pants('src/java/com/twitter/common/testing'),
+    pants('src/java/com/twitter/common/util:system-mocks'),
+    pants('src/java/com/twitter/common/util:testing'),
   ],
   sources = glob('*.java')
 )

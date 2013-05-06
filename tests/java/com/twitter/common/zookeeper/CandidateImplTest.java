@@ -16,10 +16,21 @@
 
 package com.twitter.common.zookeeper;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.LinkedBlockingDeque;
+
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Ordering;
+
+import org.apache.zookeeper.ZooDefs;
+import org.apache.zookeeper.data.ACL;
+import org.junit.Before;
+import org.junit.Test;
 
 import com.twitter.common.base.ExceptionalCommand;
 import com.twitter.common.quantity.Amount;
@@ -27,21 +38,12 @@ import com.twitter.common.quantity.Time;
 import com.twitter.common.zookeeper.Candidate.Leader;
 import com.twitter.common.zookeeper.Group.JoinException;
 import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
-import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.data.ACL;
-import org.junit.Before;
-import org.junit.Test;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.LinkedBlockingDeque;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
-import static org.junit.Assert.*;
-
-/**
- * @author John Sirois
- */
 public class CandidateImplTest extends BaseZooKeeperTest {
   private static final List<ACL> ACL = ZooDefs.Ids.OPEN_ACL_UNSAFE;
   private static final String SERVICE = "/twitter/services/puffin_linkhose/leader";
@@ -168,19 +170,21 @@ public class CandidateImplTest extends BaseZooKeeperTest {
     };
 
     ZooKeeperClient zkClient1 = createZkClient(TIMEOUT);
+    Group group1 = createGroup(zkClient1);
     final CandidateImpl candidate1 =
-        new CandidateImpl(createGroup(zkClient1), judge, CandidateImpl.IP_ADDRESS_DATA_SUPPLIER) {
-      @Override public String toString() {
-        return "Leader1";
-      }
-    };
+        new CandidateImpl(group1, judge, Suppliers.ofInstance("Leader1".getBytes())) {
+          @Override public String toString() {
+            return "Leader1";
+          }
+        };
     ZooKeeperClient zkClient2 = createZkClient(TIMEOUT);
+    Group group2 = createGroup(zkClient2);
     final CandidateImpl candidate2 =
-        new CandidateImpl(createGroup(zkClient2), judge, CandidateImpl.IP_ADDRESS_DATA_SUPPLIER) {
-      @Override public String toString() {
-        return "Leader2";
-      }
-    };
+        new CandidateImpl(group2, judge, Suppliers.ofInstance("Leader2".getBytes())) {
+          @Override public String toString() {
+            return "Leader2";
+          }
+        };
 
     Reign candidate1Reign = new Reign("1", candidate1);
     Reign candidate2Reign = new Reign("2", candidate2);
@@ -197,29 +201,31 @@ public class CandidateImplTest extends BaseZooKeeperTest {
 
   @Test
   public void testCustomDataSupplier() throws Exception {
-
-    final String suppliedValue = "SAMPLE_DATA";
+    byte[] DATA = "Leader1".getBytes();
     ZooKeeperClient zkClient1 = createZkClient(TIMEOUT);
-    final CandidateImpl candidate1 =
-        new CandidateImpl(createGroup(zkClient1),
-            CandidateImpl.MOST_RECENT_JUDGE, new Supplier<byte[]>() {
-          @Override
-          public byte[] get() {
-            return suppliedValue.getBytes();
-          }
-        }) {
+    Group group1 = createGroup(zkClient1);
+    CandidateImpl candidate1 = new CandidateImpl(group1, Suppliers.ofInstance(DATA)) {
       @Override public String toString() {
         return "Leader1";
       }
     };
-
     Reign candidate1Reign = new Reign("1", candidate1);
 
     Supplier<Boolean> candidate1Leader = candidate1.offerLeadership(candidate1Reign);
-    candidateBuffer.takeLast();
+    assertSame(candidate1, candidateBuffer.takeLast());
     assertTrue(candidate1Leader.get());
-
-    assertArrayEquals(candidate1.getLeaderData(), suppliedValue.getBytes());
+    assertArrayEquals(DATA, candidate1.getLeaderData().get());
   }
 
+  @Test
+  public void testEmptyMembership() throws Exception {
+    ZooKeeperClient zkClient1 = createZkClient(TIMEOUT);
+    final CandidateImpl candidate1 = new CandidateImpl(createGroup(zkClient1));
+    Reign candidate1Reign = new Reign("1", candidate1);
+
+    candidate1.offerLeadership(candidate1Reign);
+    assertSame(candidate1, candidateBuffer.takeLast());
+    candidate1Reign.abdicate();
+    assertFalse(candidate1.getLeaderData().isPresent());
+  }
 }

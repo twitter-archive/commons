@@ -44,7 +44,7 @@ public class VarsJsonHandler extends HttpServlet {
    * @param statSupplier Stats supplier.
    */
   @Inject
-  VarsJsonHandler(Supplier<Iterable<Stat<?>>> statSupplier) {
+  public VarsJsonHandler(Supplier<Iterable<Stat<?>>> statSupplier) {
     this.statSupplier = Preconditions.checkNotNull(statSupplier);
   }
 

@@ -29,7 +29,6 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedOptions;
-import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
@@ -89,7 +88,6 @@ import static com.twitter.common.args.apt.Configuration.VerifierInfo;
  *
  * @author John Sirois
  */
-@SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedOptions({
     CmdLineProcessor.MAIN_OPTION,
     CmdLineProcessor.CHECK_LINKAGE_OPTION
@@ -169,6 +167,11 @@ public class CmdLineProcessor extends AbstractProcessor {
   }
 
   @Override
+  public SourceVersion getSupportedSourceVersion() {
+    return SourceVersion.latest();
+  }
+
+  @Override
   public Set<String> getSupportedAnnotationTypes() {
     return ImmutableSet.copyOf(Iterables.transform(
         ImmutableList.of(Positional.class, CmdLine.class, ArgParser.class, VerifierFor.class),
@@ -177,46 +180,58 @@ public class CmdLineProcessor extends AbstractProcessor {
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-    @Nullable Configuration classpathConfiguration = configSupplier.get();
+    try {
+      @Nullable Configuration classpathConfiguration = configSupplier.get();
 
-    Set<? extends Element> parsers = getAnnotatedElements(roundEnv, ArgParser.class);
-    @Nullable Set<String> parsedTypes = getParsedTypes(classpathConfiguration, parsers);
+      Set<? extends Element> parsers = getAnnotatedElements(roundEnv, ArgParser.class);
+      @Nullable Set<String> parsedTypes = getParsedTypes(classpathConfiguration, parsers);
 
-    for (ArgInfo cmdLineInfo : processAnnotatedArgs(parsedTypes, roundEnv, CmdLine.class)) {
-      configBuilder.addCmdLineArg(cmdLineInfo);
-    }
+      for (ArgInfo cmdLineInfo : processAnnotatedArgs(parsedTypes, roundEnv, CmdLine.class)) {
+        configBuilder.addCmdLineArg(cmdLineInfo);
+      }
 
-    for (ArgInfo positionalInfo : processAnnotatedArgs(parsedTypes, roundEnv, Positional.class)) {
-      configBuilder.addPositionalInfo(positionalInfo);
-    }
-    checkPositionalArgsAreLists(roundEnv);
+      for (ArgInfo positionalInfo : processAnnotatedArgs(parsedTypes, roundEnv, Positional.class)) {
+        configBuilder.addPositionalInfo(positionalInfo);
+      }
+      checkPositionalArgsAreLists(roundEnv);
 
-    processParsers(parsers);
-    processVerifiers(roundEnv.getElementsAnnotatedWith(typeElement(VerifierFor.class)));
+      processParsers(parsers);
+      processVerifiers(roundEnv.getElementsAnnotatedWith(typeElement(VerifierFor.class)));
 
-    if (roundEnv.processingOver()) {
-      if (classpathConfiguration != null
-          && (!classpathConfiguration.isEmpty() || !configBuilder.isEmpty())) {
+      if (roundEnv.processingOver()) {
+        if (classpathConfiguration != null
+            && (!classpathConfiguration.isEmpty() || !configBuilder.isEmpty())) {
 
-        @Nullable Writer cmdLinePropertiesResource =
-            openCmdLinePropertiesResource(classpathConfiguration);
-        if (cmdLinePropertiesResource != null) {
-          try {
-            configBuilder.build(classpathConfiguration).store(cmdLinePropertiesResource,
-                "Generated via apt by " + getClass().getName());
-          } finally {
-            Closeables.closeQuietly(cmdLinePropertiesResource);
+          @Nullable Writer cmdLinePropertiesResource =
+              openCmdLinePropertiesResource(classpathConfiguration);
+          if (cmdLinePropertiesResource != null) {
+            try {
+              configBuilder.build(classpathConfiguration).store(cmdLinePropertiesResource,
+                  "Generated via apt by " + getClass().getName());
+            } finally {
+              Closeables.closeQuietly(cmdLinePropertiesResource);
+            }
           }
         }
       }
+    // TODO(John Sirois): Investigate narrowing this catch - its not clear there is any need to be
+    // so general.
+    // SUPPRESS CHECKSTYLE RegexpSinglelineJava
+    } catch (RuntimeException e) {
+      // Catch internal errors - when these bubble more useful queued error messages are lost in
+      // some javac implementations.
+      error("Unexpected error completing annotation processing:\n%s",
+          Throwables.getStackTraceAsString(e));
     }
     return true;
   }
 
   private void checkPositionalArgsAreLists(RoundEnvironment roundEnv) {
     for (Element positionalArg : getAnnotatedElements(roundEnv, Positional.class)) {
-      TypeMirror typeArgument = getTypeArgument(positionalArg.asType(), typeElement(Arg.class));
-      if (!typeUtils.isSubtype(typeElement(List.class).asType(), typeArgument)) {
+      @Nullable TypeMirror typeArgument =
+          getTypeArgument(positionalArg.asType(), typeElement(Arg.class));
+      if ((typeArgument == null)
+          || !typeUtils.isSubtype(typeElement(List.class).asType(), typeArgument)) {
         error("Found @Positional %s %s.%s that is not a List",
             positionalArg.asType(), positionalArg.getEnclosingElement(), positionalArg);
       }
@@ -231,18 +246,18 @@ public class CmdLineProcessor extends AbstractProcessor {
       return null;
     }
 
-    Iterable<String> parsersFor = Iterables.transform(parsers,
-        new Function<Element, String>() {
-          @Override public String apply(Element parser) {
+    Iterable<String> parsersFor = Optional.presentInstances(Iterables.transform(parsers,
+        new Function<Element, Optional<String>>() {
+          @Override public Optional<String> apply(Element parser) {
             TypeMirror parsedType = getTypeArgument(parser.asType(), typeElement(Parser.class));
             if (parsedType == null) {
               error("failed to find a type argument for Parser: %s", parser);
-              return null;
+              return Optional.absent();
             }
             // Equals on TypeMirrors doesn't work - so we compare string representations :/
-            return typeUtils.erasure(parsedType).toString();
+            return Optional.of(typeUtils.erasure(parsedType).toString());
           }
-        });
+        }));
     if (configuration != null) {
       parsersFor = Iterables.concat(parsersFor, Iterables.filter(
           Iterables.transform(configuration.parserInfo(),
@@ -250,7 +265,7 @@ public class CmdLineProcessor extends AbstractProcessor {
                 @Override @Nullable public String apply(ParserInfo parserInfo) {
                   TypeElement typeElement = elementUtils.getTypeElement(parserInfo.parsedType);
                   // We may not have a type on the classpath for a previous round - this is fine as
-                  // long as the no Args in this round are of the type.
+                  // long as the no Args in this round that are of the type.
                   return (typeElement == null)
                       ? null : typeUtils.erasure(typeElement.asType()).toString();
                 }

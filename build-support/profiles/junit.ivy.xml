@@ -27,6 +27,6 @@ limitations under the License.
   <dependencies>
     <dependency org="junit" name="junit-dep" rev="4.10"/>
     <dependency org="org.hamcrest" name="hamcrest-core" rev="1.2"/>
-    <dependency org="com.twitter.common" name="junit-runner" rev="0.0.12"/>
+    <dependency org="com.twitter.common" name="junit-runner" rev="0.0.30"/>
   </dependencies>
 </ivy-module>

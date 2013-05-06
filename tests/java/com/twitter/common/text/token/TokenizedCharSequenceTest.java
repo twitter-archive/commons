@@ -25,6 +25,8 @@ import java.util.List;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
+
+import com.twitter.common.text.token.TokenizedCharSequence.Token;
 import com.twitter.common.text.token.attribute.TokenType;
 
 public class TokenizedCharSequenceTest {
@@ -87,5 +89,29 @@ public class TokenizedCharSequenceTest {
 
     List<String> hash_user = tokenized.getTokenStringsOf(TokenType.HASHTAG, TokenType.USERNAME);
     assertEquals(ImmutableList.of("#hashtag", "@username"), hash_user);
+  }
+
+  @Test
+  public void testTokenizeToken() {
+    String text = "abCDef";
+    TokenizedCharSequence tokenized = new TokenizedCharSequence.Builder(text)
+            .addToken(0, 2, TokenType.TOKEN)
+            .addToken(2, 2, TokenType.TOKEN)
+            .addToken(4, 2, TokenType.TOKEN)
+            .build();
+
+    List<Token> tokens = tokenized.getTokens();
+    assertEquals(3, tokens.size());
+
+    // tokenize "CD" into "C" and "D"
+    Token tokenC = tokens.get(1).tokenize(0, 1);
+    Token tokenD = tokens.get(1).tokenize(1, 1);
+
+    assertEquals("C", tokenC.toString());
+    assertEquals(2, tokenC.getOffset());
+    assertEquals(1, tokenC.getLength());
+    assertEquals("D", tokenD.toString());
+    assertEquals(3, tokenD.getOffset());
+    assertEquals(1, tokenD.getLength());
   }
 }

@@ -17,15 +17,14 @@ import com.twitter.common.stats.Statistics;
  * It can be queried for quantiles or basic statistics (min, max, avg, count).
  */
 public class Histogram {
-  @VisibleForTesting
   static final double[] DEFAULT_QUANTILES = {.25, .50, .75, .90, .95, .99, .999, .9999};
   private static final Logger LOG = Logger.getLogger(Histogram.class.getName());
 
   private final com.twitter.common.stats.Histogram histogram;
   private final String name;
   private final double[] quantiles;
-  private final MetricRegistry registry;
-  private Statistics stats;
+  private volatile long sum = 0;
+  private volatile Statistics stats;
 
   /**
    * Construct an histogram, create gauges and register it into the registry.
@@ -49,7 +48,6 @@ public class Histogram {
     this.name = name;
     this.histogram = histogram;
     this.quantiles = quantiles;
-    this.registry = registry;
     this.stats = new Statistics();
 
     registerInto(registry);
@@ -91,6 +89,7 @@ public class Histogram {
    * Adds a data point.
    */
   public synchronized void add(long n) {
+    sum += n;
     stats.accumulate(n);
     histogram.add(n);
   }
@@ -98,13 +97,24 @@ public class Histogram {
   /**
    * Create multiple Gauges and register them into the MetricRegistry.
    */
-  private void registerInto(final MetricRegistry metricRegistry) {
-    metricRegistry.register(new AbstractGauge<Long>(name + "_count") {
+  private void registerInto(final MetricRegistry metrics) {
+    MetricRegistry registry = metrics.scope(name);
+    registry.register(new AbstractGauge<Long>("count") {
       @Override public Long read() {
         return stats.populationSize();
       }
     });
-    metricRegistry.register(new AbstractGauge<Long>(name + "_min") {
+    registry.register(new AbstractGauge<Long>("sum") {
+      @Override public Long read() {
+        return sum;
+      }
+    });
+    registry.register(new AbstractGauge<Long>("avg") {
+      @Override public Long read() {
+        return (long) stats.mean();
+      }
+    });
+    registry.register(new AbstractGauge<Long>("min") {
       @Override public Long read() {
         if (stats.populationSize() == 0) {
           return 0L;
@@ -113,7 +123,7 @@ public class Histogram {
         }
       }
     });
-    metricRegistry.register(new AbstractGauge<Long>(name + "_max") {
+    registry.register(new AbstractGauge<Long>("max") {
       @Override public Long read() {
         if (stats.populationSize() == 0) {
           return 0L;
@@ -123,7 +133,7 @@ public class Histogram {
       }
     });
     for (final double p : quantiles) {
-      metricRegistry.register(new AbstractGauge<Long>(name + "_" + gaugeName(p)) {
+      registry.register(new AbstractGauge<Long>(gaugeName(p)) {
         @Override public Long read() {
           double[] qs = {p};
           return histogram.getQuantiles(qs)[0];

@@ -20,8 +20,6 @@ import com.google.inject.Module;
 
 /**
  * An application that supports a limited lifecycle and optional binding of guice modules.
- *
- * @author William Farner
  */
 public interface Application extends Runnable {
 
@@ -31,12 +29,4 @@ public interface Application extends Runnable {
    * @return Application binding modules.
    */
   Iterable<? extends Module> getModules();
-
-  /**
-   * Returns an iterable containing modules that should <i>override</i> bindings made in the rest
-   * of the application.  This is useful for providing custom bindings in place of system defaults.
-   *
-   * @return Application override binding modules.
-   */
-  Iterable<? extends Module> getOverridingModules();
 }

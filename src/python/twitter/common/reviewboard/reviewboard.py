@@ -102,6 +102,9 @@ class ReviewBoardServer:
     opener.addheaders = headers
     urllib2.install_opener(opener)
 
+  def get_url(self, rb_id):
+    return '%s/r/%s' % (self.url, rb_id)
+
   def debug(self, message):
     """
     Prints a debug message, if debug is enabled.
@@ -341,7 +344,7 @@ class ReviewBoardServer:
       self.die('Unable to access %s. The host path may be invalid\n%s' %
                (url, e))
     except urllib2.HTTPError, e:
-      return self. die('Unable to access %s (%s). The host path may be invalid'
+      return self.die('Unable to access %s (%s). The host path may be invalid'
                        '\n%s' % (url, e.code, e.read()))
 
   def api_call(self, path, fields=None, files=None, method=None):

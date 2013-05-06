@@ -39,13 +39,13 @@ class Confluence(object):
     self._session_token = session_token
 
   @staticmethod
-  def login(confluence_url):
+  def login(confluence_url, user=None):
     """Prompts the user to log in to confluence, and returns a Confluence object.
 
     raises ConfluenceError if login is unsuccessful.
     """
     server = ServerProxy(confluence_url + '/rpc/xmlrpc')
-    user = getpass.getuser()
+    user = user or getpass.getuser()
     password = getpass.getpass('Please enter confluence password for %s: ' % user)
     try:
       return Confluence(server, confluence_url, server.confluence1.login(user, password))

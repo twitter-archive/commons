@@ -40,6 +40,7 @@ public class LocalServiceRegistryTest extends EasyMockTest {
 
   private static final String A = "a";
   private static final String B = "b";
+  private static final String C = "c";
 
   private ServiceRunner runner1;
   private ServiceRunner runner2;
@@ -75,6 +76,10 @@ public class LocalServiceRegistryTest extends EasyMockTest {
 
   private LocalService auxiliary(String name, int port) {
     return LocalService.auxiliaryService(name, port, Commands.NOOP);
+  }
+
+  private LocalService auxiliary(Set<String> names, int port) {
+    return LocalService.auxiliaryService(names, port, Commands.NOOP);
   }
 
   @Test
@@ -126,6 +131,19 @@ public class LocalServiceRegistryTest extends EasyMockTest {
     control.replay();
 
     checkPorts(Optional.<Integer>absent(), ImmutableMap.of(A, 2, B, 2));
+  }
+
+  @Test
+  public void testMultiNameBreakout() throws LaunchException {
+    expect(serviceProvider.get()).andReturn(ImmutableSet.of(runner1, runner2));
+    expect(runner1.launch()).andReturn(auxiliary(A, 2));
+    expect(runner2.launch()).andReturn(auxiliary(ImmutableSet.of(B, C), 6));
+    shutdownRegistry.addAction(Commands.NOOP);
+    expectLastCall().times(2);
+
+    control.replay();
+
+    checkPorts(Optional.<Integer>absent(), ImmutableMap.of(A, 2, B, 6, C, 6));
   }
 
   private void checkPorts(Optional<Integer> primary, Map<String, Integer> expected) {

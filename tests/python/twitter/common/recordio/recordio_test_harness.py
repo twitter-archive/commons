@@ -18,6 +18,12 @@ import os
 import tempfile
 from contextlib import contextmanager
 
+try:
+  from cStringIO import StringIO
+except ImportError:
+  from StringIO import StringIO
+
+
 @contextmanager
 def DurableFile(mode):
   fn = tempfile.mktemp()
@@ -25,6 +31,7 @@ def DurableFile(mode):
     pass
   with open(fn, mode) as fp:
     yield fp
+
 
 @contextmanager
 def EphemeralFile(mode):

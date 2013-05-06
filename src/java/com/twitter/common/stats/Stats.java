@@ -34,6 +34,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.MapMaker;
+import com.google.common.util.concurrent.AtomicDouble;
 
 import com.twitter.common.base.MorePreconditions;
 
@@ -77,6 +78,35 @@ public class Stats {
    * for time series tracking.
    */
   public static final StatsProvider STATS_PROVIDER = new StatsProvider() {
+    private final StatsProvider untracked = new StatsProvider() {
+      @Override public AtomicLong makeCounter(String name) {
+        final AtomicLong longVar = new AtomicLong();
+        Stats.exportStatic(new StatImpl<Long>(name) {
+          @Override public Long read() {
+            return longVar.get();
+          }
+        });
+        return longVar;
+      }
+
+      @Override public <T extends Number> Stat<T> makeGauge(String name, final Supplier<T> gauge) {
+        return Stats.exportStatic(new StatImpl<T>(name) {
+          @Override public T read() {
+            return gauge.get();
+          }
+        });
+      }
+
+      @Override public StatsProvider untracked() {
+        return this;
+      }
+
+      @Override public RequestTimer makeRequestTimer(String name) {
+        // TODO(William Farner): Add support for this once a caller shows interest in using it.
+        throw new UnsupportedOperationException();
+      }
+    };
+
     @Override public <T extends Number> Stat<T> makeGauge(String name, final Supplier<T> gauge) {
       return Stats.export(new StatImpl<T>(name) {
         @Override public T read() {
@@ -87,6 +117,10 @@ public class Stats {
 
     @Override public AtomicLong makeCounter(String name) {
       return Stats.exportLong(name);
+    }
+
+    @Override public StatsProvider untracked() {
+      return untracked;
     }
 
     @Override public RequestTimer makeRequestTimer(String name) {
@@ -250,6 +284,42 @@ public class Stats {
    */
   public static AtomicLong exportLong(String name, long initialValue) {
     return export(name, new AtomicLong(initialValue));
+  }
+
+  /**
+   * Exports an {@link AtomicDouble}, which will be included in time series tracking.
+   *
+   * @param name The name to export the stat with.
+   * @param doubleVar The variable to export.
+   * @return A reference to the {@link AtomicDouble} provided.
+   */
+  public static AtomicDouble export(String name, final AtomicDouble doubleVar) {
+    export(new StatImpl<Double>(name) {
+      @Override public Double read() { return doubleVar.doubleValue(); }
+    });
+
+    return doubleVar;
+  }
+
+  /**
+   * Creates and exports an {@link AtomicDouble}.
+   *
+   * @param name The name to export the stat with.
+   * @return A reference to the {@link AtomicDouble} created.
+   */
+  public static AtomicDouble exportDouble(String name) {
+    return exportDouble(name, 0.0);
+  }
+
+  /**
+   * Creates and exports an {@link AtomicDouble} with initial value.
+   *
+   * @param name The name to export the stat with.
+   * @param initialValue The initial stat value.
+   * @return A reference to the {@link AtomicDouble} created.
+   */
+  public static AtomicDouble exportDouble(String name, double initialValue) {
+    return export(name, new AtomicDouble(initialValue));
   }
 
   /**

@@ -1,28 +1,15 @@
-// =================================================================================================
-// Copyright 2011 Twitter, Inc.
-// -------------------------------------------------------------------------------------------------
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this work except in compliance with the License.
-// You may obtain a copy of the License in the LICENSE file, or at:
-//
-//  http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-// =================================================================================================
-
 package com.twitter.common.net.http.handlers;
+
+import java.io.File;
+import java.util.List;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+
 import org.junit.Test;
 
-import java.util.List;
-
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -33,16 +20,29 @@ import static org.junit.Assert.assertThat;
 public class LogPrinterTest {
 
   @Test
-  public void testFilterLines() {
-    test(TEST_LINES, FILTER0, FILTERED_LINES0);
-    test(TEST_LINES, FILTER1, FILTERED_LINES1);
-    test(TEST_LINES, FILTER2, FILTERED_LINES2);
-    test(TEST_LINES, FILTER3, FILTERED_LINES3);
+  public void testRelativeFileHandling() {
+    LogPrinter printer = new LogPrinter(new File("/this/is/the/log/dir"), true);
+    LogPrinter.LogFile absFile = printer.new LogFile("/absolute/path.log");
+    assertEquals("/absolute/path.log", absFile.getPath());
+    LogPrinter.LogFile relFile = printer.new LogFile("relative/file.log");
+    assertEquals("/this/is/the/log/dir/relative/file.log", relFile.getPath());
   }
 
-  private void test(List<String> testLines, String filter, List<String> expectedLines) {
+  @Test
+  public void testFilterLines() {
+    testFilterLinesHelper(TEST_LINES, FILTER0, FILTERED_LINES0);
+    testFilterLinesHelper(TEST_LINES, FILTER1, FILTERED_LINES1);
+    testFilterLinesHelper(TEST_LINES, FILTER2, FILTERED_LINES2);
+    testFilterLinesHelper(TEST_LINES, FILTER3, FILTERED_LINES3);
+  }
+
+  private void testFilterLinesHelper(List<String> testLines,
+                                     String filter,
+                                     List<String> expectedLines) {
+
     List<String> filteredLines = Lists.newArrayList(
-        LogPrinter.filterLines(Joiner.on("\n").join(testLines), filter).split("\n"));
+      LogPrinter.filterLines(Joiner.on("\n").join(testLines), filter).split("\n"));
+
     assertThat(filteredLines, is(expectedLines));
   }
 

@@ -16,21 +16,21 @@
 
 package com.twitter.common.text.token;
 
-import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;
+import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
+
 import com.twitter.common.text.token.attribute.PartOfSpeechAttribute;
-import com.twitter.common.text.token.attribute.TokenTypeAttribute;
+import com.twitter.common.text.token.attribute.TokenGroupAttribute;
+import com.twitter.common.text.token.attribute.TokenGroupAttributeImpl;
 
 /**
  * Reproduces the result of tokenization if an input text is an instance of
  * TokenizedCharSequence. Otherwise, passes the input text to downstream
  * TokenStream.
  */
-public class TokenizedCharSequenceStream extends TokenStream {
-  private final TokenStream inputStream;
-
-  private final CharSequenceTermAttribute termAttr;
-  private final TokenTypeAttribute typeAttr;
+public class TokenizedCharSequenceStream extends TokenProcessor {
   private final PartOfSpeechAttribute posAttr;
+  private final PositionIncrementAttribute incAttr;
+  private final TokenGroupAttributeImpl groupAttr;
 
   private TokenizedCharSequence tokenized = null;
   private int currentIndex = 0;
@@ -43,15 +43,22 @@ public class TokenizedCharSequenceStream extends TokenStream {
    * @param inputStream a token stream to tokenize a text if it's not tokenized yet.
    */
   public TokenizedCharSequenceStream(TokenStream inputStream) {
-    super(inputStream.cloneAttributes());
+    super(inputStream);
 
-    this.inputStream = inputStream;
-    termAttr = addAttribute(CharSequenceTermAttribute.class);
-    typeAttr = addAttribute(TokenTypeAttribute.class);
     if (hasAttribute(PartOfSpeechAttribute.class)) {
       posAttr = getAttribute(PartOfSpeechAttribute.class);
     } else {
       posAttr = null;
+    }
+    if (hasAttribute(PositionIncrementAttribute.class)) {
+      incAttr = getAttribute(PositionIncrementAttribute.class);
+    } else {
+      incAttr = null;
+    }
+    if (hasAttribute(TokenGroupAttribute.class)) {
+      groupAttr = (TokenGroupAttributeImpl) getAttribute(TokenGroupAttribute.class);
+    } else {
+      groupAttr = null;
     }
   }
 
@@ -60,10 +67,23 @@ public class TokenizedCharSequenceStream extends TokenStream {
    * This can only accept an already-tokenized text (TokenzedCharSequence) as input.
    */
   public TokenizedCharSequenceStream() {
-    this.inputStream = null;
-    termAttr = addAttribute(CharSequenceTermAttribute.class);
-    typeAttr = addAttribute(TokenTypeAttribute.class);
+    super(new TokenStream() {
+      @Override
+      public boolean incrementToken() {
+        return false;
+      }
+
+      @Override
+      public void reset(CharSequence input) {
+        // If no inputStream is provided, throw an exception.
+        throw new IllegalArgumentException("Input must be an instance of TokenizedCharSequence"
+                + " because there is no TokenStream in the downstream to tokenized a text.");
+      }
+    });
+
     posAttr = addAttribute(PartOfSpeechAttribute.class);
+    incAttr = addAttribute(PositionIncrementAttribute.class);
+    groupAttr = (TokenGroupAttributeImpl) addAttribute(TokenGroupAttribute.class);
   }
 
   @Override
@@ -73,11 +93,7 @@ public class TokenizedCharSequenceStream extends TokenStream {
 
     if (tokenized == null) {
       // Input is not tokenized; let inputStream tokenize it.
-      if (!inputStream.incrementToken()) {
-        return false;
-      }
-      restoreState(inputStream.captureState());
-      return true;
+      return incrementInputStream();
     }
 
     if (currentIndex >= tokenized.getTokens().size()) {
@@ -87,11 +103,16 @@ public class TokenizedCharSequenceStream extends TokenStream {
 
     TokenizedCharSequence.Token token = tokenized.getTokens().get(currentIndex);
 
-    termAttr.setOffset(token.getOffset());
-    termAttr.setLength(token.getLength());
-    typeAttr.setType(token.getType());
+    updateOffsetAndLength(token.getOffset(), token.getLength());
+    updateType(token.getType());
     if (posAttr != null) {
       posAttr.setPOS(token.getPartOfSpeech());
+    }
+    if (incAttr != null) {
+      incAttr.setPositionIncrement(token.getPositionIncrement());
+    }
+    if (groupAttr != null) {
+      groupAttr.setSequence(token.getGroup());
     }
 
     currentIndex++;
@@ -102,16 +123,13 @@ public class TokenizedCharSequenceStream extends TokenStream {
   public void reset(CharSequence input) {
     // Check if input is already tokenized or not.
     if (input instanceof TokenizedCharSequence) {
+      clearAttributes();
       tokenized = (TokenizedCharSequence) input;
       currentIndex = 0;
-      termAttr.setCharSequence(tokenized);
-    } else if (inputStream == null) {
-      // If no inputStream is provided, throw an exception.
-      throw new IllegalArgumentException("Input must be an instance of TokenizedCharSequence"
-          + " because there is no TokenStream in the downstream to tokenized a text.");
+      updateInputCharSequence(tokenized);
     } else {
       // Otherwise, let inputStream tokenize the input.
-      inputStream.reset(input);
+      super.reset(input);
       tokenized = null;
     }
   }

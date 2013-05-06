@@ -25,9 +25,9 @@ import com.twitter.Regex;
 public class HashtagExtractor extends RegexExtractor {
   /** Default constructor. **/
   public HashtagExtractor() {
-    setRegexPattern(Regex.AUTO_LINK_HASHTAGS,
-        Regex.AUTO_LINK_HASHTAGS_GROUP_HASH,
-        Regex.AUTO_LINK_HASHTAGS_GROUP_TAG);
+    setRegexPattern(Regex.VALID_HASHTAG,
+        Regex.VALID_HASHTAG_GROUP_HASH,
+        Regex.VALID_HASHTAG_GROUP_TAG);
     setTriggeringChar('#');
   }
 }

@@ -16,6 +16,7 @@ public class Metrics implements MetricRegistry, MetricProvider {
 
   private final Map<String, Gauge> metrics = Maps.newConcurrentMap();
 
+
   @VisibleForTesting
   Metrics() {
     // Package private.

@@ -18,8 +18,8 @@ python_library(
   name = "http",
   sources = rglobs("*.py"),
   dependencies = [
-    'src/python/twitter/common/lang',
-    'src/python/twitter/common/log',
-    '3rdparty/python:bottle',
+    pants('src/python/twitter/common/lang'),
+    pants('src/python/twitter/common/log'),
+    pants('3rdparty/python:bottle'),
   ]
 )

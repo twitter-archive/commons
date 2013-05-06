@@ -16,10 +16,15 @@
 
 package com.twitter.common.base;
 
+import com.google.common.base.Preconditions;
+
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 
 /**
  * @author John Sirois
@@ -68,5 +73,38 @@ public class MoreSuppliersTest {
   @Test(expected = IllegalArgumentException.class)
   public void testNoNoArgFailsFast() {
     MoreSuppliers.of(NoNoArgConstructor.class);
+  }
+
+  @Test
+  public void testOfInstance() {
+    class ValueEquals {
+      private final String value;
+
+      ValueEquals(String value) {
+        this.value = Preconditions.checkNotNull(value);
+      }
+
+      @Override
+      public boolean equals(Object o) {
+        return value.equals(((ValueEquals) o).value);
+      }
+
+      @Override
+      public int hashCode() {
+        return value.hashCode();
+      }
+    }
+
+    Supplier<ValueEquals> nullSupplier = MoreSuppliers.ofInstance(new ValueEquals("jake"));
+    ValueEquals actual = nullSupplier.get();
+    assertEquals(new ValueEquals("jake"), actual);
+    assertSame(actual, nullSupplier.get());
+  }
+
+  @Test
+  public void testOfInstanceNullable() {
+    Supplier<String> nullSupplier = MoreSuppliers.ofInstance(null);
+    assertNull(nullSupplier.get());
+    assertNull(nullSupplier.get());
   }
 }

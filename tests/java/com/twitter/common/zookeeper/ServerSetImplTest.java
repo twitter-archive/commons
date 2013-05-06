@@ -16,6 +16,7 @@
 
 package com.twitter.common.zookeeper;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -35,6 +36,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.testing.TearDown;
+import com.google.gson.GsonBuilder;
 
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.zookeeper.ZooDefs;
@@ -42,6 +44,8 @@ import org.apache.zookeeper.data.ACL;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.twitter.common.io.Codec;
+import com.twitter.common.io.JsonCodec;
 import com.twitter.common.net.pool.DynamicHostSet;
 import com.twitter.common.thrift.TResourceExhaustedException;
 import com.twitter.common.thrift.Thrift;
@@ -54,7 +58,11 @@ import com.twitter.thrift.Endpoint;
 import com.twitter.thrift.ServiceInstance;
 import com.twitter.thrift.Status;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  *
@@ -91,35 +99,19 @@ public class ServerSetImplTest extends BaseZooKeeperTest {
     assertChangeFiredEmpty();
 
     ServerSetImpl server = createServerSet();
-    EndpointStatus status = server.join(InetSocketAddress.createUnresolved("foo", 1234),
-        makePortMap("http-admin", 8080), Status.ALIVE);
+    EndpointStatus status = server.join(
+        InetSocketAddress.createUnresolved("foo", 1234), makePortMap("http-admin", 8080), 0);
 
-    ServiceInstance serviceInstance = new ServiceInstance(new Endpoint("foo", 1234),
-        ImmutableMap.of("http-admin", new Endpoint("foo", 8080)), Status.ALIVE);
+    ServiceInstance serviceInstance = new ServiceInstance(
+        new Endpoint("foo", 1234),
+        ImmutableMap.of("http-admin", new Endpoint("foo", 8080)),
+        Status.ALIVE)
+        .setShard(0);
 
     assertChangeFired(serviceInstance);
 
-    status.update(Status.STOPPING);
-    assertChangeFired(serviceInstance.deepCopy().setStatus(Status.STOPPING));
-
-    expireSession(server.getZkClient());
+    status.leave();
     assertChangeFiredEmpty();
-
-    // We should've auto re-joined in our previous state.
-    assertChangeFired(serviceInstance.deepCopy().setStatus(Status.STOPPING));
-
-    // Membership does not change during our monitor's expiration so we should not be notified.
-    expireSession(client.getZkClient());
-
-    status.update(Status.STOPPED);
-    assertChangeFired(serviceInstance.deepCopy().setStatus(Status.STOPPED));
-
-    // Neither membership nor status changed, so we should not be notified.
-    status.update(Status.STOPPED);
-
-    status.update(Status.DEAD);
-    assertChangeFiredEmpty();
-
     assertTrue(serverSetBuffer.isEmpty());
   }
 
@@ -142,16 +134,16 @@ public class ServerSetImplTest extends BaseZooKeeperTest {
     // change, just "foo", "bar" since this was an addition.
     assertChangeFired("foo", "bar");
 
-    foo.update(Status.DEAD);
+    foo.leave();
     assertChangeFired("bar");
 
     EndpointStatus baz = join(server, "baz");
     assertChangeFired("bar", "baz");
 
-    baz.update(Status.DEAD);
+    baz.leave();
     assertChangeFired("bar");
 
-    bar.update(Status.DEAD);
+    bar.leave();
     assertChangeFiredEmpty();
 
     assertTrue(serverSetBuffer.isEmpty());
@@ -171,35 +163,105 @@ public class ServerSetImplTest extends BaseZooKeeperTest {
     ServerSetImpl server2 = createServerSet();
     ServerSetImpl server3 = createServerSet();
 
-    ServiceInstance instance1 = new ServiceInstance(new Endpoint("foo", 1000),
-        ImmutableMap.of("http-admin1", new Endpoint("foo", 8080)), Status.ALIVE);
-    ServiceInstance instance2 = new ServiceInstance(new Endpoint("foo", 1001),
-        ImmutableMap.of("http-admin2", new Endpoint("foo", 8081)), Status.ALIVE);
-    ServiceInstance instance3 = new ServiceInstance(new Endpoint("foo", 1002),
-        ImmutableMap.of("http-admin3", new Endpoint("foo", 8082)), Status.ALIVE);
+    ServiceInstance instance1 = new ServiceInstance(
+        new Endpoint("foo", 1000),
+        ImmutableMap.of("http-admin1", new Endpoint("foo", 8080)),
+        Status.ALIVE)
+        .setShard(0);
+    ServiceInstance instance2 = new ServiceInstance(
+        new Endpoint("foo", 1001),
+        ImmutableMap.of("http-admin2", new Endpoint("foo", 8081)),
+        Status.ALIVE)
+        .setShard(1);
+    ServiceInstance instance3 = new ServiceInstance(
+        new Endpoint("foo", 1002),
+        ImmutableMap.of("http-admin3", new Endpoint("foo", 8082)),
+        Status.ALIVE)
+        .setShard(2);
 
-    EndpointStatus status1 = server1.join(InetSocketAddress.createUnresolved("foo", 1000),
-        server1Ports, Status.ALIVE);
+    EndpointStatus status1 = server1.join(
+        InetSocketAddress.createUnresolved("foo", 1000),
+        server1Ports,
+        0);
     assertEquals(ImmutableList.of(instance1), ImmutableList.copyOf(serverSetBuffer.take()));
 
-    EndpointStatus status2 = server2.join(InetSocketAddress.createUnresolved("foo", 1001),
-        server2Ports, Status.ALIVE);
+    EndpointStatus status2 = server2.join(
+        InetSocketAddress.createUnresolved("foo", 1001),
+        server2Ports,
+        1);
     assertEquals(ImmutableList.of(instance1, instance2),
         ImmutableList.copyOf(serverSetBuffer.take()));
 
-    EndpointStatus status3 = server3.join(InetSocketAddress.createUnresolved("foo", 1002),
-        server3Ports, Status.ALIVE);
+    EndpointStatus status3 = server3.join(
+        InetSocketAddress.createUnresolved("foo", 1002), server3Ports, 2);
     assertEquals(ImmutableList.of(instance1, instance2, instance3),
         ImmutableList.copyOf(serverSetBuffer.take()));
 
-    status2.update(Status.DEAD);
+    status2.leave();
     assertEquals(ImmutableList.of(instance1, instance3),
         ImmutableList.copyOf(serverSetBuffer.take()));
   }
 
-  //TODO(Jake Mannix) move this test method to ServerSetConnectionPoolTest, which should be renamed to
-  //DynamicBackendConnectionPoolTest, and refactor assertChangeFired* methods to be used both
-  //here and there
+  @Test
+  public void testJsonCodecRoundtrip() throws Exception {
+    Codec<ServiceInstance> codec = ServerSetImpl.createJsonCodec();
+    ServiceInstance instance1 = new ServiceInstance(
+        new Endpoint("foo", 1000),
+        ImmutableMap.of("http", new Endpoint("foo", 8080)),
+        Status.ALIVE)
+        .setShard(0);
+    byte[] data = ServerSets.serializeServiceInstance(instance1, codec);
+    assertTrue(ServerSets.deserializeServiceInstance(data, codec).getServiceEndpoint().isSetPort());
+    assertTrue(ServerSets.deserializeServiceInstance(data, codec).isSetShard());
+
+    ServiceInstance instance2 = new ServiceInstance(
+        new Endpoint("foo", 1000),
+        ImmutableMap.of("http-admin1", new Endpoint("foo", 8080)),
+        Status.ALIVE);
+    data = ServerSets.serializeServiceInstance(instance2, codec);
+    assertTrue(ServerSets.deserializeServiceInstance(data, codec).getServiceEndpoint().isSetPort());
+    assertFalse(ServerSets.deserializeServiceInstance(data, codec).isSetShard());
+
+    ServiceInstance instance3 = new ServiceInstance(
+        new Endpoint("foo", 1000),
+        ImmutableMap.<String, Endpoint>of(),
+        Status.ALIVE);
+    data = ServerSets.serializeServiceInstance(instance3, codec);
+    assertTrue(ServerSets.deserializeServiceInstance(data, codec).getServiceEndpoint().isSetPort());
+    assertFalse(ServerSets.deserializeServiceInstance(data, codec).isSetShard());
+  }
+
+  @Test
+  public void testJsonCodecCompatibility() throws IOException {
+    ServiceInstance instance = new ServiceInstance(
+        new Endpoint("foo", 1000),
+        ImmutableMap.of("http", new Endpoint("foo", 8080)),
+        Status.ALIVE).setShard(42);
+
+    ByteArrayOutputStream legacy = new ByteArrayOutputStream();
+    JsonCodec.create(
+        ServiceInstance.class,
+        new GsonBuilder().setExclusionStrategies(JsonCodec.getThriftExclusionStrategy())
+            .create()).serialize(instance, legacy);
+
+    ByteArrayOutputStream results = new ByteArrayOutputStream();
+    ServerSetImpl.createJsonCodec().serialize(instance, results);
+
+    assertEquals(legacy.toString(), results.toString());
+
+    results = new ByteArrayOutputStream();
+    ServerSetImpl.createJsonCodec().serialize(instance, results);
+    assertEquals(
+        "{\"serviceEndpoint\":{\"host\":\"foo\",\"port\":1000},"
+            + "\"additionalEndpoints\":{\"http\":{\"host\":\"foo\",\"port\":8080}},"
+            + "\"status\":\"ALIVE\","
+            + "\"shard\":42}",
+        results.toString());
+  }
+
+  //TODO(Jake Mannix) move this test method to ServerSetConnectionPoolTest, which should be renamed
+  // to DynamicBackendConnectionPoolTest, and refactor assertChangeFired* methods to be used both
+  // here and there
   @Test
   public void testThriftWithServerSet() throws Exception {
     final AtomicReference<Socket> clientConnection = new AtomicReference<Socket>();
@@ -223,21 +285,10 @@ public class ServerSetImplTest extends BaseZooKeeperTest {
     serverSetImpl.monitor(serverSetMonitor);
     assertChangeFiredEmpty();
     InetSocketAddress localSocket = new InetSocketAddress(server.getLocalPort());
-    EndpointStatus status = serverSetImpl.join(localSocket,
-        Maps.<String, InetSocketAddress>newHashMap(), Status.STARTING);
-    assertChangeFired(ImmutableMap.<InetSocketAddress, Status>of(localSocket, Status.STARTING));
-
-    Service.Iface svc = createThriftClient(serverSetImpl);
-    try {
-      svc.getString();
-      fail("ServerSet is currently empty, should throw exception here.");
-    } catch (TResourceExhaustedException e) {
-      assertTrue(true);
-    }
-    status.update(Status.ALIVE);
+    EndpointStatus status = serverSetImpl.join(localSocket, Maps.<String, InetSocketAddress>newHashMap());
     assertChangeFired(ImmutableMap.<InetSocketAddress, Status>of(localSocket, Status.ALIVE));
 
-    svc = createThriftClient(serverSetImpl);
+    Service.Iface svc = createThriftClient(serverSetImpl);
     try {
       String value = svc.getString();
       LOG.info("Got value: " + value + " from server");
@@ -285,8 +336,7 @@ public class ServerSetImplTest extends BaseZooKeeperTest {
   private EndpointStatus join(ServerSet serverSet, String host)
       throws JoinException, InterruptedException {
 
-    return serverSet.join(InetSocketAddress.createUnresolved(host, 42),
-        ImmutableMap.<String, InetSocketAddress>of(), Status.ALIVE);
+    return serverSet.join(InetSocketAddress.createUnresolved(host, 42), ImmutableMap.<String, InetSocketAddress>of());
   }
 
   private void assertChangeFired(Map<InetSocketAddress, Status> hostsStatuses)

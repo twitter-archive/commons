@@ -14,16 +14,21 @@
 # limitations under the License.
 # ==================================================================================================
 
-import time
 import logging
+import socket
+import sys
+import time
+
 from twitter.common.log.formatters.base import format_message
+
 
 class GlogFormatter(logging.Formatter):
   """
     Format a log in Google style format:
-    [DIWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+    [DIWEF]mmdd hh:mm:ss.uuuuuu pid file:line] msg
   """
   SCHEME = 'google'
+  LOG_LINE_FORMAT = "[DIWEF]mmdd hh:mm:ss.uuuuuu pid file:line] msg"
 
   LEVEL_MAP = {
     logging.FATAL: 'F',
@@ -32,6 +37,14 @@ class GlogFormatter(logging.Formatter):
     logging.INFO:  'I',
     logging.DEBUG: 'D'
   }
+
+  @classmethod
+  def logfile_preamble(cls):
+    return ''.join('%s\n' % line for line in [
+      'Log file created at: %s' % time.strftime('%Y/%m/%d %H:%M:%S', time.localtime()),
+      'Running on machine: %s' % socket.gethostname(),
+      cls.LOG_LINE_FORMAT,
+      'Command line: %s' % ' '.join(sys.argv)])
 
   def __init__(self):
     logging.Formatter.__init__(self)

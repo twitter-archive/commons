@@ -18,7 +18,7 @@ package com.twitter.common.text.combiner;
 
 import java.util.regex.Pattern;
 
-import com.twitter.common.text.detector.PunctuationDetector;
+import com.twitter.Regex;
 import com.twitter.common.text.extractor.RegexExtractor;
 import com.twitter.common.text.token.TokenStream;
 import com.twitter.common.text.token.attribute.TokenType;
@@ -27,17 +27,16 @@ import com.twitter.common.text.token.attribute.TokenType;
  * Combines multiple tokens denoting a stock symbol (e.g., $YHOO) back into a single token.
  */
 public class StockTokenCombiner extends ExtractorBasedTokenCombiner {
+  // Regex.VALID_CASHTAG in twitter-text doesn't capture $ symbol, so we need to modify the regex
+  // to capture $ symbol.
   public static final Pattern STOCK_SYMBOL_PATTERN =
-    Pattern.compile("(?:^|" + PunctuationDetector.PUNCTUATION_REGEX
-                    + "|" + PunctuationDetector.SPACE_REGEX
-                    + ")(\\$[a-zA-Z]{1,6}(:[a-zA-Z0-9]{1,6})?)(?=$"
-                    + "|" + PunctuationDetector.SPACE_REGEX
-                    + "|" + PunctuationDetector.PUNCTUATION_REGEX + ")");
+    Pattern.compile(Regex.VALID_CASHTAG.toString().replace(")\\$(", ")(\\$)("),
+                    Pattern.CASE_INSENSITIVE);
 
   public StockTokenCombiner(TokenStream inputStream) {
     super(inputStream);
     setExtractor(new RegexExtractor.Builder()
-                                   .setRegexPattern(STOCK_SYMBOL_PATTERN, 1, 1)
+                                   .setRegexPattern(STOCK_SYMBOL_PATTERN, 1, 2)
                                    .build());
     setType(TokenType.STOCK);
   }

@@ -50,8 +50,8 @@ public class BackoffHelperTest extends EasyMockTest {
     Supplier<Boolean> task = createMock(new Clazz<Supplier<Boolean>>() { });
 
     expect(task.get()).andReturn(false);
-    expect(backoffStrategy.shouldContinue()).andReturn(true);
-    expect(backoffStrategy.calculateBackoffMs(0)).andReturn(42L);
+    expect(backoffStrategy.shouldContinue(0L)).andReturn(true);
+    expect(backoffStrategy.calculateBackoffMs(0L)).andReturn(42L);
     clock.waitFor(42L);
     expect(task.get()).andReturn(true);
 
@@ -67,11 +67,11 @@ public class BackoffHelperTest extends EasyMockTest {
     Supplier<String> task = createMock(new Clazz<Supplier<String>>() { });
 
     expect(task.get()).andReturn(null);
-    expect(backoffStrategy.shouldContinue()).andReturn(true);
+    expect(backoffStrategy.shouldContinue(0)).andReturn(true);
     expect(backoffStrategy.calculateBackoffMs(0)).andReturn(42L);
     clock.waitFor(42L);
     expect(task.get()).andReturn(null);
-    expect(backoffStrategy.shouldContinue()).andReturn(true);
+    expect(backoffStrategy.shouldContinue(42L)).andReturn(true);
     expect(backoffStrategy.calculateBackoffMs(42L)).andReturn(37L);
     clock.waitFor(37L);
     expect(task.get()).andReturn("jake");
@@ -110,11 +110,11 @@ public class BackoffHelperTest extends EasyMockTest {
     BackoffHelper maxBackoffHelper = new BackoffHelper(clock, backoffStrategy);
 
     expect(task.get()).andReturn(null);
-    expect(backoffStrategy.shouldContinue()).andReturn(true);
+    expect(backoffStrategy.shouldContinue(0L)).andReturn(true);
     expect(backoffStrategy.calculateBackoffMs(0)).andReturn(42L);
     clock.waitFor(42L);
     expect(task.get()).andReturn(null);
-    expect(backoffStrategy.shouldContinue()).andReturn(true);
+    expect(backoffStrategy.shouldContinue(42L)).andReturn(true);
     expect(backoffStrategy.calculateBackoffMs(42L)).andReturn(37L);
     clock.waitFor(37L);
     expect(task.get()).andReturn("jake");
@@ -133,15 +133,15 @@ public class BackoffHelperTest extends EasyMockTest {
     BackoffHelper maxBackoffHelper = new BackoffHelper(clock, backoffStrategy);
 
     expect(task.get()).andReturn(null);
-    expect(backoffStrategy.shouldContinue()).andReturn(true);
+    expect(backoffStrategy.shouldContinue(0L)).andReturn(true);
     expect(backoffStrategy.calculateBackoffMs(0)).andReturn(42L);
     clock.waitFor(42L);
     expect(task.get()).andReturn(null);
-    expect(backoffStrategy.shouldContinue()).andReturn(true);
+    expect(backoffStrategy.shouldContinue(42L)).andReturn(true);
     expect(backoffStrategy.calculateBackoffMs(42L)).andReturn(37L);
     clock.waitFor(37L);
     expect(task.get()).andReturn(null);
-    expect(backoffStrategy.shouldContinue()).andReturn(false);
+    expect(backoffStrategy.shouldContinue(37L)).andReturn(false);
 
     control.replay();
 

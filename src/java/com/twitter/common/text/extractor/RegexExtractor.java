@@ -22,20 +22,17 @@ import java.util.regex.Pattern;
 import com.google.common.base.Preconditions;
 
 import com.twitter.common.text.token.TokenStream;
-import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;
 
 /**
  * Extracts entities from text according to a given regular expression.
  */
 public class RegexExtractor extends TokenStream {
-  private final CharSequenceTermAttribute charSeqTermAtt =
-    addAttribute(CharSequenceTermAttribute.class);
-
   private Pattern regexPattern;
   private int startGroup = 0;
   private int endGroup = 0;
   private char triggeringChar = 0;
   private Matcher matcher = null;
+
 
   /**
    * Protected constructor for subclass builders, clients should use a builder to create an
@@ -59,7 +56,7 @@ public class RegexExtractor extends TokenStream {
    * @param startGroup ID of the group in the pattern that matches the beginning
    *  of the substring being replaced. Set to 0 to match the entire pattern.
    * @param endGroup ID of the group in the pattern that matches the end
-   *  of the substring being replace. Set to 0 to match the entire pattern.
+   *  of the substring being replaced. Set to 0 to match the entire pattern.
    */
   protected void setRegexPattern(Pattern pattern, int startGroup, int endGroup) {
     this.regexPattern = pattern;
@@ -87,7 +84,8 @@ public class RegexExtractor extends TokenStream {
    */
   public void reset(CharSequence input) {
     Preconditions.checkNotNull(input);
-    charSeqTermAtt.setTermBuffer(input);
+    updateInputCharSequence(input);
+    clearAttributes();
 
     if (triggeringChar > 0) {
       // triggeringChar is specified.
@@ -116,10 +114,10 @@ public class RegexExtractor extends TokenStream {
       int start = matcher.start(startGroup);
       int end = matcher.end(endGroup);
 
-      clearAttributes();
-      charSeqTermAtt.setOffset(start);
-      charSeqTermAtt.setLength(end - start);
-
+      if (end > 0 && Character.isWhitespace(inputCharSequence().charAt(end - 1))) {
+        end = end - 1;
+      }
+      updateOffsetAndLength(start, end - start);
       return true;
     } else {
       return false;

@@ -21,13 +21,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
+
 import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;
 import com.twitter.common.text.token.attribute.PartOfSpeechAttribute;
 import com.twitter.common.text.token.attribute.TokenGroupAttribute;
+import com.twitter.common.text.token.attribute.TokenGroupAttributeImpl;
 import com.twitter.common.text.token.attribute.TokenType;
 import com.twitter.common.text.token.attribute.TokenTypeAttribute;
 
@@ -35,26 +40,63 @@ import com.twitter.common.text.token.attribute.TokenTypeAttribute;
  * Keeps the original text as well as its tokenized tokens.
  */
 public class TokenizedCharSequence implements CharSequence {
-  public static final class Token {
+  public static final class Token implements CharSequence {
     public static final int DEFAULT_PART_OF_SPEECH = -1;
 
     private final CharBuffer term;
     private final TokenType type;
     private final int pos;
+    private final int inc;
+    private final TokenizedCharSequence group;
 
     protected Token(CharBuffer term, TokenType type) {
       this(term, type, DEFAULT_PART_OF_SPEECH);
     }
 
     protected Token(CharBuffer term, TokenType type, int pos) {
+      this(term, type, pos, 1, null);
+    }
+
+    protected Token(CharBuffer term, TokenType type, int pos, int inc, @Nullable TokenizedCharSequence group) {
       this.term = term;
       this.type = type;
       this.pos = pos;
+      this.inc = inc;
+      this.group = group;
+    }
+
+    /**
+     * Returns a new Token object which represents a term starting with {@code offset} and with
+     * {@length}.
+     *
+     * @param offset offset of the sub-token
+     * @param length length of the sub-token
+     * @return a new Token object representing a sub-token
+     */
+    public Token tokenize(int offset, int length) {
+      Preconditions.checkArgument(offset >= 0 && offset < getLength());
+      Preconditions.checkArgument(length > 0 && length <= getLength());
+      return new Token((CharBuffer)term.subSequence(offset, offset + length), type, pos);
     }
 
     @Override
     public String toString() {
       return term.toString();
+    }
+
+    @Override
+    public int length() {
+      return term.limit() - term.position();
+    }
+
+    @Override
+    public char charAt(int index) {
+      return term.charAt(index);
+    }
+
+    @Override
+    public CharSequence subSequence(int start, int end) {
+      return term.subSequence(start, end);
     }
 
     public CharSequence getTerm() {
@@ -63,6 +105,10 @@ public class TokenizedCharSequence implements CharSequence {
 
     public int getOffset() {
       return term.position();
+    }
+
+    public int getEndOffset() {
+      return term.limit();
     }
 
     public int getLength() {
@@ -75,6 +121,18 @@ public class TokenizedCharSequence implements CharSequence {
 
     public int getPartOfSpeech() {
       return pos;
+    }
+
+    public int getPositionIncrement() {
+      return inc;
+    }
+
+    public TokenizedCharSequence getGroup() {
+      return group;
+    }
+
+    public boolean hasGroup() {
+      return group != null;
     }
   }
 
@@ -229,10 +287,24 @@ public class TokenizedCharSequence implements CharSequence {
     }
 
     public Builder addToken(int offset, int length, TokenType type, int pos) {
+      addToken(offset, length, type, pos, 1, null);
+
+      return this;
+    }
+
+    public Builder addToken(
+        int offset,
+        int length,
+        TokenType type,
+        int pos,
+        int inc,
+        TokenizedCharSequence group) {
       Preconditions.checkArgument(offset >= 0);
       Preconditions.checkArgument(length >= 0);
       Preconditions.checkNotNull(type);
-      tokens.add(new Token(CharBuffer.wrap(origText, offset, offset + length), type, pos));
+      Preconditions.checkArgument(inc >= 0);
+      tokens.add(
+          new Token(CharBuffer.wrap(origText, offset, offset + length), type, pos, inc, group));
 
       return this;
     }
@@ -242,43 +314,85 @@ public class TokenizedCharSequence implements CharSequence {
     }
   }
 
-  public static final TokenizedCharSequence createFrom(CharSequence text,
-      TokenStream tokenizer) {
-    tokenizer.reset(text);
+  public static final TokenizedCharSequence createFrom(TokenStream tokenizer) {
     CharSequenceTermAttribute termAttr = tokenizer.getAttribute(CharSequenceTermAttribute.class);
     TokenTypeAttribute typeAttr = tokenizer.getAttribute(TokenTypeAttribute.class);
     PartOfSpeechAttribute posAttr = null;
     if (tokenizer.hasAttribute(PartOfSpeechAttribute.class)) {
       posAttr = tokenizer.getAttribute(PartOfSpeechAttribute.class);
     }
+    PositionIncrementAttribute incAttr = null;
+    if (tokenizer.hasAttribute(PositionIncrementAttribute.class)) {
+      incAttr = tokenizer.getAttribute(PositionIncrementAttribute.class);
+    }
+    TokenGroupAttributeImpl groupAttr = null;
+    if (tokenizer.hasAttribute(TokenGroupAttribute.class)) {
+      groupAttr = (TokenGroupAttributeImpl) tokenizer.getAttribute(TokenGroupAttribute.class);
+    }
 
-    TokenizedCharSequence.Builder builder = new TokenizedCharSequence.Builder(text);
+    //Need to wait for increment token for termAttr to have charsequence properly set
+    TokenizedCharSequence.Builder builder = null;
+
     while (tokenizer.incrementToken()) {
+      if (builder == null) {
+        //Now we can set the term sequence for the builder.
+        builder = new TokenizedCharSequence.Builder(termAttr.getCharSequence());
+      }
       builder.addToken(termAttr.getOffset(), termAttr.getLength(),
-            typeAttr.getType(),
-            posAttr == null ? Token.DEFAULT_PART_OF_SPEECH : posAttr.getPOS());
+          typeAttr.getType(),
+          posAttr == null ? Token.DEFAULT_PART_OF_SPEECH : posAttr.getPOS(),
+          incAttr == null ? 1 : incAttr.getPositionIncrement(),
+          groupAttr == null || groupAttr.isEmpty() ? null :
+              (groupAttr.getSequence() == null ? createFrom(groupAttr.getTokenGroupStream()) :
+                  groupAttr.getSequence())
+      );
+    }
+
+    if (builder == null) { //Never entered tokenizer loop, build an empty string
+      builder = new TokenizedCharSequence.Builder("");
     }
 
     return builder.build();
   }
 
+  public static final TokenizedCharSequence createFrom(CharSequence text,
+      TokenStream tokenizer) {
+    tokenizer.reset(text);
+    return createFrom(tokenizer);
+  }
+
   public static final List<TokenizedCharSequence> createFromTokenGroupsIn(
       TokenStream stream) {
-    CharSequenceTermAttribute termAttr = stream.getAttribute(CharSequenceTermAttribute.class);
     TokenGroupAttribute groupAttr = stream.getAttribute(TokenGroupAttribute.class);
 
     List<TokenizedCharSequence> groups = Lists.newArrayList();
     while (stream.incrementToken()) {
-      Builder builder = new Builder(termAttr.getTermCharSequence());
+      Builder builder = new Builder(stream.term());
 
       TokenStream groupStream = groupAttr.getTokenGroupStream();
-      CharSequenceTermAttribute groupTermAttr = groupStream.getAttribute(CharSequenceTermAttribute.class);
-      TokenTypeAttribute typeAttr = groupStream.getAttribute(TokenTypeAttribute.class);
+      PartOfSpeechAttribute posAttr = null;
+      if (groupStream.hasAttribute(PartOfSpeechAttribute.class)) {
+        posAttr = groupStream.getAttribute(PartOfSpeechAttribute.class);
+      }
+      PositionIncrementAttribute incAttr = null;
+      if (groupStream.hasAttribute(PositionIncrementAttribute.class)) {
+        incAttr = groupStream.getAttribute(PositionIncrementAttribute.class);
+      }
+
+      TokenGroupAttributeImpl innerGroupAttr = null;
+      if (groupStream.hasAttribute(TokenGroupAttribute.class)) {
+        innerGroupAttr = (TokenGroupAttributeImpl) groupStream.getAttribute(TokenGroupAttribute.class);
+      }
 
       while (groupStream.incrementToken()) {
-        builder.addToken(groupTermAttr.getOffset() - termAttr.getOffset(),
-                         groupTermAttr.getLength(),
-                         typeAttr.getType());
+        builder.addToken(groupStream.offset() - stream.offset(),
+                         groupStream.length(),
+                         groupStream.type(),
+                         posAttr == null ? Token.DEFAULT_PART_OF_SPEECH : posAttr.getPOS(),
+                         incAttr == null ? 1 : incAttr.getPositionIncrement(),
+                         innerGroupAttr == null || innerGroupAttr.isEmpty() ? null :
+                             (innerGroupAttr.getSequence() == null ? createFrom(innerGroupAttr.getTokenGroupStream()) :
+                                 innerGroupAttr.getSequence()));
       }
 
       groups.add(builder.build());

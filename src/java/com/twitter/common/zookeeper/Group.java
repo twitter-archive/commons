@@ -73,12 +73,6 @@ public class Group {
 
   private final BackoffHelper backoffHelper;
 
-  @VisibleForTesting static String normalizePath(String path) {
-    String normalizedPath = path.replaceAll("//+", "/").replaceFirst("(.+)/$", "$1");
-    PathUtils.validatePath(normalizedPath);
-    return normalizedPath;
-  }
-
   /**
    * Creates a group rooted at the given {@code path}.  Paths must be absolute and trailing or
    * duplicate slashes will be normalized.  For example, all the following paths would create a
@@ -99,7 +93,7 @@ public class Group {
       NodeNameScheme nodeNameScheme) {
     this.zkClient = Preconditions.checkNotNull(zkClient);
     this.acl = ImmutableList.copyOf(acl);
-    this.path = normalizePath(Preconditions.checkNotNull(path));
+    this.path = ZooKeeperUtils.normalizePath(Preconditions.checkNotNull(path));
     this.nodeNamePrefix = MorePreconditions.checkNotBlank(nodeNamePrefix);
     this.nodeNameScheme = Preconditions.checkNotNull(nodeNameScheme);
 
@@ -134,6 +128,10 @@ public class Group {
 
   public String getMemberPath(String memberId) {
     return path + "/" + MorePreconditions.checkNotBlank(memberId);
+  }
+
+  public String getPath() {
+    return path;
   }
 
   public String getMemberId(String nodePath) {

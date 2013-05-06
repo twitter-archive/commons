@@ -24,21 +24,17 @@ import com.google.common.base.Preconditions;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 
-import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;
-
 /**
  * Converts a Lucene {@link Tokenizer} instance into {@link TokenStream} instance.
  */
 public class LuceneTokenizer2TokenStreamWrapper extends TokenStream {
   private final Tokenizer tokenizer;
-  private final CharSequenceTermAttribute termAttr;
   private final OffsetAttribute inputOffsetAttr;
 
   public LuceneTokenizer2TokenStreamWrapper(Tokenizer tokenizer) {
     super(tokenizer.cloneAttributes());
     this.tokenizer = tokenizer;
     inputOffsetAttr = tokenizer.getAttribute(OffsetAttribute.class);
-    termAttr = addAttribute(CharSequenceTermAttribute.class);
   }
 
   @Override
@@ -52,8 +48,8 @@ public class LuceneTokenizer2TokenStreamWrapper extends TokenStream {
 
       restoreState(tokenizer.captureState());
 
-      termAttr.setOffset(inputOffsetAttr.startOffset());
-      termAttr.setLength(inputOffsetAttr.endOffset() - inputOffsetAttr.startOffset());
+      updateOffsetAndLength(inputOffsetAttr.startOffset(),
+                            inputOffsetAttr.endOffset() - inputOffsetAttr.startOffset());
 
       return true;
     } catch (IOException e) {
@@ -65,8 +61,8 @@ public class LuceneTokenizer2TokenStreamWrapper extends TokenStream {
   public void reset(CharSequence input) {
     Preconditions.checkNotNull(input);
     try {
-      tokenizer.reset(new StringReader(input.toString()));
-      termAttr.setTermBuffer(input);
+      tokenizer.setReader(new StringReader(input.toString()));
+      updateInputCharSequence(input);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

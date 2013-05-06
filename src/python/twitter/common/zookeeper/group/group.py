@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 import functools
 import posixpath
 import socket
@@ -11,6 +11,9 @@ except ImportError:
   import logging as log
 
 from twitter.common.concurrent import Future
+from twitter.common.exceptions import ExceptionalThread
+from twitter.common.lang import Interface
+from twitter.common.zookeeper.constants import ReturnCode
 
 
 class Membership(object):
@@ -35,6 +38,9 @@ class Membership(object):
       return False
     return self._id == other._id
 
+  def __ne__(self, other):
+    return not self == other
+
   def __hash__(self):
     return hash(self._id)
 
@@ -45,12 +51,10 @@ class Membership(object):
       return 'Membership(%r)' % self._id
 
 
-class GroupInterface(object):
+class GroupInterface(Interface):
   """
     A group of members backed by immutable blob data.
   """
-
-  __metaclass__ = ABCMeta
 
   @abstractmethod
   def join(self, blob, callback=None, expire_callback=None):
@@ -62,7 +66,6 @@ class GroupInterface(object):
       If expire_callback is provided, it is called with no arguments when
       the membership is terminated for any reason.
     """
-    pass
 
   @abstractmethod
   def info(self, membership, callback=None):
@@ -71,7 +74,6 @@ class GroupInterface(object):
       Membership.error() if no membership exists.  If callback is provided,
       this operation is done asynchronously.
     """
-    pass
 
   @abstractmethod
   def cancel(self, membership, callback=None):
@@ -80,7 +82,6 @@ class GroupInterface(object):
       exist.  Returns false if the membership exists and we failed to cancel
       it.  If callback is provided, this operation is done asynchronously.
     """
-    pass
 
   @abstractmethod
   def monitor(self, membership_set=frozenset(), callback=None):
@@ -89,7 +90,6 @@ class GroupInterface(object):
       different.  If callback is provided, this operation is done
       asynchronously.
     """
-    pass
 
   @abstractmethod
   def list(self):
@@ -97,7 +97,6 @@ class GroupInterface(object):
       Synchronously return the list of underlying members.  Should only be
       used in place of monitor if you cannot afford to block indefinitely.
     """
-    pass
 
 
 class Promise(object):
@@ -134,23 +133,13 @@ def set_different(promise, current_members, actual_members):
     return True
 
 
-# TODO(wickman) Pull this out into twitter.common.decorators
-def documented_by(documenting_abc):
-  def document(cls):
-    cls_dict = cls.__dict__.copy()
-    for attr in documenting_abc.__abstractmethods__:
-      cls_dict[attr].__doc__ = getattr(documenting_abc, attr).__doc__
-    return type(cls.__name__, cls.__mro__[1:], cls_dict)
-  return document
-
-
-@documented_by(GroupInterface)
 class Group(GroupInterface):
   """
     An implementation of GroupInterface against Zookeeper.
   """
 
   class GroupError(Exception): pass
+  class InvalidMemberError(GroupError): pass
 
   MEMBER_PREFIX = 'member_'
 
@@ -170,12 +159,35 @@ class Group(GroupInterface):
 
   def __init__(self, zk, path, acl=None):
     self._zk = zk
-    self._path = path
+    self._path = '/' + '/'.join(filter(None, path.split('/')))  # normalize path
     self._members = {}
     self._member_lock = threading.Lock()
     self._acl = acl or zk.DEFAULT_ACL
-    if not self._zk.safe_create(path, acl=self._acl):
-      raise Group.GroupError('Could not create znode for %s!' % path)
+
+  def _prepare_path(self, success):
+    class Background(ExceptionalThread):
+      def run(_):
+        child = '/'
+        for component in self._path.split('/')[1:]:
+          child = posixpath.join(child, component)
+          while True:
+            try:
+              self._zk.create(child, "", self._acl)
+              break
+            except zookeeper.NodeExistsException:
+              break
+            except zookeeper.NoAuthException:
+              if self._zk.exists(child):
+                break
+              else:
+                success.set(False)
+                return
+            except zookeeper.OperationTimeoutException:
+              pass # retry
+        success.set(True)
+    background = Background()
+    background.daemon = True
+    background.start()
 
   def __iter__(self):
     return iter(self._members)
@@ -184,6 +196,9 @@ class Group(GroupInterface):
     return self.info(member)
 
   def info(self, member, callback=None):
+    if member == Membership.error():
+      raise self.InvalidMemberError('Cannot get info on error member!')
+
     promise = Promise(callback)
 
     def do_info():
@@ -226,20 +241,28 @@ class Group(GroupInterface):
     membership_promise = Promise(callback)
     exists_promise = Promise(expire_callback)
 
+    def on_prepared(success):
+      if success:
+        do_join()
+      else:
+        membership_promise.set(Membership.error())
+
+    prepare_promise = Promise(on_prepared)
+
     def do_join():
       self._zk.acreate(posixpath.join(self._path, self.MEMBER_PREFIX),
           blob, self._acl, zookeeper.SEQUENCE | zookeeper.EPHEMERAL, acreate_completion)
 
-    def exists_completion(_, rc, path):
-      if rc in self._zk.COMPLETION_RETRY:
-        self._zk.aexists(path, exists_watch, exists_completion)
-        return
-      if rc == zookeeper.NONODE:
-        exists_promise.set()
-
     def exists_watch(_, event, state, path):
       if (event == zookeeper.SESSION_EVENT and state == zookeeper.EXPIRED_SESSION_STATE) or (
           event == zookeeper.DELETED_EVENT):
+        exists_promise.set()
+
+    def exists_completion(path, _, rc, stat):
+      if rc in self._zk.COMPLETION_RETRY:
+        self._zk.aexists(path, exists_watch, functools.partial(exists_completion, path))
+        return
+      if rc == zookeeper.NONODE:
         exists_promise.set()
 
     def acreate_completion(_, rc, path):
@@ -254,12 +277,12 @@ class Group(GroupInterface):
           result_future.set_result(blob)
           self._members[membership] = result_future
         if expire_callback:
-          self._zk.aexists(path, exists_watch, exists_completion)
+          self._zk.aexists(path, exists_watch, functools.partial(exists_completion, path))
       else:
         membership = Membership.error()
       membership_promise.set(membership)
 
-    do_join()
+    self._prepare_path(prepare_promise)
     return membership_promise()
 
   def cancel(self, member, callback=None):
@@ -288,31 +311,52 @@ class Group(GroupInterface):
     do_cancel()
     return promise()
 
-  # TODO(wickman)  On session expiration, we should re-queue the watch
-  # against zookeeper.
   def monitor(self, membership=frozenset(), callback=None):
     promise = Promise(callback)
+
+    def wait_exists():
+      self._zk.aexists(self._path, exists_watch, exists_completion)
+
+    def exists_watch(_, event, state, path):
+      if event == zookeeper.SESSION_EVENT and state == zookeeper.EXPIRED_SESSION_STATE:
+        wait_exists()
+        return
+      if event == zookeeper.CREATED_EVENT:
+        do_monitor()
+      elif event == zookeeper.DELETED_EVENT:
+        wait_exists()
+
+    def exists_completion(_, rc, stat):
+      if rc == zookeeper.OK:
+        do_monitor()
 
     def do_monitor():
       self._zk.aget_children(self._path, get_watch, get_completion)
 
     def get_watch(_, event, state, path):
       if event == zookeeper.SESSION_EVENT and state == zookeeper.EXPIRED_SESSION_STATE:
-        do_monitor()
+        wait_exists()
         return
       if state != zookeeper.CONNECTED_STATE:
+        return
+      if event == zookeeper.DELETED_EVENT:
+        wait_exists()
         return
       if event != zookeeper.CHILD_EVENT:
         return
       if set_different(promise, membership, self._members):
         return
       do_monitor()
+
     def get_completion(_, rc, children):
       if rc in self._zk.COMPLETION_RETRY:
         do_monitor()
         return
+      if rc == zookeeper.NONODE:
+        wait_exists()
+        return
       if rc != zookeeper.OK:
-        log.warning('Unexpected get_completion return code: %s' % ZooKeeper.ReturnCode(rc))
+        log.warning('Unexpected get_completion return code: %s' % ReturnCode(rc))
         promise.set(set([Membership.error()]))
         return
       self._update_children(children)
@@ -322,8 +366,11 @@ class Group(GroupInterface):
     return promise()
 
   def list(self):
-    return sorted(map(lambda znode: Membership(self.znode_to_id(znode)),
-        filter(self.znode_owned, self._zk.get_children(self._path))))
+    try:
+      return sorted(map(lambda znode: Membership(self.znode_to_id(znode)),
+          filter(self.znode_owned, self._zk.get_children(self._path))))
+    except zookeeper.NoNodeException:
+      return []
 
   # ---- protected api
 
@@ -367,12 +414,31 @@ class ActiveGroup(Group):
   # ---- private api
 
   def _monitor_members(self):
+    def wait_exists():
+     self._zk.aexists(self._path, exists_watch, exists_completion)
+
+    def exists_watch(_, event, state, path):
+      if event == zookeeper.SESSION_EVENT and state == zookeeper.EXPIRED_SESSION_STATE:
+        wait_exists()
+        return
+      if event == zookeeper.CREATED_EVENT:
+        do_monitor()
+      elif event == zookeeper.DELETED_EVENT:
+        wait_exists()
+
+    def exists_completion(_, rc, stat):
+      if rc == zookeeper.OK:
+        do_monitor()
+
     def do_monitor():
       self._zk.aget_children(self._path, membership_watch, membership_completion)
 
     def membership_watch(_, event, state, path):
       # Connecting state is caused by transient connection loss, ignore
       if state == zookeeper.CONNECTING_STATE:
+        return
+      if event == zookeeper.DELETED_EVENT:
+        wait_exists()
         return
       # Everything else indicates underlying change.
       do_monitor()
@@ -381,9 +447,13 @@ class ActiveGroup(Group):
       if rc in self._zk.COMPLETION_RETRY:
         do_monitor()
         return
+      if rc == zookeeper.NONODE:
+        wait_exists()
+        return
       if rc != zookeeper.OK:
         return
 
+      children = [child for child in children if self.znode_owned(child)]
       _, new = self._update_children(children)
       for child in new:
         def devnull(*args, **kw): pass

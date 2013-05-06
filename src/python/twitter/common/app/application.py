@@ -26,57 +26,20 @@ except ImportError:
 import atexit
 import copy
 import inspect
-import os
-import sys
 import optparse
+import os
 import shlex
-import traceback
-from collections import defaultdict
+import sys
+import threading
+from collections import defaultdict, deque
+from functools import partial
 
 from twitter.common import options
 from twitter.common.app.module import AppModule
 from twitter.common.app.inspection import Inspection
-from twitter.common.dirutil import lock_file
 from twitter.common.lang import Compatibility
+from twitter.common.process import daemonize
 from twitter.common.util import topological_sort
-
-_PIDFILE = None
-
-# TODO(wickman)  Leverage PEP-3143 http://pypi.python.org/pypi/python-daemon/
-def daemonize(pidfile=None, stdout='/dev/null', stderr='/dev/null'):
-  global _PIDFILE
-
-  def daemon_fork():
-    try:
-      if os.fork() > 0:
-        os._exit(0)
-    except OSError as e:
-      sys.stderr.write('Failed to fork: %s\n' % e)
-      sys.exit(1)
-
-  daemon_fork()
-  os.setsid()
-  daemon_fork()
-
-  if pidfile:
-    _PIDFILE = lock_file(pidfile, 'w+')
-    if _PIDFILE:
-      pid = os.getpid()
-      sys.stderr.write('Writing pid %s into %s\n' % (pid, pidfile))
-      _PIDFILE.write(str(pid))
-      _PIDFILE.flush()
-    else:
-      sys.stderr.write('Could not acquire pidfile %s, another process running!\n' % pidfile)
-      sys.exit(1)
-
-    def shutdown():
-      os.unlink(pidfile)
-      _PIDFILE.close()
-    atexit.register(shutdown)
-
-  sys.stdin = open('/dev/null', 'r')
-  sys.stdout = open(stdout, 'a+')
-  sys.stderr = open(stderr, 'a+', 1)
 
 
 class Application(object):
@@ -120,7 +83,7 @@ class Application(object):
        options.Option('--app_daemon_stdout',
            default='/dev/null',
            dest='twitter_common_app_daemon_stdout',
-           help="Direct this app's stdout to this file if daemonized ."),
+           help="Direct this app's stdout to this file if daemonized."),
 
     'daemon_stderr':
        options.Option('--app_daemon_stderr',
@@ -154,6 +117,13 @@ class Application(object):
            metavar='FILENAME',
            dest='twitter_common_app_profile_output',
            help="Dump the profiling output to a binary profiling format."),
+
+    'rc_filename':
+       options.Option('--app_rc_filename',
+           action='store_true',
+           default=False,
+           dest='twitter_common_app_rc_filename',
+           help="Print the filename for the rc file and quit."),
 
     'ignore_rc_file':
        options.Option(IGNORE_RC_FLAG,
@@ -240,32 +210,39 @@ class Application(object):
     for option_name, option_value in kw.items():
       configure_option(option_name, option_value)
 
+  def _main_parser(self):
+    return (options.parser()
+              .interspersed_arguments(self._interspersed_args)
+              .options(self._main_options)
+              .usage(self._usage))
+
+  def command_parser(self, command):
+    assert command in self._commands
+    values_copy = copy.deepcopy(self._option_values)
+    parser = self._main_parser()
+    command_group = options.new_group(('For %s only' % command) if command else 'Default')
+    for option in getattr(self._commands[command], Application.OPTIONS_ATTR):
+      op = copy.deepcopy(option)
+      if not hasattr(values_copy, op.dest):
+        setattr(values_copy, op.dest, op.default if op.default != optparse.NO_DEFAULT else None)
+      Application.rewrite_help(op)
+      op.default = optparse.NO_DEFAULT
+      command_group.add_option(op)
+    parser = parser.groups([command_group]).values(values_copy)
+    usage = self._commands[command].__doc__
+    if usage:
+      parser = parser.usage(usage)
+    return parser
+
   def _construct_partial_parser(self):
     """
       Construct an options parser containing only options added by __main__
       or global help options registered by the application.
     """
-    values_copy = copy.deepcopy(self._option_values)
-    parser = (options.parser()
-              .interspersed_arguments(self._interspersed_args)
-              .options(self._main_options)
-              .usage(self._usage))
-
     if hasattr(self._commands.get(self._command), Application.OPTIONS_ATTR):
-      if self._command is None:
-        command_group = options.new_group('When running with no command')
-      else:
-        command_group = options.new_group('For command %s' % self._command)
-      for option in getattr(self._commands[self._command], Application.OPTIONS_ATTR):
-        op = copy.deepcopy(option)
-        if not hasattr(values_copy, op.dest):
-          setattr(values_copy, op.dest, op.default if op.default != optparse.NO_DEFAULT else None)
-        Application.rewrite_help(op)
-        op.default = optparse.NO_DEFAULT
-        command_group.add_option(op)
-      return parser.groups([command_group]).values(values_copy)
+      return self.command_parser(self._command)
     else:
-      return parser.values(values_copy)
+      return self._main_parser().values(copy.deepcopy(self._option_values))
 
   def _construct_full_parser(self):
     """
@@ -273,12 +250,15 @@ class Application(object):
     """
     return self._construct_partial_parser().groups(self._global_options.values())
 
+  def _rc_filename(self):
+    rc_short_filename = '~/.%src' % self.name()
+    return os.path.expanduser(rc_short_filename)
+
   def _add_default_options(self, argv):
     """
       Return an argument list with options from the rc file prepended.
     """
-    rc_short_filename = '~/.%src' % self.name()
-    rc_filename = os.path.expanduser(rc_short_filename)
+    rc_filename = self._rc_filename()
 
     options = argv
 
@@ -302,8 +282,6 @@ class Application(object):
     argv = sys.argv[1:] if force_args is None else force_args
     if argv and argv[0] in self._commands:
       self._command = argv.pop(0)
-    elif None in self._commands:
-      self._command = self._commands[None].__name__
     else:
       self._command = None
     parser = self._construct_full_parser()
@@ -451,7 +429,7 @@ class Application(object):
     if len(args) == 1 and kwargs == {} and isinstance(args[0], options.Option):
       return args[0]
     else:
-      return options.Option(*args, **kwargs)
+      return options.TwitterOption(*args, **kwargs)
 
 
   def add_option(self, *args, **kwargs):
@@ -466,15 +444,36 @@ class Application(object):
     added_option = self._get_option_from_args(args, kwargs)
     self._add_option(calling_module, added_option)
 
-  def command(self, function):
+  def command(self, function=None, name=None):
     """
       Decorator to turn a function into an application command.
+
+      To add a command foo, the following patterns will both work:
+
+      @app.command
+      def foo(args, options):
+        ...
+
+      @app.command(name='foo')
+      def bar(args, options):
+        ...
+    """
+    if name is None:
+      return self._register_command(function)
+    else:
+      return partial(self._register_command, command_name=name)
+
+  def _register_command(self, function, command_name=None):
+    """
+      Registers function as the handler for command_name. Uses function.__name__ if command_name
+      is None.
     """
     if Inspection.find_calling_module() == '__main__':
-      func_name = function.__name__
-      if func_name in self._commands:
-        raise Application.Error('Found two definitions for command %s' % func_name)
-      self._commands[func_name] = function
+      if command_name is None:
+        command_name = function.__name__
+      if command_name in self._commands:
+        raise Application.Error('Found two definitions for command %s' % command_name)
+      self._commands[command_name] = function
     return function
 
   def default_command(self, function):
@@ -493,14 +492,33 @@ class Application(object):
       Decorator to add an option only for a specific command.
     """
     def register_option(function):
-      if Inspection.find_calling_module() == '__main__':
-        added_option = self._get_option_from_args(args, kwargs)
-        if not hasattr(function, Application.OPTIONS_ATTR):
-          new_group = options.new_group('For command %s' % function.__name__)
-          setattr(function, Application.OPTIONS_ATTR, new_group)
-        getattr(function, Application.OPTIONS_ATTR).prepend_option(added_option)
+      added_option = self._get_option_from_args(args, kwargs)
+      if not hasattr(function, Application.OPTIONS_ATTR):
+        setattr(function, Application.OPTIONS_ATTR, deque())
+      getattr(function, Application.OPTIONS_ATTR).appendleft(added_option)
       return function
     return register_option
+
+  def copy_command_options(self, command_function):
+    """
+      Decorator to copy command options from another command.
+    """
+    def register_options(function):
+      if hasattr(command_function, Application.OPTIONS_ATTR):
+        if not hasattr(function, Application.OPTIONS_ATTR):
+          setattr(function, Application.OPTIONS_ATTR, deque())
+        command_options = getattr(command_function, Application.OPTIONS_ATTR)
+        getattr(function, Application.OPTIONS_ATTR).extendleft(command_options)
+      return function
+    return register_options
+
+  def add_command_options(self, command_function):
+    """
+      Function to add all options from a command
+    """
+    module = inspect.getmodule(command_function).__name__
+    for option in getattr(command_function, Application.OPTIONS_ATTR, []):
+      self._add_option(module, option)
 
   def _debug_log(self, msg):
     if hasattr(self._option_values, 'twitter_common_app_debug') and (
@@ -590,8 +608,9 @@ class Application(object):
   def quit(self, rc, exit_function=sys.exit):
     self._debug_log('Shutting application down.')
     self._teardown_modules()
-    import threading
+    self._debug_log('Finishing up module teardown.')
     nondaemons = 0
+    self.dump_profile()
     for thr in threading.enumerate():
       self._debug_log('  Active thread%s: %s' % (' (daemon)' if thr.isDaemon() else '', thr))
       if thr is not threading.current_thread() and not thr.isDaemon():
@@ -649,6 +668,11 @@ class Application(object):
     """
       If called from __main__ module, run script's main() method with arguments passed
       and global options parsed.
+
+      The following patterns are acceptable for the main method:
+         main()
+         main(args)
+         main(args, options)
     """
     main_module = Inspection.find_calling_module()
     if main_module != '__main__':
@@ -663,10 +687,14 @@ class Application(object):
     # defer init as long as possible.
     self.init()
 
+    if self._option_values.twitter_common_app_rc_filename:
+      print('RC filename: %s' % self._rc_filename())
+      return
+
     try:
-        caller_main = Inspection.find_main_from_caller()
+      caller_main = Inspection.find_main_from_caller()
     except Inspection.InternalError:
-        caller_main = None
+      caller_main = None
     if None in self._commands:
       assert caller_main is None, "Error: Cannot define both main and a default command."
     else:

@@ -105,6 +105,10 @@ public class AngryBirdZooKeeperMain extends AbstractApplication {
   }
 
   public static void main(String[] args) {
+    // Enable logging for apache zk.
+    org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.INFO);
+    org.apache.log4j.BasicConfigurator.configure();
+
     AppLauncher.launch(AngryBirdZooKeeperMain.class, args);
   }
 }

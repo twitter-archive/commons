@@ -12,7 +12,7 @@ import com.twitter.common.base.MorePreconditions;
  */
 public class ScopedMetrics implements MetricRegistry {
 
-  private static final String SCOPE_DELIMITER = ".";
+  @VisibleForTesting static final String SCOPE_DELIMITER = ".";
 
   private final String name;
   private final MetricRegistry parentScope;

@@ -57,6 +57,8 @@ from optparse import (
   NO_DEFAULT
 )
 
+from .twitter_option import TwitterOption
+
 def parser():
   return TwitterOptionParser()
 
@@ -70,6 +72,7 @@ __all__ = [
   'new_group',
   'group', # alias for new_group
   'Option',
+  'TwitterOption',
   'Values'
 ]
 

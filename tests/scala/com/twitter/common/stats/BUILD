@@ -14,16 +14,14 @@
 # limitations under the License.
 # ==================================================================================================
 
-
-
-scala_tests(name = 'stats',
+junit_tests(name = 'stats',
   dependencies = [
-    '3rdparty:easymock',
-    '3rdparty:easymockclassextension',
-    '3rdparty:ostrich',
-    '3rdparty:specs',
-    'src/java/com/twitter/common/stats:stats-provider',
-    'src/scala/com/twitter/common/stats',
+    pants('3rdparty:junit'),
+    pants('3rdparty:mockito'),
+    pants('3rdparty:ostrich'),
+    pants('3rdparty:specs'),
+    pants('src/java/com/twitter/common/stats:stats-provider'),
+    pants('src/scala/com/twitter/common/stats'),
   ],
   sources = globs('*.scala')
 )

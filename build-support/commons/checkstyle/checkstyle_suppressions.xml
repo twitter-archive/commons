@@ -26,8 +26,6 @@ limitations under the License.
   <!-- for things like assertEquals(12, obj.somethingId()) -->
   <!-- also disables custom checks that are subclasses of the Javadoc* built-in checks -->
   <suppress files="tests/.*\.java" checks="Javadoc*"/>
-  <suppress files="tests/.*\.java" checks="MagicNumberCheck"/>
-  <suppress files="tests/.*\.java" checks="MultipleStringLiterals"/>
 
   <!-- if you want separate lines for src & test, do something like:
   <suppress files="src/java/com/twitter/common/base/.*\.java" checks=".*"/>
@@ -36,13 +34,10 @@ limitations under the License.
 
   <!-- matches src/... & tests/... -->
   <!-- RegexpSingleLineJava thwarts System.exit, but we legitimately use that in HttpModule. -->
-  <suppress files="com/twitter/common/.*\.java" checks="MagicNumber|RegexpSinglelineJava"/>
+  <suppress files="com/twitter/common/.*\.java" checks="RegexpSinglelineJava"/>
     <!-- RegexpSingleLineJava thwarts System.exit, but we legitimately use that in AppLauncher. -->
   <suppress files="com/twitter/common/application/AppLauncher.java" checks="RegexpSinglelineJava"/>
-  <suppress files="com/twitter/common/args/.*\.java"
-            checks="CyclomaticComplexity|DeclarationOrder|InnerAssignment|JavaNCSS|MagicNumber|"/>
-  <suppress files="com/twitter/common/args/.*\.java"
-            checks="MethodCount|MultipleStringLiterals|NestedIfDepth|ReturnCount"/>
+  <suppress files="com/twitter/common/args/.*\.java" checks="InnerAssignment"/>
   <suppress files="com/twitter/common/geo/.*\.java" checks=".*"/>
   <suppress files="com/twitter/common/io/.*\.java" checks=".*"/>
   <suppress files="com/twitter/common/logging/.*\.java" checks=".*"/>
@@ -55,5 +50,4 @@ limitations under the License.
   <suppress files="com/twitter/common/thrift/.*\.java" checks=".*"/>
   <suppress files="com/twitter/common/util/.*\.java" checks=".*"/>
   <suppress files="com/twitter/common/zookeeper/.*\.java" checks=".*"/>
-  <suppress files="com/twitter/common/metrics/.*\.java" checks="MagicNumber"/>
 </suppressions>

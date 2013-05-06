@@ -17,11 +17,10 @@
 python_library(
   name = 'descriptors',
   dependencies = [
-    '3rdparty/python:antlr-3.1.3',
-    '3rdparty/python:thrift-0.7',
-    'src/antlr/twitter/thrift/descriptors',
-    'src/python/twitter/thrift/text',
-    'src/thrift/com/twitter/thrift/descriptors:descriptors-py',
+    python_requirement('antlr_python_runtime==3.1.3'),
+    pants('src/antlr/twitter/thrift/descriptors'),
+    pants('src/python/twitter/thrift/text'),
+    pants('src/thrift/com/twitter/thrift/descriptors:descriptors-py'),
   ],
   sources = globs('*.py'),
 )

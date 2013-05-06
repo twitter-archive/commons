@@ -15,6 +15,7 @@
 # ==================================================================================================
 
 import sys
+import threading
 
 from twitter.common import app, options
 
@@ -22,6 +23,8 @@ try:
   from twitter.common import log
 except ImportError:
   import logging as log
+
+class ParseError(Exception): pass
 
 def add_port_to(option_name):
   def add_port_callback(option, opt, value, parser):
@@ -39,8 +42,10 @@ def add_port_to(option_name):
     getattr(parser.values, option_name)[name] = port
   return add_port_callback
 
+
 def set_bool(option, opt_str, value, parser):
   setattr(parser.values, option.dest, not opt_str.startswith('--no'))
+
 
 class ServerSetModule(app.Module):
   """
@@ -62,6 +67,9 @@ class ServerSetModule(app.Module):
     'serverset-primary': options.Option('--serverset-primary',
         type='int', metavar='PORT', dest='serverset_module_primary_port', default=None,
         help='Port on which to bind the primary endpoint.'),
+    'serverset-shard-id': options.Option('--serverset-shard-id',
+        type='int', metavar='INT', dest='serverset_module_shard_id', default=None,
+        help='Shard id to assign this serverset entry.'),
     'serverset-extra': options.Option('--serverset-extra',
         default={}, type='string', nargs=1, action='callback', metavar='NAME:PORT',
         callback=add_port_to('serverset_module_extra'), dest='serverset_module_extra',
@@ -80,6 +88,8 @@ class ServerSetModule(app.Module):
     self._membership = None
     self._join_args = None
     self._torndown = False
+    self._rejoin_event = threading.Event()
+    self._joiner = None
 
   @property
   def serverset(self):
@@ -87,7 +97,8 @@ class ServerSetModule(app.Module):
 
   @property
   def zh(self):
-    return self._zh
+    if self._zookeeper:
+      return self._zookeeper._zh
 
   def _assert_valid_inputs(self, options):
     if not options.serverset_module_enable:
@@ -126,11 +137,14 @@ class ServerSetModule(app.Module):
     self._zookeeper = ZooKeeper(options.serverset_module_ensemble)
     self._serverset = ServerSet(self._zookeeper, options.serverset_module_path)
     self._join_args = (primary, additional)
+    self._join_kwargs = ({'shard': options.serverset_module_shard_id}
+                         if options.serverset_module_shard_id else {})
 
   def _join(self):
     log.debug('ServerSet module joining serverset.')
     primary, additional = self._join_args
-    self._membership = self._serverset.join(primary, additional, expire_callback=self.on_expiration)
+    self._membership = self._serverset.join(primary, additional, expire_callback=self.on_expiration,
+        **self._join_kwargs)
 
   def on_expiration(self):
     if self._torndown:
@@ -142,18 +156,38 @@ class ServerSetModule(app.Module):
       sys.exit(1)
     else:
       log.debug('Rejoining...')
-    self._join()
+
+    self._rejoin_event.set()
 
   def setup_function(self):
     options = app.get_options()
     if options.serverset_module_enable:
       self._assert_valid_inputs(options)
       self._construct_serverset(options)
-      self._join()
+      self._thread = ServerSetJoinThread(self._rejoin_event, self._join)
+      self._thread.start()
+      self._rejoin_event.set()
 
   def teardown_function(self):
-    import zookeeper
     self._torndown = True
     if self._membership:
       self._serverset.cancel(self._membership)
       self._zookeeper.stop()
+
+
+class ServerSetJoinThread(threading.Thread):
+  """
+    A thread to maintain serverset session.
+  """
+  def __init__(self, event, joiner):
+    self._event = event
+    self._joiner = joiner
+    threading.Thread.__init__(self)
+    self.daemon = True
+
+  def run(self):
+    while True:
+      self._event.wait()
+      log.debug('Join event triggered, joining serverset.')
+      self._event.clear()
+      self._joiner()

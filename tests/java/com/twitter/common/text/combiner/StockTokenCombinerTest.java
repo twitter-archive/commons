@@ -37,10 +37,17 @@ public class StockTokenCombinerTest {
 
   @Test
   public void test() {
-    stream.reset("Check out Apple stock: $APPL. and $IN:REL.  But not $dlfsdfsdf. $C is ok. $ is right out.");
+    stream.reset("Check out Apple stock: $APPL. and $IN.  But not $dlfsdfsdf. $C is ok. $ is right out.");
 
     assertEquals(ImmutableList.of("Check", "out", "Apple", "stock", ":", "$APPL", ".",
-        "and", "$IN:REL", ".", "But", "not", "$", "dlfsdfsdf", ".", "$C", "is", "ok", ".",
+        "and", "$IN", ".", "But", "not", "$", "dlfsdfsdf", ".", "$C", "is", "ok", ".",
         "$", "is", "right", "out", "."), stream.toStringList());
+  }
+
+  @Test
+  public void testSymbolWithDotOrUnderscore() {
+    stream.reset("Test $APPL.X or $GOOG_Y");
+
+    assertEquals(ImmutableList.of("Test", "$APPL.X", "or", "$GOOG_Y"), stream.toStringList());
   }
 }

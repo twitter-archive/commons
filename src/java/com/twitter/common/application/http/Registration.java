@@ -1,33 +1,24 @@
-// =================================================================================================
-// Copyright 2011 Twitter, Inc.
-// -------------------------------------------------------------------------------------------------
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this work except in compliance with the License.
-// You may obtain a copy of the License in the LICENSE file, or at:
-//
-//  http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-// =================================================================================================
-
 package com.twitter.common.application.http;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.net.URL;
 
+import javax.servlet.Filter;
 import javax.servlet.http.HttpServlet;
 
 import com.google.common.io.Resources;
 import com.google.inject.Binder;
+import com.google.inject.BindingAnnotation;
 import com.google.inject.multibindings.Multibinder;
+
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Utility class for registering HTTP servlets and assets.
- *
- * @author William Farner
  */
 public final class Registration {
 
@@ -53,6 +44,36 @@ public final class Registration {
    */
   public static void registerServlet(Binder binder, HttpServletConfig config) {
     Multibinder.newSetBinder(binder, HttpServletConfig.class).addBinding().toInstance(config);
+  }
+
+  /**
+   * A binding annotation applied to the set of additional index page links bound via
+   * {@link #Registration#registerEndpoint()}
+   */
+  @BindingAnnotation
+  @Target({FIELD, PARAMETER, METHOD})
+  @Retention(RUNTIME)
+  public @interface IndexLink { }
+
+  /**
+   * Gets the multibinder used to bind links on the root servlet.
+   * The resulting {@link java.util.Set} is bound with the {@link IndexLink} annotation.
+   *
+   * @param binder a guice binder to associate the multibinder with.
+   * @return The multibinder to bind index links against.
+   */
+  public static Multibinder<String> getEndpointBinder(Binder binder) {
+    return Multibinder.newSetBinder(binder, String.class, IndexLink.class);
+  }
+
+  /**
+   * Registers a link to display on the root servlet.
+   *
+   * @param binder a guice binder to register the link with.
+   * @param endpoint Endpoint URI to include.
+   */
+  public static void registerEndpoint(Binder binder, String endpoint) {
+    getEndpointBinder(binder).addBinding().toInstance(endpoint);
   }
 
   /**
@@ -82,9 +103,40 @@ public final class Registration {
    * @param assetType MIME-type for the asset.
    * @param silent Whether the server should hide this asset on the index page.
    */
-  public static void registerHttpAsset(Binder binder, String servedPath, Class<?> contextClass,
-      String assetRelativePath, String assetType, boolean silent) {
+  public static void registerHttpAsset(
+      Binder binder,
+      String servedPath,
+      Class<?> contextClass,
+      String assetRelativePath,
+      String assetType,
+      boolean silent) {
+
     registerHttpAsset(binder, servedPath, Resources.getResource(contextClass, assetRelativePath),
         assetType, silent);
+  }
+
+  /**
+   * Gets the multibinder used to bind HTTP filters.
+   *
+   * @param binder a guice binder to associate the multibinder with.
+   * @return The multibinder to bind HTTP filter configurations against.
+   */
+  public static Multibinder<HttpFilterConfig> getFilterBinder(Binder binder) {
+    return Multibinder.newSetBinder(binder, HttpFilterConfig.class);
+  }
+
+  /**
+   * Registers an HTTP servlet filter.
+   *
+   * @param binder a guice binder to register the filter with.
+   * @param filterClass Filter class to register.
+   * @param pathSpec Path spec that the filte should be activated on.
+   */
+  public static void registerServletFilter(
+      Binder binder,
+      Class<? extends Filter> filterClass,
+      String pathSpec) {
+
+    getFilterBinder(binder).addBinding().toInstance(new HttpFilterConfig(filterClass, pathSpec));
   }
 }

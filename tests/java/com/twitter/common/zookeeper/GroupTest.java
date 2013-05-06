@@ -140,36 +140,6 @@ public class GroupTest extends BaseZooKeeperTest {
   }
 
   @Test
-  public void testLenientPaths() {
-    assertEquals("/", Group.normalizePath("///"));
-    assertEquals("/a/group", Group.normalizePath("/a/group"));
-    assertEquals("/a/group", Group.normalizePath("/a/group/"));
-    assertEquals("/a/group", Group.normalizePath("/a//group"));
-    assertEquals("/a/group", Group.normalizePath("/a//group//"));
-
-    try {
-      Group.normalizePath("a/group");
-      fail("Relative paths should not be allowed.");
-    } catch (IllegalArgumentException e) {
-      // expected
-    }
-
-    try {
-      Group.normalizePath("/a/./group");
-      fail("Relative paths should not be allowed.");
-    } catch (IllegalArgumentException e) {
-      // expected
-    }
-
-    try {
-      Group.normalizePath("/a/../group");
-      fail("Relative paths should not be allowed.");
-    } catch (IllegalArgumentException e) {
-      // expected
-    }
-  }
-
-  @Test
   public void testSessionExpirationTriggersOnLoseMembership() throws Exception {
     final CountDownLatch lostMembership = new CountDownLatch(1);
     Command onLoseMembership = new Command() {

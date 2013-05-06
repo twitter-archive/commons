@@ -16,18 +16,14 @@
 
 package com.twitter.common.objectsize;
 
-import java.util.LinkedList;
-
 import org.junit.Before;
+import org.junit.Test;
 
 import com.twitter.common.objectsize.ObjectSizeCalculator.MemoryLayoutSpecification;
 
-import junit.framework.TestCase;
+import static junit.framework.Assert.assertEquals;
 
-/**
- * @author Attila Szegedi
- */
-public class ObjectSizeCalculatorTest extends TestCase {
+public class ObjectSizeCalculatorTest {
 
   private int A;
   private int O;
@@ -64,6 +60,7 @@ public class ObjectSizeCalculatorTest extends TestCase {
     objectSizeCalculator = new ObjectSizeCalculator(memoryLayoutSpecification);
   }
 
+  @Test
   public void testRounding() {
     assertEquals(0, roundTo(0, 8));
     assertEquals(8, roundTo(1, 8));
@@ -75,19 +72,28 @@ public class ObjectSizeCalculatorTest extends TestCase {
     assertEquals(24, roundTo(17, 8));
   }
 
+  @Test
   public void testObjectSize() {
     assertSizeIs(O, new Object());
   }
 
-  public void testStringSize() {
-    // String has 3 int fields and one reference field
-    assertSizeIs(O + 3 * 4 + R + A, new String());
+  static class ObjectWithFields {
+    int length;
+    int offset;
+    int hashcode;
+    char[] data = {};
+  }
+
+  @Test
+  public void testObjectWithFields() {
+    assertSizeIs(O + 3 * 4 + R + A, new ObjectWithFields());
   }
 
   public static class Class1 {
     private boolean b1;
   }
 
+  @Test
   public void testOneBooleanSize() {
     assertSizeIs(O + 1, new Class1());
   }
@@ -96,10 +102,12 @@ public class ObjectSizeCalculatorTest extends TestCase {
     private int i1;
   }
 
+  @Test
   public void testSimpleSubclassSize() {
     assertSizeIs(O + roundTo(1, S) + 4, new Class2());
   }
 
+  @Test
   public void testZeroLengthArray() {
     assertSizeIs(A, new byte[0]);
     assertSizeIs(A, new int[0]);
@@ -107,30 +115,35 @@ public class ObjectSizeCalculatorTest extends TestCase {
     assertSizeIs(A, new Object[0]);
   }
 
+  @Test
   public void testByteArrays() {
     assertSizeIs(A + 1, new byte[1]);
     assertSizeIs(A + 8, new byte[8]);
     assertSizeIs(A + 9, new byte[9]);
   }
 
+  @Test
   public void testCharArrays() {
     assertSizeIs(A + 2 * 1, new char[1]);
     assertSizeIs(A + 2 * 4, new char[4]);
     assertSizeIs(A + 2 * 5, new char[5]);
   }
 
+  @Test
   public void testIntArrays() {
     assertSizeIs(A + 4 * 1, new int[1]);
     assertSizeIs(A + 4 * 2, new int[2]);
     assertSizeIs(A + 4 * 3, new int[3]);
   }
 
+  @Test
   public void testLongArrays() {
     assertSizeIs(A + 8 * 1, new long[1]);
     assertSizeIs(A + 8 * 2, new long[2]);
     assertSizeIs(A + 8 * 3, new long[3]);
   }
 
+  @Test
   public void testObjectArrays() {
     assertSizeIs(A + R * 1, new Object[1]);
     assertSizeIs(A + R * 2, new Object[2]);
@@ -144,6 +157,7 @@ public class ObjectSizeCalculatorTest extends TestCase {
     Circular c;
   }
 
+  @Test
   public void testCircular() {
     Circular c1 = new Circular();
     long size = objectSizeCalculator.calculateObjectSize(c1);
@@ -151,20 +165,45 @@ public class ObjectSizeCalculatorTest extends TestCase {
     assertEquals(size, objectSizeCalculator.calculateObjectSize(c1));
   }
 
-  public void testLongList() {
-    // TODO(John Sirois): Fails under a 64-bit uncompressed OOPs memory layout of:
-    // arrayHeaderSize = 24
-    // objectHeaderSize = 16
-    // objectPadding = 8
-    // referenceSize = 8
-    // auperclassFieldPadding = 8
+  static class ComplexObject<T> {
+    static class Node<T> {
+      final T value;
+      Node<T> previous;
+      Node<T> next;
 
-    LinkedList<Object> l = new LinkedList<Object>();
-    for(int i = 0; i < 100000; ++i) {
-      l.addLast(new Object());
+      Node(T value) {
+        this.value = value;
+      }
     }
-    assertSizeIs(roundTo(O + 4 + R, 8) + roundTo(O + 3 * R, 8) * 100001 +
-        roundTo(O, 8) * 100000, l);
+
+    private Node<T> first;
+    private Node<T> last;
+
+    void add(T item) {
+      Node<T> node = new Node<T>(item);
+      if (first == null) {
+        first = node;
+      } else {
+        last.next = node;
+        node.previous = last;
+      }
+      last = node;
+    }
+  }
+
+  @Test
+  public void testComplexObject() {
+    ComplexObject<Object> l = new ComplexObject<Object>();
+    l.add(new Object());
+    l.add(new Object());
+    l.add(new Object());
+
+    long expectedSize = 0;
+    expectedSize += roundTo(O + 2 * R, 8); // The complex object itself plus first and last refs.
+    expectedSize += roundTo(O + 3 * R, 8) * 3; // 3 Nodes - each with 3 object references.
+    expectedSize += roundTo(O, 8) * 3; // 3 vanilla objects contained in the node values.
+
+    assertSizeIs(expectedSize, l);
   }
 
   private void assertSizeIs(long size, Object o) {

@@ -15,13 +15,15 @@
 # ==================================================================================================
 
 import pytest
+
 from twitter.common.rpc.finagle.trace import SpanId
+
 
 def test_span_from_value():
   # hex regex works
   with pytest.raises(SpanId.InvalidSpanId):
     SpanId.from_value('1234')
-  SpanId.from_value('0000000000001234').value == int('1234', 16)
-  SpanId.from_value(1234).value == 1234
-  SpanId.from_value(SpanId(1234)).value == 1234
-  SpanId.from_value(None).value == None
+  assert SpanId.from_value('0000000000001234').value == int('1234', 16)
+  assert SpanId.from_value(1234).value == 1234
+  assert SpanId.from_value(SpanId(1234)).value == 1234
+  assert SpanId.from_value(None).value is None

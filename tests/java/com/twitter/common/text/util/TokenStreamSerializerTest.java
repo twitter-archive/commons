@@ -54,12 +54,16 @@ public class TokenStreamSerializerTest {
 
     TokenStream deserialized = serializer.deserialize(data, text);
 
-    stream.reset(text);
-    while (stream.incrementToken()) {
-      assertTrue(deserialized.incrementToken());
-      assertEquals(stream.toString(), deserialized.toString());
+    for (int i = 0; i < 2; ++i) {
+      // run this twice so that we see that resetting we still get the same tokens.
+      stream.reset(text);
+      while (stream.incrementToken()) {
+        assertTrue(deserialized.incrementToken());
+        assertEquals(stream.reflectAsString(true), deserialized.reflectAsString(true));
+      }
+      assertFalse(deserialized.incrementToken());
+      deserialized.reset(null);
     }
-    assertFalse(deserialized.incrementToken());
   }
 
   @Test
@@ -118,7 +122,7 @@ public class TokenStreamSerializerTest {
     boolean exceptionWasThrown = false;
     try {
       incompatibleSerializer.deserialize(data, text);
-    } catch (IOException e) {
+    } catch (TokenStreamSerializer.VersionMismatchException e) {
       exceptionWasThrown = true;
     }
     assertTrue("The expected exception was not thrown!", exceptionWasThrown);

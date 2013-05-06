@@ -209,9 +209,20 @@ public final class Compiler {
    *
    * @param args The command line arguments.
    * @return An exit code where 0 indicates successful compilation.
-   * @throws IOException If there is a problem writing the dependency file.
    */
-  public static int compile(String[] args) throws IOException {
+  public static int compile(String[] args) {
+    try {
+      return doCompile(args);
+    // We want a controlled exit.
+    // SUPPRESS CHECKSTYLE RegexpSinglelineJava
+    } catch (Throwable t) {
+      System.err.println("Unexpected compilation error:");
+      t.printStackTrace(System.err);
+      return 1;
+    }
+  }
+
+  private static int doCompile(String[] args) throws IOException {
     AnsiColorDiagnosticListener<FileObject> diagnosticListener =
         new AnsiColorDiagnosticListener<FileObject>();
 
@@ -230,6 +241,7 @@ public final class Compiler {
       return 1;
     }
 
+    diagnosticListener.setIncludeSourceInfo(getJavaVersion() >= 7);
     diagnosticListener.prepareConsole(argParser.isColor());
     try {
       JavaFileManager fileManager = standardFileManager;
@@ -258,14 +270,19 @@ public final class Compiler {
     }
   }
 
+  private static int getJavaVersion() {
+    String version = System.getProperty("java.version");
+    String[] components = version.split("\\.", 3);
+    return Integer.parseInt(components[1]);
+  }
+
   /**
    * Passes through all args to the system java compiler and tracks classes generated for each
    * source file.
    *
    * @param args The command line arguments.
-   * @throws IOException If there is a problem writing the dependency file.
    */
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) {
     exit(compile(args));
   }
 

@@ -41,18 +41,11 @@ def upgrade_protocol_to_finagle(protocol):
   return recv(protocol)
 
 class TFinagleProtocol(TBinaryProtocol.TBinaryProtocolAccelerated):
-  @staticmethod
-  def to_request_header(trace_id):
-    return RequestHeader(trace_id=trace_id.trace_id.value,
-                         parent_span_id=trace_id.parent_id.value,
-                         span_id=trace_id.span_id.value,
-                         sampled=trace_id.sampled,
-                         debug=False)
-
   def __init__(self, *args, **kw):
     self._locals = threading.local()
     self._finagle_upgraded = False
-    self._client_id = kw.pop('client_id', '')
+    self._client_id = kw.pop('client_id', None)
+    self._client_id = ClientId(name=self._client_id) if self._client_id else None
     TBinaryProtocol.TBinaryProtocolAccelerated.__init__(self, *args, **kw)
     try:
       upgrade_protocol_to_finagle(self)
@@ -60,12 +53,19 @@ class TFinagleProtocol(TBinaryProtocol.TBinaryProtocolAccelerated):
     except TApplicationException:
       pass
 
+  def to_request_header(self, trace_id):
+    return RequestHeader(trace_id=trace_id.trace_id.value,
+                         parent_span_id=trace_id.parent_id.value,
+                         span_id=trace_id.span_id.value,
+                         sampled=trace_id.sampled,
+                         client_id=self._client_id)
+
   def writeMessageBegin(self, *args, **kwargs):
     if self._finagle_upgraded:
       if not hasattr(self._locals, 'trace'):
         self._locals.trace = Trace()
       trace_id = self._locals.trace.get()
-      TFinagleProtocol.to_request_header(trace_id).write(self)
+      self.to_request_header(trace_id).write(self)
       with self._locals.trace.push(trace_id):
         return TBinaryProtocol.TBinaryProtocolAccelerated.writeMessageBegin(self, *args, **kwargs)
     else:

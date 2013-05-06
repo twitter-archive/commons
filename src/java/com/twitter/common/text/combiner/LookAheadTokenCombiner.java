@@ -18,9 +18,7 @@ package com.twitter.common.text.combiner;
 
 import com.twitter.common.text.token.TokenProcessor;
 import com.twitter.common.text.token.TokenStream;
-import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;
 import com.twitter.common.text.token.attribute.TokenType;
-import com.twitter.common.text.token.attribute.TokenTypeAttribute;
 
 /**
  * Combiner that looks ahead to the next token and combines it with the current token based on
@@ -29,20 +27,10 @@ import com.twitter.common.text.token.attribute.TokenTypeAttribute;
 public abstract class LookAheadTokenCombiner extends TokenProcessor {
   private TokenType type = TokenType.TOKEN;
 
-  private final CharSequenceTermAttribute inputTermAttr;
-
-  private final CharSequenceTermAttribute termAttr;
-  private final TokenTypeAttribute typeAttr;
-
   private State nextState = null;
 
   public LookAheadTokenCombiner(TokenStream inputStream) {
     super(inputStream);
-
-    inputTermAttr = inputStream.getAttribute(CharSequenceTermAttribute.class);
-
-    termAttr = getAttribute(CharSequenceTermAttribute.class);
-    typeAttr = getAttribute(TokenTypeAttribute.class);
   }
 
   @Override
@@ -53,27 +41,33 @@ public abstract class LookAheadTokenCombiner extends TokenProcessor {
       return true;
     }
 
-    if (!getInputStream().incrementToken()) {
+    if (!incrementInputStream()) {
       return false;
     }
 
-    restoreState(getInputStream().captureState());
-
     // check if current token is contracted word
-    if (canBeCombinedWithNextToken(inputTermAttr.getTermCharSequence())) {
-      // check if the next token is comma or not.
-      if (getInputStream().incrementToken()) {
-        nextState = getInputStream().captureState();
+    if (canBeCombinedWithNextToken(term())) {
+      // save the current state, offset and length
+      State state = captureState();
+      int offset = offset();
+      int length = length();
 
-        CharSequence term = inputTermAttr.getTermCharSequence();
+      // check if the next token is comma or not.
+      if (incrementInputStream()) {
+        nextState = captureState();
+
+        CharSequence term = term();
         if (canBeCombinedWithPreviousToken(term)) {
-          // combine
-          termAttr.setLength(termAttr.getLength() + term.length());
-          typeAttr.setType(type);
+          // combine with previous token
+          restoreState(state);
+          updateOffsetAndLength(offset, length + term.length());
+          updateType(type);
 
           nextState = null;
+          return true;
         }
       }
+      restoreState(state);
     }
 
     return true;

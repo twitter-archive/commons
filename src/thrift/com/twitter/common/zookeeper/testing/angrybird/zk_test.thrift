@@ -8,7 +8,7 @@ enum ResponseCode {
 }
 
 struct TestEndpoint {
-  1: i32 nodeId
+  1: string nodeId
   2: string host
   3: i32 port
 }
@@ -32,7 +32,7 @@ struct ExpireLeaderRequest {
 // If nodeId is not specified, expire a random follower.
 struct ExpireFollowerRequest {
   1: string zkPath
-  2: i32 nodeId
+  2: optional string nodeId
 }
 
 // Response for a session expiration request.

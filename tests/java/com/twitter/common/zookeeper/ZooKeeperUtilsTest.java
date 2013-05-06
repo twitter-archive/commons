@@ -26,7 +26,12 @@ import org.apache.zookeeper.data.Stat;
 import org.junit.Test;
 
 import static com.google.common.testing.junit4.JUnitAsserts.assertNotEqual;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author John Sirois
@@ -91,4 +96,46 @@ public class ZooKeeperUtilsTest extends BaseZooKeeperTest {
     assertTrue(forceWriteStat.getVersion() > rev2Stat.getVersion());
     assertNotEqual(ZooKeeperUtils.ANY_VERSION, forceWriteStat.getVersion());
   }
+
+  @Test
+  public void testNormalizingPath() throws Exception {
+    assertEquals("/", ZooKeeperUtils.normalizePath("/"));
+    assertEquals("/foo", ZooKeeperUtils.normalizePath("/foo/"));
+    assertEquals("/foo/bar", ZooKeeperUtils.normalizePath("/foo//bar"));
+    assertEquals("/foo/bar", ZooKeeperUtils.normalizePath("//foo/bar"));
+    assertEquals("/foo/bar", ZooKeeperUtils.normalizePath("/foo/bar/"));
+    assertEquals("/foo/bar", ZooKeeperUtils.normalizePath("/foo/bar//"));
+    assertEquals("/foo/bar", ZooKeeperUtils.normalizePath("/foo/bar"));
+  }
+
+  @Test
+  public void testLenientPaths() {
+    assertEquals("/", ZooKeeperUtils.normalizePath("///"));
+    assertEquals("/a/group", ZooKeeperUtils.normalizePath("/a/group"));
+    assertEquals("/a/group", ZooKeeperUtils.normalizePath("/a/group/"));
+    assertEquals("/a/group", ZooKeeperUtils.normalizePath("/a//group"));
+    assertEquals("/a/group", ZooKeeperUtils.normalizePath("/a//group//"));
+
+    try {
+      ZooKeeperUtils.normalizePath("a/group");
+      fail("Relative paths should not be allowed.");
+    } catch (IllegalArgumentException e) {
+      // expected
+    }
+
+    try {
+      ZooKeeperUtils.normalizePath("/a/./group");
+      fail("Relative paths should not be allowed.");
+    } catch (IllegalArgumentException e) {
+      // expected
+    }
+
+    try {
+      ZooKeeperUtils.normalizePath("/a/../group");
+      fail("Relative paths should not be allowed.");
+    } catch (IllegalArgumentException e) {
+      // expected
+    }
+  }
+
 }

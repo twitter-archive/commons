@@ -27,51 +27,47 @@ import static org.junit.Assert.*;
  * @author John Sirois
  */
 public class FakeClockTest {
-  private FakeClock fakeClock;
+  private FakeTicker fakeTicker;
 
   @Before
   public void setUp() {
-    fakeClock = new FakeClock();
+    fakeTicker = new FakeTicker();
   }
 
   @Test
   public void testNow() throws InterruptedException {
-    assertEquals("A fake clock should start out at time 0", 0, fakeClock.nowMillis());
+    assertEquals("A fake clock should start out at time 0", 0, fakeTicker.read());
 
-    fakeClock.setNowMillis(42L);
-    assertEquals("A fake clock's time should only be controled by setNow", 42L, fakeClock.nowMillis());
+    fakeTicker.setNowNanos(42L);
+    assertEquals("A fake clock's time should only be controled by setNow", 42L, fakeTicker.read());
 
-    long start = System.currentTimeMillis();
+    long start = System.nanoTime();
     Thread.sleep(10L);
-    assertTrue(System.currentTimeMillis() - start > 0);
-    assertEquals("A fake clock's time should only be controled by setNow", 42L, fakeClock.nowMillis());
+    assertTrue(System.nanoTime() - start > 0);
+    assertEquals("A fake clock's time should only be controled by setNow", 42L, fakeTicker.read());
   }
 
   @Test
   public void testWaitFor() {
-    fakeClock.waitFor(42L);
-    assertEquals(42L, fakeClock.nowMillis());
+    fakeTicker.waitNanos(42L);
+    assertEquals(42L, fakeTicker.read());
 
-    fakeClock.waitFor(42L);
-    assertEquals(84L, fakeClock.nowMillis());
+    fakeTicker.waitNanos(42L);
+    assertEquals(84L, fakeTicker.read());
   }
 
   @Test
   public void testAdvance() {
-    fakeClock.advance(Amount.of(42L, Time.MILLISECONDS));
-    assertEquals(42L, fakeClock.nowMillis());
+    fakeTicker.advance(Amount.of(42L, Time.NANOSECONDS));
+    assertEquals(42L, fakeTicker.read());
 
-    fakeClock.advance(Amount.of(42L, Time.NANOSECONDS));
-    assertEquals(42000042L, fakeClock.nowNanos());
+    fakeTicker.advance(Amount.of(42L, Time.NANOSECONDS));
+    assertEquals(84L, fakeTicker.read());
 
-    fakeClock.advance(Amount.of(-42L, Time.MILLISECONDS));
-    assertEquals(42L, fakeClock.nowNanos());
+    fakeTicker.advance(Amount.of(-42L, Time.NANOSECONDS));
+    assertEquals(42L, fakeTicker.read());
 
-    try {
-      fakeClock.advance(Amount.of(-43L, Time.NANOSECONDS));
-      fail("Should not allow clock to be set to negative time");
-    } catch (IllegalArgumentException e) {
-      // expected
-    }
+    fakeTicker.advance(Amount.of(-43L, Time.NANOSECONDS));
+    assertEquals(-1L,fakeTicker.read());
   }
 }

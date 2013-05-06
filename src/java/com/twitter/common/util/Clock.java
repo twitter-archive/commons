@@ -16,6 +16,8 @@
 
 package com.twitter.common.util;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 /**
  * An abstraction of the system clock.
  *

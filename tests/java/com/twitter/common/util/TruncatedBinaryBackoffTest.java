@@ -78,16 +78,16 @@ public class TruncatedBinaryBackoffTest {
         new TruncatedBinaryBackoff(Amount.of(1L, Time.MILLISECONDS),
             Amount.of(6L, Time.MILLISECONDS), true);
 
-    assertTrue(backoff.shouldContinue());
+    assertTrue(backoff.shouldContinue(0));
     assertEquals(1, backoff.calculateBackoffMs(0));
-    assertTrue(backoff.shouldContinue());
+    assertTrue(backoff.shouldContinue(1));
     assertEquals(2, backoff.calculateBackoffMs(1));
-    assertTrue(backoff.shouldContinue());
+    assertTrue(backoff.shouldContinue(2));
     assertEquals(4, backoff.calculateBackoffMs(2));
-    assertTrue(backoff.shouldContinue());
+    assertTrue(backoff.shouldContinue(4));
     assertEquals(6, backoff.calculateBackoffMs(4));
-    assertFalse(backoff.shouldContinue());
+    assertFalse(backoff.shouldContinue(6));
     assertEquals(6, backoff.calculateBackoffMs(8));
-    assertFalse(backoff.shouldContinue());
+    assertFalse(backoff.shouldContinue(8));
   }
 }

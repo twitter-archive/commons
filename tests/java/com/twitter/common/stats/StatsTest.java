@@ -21,7 +21,11 @@ import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.google.common.util.concurrent.AtomicDouble;
+
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -42,6 +46,28 @@ public class StatsTest {
     assertCounter("test_long", 1);
     var.addAndGet(100);
     assertCounter("test_long", 101);
+  }
+
+  @Test
+  public void testDoubleExport() {
+    AtomicDouble var = Stats.exportDouble("test_double");
+    assertCounter("test_double", 0.0);
+    var.addAndGet(1.1);
+    assertCounter("test_double", 1.1);
+    var.addAndGet(5.55);
+    assertCounter("test_double", 6.65);
+  }
+
+  @Test
+  public void testNotSame() {
+    AtomicLong firstExport = Stats.exportLong("somevar");
+    firstExport.incrementAndGet();
+    firstExport.incrementAndGet();
+    assertCounter("somevar", 2L);
+    AtomicLong secondExport = Stats.exportLong("somevar");
+    assertNotSame(firstExport, secondExport);
+    secondExport.incrementAndGet();
+    assertCounter("somevar", 2L); // We keep the first one!
   }
 
   @Test
@@ -77,6 +103,11 @@ public class StatsTest {
 
   private void assertCounter(String name, long value) {
     assertThat(Stats.<Long>getVariable(name).read(), is(value));
+  }
+
+  private void assertCounter(String name, double value) {
+    Double var = (Double) Stats.getVariable(name).read();
+    assertEquals(var, value, 1e-6);
   }
 }
 

@@ -34,8 +34,8 @@ class MetricSampler(threading.Thread, MetricProvider):
     self._period = period
     self._last_sample = self._registry.sample()
     self._lock = threading.Lock()
-    self._shutdown = False
     threading.Thread.__init__(self)
+    self.daemon = True
 
   def sample(self):
     with self._lock:
@@ -43,12 +43,8 @@ class MetricSampler(threading.Thread, MetricProvider):
 
   def run(self):
     if log: log.debug('Starting metric sampler.')
-    while not self._shutdown:
+    while True:
       time.sleep(self._period.as_(Time.SECONDS))
       new_sample = self._registry.sample()
       with self._lock:
         self._last_sample = new_sample
-
-  def shutdown(self):
-    if log: log.debug('Shutting down metric sampler.')
-    self._shutdown = True

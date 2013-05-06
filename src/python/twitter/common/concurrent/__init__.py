@@ -14,4 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
-from futures import *
+from concurrent.futures import *
+
+from .deadline import deadline, Timeout
+from .deferred import defer
+from .event_muxer import EventMuxer

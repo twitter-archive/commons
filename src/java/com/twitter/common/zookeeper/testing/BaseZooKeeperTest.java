@@ -36,8 +36,6 @@ import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException
  * A baseclass for in-process zookeeper tests.
  * Uses ZooKeeperTestHelper to start the server and create clients: new tests should directly use
  * that helper class instead of extending this class.
- *
- * @author John Sirois
  */
 public abstract class BaseZooKeeperTest extends TearDownTestCase {
 

@@ -27,8 +27,9 @@ from twitter.common.http import HttpServer
 try:
   from twitter.common import app
   HAS_APP=True
-except:
+except ImportError:
   HAS_APP=False
+
 
 class DiagnosticsEndpoints(object):
   """

@@ -30,7 +30,7 @@ import com.twitter.common.text.token.attribute.TokenTypeAttribute;
  * tokens are retained. If the mode is {@code Mode.REJECT}, tokens are filtered out.
  */
 public class TokenTypeFilter extends TokenFilter {
-  public enum Mode { ACCEPT, REJECT };
+  public enum Mode { ACCEPT, REJECT }
 
   private final TokenTypeAttribute typeAttr;
 

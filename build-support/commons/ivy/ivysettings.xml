@@ -18,29 +18,10 @@ limitations under the License.
 -->
 
 <ivysettings>
-
-  <!--
-    TODO(jsirois): Setting these properties gets IvyIDEA working in Intellij IDEA 10 - remove the
-    duplication here with properties defined in build-support/ant/ivy.xml and
-    build-support/ant/init.xml
-   -->
-  <property name="build-support.dir" value="${ivy.settings.dir}/../.." override="false"/>
-  <property name="ivy.internal-repo.dir" value="${build-support.dir}/ivy/internal-repo"
-            override="false"/>
-  <property name="ivy.jar.dir" value="${build-support.dir}/ivy/lib" override="false"/>
   <property name="ivy.cache.dir" value="${user.home}/.ivy2/twitter-commons" override="false"/>
 
-  <macrodef name="_chain_resolvers">
+  <macrodef name="_remote_resolvers">
     <chain returnFirst="true">
-      <filesystem name="ivy-internal"
-                  transactional="false"
-                  local="true"
-                  checkmodified="true"
-                  force="true">
-        <ivy pattern="${ivy.internal-repo.dir}/[organisation]/[module]/ivy-[revision].xml" />
-        <artifact pattern="${ivy.internal-repo.dir}/[organisation]/[module]/[artifact]-[revision](-[classifier]).[ext]"/>
-      </filesystem>
-
       <ibiblio name="maven2"
                m2compatible="true"
                usepoms="true"
@@ -80,44 +61,6 @@ limitations under the License.
                m2compatible="true"
                usepoms="true"
                root="http://files.couchbase.com/maven2"/>
-
-      <!-- support 3 styles of 3rdparty artifacts: paired with an ivy xml, paired with a pom, and a
-           bare jar with no transitive dependency metadata at all -->
-      <filesystem name="3rdparty.ivy" transactional="false" local="true">
-        <ivy pattern="${root.dir}/3rdparty/[module]/ivy-[revision].xml"/>
-        <artifact pattern="${root.dir}/3rdparty/[module]/[artifact]-[revision].[ext]"/>
-      </filesystem>
-      <ibiblio name="3rdparty.m2"
-               m2compatible="true"
-               root="file:${root.dir}/3rdparty/"
-               pattern="[artifact]-[revision].[ext]"/>
-      <filesystem name="3rdparty.simple"
-                  transactional="false"
-                  local="true"
-                  checkmodified="true">
-        <artifact pattern="${root.dir}/3rdparty/[artifact]-[revision].[ext]"/>
-      </filesystem>
-
-      <!-- Fall back to local repositories-->
-      <!-- sbt standard -->
-      <ibiblio name="local.sbt"
-               m2compatible="true"
-               usepoms="true"
-               root="file://${user.home}/.ivy2/local"/>
-
-      <!-- mvn standard -->
-      <ibiblio name="local.m2"
-               m2compatible="true"
-               usepoms="true"
-               root="file://${user.home}/.m2/repository"/>
     </chain>
   </macrodef>
-
-  <!-- don't use the default shared cache with other projects because it gets polluted,
-       but do share it for this project so that deploys that re-clone each time share it -->
-  <caches default="default" lockStrategy="no-lock" useOrigin="true">
-    <cache name="default" basedir="${ivy.cache.dir}" useOrigin="true" defaultTTL="8h">
-      <ttl revision="latest.integration" duration="0ms" />
-    </cache>
-  </caches>
 </ivysettings>

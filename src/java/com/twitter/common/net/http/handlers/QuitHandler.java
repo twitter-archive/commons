@@ -16,24 +16,22 @@
 
 package com.twitter.common.net.http.handlers;
 
-import com.google.common.base.Preconditions;
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+
 /**
  * A servlet that provides a way to remotely signal the process to initiate a clean shutdown
  * sequence.
- *
- * @author William Farner
  */
 public class QuitHandler extends HttpServlet {
   private static final Logger LOG = Logger.getLogger(QuitHandler.class.getName());
@@ -56,12 +54,6 @@ public class QuitHandler extends HttpServlet {
   @Inject
   public QuitHandler(@Named(QUIT_HANDLER_KEY) Runnable quitListener) {
     this.quitListener = Preconditions.checkNotNull(quitListener);
-  }
-
-  @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    resp.getWriter().println("WARNING - quitting via HTTP GET is deprecated, please POST instead!");
-    doPost(req, resp);
   }
 
   @Override
