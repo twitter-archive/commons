@@ -135,8 +135,9 @@ class JvmCompile(NailgunTask):
   def _portable_analysis_for_target(analysis_dir, target):
     return JvmCompile._analysis_for_target(analysis_dir, target) + '.portable'
 
-  def __init__(self, context, workdir):
-    NailgunTask.__init__(self, context, workdir=workdir)
+  def __init__(self, context, minimum_version=None, jdk=False):
+    # TODO(John Sirois): XXX plumb minimum_version via config or flags
+    super(JvmCompile, self).__init__(context, minimum_version=minimum_version, jdk=jdk)
     concrete_class = type(self)
     config_section = concrete_class._config_section
 

@@ -17,7 +17,6 @@ from __future__ import print_function
 
 from collections import namedtuple, defaultdict
 from contextlib import contextmanager
-import hashlib
 import os
 import xml
 import pkgutil
@@ -27,18 +26,21 @@ import threading
 from twitter.common.collections import OrderedSet
 from twitter.common.dirutil import safe_mkdir, safe_open, safe_delete
 
-from twitter.pants import binary_util, get_buildroot
+from twitter.pants import get_buildroot
 from twitter.pants.base.generator import Generator, TemplateData
 from twitter.pants.base.revision import Revision
 from twitter.pants.base.target import Target
-from twitter.pants.tasks import TaskError
+from twitter.pants.ivy import Bootstrapper, Ivy
 
+from . import TaskError
+
+from .java import util
 
 IvyModuleRef = namedtuple('IvyModuleRef', ['org', 'name', 'rev', 'conf'])
 IvyArtifact = namedtuple('IvyArtifact', ['path'])
 IvyModule = namedtuple('IvyModule', ['ref', 'artifacts', 'callers'])
 
- 
+
 class IvyInfo(object):
   def __init__(self):
     self.modules_by_ref = {}  # Map from ref to referenced module.
@@ -62,13 +64,9 @@ class IvyUtils(object):
     # None, which we still want to override
     # Benjy thinks we should probably hoist these options to the global set of options,
     # rather than just keeping them within IvyResolve.setup_parser
-    self._cachedir = (getattr(options, 'ivy_resolve_cache', None) or
-                      config.get('ivy', 'cache_dir'))
-
     self._mutable_pattern = (getattr(options, 'ivy_mutable_pattern', None) or
                              config.get('ivy-resolve', 'mutable_pattern', default=None))
 
-    self._ivy_settings = config.get('ivy', 'ivy_settings')
     self._transitive = config.getbool('ivy-resolve', 'transitive')
     self._args = config.getlist('ivy-resolve', 'args')
     self._work_dir = config.get('ivy-resolve', 'workdir')
@@ -187,7 +185,7 @@ class IvyUtils(object):
     dependencies.
     """
     def is_classpath(target):
-      return (target.is_jar or 
+      return (target.is_jar or
               target.is_internal and any(jar for jar in target.jar_dependencies if jar.rev))
 
     classpath_deps = OrderedSet()
@@ -353,37 +351,29 @@ class IvyUtils(object):
     return os.path.join(self._work_dir, 'mapped-jars')
 
   ivy_lock = threading.RLock()
+
   def exec_ivy(self,
                target_workdir,
                targets,
                args,
-               runjava=None,
+               ivy=None,
                workunit_name='ivy',
                workunit_factory=None,
-               ivy_classpath=None,
                symlink_ivyxml=False):
-    ivy_classpath = ivy_classpath or self._config.getlist('ivy', 'classpath')
-    runjava = runjava or binary_util.runjava_indivisible
+
+    ivy = ivy or Bootstrapper.default_ivy()
+    if not isinstance(ivy, Ivy):
+      raise ValueError('The ivy argument supplied must be an Ivy instance, given %s of type %s'
+                       % (ivy, type(ivy)))
+
     ivyxml = os.path.join(target_workdir, 'ivy.xml')
     jars, excludes = self._calculate_classpath(targets)
 
-    ivy_args = [
-      '-settings', self._ivy_settings,
-      '-cache', self._cachedir,
-      '-ivy', ivyxml,
-    ]
+    ivy_args = ['-ivy', ivyxml]
     ivy_args.extend(args)
     if not self._transitive:
       ivy_args.append('-notransitive')
     ivy_args.extend(self._args)
-
-    runjava_args = dict(
-      main='org.apache.ivy.Main',
-      args=ivy_args,
-      workunit_name=workunit_name,
-      classpath=ivy_classpath,
-      workunit_factory=workunit_factory,
-    )
 
     def safe_link(src, dest):
       if os.path.exists(dest):
@@ -392,13 +382,18 @@ class IvyUtils(object):
 
     with IvyUtils.ivy_lock:
       self._generate_ivy(targets, jars, excludes, ivyxml)
-      result = runjava(**runjava_args)
+      runner = ivy.runner(args=ivy_args)
+      try:
+        result = util.execute_runner(runner,
+                                     workunit_factory=workunit_factory,
+                                     workunit_name=workunit_name)
 
-      # Symlink to the current ivy.xml file (useful for IDEs that read it).
-      if symlink_ivyxml:
-        ivyxml_symlink = os.path.join(self._work_dir, 'ivy.xml')
-        safe_link(ivyxml, ivyxml_symlink)
+        # Symlink to the current ivy.xml file (useful for IDEs that read it).
+        if symlink_ivyxml:
+          ivyxml_symlink = os.path.join(self._work_dir, 'ivy.xml')
+          safe_link(ivyxml, ivyxml_symlink)
 
-    if result != 0:
-      raise TaskError('org.apache.ivy.Main returned %d' % result)
-
+        if result != 0:
+          raise TaskError('Ivy returned %d' % result)
+      except runner.executor.Error as e:
+        raise TaskError(e)
