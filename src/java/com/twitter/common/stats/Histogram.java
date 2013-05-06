@@ -18,9 +18,9 @@ public interface Histogram {
   void clear();
 
   /**
-   * Return the current quantiles of the histogram
+   * Return the current quantile of the histogram
    *
-   * @param quantiles the list of quantiles that you want to compute
+   * @param quantile value to compute
    */
-  long[] getQuantiles(double[] quantiles);
+  long getQuantile(double quantile);
 }

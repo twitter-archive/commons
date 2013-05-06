@@ -127,34 +127,28 @@ public final class ApproximateHistogram implements Histogram {
   }
 
   @Override
-  public synchronized long[] getQuantiles(double[] qs) {
-    long[] output = new long[qs.length];
+  public synchronized long getQuantile(double q) {
     if (count == 0) {
-      Arrays.fill(output, 0L);
-      return output;
+      return 0L;
     }
 
     // the two leaves are the only buffer that can be partially filled
     int buf0Size = Math.min(bufferSize, leafCount);
     int buf1Size = Math.max(0, leafCount - buf0Size);
     long sum = 0;
-    int i, id, io = 0;
+    long target = (long) (count * q);
+    int i = 0;
 
     Arrays.sort(buffer[0], 0, buf0Size);
     Arrays.sort(buffer[1], 0, buf1Size);
     Arrays.fill(indices, 0);
 
-    while (io < output.length) {
+    while (sum < target) {
       i = smallest(buf0Size, buf1Size, indices);
-      id = indices[i];
       indices[i]++;
       sum += weight(i);
-      while (io < qs.length && (long) (qs[io] * count) <= sum) {
-        output[io] = buffer[i][id];
-        io++;
-      }
     }
-    return output;
+    return buffer[i][indices[i] - 1];
   }
 
   @Override

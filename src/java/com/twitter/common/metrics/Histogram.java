@@ -132,11 +132,10 @@ public class Histogram {
         }
       }
     });
-    for (final double p : quantiles) {
-      registry.register(new AbstractGauge<Long>(gaugeName(p)) {
+    for (final double q : quantiles) {
+      registry.register(new AbstractGauge<Long>(gaugeName(q)) {
         @Override public Long read() {
-          double[] qs = {p};
-          return histogram.getQuantiles(qs)[0];
+          return histogram.getQuantile(q);
         }
       });
     }
