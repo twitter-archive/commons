@@ -163,7 +163,7 @@ public final class ApproximateHistogram implements Histogram {
     leafCount = 0;
     rootWeight = 1;
     bufferPool = new long[2][bufferSize];
-    indices = new int[bufferSize];
+    indices = new int[maxDepth + 1];
     // All the buffers of the tree are allocated
     buffer = new long[maxDepth + 1][bufferSize];
     for (int i = 0; i < maxDepth; i++) {
