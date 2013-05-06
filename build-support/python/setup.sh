@@ -45,7 +45,7 @@ popd >& /dev/null
 
 if $PYTHON $CACHE/virtualenv-1.7.1.2/virtualenv.py -p $PY --distribute $BOOTSTRAP_ENVIRONMENT; then
   source $BOOTSTRAP_ENVIRONMENT/bin/activate
-  for pkg in distribute; do
+  for pkg in distribute pystache; do
     pip install \
       --download-cache=$CACHE \
       -f https://svn.twitter.biz/science-binaries/home/third_party/python \

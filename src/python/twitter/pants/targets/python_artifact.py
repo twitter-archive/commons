@@ -14,7 +14,6 @@
 # limitations under the License.
 # ==================================================================================================
 
-from twitter.pants.base.generator import TemplateData
 from .python_target import PythonTarget
 
 
