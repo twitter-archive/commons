@@ -38,6 +38,12 @@ def safe_mkdir(directory, clean=False):
     if e.errno != errno.EEXIST:
       raise
 
+def safe_mkdir_for(file, clean=False):
+  """
+    Ensure that the parent directory for a file is present.  If it's not there, create it.
+    If it is, no-op. If clean is True, ensure the directory is empty.
+  """
+  safe_mkdir(os.path.dirname(file), clean)
 
 _MKDTEMP_CLEANER = None
 _MKDTEMP_DIRS = defaultdict(set)
