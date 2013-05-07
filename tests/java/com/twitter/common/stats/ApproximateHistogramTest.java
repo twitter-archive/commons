@@ -111,6 +111,39 @@ public class ApproximateHistogramTest extends TestCase {
     assertEquals(2*b + 1  , hist.buffer[j][idx]);
   }
 
+  public void testIsBufferEmpty() {
+    ApproximateHistogram hist = new ApproximateHistogram();
+    hist.init(b, h);
+
+    for (int i=0; i < 3*b; i++) {
+      hist.add(i);
+    }
+    assertEquals(false, hist.isBufferEmpty(2));
+    assertEquals(true, hist.isBufferEmpty(3));
+
+    for (int i=0; i < 2*b; i++) {
+      hist.add(i);
+    }
+    assertEquals(true, hist.isBufferEmpty(2));
+    assertEquals(false, hist.isBufferEmpty(3));
+  }
+
+  public void testQueryZerothQuantile() {
+    // Tests that querying the zeroth quantile does not throw an exception
+    ApproximateHistogram hist = new ApproximateHistogram();
+    hist.init(b, h);
+    addToHist(hist, 10);
+    assertEquals(1L, hist.getQuantile(0.0));
+  }
+
+  public void testSmallDataCase() {
+    // Tests that querying the zeroth quantile does not throw an exception
+    ApproximateHistogram hist = new ApproximateHistogram();
+    hist.init(b, h);
+    addToHist(hist, 1);
+    assertEquals(1L, hist.getQuantile(0.5));
+  }
+
   private void addToHist(ApproximateHistogram hist, int n) {
     for (int i=0; i<n ; i++) {
       hist.add(1);

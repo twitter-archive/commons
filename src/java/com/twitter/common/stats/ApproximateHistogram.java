@@ -141,11 +141,11 @@ public final class ApproximateHistogram implements Histogram {
     Arrays.sort(buffer[1], 0, buf1Size);
     Arrays.fill(indices, 0);
 
-    while (sum < target) {
+    do {
       i = smallest(buf0Size, buf1Size, indices);
       indices[i]++;
       sum += weight(i);
-    }
+    } while (sum < target);
     return buffer[i][indices[i] - 1];
   }
 
