@@ -3,6 +3,7 @@ import functools
 import posixpath
 import socket
 import threading
+import time
 import zookeeper
 
 try:
@@ -13,6 +14,7 @@ except ImportError:
 from twitter.common.concurrent import Future
 from twitter.common.exceptions import ExceptionalThread
 from twitter.common.lang import Interface
+from twitter.common.quantity import Amount, Time
 from twitter.common.zookeeper.constants import ReturnCode
 
 
@@ -166,6 +168,7 @@ class Group(GroupInterface):
 
   def _prepare_path(self, success):
     class Background(ExceptionalThread):
+      BACKOFF = Amount(5, Time.SECONDS)
       def run(_):
         child = '/'
         for component in self._path.split('/')[1:]:
@@ -183,7 +186,8 @@ class Group(GroupInterface):
                 success.set(False)
                 return
             except zookeeper.OperationTimeoutException:
-              pass # retry
+              time.sleep(Background.BACKOFF.as_(Time.SECONDS))
+              continue
         success.set(True)
     background = Background()
     background.daemon = True
