@@ -350,6 +350,7 @@ class ZooKeeper(object):
     self._gauge_session_expirations = AtomicGauge('session-expirations')
     self._gauge_connection_losses = AtomicGauge('connection-losses')
 
+  @property
   def session_id(self):
     try:
       session_id, _ = zookeeper.client_id(self._zh)

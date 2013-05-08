@@ -66,7 +66,7 @@ class TestServerSet(unittest.TestCase):
 
   def test_canceled_join_long_time(self):
     zk = ZooKeeper(self._server.ensemble)
-    session_id = zk.session_id()
+    session_id = zk.session_id
     ss = ServerSet(zk, self.SERVICE_PATH)
     join_signal = threading.Event()
     memberships = []

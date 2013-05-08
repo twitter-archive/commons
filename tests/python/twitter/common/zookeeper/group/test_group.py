@@ -53,7 +53,7 @@ class TestGroup(unittest.TestCase):
 
   def test_join_through_expiration(self):
     zkg = self.GroupImpl(self._zk, '/test')
-    session_id = self._zk.session_id()
+    session_id = self._zk.session_id
     self._server.shutdown()
     join_event = threading.Event()
     join_membership = []
@@ -71,7 +71,7 @@ class TestGroup(unittest.TestCase):
     assert join_event.is_set()
     assert not cancel_event.is_set()
     assert zkg.info(join_membership[0]) == 'hello world'
-    self._server.expire(self._zk.session_id())
+    self._server.expire(self._zk.session_id)
     cancel_event.wait(self.MAX_EVENT_WAIT_SECS)
     assert cancel_event.is_set()
 
@@ -122,7 +122,7 @@ class TestGroup(unittest.TestCase):
     zkg = self.GroupImpl(self._zk, '/test')
     membership = zkg.join('hello world')
 
-    session_id = self._zk.session_id()
+    session_id = self._zk.session_id
     self._server.shutdown()
 
     cancel_event = threading.Event()
@@ -233,7 +233,7 @@ class TestGroup(unittest.TestCase):
       members[:] = new_membership
       membership_event.set()
     zkg.monitor(members, on_membership)
-    self._server.expire(self._zk.session_id())
+    self._server.expire(self._zk.session_id)
     membership_event.wait()
     assert members == []
     assert zkg.info(membership) == Membership.error()
@@ -349,7 +349,7 @@ class TestGroup(unittest.TestCase):
 
     zk1 = self.make_zk(self._server.ensemble, watch=on_watch)
     zkg1 = self.GroupImpl(self._zk, '/test')
-    session_id1 = self._zk.session_id()
+    session_id1 = self._zk.session_id
 
     zk2 = self.make_zk(self._server.ensemble)
     zkg2 = self.GroupImpl(zk2, '/test')

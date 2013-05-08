@@ -95,7 +95,7 @@ def test_client_connect_with_auth():
     finish_event.wait()
 
     # run after session loss
-    session_id = zk.session_id()
+    session_id = zk.session_id
     assert server.shutdown()
     finish_event.clear()
     BackgroundTester().start()
@@ -209,7 +209,7 @@ def test_session_event():
         disconnected.set()
 
     zk = ZooKeeper(server.ensemble, watch=on_event)
-    session_id = zk.session_id()
+    session_id = zk.session_id
 
     children = []
     completion_event = threading.Event()
@@ -236,7 +236,7 @@ def test_safe_operations():
   with ZookeeperServer() as server:
     zk = ZooKeeper(server.ensemble)
     assert zk.safe_create('/a/b/c/d') == '/a/b/c/d'
-    session_id = zk.session_id()
+    session_id = zk.session_id
 
     finish_event = threading.Event()
     class CreateThread(threading.Thread):
@@ -255,7 +255,7 @@ def test_safe_operations():
     assert zk.exists('/a/b/c/d')
     assert zk.exists('/foo/bar/baz/bak')
 
-    session_id = zk.session_id()
+    session_id = zk.session_id
 
     assert zk.safe_delete('/a')
 
@@ -277,6 +277,7 @@ def test_safe_operations():
     assert not zk.exists('/a')
     assert not zk.exists('/foo')
 
+
 def test_safe_create():
   with ZookeeperServer() as server:
     zk_auth = ZooKeeper(server.ensemble, authentication=('digest', 'jack:jill'))
@@ -294,3 +295,29 @@ def test_safe_create():
 
     zk_noauth.safe_create('/a/b/c')
     assert zk_noauth.exists('/a/b/c')
+
+
+def test_metrics():
+  with ZookeeperServer() as server:
+    event = threading.Event()
+    def watch_set(*args):
+      event.set()
+    zk = ZooKeeper(server.ensemble, watch=watch_set)
+    zk._live.wait(timeout=MAX_EVENT_WAIT_SECS)
+    sample = zk.metrics.sample()
+    assert sample['live'] == 1
+    assert sample['session_id'] == zk.session_id
+    assert sample['session_expirations'] == 0
+    assert sample['connection_losses'] == 0
+    old_session_id = zk.session_id
+
+    event.clear()
+    server.expire(zk.session_id)
+    event.wait(timeout=MAX_EXPIRE_WAIT_SECS)
+    zk._live.wait(timeout=MAX_EVENT_WAIT_SECS)
+
+    sample = zk.metrics.sample()
+    assert sample['live'] == 1
+    assert sample['session_id'] == zk.session_id
+    assert old_session_id != zk.session_id
+    assert sample['session_expirations'] == 1
