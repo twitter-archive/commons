@@ -251,7 +251,10 @@ class ZooKeeper(object):
           raise
         self._logger('%s raced, re-enqueueing' % self)
         self._zk._add_completion(self._fn)
-      except (zookeeper.ConnectionLossException, zookeeper.InvalidStateException, SystemError) as e:
+      except (zookeeper.ConnectionLossException,
+              zookeeper.InvalidStateException,
+              zookeeper.SessionExpiredException,
+              SystemError) as e:
         self._logger('%s excepted (%s), re-enqueueing' % (self, e))
         self._zk._add_completion(self._fn)
       return zookeeper.OK
@@ -277,6 +280,7 @@ class ZooKeeper(object):
           return result
         except (zookeeper.ConnectionLossException,
                 zookeeper.InvalidStateException,
+                zookeeper.SessionExpiredException,
                 TypeError) as e:
           # TypeError because we raced on live latch from True=>False when _zh gets reinitialized.
           if isinstance(e, TypeError) and self._zk._zh is not None:

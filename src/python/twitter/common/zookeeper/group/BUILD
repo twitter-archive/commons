@@ -3,6 +3,7 @@ python_library(
   sources = globs('*.py'),
   dependencies = [
     pants('src/python/twitter/common/concurrent'),
+    pants('src/python/twitter/common/quantity'),
     pants('src/python/twitter/common/zookeeper'),
   ]
 )
