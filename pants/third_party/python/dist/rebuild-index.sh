@@ -1,22 +1,29 @@
 #!/bin/sh
 
-HERE=/pants/third_party/python/dist
+HERE=$(cd $(dirname $(readlink $0 || echo $0)) && pwd)
+START=$PWD
+cd $HERE
 
-cat > index.html << HEADER
+OUT=index.html
+DIST_ROOT=/pants/third_party/python/dist
+
+cat > $OUT << HEADER
 <html>
   <head>
-    <title>Index of $HERE</title>
+    <title>Index of $DIST_ROOT</title>
   </head>
   <body>
-    <h1>Index of $HERE</h1>
+    <h1>Index of $DIST_ROOT</h1>
 HEADER
 
 for egg in *.egg
 do
-  echo "<a href=\"$egg\">$egg</a>" >> index.html
+  echo "<a href=\"$egg\">$egg</a>" >> $OUT
 done
 
-cat >> index.html << FOOTER
+cat >> $OUT << FOOTER
   </body>
 </html>
 FOOTER
+
+cd $PWD
