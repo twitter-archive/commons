@@ -201,7 +201,7 @@ class ZooKeeper(object):
         except ValueError:
           raise cls.InvalidEnsemble('Invalid ensemble string: %s' % server_port)
       try:
-        for ip in socket.gethostbyname_ex(server)[2]:
+        for ip in set(socket.gethostbyname_ex(server)[2]):
           server_ports.append('%s:%s' % (ip, port))
       except socket.gaierror:
         raise cls.InvalidEnsemble('Could not resolve %s' % server)
