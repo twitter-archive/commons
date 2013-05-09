@@ -1,7 +1,8 @@
 #!/bin/sh
 
-HERE=$(cd $(dirname $(readlink $0 || echo $0)) && pwd)
 START=$PWD
+
+HERE=$(cd $(dirname $(readlink $0 || echo $0)) && pwd)
 cd $HERE
 
 OUT=index.html
