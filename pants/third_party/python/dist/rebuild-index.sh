@@ -26,4 +26,4 @@ cat >> $OUT << FOOTER
 </html>
 FOOTER
 
-cd $PWD
+cd $START
