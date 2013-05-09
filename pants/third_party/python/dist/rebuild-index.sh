@@ -2,7 +2,7 @@
 
 HERE=/pants/third_party/python/dist
 
-cat - > index.html << HEADER
+cat > index.html << HEADER
 <html>
   <head>
     <title>Index of $HERE</title>
@@ -16,7 +16,7 @@ do
   echo "<a href=\"$egg\">$egg</a>" >> index.html
 done
 
-cat - >> index.html << FOOTER
+cat >> index.html << FOOTER
   </body>
 </html>
 FOOTER
