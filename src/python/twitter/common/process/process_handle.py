@@ -44,6 +44,14 @@ class ProcessHandle(Interface):
       The current working directory of the process.
     """
 
+  @abstractmethod
+  def cmdline(self):
+    """
+      The full command line of the process.
+    """
+    raise NotImplementedError
+
+
 
 class ProcessHandleParser(ScanfParser):
   """
