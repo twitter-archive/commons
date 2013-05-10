@@ -73,7 +73,7 @@ python_binary(
   ],
   platforms = [
     'current',
-    'macosx-10.8-intel',
+    'macosx-10.4-x86_64',
     'linux-x86_64'
   ]
 )
