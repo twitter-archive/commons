@@ -7,7 +7,9 @@ import org.junit.Test;
 
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Data;
+import com.twitter.common.stats.ApproximateHistogram;
 import com.twitter.common.stats.Precision;
+import com.twitter.common.testing.runner.annotations.TestParallel;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -15,10 +17,13 @@ import static org.junit.Assert.assertTrue;
 /**
  * Tests Histogram.
  */
+@TestParallel
 public class HistogramTest {
 
   private String name = "hist";
   private Metrics metrics;
+  private static final double ERROR = ApproximateHistogram.DEFAULT_PRECISION.getEpsilon()
+      * ApproximateHistogram.DEFAULT_PRECISION.getN();
 
   @Before
   public void setUp() {
@@ -36,7 +41,7 @@ public class HistogramTest {
     assertEquals(0L, sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "sum"));
     assertEquals(0L, sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "avg"));
     long[] expected = {0L, 0L, 0L, 0L, 0L, 0L};
-    checkQuantiles(expected, sample);
+    checkQuantiles(expected, sample, ERROR);
   }
 
   @Test
@@ -59,7 +64,7 @@ public class HistogramTest {
     for (int i = 0; i < Histogram.DEFAULT_QUANTILES.length; i++) {
       expected[i] = (long) (Histogram.DEFAULT_QUANTILES[i] * n);
     }
-    checkQuantiles(expected, sample);
+    checkQuantiles(expected, sample, 0.001 * n);
   }
 
   @Test
@@ -110,17 +115,18 @@ public class HistogramTest {
       int idx = (int) (Histogram.DEFAULT_QUANTILES[i] * data.length);
       expected[i] = data[idx];
     }
-    checkQuantiles(expected, sample);
+
+    checkQuantiles(expected, sample, ERROR);
   }
 
-  private void checkQuantiles(long[] expectedQuantiles, Map<String, Number> sample) {
+  private void checkQuantiles(long[] expectedQuantiles, Map<String, Number> sample, double e) {
     assertEquals(expectedQuantiles.length, Histogram.DEFAULT_QUANTILES.length);
 
     for (int i = 0; i < Histogram.DEFAULT_QUANTILES.length; i++) {
       double q = Histogram.DEFAULT_QUANTILES[i];
       String gName = Histogram.gaugeName(q);
       assertEquals((double) expectedQuantiles[i],
-          sample.get(name + ScopedMetrics.SCOPE_DELIMITER + gName).doubleValue(), 1.0);
+          sample.get(name + ScopedMetrics.SCOPE_DELIMITER + gName).doubleValue(), e);
     }
   }
 }

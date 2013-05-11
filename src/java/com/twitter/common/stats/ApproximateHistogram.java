@@ -44,8 +44,9 @@ import com.twitter.common.quantity.Data;
  * the temporary buffer and put it in [3] if it's empty and so on...
  */
 public final class ApproximateHistogram implements Histogram {
-  private static final Precision DEFAULT_PRECISION = new Precision(0.0001, 1000 * 1000);
-  private static final Amount<Long, Data> DEFAULT_MAX_MEMORY = Amount.of(4L, Data.KB);
+  @VisibleForTesting
+  public static final Precision DEFAULT_PRECISION = new Precision(0.02, 100 * 1000);
+  private static final Amount<Long, Data> DEFAULT_MAX_MEMORY = Amount.of(12L, Data.KB);
   private static final int ELEMSIZE = 8; // sizeof long
 
   // See above
@@ -54,6 +55,7 @@ public final class ApproximateHistogram implements Histogram {
   @VisibleForTesting int leafCount = 0; // number of elements in the bottom two leaves
   @VisibleForTesting int currentTop = 1;
   @VisibleForTesting int[] indices; // member for optimization reason
+  private boolean leavesSorted = true;
   private int rootWeight = 1;
   private long[][] bufferPool; // pool of buffers used for merging
   private int bufferSize;
@@ -126,6 +128,8 @@ public final class ApproximateHistogram implements Histogram {
 
   @Override
   public synchronized long getQuantile(double q) {
+    Preconditions.checkArgument(0.0 <= q && q <= 1.0,
+        "quantile must be in the range 0.0 to 1.0 inclusive");
     if (count == 0) {
       return 0L;
     }
@@ -134,19 +138,24 @@ public final class ApproximateHistogram implements Histogram {
     int buf0Size = Math.min(bufferSize, leafCount);
     int buf1Size = Math.max(0, leafCount - buf0Size);
     long sum = 0;
-    long target = (long) (count * q);
-    int i = 0;
+    long target = (long) (count * (1.0 - q));
+    int i;
 
-    Arrays.sort(buffer[0], 0, buf0Size);
-    Arrays.sort(buffer[1], 0, buf1Size);
-    Arrays.fill(indices, 0);
+    if (! leavesSorted) {
+      Arrays.sort(buffer[0], 0, buf0Size);
+      Arrays.sort(buffer[1], 0, buf1Size);
+      leavesSorted = true;
+    }
+    Arrays.fill(indices, bufferSize - 1);
+    indices[0] = buf0Size - 1;
+    indices[1] = buf1Size - 1;
 
     do {
-      i = smallest(buf0Size, buf1Size, indices);
-      indices[i]++;
+      i = biggest(indices);
+      indices[i]--;
       sum += weight(i);
     } while (sum < target);
-    return buffer[i][indices[i] - 1];
+    return buffer[i][indices[i] + 1];
   }
 
   @Override
@@ -202,37 +211,38 @@ public final class ApproximateHistogram implements Histogram {
   }
 
   /**
-   * Return the level of the smallest element (using the indices array 'ids'
+   * Return the level of the biggest element (using the indices array 'ids'
    * to track which elements have been already returned). Every buffers has
    * already been sorted at this point.
    */
   @VisibleForTesting
-  int smallest(final int buf0Size, final int buf1Size, final int[] ids) {
-    long smallest = Long.MAX_VALUE, x = Long.MAX_VALUE;
+  int biggest(final int[] ids) {
+    long biggest = Long.MIN_VALUE;
     final int id0 = ids[0], id1 = ids[1];
-    int iSmallest = 0;
+    int iBiggest = 0;
 
-    if (0 < leafCount && id0 < buf0Size) {
-      smallest = buffer[0][id0];
+    if (0 < leafCount && 0 <= id0) {
+      biggest = buffer[0][id0];
     }
-    if (bufferSize < leafCount && id1 < buf1Size) {
-      x = buffer[1][id1];
-      if (x < smallest) {
-        smallest = x;
-        iSmallest = 1;
+    if (bufferSize < leafCount && 0 <= id1) {
+      long x = buffer[1][id1];
+      if (x > biggest) {
+        biggest = x;
+        iBiggest = 1;
       }
     }
     for (int i = 2; i < currentTop + 1; i++) {
-      if (!isBufferEmpty(i) && ids[i] < bufferSize) {
-        x = buffer[i][ids[i]];
-      }
-      if (x < smallest) {
-        smallest = x;
-        iSmallest = i;
+      if (!isBufferEmpty(i) && 0 <= ids[i]) {
+        long x = buffer[i][ids[i]];
+        if (x > biggest) {
+          biggest = x;
+          iBiggest = i;
+        }
       }
     }
-    return iSmallest;
+    return iBiggest;
   }
+
 
   /**
    * Based on the number of elements inserted we can easily know if a buffer
@@ -251,15 +261,13 @@ public final class ApproximateHistogram implements Histogram {
    * leaves (weight=1) and for the root
    */
   private int weight(int level) {
-    int w;
-    if (level < 2) {
-      w = 1;
+    if (level == 0) {
+      return 1;
     } else if (level == maxDepth) {
-      w = rootWeight;
+      return rootWeight;
     } else {
-      w = 1 << (level - 1);
+      return 1 << (level - 1);
     }
-    return w;
   }
 
   private void recCollapse(long[] buf, int level) {

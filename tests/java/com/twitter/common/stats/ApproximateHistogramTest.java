@@ -73,42 +73,53 @@ public class ApproximateHistogramTest extends TestCase {
     assertEquals(3, hist.currentTop);
   }
 
-  public void testSmallestIndexFinder() {
+  private void initIndexArray(ApproximateHistogram hist, int b) {
+    Arrays.fill(hist.indices, b - 1);
+    int buf0Size = Math.min(b, hist.leafCount);
+    int buf1Size = Math.max(0, hist.leafCount - buf0Size);
+    hist.indices[0] = buf0Size - 1;
+    hist.indices[1] = buf1Size - 1;
+  }
+
+  private long getBiggest(ApproximateHistogram hist) {
+    int j = hist.biggest(hist.indices);
+    int idx = hist.indices[j];
+    hist.indices[j] -= 1;
+    return hist.buffer[j][idx];
+  }
+
+  public void testBiggestIndexFinder() {
     ApproximateHistogram hist = new ApproximateHistogram();
     hist.init(b, h);
-    for (int i=1; i <= 3; i++) {
+    int n = 3;
+    for (int i=1; i <= n; i++) {
       hist.add(i);
     }
-    for (int i=1; i <= 3; i++) {
-      int j = hist.smallest(3, 0, hist.indices);
-      int idx = hist.indices[j];
-      hist.indices[j] += 1;
-      assertEquals(i, hist.buffer[j][idx]);
+
+    initIndexArray(hist, b);
+    for (int i=1; i <= n; i++) {
+      assertEquals(n - i + 1, getBiggest(hist));
     }
 
-    Arrays.fill(hist.indices, 0);
-    for (int i=4; i <= 2*b; i++) {
+    n = 2 * b;
+    for (int i=4; i <= n; i++) {
       hist.add(i);
     }
-    for (int i=1; i <= 2*b; i++) {
-      int j = hist.smallest(b, b, hist.indices);
-      int idx = hist.indices[j];
-      hist.indices[j] += 1;
-      assertEquals(i, hist.buffer[j][idx]);
+
+    initIndexArray(hist, b);
+    for (int i=1; i <= n; i++) {
+      assertEquals(n - i + 1, getBiggest(hist));
     }
 
-    Arrays.fill(hist.indices, 0);
     hist.add(2*b + 1);
-    for (int i=2; i <= 2*b + 1; i += 2) {
-      int j = hist.smallest(1, 0, hist.indices);
-      int idx = hist.indices[j];
-      hist.indices[j] += 1;
-      assertEquals(i, hist.buffer[j][idx]);
+    n += 1;
+
+    initIndexArray(hist, b);
+    assertEquals(n, getBiggest(hist));
+
+    for (int i=2; i <= n; i += 2) {
+      assertEquals(n - i + 1, getBiggest(hist));
     }
-    int j = hist.smallest(1, 0, hist.indices);
-    int idx = hist.indices[j];
-    hist.indices[j] += 1;
-    assertEquals(2*b + 1  , hist.buffer[j][idx]);
   }
 
   public void testIsBufferEmpty() {
@@ -126,6 +137,13 @@ public class ApproximateHistogramTest extends TestCase {
     }
     assertEquals(true, hist.isBufferEmpty(2));
     assertEquals(false, hist.isBufferEmpty(3));
+  }
+
+  public void testHistogramWithNegative() {
+    ApproximateHistogram hist = new ApproximateHistogram();
+    hist.add(-1L);
+    assertEquals(-1L, hist.getQuantile(0.0));
+    assertEquals(-1L, hist.getQuantile(1.0));
   }
 
   public void testQueryZerothQuantile() {
