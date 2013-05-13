@@ -11,7 +11,7 @@ import com.twitter.common.stats.Precision;
 import com.twitter.common.stats.Statistics;
 
 /**
- * A Histogram is a represention of a distribution of values.
+ * A Histogram is a representation of a distribution of values.
  * It can be queried for quantiles or basic statistics (min, max, avg, count).
  */
 public class Histogram {

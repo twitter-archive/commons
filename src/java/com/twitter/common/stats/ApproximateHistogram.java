@@ -46,8 +46,8 @@ import com.twitter.common.quantity.Data;
 public final class ApproximateHistogram implements Histogram {
   @VisibleForTesting
   public static final Precision DEFAULT_PRECISION = new Precision(0.02, 100 * 1000);
-  private static final Amount<Long, Data> DEFAULT_MAX_MEMORY = Amount.of(12L, Data.KB);
-  private static final int ELEMSIZE = 8; // sizeof long
+  @VisibleForTesting static final Amount<Long, Data> DEFAULT_MAX_MEMORY = Amount.of(12L, Data.KB);
+  @VisibleForTesting static final long ELEM_SIZE = 8; // sizeof long
 
   // See above
   @VisibleForTesting long[][] buffer;
@@ -57,49 +57,88 @@ public final class ApproximateHistogram implements Histogram {
   @VisibleForTesting int[] indices; // member for optimization reason
   private boolean leavesSorted = true;
   private int rootWeight = 1;
-  private long[][] bufferPool; // pool of buffers used for merging
+  private long[][] bufferPool; // pool of 2 buffers (used for merging)
   private int bufferSize;
   private int maxDepth;
 
   /**
-   * Private init method that is called only by constructors
+   * Private init method that is called only by constructors.
+   * All allocations are done in this method.
    *
    * @param bufSize size of each buffer
-   * @param b maximum depth of the tree of buffers
+   * @param depth maximum depth of the tree of buffers
    */
   @VisibleForTesting
-  void init(int bufSize, int maxDepth) {
-    this.bufferSize = bufSize;
-    this.maxDepth = maxDepth;
-
+  void init(int bufSize, int depth) {
+    bufferSize = bufSize;
+    maxDepth = depth;
+    bufferPool = new long[2][bufferSize];
+    indices = new int[depth + 1];
+    buffer = new long[depth + 1][bufferSize];
+    for (int i = 0; i < depth; i++) {
+      buffer[i] = new long[bufferSize];
+    }
     clear();
   }
 
+  @VisibleForTesting
+  ApproximateHistogram(int bufSize, int depth) {
+    init(bufSize, depth);
+  }
+
   /**
-   * Constructor without memory constraint
+   * Constructor with precision constraint, it will allocated as much memory as require to match
+   * this precision constraint.
    * @param precision the requested precision
    */
   public ApproximateHistogram(Precision precision) {
     Preconditions.checkNotNull(precision);
-    int b = computeB(precision.getEpsilon(), precision.getN());
-    int bufSize = computeBufferSize(b, precision.getN());
-    init(bufSize, b);
+    int depth = computeDepth(precision.getEpsilon(), precision.getN());
+    int bufSize = computeBufferSize(depth, precision.getN());
+    init(bufSize, depth);
   }
 
   /**
-   * Constructor without precision constraint
-   * @param maxMemory the maximum memory that the instance will take
+   * Constructor with memory constraint, it will find the best possible precision that satisfied
+   * the memory constraint.
+   * @param maxMemory the maximum amount of memory that the instance will take
    */
   public ApproximateHistogram(Amount<Long, Data> maxMemory) {
     Preconditions.checkNotNull(maxMemory);
-    int b = computeB(DEFAULT_PRECISION.getEpsilon(), DEFAULT_PRECISION.getN());
-    int bufSize = computeBufferSize(b, DEFAULT_PRECISION.getN());
-    int maxDepth = computeMaxDepth(maxMemory, bufSize);
-    init(bufSize, maxDepth);
+    Preconditions.checkArgument(1024 <= maxMemory.as(Data.BYTES),
+        "at least 1KB is required for an Histogram");
+
+    double epsilon = DEFAULT_PRECISION.getEpsilon();
+    int n = DEFAULT_PRECISION.getN();
+    int depth = computeDepth(epsilon, n);
+    int bufSize = computeBufferSize(depth, n);
+    long maxBytes = maxMemory.as(Data.BYTES);
+
+    // Increase precision if the maxMemory allow it, otherwise reduce precision. (by 5% steps)
+    boolean tooMuchMem = memoryUsage(bufSize, depth) > maxBytes;
+    double multiplier = tooMuchMem ? 1.05 : 0.95;
+    while((maxBytes < memoryUsage(bufSize, depth)) == tooMuchMem) {
+      epsilon *= multiplier;
+      if (epsilon < 0.00001) {
+        // for very high memory constraint increase N as well
+        n *= 10;
+        epsilon = DEFAULT_PRECISION.getEpsilon();
+      }
+      depth = computeDepth(epsilon, n);
+      bufSize = computeBufferSize(depth, n);
+    }
+    if (!tooMuchMem) {
+      // It's ok to consume less memory than the constraint
+      // but we never have to consume more!
+      depth = computeDepth(epsilon / multiplier, n);
+      bufSize = computeBufferSize(depth, n);
+    }
+
+    init(bufSize, depth);
   }
 
   /**
-   * Constructor with default arguments
+   * Default Constructor.
    * @see #ApproximateHistogram(Amount<Long, Data>)
    */
   public ApproximateHistogram() {
@@ -173,14 +212,14 @@ public final class ApproximateHistogram implements Histogram {
   }
 
   /**
-   * We compute the "smallest possible k" satisfying two inequalities:
+   * We compute the "smallest possible b" satisfying two inequalities:
    *    1)   (b - 2) * (2 ^ (b - 2)) + 0.5 <= epsilon * N
    *    2)   k * (2 ^ (b - 1)) >= N
    *
    * For an explanation of these inequalities, please read the Munro-Paterson or
    * the Manku-Rajagopalan-Linday papers.
    */
-  private int computeB(double epsilon, long n) {
+  @VisibleForTesting static int computeDepth(double epsilon, long n) {
     int b = 2;
     while ((b - 2) * (1L << (b - 2)) + 0.5 <= epsilon * n) {
       b += 1;
@@ -188,26 +227,25 @@ public final class ApproximateHistogram implements Histogram {
     return b;
   }
 
-  private int computeBufferSize(int b, long n) {
-    return (int) (n / (0x1L << (b - 1)));
+  @VisibleForTesting static int computeBufferSize(int depth, long n) {
+    return (int) (n / (1L << (depth - 1)));
   }
 
   /**
-   * Return the maximum depth of the graph to comply with the memory constraint
-   * @param bufferSize the size of each buffer
+   * Return an estimation of the memory used by an instance.
+   * The size is due to:
+   * - a fix cost (76 bytes) for the class + fields
+   * - bufferPool: 16 + 2 * (16 + bufferSize * ELEM_SIZE)
+   * - indices: 16 + sizeof(Integer) * (depth + 1)
+   * - buffer: 16 + (depth + 1) * (16 + bufferSize * ELEM_SIZE)
+   *
+   * Note: This method is tested with unit test, it will break if you had new fields.
+   * @param bufferSize the size of a buffer
+   * @param depth the depth of the tree of buffer (depth + 1 buffers)
    */
-  private int computeMaxDepth(Amount<Long, Data> maxMemory, int bufferSize) {
-    int bm = 0;
-    long n = maxMemory.as(Data.BYTES) - 100 - (ELEMSIZE * bufferSize);
-    if (n < 0) {
-      bm = 2;
-    } else {
-      bm = (int) (n / (16 + ELEMSIZE * bufferSize));
-    }
-    if (bm < 2) {
-      bm = 2;
-    }
-    return bm;
+  @VisibleForTesting
+  static long memoryUsage(int bufferSize, int depth) {
+    return 176 + (24 * depth) + (bufferSize * ELEM_SIZE * (depth + 3));
   }
 
   /**
@@ -257,7 +295,7 @@ public final class ApproximateHistogram implements Histogram {
   }
 
   /**
-   * return the weight of the level ie. 2^(i-1) except for the two tree
+   * Return the weight of the level ie. 2^(i-1) except for the two tree
    * leaves (weight=1) and for the root
    */
   private int weight(int level) {
@@ -318,10 +356,7 @@ public final class ApproximateHistogram implements Histogram {
 
     int totalWeight = leftWeight + rightWeight;
     int halfTotalWeight = (totalWeight / 2) - 1;
-    int cnt = 0;
-    int i = 0;
-    int j = 0;
-    int k = 0;
+    int i = 0, j = 0, k = 0, cnt = 0;
 
     int weight;
     long smallest;
@@ -349,7 +384,7 @@ public final class ApproximateHistogram implements Histogram {
   }
 
 /**
- * Optimized version of collapse for colapsing two array of the same weight
+ * Optimized version of collapse for collapsing two array of the same weight
  * (which is what we want most of the time)
  */
   private void collapse1(

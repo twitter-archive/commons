@@ -1,16 +1,27 @@
 package com.twitter.common.stats;
 
 import java.util.Arrays;
+import java.util.List;
 
-import junit.framework.TestCase;
+import com.google.common.collect.ImmutableList;
+
+import org.junit.Test;
+
+import com.twitter.common.objectsize.ObjectSizeCalculator;
+import com.twitter.common.quantity.Amount;
+import com.twitter.common.quantity.Data;
+import com.twitter.common.testing.runner.annotations.TestParallel;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-public class ApproximateHistogramTest extends TestCase {
+@TestParallel
+public class ApproximateHistogramTest {
   final int b = 10;
   final int h = 3;
 
+  @Test
   public void testCollapse() {
     ApproximateHistogram hist = new ApproximateHistogram();
     long[] buf1 = {2,5,7};
@@ -36,11 +47,11 @@ public class ApproximateHistogramTest extends TestCase {
     assertArrayEquals(expected2, result2);
   }
 
+  @Test
   public void testRecCollapse() {
     long[] empty = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     long[] full = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-    ApproximateHistogram hist = new ApproximateHistogram();
-    hist.init(b, h);
+    ApproximateHistogram hist = new ApproximateHistogram(b, h);
     assertArrayEquals(empty, hist.buffer[0]);
     assertArrayEquals(empty, hist.buffer[1]);
 
@@ -62,15 +73,79 @@ public class ApproximateHistogramTest extends TestCase {
     assertArrayEquals(full, hist.buffer[3]);
   }
 
+  @Test
   public void testReachingMaxDepth() {
-    ApproximateHistogram hist = new ApproximateHistogram();
-    hist.init(b, h);
+    ApproximateHistogram hist = new ApproximateHistogram(b, h);
 
     addToHist(hist, 8 * b);
     assertEquals(3, hist.currentTop);
 
     hist.add(1);
     assertEquals(3, hist.currentTop);
+  }
+
+  @Test
+  public void testMem() {
+    for (int b = 10; b < 100; b += 10) {
+      for (int h = 4; h < 16; h += 4) {
+        ApproximateHistogram hist = new ApproximateHistogram(b, h);
+        long actualSize = ObjectSizeCalculator.getObjectSize(hist);
+        long estimatedSize = ApproximateHistogram.memoryUsage(b, h);
+        assertEquals(actualSize, estimatedSize);
+      }
+    }
+  }
+
+  @Test
+  public void testMemConstraint() {
+    ImmutableList.Builder<Amount<Long, Data>> builder = ImmutableList.builder();
+    builder.add(Amount.of(1L, Data.KB));
+    builder.add(Amount.of(4L, Data.KB));
+    builder.add(Amount.of(8L, Data.KB));
+    builder.add(Amount.of(16L, Data.KB));
+    builder.add(Amount.of(32L, Data.KB));
+    builder.add(Amount.of(64L, Data.KB));
+    builder.add(Amount.of(256L, Data.KB));
+    builder.add(Amount.of(1L, Data.MB));
+    builder.add(Amount.of(16L, Data.MB));
+    builder.add(Amount.of(32L, Data.MB));
+    List<Amount<Long, Data>> sizes = builder.build();
+
+    for (Amount<Long, Data> maxSize: sizes) {
+      ApproximateHistogram hist = new ApproximateHistogram(maxSize);
+      long size = ObjectSizeCalculator.getObjectSize(hist);
+      assertTrue(size < maxSize.as(Data.BYTES));
+    }
+  }
+
+  @Test
+  public void testLowMemoryPrecision() {
+    double e = ApproximateHistogram.DEFAULT_PRECISION.getEpsilon();
+    int n = ApproximateHistogram.DEFAULT_PRECISION.getN();
+    int defaultDepth = ApproximateHistogram.computeDepth(e, n);
+    int defaultBufferSize = ApproximateHistogram.computeBufferSize(defaultDepth, n);
+
+    ApproximateHistogram hist = new ApproximateHistogram(Amount.of(1L, Data.KB));
+    int depth = hist.buffer.length - 1;
+    int bufferSize = hist.buffer[0].length;
+
+    assertTrue(depth > defaultDepth);
+    assertTrue(bufferSize < defaultBufferSize);
+  }
+
+  @Test
+  public void testHighMemoryPrecision() {
+    double e = ApproximateHistogram.DEFAULT_PRECISION.getEpsilon();
+    int n = ApproximateHistogram.DEFAULT_PRECISION.getN();
+    int defaultDepth = ApproximateHistogram.computeDepth(e, n);
+    int defaultBufferSize = ApproximateHistogram.computeBufferSize(defaultDepth, n);
+
+    ApproximateHistogram hist = new ApproximateHistogram(Amount.of(1L, Data.MB));
+    int depth = hist.buffer.length - 1;
+    int bufferSize = hist.buffer[0].length;
+
+    assertTrue(depth < defaultDepth);
+    assertTrue(bufferSize > defaultBufferSize);
   }
 
   private void initIndexArray(ApproximateHistogram hist, int b) {
@@ -122,9 +197,9 @@ public class ApproximateHistogramTest extends TestCase {
     }
   }
 
+  @Test
   public void testIsBufferEmpty() {
-    ApproximateHistogram hist = new ApproximateHistogram();
-    hist.init(b, h);
+    ApproximateHistogram hist = new ApproximateHistogram(b, h);
 
     for (int i=0; i < 3*b; i++) {
       hist.add(i);
