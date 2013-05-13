@@ -20,7 +20,6 @@ import java.lang.management.ClassLoadingMXBean;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
-import java.lang.management.MemoryUsage;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadMXBean;
@@ -35,11 +34,6 @@ import com.twitter.common.quantity.Time;
 
 /**
  * Convenience class to export statistics about the JVM.
- *
- * TODO(William Farner): Some of these are fixed values, make sure to export them so that they are not
- * collected as time series.
- *
- * @author William Farner
  */
 public class JvmStats {
 
@@ -95,9 +89,7 @@ public class JvmStats {
 
     final Runtime runtime = Runtime.getRuntime();
     final ClassLoadingMXBean classLoadingBean = ManagementFactory.getClassLoadingMXBean();
-    MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
-    final MemoryUsage heapUsage = memoryBean.getHeapMemoryUsage();
-    final MemoryUsage nonHeapUsage = memoryBean.getNonHeapMemoryUsage();
+    final MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
     final ThreadMXBean threads = ManagementFactory.getThreadMXBean();
     final RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
 
@@ -145,22 +137,34 @@ public class JvmStats {
         }
       })
       .add(new StatImpl<Long>("jvm_memory_heap_mb_used") {
-        @Override public Long read() { return heapUsage.getUsed() / BYTES_PER_MB; }
+        @Override public Long read() {
+          return memoryBean.getHeapMemoryUsage().getUsed() / BYTES_PER_MB;
+        }
       })
       .add(new StatImpl<Long>("jvm_memory_heap_mb_committed") {
-        @Override public Long read() { return heapUsage.getCommitted() / BYTES_PER_MB; }
+        @Override public Long read() {
+          return memoryBean.getHeapMemoryUsage().getCommitted() / BYTES_PER_MB;
+        }
       })
       .add(new StatImpl<Long>("jvm_memory_heap_mb_max") {
-        @Override public Long read() { return heapUsage.getMax() / BYTES_PER_MB; }
+        @Override public Long read() {
+          return memoryBean.getHeapMemoryUsage().getMax() / BYTES_PER_MB;
+        }
       })
       .add(new StatImpl<Long>("jvm_memory_non_heap_mb_used") {
-        @Override public Long read() { return nonHeapUsage.getUsed() / BYTES_PER_MB; }
+        @Override public Long read() {
+          return memoryBean.getNonHeapMemoryUsage().getUsed() / BYTES_PER_MB;
+        }
       })
       .add(new StatImpl<Long>("jvm_memory_non_heap_mb_committed") {
-        @Override public Long read() { return nonHeapUsage.getCommitted() / BYTES_PER_MB; }
+        @Override public Long read() {
+          return memoryBean.getNonHeapMemoryUsage().getCommitted() / BYTES_PER_MB;
+        }
       })
       .add(new StatImpl<Long>("jvm_memory_non_heap_mb_max") {
-        @Override public Long read() { return nonHeapUsage.getMax() / BYTES_PER_MB; }
+        @Override public Long read() {
+          return memoryBean.getNonHeapMemoryUsage().getMax() / BYTES_PER_MB;
+        }
       })
       .add(new StatImpl<Long>("jvm_uptime_secs") {
         @Override public Long read() { return runtimeMXBean.getUptime() / 1000; }
