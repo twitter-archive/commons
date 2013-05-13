@@ -335,6 +335,22 @@ public final class ArgScanner {
     return copy;
   }
 
+  private static Set<String> getNoCollisions(Iterable<? extends OptionInfo<?>> optionInfos) {
+    Iterable<String> argShortNames = Iterables.transform(optionInfos, GET_OPTIONINFO_NAME);
+    Iterable<String> argShortNegNames =
+        Iterables.transform(Iterables.filter(optionInfos, IS_BOOLEAN),
+            GET_OPTIONINFO_NEGATED_NAME);
+    Iterable<String> argAllShortNames = Iterables.concat(argShortNames, argShortNegNames);
+    Set<String> argAllShortNamesNoCollisions = dropCollisions(argAllShortNames);
+    Set<String> collisionsDropped = Sets.difference(ImmutableSet.copyOf(argAllShortNames),
+        argAllShortNamesNoCollisions);
+    if (!collisionsDropped.isEmpty()) {
+      LOG.warning("Found argument name collisions, args must be referenced by canonical names: "
+          + collisionsDropped);
+    }
+    return argAllShortNamesNoCollisions;
+  }
+
   /**
    * Applies argument values to fields based on their annotations.
    *
@@ -366,25 +382,21 @@ public final class ArgScanner {
     final Set<String> argsFailedToParse = Sets.newHashSet();
     final Set<String> argsConstraintsFailed = Sets.newHashSet();
 
-    Iterable<String> argShortNames = Iterables.transform(optionInfos, GET_OPTIONINFO_NAME);
-    Set<String> argShortNamesNoCollisions = dropCollisions(argShortNames);
-    Set<String> collisionsDropped = Sets.difference(ImmutableSet.copyOf(argShortNames),
-      argShortNamesNoCollisions);
-    if (!collisionsDropped.isEmpty()) {
-      LOG.warning("Found argument name collisions, args must be referenced by canonical names: "
-          + collisionsDropped);
-    }
+    Set<String> argAllShortNamesNoCollisions = getNoCollisions(optionInfos);
 
     final Map<String, OptionInfo> argsByName =
         ImmutableMap.<String, OptionInfo>builder()
         // Map by short arg name -> arg def.
         .putAll(Maps.uniqueIndex(Iterables.filter(optionInfos,
-            Predicates.compose(Predicates.in(argShortNamesNoCollisions), GET_OPTIONINFO_NAME)),
+            Predicates.compose(Predicates.in(argAllShortNamesNoCollisions), GET_OPTIONINFO_NAME)),
                                GET_OPTIONINFO_NAME))
         // Map by canonical arg name -> arg def.
         .putAll(Maps.uniqueIndex(optionInfos, GET_CANONICAL_ARG_NAME))
         // Map by negated short arg name (for booleans)
-        .putAll(Maps.uniqueIndex(Iterables.filter(optionInfos, IS_BOOLEAN),
+        .putAll(Maps.uniqueIndex(
+            Iterables.filter(Iterables.filter(optionInfos, IS_BOOLEAN),
+                Predicates.compose(Predicates.in(argAllShortNamesNoCollisions),
+                    GET_OPTIONINFO_NEGATED_NAME)),
             GET_OPTIONINFO_NEGATED_NAME))
         // Map by negated canonical arg name (for booleans)
         .putAll(Maps.uniqueIndex(Iterables.filter(optionInfos, IS_BOOLEAN),
