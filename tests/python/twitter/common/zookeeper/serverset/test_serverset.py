@@ -21,10 +21,12 @@ import unittest
 from twitter.common.zookeeper.client import ZooKeeper
 from twitter.common.zookeeper.group import Membership
 from twitter.common.zookeeper.serverset import (
-  Endpoint,
-  ServerSet,
-  ServiceInstance)
+    Endpoint,
+    ServerSet,
+    ServiceInstance)
 from twitter.common.zookeeper.test_server import ZookeeperServer
+
+from kazoo.client import KazooClient
 
 
 class TestServerSet(unittest.TestCase):
@@ -34,6 +36,14 @@ class TestServerSet(unittest.TestCase):
   ADDITIONAL1 = {'http': Endpoint(host='127.0.0.1', port=8080)}
   ADDITIONAL2 = {'thrift': Endpoint(host='127.0.0.1', port=8081)}
 
+  @classmethod
+  def make_zk(cls, ensemble):
+    return ZooKeeper(ensemble)
+
+  @classmethod
+  def session_id(cls, client):
+    return client.session_id
+
   def setUp(self):
     self._server = ZookeeperServer()
 
@@ -41,7 +51,7 @@ class TestServerSet(unittest.TestCase):
     self._server.stop()
 
   def test_client_iteration(self):
-    ss = ServerSet(ZooKeeper(self._server.ensemble), self.SERVICE_PATH)
+    ss = ServerSet(self.make_zk(self._server.ensemble), self.SERVICE_PATH)
     assert list(ss) == []
     ss.join(self.INSTANCE1)
     assert list(ss) == [ServiceInstance(self.INSTANCE1)]
@@ -49,24 +59,24 @@ class TestServerSet(unittest.TestCase):
     assert list(ss) == [ServiceInstance(self.INSTANCE1), ServiceInstance(self.INSTANCE2)]
 
   def test_async_client_iteration(self):
-    ss1 = ServerSet(ZooKeeper(self._server.ensemble), self.SERVICE_PATH)
-    ss2 = ServerSet(ZooKeeper(self._server.ensemble), self.SERVICE_PATH)
+    ss1 = ServerSet(self.make_zk(self._server.ensemble), self.SERVICE_PATH)
+    ss2 = ServerSet(self.make_zk(self._server.ensemble), self.SERVICE_PATH)
     ss1.join(self.INSTANCE1)
     ss2.join(self.INSTANCE2)
     assert list(ss1) == [ServiceInstance(self.INSTANCE1), ServiceInstance(self.INSTANCE2)]
     assert list(ss2) == [ServiceInstance(self.INSTANCE1), ServiceInstance(self.INSTANCE2)]
 
   def test_shard_id_registers(self):
-    ss1 = ServerSet(ZooKeeper(self._server.ensemble), self.SERVICE_PATH)
-    ss2 = ServerSet(ZooKeeper(self._server.ensemble), self.SERVICE_PATH)
+    ss1 = ServerSet(self.make_zk(self._server.ensemble), self.SERVICE_PATH)
+    ss2 = ServerSet(self.make_zk(self._server.ensemble), self.SERVICE_PATH)
     ss1.join(self.INSTANCE1, shard=0)
     ss2.join(self.INSTANCE2, shard=1)
     assert list(ss1) == [ServiceInstance(self.INSTANCE1, shard=0), ServiceInstance(self.INSTANCE2, shard=1)]
     assert list(ss2) == [ServiceInstance(self.INSTANCE1, shard=0), ServiceInstance(self.INSTANCE2, shard=1)]
 
   def test_canceled_join_long_time(self):
-    zk = ZooKeeper(self._server.ensemble)
-    session_id = zk.session_id
+    zk = self.make_zk(self._server.ensemble)
+    session_id = self.session_id(zk)
     ss = ServerSet(zk, self.SERVICE_PATH)
     join_signal = threading.Event()
     memberships = []
@@ -112,9 +122,10 @@ class TestServerSet(unittest.TestCase):
       canceled_endpoints[:] = [endpoint]
       canceled.set()
 
-    service1 = ServerSet(ZooKeeper(self._server.ensemble), self.SERVICE_PATH,
-                                   on_join=on_join, on_leave=on_leave)
-    service2 = ServerSet(ZooKeeper(self._server.ensemble), self.SERVICE_PATH)
+    service1 = ServerSet(self.make_zk(self._server.ensemble),
+        self.SERVICE_PATH, on_join=on_join, on_leave=on_leave)
+    service2 = ServerSet(self.make_zk(self._server.ensemble),
+        self.SERVICE_PATH)
 
     member1 = service2.join(self.INSTANCE1)
     joined.wait(2.0)
@@ -136,3 +147,15 @@ class TestServerSet(unittest.TestCase):
     assert not joined.is_set()
     assert canceled_endpoints == [ServiceInstance(self.INSTANCE1)]
     canceled.clear()
+
+
+class TestKazooServerSet(TestServerSet):
+  @classmethod
+  def make_zk(cls, ensemble):
+    zk = KazooClient(ensemble)
+    zk.start()
+    return zk
+
+  @classmethod
+  def session_id(cls, client):
+    return client._session_id

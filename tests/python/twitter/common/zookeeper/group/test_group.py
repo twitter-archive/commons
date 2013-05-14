@@ -8,12 +8,17 @@ import zookeeper
 from twitter.common.zookeeper.client import ZooKeeper, ZooDefs
 from twitter.common.zookeeper.test_server import ZookeeperServer
 from twitter.common.zookeeper.group.group import ActiveGroup, Group, Membership
+from twitter.common.zookeeper.group.kazoo_group import KazooGroup
+
+from kazoo.client import KazooClient
+from kazoo.protocol.states import KazooState
+import kazoo.security as ksec
 
 
 if os.getenv('ZOOKEEPER_TEST_DEBUG'):
   from twitter.common import log
   from twitter.common.log.options import LogOptions
-  LogOptions.set_stderr_log_level('DEBUG')
+  LogOptions.set_stderr_log_level('google:DEBUG')
   LogOptions.set_disk_log_level('NONE')
   LogOptions.set_log_dir('/tmp')
   log.init('client_test')
@@ -22,9 +27,13 @@ if os.getenv('ZOOKEEPER_TEST_DEBUG'):
 class AlternateGroup(Group):
   MEMBER_PREFIX = 'herpderp_'
 
+class AlternateKazooGroup(KazooGroup):
+  MEMBER_PREFIX = 'herpderp_'
+
 
 class TestGroup(unittest.TestCase):
   GroupImpl = Group
+  AlternateGroupImpl = AlternateGroup
   MAX_EVENT_WAIT_SECS = 30.0
   CONNECT_TIMEOUT_SECS = 10.0
   CONNECT_RETRIES = 6
@@ -35,6 +44,10 @@ class TestGroup(unittest.TestCase):
                      timeout_secs=cls.CONNECT_TIMEOUT_SECS,
                      max_reconnects=cls.CONNECT_RETRIES,
                      **kw)
+
+  @classmethod
+  def session_id(cls, zk):
+    return zk.session_id
 
   def setUp(self):
     self._server = ZookeeperServer()
@@ -53,7 +66,7 @@ class TestGroup(unittest.TestCase):
 
   def test_join_through_expiration(self):
     zkg = self.GroupImpl(self._zk, '/test')
-    session_id = self._zk.session_id
+    session_id = self.session_id(self._zk)
     self._server.shutdown()
     join_event = threading.Event()
     join_membership = []
@@ -71,7 +84,7 @@ class TestGroup(unittest.TestCase):
     assert join_event.is_set()
     assert not cancel_event.is_set()
     assert zkg.info(join_membership[0]) == 'hello world'
-    self._server.expire(self._zk.session_id)
+    self._server.expire(self.session_id(self._zk))
     cancel_event.wait(self.MAX_EVENT_WAIT_SECS)
     assert cancel_event.is_set()
 
@@ -122,7 +135,7 @@ class TestGroup(unittest.TestCase):
     zkg = self.GroupImpl(self._zk, '/test')
     membership = zkg.join('hello world')
 
-    session_id = self._zk.session_id
+    session_id = self.session_id(self._zk)
     self._server.shutdown()
 
     cancel_event = threading.Event()
@@ -157,7 +170,8 @@ class TestGroup(unittest.TestCase):
 
     # auth => unauth
     zkg = self.GroupImpl(self._zk, '/test')
-    secure_zkg = self.GroupImpl(secure_zk, '/test', acl=ZooDefs.Acls.EVERYONE_READ_CREATOR_ALL)
+    secure_zkg = self.GroupImpl(secure_zk, '/test',
+        acl=ZooDefs.Acls.EVERYONE_READ_CREATOR_ALL)
     membership = zkg.join('hello world')
     assert secure_zkg.info(membership) == 'hello world'
     membership = secure_zkg.join('secure hello world')
@@ -165,14 +179,16 @@ class TestGroup(unittest.TestCase):
 
     # unauth => auth
     zkg = self.GroupImpl(self._zk, '/secure-test')
-    secure_zkg = self.GroupImpl(secure_zk, '/secure-test', acl=ZooDefs.Acls.EVERYONE_READ_CREATOR_ALL)
+    secure_zkg = self.GroupImpl(secure_zk, '/secure-test',
+        acl=ZooDefs.Acls.EVERYONE_READ_CREATOR_ALL)
     membership = secure_zkg.join('hello world')
     assert zkg.info(membership) == 'hello world'
     assert zkg.join('unsecure hello world') == Membership.error()
 
     # unauth => auth monitor
     zkg = self.GroupImpl(self._zk, '/secure-test2')
-    secure_zkg = self.GroupImpl(secure_zk, '/secure-test2', acl=ZooDefs.Acls.EVERYONE_READ_CREATOR_ALL)
+    secure_zkg = self.GroupImpl(secure_zk, '/secure-test2',
+        acl=ZooDefs.Acls.EVERYONE_READ_CREATOR_ALL)
     membership_event = threading.Event()
     members = set()
     def new_membership(m):
@@ -233,7 +249,7 @@ class TestGroup(unittest.TestCase):
       members[:] = new_membership
       membership_event.set()
     zkg.monitor(members, on_membership)
-    self._server.expire(self._zk.session_id)
+    self._server.expire(self.session_id(self._zk))
     membership_event.wait()
     assert members == []
     assert zkg.info(membership) == Membership.error()
@@ -349,7 +365,7 @@ class TestGroup(unittest.TestCase):
 
     zk1 = self.make_zk(self._server.ensemble, watch=on_watch)
     zkg1 = self.GroupImpl(self._zk, '/test')
-    session_id1 = self._zk.session_id
+    session_id1 = self.session_id(zk1)
 
     zk2 = self.make_zk(self._server.ensemble)
     zkg2 = self.GroupImpl(zk2, '/test')
@@ -379,7 +395,7 @@ class TestGroup(unittest.TestCase):
 
   def test_against_alternate_groups(self):
     zkg1 = self.GroupImpl(self._zk, '/test')
-    zkg2 = AlternateGroup(self._zk, '/test')
+    zkg2 = self.AlternateGroupImpl(self._zk, '/test')
     assert zkg1.list() == []
     assert zkg2.list() == []
     m1 = zkg1.join('morf gorf')
@@ -452,3 +468,79 @@ class TestActiveGroup(TestGroup):
     # join on same group
     zkg2.join('hello 5', callback=devnull)
     assert_iter_equals(['hello 1', 'hello 4', 'hello 5'])
+
+
+
+class TestKazooGroup(TestGroup):
+  GroupImpl = KazooGroup
+  AlternateGroupImpl = AlternateKazooGroup
+
+  @classmethod
+  def make_zk(cls, ensemble, **kw):
+    if 'authentication' in kw:
+      kw.update(auth_data = [kw.pop('authentication')])
+    zk = KazooClient(ensemble, timeout=cls.CONNECT_TIMEOUT_SECS,
+                     max_retries=cls.CONNECT_RETRIES, **kw)
+    zk.start()
+    return zk
+
+  @classmethod
+  def session_id(cls, zk):
+    return zk._session_id
+
+  def test_children_filtering(self):
+    zk = self.make_zk(self._server.ensemble)
+    zk.create('/test', '', acl=ksec.OPEN_ACL_UNSAFE)
+    zk.create('/test/alt_member_', '',  acl=ksec.OPEN_ACL_UNSAFE, sequence=True, ephemeral=True)
+    zk.create('/test/candidate_', '',  acl=ksec.OPEN_ACL_UNSAFE, sequence=True, ephemeral=True)
+    zkg = self.GroupImpl(self._zk, '/test')
+    assert list(zkg) == []
+    assert zkg.monitor(membership=set(['frank', 'larry'])) == set()
+
+  def test_hard_root_acl(self):
+    secure_zk = self.make_zk(self._server.ensemble,
+        authentication=('digest', 'username:password'))
+    secure_zk.create('/test', '', acl=ksec.CREATOR_ALL_ACL + ksec.READ_ACL_UNSAFE)
+    secure_zk.set_acls('/', ksec.READ_ACL_UNSAFE)
+    secure_zkg = self.GroupImpl(secure_zk, '/test', acl=ZooDefs.Acls.EVERYONE_READ_CREATOR_ALL)
+    membership = secure_zkg.join('secure hello world')
+    assert membership != Membership.error()
+    assert secure_zkg.info(membership) == 'secure hello world'
+
+  def test_monitor_through_expiration(self):
+    session_expired = threading.Event()
+    def listener(state):
+      if state == KazooState.LOST:
+        session_expired.set()
+    zk1 = self.make_zk(self._server.ensemble)
+    zk1.add_listener(listener)
+    zkg1 = self.GroupImpl(self._zk, '/test')
+    session_id1 = self.session_id(zk1)
+
+    zk2 = self.make_zk(self._server.ensemble)
+    zkg2 = self.GroupImpl(zk2, '/test')
+
+    member1 = zkg2.join('hello 1')
+    new_members = zkg1.monitor([]) # wait until the first group acknowledges the join
+    assert new_members == set([member1])
+
+    membership_event = threading.Event()
+    membership = []
+    def on_membership(new_members):
+      membership[:] = new_members
+      membership_event.set()
+
+    zkg1.monitor([member1], on_membership)
+    self._server.expire(session_id1)
+    session_expired.wait(self.MAX_EVENT_WAIT_SECS)
+    assert session_expired.is_set()
+    assert not membership_event.is_set()
+
+    member2 = zkg2.join('hello 2')
+    membership_event.wait()
+    assert membership_event.is_set()
+    assert membership == [member1, member2]
+
+    for member in membership:
+      assert zkg1.info(member) is not None
+      assert zkg1.info(member).startswith('hello')

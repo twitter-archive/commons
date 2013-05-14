@@ -4,6 +4,7 @@ python_library(
   dependencies = [
     pants('src/python/twitter/common/lang'),
     pants('src/python/twitter/common/zookeeper/group'),
+    pants('src/python/twitter/common/zookeeper/group:kazoo_group'),
     pants('src/thrift/com/twitter/thrift:py-thrift'),
   ]
 )

@@ -11,7 +11,8 @@ python_tests(
   timeout = Amount(20, Time.MINUTES),
   dependencies = [
     pants('src/python/twitter/common/zookeeper/group'),
+    pants('src/python/twitter/common/zookeeper/group:kazoo_group'),
     pants('src/python/twitter/common/zookeeper:testing'),
   ],
-  coverage = 'twitter.common.zookeeper.group'
+  coverage = 'twitter.common.zookeeper.group.kazoo_group'
 )
