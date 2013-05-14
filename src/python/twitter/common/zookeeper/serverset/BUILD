@@ -4,8 +4,15 @@ python_library(
   dependencies = [
     pants('src/python/twitter/common/lang'),
     pants('src/python/twitter/common/zookeeper/group'),
-    pants('src/python/twitter/common/zookeeper/group:kazoo_group'),
     pants('src/thrift/com/twitter/thrift:py-thrift'),
+  ]
+)
+
+python_library(
+  name = 'kazoo_serverset',
+  dependencies = [
+    pants(':serverset'),
+    pants('src/python/twitter/common/zookeeper/group:kazoo_group'),
   ]
 )
 

@@ -1,5 +1,5 @@
 # ==================================================================================================
-# Copyright 2011 Twitter, Inc.
+# Copyright 2013 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -16,15 +16,18 @@
 
 import unittest
 
-from twitter.common.zookeeper.client import ZooKeeper
 from twitter.common.zookeeper.serverset.test_base import ServerSetTestBase
 
+from kazoo.client import KazooClient
 
-class TestServerSet(ServerSetTestBase, unittest.TestCase):
+
+class TestKazooServerSet(ServerSetTestBase, unittest.TestCase):
   @classmethod
   def make_zk(cls, ensemble):
-    return ZooKeeper(ensemble)
+    zk = KazooClient(ensemble)
+    zk.start()
+    return zk
 
   @classmethod
   def session_id(cls, client):
-    return client.session_id
+    return client._session_id
