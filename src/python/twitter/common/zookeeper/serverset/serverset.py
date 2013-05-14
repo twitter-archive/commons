@@ -8,11 +8,15 @@ from twitter.common.zookeeper.group import (
     ActiveGroup,
     Group,
     GroupInterface)
-from twitter.common.zookeeper.group.kazoo_group import KazooGroup
 
 from .endpoint import ServiceInstance
 
-from kazoo.client import KazooClient
+try:
+  from kazoo.client import KazooClient
+  from twitter.common.zookeeper.group.kazoo_group import KazooGroup
+  HAS_KAZOO = True
+except ImportError:
+  HAS_KAZOO = False
 
 
 class ServerSet(object):
@@ -38,7 +42,7 @@ class ServerSet(object):
     # use ActiveGroup by default, which has better performance on monitor/iter calls.
     if isinstance(zk, ZooKeeper):
       default_underlying = Group if (on_join is None and on_leave is None) else ActiveGroup
-    elif isinstance(zk, KazooClient):
+    elif HAS_KAZOO and isinstance(zk, KazooClient):
       default_underlying = KazooGroup
     underlying = underlying or default_underlying
     assert issubclass(underlying, GroupInterface), (
