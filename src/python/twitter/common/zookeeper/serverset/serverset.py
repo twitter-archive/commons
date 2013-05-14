@@ -3,9 +3,16 @@ try:
 except ImportError:
   import logging as log
 
-from twitter.common.zookeeper.group import ActiveGroup, Group, GroupInterface
+from twitter.common.zookeeper.client import ZooKeeper
+from twitter.common.zookeeper.group import (
+    ActiveGroup,
+    Group,
+    GroupInterface)
+from twitter.common.zookeeper.group.kazoo_group import KazooGroup
 
 from .endpoint import ServiceInstance
+
+from kazoo.client import KazooClient
 
 
 class ServerSet(object):
@@ -29,7 +36,10 @@ class ServerSet(object):
     # The default underlying implementation is Group if no active monitoring is requested
     # of the ServerSet.  If active monitoring is requested by on_join or on_leave, then
     # use ActiveGroup by default, which has better performance on monitor/iter calls.
-    default_underlying = Group if (on_join is None and on_leave is None) else ActiveGroup
+    if isinstance(zk, ZooKeeper):
+      default_underlying = Group if (on_join is None and on_leave is None) else ActiveGroup
+    elif isinstance(zk, KazooClient):
+      default_underlying = KazooGroup
     underlying = underlying or default_underlying
     assert issubclass(underlying, GroupInterface), (
         'Underlying group implementation must be a subclass of GroupInterface.')
