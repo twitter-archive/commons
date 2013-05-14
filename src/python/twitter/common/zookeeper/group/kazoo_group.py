@@ -8,7 +8,6 @@ except ImportError:
   import logging as log
 
 from twitter.common.concurrent import Future
-from twitter.common.zookeeper.client import ZooDefs
 from twitter.common.zookeeper.constants import Acl
 
 from .group import (
