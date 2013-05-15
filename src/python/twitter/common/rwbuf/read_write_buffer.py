@@ -22,6 +22,11 @@ class _RWBuf(object):
       self._readpos = self._io.tell()
       return ret
 
+  def read_from(self, pos, size=-1):
+    with self._lock:
+      self._io.seek(pos)
+      return self._io.read() if size == -1 else self._io.read(size)
+
   def write(self, s):
     with self._lock:
       self.do_write(str(s))
