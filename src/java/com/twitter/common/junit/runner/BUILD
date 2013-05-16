@@ -1,5 +1,5 @@
 # ==================================================================================================
-# Copyright 2011 Twitter, Inc.
+# Copyright 2013 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -14,21 +14,34 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name = 'stats',
-  dependencies = [
-    pants('3rdparty:easymock'),
+java_library(name='runner',
+  provides=artifact(
+    org='com.twitter.common',
+    name='junit-runner',
+    repo=pants('build-support/commons/ivy:public'),
+  ),
+  dependencies=[
+    pants('src/java/com/twitter/common/junit/annotations'),
     pants('3rdparty:guava'),
     pants('3rdparty:junit'),
-    pants('3rdparty:mockito'),
-    pants('src/java/com/twitter/common/junit/annotations'),
-    pants('src/java/com/twitter/common/quantity'),
-    pants('src/java/com/twitter/common/objectsize'),
-    pants('src/java/com/twitter/common/stats'),
-    pants('src/java/com/twitter/common/stats:time-series'),
-    pants('src/java/com/twitter/common/stats:util'),
-    pants('src/java/com/twitter/common/testing'),
-    pants('src/java/com/twitter/common/util:system-mocks'),
-    pants('src/java/com/twitter/common/util:testing'),
   ],
-  sources = globs('*.java')
+  sources=globs('*.java')
 )
+
+jvm_binary(name='main',
+  source='ConsoleRunner.java',
+  main='com.twitter.common.junit.runner.ConsoleRunner',
+  dependencies=[
+    pants(":runner"),
+    pants('3rdparty:args4j'),
+    pants('3rdparty:guava'),
+    pants('3rdparty:junit'),
+  ]
+).with_description("""
+  A replacement for org.junit.runner.JUnitCore.main that adds:
+  + support for running individual test methods using [classname]#[methodname]
+  + support for stderr and stdout redirection for tests
+  + support for ant style junit-report xml output
+  + support for per test class timer
+  + support for running test classes in parallel
+""")

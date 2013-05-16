@@ -5,11 +5,11 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.twitter.common.junit.annotations.TestParallel;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Data;
 import com.twitter.common.stats.ApproximateHistogram;
 import com.twitter.common.stats.Precision;
-import com.twitter.common.testing.runner.annotations.TestParallel;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

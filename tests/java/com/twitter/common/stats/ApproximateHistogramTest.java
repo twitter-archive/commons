@@ -7,10 +7,10 @@ import com.google.common.collect.ImmutableList;
 
 import org.junit.Test;
 
+import com.twitter.common.junit.annotations.TestParallel;
 import com.twitter.common.objectsize.ObjectSizeCalculator;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Data;
-import com.twitter.common.testing.runner.annotations.TestParallel;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;

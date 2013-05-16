@@ -1,4 +1,4 @@
-package com.twitter.common.testing.runner;
+package com.twitter.common.junit.runner;
 
 import org.junit.runner.Description;
 import org.junit.runner.Result;

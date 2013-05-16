@@ -1,4 +1,4 @@
-package com.twitter.common.testing.runner;
+package com.twitter.common.junit.runner;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -41,7 +41,7 @@ import org.kohsuke.args4j.spi.StringArrayOptionHandler;
 /**
  * An alternative to {@link JUnitCore} with stream capture and junit-report xml output capabilities.
  */
-public class JUnitConsoleRunner {
+public class ConsoleRunner {
 
   private static final SwappableStream<PrintStream> SWAPPABLE_OUT =
       new SwappableStream<PrintStream>(System.out);
@@ -221,9 +221,15 @@ public class JUnitConsoleRunner {
 
 
 
-  JUnitConsoleRunner(boolean failFast, boolean suppressOutput, boolean xmlReport,
-                     boolean perTestTimer, File outdir,
-                     boolean defaultParallel, int parallelThreads) {
+  ConsoleRunner(
+      boolean failFast,
+      boolean suppressOutput,
+      boolean xmlReport,
+      boolean perTestTimer,
+      File outdir,
+      boolean defaultParallel,
+      int parallelThreads) {
+
     this.failFast = failFast;
     this.suppressOutput = suppressOutput;
     this.xmlReport = xmlReport;
@@ -465,8 +471,8 @@ public class JUnitConsoleRunner {
       exit(1);
     }
 
-    JUnitConsoleRunner runner =
-        new JUnitConsoleRunner(options.failFast,
+    ConsoleRunner runner =
+        new ConsoleRunner(options.failFast,
             options.suppressOutput,
             options.xmlReport,
             options.perTestTimer,

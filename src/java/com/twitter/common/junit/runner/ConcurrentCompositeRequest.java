@@ -1,4 +1,4 @@
-package com.twitter.common.testing.runner;
+package com.twitter.common.junit.runner;
 
 import java.util.List;
 

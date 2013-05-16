@@ -1,4 +1,4 @@
-package com.twitter.common.testing.runner;
+package com.twitter.common.junit.runner;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -14,8 +14,8 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import org.junit.runners.model.RunnerScheduler;
 
-import com.twitter.common.testing.runner.annotations.TestParallel;
-import com.twitter.common.testing.runner.annotations.TestSerial;
+import com.twitter.common.junit.annotations.TestParallel;
+import com.twitter.common.junit.annotations.TestSerial;
 
 public class ConcurrentRunnerScheduler implements RunnerScheduler {
   private final CompletionService<Void> completionService;

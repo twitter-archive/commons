@@ -132,7 +132,6 @@ java_library(name = 'util',
   ),
   dependencies = [
     pants('3rdparty:guava'),
-    pants('src/java/com/twitter/common/testing:junit-runner-annotations'),
     pants('src/java/com/twitter/common/util:util'),
   ],
   sources = [
