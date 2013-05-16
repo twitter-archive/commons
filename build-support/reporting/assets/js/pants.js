@@ -1,5 +1,6 @@
 
 pants = {
+  // Functions to manipulate a 'collapsible' - a div that can be expanded or collapsed.
   collapsible: {
     toggle: function(id) {
       $("#" + id + "-content").toggle();
@@ -22,18 +23,22 @@ pants = {
     }
   },
 
+  // Append the content selected by fromSelector to the element(s) selected by toSelector.
+  // Used to add reporting content to workunits on the fly, as they progress.
   append: function(fromSelector, toSelector) {
     $(fromSelector).appendTo($(toSelector)).show();
   },
 
+  // Append a string to the element(s) selected by toSelector.
   appendString: function(str, toSelector) {
     $(toSelector).append(str);
   },
 
-  // Creates an object that knows how to manage multiple timers, and periodically emit them.
+  // Creates an object that knows how to manage multiple timers, and periodically emit timings.
+  // This allows us to show a rolling client-side timer for a workunit while it's executing.
   createTimerManager: function() {
     // The start time (in ms since the epoch) of each timer.
-    // We emit each timer to the element(s) selected by the appropriate selector.
+    // We emit the timing of each timer to the element(s) selected by the appropriate selector.
     // id -> {startTime: ..., selector: ...}
     var timers = {};
 
@@ -73,11 +78,14 @@ pants = {
   createPoller: function() {
 
     // State of each file we're polling.
-    // id -> state object.
+    // id -> state object. See doStartPolling() below for the fields in a state object.
     var polledFileStates = {};
 
     // A handle to the polling event, so we can cancel it if needed.
     var pollingEvent = undefined;
+
+    // Only allow one request in-flight at a time.
+    var inFlight = false;
 
     function pollOnce() {
       function forgetId(id) {
@@ -90,82 +98,74 @@ pants = {
         }
       }
 
-      var polledStates = [];
-
       function createRequestEntry(state, id) {
-        if (state.inFlight) {
-          return null;
-        } else {
-          state.inFlight = true;
-          polledStates.push(state);
-          return { id: id, path: state.path, pos: state.pos };
-        }
+        return { id: id, path: state.path, pos: state.pos };
       }
 
-      $.ajax({
-        url: '/poll',
-        type: 'GET',
-        data: { q: JSON.stringify($.map(polledFileStates, createRequestEntry))},
-        dataType: 'json',
-        success: function(data, textStatus, jqXHR) {
-          function appendNewData() {
-            $.each(data, function(id, val) {
-              if (id in polledFileStates) {
-                var state = polledFileStates[id];
-                if (!state.hasBeenPolledAtLeastOnce) {
-                  if (state.initFunc) {
-                    state.initFunc();
+      if (!inFlight) {
+        inFlight = true;
+        $.ajax({
+          url: '/poll',
+          type: 'GET',
+          data: { q: JSON.stringify($.map(polledFileStates, createRequestEntry))},
+          dataType: 'json',
+          success: function(data, textStatus, jqXHR) {
+            function appendNewData() {
+              $.each(data, function(id, val) {
+                if (id in polledFileStates) {
+                  var state = polledFileStates[id];
+                  // Execute the initFunc exactly once.
+                  if (!state.hasBeenPolledAtLeastOnce) {
+                    if (state.initFunc) { state.initFunc(); }
+                    state.hasBeenPolledAtLeastOnce = true;
                   }
-                  state.hasBeenPolledAtLeastOnce = true;
-                }
-                if (state.predicate ? state.predicate(val) : true) {
-                  if (state.replace) {
-                    // Replacing can reset state, so only do it if we have to.
-                    if (val != state.currentVal) {
-                      $(state.selector).html(val);
+                  if (state.predicate ? state.predicate(val) : true) {
+                    if (state.replace) {
+                      // Replacing can reset view state, so only do it if we have to.
+                      if (val != state.currentVal) {
+                        $(state.selector).html(val);
+                      }
+                    } else {
+                      $(state.selector).append(val);
+                      state.pos += val.length;
                     }
-                  } else {
-                    $(state.selector).append(val);
-                    state.pos += val.length;
+                    state.currentVal = val;
                   }
-                  state.currentVal = val;
                 }
-              }
-            });
-          }
+              });
+            }
 
-          function checkForStopped() {
-            var toDelete = [];
-            $.each(polledFileStates, function(id, state) {
-              if (state.toBeStopped && state.hasBeenPolledAtLeastOnce) {
-                toDelete.push(id);
-              }
-            });
-            $.each(toDelete, function(idx, id) { forgetId(id); });
+            function checkForStopped() {
+              var toDelete = [];
+              $.each(polledFileStates, function(id, state) {
+                if (state.toBeStopped && state.hasBeenPolledAtLeastOnce) {
+                  toDelete.push(id);
+                }
+              });
+              $.each(toDelete, function(idx, id) { forgetId(id); });
+            }
+            appendNewData();
+            checkForStopped();
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            // Not necessary to do anything special on error. A future request will catch us up.
+          },
+          complete: function(jqXHR, textStatus) {
+            inFlight = false;
           }
-          appendNewData();
-          checkForStopped();
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          // TODO: Something?
-        },
-        complete: function(jqXHR, textStatus) {
-          $.each(polledStates, function(idx, state) { state.inFlight = false; });
-          polledStates.length = 0;
-        }
-      });
+        });
+      }
     }
 
     function doStartPolling(id, path, targetSelector, initFunc, predicate, replace) {
       polledFileStates[id] = {
-        path: path,
-        pos: 0,
-        inFlight: false,
-        replace: replace,
+        path: path,  // Path of file on server to poll, relative to build root.
+        pos: 0,  // Position to poll from.
+        replace: replace,  // Whether to append or replace the polled content.
         currentVal: '',
-        selector: targetSelector,
-        initFunc: initFunc,
-        predicate: predicate,
+        selector: targetSelector,  // append or replace the polled content to this element.
+        initFunc: initFunc,  // Execute this exactly once, on first successful polling.
+        predicate: predicate,  // append or replace val only if predicate(val) is true.
         hasBeenPolledAtLeastOnce: false,
         toBeStopped: false
       };
