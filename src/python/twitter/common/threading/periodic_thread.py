@@ -16,7 +16,7 @@
 
 import time
 
-from twitter.common.threading import StoppableThread
+from twitter.common.threading.stoppable_thread import StoppableThread
 
 
 class PeriodicThread(StoppableThread):
