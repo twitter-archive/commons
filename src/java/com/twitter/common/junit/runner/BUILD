@@ -22,6 +22,7 @@ java_library(name='runner',
   ),
   dependencies=[
     pants('src/java/com/twitter/common/junit/annotations'),
+    pants('3rdparty:args4j'),
     pants('3rdparty:guava'),
     pants('3rdparty:junit'),
   ],
@@ -29,13 +30,9 @@ java_library(name='runner',
 )
 
 jvm_binary(name='main',
-  source='ConsoleRunner.java',
   main='com.twitter.common.junit.runner.ConsoleRunner',
   dependencies=[
     pants(":runner"),
-    pants('3rdparty:args4j'),
-    pants('3rdparty:guava'),
-    pants('3rdparty:junit'),
   ]
 ).with_description("""
   A replacement for org.junit.runner.JUnitCore.main that adds:
