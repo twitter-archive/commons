@@ -67,6 +67,7 @@ class PantsHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       # If no path specified, default to showing the list of all runs.
       if path == '/':
         self._handle_runs('', {})
+        return
       self._send_content('Invalid GET request %s' % self.path, 'text/html')
     except (IOError, ValueError):
       sys.stderr.write('Invalid GET request %s' % self.path)
@@ -128,7 +129,7 @@ class PantsHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       content = 'No file found at %s' % abspath
     content_type = mimetypes.guess_type(abspath)[0] or 'text/plain'
     if not content_type.startswith('text/') and not content_type == 'application/xml':
-      # Binary file, split it into lines.
+      # Binary file. Display it as hex, split into lines.
       n = 120  # Display lines of this max size.
       content = repr(content)[1:-1]  # Will escape non-printables etc, dropping surrounding quotes.
       content = '\n'.join([content[i:i+n] for i in xrange(0, len(content), n)])
@@ -286,7 +287,10 @@ class PantsHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       return False
 
   def _create_breadcrumbs(self, relpath):
-    """Create filesystem browsing breadcrumb navigation."""
+    """Create filesystem browsing breadcrumb navigation.
+
+    That is, make each path segment into a clickable element that takes you to that dir.
+    """
     if relpath == '.':
       breadcrumbs = []
     else:
