@@ -45,13 +45,16 @@ class ProcessHandlePs(ProcessHandle, ProcessHandleParserBase):
     'starttime': 'etime',
   }
 
-  def _produce(self):
+  def _get_process_attrs(self, attrs):
     try:
-      data = os.popen('ps -p %s -o %s' % (self._pid, ','.join(ProcessHandlePs.ATTRS))).readlines()
+      data = os.popen('ps -p %s -o %s' % (self._pid, ','.join(attrs))).readlines()
       if len(data) > 1:
         return data[-1]
     except:
       return None
+
+  def _produce(self):
+    return self._get_process_attrs(ProcessHandlePs.ATTRS)
 
   def cpu_time(self):
     return self.get('time') or 0.0
@@ -83,5 +86,5 @@ class ProcessHandlePs(ProcessHandle, ProcessHandleParserBase):
     # 'comm' is just the base cmd, this returns the cmd with all the arguments.
     # We don't read 'command' on the initial ps call, because the result contains spaces, and
     # our scanf-like parsing code won't read it. This isn't a performance issue in current usage.
-    return self._produce(['command']).strip()
+    return self._get_process_attrs(['command']).strip()
 
