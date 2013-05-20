@@ -83,5 +83,5 @@ class ProcessHandlePs(ProcessHandle, ProcessHandleParserBase):
     # 'comm' is just the base cmd, this returns the cmd with all the arguments.
     # We don't read 'command' on the initial ps call, because the result contains spaces, and
     # our scanf-like parsing code won't read it. This isn't a performance issue in current usage.
-    return self._get_process_attrs(['command']).strip()
+    return self._produce(['command']).strip()
 
