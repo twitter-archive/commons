@@ -659,7 +659,7 @@ public class Group {
      */
     public DefaultScheme(String namePrefix) {
       this.namePrefix = MorePreconditions.checkNotBlank(namePrefix);
-      namePattern = Pattern.compile("^" + Pattern.quote(namePrefix) + "[0-9]+$");
+      namePattern = Pattern.compile("^" + Pattern.quote(namePrefix) + "-?[0-9]+$");
     }
 
     @Override
