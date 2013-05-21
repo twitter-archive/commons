@@ -102,7 +102,7 @@ class RecordIO(object):
       Return an iterator over the entire contents of the underlying file handle.
 
         May raise:
-          RecordIO.PrematureEndOfStream
+          RecordIO.Error or subclasses
       """
       try:
         dup_fp = self._fp.dup()
@@ -117,8 +117,7 @@ class RecordIO(object):
             yield blob
           else:
             break
-      except RecordIO.Error as e:
-        log.error('Caught exception in __iter__: %s' % e)
+      finally:
         dup_fp.close()
 
     @staticmethod
@@ -141,15 +140,16 @@ class RecordIO(object):
         return None
       elif len(header) != RecordIO.RECORD_HEADER_SIZE:
         raise RecordIO.PrematureEndOfStream(
-            "Expected %d bytes, got %d" % (RecordIO.RECORD_HEADER_SIZE, len(header)))
+            "Expected %d bytes in header, got %d" % (RecordIO.RECORD_HEADER_SIZE, len(header)))
       blob_len = struct.unpack('>L', header)[0]
       if blob_len > RecordIO.MAXIMUM_RECORD_SIZE:
-        raise RecordIO.RecordSizeExceeded()
+        raise RecordIO.RecordSizeExceeded("Record exceeds maximum allowable size")
 
       # read frame
       read_blob = fp.read(blob_len)
       if len(read_blob) != blob_len:
-        raise RecordIO.PrematureEndOfStream()
+        raise RecordIO.PrematureEndOfStream(
+          'Expected %d bytes in frame, got %d' % (blob_len, len(read_blob)))
       return decoder.decode(read_blob)
 
     def read(self):
