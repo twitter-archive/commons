@@ -20,6 +20,7 @@ import socket
 import subprocess
 import time
 
+from twitter.common import log
 from twitter.common.quantity import Amount, Time
 
 try:
@@ -54,8 +55,10 @@ def safe_kill(po):
   po.wait()
 
 
+# TODO(wickman) Add mox tests for this.
+
 class TunnelHelper(object):
-  """ Class to initiate an ssh tunnel to a remote host through a tunnel host.
+  """ Class to initiate an SSH or SOCKS tunnel to a remote host through a tunnel host.
 
   The ssh binary must be on the PATH.
   """
@@ -64,6 +67,10 @@ class TunnelHelper(object):
   MIN_RETRY = Amount(5, Time.MILLISECONDS)
 
   class TunnelError(Exception): pass
+
+  @classmethod
+  def log(cls, msg):
+    log.debug('%s: %s' % (cls.__name__, msg))
 
   @classmethod
   def get_random_port(cls):
@@ -82,69 +89,60 @@ class TunnelHelper(object):
     port = port or TunnelHelper.get_random_port()
     return host, port
 
-  @staticmethod
-  def create_tunnel(remote_host, remote_port, tunnel_host=None, tunnel_port=None):
-    """
-      Create a tunnel via tunnel_host, tunnel_port to the remote_host, remote_port.
-      If tunnel_port not supplied, a random port will be chosen.
-    """
-    tunnel_key = (remote_host, remote_port)
-    if tunnel_key in TunnelHelper.TUNNELS:
-      return 'localhost', TunnelHelper.TUNNELS[tunnel_key][0]
-    tunnel_host, tunnel_port = TunnelHelper.acquire_host_pair(tunnel_host, tunnel_port)
-
   @classmethod
   def wait_for_accept(cls, port, timeout=Amount(5, Time.SECONDS)):
     total_time = Amount(0, Time.SECONDS)
-    timeout = cls.MIN_RETRY
+    sleep = cls.MIN_RETRY
     while total_time < timeout:
       try:
         accepted_socket = socket.create_connection(('localhost', port), timeout=5.0)
         accepted_socket.close()
         return True
       except socket.error:
-        total_time += timeout
-        time.sleep(timeout.as_(Time.SECONDS))
-        timeout *= 2
+        total_time += sleep
+        time.sleep(sleep.as_(Time.SECONDS))
+        sleep *= 2
+    cls.log('timed out initializing tunnel')
     return False
 
   @classmethod
   def create_tunnel(cls, remote_host, remote_port, tunnel_host=None, tunnel_port=None):
-    """ Create a tunnel from the localport to the remote host & port,
-    using sshd_host as the tunneling server.
+    """
+      Create or retrieve a memoized SSH tunnel to the remote host & port, using
+      tunnel_host:tunnel_port as the tunneling server.
     """
     tunnel_key = (remote_host, remote_port)
     if tunnel_key in cls.TUNNELS:
       return 'localhost', cls.TUNNELS[tunnel_key][0]
-
     if HAS_APP:
       tunnel_host = tunnel_host or app.get_options().tunnel_host
-    assert tunnel_host is not None, 'Must specify tunnel host!'
+    if tunnel_host is None:
+      raise cls.TunnelError('Must specify tunnel host!')
     tunnel_port = tunnel_port or cls.get_random_port()
-
-    ssh_cmd_args = ('ssh', '-T', '-L',
-                    '%d:%s:%s' % (tunnel_port,
-                                  remote_host,
-                                  remote_port),
+    cls.log('opening connection to %s:%s via %s:%s' %
+        (remote_host, remote_port, tunnel_host, tunnel_port))
+    ssh_cmd_args = ('ssh', '-T', '-L', '%d:%s:%s' % (tunnel_port, remote_host, remote_port),
                     tunnel_host)
-    cls.TUNNELS[tunnel_key] = (tunnel_port,
-      subprocess.Popen(ssh_cmd_args, stdin=subprocess.PIPE))
-
+    cls.TUNNELS[tunnel_key] = (tunnel_port, subprocess.Popen(ssh_cmd_args, stdin=subprocess.PIPE))
     if not cls.wait_for_accept(tunnel_port):
       raise cls.TunnelError('Could not establish tunnel via %s' % remote_host)
+    cls.log('session established')
     return 'localhost', tunnel_port
 
-  @staticmethod
-  def create_proxy(proxy_host=None, proxy_port=None):
+  @classmethod
+  def create_proxy(cls, proxy_host=None, proxy_port=None):
     """
-      Create a SOCKS proxy.
+      Create or retrieve a memoized SOCKS proxy using the specified proxy host:port
     """
-    if proxy_host in TunnelHelper.PROXIES:
-      return 'localhost', TunnelHelper.PROXIES[proxy_host][0]
-    proxy_host, proxy_port = TunnelHelper.acquire_host_pair(proxy_host, proxy_port)
+    if proxy_host in cls.PROXIES:
+      return 'localhost', cls.PROXIES[proxy_host][0]
+    proxy_host, proxy_port = cls.acquire_host_pair(proxy_host, proxy_port)
+    cls.log('opening SOCKS proxy connection through %s:%s' % (proxy_host, proxy_port))
     ssh_cmd_args = ('ssh', '-T', '-D', str(proxy_port), proxy_host)
-    TunnelHelper.PROXIES[proxy_host] = (proxy_port,
-       subprocess.Popen(ssh_cmd_args, stdin=subprocess.PIPE))
+    cls.PROXIES[proxy_host] = (proxy_port, subprocess.Popen(ssh_cmd_args, stdin=subprocess.PIPE))
+    if not cls.wait_for_accept(proxy_port):
+      raise cls.TunnelError('Could not establish proxy via %s' % proxy_host)
+    cls.log('session established')
     return 'localhost', proxy_port
 
   @classmethod
