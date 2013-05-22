@@ -1,10 +1,11 @@
 import time
 
 from twitter.common import app, log
+from twitter.common.app.modules.http import RootServer
 from twitter.common.log.options import LogOptions
 from twitter.common.metrics import RootMetrics
-from twitter.common.app.modules.http import RootServer
-from twitter.pingpong import PingPongServer
+
+from twitter.common.examples.pingpong import PingPongServer
 
 
 app.add_option('--target_host', default='localhost',

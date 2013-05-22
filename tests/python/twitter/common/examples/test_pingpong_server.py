@@ -1,7 +1,7 @@
 from twitter.common.quantity import Amount, Time
 from twitter.common.testing.clock import ThreadedClock
 
-from twitter.pingpong import PingPongServer
+from twitter.common.examples.pingpong import PingPongServer
 
 
 class TestPingPongServer(PingPongServer):

@@ -1,0 +1,28 @@
+Building the pingpong example:
+
+./pants src/python/twitter/common/examples:pingpong
+
+Running pingpong tests:
+
+./pants tests/python/twitter/common/examples -v
+
+Running the pingpong example (in two separate windows):
+dist/pingpong.pex --http_port=12345 --target_port=12346
+dist/pingpong.pex --http_port=12346 --target_port=12345
+
+Then curl http://localhost:12345/ping/hello/10 to start a pingpong.
+
+To see diagnostics, just point your browser to:
+  http://localhost:12345/vars
+  http://localhost:12345/threads
+  http://localhost:12345/profile (requires you to start app with --app_profiling)
+
+You can also start the application with --app_debug to see
+twitter.common.app startup and teardown.  Lastly, you can leverage portions
+of PEX files to introspect the application:
+
+To see the PEX environment setup:
+  PEX_VERBOSE=1 dist/pingpong.pex --help
+
+To run an interpreter in the environment of the PEX file:
+  PEX_INTERPRETER=1 dist/pingpong.pex

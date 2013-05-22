@@ -1,6 +1,6 @@
 python_library(
   name = 'libpingpong',
-  sources = ['__init__.py', 'pingpong.py'],
+  sources = ['pingpong.py'],
   dependencies = [
     pants('src/python/twitter/common/concurrent'),
     pants('src/python/twitter/common/http'),

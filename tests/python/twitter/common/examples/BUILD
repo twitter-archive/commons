@@ -1,12 +1,12 @@
 python_test_suite(
   name = 'all',
   dependencies = [
-    pants(':pingpong')
+    pants(':examples')
   ]
 )
 
 python_test_suite(
-  name = 'pingpong',
+  name = 'examples',
   dependencies = [
     pants(':test_pingpong_server')
   ]
@@ -17,6 +17,6 @@ python_tests(
   sources = ['test_pingpong_server.py'],
   dependencies = [
     pants('src/python/twitter/common/testing'),
-    pants('src/python/twitter/pingpong:libpingpong'),
+    pants('src/python/twitter/common/examples:libpingpong'),
   ]
 )
