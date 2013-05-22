@@ -33,15 +33,17 @@ class PingPongServer(Observable):
   @HttpServer.route('/ping/:message')
   @HttpServer.route('/ping/:message/:ttl')
   def ping(self, message, ttl=60):
+    self._pings.increment()
     log.info('Got ping (ttl=%s): %s' % (message, ttl))
     ttl = int(ttl) - 1
     if ttl > 0:
       defer(partial(self.send_request, 'pong', message, ttl), delay=self.PING_DELAY,
           clock=self._clock)
-  
+
   @HttpServer.route('/pong/:message')
   @HttpServer.route('/pong/:message/:ttl')
   def pong(self, message, ttl=60):
+    self._pongs.increment()
     log.info('Got pong (ttl=%s): %s' % (message, ttl))
     ttl = int(ttl) - 1
     if ttl > 0:

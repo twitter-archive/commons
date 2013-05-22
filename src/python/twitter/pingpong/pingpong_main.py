@@ -2,6 +2,7 @@ import time
 
 from twitter.common import app, log
 from twitter.common.log.options import LogOptions
+from twitter.common.metrics import RootMetrics
 from twitter.common.app.modules.http import RootServer
 from twitter.pingpong import PingPongServer
 
@@ -18,7 +19,8 @@ app.configure('twitter.common.app.modules.http', enable=True)
 def main(args, options):
   pingpong = PingPongServer(options.target_host, options.target_port)
   RootServer().mount_routes(pingpong)
-  
+  RootMetrics().register_observable('pingpong', pingpong)
+
   try:
     time.sleep(2**20)
   except KeyboardInterrupt:
