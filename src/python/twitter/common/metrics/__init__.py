@@ -14,9 +14,10 @@
 # limitations under the License.
 # ==================================================================================================
 
-__author__ = 'Brian Wickman'
-
 from .gauge import *
 from .rate import Rate
-from .metrics import RootMetrics
+from .metrics import (
+    CompoundMetrics,
+    Observable,
+    RootMetrics)
 from .sampler import MetricSampler
