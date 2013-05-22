@@ -19,9 +19,7 @@ class PingPongServer(Observable):
     self._clock = clock
     self._target = (target_host, target_port)
     self._pings = AtomicGauge('pings')
-    self._pongs = AtomicGauge('pongs')
     self.metrics.register(self._pings)
-    self.metrics.register(self._pongs)
 
   def send_request(self, endpoint, message, ttl):
     url_base = 'http://%s:%d' % self._target
@@ -35,16 +33,6 @@ class PingPongServer(Observable):
   def ping(self, message, ttl=60):
     self._pings.increment()
     log.info('Got ping (ttl=%s): %s' % (message, ttl))
-    ttl = int(ttl) - 1
-    if ttl > 0:
-      defer(partial(self.send_request, 'pong', message, ttl), delay=self.PING_DELAY,
-          clock=self._clock)
-
-  @HttpServer.route('/pong/:message')
-  @HttpServer.route('/pong/:message/:ttl')
-  def pong(self, message, ttl=60):
-    self._pongs.increment()
-    log.info('Got pong (ttl=%s): %s' % (message, ttl))
     ttl = int(ttl) - 1
     if ttl > 0:
       defer(partial(self.send_request, 'ping', message, ttl), delay=self.PING_DELAY,

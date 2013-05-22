@@ -32,14 +32,14 @@ def test_ttl_decrement_works():
   pps.expect_calls()
 
 
-def test_ping_and_pong():
+def test_ping():
   clock = ThreadedClock()
   pps = TestPingPongServer('foo', 31337, clock=clock)
 
   pps.ping('hello world', ttl=2)
   clock.tick(TestPingPongServer.PING_DELAY.as_(Time.SECONDS))
-  pps.expect_calls(('pong', 'hello world', 1))
+  pps.expect_calls(('ping', 'hello world', 1))
 
-  pps.pong('hello world', ttl=3)
+  pps.ping('hello world', ttl=3)
   clock.tick(TestPingPongServer.PING_DELAY.as_(Time.SECONDS))
   pps.expect_calls(('ping', 'hello world', 2))
