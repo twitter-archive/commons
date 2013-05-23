@@ -411,7 +411,7 @@ public class ServerSetImpl implements ServerSet {
       // if the server's status has not changed, we can skip any onChange updates.
       if (!currentServerSet.equals(serverSet)) {
         if (currentServerSet.isEmpty()) {
-          LOG.warning("server set empty!");
+          LOG.warning("server set empty for path " + group.getPath());
         } else {
           if (LOG.isLoggable(Level.INFO)) {
             if (serverSet == null) {
