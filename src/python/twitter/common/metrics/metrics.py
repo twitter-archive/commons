@@ -23,6 +23,26 @@ from .gauge import (
   namablegauge)
 
 
+class Observable(object):
+  """
+    A trait providing a metric namespace for an object.
+
+    Classes should mix-in Observable and register metrics against self.metrics.
+
+    Application owners can then register observable objects into a metric
+    space or the root metrics, e.g. via
+        RootMetrics().register_observable('object_namespace', my_object)
+  """
+  @property
+  def metrics(self):
+    """
+      Returns a Metric namespace for this object.
+    """
+    if not hasattr(self, '_observable_metrics'):
+      self._observable_metrics = Metrics()
+    return self._observable_metrics
+
+
 class MetricProvider(object):
   def sample(self):
     """
@@ -42,6 +62,12 @@ class MetricRegistry(object):
   def register(self, gauge):
     """
       Register a gauge (mapper from name => sample) with this registry.
+    """
+    raise NotImplementedError
+
+  def unregister(self, name):
+    """
+      Unregister a name from the registry.
     """
     raise NotImplementedError
 
@@ -72,6 +98,14 @@ class Metrics(MetricRegistry, MetricProvider):
     else:
       return str(value)
 
+  @classmethod
+  def coerce_metric(cls, metric_tuple):
+    name, value = metric_tuple
+    try:
+      return (name, cls.coerce_value(value.read()))
+    except ValueError:
+      return None
+
   def __init__(self):
     self._metrics = {}
     self._children = {}
@@ -83,26 +117,54 @@ class Metrics(MetricRegistry, MetricProvider):
       self._children[name] = Metrics()
     return self._children[name]
 
+  def register_observable(self, name, observable):
+    if not isinstance(name, Compatibility.string):
+      raise TypeError('Scope names must be strings, got: %s' % type(name))
+    if not isinstance(observable, Observable):
+      raise TypeError('observable must be an Observable, got: %s' % type(observable))
+    self._children[name] = observable.metrics
+
+  def unregister_observable(self, name):
+    if not isinstance(name, Compatibility.string):
+      raise TypeError('Unregister takes a string name!')
+    return self._children.pop(name, None)
+
   def register(self, gauge):
     if isinstance(gauge, Compatibility.string):
       gauge = MutatorGauge(gauge)
     if not isinstance(gauge, NamedGauge) and not namablegauge(gauge):
-      raise Metrics.Error('Must register either a string or a Gauge-like object! Got %s' % gauge)
+      raise TypeError('Must register either a string or a Gauge-like object! Got %s' % gauge)
     self._metrics[gauge.name()] = gauge
     return gauge
 
-  def sample(self, sample_prefix=''):
-    samples = {}
-    for name, metric in self._metrics.items():
-      try:
-        samples[sample_prefix + name] = self.coerce_value(metric.read())
-      except ValueError as e:
-        # TODO(wickman) Provide error logger to be passed in.
-        continue
-    for scope_name in self._children:
-      samples.update(self.scope(scope_name)
-                         .sample(sample_prefix=sample_prefix + scope_name + '.'))
+  def unregister(self, name):
+    if not isinstance(name, Compatibility.string):
+      raise TypeError('Unregister takes a string name!')
+    return self._metrics.pop(name, None)
+
+  @classmethod
+  def sample_name(cls, scope_name, sample_name):
+    return '.'.join([scope_name, sample_name])
+
+  def sample(self):
+    samples = dict(filter(None, map(self.coerce_metric, self._metrics.items())))
+    for scope_name, scope in self._children.items():
+      samples.update((self.sample_name(scope_name, sample_name), sample_value)
+                     for (sample_name, sample_value) in scope.sample().items())
     return samples
+
+
+class CompoundMetrics(MetricProvider):
+  def __init__(self, *providers):
+    if not all(isinstance(provider, MetricProvider) for provider in providers):
+      raise TypeError('CompoundMetrics must take a collection of MetricProviders')
+    self._providers = providers
+
+  def sample(self):
+    root_sample = {}
+    for provider in self._providers:
+      root_sample.update(provider.sample())
+    return root_sample
 
 
 class RootMetrics(Metrics, Singleton):
