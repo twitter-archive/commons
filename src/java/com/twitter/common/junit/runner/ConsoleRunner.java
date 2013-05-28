@@ -9,7 +9,9 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,7 +33,9 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
+import org.junit.runner.manipulation.Filter;
 import org.junit.runners.model.InitializationError;
+
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -218,7 +222,8 @@ public class ConsoleRunner {
   private final boolean perTestTimer;
   private final boolean defaultParallel;
   private final int parallelThreads;
-
+  private final int testShard;
+  private final int numTestShards;
 
 
   ConsoleRunner(
@@ -228,7 +233,9 @@ public class ConsoleRunner {
       boolean perTestTimer,
       File outdir,
       boolean defaultParallel,
-      int parallelThreads) {
+      int parallelThreads,
+      int testShard,
+      int numTestShards) {
 
     this.failFast = failFast;
     this.suppressOutput = suppressOutput;
@@ -237,6 +244,8 @@ public class ConsoleRunner {
     this.outdir = outdir;
     this.defaultParallel = defaultParallel;
     this.parallelThreads = parallelThreads;
+    this.testShard = testShard;
+    this.numTestShards = numTestShards;
   }
 
   void run(Iterable<String> tests) {
@@ -245,6 +254,10 @@ public class ConsoleRunner {
     System.setErr(new PrintStream(SWAPPABLE_ERR));
 
     List<Request> requests = parseRequests(out, tests);
+
+    if (numTestShards > 0) {
+      requests = setFilterForTestShard(requests);
+    }
 
     JUnitCore core = new JUnitCore();
     final AbortableListener abortableListener = new AbortableListener(failFast) {
@@ -374,6 +387,60 @@ public class ConsoleRunner {
     return requests;
   }
 
+  /**
+   * Using JUnit4 test filtering mechanism, replaces the provided list of requests with
+   * the one where each request has a filter attached. The filters are used to run only
+   * one test shard, i.e. every Mth test out of N (testShard and numTestShards fields).
+   */
+  private List<Request> setFilterForTestShard(List<Request> requests) {
+    // The filter below can be called multiple times for the same test, at least
+    // when parallelThreads is true. To maintain the stable "run - not run" test status,
+    // we determine it once, when the test is seen for the first time (always in serial
+    // order), and save it in testToRunStatus table.
+    class TestFilter extends Filter {
+      private int testIdx;
+      private HashMap<String, Boolean> testToRunStatus = new HashMap<String, Boolean>();
+
+      @Override
+      public boolean shouldRun(Description desc) {
+        if (desc.isSuite()) {
+          return true;
+        }
+        String descString = desc.toString();
+        // Note that currently even when parallelThreads is true, the first time this
+        // is called in serial order, by our own iterator below.
+        synchronized (this) {
+          Boolean shouldRun = testToRunStatus.get(descString);
+          if (shouldRun != null) {
+            return shouldRun;
+          } else {
+            shouldRun = (testIdx % numTestShards == testShard);
+            testIdx++;
+            testToRunStatus.put(descString, shouldRun);
+            return shouldRun;
+          }
+        }
+      }
+
+      @Override
+      public String describe() {
+        return "Filters a static subset of test methods";
+      }
+    }
+
+    TestFilter testFilter = new TestFilter();
+    ArrayList<Request> filteredRequests = new ArrayList<Request>(requests.size());
+    for (Request request: requests) {
+      filteredRequests.add(request.filterWith(testFilter));
+    }
+    // This will iterate over all of the test serially, calling shouldRun() above.
+    // It's needed to guarantee stable sharding in all situations.
+    for (Request request: filteredRequests) {
+      request.getRunner().getDescription();
+    }
+    return filteredRequests;
+  }
+
   private void notFoundError(String spec, PrintStream out, Throwable t) {
     out.printf("FATAL: Error during test discovery for %s: %s\n", spec, t);
     throw new RuntimeException("Classloading error during test discovery for " + spec, t);
@@ -393,6 +460,8 @@ public class ConsoleRunner {
       private boolean perTestTimer = false;
       private boolean defaultParallel = false;
       private int parallelThreads = 0;
+      private int testShard = 0;
+      private int numTestShards = 0;
       private File outdir = new File(System.getProperty("java.io.tmpdir"));
       private List<String> tests = Lists.newArrayList();
 
@@ -450,6 +519,26 @@ public class ConsoleRunner {
         }
       }
 
+      @Option(name = "-test-shard",
+          usage = "Subset of tests to run, in the form M/N, 0 <= M < N. For example, 1/3 means " +
+                  "run tests number 2, 5, 8, 11, ...")
+      public void setTestShard(String shard) throws CmdLineException {
+        String errorMsg = "-test-shard should be in the form M/N";
+        int slashIdx = shard.indexOf('/');
+        if (slashIdx < 0) {
+          throw new CmdLineException(parser, errorMsg);
+        }
+        try {
+          this.testShard = Integer.parseInt(shard.substring(0, slashIdx));
+          this.numTestShards = Integer.parseInt(shard.substring(slashIdx + 1));
+        } catch (NumberFormatException ex) {
+          throw new CmdLineException(parser, errorMsg);
+        }
+        if (testShard < 0 || numTestShards <= 0 || testShard >= numTestShards) {
+          throw new CmdLineException(parser, "0 <= M < N is required in -test-shard M/N");
+        }
+      }
+
       @Argument(usage = "Names of junit test classes or test methods to run.  Names prefixed "
                         + "with @ are considered arg file paths and these will be loaded and the "
                         + "whitespace delimited arguments found inside added to the list",
@@ -478,7 +567,9 @@ public class ConsoleRunner {
             options.perTestTimer,
             options.outdir,
             options.defaultParallel,
-            options.parallelThreads);
+            options.parallelThreads,
+            options.testShard,
+            options.numTestShards);
 
     List<String> tests = Lists.newArrayList();
     for (String test : options.tests) {
