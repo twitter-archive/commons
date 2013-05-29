@@ -87,3 +87,7 @@ struct TTextProtocolTestMsgUnion {
   1: required TestUnion u;
 }
 
+struct TTextProtocolTestMsgUnion {
+  1: required TestUnion u;
+}
+
