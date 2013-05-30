@@ -3,9 +3,11 @@ package com.twitter.common.junit.runner;
 import java.util.List;
 
 import org.junit.internal.AssumptionViolatedException;
+import org.junit.internal.runners.ErrorReportingRunner;
 import org.junit.internal.runners.model.EachTestNotifier;
 import org.junit.runner.Description;
 import org.junit.runner.Request;
+import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runner.notification.StoppedByUserException;
 import org.junit.runners.ParentRunner;
@@ -47,7 +49,21 @@ public class CompositeRequest extends ParentRunner<Request> {
     // This mirrors the implementation of ParentRunner.run
     EachTestNotifier eachNotifier = new EachTestNotifier(notifier, describeChild(child));
     try {
-      child.getRunner().run(notifier);
+      Runner runner = child.getRunner();
+      boolean exemptThisRunner = false;
+      if (runner instanceof ErrorReportingRunner) {
+        // Test sharding may result in no tests running within this request. In that case,
+        // FilterRequest.getRunner() returns an instance of ErrorReportingRunner with the
+        // Exception instance with known message.
+        ErrorReportingRunner erRunner = (ErrorReportingRunner) runner;
+        Description desc = erRunner.getDescription();
+        if ("org.junit.runner.manipulation.Filter".equals(desc.getDisplayName())) {
+          exemptThisRunner = true;
+        }
+      }
+      if (!exemptThisRunner) {
+        runner.run(notifier);
+      }
     } catch (AssumptionViolatedException e) {
       eachNotifier.fireTestIgnored();
     } catch (StoppedByUserException e) {

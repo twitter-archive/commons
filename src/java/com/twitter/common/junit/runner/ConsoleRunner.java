@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,11 @@ public class ConsoleRunner {
 
   private static final SwappableStream<PrintStream> SWAPPABLE_ERR =
       new SwappableStream<PrintStream>(System.err);
+
+  /** Should be set to false for unit testing via {@link #setCallSystemExitOnFinish} */
+  private static boolean callSystemExitOnFinish = true;
+  /** Intended to be used in unit testing this class */
+  private static int exitStatus;
 
   /**
    * A stream that allows its underlying output to be swapped.
@@ -406,7 +412,7 @@ public class ConsoleRunner {
         if (desc.isSuite()) {
           return true;
         }
-        String descString = desc.toString();
+        String descString = desc.getDisplayName();
         // Note that currently even when parallelThreads is true, the first time this
         // is called in serial order, by our own iterator below.
         synchronized (this) {
@@ -414,7 +420,7 @@ public class ConsoleRunner {
           if (shouldRun != null) {
             return shouldRun;
           } else {
-            shouldRun = (testIdx % numTestShards == testShard);
+            shouldRun = testIdx % numTestShards == testShard;
             testIdx++;
             testToRunStatus.put(descString, shouldRun);
             return shouldRun;
@@ -428,10 +434,18 @@ public class ConsoleRunner {
       }
     }
 
+    class AlphabeticComparator implements Comparator<Description> {
+      @Override
+      public int compare(Description o1, Description o2) {
+        return o1.getDisplayName().compareTo(o2.getDisplayName());
+      }
+    }
+
     TestFilter testFilter = new TestFilter();
+    AlphabeticComparator alphaComp = new AlphabeticComparator();
     ArrayList<Request> filteredRequests = new ArrayList<Request>(requests.size());
     for (Request request: requests) {
-      filteredRequests.add(request.filterWith(testFilter));
+      filteredRequests.add(request.sortWith(alphaComp).filterWith(testFilter));
     }
     // This will iterate over all of the test serially, calling shouldRun() above.
     // It's needed to guarantee stable sharding in all situations.
@@ -520,8 +534,8 @@ public class ConsoleRunner {
       }
 
       @Option(name = "-test-shard",
-          usage = "Subset of tests to run, in the form M/N, 0 <= M < N. For example, 1/3 means " +
-                  "run tests number 2, 5, 8, 11, ...")
+          usage = "Subset of tests to run, in the form M/N, 0 <= M < N. For example, 1/3 means "
+                  + "run tests number 2, 5, 8, 11, ...")
       public void setTestShard(String shard) throws CmdLineException {
         String errorMsg = "-test-shard should be in the form M/N";
         int slashIdx = shard.indexOf('/');
@@ -617,8 +631,29 @@ public class ConsoleRunner {
   }
 
   private static void exit(int code) {
-    // We're a main - its fine to exit.
-    // SUPPRESS CHECKSTYLE RegexpSinglelineJava
-    System.exit(code);
+    exitStatus = code;
+    if (callSystemExitOnFinish) {
+      // We're a main - its fine to exit.
+      // SUPPRESS CHECKSTYLE RegexpSinglelineJava
+      System.exit(code);
+    } else {
+      if (code != 0) {
+        throw new RuntimeException("ConsoleRunner exited with status " + code);
+      }
+    }
+  }
+
+  // ---------------------------- For testing only ---------------------------------
+
+  static void setCallSystemExitOnFinish(boolean v) {
+    callSystemExitOnFinish = v;
+  }
+
+  static int getExitStatus() {
+    return exitStatus;
+  }
+
+  static void setExitStatus(int v) {
+    exitStatus = v;
   }
 }
