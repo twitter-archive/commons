@@ -41,13 +41,15 @@ II.) Revert the change made in I-2 above, mark with @Ignore the tests that rely 
 code changes in the runner (or the entire test class), and submit changes from I
 to master
 
-III.) Publish a jar with:
+III.) The operation below should be done on MASTER. Publish a jar with:
 
-1) dry run:
+1) git checkout master; git pull
+
+2) dry run:
 ./pants goal clean-all publish src/java/com/twitter/common/junit/runner
 
-2) looks ok? do it:
+3) looks ok? do it:
 yes | ./pants goal publish --no-publish-dryrun src/java/com/twitter/common/junit/runner
 
-IV.) Make a change that bumps the corresponding build-support/profiles/*.ivy.xml
-and un-@Ignores any tests temporarily ignored in step I.
+IV.) Switch back to a dev branch. Make a change that bumps the corresponding
+build-support/profiles/*.ivy.xml and un-@Ignores any tests temporarily ignored in step I.

@@ -3,7 +3,6 @@ package com.twitter.common.junit.runner;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.twitter.common.junit.annotations.TestSerial;
@@ -12,7 +11,6 @@ import com.twitter.common.junit.annotations.TestSerial;
  * Tests several recently added features in ConsoleRunner.
  * TODO: cover the rest of ConsoleRunner functionality.
  */
-@Ignore
 @TestSerial
 public class ConsoleRunnerTest {
 
