@@ -173,6 +173,7 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
           }
         } catch (InterruptedException e) {
           LOG.log(Level.WARNING, "Interrupted while trying to re-establish watch.", e);
+          Thread.currentThread().interrupt();
         }
       }
     });
@@ -263,6 +264,7 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
             tryWatchChildren();
           } catch (InterruptedException e) {
             LOG.log(Level.WARNING, "Interrupted while trying to watch children.", e);
+            Thread.currentThread().interrupt();
           }
         }
       }});
@@ -275,6 +277,7 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
             tryWatchChildren();
           } catch (InterruptedException e) {
             LOG.log(Level.WARNING, "Interrupted while trying to watch children.", e);
+            Thread.currentThread().interrupt();
           }
         }
       }
@@ -310,6 +313,7 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
             tryAddChild(child);
           } catch (InterruptedException e) {
             LOG.log(Level.WARNING, "Interrupted while trying to add a child.", e);
+            Thread.currentThread().interrupt();
           }
         } else if (event.getType() == Watcher.Event.EventType.NodeDeleted) {
           removeEntry(child);
