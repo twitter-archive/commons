@@ -16,11 +16,11 @@
 
 java_tests(name = 'metrics',
   dependencies = [
-    pants('3rdparty:easymock'),
     pants('3rdparty:guava'),
     pants('3rdparty:junit'),
     pants('src/java/com/twitter/common/junit/annotations'),
     pants('src/java/com/twitter/common/metrics'),
+    pants('src/java/com/twitter/common/objectsize'),
     pants('src/java/com/twitter/common/testing'),
     pants('src/java/com/twitter/common/util:system-mocks'),
     pants('src/java/com/twitter/common/util:testing'),

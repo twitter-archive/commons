@@ -9,23 +9,30 @@ import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Data;
 
 /**
+ * <p>
  * Implements Histogram structure for computing approximate quantiles.
  * The implementation is based on the following paper:
  *
+ * <pre>
  * [MP80]  Munro & Paterson, "Selection and Sorting with Limited Storage",
  *         Theoretical Computer Science, Vol 12, p 315-323, 1980.
- *
+ * </pre>
+ * </p>
+ * <p>
  * You could read a detailed description of the same algorithm here:
  *
+ * <pre>
  * [MRL98] Manku, Rajagopalan & Lindsay, "Approximate Medians and other
  *         Quantiles in One Pass and with Limited Memory", Proc. 1998 ACM
  *         SIGMOD, Vol 27, No 2, p 426-435, June 1998.
- *
+ * </pre>
+ * </p>
+ * <p>
  * There's a good explanation of the algorithm in the Sawzall source code
  * See: http://szl.googlecode.com/svn-history/r36/trunk/src/emitters/szlquantile.cc
- *
+ * </p>
  * Here's a schema of the tree:
- *
+ * <pre>
  *      [4]     level 3, weight=rootWeight=8
  *       |
  *      [3]     level 2, weight=4
@@ -33,15 +40,19 @@ import com.twitter.common.quantity.Data;
  *      [2]     level 1, weight=2
  *     /   \
  *   [0]   [1]  level 0, weight=1
- *
- * [i] represent buffer[i]
+ * </pre>
+ * <p>
+ * {@code [i]} represents {@code buffer[i]}
  * The depth of the tree is limited to a maximum value
  * Every buffer has the same size
- *
- * We add element in [0] or [1].
- * When [0] and [1] are full, we collapse them, it generates a temporary buffer of weight 2,
- * if [2] is empty, we put the collapsed buffer into [2] otherwise we collapse [2] with
- * the temporary buffer and put it in [3] if it's empty and so on...
+ * </p>
+ * <p>
+ * We add element in {@code [0]} or {@code [1]}.
+ * When {@code [0]} and {@code [1]} are full, we collapse them, it generates a temporary buffer
+ * of weight 2, if {@code [2]} is empty, we put the collapsed buffer into {@code [2]} otherwise
+ * we collapse {@code [2]} with the temporary buffer and put it in {@code [3]} if it's empty and
+ * so on...
+ * </p>
  */
 public final class ApproximateHistogram implements Histogram {
   @VisibleForTesting
@@ -177,7 +188,7 @@ public final class ApproximateHistogram implements Histogram {
     int buf0Size = Math.min(bufferSize, leafCount);
     int buf1Size = Math.max(0, leafCount - buf0Size);
     long sum = 0;
-    long target = (long) (count * (1.0 - q));
+    long target = (long) Math.ceil(count * (1.0 - q));
     int i;
 
     if (! leavesSorted) {
@@ -202,13 +213,102 @@ public final class ApproximateHistogram implements Histogram {
     count = 0L;
     leafCount = 0;
     rootWeight = 1;
-    bufferPool = new long[2][bufferSize];
-    indices = new int[maxDepth + 1];
-    // All the buffers of the tree are allocated
-    buffer = new long[maxDepth + 1][bufferSize];
-    for (int i = 0; i < maxDepth; i++) {
-      buffer[i] = new long[bufferSize];
+    leavesSorted = true;
+  }
+
+  /**
+   * MergedHistogram is a Wrapper on top of multiple histograms, it gives a view of all the
+   * underlying histograms as it was just one.
+   * Note: Should only be used for querying the underlying histograms.
+   */
+  private static class MergedHistogram implements Histogram {
+    private final ApproximateHistogram[] histograms;
+
+    private MergedHistogram(ApproximateHistogram[] histograms) {
+      this.histograms = histograms;
     }
+
+    @Override
+    public void add(long x) {
+      /* Ignore, Shouldn't be used */
+      assert(false);
+    }
+
+    @Override
+    public void clear() {
+      /* Ignore, Shouldn't be used */
+      assert(false);
+    }
+
+    @Override
+    public long getQuantile(double quantile) {
+      Preconditions.checkArgument(0.0 <= quantile && quantile <= 1.0,
+          "quantile must be in the range 0.0 to 1.0 inclusive");
+
+      long count = initIndices();
+      if (count == 0) {
+        return 0L;
+      }
+
+      long sum = 0;
+      long target = (long) Math.ceil(count * (1.0 - quantile));
+      int iHist = -1;
+      int iBiggest = -1;
+      do {
+        long biggest = Long.MIN_VALUE;
+        for (int i = 0; i < histograms.length; i++) {
+          ApproximateHistogram hist = histograms[i];
+          int indexBiggest = hist.biggest(hist.indices);
+          if (indexBiggest >= 0) {
+            long value = hist.buffer[indexBiggest][hist.indices[indexBiggest]];
+            if (iBiggest == -1 || biggest <= value) {
+              iBiggest = indexBiggest;
+              biggest = value;
+              iHist = i;
+            }
+          }
+        }
+        histograms[iHist].indices[iBiggest]--;
+        sum += histograms[iHist].weight(iBiggest);
+      } while (sum < target);
+
+      ApproximateHistogram hist = histograms[iHist];
+      int i = hist.indices[iBiggest];
+      return hist.buffer[iBiggest][i + 1];
+    }
+
+    /**
+     * Initialize the indices array for each Histogram and return the global count.
+     */
+    private long initIndices() {
+      long count = 0L;
+      for (int i = 0; i < histograms.length; i++) {
+        ApproximateHistogram h = histograms[i];
+        int[] indices = h.indices;
+        count += h.count;
+        int buf0Size = Math.min(h.bufferSize, h.leafCount);
+        int buf1Size = Math.max(0, h.leafCount - buf0Size);
+
+        if (! h.leavesSorted) {
+          Arrays.sort(h.buffer[0], 0, buf0Size);
+          Arrays.sort(h.buffer[1], 0, buf1Size);
+          h.leavesSorted = true;
+        }
+        Arrays.fill(indices, h.bufferSize - 1);
+        indices[0] = buf0Size - 1;
+        indices[1] = buf1Size - 1;
+      }
+      return count;
+    }
+  }
+
+  /**
+   * Return a MergedHistogram
+   * @param histograms array of histograms to merged together
+   * @return a new Histogram
+   */
+  public static Histogram merge(ApproximateHistogram[] histograms) {
+    return new MergedHistogram(histograms);
   }
 
   /**
@@ -250,17 +350,19 @@ public final class ApproximateHistogram implements Histogram {
 
   /**
    * Return the level of the biggest element (using the indices array 'ids'
-   * to track which elements have been already returned). Every buffers has
+   * to track which elements have been already returned). Every buffer has
    * already been sorted at this point.
+   * @return the level of the biggest element or -1 if no element has been found
    */
   @VisibleForTesting
   int biggest(final int[] ids) {
     long biggest = Long.MIN_VALUE;
     final int id0 = ids[0], id1 = ids[1];
-    int iBiggest = 0;
+    int iBiggest = -1;
 
     if (0 < leafCount && 0 <= id0) {
       biggest = buffer[0][id0];
+      iBiggest = 0;
     }
     if (bufferSize < leafCount && 0 <= id1) {
       long x = buffer[1][id1];
@@ -347,7 +449,7 @@ public final class ApproximateHistogram implements Histogram {
    *     select every nth elems = [3,7,9]  (n = sum weight / 2)
    */
   @VisibleForTesting
-  void collapse(
+  static void collapse(
     long[] left,
     int leftWeight,
     long[] right,
@@ -387,7 +489,7 @@ public final class ApproximateHistogram implements Histogram {
  * Optimized version of collapse for collapsing two array of the same weight
  * (which is what we want most of the time)
  */
-  private void collapse1(
+  private static void collapse1(
     long[] left,
     long[] right,
     long[] output) {

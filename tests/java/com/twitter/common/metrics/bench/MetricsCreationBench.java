@@ -19,21 +19,21 @@ package com.twitter.common.metrics.bench;
 import com.google.caliper.SimpleBenchmark;
 
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicLong;
 
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Data;
 import com.twitter.common.metrics.Counter;
 import com.twitter.common.metrics.Histogram;
 import com.twitter.common.metrics.Metrics;
+import com.twitter.common.metrics.WindowedApproxHistogram;
+import com.twitter.common.stats.ApproximateHistogram;
 
 /**
- * This bench tests different sorts of queries.
+ * Bench memory allocated for each component of Metrics
  */
-public class MetricsQueryBench extends SimpleBenchmark {
+public class MetricsCreationBench extends SimpleBenchmark {
 
-  private static int N = 100 * 1000;
-  private static int RANGE = 15 * 1000;
+  private static final int INPUT_RANGE = 15000;
   private Metrics metrics;
   private Random rnd;
 
@@ -43,41 +43,49 @@ public class MetricsQueryBench extends SimpleBenchmark {
     rnd = new Random(1);
   }
 
-  public void timeQueryCounters(int n) {
-    for (int i=0; i < 52; i++) {
-      Counter counter = metrics.registerCounter("counter" + i);
+  public void timeCreatingCounter(int n) {
+    Counter counter;
+    while(n != 0) {
+      counter = metrics.registerCounter("counter");
       counter.increment();
-    }
-    while(n != 0) {
-      metrics.sample();
       n--;
     }
   }
 
-  public void timeQueryHistograms(int n) {
-    for (int i=0; i < 4; i++) {
-      // Each histogram registers 13 gauges
-      Histogram h = new Histogram("histogram" + i, metrics);
-      for (int j=0; j < N; j++) {
-        h.add(rnd.nextInt(RANGE));
-      }
-    }
+  /**
+   * An Histogram creates 13 gauges
+   * "count", "sum", "avg", "min", "max"
+   * "p25", "p50", "p75", "p90", "p95", "p99", "p999", "p9999"
+   */
+  public void timeCreatingHistogram(int n) {
+    Histogram h;
     while(n != 0) {
-      metrics.sample();
+      h = new Histogram("histogram", metrics);
+      h.add(rnd.nextInt(INPUT_RANGE));
       n--;
     }
   }
 
-  public void timeQueryBigHistograms(int n) {
-    for (int i=0; i < 4; i++) {
-      // Each histogram registers 13 gauges
-      Histogram h = new Histogram("histogram" + i, Amount.of(1L, Data.MB), metrics);
-      for (int j=0; j < N; j++) {
-        h.add(rnd.nextInt(RANGE));
-      }
-    }
+  /**
+   * ApproximateHistogram is the underlying datastructure backing the Histogram primitive.
+   */
+  public void timeCreatingApproxHistogram(int n) {
+    ApproximateHistogram h;
     while(n != 0) {
-      metrics.sample();
+      h = new ApproximateHistogram();
+      h.add(rnd.nextInt(INPUT_RANGE));
+      n--;
+    }
+  }
+
+  /**
+   * WindowedHistogram is serie of ApproximateHistograms in sliding window.
+   */
+  public void timeCreatingWindowedHistogram(int n) {
+    WindowedApproxHistogram h;
+    while(n != 0) {
+      h = new WindowedApproxHistogram();
+      h.add(rnd.nextInt(INPUT_RANGE));
       n--;
     }
   }

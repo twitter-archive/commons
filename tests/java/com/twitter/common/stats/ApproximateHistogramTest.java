@@ -163,9 +163,9 @@ public class ApproximateHistogramTest {
     return hist.buffer[j][idx];
   }
 
+  @Test
   public void testBiggestIndexFinder() {
-    ApproximateHistogram hist = new ApproximateHistogram();
-    hist.init(b, h);
+    ApproximateHistogram hist = new ApproximateHistogram(b, h);
     int n = 3;
     for (int i=1; i <= n; i++) {
       hist.add(i);
@@ -214,27 +214,54 @@ public class ApproximateHistogramTest {
     assertEquals(false, hist.isBufferEmpty(3));
   }
 
+  @Test
   public void testHistogramWithNegative() {
     ApproximateHistogram hist = new ApproximateHistogram();
     hist.add(-1L);
     assertEquals(-1L, hist.getQuantile(0.0));
+    assertEquals(-1L, hist.getQuantile(0.5));
     assertEquals(-1L, hist.getQuantile(1.0));
   }
 
+  @Test
+  public void testHistogramWithEdgeCases() {
+    ApproximateHistogram hist = new ApproximateHistogram();
+    hist.add(Long.MIN_VALUE);
+    assertEquals(Long.MIN_VALUE, hist.getQuantile(0.0));
+    assertEquals(Long.MIN_VALUE, hist.getQuantile(1.0));
+
+    hist.add(Long.MAX_VALUE);
+    assertEquals(Long.MIN_VALUE, hist.getQuantile(0.0));
+    assertEquals(Long.MAX_VALUE, hist.getQuantile(1.0));
+  }
+
+  @Test
   public void testQueryZerothQuantile() {
     // Tests that querying the zeroth quantile does not throw an exception
-    ApproximateHistogram hist = new ApproximateHistogram();
-    hist.init(b, h);
+    ApproximateHistogram hist = new ApproximateHistogram(b, h);
     addToHist(hist, 10);
     assertEquals(1L, hist.getQuantile(0.0));
   }
 
+  @Test
   public void testSmallDataCase() {
     // Tests that querying the zeroth quantile does not throw an exception
-    ApproximateHistogram hist = new ApproximateHistogram();
-    hist.init(b, h);
+    ApproximateHistogram hist = new ApproximateHistogram(b, h);
     addToHist(hist, 1);
     assertEquals(1L, hist.getQuantile(0.5));
+  }
+
+  @Test
+  public void testSimpleCase() {
+    ApproximateHistogram hist = new ApproximateHistogram();
+    int n = 10;
+    for (int i=0; i<n ; i++) {
+      hist.add(i);
+    }
+    for (int i = 1; i <= n; i++) {
+      double q = i / 10.0;
+      assertEquals(i, hist.getQuantile(q), 1.0);
+    }
   }
 
   private void addToHist(ApproximateHistogram hist, int n) {
