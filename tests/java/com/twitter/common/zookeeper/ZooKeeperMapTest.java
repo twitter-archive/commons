@@ -287,8 +287,7 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
     void apply() throws Exception;
   }
 
-  private static void assertThrows(TestFunction function, Class<? extends Exception> throwable)
-          throws Exception {
+  private static void assertThrows(TestFunction function, Class<? extends Exception> throwable) throws Exception {
     try {
       function.apply();
       fail("Expected to fail with exception: " + throwable.getName());
@@ -314,7 +313,7 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
 
     assertThrows(new TestFunction() {
       public void apply() {
-          zkMap.clear();
+        zkMap.clear();
       }
     }, UnsupportedOperationException.class);
 
