@@ -287,7 +287,8 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
     void apply() throws Exception;
   }
 
-  private static void assertThrows(TestFunction function, Class<? extends Exception> throwable) throws Exception {
+  private static void assertThrows(TestFunction function, Class<? extends Exception> throwable)
+          throws Exception {
     try {
       function.apply();
       fail("Expected to fail with exception: " + throwable.getName());
@@ -335,7 +336,8 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
       }
     }, UnsupportedOperationException.class);
 
-    List<Collection<?>> collections = ImmutableList.of(zkMap.entrySet(), zkMap.keySet(), zkMap.values());
+    List<Collection<?>> collections =
+            ImmutableList.of(zkMap.entrySet(), zkMap.keySet(), zkMap.values());
     for (Collection<?> collection : collections) {
       final Iterator<?> it = collection.iterator();
       assertTrue(it.hasNext());
