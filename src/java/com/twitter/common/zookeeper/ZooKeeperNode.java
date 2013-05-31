@@ -196,7 +196,6 @@ public class ZooKeeperNode<T> implements Supplier<T> {
       }
     } catch (InterruptedException e) {
       zkClient.unregister(watcher);
-      Thread.currentThread().interrupt();
       throw e;
     } catch (KeeperException e) {
       zkClient.unregister(watcher);
@@ -249,6 +248,7 @@ public class ZooKeeperNode<T> implements Supplier<T> {
             tryWatchDataNode();
           } catch (InterruptedException e) {
             LOG.log(Level.WARNING, "Interrupted while trying to watch a data node.", e);
+            Thread.currentThread().interrupt();
           }
         } else {
           LOG.info("Ignoring watcher event " + event);
