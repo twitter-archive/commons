@@ -283,32 +283,69 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
     assertEquals(data, zkMap.get(node));
   }
 
+  private interface TestFunction {
+    void apply() throws Exception;
+  }
+
+  private static void assertThrows(TestFunction function, Class<? extends Exception> throwable)
+          throws Exception {
+    try {
+      function.apply();
+      fail("Expected to fail with exception: " + throwable.getName());
+    } catch (Exception e) {
+      if (!throwable.isAssignableFrom(e.getClass())) {
+        // Not our expected exception
+        throw e;
+      }
+    }
+  }
+
   @Test
   public void testReadOnly() throws Exception {
     String parentPath = "/twitter/path";
-    String node = "node";
+    final String node = "node";
     String nodePath = parentPath + "/" + node;
     String data = "DaTa";
 
     ZooKeeperUtils.ensurePath(zkClient, ACL, parentPath);
     zkClient.get().create(nodePath, data.getBytes(), ACL, CreateMode.PERSISTENT);
 
-    Map<String, String> zkMap = ZooKeeperMap.create(zkClient, parentPath, BYTES_TO_STRING);
-    try {
-      zkMap.clear();
-      zkMap.remove(node);
-      zkMap.put("othernode", "othervalue");
-      zkMap.putAll(ImmutableMap.of("othernode", "othervalue"));
-      List<Collection<?>> collections = ImmutableList.of(zkMap.entrySet(), zkMap.keySet(), zkMap.values());
-      for (Collection<?> collection : collections) {
-        Iterator<?> it = collection.iterator();
-        assertTrue(it.hasNext());
-        it.next();
-        it.remove();
+    final Map<String, String> zkMap = ZooKeeperMap.create(zkClient, parentPath, BYTES_TO_STRING);
+
+    assertThrows(new TestFunction() {
+      public void apply() {
+          zkMap.clear();
       }
-      fail("Expected mutations to fail");
-    } catch (UnsupportedOperationException e) {
-      // Expected
+    }, UnsupportedOperationException.class);
+
+    assertThrows(new TestFunction() {
+      public void apply() {
+        zkMap.remove(node);
+      }
+    }, UnsupportedOperationException.class);
+
+    assertThrows(new TestFunction() {
+      public void apply() {
+        zkMap.put("othernode", "othervalue");
+      }
+    }, UnsupportedOperationException.class);
+
+    assertThrows(new TestFunction() {
+      public void apply() {
+        zkMap.putAll(ImmutableMap.of("othernode", "othervalue"));
+      }
+    }, UnsupportedOperationException.class);
+
+    List<Collection<?>> collections = ImmutableList.of(zkMap.entrySet(), zkMap.keySet(), zkMap.values());
+    for (Collection<?> collection : collections) {
+      final Iterator<?> it = collection.iterator();
+      assertTrue(it.hasNext());
+      it.next();
+      assertThrows(new TestFunction() {
+        public void apply() {
+          it.remove();
+        }
+      }, UnsupportedOperationException.class);
     }
 
     // Ensure contents didn't change
