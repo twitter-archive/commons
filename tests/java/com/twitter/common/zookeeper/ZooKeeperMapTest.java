@@ -288,7 +288,7 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
   }
 
   private static void assertThrows(TestFunction function, Class<? extends Exception> throwable)
-          throws Exception {
+      throws Exception {
     try {
       function.apply();
       fail("Expected to fail with exception: " + throwable.getName());
