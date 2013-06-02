@@ -4,17 +4,20 @@ Twitter common libraries for python and the jvm
 
 Building requires:
 + jdk 1.6+
-+ ant 1.8+
 + python 2.6+
 
-The build tool is custom and hosted in the repository itself.  It requires the
-mako templating engine and will ask you to install the mako package if you
-don't already have it in your python environment.
+The build tool is custom and hosted in the repository itself.
 
 == Usage ==
 
 To build all jvm code and run all tests:
 $ ./pants goal test tests/{java,scala}/com/twitter/common::
+
+Likewise for python commons:
+$ ./pants tests/python/twitter/common/:all
+
+And for the pants build tool itself:
+$ ./pants tests/python/twitter/pants:all
 
 To get help on pants:
 $ ./pants help
@@ -22,6 +25,11 @@ $ ./pants help
 Read more http://twitter.github.com/commons/
 
 TODO(John Sirois): migrate pants documentation to the public wiki
+
+== Usage questions and feature discussions ==
+
+Please check the archives for twitter-commons@googlegroups.com then fire
+away if the question has not been addressed.
 
 == Reporting bugs ==
 
@@ -43,4 +51,5 @@ Copyright 2011 Twitter, Inc.
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
 
