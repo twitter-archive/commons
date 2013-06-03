@@ -1,8 +1,6 @@
 import ast
 
-from ..common import (
-    CheckstylePlugin,
-    ASTStyleError)
+from ..common import CheckstylePlugin
 
 
 class ExceptStatements(CheckstylePlugin):
@@ -27,7 +25,7 @@ class ExceptStatements(CheckstylePlugin):
       # Check case 1, blanket except
       handler = self.blanket_excepts(try_except)
       if handler:
-        yield ASTStyleError(self.python_file, handler, "Blanket except: not allowed.")
+        yield self.error('T803', 'Blanket except: not allowed.', handler)
 
       # Check case 2, except Foo, bar:
       for handler in try_except.handlers:
@@ -36,4 +34,4 @@ class ExceptStatements(CheckstylePlugin):
         except_suffix = statement[except_index + len('except'):]
 
         if handler.name and ' as ' not in except_suffix:
-          yield ASTStyleError(self.python_file, handler, "Old-style except statements forbidden.")
+          yield self.error('T601', 'Old-style except statements forbidden.', handler)

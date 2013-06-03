@@ -9,9 +9,10 @@ python_test_suite(
   name = 'checkstyle',
   dependencies = [
     pants(':test_common'),
+    pants(':test_iterators'),
     pants(':test_pep8'),
     pants(':test_pyflakes'),
-    pants(':test_twitter_plugins'),
+    pants('tests/python/twitter/checkstyle/plugins:all'),
   ]
 )
 
@@ -20,6 +21,14 @@ python_tests(
   sources = ['test_common.py'],
   dependencies = [
     pants('src/python/twitter/checkstyle:common'),
+  ]
+)
+
+python_tests(
+  name = 'test_iterators',
+  sources = ['test_iterators.py'],
+  dependencies = [
+    pants('src/python/twitter/checkstyle:iterators'),
   ]
 )
 
@@ -36,15 +45,5 @@ python_tests(
   sources = ['test_pyflakes.py'],
   dependencies = [
     pants('src/python/twitter/checkstyle/plugins:pyflakes'),
-  ]
-)
-
-python_tests(
-  name = 'test_twitter_plugins',
-  sources = ['test_import_order.py',
-             'test_variable_names.py',
-             'test_print_statements.py'],
-  dependencies = [
-    pants('src/python/twitter/checkstyle/plugins:twitter'),
   ]
 )

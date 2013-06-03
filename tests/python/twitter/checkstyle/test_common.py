@@ -2,12 +2,10 @@ import ast
 import textwrap
 
 from twitter.checkstyle.common import (
-    ASTStyleError,
-    ASTStyleWarning,
+    CheckstylePlugin,
     Nit,
-    PythonFile,
-    StyleError,
-    StyleWarning)
+    PythonFile
+)
 
 import pytest
 
@@ -56,30 +54,40 @@ def test_python_file():
 
 def test_style_error():
   pf = PythonFile(PYTHON_STATEMENT, 'keeper.py')
-  se = StyleError(pf, 'You have a terrible taste in libraries.')
+
+  class ActualCheckstylePlugin(CheckstylePlugin):
+    def nits(self):
+      return []
+
+  cp = ActualCheckstylePlugin(pf)
+
+  se = cp.error('A123', 'You have a terrible taste in libraries.')
   assert se.line_number is None
+  assert se.code == 'A123'
   str(se)
-  se = StyleError(pf, 'You have a terrible taste in libraries.', 7)
+
+  se = cp.error('A123', 'You have a terrible taste in libraries.', 7)
   assert se.line_number == '007'
   str(se)
-  se = StyleError(pf, 'You have a terrible taste in libraries.', 2)
+
+  se = cp.error('A123', 'You have a terrible taste in libraries.', 2)
   assert se.line_number == '002-005'
-  str(se)
   assert se.severity == Nit.ERROR
-  sw = StyleWarning(pf, 'You have a terrible taste in libraries.', 2)
+  str(se)
+
+  sw = cp.warning('A321', 'You have a terrible taste in libraries.', 2)
   assert sw.severity == Nit.WARNING
+  assert sw.code == 'A321'
+  str(sw)
 
-
-def test_ast_style_error():
-  pf = PythonFile(PYTHON_STATEMENT, 'keeper.py')
   import_from = None
   for node in ast.walk(pf.tree):
     if isinstance(node, ast.ImportFrom):
       import_from = node
   assert import_from is not None
-  ase = ASTStyleError(pf, import_from, "I don't like your from import!")
+
+  ase = cp.error('B380', "I don't like your from import!", import_from)
   assert ase.severity == Nit.ERROR
-  se = StyleError(pf, "I don't like your from import!", 2)
+
+  se = cp.error('B380', "I don't like your from import!", 2)
   assert str(se) == str(ase)
-  sw = ASTStyleWarning(pf, "I don't like your from import!", 2)
-  assert sw.severity == Nit.WARNING

@@ -2,9 +2,7 @@ from collections import defaultdict
 import tokenize
 import sys
 
-from ..common import (
-    CheckstylePlugin,
-    StyleError)
+from ..common import CheckstylePlugin
 
 
 class TrailingWhitespace(CheckstylePlugin):
@@ -12,7 +10,8 @@ class TrailingWhitespace(CheckstylePlugin):
   @classmethod
   def build_exception_map(cls, tokens):
     """Generates a set of ranges where we accept trailing slashes, specifically within comments
-       and strings."""
+       and strings.
+    """
     exception_ranges = defaultdict(list)
     for token in tokens:
       token_type, _, token_start, token_end = token[0:4]
@@ -30,16 +29,19 @@ class TrailingWhitespace(CheckstylePlugin):
     super(TrailingWhitespace, self).__init__(*args, **kw)
     self._exception_map = self.build_exception_map(self.python_file.tokens)
 
-  def has_exception(self, line_number, slash_position):
+  def has_exception(self, line_number, exception_start, exception_end=None):
+    exception_end = exception_end or exception_start
     for start, end in self._exception_map.get(line_number, ()):
-      if start <= slash_position < end:
+      if start <= exception_start and exception_end <= end:
         return True
     return False
 
   def nits(self):
     for line_number, line in self.python_file.enumerate():
-      if line.rstrip() != line:
-        yield StyleError(self.python_file, "Line has trailing whitespace.", line_number)
+      stripped_line = line.rstrip()
+      if stripped_line != line and not self.has_exception(line_number,
+          len(stripped_line), len(line)):
+        yield self.error('T200', 'Line has trailing whitespace.', line_number)
       if line.rstrip().endswith('\\'):
         if not self.has_exception(line_number, len(line.rstrip()) - 1):
-          yield StyleError(self.python_file, "Line has trailing slashes.", line_number)
+          yield self.error('T201', 'Line has trailing slashes.', line_number)

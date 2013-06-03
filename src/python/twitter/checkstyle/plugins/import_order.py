@@ -1,37 +1,43 @@
 import ast
 from distutils import sysconfig
 
-from ..common import (
-    ASTStyleError,
-    CheckstylePlugin,
-    StyleError)
+from ..common import CheckstylePlugin
 
 
 # TODO(wickman)
 #   - Warn if a package is marked as a 3rdparty but it's actually a package
 #     in the current working directory that should be a package-absolute
 #     import (i.e. from __future__ import absolute_imports)
-class ImportOrder(CheckstylePlugin):
-  PLATFORM_SPECIFIC_MODULE_PATH = sysconfig.get_python_lib(plat_specific=1)
-  STANDARD_LIBRARY_MODULE_PATH = sysconfig.get_python_lib(standard_lib=1)
-  NUMBERED_ORDERING = {
-    'stdlib': 1,
-    'twitter': 2,
-    'gen': 3,
-    'package': 4,
-    '3rdparty': 5,
+
+
+class ImportType(object):
+  STDLIB = 1
+  TWITTER = 2
+  GEN = 3
+  PACKAGE = 4
+  THIRD_PARTY = 5
+  UNKNOWN = 0
+
+  NAMES = {
+    UNKNOWN: 'unknown',
+    STDLIB: 'stdlib',
+    TWITTER: 'twitter',
+    GEN: 'gen',
+    PACKAGE: 'package',
+    THIRD_PARTY: '3rdparty'
   }
-  MODULE_CACHE = {}
 
   @classmethod
   def order_names(cls, import_order):
-    reverse_ordering = dict((v, k) for (k, v) in cls.NUMBERED_ORDERING.items())
-    return ' '.join(reverse_ordering.get(import_id, 'unclassified') for import_id in import_order)
+    return ' '.join(cls.NAMES.get(import_id, 'unknown') for import_id in import_order)
+
+
+class ImportOrder(CheckstylePlugin):
+  PLAT_SPECIFIC_PATH = sysconfig.get_python_lib(plat_specific=1)
+  STANDARD_LIB_PATH = sysconfig.get_python_lib(standard_lib=1)
 
   @classmethod
   def extract_import_modules(cls, node):
-    if not isinstance(node, (ast.Import, ast.ImportFrom)):
-      raise TypeError('classify_import only operates on ast.Import and ast.ImportFrom types.')
     if isinstance(node, ast.Import):
       return [alias.name for alias in node.names]
     elif isinstance(node, ast.ImportFrom):
@@ -39,69 +45,42 @@ class ImportOrder(CheckstylePlugin):
     return []
 
   @classmethod
-  def classify_import(cls, node, minimum_level=0):
-    modules = []
+  def classify_import(cls, node, name):
+    if name == '' or (isinstance(node, ast.ImportFrom) and node.level > 0):
+      return ImportType.PACKAGE
+    if name.startswith('twitter.'):
+      return ImportType.TWITTER
+    if name.startswith('gen.'):
+      return ImportType.GEN
+    try:
+      module = __import__(name)
+    except ImportError:
+      return ImportType.THIRD_PARTY
+    if not hasattr(module, '__file__') or module.__file__.startswith(cls.STANDARD_LIB_PATH):
+      return ImportType.STDLIB
+    # Assume anything we can't classify is third-party
+    return ImportType.THIRD_PARTY
 
-    for module_name in cls.extract_import_modules(node):
-      if module_name == '':
-        # from . import foo
-        modules.append(('package', '__init__'))
-        continue
-      if isinstance(node, ast.ImportFrom) and node.level > minimum_level:
-        modules.append(('package', module_name))
-        continue
-      if module_name.startswith('twitter.'):
-        modules.append(('twitter', module_name))
-        continue
-      if module_name.startswith('gen.'):
-        modules.append(('gen', module_name))
-        continue
-      try:
-        module = cls.MODULE_CACHE.get(module_name, __import__(module_name))
-      except ImportError:
-        modules.append(('3rdparty', module_name))
-        continue
-      if not hasattr(module, '__file__'):
-        modules.append(('stdlib', module_name))
-        continue
-      # handle .pex exceptions first
-      if '/.bootstrap/' in module.__file__ or '/.deps/' in module.__file__:
-        modules.append(('3rdparty', module_name))
-        continue
-      if module.__file__.startswith(cls.PLATFORM_SPECIFIC_MODULE_PATH):
-        modules.append(('3rdparty', module_name))
-        continue
-      if module.__file__.startswith(cls.STANDARD_LIBRARY_MODULE_PATH):
-        modules.append(('stdlib', module_name))
-        continue
-      modules.append(('unclassifiable', module_name))
+  @classmethod
+  def classify_import_node(cls, node):
+    return set(cls.classify_import(node, module_name)
+               for module_name in cls.extract_import_modules(node))
 
-    return set(modules)
-
-  def nits(self):
-    _, errors = self.check_imports(self.python_file.tree)
-    return errors
-
-  def validate_import(self, node):
+  def import_errors(self, node):
     errors = []
-    if not isinstance(node, (ast.Import, ast.ImportFrom)):
-      raise TypeError('validate_import only operates on ast.Import and ast.ImportFrom types.')
     if isinstance(node, ast.ImportFrom):
       if len(node.names) == 1 and node.names[0].name == '*':
-        errors.append(ASTStyleError(self.python_file, node, 'Wildcard imports are not allowed.'))
+        errors.append(self.error('T400', 'Wildcard imports are not allowed.', node))
       names = [alias.name.lower() for alias in node.names]
       if names != sorted(names):
-        errors.append(
-            ASTStyleError(self.python_file, node,
-                          'From import must import names in lexical order.'))
+        errors.append(self.error('T401', 'From import must import names in lexical order.', node))
     if isinstance(node, ast.Import):
       if len(node.names) > 1:
-        errors.append(
-            ASTStyleError(self.python_file, node,
-                          'Absolute import statements should only import one module at a time.'))
-    return node, errors
+        errors.append(self.error('T402',
+            'Absolute import statements should only import one module at a time.', node))
+    return errors
 
-  def classify_imports(self, chunk, minimum_level=0):
+  def classify_imports(self, chunk):
     """
       Possible import statements:
 
@@ -133,72 +112,60 @@ class ImportOrder(CheckstylePlugin):
     errors = []
     all_module_types = set()
     for node in chunk:
-      _, node_errors = self.validate_import(node)
-      errors.extend(node_errors)
-      module_names = self.classify_import(node, minimum_level)
-      module_types = set(module_type for module_type, module_name in module_names)
+      errors.extend(self.import_errors(node))
+      module_types = self.classify_import_node(node)
       if len(module_types) > 1:
-        errors.append(ASTStyleError(self.python_file, node,
-            'Import statement imports from multiple module types: %s.' % ', '.join(module_types)))
-      if 'unclassifiable' in module_types:
-        errors.append(ASTStyleError(self.python_file, node, 'Unclassifiable import.'))
+        errors.append(self.error('T403',
+            'Import statement imports from multiple module types: %s.'
+            % ImportType.order_names(module_types), node))
+      if ImportType.UNKNOWN in module_types:
+        errors.append(self.warning('T404', 'Unclassifiable import.', node))
       all_module_types.update(module_types)
     if len(chunk) > 0 and len(all_module_types) > 1:
       errors.append(
-          StyleError(self.python_file,
-                    'Import block starting here contains imports from multiple module types: %s.'
-                       % ', '.join(all_module_types),
-                    chunk[0].lineno))
+          self.error('T405',
+              'Import block starting here contains imports from multiple module types: %s.'
+              % ImportType.order_names(all_module_types), chunk[0].lineno))
     return all_module_types, errors
 
-  def check_imports(self, tree):
-    if not isinstance(tree, ast.Module):
-      raise TypeError('Expected tree to be of type ast.Module, got %s' % type(tree))
-
-    # NB: For some reason the Python AST will occasionally give an
-    # off-by-one error for ImportFrom levels in a single file.  This means
-    # we can't just rely upon "node.level > 0" to determine if a package is
-    # a package-relative import, but instead node.level > min(all levels)
-    #
-    # this means we will miscategorize "from .foo import bar" if it is the only
-    # import in a file, but in that case the import ordering does not matter.
-    levels = [node.level for node in ast.walk(tree) if isinstance(node, ast.ImportFrom)]
-    minimum_level = min(levels or [0])
-
+  # TODO(wickman) Classify imports within top-level try/except ImportError blocks.
+  def iter_import_chunks(self):
+    """Iterate over space-separated import chunks in a file."""
     chunk = []
+    last_line = None
+    for leaf in self.python_file.tree.body:
+      if isinstance(leaf, (ast.Import, ast.ImportFrom)):
+        # we've seen previous imports but this import is not in the same chunk
+        if last_line and leaf.lineno != last_line[1]:
+          yield chunk
+          chunk = [leaf]
+        # we've either not seen previous imports or this is part of the same chunk
+        elif not last_line or last_line and leaf.lineno == last_line[1]:
+          chunk.append(leaf)
+        last_line = self.python_file.logical_lines[leaf.lineno]
+    if chunk:
+      yield chunk
+
+  def nits(self):
     errors = []
     module_order = []
-    last_line = None
 
-    def check_chunk():
-      if chunk:
-        module_types, chunk_errors = self.classify_imports(chunk, minimum_level)
-        errors.extend(chunk_errors)
-        module_order.append(list(module_types))
-        del chunk[:]
-
-    # XXX(wickman) This heuristic is broken.  We need to check over logical lines rather
-    # than physical lines.
-    for leaf in tree.body:
-      if isinstance(leaf, (ast.Import, ast.ImportFrom)):
-        if last_line and leaf.lineno == last_line + 1:
-          chunk.append(leaf)
-        else:
-          check_chunk()
-        last_line = leaf.lineno
-      else:
-        check_chunk()
+    for chunk in self.iter_import_chunks():
+      module_types, chunk_errors = self.classify_imports(chunk)
+      errors.extend(chunk_errors)
+      module_order.append(list(module_types))
 
     numbered_module_order = []
     for modules in module_order:
-      if len(modules) == 1:
-        if modules[0] in self.NUMBERED_ORDERING:
-          numbered_module_order.append(self.NUMBERED_ORDERING[modules[0]])
+      if len(modules) > 0:
+        if modules[0] is not ImportType.UNKNOWN:
+          numbered_module_order.append(modules[0])
 
     if numbered_module_order != sorted(numbered_module_order):
-      errors.append(ASTStyleError(self.python_file, tree,
+      errors.append(self.error('T406',
           'Out of order import chunks: Got %s and expect %s.' % (
-          self.order_names(numbered_module_order),
-          self.order_names(sorted(numbered_module_order)))))
+          ImportType.order_names(numbered_module_order),
+          ImportType.order_names(sorted(numbered_module_order))),
+          self.python_file.tree))
 
-    return tree, errors
+    return errors

@@ -5,10 +5,7 @@ import re
 
 from twitter.common.lang import Compatibility
 
-from ..common import (
-    ASTStyleError,
-    CheckstylePlugin,
-    StyleError)
+from ..common import CheckstylePlugin
 
 
 ALL_LOWER_CASE_RE = re.compile(r'^[a-z][a-z\d]*$')
@@ -123,20 +120,18 @@ class PEP8VariableNames(CheckstylePlugin):
 
     for class_def in self.iter_ast_types(ast.ClassDef):
       if not is_upper_camel(class_def.name):
-        yield StyleError(self.python_file, 'Classes must be UpperCamelCased', class_def.lineno)
+        yield self.error('T000', 'Classes must be UpperCamelCased', class_def)
       for class_global in self.iter_class_globals(class_def):
         if not is_constant(class_global.id) and class_global.id not in self.CLASS_GLOBAL_BUILTINS:
-          yield StyleError(self.python_file, 'Class globals must be UPPER_SNAKE_CASED',
-              class_global.lineno)
+          yield self.error('T001', 'Class globals must be UPPER_SNAKE_CASED', class_global)
       class_methods.update(self.iter_class_methods(class_def))
 
     for function_def in all_methods - class_methods:
       if is_reserved_name(function_def.name):
-        yield ASTStyleError(self.python_file, function_def, 'Method name overrides a builtin.')
+        yield self.error('T801', 'Method name overrides a builtin.', function_def)
 
     for function_def in all_methods:
       if not any((is_lower_snake(function_def.name),
                   is_builtin_name(function_def.name),
                   is_reserved_with_trailing_underscore(function_def.name))):
-        yield ASTStyleError(self.python_file, function_def,
-            'Method names must be lower_snake_cased')
+        yield self.error('T002', 'Method names must be lower_snake_cased', function_def)

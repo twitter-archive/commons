@@ -1,6 +1,7 @@
 from abc import abstractmethod
 import ast
 import itertools
+import textwrap
 import tokenize
 
 from twitter.common.lang import Compatibility, Interface
@@ -9,7 +10,6 @@ from twitter.common.lang import Compatibility, Interface
 __all__ = (
   'CheckstylePlugin',
   'PythonFile',
-  'StyleError',
 )
 
 
@@ -60,7 +60,12 @@ class PythonFile(object):
       blob = fp.read()
     return cls(blob, filename)
 
-  def __init__(self, blob, filename):
+  @classmethod
+  def from_statement(cls, statement):
+    """A helper to construct a PythonFile from a triple-quoted string, for testing."""
+    return cls('\n'.join(textwrap.dedent(statement).splitlines()[1:]))
+
+  def __init__(self, blob, filename='<expr>'):
     self._blob = blob
     self._tree = ast.parse(blob, filename)
     self._lines = [None] + list(blob.splitlines())
@@ -107,7 +112,28 @@ class PythonFile(object):
 
 
 class Nit(object):
-  """Encapsulate a Style faux pas."""
+  """Encapsulate a Style faux pas.
+
+  The general taxonomy of nits:
+
+  Prefix
+    F => Flake8 errors
+    E => PEP8 error
+    W => PEP8 warning
+    T => Twitter error
+
+  Prefix:
+    0 Naming
+    1 Indentation
+    2 Whitespace
+    3 Blank line
+    4 Import
+    5 Line length
+    6 Deprecation
+    7 Statement
+    8 Flake / Logic
+    9 Runtime
+  """
 
   COMMENT = 0
   WARNING = 1
@@ -123,10 +149,12 @@ class Nit(object):
   def flatten_lines(self, *line_or_line_list):
     return itertools.chain(*line_or_line_list)
 
-  def __init__(self, severity, python_file, message, line_number=None):
+  def __init__(self, code, severity, python_file, message, line_number=None):
     if not severity in self.SEVERITY:
-      raise ValueError('Severity should be one of %s' % ' '.join(self.SEVERITY))
+      raise ValueError('Severity should be one of %s' % ' '.join(self.SEVERITY.values()))
     self.python_file = python_file
+    # TODO(wickman) Enforce that the code matches [Letter][3 letter number]
+    self._code = code
     self._severity = severity
     self._message = message
     self._line_number = line_number
@@ -146,11 +174,16 @@ class Nit(object):
 
   @property
   def message(self):
-    return '%-7s %s:%s %s' % (
+    return '%s:%-7s %s:%s %s' % (
+        self._code,
         self.SEVERITY[self.severity],
         self.python_file.filename,
         self.line_number or '*',
         self._message)
+
+  @property
+  def code(self):
+    return self._code
 
   @property
   def lines(self):
@@ -158,26 +191,6 @@ class Nit(object):
 
   def __str__(self):
     return '\n     |'.join(self.flatten_lines([self.message], self.lines))
-
-
-class StyleWarning(Nit):
-  def __init__(self, *args, **kw):
-    super(StyleWarning, self).__init__(Nit.WARNING, *args, **kw)
-
-
-class StyleError(Nit):
-  def __init__(self, *args, **kw):
-    super(StyleError, self).__init__(Nit.ERROR, *args, **kw)
-
-
-class ASTStyleWarning(StyleWarning):
-  def __init__(self, python_file, node, message):
-    super(ASTStyleWarning, self).__init__(python_file, message, getattr(node, 'lineno', None))
-
-
-class ASTStyleError(StyleError):
-  def __init__(self, python_file, node, message):
-    super(ASTStyleError, self).__init__(python_file, message, getattr(node, 'lineno', None))
 
 
 class CheckstylePlugin(Interface):
@@ -210,3 +223,22 @@ class CheckstylePlugin(Interface):
     for nit in self:
       if nit.severity is Nit.ERROR:
         yield nit
+
+  # Helper functions to create nits.
+
+  def nit(self, code, severity, message, line_number_or_ast=None):
+    line_number = None
+    if isinstance(line_number_or_ast, Compatibility.integer):
+      line_number = line_number_or_ast
+    elif isinstance(line_number_or_ast, ast.AST):
+      line_number = getattr(line_number_or_ast, 'lineno', None)
+    return Nit(code, severity, self.python_file, message, line_number)
+
+  def comment(self, code, message, line_number_or_ast=None):
+    return self.nit(code, Nit.COMMENT, message, line_number_or_ast)
+
+  def warning(self, code, message, line_number_or_ast=None):
+    return self.nit(code, Nit.WARNING, message, line_number_or_ast)
+
+  def error(self, code, message, line_number_or_ast=None):
+    return self.nit(code, Nit.ERROR, message, line_number_or_ast)

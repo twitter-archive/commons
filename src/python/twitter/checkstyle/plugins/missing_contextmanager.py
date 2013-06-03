@@ -7,9 +7,7 @@
 
 import ast
 
-from ..common import (
-    ASTStyleWarning,
-    CheckstylePlugin)
+from ..common import CheckstylePlugin
 
 
 class MissingContextManager(CheckstylePlugin):
@@ -21,5 +19,4 @@ class MissingContextManager(CheckstylePlugin):
     for call in self.iter_ast_types(ast.Call):
       if isinstance(call.func, ast.Name) and call.func.id == 'open' and (
           call not in with_context_calls):
-        yield ASTStyleWarning(self.python_file, call,
-            'open() calls should be made within a contextmanager.')
+        yield self.warning('T802', 'open() calls should be made within a contextmanager.', call)

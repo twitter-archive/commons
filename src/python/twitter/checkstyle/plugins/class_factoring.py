@@ -1,8 +1,6 @@
 import ast
 
-from ..common import (
-    CheckstylePlugin,
-    StyleWarning)
+from ..common import CheckstylePlugin
 
 
 class ClassFactoring(CheckstylePlugin):
@@ -27,8 +25,7 @@ class ClassFactoring(CheckstylePlugin):
   def nits(self):
     for class_def in self.iter_ast_types(ast.ClassDef):
       for node in self.iter_class_accessors(class_def):
-        yield StyleWarning(self.python_file,
-            'Instead of %s.%s use self.%s or cls.%s '
-            'with instancemethods and classmethods respectively.' % (
-                class_def.name, node.attr, node.attr, node.attr),
-            node.lineno)
+        yield self.warning('T800',
+            'Instead of %s.%s use self.%s or cls.%s with instancemethods and classmethods '
+            'respectively.' % (class_def.name, node.attr, node.attr, node.attr),
+            node)
