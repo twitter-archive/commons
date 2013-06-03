@@ -167,6 +167,22 @@ class CompoundMetrics(MetricProvider):
     return root_sample
 
 
+class MemoizedMetrics(MetricProvider):
+  def __init__(self, provider):
+    if not isinstance(provider, MetricProvider):
+      raise TypeError('MemoizedMetrics must take a MetricProvider')
+    self._provider = provider
+    self._sample = {}
+
+  def sample(self):
+    self._sample = self._provider.sample()
+    return self._sample
+
+  @property
+  def memoized_sample(self):
+    return self._sample
+
+
 class RootMetrics(Metrics, Singleton):
   """
     Root singleton instance of the metrics.
