@@ -17,7 +17,7 @@
 import threading
 import time
 
-from twitter.common.zookeeper.group import Membership
+from twitter.common.zookeeper.group.group_base import Membership
 from twitter.common.zookeeper.serverset import (
     Endpoint,
     ServerSet,
@@ -72,6 +72,7 @@ class ServerSetTestBase(object):
 
   def test_canceled_join_long_time(self):
     zk = self.make_zk(self._server.ensemble)
+    zk.live.wait()
     session_id = self.session_id(zk)
     ss = ServerSet(zk, self.SERVICE_PATH)
     join_signal = threading.Event()
