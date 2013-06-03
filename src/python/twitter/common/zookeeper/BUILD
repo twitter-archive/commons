@@ -15,10 +15,17 @@ python_library(
 )
 
 python_library(
+  name = 'kazoo_client',
+  sources = ['kazoo_client.py'],
+  dependencies = [
+    pants('3rdparty/python:kazoo'),
+  ]
+)
+
+python_library(
   name = 'testing',
   sources = TEST_SERVER,
   dependencies = [
-    pants(':zookeeper'),
     pants('src/python/twitter/common/dirutil'),
     pants('src/python/twitter/common/rpc/finagle'),
     pants('src/thrift/com/twitter/common/zookeeper/testing/angrybird:py-thrift')

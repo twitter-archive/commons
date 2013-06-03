@@ -16,17 +16,14 @@
 
 import unittest
 
+from twitter.common.zookeeper.kazoo_client import TwitterKazooClient
 from twitter.common.zookeeper.serverset.test_base import ServerSetTestBase
-
-from kazoo.client import KazooClient
 
 
 class TestKazooServerSet(ServerSetTestBase, unittest.TestCase):
   @classmethod
   def make_zk(cls, ensemble):
-    zk = KazooClient(ensemble)
-    zk.start()
-    return zk
+    return TwitterKazooClient.make(ensemble)
 
   @classmethod
   def session_id(cls, client):

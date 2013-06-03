@@ -372,7 +372,7 @@ class ZooKeeper(object):
 
   @property
   def live(self):
-    return self._live.is_set()
+    return self._live
 
   def stop(self):
     """Gracefully stop this Zookeeper session."""

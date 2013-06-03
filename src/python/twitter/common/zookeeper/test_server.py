@@ -26,8 +26,6 @@ import sys
 import tempfile
 import threading
 import time
-from thrift.transport.TTransport import TTransportException
-import zookeeper
 
 from twitter.common.contextutil import environment_as
 from twitter.common.dirutil import safe_rmtree
@@ -38,6 +36,14 @@ from gen.twitter.common.zookeeper.testing.angrybird import ZooKeeperThriftServer
 from gen.twitter.common.zookeeper.testing.angrybird.ttypes import (
   ExpireSessionRequest,
   ResponseCode)
+
+from thrift.transport.TTransport import TTransportException
+
+try:
+  import zookeeper
+  HAS_ZKPYTHON = True
+except ImportError:
+  HAS_ZKPYTHON = False
 
 
 def get_random_port():
@@ -98,6 +104,8 @@ class ZookeeperServer(object):
   def zh(self):
     if self._po is None:
       raise self.NotStarted('Cluster has not been started!')
+    if not HAS_ZKPYTHON:
+      raise self.Error('No Zookeeper client library available!')
     if self._zh is None:
       start_event = threading.Event()
       def alive(zh, event, state, _):
@@ -136,6 +144,8 @@ class ZookeeperServer(object):
     if session_id is None:
       if self._zh is None:
         raise self.NotStarted('Must specify session id if no client connection available!')
+      if not HAS_ZKPYTHON:
+        raise self.Error('No Zookeeper client available!')
       session_id, _ = zookeeper.client_id(self._zh)
     expireResponse = self.angrybird.expireSession(ExpireSessionRequest(sessionId=session_id))
     return expireResponse.responseCode == ResponseCode.OK

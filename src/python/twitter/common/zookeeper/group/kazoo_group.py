@@ -8,9 +8,8 @@ except ImportError:
   import logging as log
 
 from twitter.common.concurrent import Future
-from twitter.common.zookeeper.constants import Acl
 
-from .group import (
+from .group_base import (
     Capture,
     GroupBase,
     GroupInterface,
@@ -35,8 +34,8 @@ class KazooGroup(GroupBase, GroupInterface):
 
   @classmethod
   def translate_acl(cls, acl):
-    if not isinstance(acl, Acl):
-      raise TypeError('Expected acl to be Acl, got %s' % type(acl))
+    if not isinstance(acl, dict) or any(key not in acl for key in ('perms', 'scheme', 'id')):
+      raise TypeError('Expected acl to be Acl-like, got %s' % type(acl))
     return ksec.ACL(acl['perms'], ksec.Id(acl['scheme'], acl['id']))
 
   @classmethod
@@ -248,9 +247,16 @@ class KazooGroup(GroupBase, GroupInterface):
     return capture()
 
   def list(self):
-    try:
-      return sorted(Membership(self.znode_to_id(znode))
-                    for znode in self._zk.get_children(self._path)
-                    if self.znode_owned(znode))
-    except ke.NoNodeException:
-      return []
+    wait_event = threading.Event()
+    while True:
+      wait_event.clear()
+      try:
+        try:
+          return sorted(Membership(self.znode_to_id(znode))
+                        for znode in self._zk.get_children(self._path)
+                        if self.znode_owned(znode))
+        except ke.NoNodeException:
+          return []
+      except self.DISCONNECT_EXCEPTIONS:
+        self._zk.add_listener(self.__on_connected(lambda: wait_event.set()))
+        wait_event.wait()
