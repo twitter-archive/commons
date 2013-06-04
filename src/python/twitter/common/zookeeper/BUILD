@@ -19,6 +19,7 @@ python_library(
   sources = ['kazoo_client.py'],
   dependencies = [
     pants('3rdparty/python:kazoo'),
+    pants('src/python/twitter/common/metrics'),
   ]
 )
 

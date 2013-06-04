@@ -1,11 +1,15 @@
 import threading
 
+from twitter.common.metrics import (
+    AtomicGauge,
+    LambdaGauge,
+    Observable)
+
 from kazoo.client import KazooClient
-from kazoo.protocol.states import KeeperState
+from kazoo.protocol.states import KazooState, KeeperState
 
 
-# TODO(wickman) Patch kazoo client to have a self.connecting threading.Event
-class TwitterKazooClient(KazooClient):
+class TwitterKazooClient(KazooClient, Observable):
   @classmethod
   def make(cls, *args, **kw):
     zk = cls(*args, **kw)
@@ -16,6 +20,19 @@ class TwitterKazooClient(KazooClient):
   def __init__(self, *args, **kw):
     super(TwitterKazooClient, self).__init__(*args, **kw)
     self.connecting = threading.Event()
+    self.__session_expirations = AtomicGauge('session_expirations')
+    self.__connection_losses = AtomicGauge('connection_losses')
+    self.__session_id = LambdaGauge('session_id', lambda: (self._session_id or 0))
+    self.metrics.register(self.__session_expirations)
+    self.metrics.register(self.__connection_losses)
+    self.metrics.register(self.__session_id)
+    self.add_listener(self._observable_listener)
+
+  def _observable_listener(self, state):
+    if state == KazooState.LOST:
+      self.__session_expirations.increment()
+    elif state == KazooState.SUSPENDED:
+      self.__connection_losses.increment()
 
   def _session_callback(self, state):
     rc = super(TwitterKazooClient, self)._session_callback(state)
