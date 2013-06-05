@@ -3,6 +3,8 @@ package com.twitter.common.stats;
 import java.util.Arrays;
 import java.util.List;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 
 import org.junit.Test;
@@ -55,11 +57,11 @@ public class ApproximateHistogramTest {
     assertArrayEquals(empty, hist.buffer[0]);
     assertArrayEquals(empty, hist.buffer[1]);
 
-    addToHist(hist, b);
+    initializeValues(hist, b, Suppliers.ofInstance(1L));
     assertArrayEquals(full, hist.buffer[0]);
     assertArrayEquals(empty, hist.buffer[1]);
 
-    addToHist(hist, b);
+    initializeValues(hist, b, Suppliers.ofInstance(1L));
     assertArrayEquals(full, hist.buffer[0]);
     assertArrayEquals(full, hist.buffer[1]);
 
@@ -68,7 +70,7 @@ public class ApproximateHistogramTest {
     // Buffers are not cleared so we can't check that!
     assertArrayEquals(full, hist.buffer[2]);
 
-    addToHist(hist, 2*b);
+    initializeValues(hist, 2 * b, Suppliers.ofInstance(1L));
     assertEquals(3, hist.currentTop);
     assertArrayEquals(full, hist.buffer[3]);
   }
@@ -77,7 +79,7 @@ public class ApproximateHistogramTest {
   public void testReachingMaxDepth() {
     ApproximateHistogram hist = new ApproximateHistogram(b, h);
 
-    addToHist(hist, 8 * b);
+    initializeValues(hist, 8 * b, Suppliers.ofInstance(1L));
     assertEquals(3, hist.currentTop);
 
     hist.add(1);
@@ -239,7 +241,7 @@ public class ApproximateHistogramTest {
   public void testQueryZerothQuantile() {
     // Tests that querying the zeroth quantile does not throw an exception
     ApproximateHistogram hist = new ApproximateHistogram(b, h);
-    addToHist(hist, 10);
+    initializeValues(hist, 10, Suppliers.ofInstance(1L));
     assertEquals(1L, hist.getQuantile(0.0));
   }
 
@@ -247,7 +249,7 @@ public class ApproximateHistogramTest {
   public void testSmallDataCase() {
     // Tests that querying the zeroth quantile does not throw an exception
     ApproximateHistogram hist = new ApproximateHistogram(b, h);
-    addToHist(hist, 1);
+    initializeValues(hist, 1, Suppliers.ofInstance(1L));
     assertEquals(1L, hist.getQuantile(0.5));
   }
 
@@ -255,18 +257,40 @@ public class ApproximateHistogramTest {
   public void testSimpleCase() {
     ApproximateHistogram hist = new ApproximateHistogram();
     int n = 10;
-    for (int i=0; i<n ; i++) {
-      hist.add(i);
-    }
+    initializeValues(hist, n, monotonic());
     for (int i = 1; i <= n; i++) {
       double q = i / 10.0;
       assertEquals(i, hist.getQuantile(q), 1.0);
     }
   }
 
-  private void addToHist(ApproximateHistogram hist, int n) {
-    for (int i=0; i<n ; i++) {
-      hist.add(1);
+  @Test
+  public void testGetQuantiles() {
+    ApproximateHistogram hist = new ApproximateHistogram();
+    int n = 10;
+    initializeValues(hist, n, monotonic());
+    double[] quantiles = new double[n];
+    for (int i = 0; i < n; i++) {
+      quantiles[i] = (i + 1) / 10.0;
     }
+    long[] results = hist.getQuantiles(quantiles);
+    for (int i = 0; i < n; i++) {
+      long res = results[i];
+      double q = quantiles[i];
+      assertEquals(hist.getQuantile(q), res);
+    }
+  }
+
+  private static void initializeValues(ApproximateHistogram hist, int n, Supplier<Long> what) {
+    for (int i=0; i<n ; i++) {
+      hist.add(what.get());
+    }
+  }
+
+  private static Supplier<Long> monotonic() {
+    return new Supplier<Long>() {
+      long i = 0;
+      @Override public Long get() { return ++i; }
+    };
   }
 }

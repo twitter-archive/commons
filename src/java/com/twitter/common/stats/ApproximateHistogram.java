@@ -209,6 +209,11 @@ public final class ApproximateHistogram implements Histogram {
   }
 
   @Override
+  public synchronized long[] getQuantiles(double[] quantiles) {
+    return Histograms.extractQuantiles(this, quantiles);
+  }
+
+  @Override
   public synchronized void clear() {
     count = 0L;
     leafCount = 0;
@@ -275,6 +280,11 @@ public final class ApproximateHistogram implements Histogram {
       ApproximateHistogram hist = histograms[iHist];
       int i = hist.indices[iBiggest];
       return hist.buffer[iBiggest][i + 1];
+    }
+
+    @Override
+    public synchronized long[] getQuantiles(double[] quantiles) {
+      return Histograms.extractQuantiles(this, quantiles);
     }
 
     /**

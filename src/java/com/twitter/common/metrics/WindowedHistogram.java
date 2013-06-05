@@ -29,6 +29,7 @@ import com.google.common.base.Ticker;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
 import com.twitter.common.stats.Histogram;
+import com.twitter.common.stats.Histograms;
 
 /**
  * Histogram windowed over time.
@@ -127,6 +128,11 @@ public class WindowedHistogram<H extends Histogram> implements Histogram {
       mergedHistIndex = currentIndex;
     }
     return mergedHistogram.getQuantile(quantile);
+  }
+
+  @Override
+  public synchronized long[] getQuantiles(double[] quantiles) {
+    return Histograms.extractQuantiles(this, quantiles);
   }
 
   /**
