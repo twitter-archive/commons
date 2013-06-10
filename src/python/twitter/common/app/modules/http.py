@@ -15,21 +15,9 @@
 # ==================================================================================================
 
 import threading
-
-from twitter.common import app, options
-from twitter.common.http.diagnostics import DiagnosticsEndpoints
 from twitter.common.http.server import HttpServer
-
-
-class LifecycleEndpoints(object):
-  @HttpServer.route('/quitquitquit', method='POST')
-  def quitquitquit(self):
-    app.quitquitquit()
-
-  @HttpServer.route('/abortabortabort', method='POST')
-  def abortabortabort(self):
-    app.abortabortabort()
-
+from twitter.common.http.diagnostics import DiagnosticsEndpoints
+from twitter.common import app, options
 
 class RootServer(HttpServer, app.Module):
   """
@@ -43,13 +31,6 @@ class RootServer(HttpServer, app.Module):
           action='store_true',
           dest='twitter_common_http_root_server_enabled',
           help='Enable root http server for various subsystems, e.g. metrics exporting.'),
-
-    'disable_lifecycle':
-      options.Option('--http_disable_lifecycle',
-          default=False,
-          action='store_true',
-          dest='twitter_common_http_root_server_disable_lifecycle',
-          help='Disable the lifecycle commands, i.e. /quitquitquit and /abortabortabort.'),
 
     'port':
       options.Option('--http_port',
@@ -87,8 +68,6 @@ class RootServer(HttpServer, app.Module):
     parent = self
 
     self.mount_routes(DiagnosticsEndpoints())
-    if not options.twitter_common_http_root_server_disable_lifecycle:
-      self.mount_routes(LifecycleEndpoints())
 
     class RootServerThread(threading.Thread):
       def __init__(self):
