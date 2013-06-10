@@ -27,7 +27,7 @@ public interface Histogram {
   /**
    * Return the quantiles of the histogram
    *
-   * @param quantile value to compute
+   * @param quantiles value to compute
    */
-  long[] getQuantiles(double[] quantile);
+  long[] getQuantiles(double[] quantiles);
 }

@@ -13,7 +13,10 @@ import com.twitter.common.stats.Histogram;
 import com.twitter.common.stats.Precision;
 
 public class WindowedApproxHistogram extends WindowedHistogram<ApproximateHistogram> {
-  @VisibleForTesting static final Amount<Long, Data> DEFAULT_MAX_MEMORY = Amount.of(72L, Data.KB);
+  @VisibleForTesting static final int DEFAULT_SLICES = 3;
+  @VisibleForTesting static final Amount<Long, Time> DEFAULT_WINDOW = Amount.of(1L, Time.MINUTES);
+  @VisibleForTesting static final Amount<Long, Data> DEFAULT_MAX_MEMORY = Amount.of(
+      (DEFAULT_SLICES + 1) * ApproximateHistogram.DEFAULT_MAX_MEMORY.as(Data.BYTES), Data.BYTES);
 
   @VisibleForTesting
   WindowedApproxHistogram(Amount<Long, Time> window, final int slices,
@@ -67,6 +70,15 @@ public class WindowedApproxHistogram extends WindowedHistogram<ApproximateHistog
   }
 
   /**
+   * Equivalent to calling
+   * {@link #WindowedApproxHistogram(Amount<Long, Time>, int, Amount<Long, Data>)} with default
+   * window and slices.
+   */
+  public WindowedApproxHistogram(Amount<Long, Data> maxMemory) {
+    this(DEFAULT_WINDOW, DEFAULT_SLICES, maxMemory);
+  }
+
+  /**
    * Create a {@code WindowedApproxHistogram } with a window duration of {@code window} and
    * decomposed in {@code slices} Histograms.
    * @param window duration of the window
@@ -77,9 +89,18 @@ public class WindowedApproxHistogram extends WindowedHistogram<ApproximateHistog
   }
 
   /**
+   * Equivalent to calling
+   * {@link #WindowedApproxHistogram(Amount<Long, Time>, int, Precision} with default window and
+   * slices.
+   */
+  public WindowedApproxHistogram(Precision precision) {
+    this(DEFAULT_WINDOW, DEFAULT_SLICES, precision);
+  }
+
+  /**
    * WindowedApproxHistogram  constructor with default value.
    */
   public WindowedApproxHistogram() {
-    this(Amount.of(60L, Time.SECONDS), 6, DEFAULT_MAX_MEMORY, Ticker.systemTicker());
+    this(DEFAULT_WINDOW, DEFAULT_SLICES, DEFAULT_MAX_MEMORY, Ticker.systemTicker());
   }
 }

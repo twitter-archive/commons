@@ -57,7 +57,8 @@ import com.twitter.common.quantity.Data;
 public final class ApproximateHistogram implements Histogram {
   @VisibleForTesting
   public static final Precision DEFAULT_PRECISION = new Precision(0.02, 100 * 1000);
-  @VisibleForTesting static final Amount<Long, Data> DEFAULT_MAX_MEMORY = Amount.of(12L, Data.KB);
+  @VisibleForTesting
+  public static final Amount<Long, Data> DEFAULT_MAX_MEMORY = Amount.of(12L, Data.KB);
   @VisibleForTesting static final long ELEM_SIZE = 8; // sizeof long
 
   // See above
@@ -114,13 +115,13 @@ public final class ApproximateHistogram implements Histogram {
    * the memory constraint.
    * @param maxMemory the maximum amount of memory that the instance will take
    */
-  public ApproximateHistogram(Amount<Long, Data> maxMemory) {
+  public ApproximateHistogram(Amount<Long, Data> maxMemory, int expectedSize) {
     Preconditions.checkNotNull(maxMemory);
     Preconditions.checkArgument(1024 <= maxMemory.as(Data.BYTES),
         "at least 1KB is required for an Histogram");
 
     double epsilon = DEFAULT_PRECISION.getEpsilon();
-    int n = DEFAULT_PRECISION.getN();
+    int n = expectedSize;
     int depth = computeDepth(epsilon, n);
     int bufSize = computeBufferSize(depth, n);
     long maxBytes = maxMemory.as(Data.BYTES);
@@ -146,6 +147,14 @@ public final class ApproximateHistogram implements Histogram {
     }
 
     init(bufSize, depth);
+  }
+
+  /**
+   * Constructor with memory constraint.
+   * @see #ApproximateHistogram(Amount<Long, Data>, int)
+   */
+  public ApproximateHistogram(Amount<Long, Data> maxMemory) {
+    this(maxMemory, DEFAULT_PRECISION.getN());
   }
 
   /**

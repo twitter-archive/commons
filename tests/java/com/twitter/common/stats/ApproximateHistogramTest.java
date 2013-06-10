@@ -13,6 +13,7 @@ import com.twitter.common.junit.annotations.TestParallel;
 import com.twitter.common.objectsize.ObjectSizeCalculator;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Data;
+import com.twitter.common.stats.ApproximateHistogram;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -38,14 +39,14 @@ public class ApproximateHistogramTest {
     //  . . ^ . . . . ^ . . . . ^ . .
     //  [-------] [-------] [-------] we make 3 packets of 5 elements and take the middle
 
-    hist.collapse(buf1, 2, buf2, 3, result);
+    ApproximateHistogram.collapse(buf1, 2, buf2, 3, result);
     assertArrayEquals(result, expected);
 
     long[] buf3 = {2, 5, 7, 9};
     long[] buf4 = {3, 8, 9, 12};
     long[] expected2 = {3, 7, 9, 12};
     long[] result2 = new long[4];
-    hist.collapse(buf3, 2, buf4, 2, result2);
+    ApproximateHistogram.collapse(buf3, 2, buf4, 2, result2);
     assertArrayEquals(expected2, result2);
   }
 

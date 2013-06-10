@@ -6,7 +6,6 @@ import com.google.common.base.Preconditions;
 import com.twitter.common.base.MorePreconditions;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Data;
-import com.twitter.common.stats.ApproximateHistogram;
 import com.twitter.common.stats.Precision;
 import com.twitter.common.stats.Statistics;
 
@@ -15,7 +14,8 @@ import com.twitter.common.stats.Statistics;
  * It can be queried for quantiles or basic statistics (min, max, avg, count).
  */
 public class Histogram {
-  static final double[] DEFAULT_QUANTILES = {.50, .90, .95, .99, .999, .9999};
+  @VisibleForTesting
+  public static final double[] DEFAULT_QUANTILES = {.50, .90, .95, .99, .999, .9999};
 
   private final com.twitter.common.stats.Histogram histogram;
   private final String name;
@@ -31,7 +31,7 @@ public class Histogram {
    * @param quantiles is the quantiles values that will be used for the gauges.
    * @param registry is the registry in which gauges will be registered.
    */
-  private Histogram(
+  @VisibleForTesting Histogram(
     String name,
     com.twitter.common.stats.Histogram histogram,
     double[] quantiles,
@@ -55,7 +55,7 @@ public class Histogram {
    * @see #Histogram(String, Histogram, double[], MetricRegistry).
    */
   public Histogram(String name, MetricRegistry registry) {
-    this(name, new ApproximateHistogram(), DEFAULT_QUANTILES, registry);
+    this(name, new WindowedApproxHistogram(), DEFAULT_QUANTILES, registry);
   }
 
   /**
@@ -63,7 +63,7 @@ public class Histogram {
    * @see #Histogram(String, Histogram, double[], MetricRegistry).
    */
   public Histogram(String name, Precision precision, MetricRegistry registry) {
-    this(name, new ApproximateHistogram(precision), DEFAULT_QUANTILES, registry);
+    this(name, new WindowedApproxHistogram(precision), DEFAULT_QUANTILES, registry);
   }
 
   /**
@@ -71,7 +71,7 @@ public class Histogram {
    * @see #Histogram(String, Histogram, double[], MetricRegistry).
    */
   public Histogram(String name, Amount<Long, Data> maxMemory, MetricRegistry registry) {
-    this(name, new ApproximateHistogram(maxMemory), DEFAULT_QUANTILES, registry);
+    this(name, new WindowedApproxHistogram(maxMemory), DEFAULT_QUANTILES, registry);
   }
 
   /**

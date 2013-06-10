@@ -85,7 +85,7 @@ public class WindowedHistogram<H extends Histogram> implements Histogram {
   protected WindowedHistogram(Class<H> clazz, Amount<Long, Time> window, int slices,
       Supplier<H> sliceProvider, Function<H[], Histogram> merger, Ticker ticker) {
     Preconditions.checkNotNull(window);
-    Preconditions.checkArgument(1 < slices);
+    Preconditions.checkArgument(0 < slices);
     Preconditions.checkNotNull(sliceProvider);
     Preconditions.checkNotNull(merger);
     Preconditions.checkNotNull(ticker);

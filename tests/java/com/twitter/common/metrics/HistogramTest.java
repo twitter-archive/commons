@@ -8,11 +8,12 @@ import org.junit.Test;
 import com.twitter.common.junit.annotations.TestParallel;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Data;
+import com.twitter.common.quantity.Time;
 import com.twitter.common.stats.ApproximateHistogram;
 import com.twitter.common.stats.Precision;
+import com.twitter.common.util.testing.FakeTicker;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Tests Histogram.
@@ -47,11 +48,19 @@ public class HistogramTest {
   @Test
   public void testHistogram() {
     int n = 10000;
-    Histogram hist = new Histogram(name, new Precision(0.001, n), metrics);
+    FakeTicker ticker = new FakeTicker();
+    Precision precision = new Precision(0.001, n);
+    Amount<Long, Time> window = Amount.of(1L, Time.MINUTES);
+    int slices = 2;
+    Histogram hist = new Histogram(name,
+        new WindowedApproxHistogram(window, slices, precision, ticker),
+        Histogram.DEFAULT_QUANTILES, metrics);
+    double error = precision.getEpsilon() * precision.getN() * slices;
 
     for (int i = 1; i <= n; ++i) {
       hist.add(i);
     }
+    ticker.advance(Amount.of(31L, Time.SECONDS));
 
     Map<String, Number> sample = metrics.sample();
     assertEquals(1L, sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "min"));
@@ -64,17 +73,26 @@ public class HistogramTest {
     for (int i = 0; i < Histogram.DEFAULT_QUANTILES.length; i++) {
       expected[i] = (long) (Histogram.DEFAULT_QUANTILES[i] * n);
     }
-    checkQuantiles(expected, sample, 0.001 * n);
+    checkQuantiles(expected, sample, error);
   }
 
   @Test
   public void testHistogramWithMemoryConstraints() {
     int n = 10000;
-    Histogram hist = new Histogram(name, Amount.of(8L, Data.KB), metrics);
+    FakeTicker ticker = new FakeTicker();
+    Amount<Long, Time> window = Amount.of(1L, Time.MINUTES);
+    int slices = 2;
+    Amount<Long, Data> maxMemory = Amount.of(32L, Data.KB);
+    // We suppose here that 32KB is enough for the default precision of (slices + 1) histograms
+    double error = ApproximateHistogram.DEFAULT_PRECISION.getEpsilon() * n * slices;
+    Histogram hist = new Histogram(name,
+        new WindowedApproxHistogram(window, slices, maxMemory, ticker),
+        Histogram.DEFAULT_QUANTILES, metrics);
 
     for (int i = 1; i <= n; ++i) {
       hist.add(i);
     }
+    ticker.advance(Amount.of(31L, Time.SECONDS));
 
     Map<String, Number> sample = metrics.sample();
     assertEquals(1L, sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "min"));
@@ -84,17 +102,21 @@ public class HistogramTest {
         sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "sum"));
     assertEquals((long) n / 2, sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "avg"));
 
-    double errorInPercent = 0.0;
-    for (double q : Histogram.DEFAULT_QUANTILES) {
-      String gName = name + ScopedMetrics.SCOPE_DELIMITER + Histogram.gaugeName(q);
-      errorInPercent += Math.abs(((q * n) - sample.get(gName).doubleValue()) / (q * n));
+    long[] expected = new long[Histogram.DEFAULT_QUANTILES.length];
+    for (int i = 0; i < Histogram.DEFAULT_QUANTILES.length; i++) {
+      expected[i] = (long) (Histogram.DEFAULT_QUANTILES[i] * n);
     }
-    assertTrue(errorInPercent / Histogram.DEFAULT_QUANTILES.length < 0.01);
+    checkQuantiles(expected, sample, error);
   }
 
   @Test
   public void testNegative() {
-    Histogram hist = new Histogram(name, metrics);
+    FakeTicker ticker = new FakeTicker();
+    Histogram hist = new Histogram(name,
+        new WindowedApproxHistogram(WindowedApproxHistogram.DEFAULT_WINDOW,
+            WindowedApproxHistogram.DEFAULT_SLICES,
+            WindowedApproxHistogram.DEFAULT_MAX_MEMORY, ticker),
+        Histogram.DEFAULT_QUANTILES, metrics);
     int[] data = new int[200];
     for (int i = 0; i < data.length; ++i) {
       data[i] = -100 + i;

@@ -40,7 +40,7 @@ public class WindowedHistogramTest {
 
   @Test
   public void testEmptyWinHistogram() {
-    WindowedHistogram wh = new WindowedApproxHistogram();
+    WindowedApproxHistogram wh = new WindowedApproxHistogram();
     assertEquals(0L, wh.getQuantile(0.0));
   }
 
@@ -50,7 +50,8 @@ public class WindowedHistogramTest {
     Amount<Long, Time> window = Amount.of(100L, Time.MILLISECONDS);
     int slices = 10;
     long sliceDuration = window.as(Time.NANOSECONDS) / slices;
-    WindowedHistogram h = new WindowedApproxHistogram(window, slices, DEFAULT_MAX_MEMORY, ticker);
+    WindowedApproxHistogram h =
+        new WindowedApproxHistogram(window, slices, DEFAULT_MAX_MEMORY, ticker);
 
     h.add(Long.MIN_VALUE);
     ticker.advance(Amount.of(2 * sliceDuration, Time.NANOSECONDS));
@@ -71,7 +72,7 @@ public class WindowedHistogramTest {
     FakeTicker ticker = new FakeTicker();
     Amount<Long, Time> window = Amount.of(100L, Time.MILLISECONDS);
     int slices = 10;
-    WindowedHistogram wh = createFullHistogram(window, slices, ticker);
+    WindowedHistogram<?> wh = createFullHistogram(window, slices, ticker);
 
     // check that the global distribution is the aggregation of all underlying histograms
     for (int i = 1; i <= slices; i++) {
@@ -94,7 +95,7 @@ public class WindowedHistogramTest {
     FakeTicker ticker = new FakeTicker();
     Amount<Long, Time> window = Amount.of(100L, Time.MILLISECONDS);
     int slices = 10;
-    WindowedHistogram wh = createFullHistogram(window, slices, ticker);
+    WindowedHistogram<?> wh = createFullHistogram(window, slices, ticker);
     // wh is a WindowedHistogram of 10 slices + the empty current with values from 1 to 10
     // [1][2][3][4][5][6][7][8][9][10][.]
     //                                 ^
@@ -147,7 +148,7 @@ public class WindowedHistogramTest {
     List<Amount<Long, Data>> sizes = builder.build();
 
     for (Amount<Long, Data> maxSize: sizes) {
-      WindowedHistogram hist = new WindowedApproxHistogram(
+      WindowedApproxHistogram hist = new WindowedApproxHistogram(
           Amount.of(60L, Time.SECONDS), 6, maxSize);
       hist.add(1L);
       hist.getQuantile(0.5);
@@ -159,10 +160,10 @@ public class WindowedHistogramTest {
   /**
    * @return a WindowedHistogram with different value in each underlying Histogram
    */
-  private WindowedHistogram createFullHistogram(
+  private WindowedHistogram<?> createFullHistogram(
       Amount<Long, Time> duration, int slices, FakeTicker ticker) {
     long sliceDuration = duration.as(Time.NANOSECONDS) / slices;
-    WindowedHistogram wh = new WindowedApproxHistogram(duration, slices,
+    WindowedApproxHistogram wh = new WindowedApproxHistogram(duration, slices,
         DEFAULT_MAX_MEMORY, ticker);
     ticker.advance(Amount.of(1L, Time.NANOSECONDS));
 

@@ -23,7 +23,18 @@ java_tests(name = 'metrics',
     pants('src/java/com/twitter/common/objectsize'),
     pants('src/java/com/twitter/common/testing'),
     pants('src/java/com/twitter/common/util:system-mocks'),
-    pants('src/java/com/twitter/common/util:testing'),
+    pants('src/java/com/twitter/common/util:testing')
   ],
   sources = globs('*.java')
 )
+
+jvm_binary(name = 'metrics-precision',
+  main = 'com.twitter.common.metrics.demo.MetricsPrecisionDemo',
+  source = 'demo/MetricsPrecisionDemo.java',
+  dependencies = [
+    pants('src/java/com/twitter/common/metrics'),
+    pants('src/java/com/twitter/common/objectsize'),
+    jar(org = 'com.twitter.common', name = 'metrics-data-sample', rev = '0.0.1'),
+  ]
+).with_description('''Demo code to show precision/memory performance based on constructor
+parameters (used to find default values)''')
