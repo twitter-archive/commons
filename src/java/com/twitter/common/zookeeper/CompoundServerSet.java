@@ -12,6 +12,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import com.twitter.common.base.Command;
+import com.twitter.common.base.Commands;
 import com.twitter.common.base.MorePreconditions;
 import com.twitter.common.zookeeper.Group.JoinException;
 import com.twitter.thrift.ServiceInstance;
@@ -26,7 +28,7 @@ public class CompoundServerSet implements ServerSet {
   private final List<ServerSet> serverSets;
   private final Map<ServerSet, ImmutableSet<ServiceInstance>> instanceCache = Maps.newHashMap();
   private final List<HostChangeMonitor<ServiceInstance>> monitors = Lists.newArrayList();
-  private boolean monitoring = false;
+  private Command stopWatching = null;
   private ImmutableSet<ServiceInstance> allHosts = ImmutableSet.of();
 
   /**
@@ -178,21 +180,32 @@ public class CompoundServerSet implements ServerSet {
    * be monitored.
    *
    * @param monitor HostChangeMonitor instance used to monitor host changes.
+   * @return A command that, when executed, will stop monitoring all underlying server sets.
    * @throws MonitorException If there was a problem monitoring any of the underlying server sets.
    */
   @Override
-  public synchronized void monitor(HostChangeMonitor<ServiceInstance> monitor)
+  public synchronized Command watch(HostChangeMonitor<ServiceInstance> monitor)
       throws MonitorException {
-    if (!monitoring) {
-      monitoring = true;
+    if (stopWatching == null) {
       monitors.add(monitor);
+      ImmutableList.Builder<Command> commandsBuilder = ImmutableList.builder();
+
       for (final ServerSet serverSet : serverSets) {
-        serverSet.monitor(new HostChangeMonitor<ServiceInstance>() {
+        commandsBuilder.add(serverSet.watch(new HostChangeMonitor<ServiceInstance>() {
           @Override public void onChange(ImmutableSet<ServiceInstance> hostSet) {
             handleChange(serverSet, hostSet);
           }
-        });
+        }));
       }
+
+      stopWatching = Commands.compound(commandsBuilder.build());
     }
+
+    return stopWatching;
+  }
+
+  @Override
+  public void monitor(HostChangeMonitor<ServiceInstance> monitor) throws MonitorException {
+    watch(monitor);
   }
 }

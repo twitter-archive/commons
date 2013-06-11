@@ -44,6 +44,7 @@ import org.apache.zookeeper.data.ACL;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.twitter.common.base.Command;
 import com.twitter.common.io.Codec;
 import com.twitter.common.io.JsonCodec;
 import com.twitter.common.net.pool.DynamicHostSet;
@@ -67,8 +68,6 @@ import static org.junit.Assert.fail;
 /**
  *
  * TODO(William Farner): Change this to remove thrift dependency.
- *
- * @author John Sirois
  */
 public class ServerSetImplTest extends BaseZooKeeperTest {
   private static final Logger LOG = Logger.getLogger(ServerSetImpl.class.getName());
@@ -95,7 +94,7 @@ public class ServerSetImplTest extends BaseZooKeeperTest {
   @Test
   public void testLifecycle() throws Exception {
     ServerSetImpl client = createServerSet();
-    client.monitor(serverSetMonitor);
+    client.watch(serverSetMonitor);
     assertChangeFiredEmpty();
 
     ServerSetImpl server = createServerSet();
@@ -118,7 +117,7 @@ public class ServerSetImplTest extends BaseZooKeeperTest {
   @Test
   public void testMembershipChanges() throws Exception {
     ServerSetImpl client = createServerSet();
-    client.monitor(serverSetMonitor);
+    client.watch(serverSetMonitor);
     assertChangeFiredEmpty();
 
     ServerSetImpl server = createServerSet();
@@ -150,9 +149,32 @@ public class ServerSetImplTest extends BaseZooKeeperTest {
   }
 
   @Test
+  public void testStopMonitoring() throws Exception {
+    ServerSetImpl client = createServerSet();
+    Command stopMonitoring = client.watch(serverSetMonitor);
+    assertChangeFiredEmpty();
+
+    ServerSetImpl server = createServerSet();
+
+    EndpointStatus foo = join(server, "foo");
+    assertChangeFired("foo");
+    EndpointStatus bar = join(server, "bar");
+    assertChangeFired("foo", "bar");
+
+    stopMonitoring.execute();
+
+    // No new updates should be received since monitoring has stopped.
+    foo.leave();
+    assertTrue(serverSetBuffer.isEmpty());
+
+    // Expiration event.
+    assertTrue(serverSetBuffer.isEmpty());
+  }
+
+  @Test
   public void testOrdering() throws Exception {
     ServerSetImpl client = createServerSet();
-    client.monitor(serverSetMonitor);
+    client.watch(serverSetMonitor);
     assertChangeFiredEmpty();
 
     Map<String, InetSocketAddress> server1Ports = makePortMap("http-admin1", 8080);
@@ -179,7 +201,7 @@ public class ServerSetImplTest extends BaseZooKeeperTest {
         Status.ALIVE)
         .setShard(2);
 
-    EndpointStatus status1 = server1.join(
+    server1.join(
         InetSocketAddress.createUnresolved("foo", 1000),
         server1Ports,
         0);
@@ -192,7 +214,7 @@ public class ServerSetImplTest extends BaseZooKeeperTest {
     assertEquals(ImmutableList.of(instance1, instance2),
         ImmutableList.copyOf(serverSetBuffer.take()));
 
-    EndpointStatus status3 = server3.join(
+    server3.join(
         InetSocketAddress.createUnresolved("foo", 1002), server3Ports, 2);
     assertEquals(ImmutableList.of(instance1, instance2, instance3),
         ImmutableList.copyOf(serverSetBuffer.take()));
@@ -282,10 +304,10 @@ public class ServerSetImplTest extends BaseZooKeeperTest {
     service.start();
 
     ServerSetImpl serverSetImpl = new ServerSetImpl(createZkClient(), SERVICE);
-    serverSetImpl.monitor(serverSetMonitor);
+    serverSetImpl.watch(serverSetMonitor);
     assertChangeFiredEmpty();
     InetSocketAddress localSocket = new InetSocketAddress(server.getLocalPort());
-    EndpointStatus status = serverSetImpl.join(localSocket, Maps.<String, InetSocketAddress>newHashMap());
+    serverSetImpl.join(localSocket, Maps.<String, InetSocketAddress>newHashMap());
     assertChangeFired(ImmutableMap.<InetSocketAddress, Status>of(localSocket, Status.ALIVE));
 
     Service.Iface svc = createThriftClient(serverSetImpl);

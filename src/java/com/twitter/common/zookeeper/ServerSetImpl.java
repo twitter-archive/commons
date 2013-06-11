@@ -46,8 +46,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.MapDifference;
-import com.google.common.collect.MapDifference.ValueDifference;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
@@ -219,15 +217,21 @@ public class ServerSetImpl implements ServerSet {
   }
 
   @Override
-  public void monitor(final HostChangeMonitor<ServiceInstance> monitor) throws MonitorException {
+  public Command watch(HostChangeMonitor<ServiceInstance> monitor) throws MonitorException {
     ServerSetWatcher serverSetWatcher = new ServerSetWatcher(zkClient, monitor);
     try {
-      serverSetWatcher.watch();
+      return serverSetWatcher.watch();
     } catch (WatchException e) {
       throw new MonitorException("ZooKeeper watch failed.", e);
     } catch (InterruptedException e) {
       throw new MonitorException("Interrupted while watching ZooKeeper.", e);
     }
+  }
+
+  @Override
+  public void monitor(HostChangeMonitor<ServiceInstance> monitor) throws MonitorException {
+    LOG.warning("This method is deprecated. Please use watch instead.");
+    watch(monitor);
   }
 
   private class MemberStatus {
@@ -296,7 +300,7 @@ public class ServerSetImpl implements ServerSet {
       this.monitor = monitor;
     }
 
-    public void watch() throws WatchException, InterruptedException {
+    public Command watch() throws WatchException, InterruptedException {
       zkClient.registerExpirationHandler(new Command() {
         @Override public void execute() {
           // Servers may have changed Status while we were disconnected from ZooKeeper, check and
@@ -305,7 +309,7 @@ public class ServerSetImpl implements ServerSet {
         }
       });
 
-      group.watch(new GroupChangeListener() {
+      return group.watch(new GroupChangeListener() {
         @Override public void onGroupChange(Iterable<String> memberIds) {
           notifyGroupChange(memberIds);
         }
