@@ -4,6 +4,9 @@ from distutils import sysconfig
 import os
 from site import USER_SITE
 import sys
+from distutils import sysconfig
+from site import USER_SITE
+
 from types import GeneratorType
 
 from twitter.common.collections import OrderedSet
