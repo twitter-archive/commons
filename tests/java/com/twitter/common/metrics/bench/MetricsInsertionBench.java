@@ -18,75 +18,49 @@ package com.twitter.common.metrics.bench;
 
 import com.google.caliper.SimpleBenchmark;
 
-import java.util.Random;
-
-import com.twitter.common.quantity.Amount;
-import com.twitter.common.quantity.Data;
 import com.twitter.common.metrics.Counter;
 import com.twitter.common.metrics.Histogram;
 import com.twitter.common.metrics.Metrics;
 import com.twitter.common.metrics.WindowedApproxHistogram;
-import com.twitter.common.stats.ApproximateHistogram;
 
 /**
- * Bench memory allocated for each component of Metrics
+ * Bench different sorts of insertion in Metrics
  */
-public class MetricsCreationBench extends SimpleBenchmark {
+public class MetricsInsertionBench extends SimpleBenchmark {
 
   private static final int INPUT_RANGE = 15000;
   private Metrics metrics;
-  private Random rnd;
+  private Counter counter;
+  private Histogram h;
+  private WindowedApproxHistogram wh;
 
   @Override
   protected void setUp() {
     metrics = Metrics.createDetached();
-    rnd = new Random(1);
+    counter = metrics.registerCounter("counter");
+    h = new Histogram("histogram", metrics);
+    wh = new WindowedApproxHistogram();
   }
 
-  public void timeCreatingCounter(int n) {
-    Counter counter;
+  public void timeIncrementCounter(int n) {
     while(n != 0) {
-      counter = metrics.registerCounter("counter");
       counter.increment();
       n--;
     }
   }
 
-  /**
-   * An Histogram creates 13 gauges
-   * "count", "sum", "avg", "min", "max"
-   * "p25", "p50", "p75", "p90", "p95", "p99", "p999", "p9999"
-   */
-  public void timeCreatingHistogram(int n) {
-    Histogram h;
+  public void timeAddValueInHistogram(int n) {
     while(n != 0) {
-      h = new Histogram("histogram", metrics);
       h.add(1);
       n--;
     }
   }
 
-  /**
-   * ApproximateHistogram is the underlying datastructure backing the Histogram primitive.
-   */
-  public void timeCreatingApproxHistogram(int n) {
-    ApproximateHistogram h;
+  public void timeAddValueInWinHistogram(int n) {
     while(n != 0) {
-      h = new ApproximateHistogram();
-      h.add(1);
+      wh.add(1);
       n--;
     }
   }
 
-  /**
-   * WindowedHistogram is serie of ApproximateHistograms in sliding window.
-   */
-  public void timeCreatingWindowedHistogram(int n) {
-    WindowedApproxHistogram h;
-    while(n != 0) {
-      h = new WindowedApproxHistogram();
-      h.add(1);
-      n--;
-    }
-  }
 }

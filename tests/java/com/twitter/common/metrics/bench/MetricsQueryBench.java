@@ -26,6 +26,7 @@ import com.twitter.common.quantity.Data;
 import com.twitter.common.metrics.Counter;
 import com.twitter.common.metrics.Histogram;
 import com.twitter.common.metrics.Metrics;
+import com.twitter.common.metrics.WindowedApproxHistogram;
 
 /**
  * This bench tests different sorts of queries.
@@ -34,20 +35,38 @@ public class MetricsQueryBench extends SimpleBenchmark {
 
   private static int N = 100 * 1000;
   private static int RANGE = 15 * 1000;
+  private static double[] quantiles = {0.5, 0.9, 0.95, 0.99};
   private Metrics metrics;
   private Random rnd;
+  private WindowedApproxHistogram bigHist;
+  private WindowedApproxHistogram smallHist;
 
   @Override
   protected void setUp() {
     metrics = Metrics.createDetached();
     rnd = new Random(1);
+
+    for (int i = 0; i < 1000; i++) {
+      metrics.registerCounter("counter-" + i).increment();
+      Histogram h = new Histogram("hist-" + i, metrics);
+      for (int j=0; j < N; j++) {
+        h.add(rnd.nextInt(RANGE));
+      }
+    }
+
+    smallHist = new WindowedApproxHistogram();
+    bigHist = new WindowedApproxHistogram(Amount.of(1L, Data.MB));
+    for (int j=0; j < N; j++) {
+      smallHist.add(rnd.nextInt(RANGE));
+      bigHist.add(rnd.nextInt(RANGE));
+    }
   }
 
-  public void timeQueryCounters(int n) {
-    for (int i=0; i < 52; i++) {
-      Counter counter = metrics.registerCounter("counter" + i);
-      counter.increment();
-    }
+  /**
+   * Realistic bench of a querying 1000 counters and 1000 histograms
+   */
+  public void timeQueryMetrics(int n) {
+    long x;
     while(n != 0) {
       metrics.sample();
       n--;
@@ -55,29 +74,17 @@ public class MetricsQueryBench extends SimpleBenchmark {
   }
 
   public void timeQueryHistograms(int n) {
-    for (int i=0; i < 4; i++) {
-      // Each histogram registers 13 gauges
-      Histogram h = new Histogram("histogram" + i, metrics);
-      for (int j=0; j < N; j++) {
-        h.add(rnd.nextInt(RANGE));
-      }
-    }
+    long[] res;
     while(n != 0) {
-      metrics.sample();
+      res = smallHist.getQuantiles(quantiles);
       n--;
     }
   }
 
   public void timeQueryBigHistograms(int n) {
-    for (int i=0; i < 4; i++) {
-      // Each histogram registers 13 gauges
-      Histogram h = new Histogram("histogram" + i, Amount.of(1L, Data.MB), metrics);
-      for (int j=0; j < N; j++) {
-        h.add(rnd.nextInt(RANGE));
-      }
-    }
+    long[] res;
     while(n != 0) {
-      metrics.sample();
+      res = bigHist.getQuantiles(quantiles);
       n--;
     }
   }
