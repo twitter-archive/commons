@@ -4,6 +4,7 @@ import textwrap
 from twitter.checkstyle.common import (
     CheckstylePlugin,
     Nit,
+    OffByOneList,
     PythonFile
 )
 
@@ -26,7 +27,10 @@ import zookeeper
 
 class Keeper(object):
   def __init__(self):
-    pass
+    self._session = None
+
+  def session(self):
+    return self._session
 """)
 
 
@@ -39,7 +43,9 @@ def test_python_file():
     7: (7, 8, 0),
     10: (10, 11, 0),
     11: (11, 12, 2),
-    12: (12, 13, 4)
+    12: (12, 13, 4),
+    14: (14, 15, 2),
+    15: (15, 16, 4)
   }
   with pytest.raises(IndexError):
     pf[0]
@@ -91,3 +97,30 @@ def test_style_error():
 
   se = cp.error('B380', "I don't like your from import!", 2)
   assert str(se) == str(ase)
+
+
+def test_off_by_one():
+  obl = OffByOneList([])
+  for index in (-1, 0, 1):
+    with pytest.raises(IndexError):
+      obl[index]
+  for s in (slice(1, 1), slice(1, 2), slice(-2, -1)):
+    assert obl[s] == []
+  for s in (slice(-1, 0), slice(0, 1)):
+    with pytest.raises(IndexError):
+      obl[s]
+
+  obl = OffByOneList([1, 2, 3])
+  for k in (1, 2, 3):
+    assert obl[k] == k
+    assert obl[k:k + 1] == [k]
+    assert obl.index(k) == k
+    assert obl.count(k) == 1
+  assert list(reversed(obl)) == [3, 2, 1]
+  for k in (0, 4):
+    with pytest.raises(IndexError):
+      obl[k]
+
+  for value in (None, 2.0, type):
+    with pytest.raises(TypeError):
+      obl[value]

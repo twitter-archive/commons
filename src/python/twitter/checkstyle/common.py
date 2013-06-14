@@ -1,5 +1,6 @@
 from abc import abstractmethod
 import ast
+from collections import Sequence
 import itertools
 import textwrap
 import tokenize
@@ -11,6 +12,44 @@ __all__ = (
   'CheckstylePlugin',
   'PythonFile',
 )
+
+
+class OffByOneList(Sequence):
+  def __init__(self, iterator):
+    self._list = list(iterator)
+
+  def __getslice(self, sl):
+    if sl.start == 0 or sl.stop == 0:
+      raise IndexError
+    new_slice = slice(sl.start - 1 if sl.start > 0 else sl.start,
+                      sl.stop - 1 if sl.stop > 0 else sl.stop)
+    return self._list[new_slice]
+
+  def __getitem(self, item):
+    if item == 0:
+      raise IndexError
+    if item < 0:
+      return self._list[item]
+    return self._list[item - 1]
+
+  def __getitem__(self, element_id):
+    if isinstance(element_id, Compatibility.integer):
+      return self.__getitem(element_id)
+    elif isinstance(element_id, slice):
+      return self.__getslice(element_id)
+    raise TypeError('__getitem__ only supports integers and slices')
+
+  def index(self, value):
+    return self._list.index(value) + 1
+
+  def __iter__(self):
+    return iter(self._list)
+
+  def __reversed__(self):
+    return reversed(self._list)
+
+  def __len__(self):
+    return len(self._list)
 
 
 class PythonFile(object):
@@ -27,20 +66,28 @@ class PythonFile(object):
     """Returns an iterator of (start_line, stop_line, indent) for logical lines given the source
        blob.
     """
+    indent_stack = []
     contents = []
     line_number_start = None
 
-    def translate_logical_line(start, end, contents):
+    def translate_logical_line(start, end, contents, endmarker=False):
       while contents[0] == '\n':
         start += 1
         contents.pop(0)
       while contents[-1] == '\n':
         end -= 1
         contents.pop()
-      return (start, end + 1, len(contents[0]) if contents[0].isspace() else 0)
+      indent = len(indent_stack[-1]) if indent_stack else 0
+      if endmarker:
+        indent = len(contents[0])
+      return (start, end + 1, indent)
 
     for token in cls.iter_tokens(blob):
       token_type, token_text, token_start = token[0:3]
+      if token_type == tokenize.INDENT:
+        indent_stack.append(token_text)
+      if token_type == tokenize.DEDENT:
+        indent_stack.pop()
       if token_type in cls.SKIP_TOKENS:
         continue
       contents.append(token_text)
@@ -50,7 +97,8 @@ class PythonFile(object):
         yield translate_logical_line(
             line_number_start,
             token_start[0] + (1 if token_type is tokenize.NEWLINE else -1),
-            list(filter(None, contents)))
+            list(filter(None, contents)),
+            endmarker=token_type == tokenize.ENDMARKER)
         contents = []
         line_number_start = None
 
@@ -68,7 +116,7 @@ class PythonFile(object):
   def __init__(self, blob, filename='<expr>'):
     self._blob = blob
     self._tree = ast.parse(blob, filename)
-    self._lines = [None] + list(blob.splitlines())
+    self._lines = OffByOneList(blob.splitlines())
     self._filename = filename
     self._logical_lines = dict((start, (start, stop, indent))
         for start, stop, indent in self.iter_logical_lines(blob))
@@ -87,11 +135,15 @@ class PythonFile(object):
   def logical_lines(self):
     return self._logical_lines
 
+  @property
+  def lines(self):
+    return self._lines
+
   def __iter__(self):
-    return iter(self._lines[1:])
+    return iter(self._lines)
 
   def line_range(self, line_number):
-    if line_number <= 0 or line_number >= len(self._lines):
+    if line_number <= 0 or line_number > len(self._lines):
       raise IndexError('NOTE: Python file line numbers are offset by 1.')
     if line_number not in self.logical_lines:
       return slice(line_number, line_number + 1)

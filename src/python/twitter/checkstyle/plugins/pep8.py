@@ -47,7 +47,19 @@ IGNORE_CODES = (
 
   # trailing_whitespace
   'W291',
-  'W293'
+  'W293',
+
+  # multiple statements
+  # A common (acceptable) exception pattern at Twitter is:
+  #   class MyClass(object):
+  #     class Error(Exception): pass
+  #     class DerpError(Error): pass
+  #     class HerpError(Error): pass
+  # We disable the pep8.py checking for these and instead have a more lenient filter
+  # in the whitespace checker.
+  'E701',
+  'E301',
+  'E302',
 )
 
 
