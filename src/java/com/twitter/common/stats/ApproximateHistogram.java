@@ -226,6 +226,7 @@ public final class ApproximateHistogram implements Histogram {
   public synchronized void clear() {
     count = 0L;
     leafCount = 0;
+    currentTop = 1;
     rootWeight = 1;
     leavesSorted = true;
   }

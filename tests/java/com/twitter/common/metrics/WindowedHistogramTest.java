@@ -26,9 +26,11 @@ import com.twitter.common.objectsize.ObjectSizeCalculator;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Data;
 import com.twitter.common.quantity.Time;
+import com.twitter.common.stats.Histogram;
 import com.twitter.common.util.testing.FakeTicker;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import static com.twitter.common.metrics.WindowedApproxHistogram.DEFAULT_MAX_MEMORY;
@@ -65,6 +67,35 @@ public class WindowedHistogramTest {
     assertEquals(Long.MIN_VALUE, h.getQuantile(0.25));
     assertEquals(Long.MAX_VALUE, h.getQuantile(0.75));
     assertEquals(Long.MAX_VALUE, h.getQuantile(1.0));
+  }
+
+  @Test
+  public void testClearedWinHistogram() {
+    FakeTicker ticker = new FakeTicker();
+    Amount<Long, Time> window = Amount.of(100L, Time.MILLISECONDS);
+    int slices = 10;
+    Amount<Long, Time> sliceDuration = Amount.of(
+        window.as(Time.NANOSECONDS) / slices, Time.NANOSECONDS);
+    WindowedHistogram<?> h = createFullHistogram(window, slices, ticker);
+    long p0 = h.getQuantile(0.1);
+    long p50 = h.getQuantile(0.5);
+    long p90 = h.getQuantile(0.9);
+    assertFalse(0 == p0);
+    assertFalse(0 == p50);
+    assertFalse(0 == p90);
+
+    h.clear();
+
+    assertEquals(0, h.getQuantile(0.1));
+    assertEquals(0, h.getQuantile(0.5));
+    assertEquals(0, h.getQuantile(0.9));
+
+    // reload the histogram with the exact same values than before
+    fillHistogram(h, sliceDuration, slices, ticker);
+
+    assertEquals(p0, h.getQuantile(0.1));
+    assertEquals(p50, h.getQuantile(0.5));
+    assertEquals(p90, h.getQuantile(0.9));
   }
 
   @Test
@@ -157,6 +188,22 @@ public class WindowedHistogramTest {
     }
   }
 
+  @Test
+  public void testWinHistogramAccuracy() {
+    FakeTicker ticker = new FakeTicker();
+    Amount<Long, Time> window = Amount.of(100L, Time.MILLISECONDS);
+    int slices = 10;
+    Amount<Long, Time> sliceDuration = Amount.of(
+        window.as(Time.NANOSECONDS) / slices, Time.NANOSECONDS);
+    WindowedHistogram<?> wh = createFullHistogram(window, slices, ticker);
+    RealHistogram rh = fillHistogram(new RealHistogram(), sliceDuration, slices, new FakeTicker());
+
+    assertEquals(wh.getQuantile(0.5), rh.getQuantile(0.5));
+    assertEquals(wh.getQuantile(0.75), rh.getQuantile(0.75));
+    assertEquals(wh.getQuantile(0.9), rh.getQuantile(0.9));
+    assertEquals(wh.getQuantile(0.99), rh.getQuantile(0.99));
+  }
+
   /**
    * @return a WindowedHistogram with different value in each underlying Histogram
    */
@@ -167,12 +214,17 @@ public class WindowedHistogramTest {
         DEFAULT_MAX_MEMORY, ticker);
     ticker.advance(Amount.of(1L, Time.NANOSECONDS));
 
+    return fillHistogram(wh, Amount.of(sliceDuration, Time.NANOSECONDS), slices, ticker);
+  }
+
+  private <H extends Histogram> H fillHistogram(H h,
+      Amount<Long, Time> sliceDuration, int slices, FakeTicker ticker) {
     for (int i = 1; i <= slices; i++) {
       for (int j = 0; j < 1000; j++) {
-        wh.add(i);
+        h.add(i);
       }
-      ticker.advance(Amount.of(sliceDuration, Time.NANOSECONDS));
+      ticker.advance(sliceDuration);
     }
-    return wh;
+    return h;
   }
 }

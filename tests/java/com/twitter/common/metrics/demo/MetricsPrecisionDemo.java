@@ -19,39 +19,17 @@ package com.twitter.common.metrics.demo;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
 import com.twitter.common.objectsize.ObjectSizeCalculator;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Data;
+import com.twitter.common.metrics.RealHistogram;
 import com.twitter.common.stats.ApproximateHistogram;
 import com.twitter.common.stats.Histogram;
-import com.twitter.common.stats.Histograms;
 
 final class MetricsPrecisionDemo {
-
-  private static class RealHistogram implements Histogram {
-    private List<Long> buffer = new ArrayList<Long>();
-
-    @Override public void add(long x) {
-      buffer.add(x);
-    }
-
-    @Override public void clear() {
-      buffer.clear();
-    }
-
-    @Override public long getQuantile(double quantile) {
-      Collections.sort(buffer);
-      return buffer.get((int) (quantile * buffer.size()));
-    }
-
-    @Override public long[] getQuantiles(double[] quantiles) {
-      return Histograms.extractQuantiles(this, quantiles);
-    }
-  }
 
   private MetricsPrecisionDemo() { }
 
