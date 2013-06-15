@@ -45,15 +45,10 @@ def main(args, options):
   plugins = list_plugins()
   plugin_map = dict((plugin.__name__, plugin) for plugin in plugins)
 
-  for plugin in plugins:
-    print('Detected plugin: %s' % plugin.__name__)
-
   if options.plugins:
     plugins = filter(None, (plugin_map.get(plugin_name) for plugin_name in options.plugins))
     for plugin in plugins:
       print('Selected %s' % plugin.__name__)
-  else:
-    print('Selecting all plugins.')
 
   if options.diff:
     iterator = git_iterator(args, options)
