@@ -125,7 +125,7 @@ class TunnelHelper(object):
                     tunnel_host)
     cls.TUNNELS[tunnel_key] = (tunnel_port, subprocess.Popen(ssh_cmd_args, stdin=subprocess.PIPE))
     if not cls.wait_for_accept(tunnel_port):
-      raise cls.TunnelError('Could not establish tunnel via %s' % remote_host)
+      raise cls.TunnelError('Could not establish tunnel to %s via %s' % (remote_host, tunnel_host))
     cls.log('session established')
     return 'localhost', tunnel_port
 
