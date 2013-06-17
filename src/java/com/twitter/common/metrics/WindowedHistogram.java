@@ -18,18 +18,16 @@ package com.twitter.common.metrics;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Stopwatch;
 import com.google.common.base.Supplier;
-import com.google.common.base.Ticker;
 
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
 import com.twitter.common.stats.Histogram;
 import com.twitter.common.stats.Histograms;
+import com.twitter.common.util.Clock;
 
 /**
  * Histogram windowed over time.
@@ -61,9 +59,10 @@ import com.twitter.common.stats.Histograms;
  * </p>
  */
 public class WindowedHistogram<H extends Histogram> implements Histogram {
+
   private final H[] buffers;
   private final long sliceDuration;
-  private final Stopwatch stopwatch;
+  private final Clock clock;
   private long index = -1L;
   private long mergedHistIndex = -1L;
   private Function<H[], Histogram> merger;
@@ -80,26 +79,27 @@ public class WindowedHistogram<H extends Histogram> implements Histogram {
    * @param slices the number of slices
    * @param sliceProvider the supplier of histogram
    * @param merger the function that merge an array of histogram H[] into a single Histogram
-   * @param ticker the ticker used for measuring the time (for testing purpose only)
+   * @param clock the clock used for to select the appropriate histogram
    */
   protected WindowedHistogram(Class<H> clazz, Amount<Long, Time> window, int slices,
-      Supplier<H> sliceProvider, Function<H[], Histogram> merger, Ticker ticker) {
+      Supplier<H> sliceProvider, Function<H[], Histogram> merger, Clock clock) {
     Preconditions.checkNotNull(window);
+    // Ensure that we have at least 1ms per slice
+    Preconditions.checkArgument(window.as(Time.MILLISECONDS) > (slices + 1));
     Preconditions.checkArgument(0 < slices);
     Preconditions.checkNotNull(sliceProvider);
     Preconditions.checkNotNull(merger);
-    Preconditions.checkNotNull(ticker);
+    Preconditions.checkNotNull(clock);
 
-    this.sliceDuration = window.as(Time.NANOSECONDS) / slices;
+    this.sliceDuration = window.as(Time.MILLISECONDS) / slices;
     @SuppressWarnings("unchecked") // safe because we have the clazz proof of type H
     H[] bufs = (H[]) Array.newInstance(clazz, slices + 1);
     for (int i = 0; i < bufs.length; i++) {
       bufs[i] = sliceProvider.get();
     }
     this.buffers = bufs;
-    this.stopwatch = new Stopwatch(ticker);
     this.merger = merger;
-    this.stopwatch.start();
+    this.clock = clock;
   }
 
   @Override
@@ -140,8 +140,8 @@ public class WindowedHistogram<H extends Histogram> implements Histogram {
    * You have to modulo it with buffer.length before accessing the array with this number.
    */
   private int getCurrentIndex() {
-    long elapsed = stopwatch.elapsed(TimeUnit.NANOSECONDS);
-    return (int) (elapsed / sliceDuration);
+    long now = clock.nowMillis();
+    return (int) (now / sliceDuration);
   }
 
   /**
