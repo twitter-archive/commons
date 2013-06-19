@@ -33,7 +33,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public final class Closures {
 
-  private static final Closure NOOP = new Closure() {
+  private static final Closure<?> NOOP = new Closure<Object>() {
     @Override public void execute(Object item) {
       // noop
     }
@@ -131,6 +131,6 @@ public final class Closures {
    */
   @SuppressWarnings("unchecked")
   public static <T> Closure<T> noop() {
-    return NOOP;
+    return (Closure<T>) NOOP;
   }
 }
