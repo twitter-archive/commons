@@ -7,6 +7,9 @@ from .iterators import git_iterator, path_iterator
 from .plugins import list_plugins
 
 
+DEFAULT_BRANCH = 'master'
+
+
 app.add_option(
   '-p',
   action='append',
@@ -21,7 +24,8 @@ app.add_option(
   type='str',
   default=None,
   dest='diff',
-  help='If specified, only checkstyle against the diff of the supplied branch, e.g. --diff=master')
+  help='If specified, only checkstyle against the diff of the supplied branch, e.g. --diff=master.'
+    ' Defaults to master if no paths are specified.')
 
 
 app.add_option(
@@ -49,6 +53,9 @@ def main(args, options):
     plugins = filter(None, (plugin_map.get(plugin_name) for plugin_name in options.plugins))
     for plugin in plugins:
       print('Selected %s' % plugin.__name__)
+
+  if not args and options.diff is None:
+    options.diff = DEFAULT_BRANCH
 
   if options.diff:
     iterator = git_iterator(args, options)
