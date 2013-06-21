@@ -60,12 +60,18 @@ class KazooGroup(GroupBase, GroupInterface):
     self._member_lock = threading.Lock()
     self._acl = self.translate_acl_list(acl)
 
-  def __on_connected(self, callback):
+  def __on_state(self, callback, keeper_state):
     def listener(state):
-      if state == KazooState.CONNECTED:
+      if state == keeper_state:
         callback()
         return True
     return listener
+
+  def __on_connected(self, callback):
+    return self.__on_state(callback, KazooState.CONNECTED)
+
+  def __on_expired(self, callback):
+    return self.__on_state(callback, KazooState.LOST)
 
   def info(self, member, callback=None):
     if member == Membership.error():
@@ -130,8 +136,11 @@ class KazooGroup(GroupBase, GroupInterface):
       self._zk.exists_async(path, watch=exists_watch).rawlink(partial(exists_completion, path))
 
     def exists_watch(event):
-      if event.type == EventType.DELETED or event.state == KeeperState.EXPIRED_SESSION:
+      if event.type == EventType.DELETED:
         expiry_capture.set()
+
+    def expire_notifier():
+      expiry_capture.set()
 
     def exists_completion(path, result):
       try:
@@ -157,7 +166,8 @@ class KazooGroup(GroupBase, GroupInterface):
           result_future.set_result(blob)
           self._members[membership] = result_future
         if expire_callback:
-          self._zk.exists_async(path, watch=exists_watch).rawlink(partial(exists_completion, path))
+          self._zk.add_listener(self.__on_expired(expire_notifier))
+          do_exists(path)
 
       membership_capture.set(membership)
 

@@ -77,11 +77,42 @@ class TestKazooGroup(GroupTestBase, unittest.TestCase):
     assert membership != Membership.error()
     assert secure_zkg.info(membership) == 'secure hello world'
 
-  def test_monitor_through_expiration(self):
+  def test_monitor_expire_then_create(self):
     session_expired = threading.Event()
+    membership_event = threading.Event()
+
     def listener(state):
       if state == KazooState.LOST:
         session_expired.set()
+
+    def on_membership(new_members):
+      membership_event.set()
+
+    zk1 = self.make_zk(self._server.ensemble)
+    zk1.add_listener(listener)
+    zk1.live.wait()
+
+    zkg1 = self.GroupImpl(self._zk, '/test')
+
+    zk2 = self.make_zk(self._server.ensemble)
+    zkg2 = self.GroupImpl(zk2, '/test')
+
+    zkg1.monitor([], on_membership)
+
+    self._server.expire(self.session_id(zk1))
+    session_expired.wait(self.MAX_EVENT_WAIT_SECS)
+
+    member1 = zkg2.join('hello 1')
+    membership_event.wait(timeout=self.MAX_EVENT_WAIT_SECS)
+    assert membership_event.is_set()
+
+  def test_monitor_through_expiration(self):
+    session_expired = threading.Event()
+
+    def listener(state):
+      if state == KazooState.LOST:
+        session_expired.set()
+
     zk1 = self.make_zk(self._server.ensemble)
     zk1.add_listener(listener)
     zkg1 = self.GroupImpl(self._zk, '/test')
