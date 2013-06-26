@@ -36,7 +36,6 @@ import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 import org.junit.runner.manipulation.Filter;
 import org.junit.runners.model.InitializationError;
-
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -348,13 +347,13 @@ public class ConsoleRunner {
       Matcher matcher = METHOD_PARSER.matcher(spec);
       try {
         if (matcher.matches()) {
-          Class<?> testClass = Class.forName(matcher.group(1));
+          Class<?> testClass = loadClass(matcher.group(1));
           if (isTest(testClass)) {
             String method = matcher.group(2);
             testMethods.add(new TestMethod(testClass, method));
           }
         } else {
-          Class<?> testClass = Class.forName(spec);
+          Class<?> testClass = loadClass(spec);
           if (isTest(testClass)) {
             classes.add(testClass);
           }
@@ -391,6 +390,12 @@ public class ConsoleRunner {
           .filterWith(Description.createTestDescription(testMethod.clazz, testMethod.name)));
     }
     return requests;
+  }
+
+  // Loads classes without initializing them.  We just need the type, annotations and method
+  // signatures, none of which requires initialization.
+  private Class<?> loadClass(String name) throws ClassNotFoundException {
+    return Class.forName(name, /* initialize = */ false, getClass().getClassLoader());
   }
 
   /**
