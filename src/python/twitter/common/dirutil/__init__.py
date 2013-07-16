@@ -47,7 +47,7 @@ def safe_mkdir_for(file, clean=False):
 
 _MKDTEMP_CLEANER = None
 _MKDTEMP_DIRS = defaultdict(set)
-_MKDTEMP_LOCK = threading.Lock()
+_MKDTEMP_LOCK = threading.RLock()
 
 
 def _mkdtemp_atexit_cleaner():
@@ -77,10 +77,17 @@ def safe_mkdtemp(cleaner=_mkdtemp_atexit_cleaner, **kw):
   """
   # proper lock sanitation on fork [issue 6721] would be desirable here.
   with _MKDTEMP_LOCK:
+    return register_rmtree(tempfile.mkdtemp(**kw), cleaner=cleaner)
+
+
+def register_rmtree(directory, cleaner=_mkdtemp_atexit_cleaner):
+  """
+    Register an existing directory to be cleaned up at process exit.
+  """
+  with _MKDTEMP_LOCK:
     _mkdtemp_register_cleaner(cleaner)
-    td = tempfile.mkdtemp(**kw)
-    _MKDTEMP_DIRS[os.getpid()].add(td)
-    return td
+    _MKDTEMP_DIRS[os.getpid()].add(directory)
+  return directory
 
 
 def safe_rmtree(directory):
@@ -193,6 +200,16 @@ def chmod_plus_x(path):
     path_mode |= stat.S_IXGRP
   if path_mode & stat.S_IROTH:
     path_mode |= stat.S_IXOTH
+  os.chmod(path, path_mode)
+
+
+def chmod_plus_w(path):
+  """
+    Equivalent of unix `chmod +w path`
+  """
+  path_mode = os.stat(path).st_mode
+  path_mode &= int('777', 8)
+  path_mode |= stat.S_IWRITE
   os.chmod(path, path_mode)
 
 

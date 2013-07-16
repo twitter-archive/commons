@@ -14,6 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
+from functools import reduce
 import fnmatch
 import glob
 import os
