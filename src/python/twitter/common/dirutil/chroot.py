@@ -26,6 +26,7 @@ import zipfile
 
 from . import safe_mkdir
 
+
 class Chroot(object):
   """
     A chroot of files overlayed from one directory to another directory.
@@ -65,13 +66,14 @@ class Chroot(object):
     """
     self.root = root
 
-  def dup(self):
-    td = tempfile.mkdtemp()
-    new_chroot = Chroot(td)
-    shutil.rmtree(td) # because copytree requires that td has not been created.
+  def clone(self, into=None):
+    into = into or tempfile.mkdtemp()
+    new_chroot = Chroot(into)
     new_chroot.root = self.root
-    new_chroot.filesets = copy.deepcopy(self.filesets)
-    shutil.copytree(self.chroot, td)
+    for label, fileset in self.filesets.items():
+      for fn in fileset:
+        new_chroot.link(os.path.join(self.chroot, self.root or '', fn),
+                        fn, label=label)
     return new_chroot
 
   def path(self):
@@ -94,10 +96,7 @@ class Chroot(object):
     safe_mkdir(dirname)
 
   def _rootjoin(self, path):
-    if self.root is None:
-      return path
-    else:
-      return os.path.join(self.root, path)
+    return os.path.join(self.root or '', path)
 
   def copy(self, src, dst, label=None):
     """
@@ -111,8 +110,7 @@ class Chroot(object):
     """
     self._tag(dst, label)
     self._mkdir_for(dst)
-    shutil.copyfile(self._rootjoin(src),
-                    os.path.join(self.chroot, dst))
+    shutil.copyfile(self._rootjoin(src), os.path.join(self.chroot, dst))
 
   def link(self, src, dst, label=None):
     """
