@@ -16,16 +16,21 @@
 
 """Code to ease publishing text to Confluence wikis."""
 
-from twitter.common import log
-
 import getpass
+import mimetypes
 import urllib
 
-try:
-  from xmlrpclib import ServerProxy, Fault
-except ImportError:
-  from xmlrpc.client import ServerProxy, Fault
+from twitter.common import log
 
+from os.path import basename
+
+
+try:
+  from xmlrpclib import ServerProxy, Fault, Binary
+except ImportError:
+  from xmlrpc.client import ServerProxy, Fault, Binary
+
+mimetypes.init()
 
 class ConfluenceError(Exception):
   """Indicates a problem performing an action with confluence."""
@@ -154,3 +159,27 @@ class Confluence(object):
     else:
       raise ConfluenceError("Don't know how to convert %s to HTML" % format)
     return self.create(space, title, content, parent_page, **pageoptions)
+
+  def addattachment(self, page, filename):
+    """Add an attachment to an existing page.
+    Note: this will first read the entire file into memory"""
+    mime_type = mimetypes.guess_type(filename, strict=False)[0]
+    if not mime_type:
+      raise ConfluenceError('Failed to detect MIME type of %s' % filename)
+
+    try:
+      with open(filename, 'rb') as f:
+        file_data = f.read()
+
+      attachment = dict(fileName=basename(filename), contentType=mime_type)
+      return self._api_entrypoint.addAttachment(self._session_token,
+                                                page['id'],
+                                                attachment,
+                                                Binary(file_data))
+    except (IOError, OSError) as e:
+      log.error('Failed to read data from file %s: %s' % (filename, str(e)))
+      return None
+    except Fault as e:
+      log.error('Failed to add file attachment %s to page: %s' %
+          (filename, page.get('title', '[unknown title]')))
+      return None
