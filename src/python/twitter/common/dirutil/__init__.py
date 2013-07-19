@@ -17,12 +17,17 @@
 import atexit
 from collections import defaultdict
 import errno
-import fcntl
 import os
 import shutil
 import stat
 import tempfile
 import threading
+
+try:
+  import fcntl
+  HAS_FCNTL = True
+except ImportError:
+  HAS_FCNTL = False
 
 
 def safe_mkdir(directory, clean=False):
@@ -246,6 +251,10 @@ def lock_file(filename, mode='r+', blocking=False):
       False if could not acquire the lock
       file object if the lock was acquired
   """
+  # TODO(wickman) We should probably adopt the lockfile project here as has
+  # a platform-independent file locking implementation.
+  if not HAS_FCNTL:
+    raise RuntimeError('Interpreter does not support fcntl!')
 
   try:
     fp = open(filename, mode)
@@ -270,6 +279,9 @@ def unlock_file(fp, close=False):
 
     Always returns True.
   """
+  if not HAS_FCNTL:
+    raise RuntimeError('Interpreter does not support fcntl!')
+
   try:
     fcntl.flock(fp, fcntl.LOCK_UN)
   finally:

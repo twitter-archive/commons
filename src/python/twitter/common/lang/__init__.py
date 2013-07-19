@@ -166,7 +166,7 @@ class InheritDocstringsMetaclass(type):
 
   """
   def __new__(self, class_name, bases, namespace):
-    for key, value in namespace.iteritems():
+    for key, value in namespace.items():
       if callable(value) and not value.__doc__:
         for parent in bases:
           if hasattr(parent, key) and getattr(parent, key).__doc__:
