@@ -221,7 +221,7 @@ class Application(object):
     values_copy = copy.deepcopy(self._option_values)
     parser = self._main_parser()
     command_group = options.new_group(('For %s only' % command) if command else 'Default')
-    for option in getattr(self._commands[command], Application.OPTIONS_ATTR):
+    for option in getattr(self._commands[command], Application.OPTIONS_ATTR, []):
       op = copy.deepcopy(option)
       if not hasattr(values_copy, op.dest):
         setattr(values_copy, op.dest, op.default if op.default != optparse.NO_DEFAULT else None)
