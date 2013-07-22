@@ -1,4 +1,5 @@
 from functools import partial
+import itertools
 import posixpath
 import threading
 
@@ -24,6 +25,12 @@ from kazoo.protocol.states import (
 
 import kazoo.security as ksec
 import kazoo.exceptions as ke
+
+
+# TODO(wickman) Put this in twitter.common somewhere?
+def partition(items, predicate=bool):
+  a, b = itertools.tee((predicate(item), item) for item in items)
+  return ([item for pred, item in a if not pred], [item for pred, item in b if pred])
 
 
 class KazooGroup(GroupBase, GroupInterface):
@@ -55,17 +62,36 @@ class KazooGroup(GroupBase, GroupInterface):
     if not isinstance(zk, KazooClient):
       raise TypeError('KazooGroup must be initialized with a KazooClient')
     self._zk = zk
+    self.__state = zk.state
+    self.__listener_queue = []
+    self.__queue_lock = threading.Lock()
+    self._zk.add_listener(self.__state_listener)
     self._path = '/' + '/'.join(filter(None, path.split('/')))  # normalize path
     self._members = {}
     self._member_lock = threading.Lock()
     self._acl = self.translate_acl_list(acl)
 
-  def __on_state(self, callback, keeper_state):
-    def listener(state):
-      if state == keeper_state:
-        callback()
-        return True
-    return listener
+  def __state_listener(self, state):
+    """Process appropriate callbacks on any kazoo state transition."""
+    with self.__queue_lock:
+      self.__state = state
+      self.__listener_queue, triggered = partition(self.__listener_queue,
+          lambda element: element[0] == state)
+    for _, callback in triggered:
+      callback()
+
+  def __once(self, keeper_state, callback):
+    """Ensure a callback is called once we reach the given state: either
+       immediately, if currently in that state, or on the next transition to
+       that state."""
+    invoke = False
+    with self.__queue_lock:
+      if self.__state != keeper_state:
+        self.__listener_queue.append((keeper_state, callback))
+      else:
+        invoke = True
+    if invoke:
+      callback()
 
   def __on_connected(self, callback):
     return self.__on_state(callback, KazooState.CONNECTED)
@@ -99,7 +125,7 @@ class KazooGroup(GroupBase, GroupInterface):
       try:
         content, stat = result.get()
       except self.DISCONNECT_EXCEPTIONS:
-        self._zk.add_listener(self.__on_connected(do_info))
+        self.__once(KazooState.CONNECTED, do_info)
         return
       except ke.NoNodeException:
         future = self._members.pop(member, Future())
@@ -147,13 +173,13 @@ class KazooGroup(GroupBase, GroupInterface):
         if result.get() is None:
           expiry_capture.set()
       except self.DISCONNECT_EXCEPTIONS:
-        self._zk.add_listener(self.__on_connected(partial(do_exists, path)))
+        self.__once(KazooState.CONNECTED, partial(do_exists, path))
 
     def acreate_completion(result):
       try:
         path = result.get()
       except self.DISCONNECT_EXCEPTIONS:
-        self._zk.add_listener(self.__on_connected(do_join))
+        self.__once(KazooState.CONNECTED, do_join)
         return
       except ke.KazooException as e:
         log.warning('Unexpected Kazoo result in join: (%s)%s' % (type(e), e))
@@ -166,7 +192,7 @@ class KazooGroup(GroupBase, GroupInterface):
           result_future.set_result(blob)
           self._members[membership] = result_future
         if expire_callback:
-          self._zk.add_listener(self.__on_expired(expire_notifier))
+          self.__once(KazooState.LOST, expire_notifier)
           do_exists(path)
 
       membership_capture.set(membership)
@@ -185,7 +211,7 @@ class KazooGroup(GroupBase, GroupInterface):
       try:
         success = result.get()
       except self.DISCONNECT_EXCEPTIONS:
-        self._zk.add_listener(self.__on_connected(do_cancel))
+        self.__once(KazooState.CONNECTED, do_cancel)
         return
       except ke.NoNodeError:
         success = True
@@ -241,7 +267,7 @@ class KazooGroup(GroupBase, GroupInterface):
       try:
         children = result.get()
       except self.DISCONNECT_EXCEPTIONS:
-        self._zk.add_listener(self.__on_connected(do_monitor))
+        self.__once(KazooState.CONNECTED, do_monitor)
         return
       except ke.NoNodeError:
         wait_exists()
@@ -268,5 +294,5 @@ class KazooGroup(GroupBase, GroupInterface):
         except ke.NoNodeException:
           return []
       except self.DISCONNECT_EXCEPTIONS:
-        self._zk.add_listener(self.__on_connected(lambda: wait_event.set()))
+        self.__once(KazooState.CONNECTED, wait_event.set)
         wait_event.wait()
