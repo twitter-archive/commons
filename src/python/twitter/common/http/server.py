@@ -70,6 +70,7 @@ class HttpServer(object):
 
   ROUTES_ATTRIBUTE = '__routes__'
   VIEW_ATTRIBUTE = '__view__'
+  ERROR_ATTRIBUTE = '__errors__'
 
   Request = bottle.request
   Response = bottle.HTTPResponse
@@ -81,6 +82,15 @@ class HttpServer(object):
       if not hasattr(function, HttpServer.ROUTES_ATTRIBUTE):
         setattr(function, HttpServer.ROUTES_ATTRIBUTE, [])
       getattr(function, HttpServer.ROUTES_ATTRIBUTE).append((args, kwargs))
+      return function
+    return annotated
+
+  @staticmethod
+  def error(error_code):
+    def annotated(function):
+      if not hasattr(function, HttpServer.ERROR_ATTRIBUTE):
+        setattr(function, HttpServer.ERROR_ATTRIBUTE, [])
+      getattr(function, HttpServer.ERROR_ATTRIBUTE).append(error_code)
       return function
     return annotated
 
@@ -137,19 +147,22 @@ class HttpServer(object):
     """
       Mount the routes from another class.
 
-      The routes must be added to the class via the HttpServer.route annotation.
+      The routes must be added to the class via the HttpServer.route or .error annotation.
     """
     for attr in dir(cls):
       class_attr = getattr(cls, attr)
-      if hasattr(class_attr, HttpServer.ROUTES_ATTRIBUTE):
+      if (hasattr(class_attr, HttpServer.ROUTES_ATTRIBUTE) or
+          hasattr(class_attr, HttpServer.ERROR_ATTRIBUTE)):
         self._bind_method(cls, attr)
         if hasattr(class_attr, HttpServer.VIEW_ATTRIBUTE):
           args, kw = getattr(class_attr, HttpServer.VIEW_ATTRIBUTE)
           setattr(self, attr, bottle.view(*args, **kw)(getattr(self, attr)))
-        for args, kwargs in getattr(class_attr, HttpServer.ROUTES_ATTRIBUTE):
+        for args, kwargs in getattr(class_attr, HttpServer.ROUTES_ATTRIBUTE, ()):
           kwargs = copy.deepcopy(kwargs)
           kwargs.update({'callback': getattr(self, attr)})
           self._app.route(*args, **kwargs)
+        for error_code in getattr(class_attr, HttpServer.ERROR_ATTRIBUTE, ()):
+          self._app.error(error_code)(getattr(self, attr))
 
   def app(self):
     """
