@@ -43,3 +43,9 @@ jvm_binary(name='pingpong',
     pants(':pingpong-lib')
   ]
 )
+
+jvm_app(name='pingpong-app',
+  basename='pingpong',
+  binary=pants(':pingpong'),
+  bundles=bundle()
+)
