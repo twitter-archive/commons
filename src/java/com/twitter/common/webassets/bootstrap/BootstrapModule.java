@@ -26,6 +26,7 @@ import com.twitter.common.application.http.Registration;
  * A binding module to register bootstrap HTTP assets.
  */
 public final class BootstrapModule extends AbstractModule {
+  private static final String BOOTSTRAP_VERSION = "2.1.1";
 
   private void register(String mountPath, String resourcePath, String contentType) {
     Registration.registerHttpAsset(
@@ -40,23 +41,23 @@ public final class BootstrapModule extends AbstractModule {
   protected void configure() {
     register(
         "css/bootstrap-responsive.min.css",
-        "css/bootstrap-responsive-2.1.1.min.css",
+        BOOTSTRAP_VERSION + "/css/bootstrap-responsive.min.css",
         MediaType.CSS_UTF_8.toString());
     register(
         "css/bootstrap.min.css",
-        "css/bootstrap-2.1.1.min.css",
+        BOOTSTRAP_VERSION + "/css/bootstrap.min.css",
         MediaType.CSS_UTF_8.toString());
     register(
         "img/glyphicons-halflings-white.png",
-        "img/glyphicons-halflings-white-2.1.1.png",
+        BOOTSTRAP_VERSION + "/img/glyphicons-halflings-white.png",
         MediaType.PNG.toString());
     register(
         "img/glyphicons-halflings.png",
-        "img/glyphicons-halflings-2.1.1.png",
+        BOOTSTRAP_VERSION + "/img/glyphicons-halflings.png",
         MediaType.PNG.toString());
     register(
         "js/bootstrap.min.js",
-        "js/bootstrap-2.1.1.min.js",
+        BOOTSTRAP_VERSION + "/js/bootstrap.min.js",
         MediaType.JAVASCRIPT_UTF_8.toString());
   }
 }
