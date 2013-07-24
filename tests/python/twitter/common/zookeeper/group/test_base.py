@@ -24,15 +24,6 @@ from twitter.common.zookeeper.group.group_base import Membership
 import pytest
 
 
-if os.getenv('ZOOKEEPER_TEST_DEBUG'):
-  from twitter.common import log
-  from twitter.common.log.options import LogOptions
-  LogOptions.set_stderr_log_level('google:DEBUG')
-  LogOptions.set_disk_log_level('NONE')
-  LogOptions.set_log_dir('/tmp')
-  log.init('client_test')
-
-
 class GroupTestBase(object):
   # REQUIRE
   #
@@ -41,6 +32,8 @@ class GroupTestBase(object):
   MAX_EVENT_WAIT_SECS = 30.0
   CONNECT_TIMEOUT_SECS = 10.0
   CONNECT_RETRIES = 6
+  SERVER = None
+  CHROOT_PREFIX = 0
 
   @classmethod
   def make_zk(cls, ensemble, **kw):
@@ -51,12 +44,15 @@ class GroupTestBase(object):
     raise NotImplementedError
   
   def setUp(self):
-    self._server = ZookeeperServer()
+    if GroupTestBase.SERVER is None:
+      GroupTestBase.SERVER = ZookeeperServer()
+    self._server = GroupTestBase.SERVER
+    self._server.restart()
     self._zk = self.make_zk(self._server.ensemble)
 
   def tearDown(self):
     self._zk.stop()
-    self._server.stop()
+    GroupTestBase.CHROOT_PREFIX += 1
 
   def test_sync_join(self):
     zkg = self.GroupImpl(self._zk, '/test')
@@ -66,9 +62,9 @@ class GroupTestBase(object):
     assert zkg.info(membership) == 'hello world'
 
   def test_join_through_expiration(self):
-    zkg = self.GroupImpl(self._zk, '/test')
     self._zk.live.wait()
     session_id = self.session_id(self._zk)
+    zkg = self.GroupImpl(self._zk, '/test')
     self._server.shutdown()
     join_event = threading.Event()
     join_membership = []
@@ -168,7 +164,8 @@ class GroupTestBase(object):
     assert zkg2.info(membership) == 'hello world'
 
   def test_authentication(self):
-    secure_zk = self.make_zk(self._server.ensemble, authentication=('digest', 'username:password'))
+    secure_zk = self.make_zk(self._server.ensemble,
+        authentication=('digest', 'username:password'))
 
     # auth => unauth
     zkg = self.GroupImpl(self._zk, '/test')

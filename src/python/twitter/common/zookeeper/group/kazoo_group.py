@@ -166,7 +166,7 @@ class KazooGroup(GroupBase, GroupInterface):
         expiry_capture.set()
 
     def expire_notifier():
-      expiry_capture.set()
+      self.__once(KazooState.LOST, expiry_capture.set)
 
     def exists_completion(path, result):
       try:
@@ -177,7 +177,11 @@ class KazooGroup(GroupBase, GroupInterface):
 
     def acreate_completion(result):
       try:
-        path = result.get()
+        # TODO(wickman) Kazoo has a bug:
+        #    https://github.com/python-zk/kazoo/issues/106
+        #    https://github.com/python-zk/kazoo/pull/107
+        # Remove this one 1.3 is cut.
+        path = self._zk.unchroot(result.get())
       except self.DISCONNECT_EXCEPTIONS:
         self.__once(KazooState.CONNECTED, do_join)
         return
@@ -192,7 +196,7 @@ class KazooGroup(GroupBase, GroupInterface):
           result_future.set_result(blob)
           self._members[membership] = result_future
         if expire_callback:
-          self.__once(KazooState.LOST, expire_notifier)
+          self.__once(KazooState.CONNECTED, expire_notifier)
           do_exists(path)
 
       membership_capture.set(membership)
