@@ -16,47 +16,38 @@
 
 from __future__ import print_function
 
-__author__ = 'Dave Buchfuhrer, Brian Wickman'
-
 try:
   import ConfigParser
 except ImportError:
   import configparser as ConfigParser
 
-import atexit
+from collections import defaultdict, deque
 import copy
+from functools import partial, wraps
 import inspect
 import optparse
 import os
 import shlex
+import signal
 import sys
 import threading
-from collections import defaultdict, deque
-from functools import partial
+import time
+import traceback
 
 from twitter.common import options
-from twitter.common.app.module import AppModule
-from twitter.common.app.inspection import Inspection
 from twitter.common.lang import Compatibility
 from twitter.common.process import daemonize
 from twitter.common.util import topological_sort
+
+from .inspection import Inspection
+from .module import AppModule
 
 
 class Application(object):
   class Error(Exception): pass
 
   # enforce a quasi-singleton interface (for resettable applications in test)
-  _Global = None
-
-  @staticmethod
-  def reset():
-    """Reset the global application.  Only useful for testing."""
-    Application._Global = Application()
-
-  @staticmethod
-  def active():
-    """Return the current resident application object."""
-    return Application._Global
+  _GLOBAL = None
 
   HELP_OPTIONS = [
     options.Option("-h", "--help", "--short-help",
@@ -133,41 +124,70 @@ class Application(object):
            help="Ignore default arguments from the rc file."),
   }
 
-  NO_COMMAND = 'DEFAULT'
   OPTIONS = 'options'
-
   OPTIONS_ATTR = '__options__'
+  NO_COMMAND = 'DEFAULT'
+  SIGINT_RETURN_CODE = 130  # see http://tldp.org/LDP/abs/html/exitcodes.html
 
-  def __init__(self):
+  INITIALIZING = 1
+  INITIALIZED = 2
+  RUNNING = 3
+  ABORTING = 4
+  SHUTDOWN = 5
+
+  @classmethod
+  def reset(cls):
+    """Reset the global application.  Only useful for testing."""
+    cls._GLOBAL = cls()
+
+  @classmethod
+  def active(cls):
+    """Return the current resident application object."""
+    return cls._GLOBAL
+
+  def __init__(self, exit_function=sys.exit, force_args=None):
     self._name = None
+    self._exit_function = exit_function
+    self._force_args = force_args
     self._registered_modules = []
     self._init_modules = []
     self._option_targets = defaultdict(dict)
     self._global_options = {}
     self._interspersed_args = False
-    self._main_options = Application.HELP_OPTIONS[:]
+    self._main_options = self.HELP_OPTIONS[:]
+    self._main_thread = None
+    self._shutdown_commands = []
     self._usage = ""
     self._profiler = None
     self._commands = {}
+    self._state = self.INITIALIZING
 
     self._reset()
-    for opt in Application.APP_OPTIONS.values():
+    for opt in self.APP_OPTIONS.values():
       self.add_option(opt)
-    self._configure_options(None, Application.APP_OPTIONS)
+    self._configure_options(None, self.APP_OPTIONS)
 
-  def _raise_if_initialized(self, msg="Cannot perform operation after initialization!"):
-    if self.initialized:
-      raise Application.Error(msg)
+  def pre_initialization(method):
+    @wraps(method)
+    def wrapped_method(self, *args, **kw):
+      if self._state > self.INITIALIZING:
+        raise self.Error("Cannot perform operation after initialization!")
+      return method(self, *args, **kw)
+    return wrapped_method
 
-  def _raise_if_uninitialized(self, msg="Cannot perform operation before initialization!"):
-    if not self.initialized:
-      raise Application.Error(msg)
+  def post_initialization(method):
+    @wraps(method)
+    def wrapped_method(self, *args, **kw):
+      if self._state < self.INITIALIZED:
+        raise self.Error("Cannot perform operation before initialization!")
+      return method(self, *args, **kw)
+    return wrapped_method
 
   def _reset(self):
     """
       Resets the state set up by init() so that init() may be called again.
     """
-    self.initialized = False
+    self._state = self.INITIALIZING
     self._option_values = options.Values()
     self._argv = []
 
@@ -178,6 +198,7 @@ class Application(object):
     for opt_name, opt in option_dict.items():
       self._option_targets[module][opt_name] = opt.dest
 
+  @pre_initialization
   def configure(self, module=None, **kw):
     """
       Configure the application object or its activated modules.
@@ -202,19 +223,18 @@ class Application(object):
     """
     if module not in self._option_targets:
       if not self._import_module(module):
-        raise Application.Error('Unknown module to configure: %s' % module)
+        raise self.Error('Unknown module to configure: %s' % module)
     def configure_option(name, value):
       if name not in self._option_targets[module]:
-        raise Application.Error('Module %s has no option %s' % (module, name))
+        raise self.Error('Module %s has no option %s' % (module, name))
       self.set_option(self._option_targets[module][name], value)
     for option_name, option_value in kw.items():
       configure_option(option_name, option_value)
 
   def _main_parser(self):
-    return (options.parser()
-              .interspersed_arguments(self._interspersed_args)
-              .options(self._main_options)
-              .usage(self._usage))
+    return (options.parser().interspersed_arguments(self._interspersed_args)
+                            .options(self._main_options)
+                            .usage(self._usage))
 
   def command_parser(self, command):
     assert command in self._commands
@@ -225,7 +245,7 @@ class Application(object):
       op = copy.deepcopy(option)
       if not hasattr(values_copy, op.dest):
         setattr(values_copy, op.dest, op.default if op.default != optparse.NO_DEFAULT else None)
-      Application.rewrite_help(op)
+      self.rewrite_help(op)
       op.default = optparse.NO_DEFAULT
       command_group.add_option(op)
     parser = parser.groups([command_group]).values(values_copy)
@@ -239,7 +259,7 @@ class Application(object):
       Construct an options parser containing only options added by __main__
       or global help options registered by the application.
     """
-    if hasattr(self._commands.get(self._command), Application.OPTIONS_ATTR):
+    if hasattr(self._commands.get(self._command), self.OPTIONS_ATTR):
       return self.command_parser(self._command)
     else:
       return self._main_parser().values(copy.deepcopy(self._option_values))
@@ -262,13 +282,13 @@ class Application(object):
 
     options = argv
 
-    if Application.IGNORE_RC_FLAG not in argv and os.path.exists(rc_filename):
-      command = self._command or Application.NO_COMMAND
+    if self.IGNORE_RC_FLAG not in argv and os.path.exists(rc_filename):
+      command = self._command or self.NO_COMMAND
       rc_config = ConfigParser.SafeConfigParser()
       rc_config.read(rc_filename)
 
-      if rc_config.has_option(command, Application.OPTIONS):
-        default_options_str = rc_config.get(command, Application.OPTIONS)
+      if rc_config.has_option(command, self.OPTIONS):
+        default_options_str = rc_config.get(command, self.OPTIONS)
         default_options = shlex.split(default_options_str, True)
         options = default_options + options
 
@@ -289,12 +309,15 @@ class Application(object):
 
   def _short_help(self, option, opt, value, parser):
     self._construct_partial_parser().print_help()
-    sys.exit(1)
+    self._exit_function(1)
+    return
 
   def _long_help(self, option, opt, value, parser):
     self._construct_full_parser().print_help()
-    sys.exit(1)
+    self._exit_function(1)
+    return
 
+  @pre_initialization
   def _setup_modules(self):
     """
       Setup all initialized modules.
@@ -315,6 +338,8 @@ class Application(object):
     """
       Teardown initialized module in reverse initialization order.
     """
+    if self._state != self.SHUTDOWN:
+      raise self.Error('Expected application to be in SHUTDOWN state!')
     module_registry = AppModule.module_registry()
     for module_label in reversed(self._init_modules):
       assert module_label in module_registry
@@ -332,17 +357,16 @@ class Application(object):
                 stderr=self._option_values.twitter_common_app_daemon_stderr)
 
   # ------- public exported methods -------
-  def init(self, force_args=None):
+  @pre_initialization
+  def init(self):
     """
       Initialize the state necessary to run the application's main() function but
-      without actually invoking main.  Mostly useful for testing.  If force_args
-      specified, use those arguments instead of sys.argv[1:].
+      without actually invoking main.
     """
-    self._raise_if_initialized("init cannot be called twice.  Use reinit if necessary.")
-    self._parse_options(force_args)
+    self._parse_options(self._force_args)
     self._maybe_daemonize()
     self._setup_modules()
-    self.initialized = True
+    self._state = self.INITIALIZED
 
   def reinit(self, force_args=None):
     """
@@ -352,10 +376,11 @@ class Application(object):
     self._reset()
     self.init(force_args)
 
+  @post_initialization
   def argv(self):
-    self._raise_if_uninitialized("Must call app.init() before you may access argv.")
     return self._argv
 
+  @pre_initialization
   def add_module_path(self, name, path):
     """
       Add all app.Modules defined by name at path.
@@ -367,13 +392,15 @@ class Application(object):
     """
     import pkgutil
     for _, mod, ispkg in pkgutil.iter_modules(path):
-      if ispkg: continue
+      if ispkg:
+        continue
       fq_module = '.'.join([name, mod])
       __import__(fq_module)
       for (kls_name, kls) in inspect.getmembers(sys.modules[fq_module], inspect.isclass):
         if issubclass(kls, AppModule):
           self.register_module(kls())
 
+  @pre_initialization
   def register_module(self, module):
     """
       Register an app.Module and all its options.
@@ -385,21 +412,23 @@ class Application(object):
       return
     if hasattr(module, 'OPTIONS'):
       if not isinstance(module.OPTIONS, dict):
-        raise Application.Error('Registered app.Module %s has invalid OPTIONS.' % module.__module__)
+        raise self.Error('Registered app.Module %s has invalid OPTIONS.' % module.__module__)
       for opt in module.OPTIONS.values():
         self._add_option(module.__module__, opt)
       self._configure_options(module.label(), module.OPTIONS)
     self._registered_modules.append(module.label())
 
-  @staticmethod
-  def _get_module_key(module):
+  @classmethod
+  def _get_module_key(cls, module):
     return 'From module %s' % module
 
+  @pre_initialization
   def _add_main_option(self, option):
     self._main_options.append(option)
 
+  @pre_initialization
   def _add_module_option(self, module, option):
-    calling_module = Application._get_module_key(module)
+    calling_module = self._get_module_key(module)
     if calling_module not in self._global_options:
       self._global_options[calling_module] = options.new_group(calling_module)
     self._global_options[calling_module].add_option(option)
@@ -418,7 +447,7 @@ class Application(object):
     if op.dest and hasattr(op, 'default'):
       self.set_option(op.dest, op.default if op.default != optparse.NO_DEFAULT else None,
         force=False)
-      Application.rewrite_help(op)
+      self.rewrite_help(op)
       op.default = optparse.NO_DEFAULT
     if calling_module == '__main__':
       self._add_main_option(op)
@@ -431,7 +460,7 @@ class Application(object):
     else:
       return options.TwitterOption(*args, **kwargs)
 
-
+  @pre_initialization
   def add_option(self, *args, **kwargs):
     """
       Add an option to the application.
@@ -439,7 +468,6 @@ class Application(object):
       You may pass either an Option object from the optparse/options module, or
       pass the *args/**kwargs necessary to construct an Option.
     """
-    self._raise_if_initialized("Cannot call add_option() after main()!")
     calling_module = Inspection.find_calling_module()
     added_option = self._get_option_from_args(args, kwargs)
     self._add_option(calling_module, added_option)
@@ -463,6 +491,7 @@ class Application(object):
     else:
       return partial(self._register_command, command_name=name)
 
+  @pre_initialization
   def _register_command(self, function, command_name=None):
     """
       Registers function as the handler for command_name. Uses function.__name__ if command_name
@@ -472,7 +501,7 @@ class Application(object):
       if command_name is None:
         command_name = function.__name__
       if command_name in self._commands:
-        raise Application.Error('Found two definitions for command %s' % command_name)
+        raise self.Error('Found two definitions for command %s' % command_name)
       self._commands[command_name] = function
     return function
 
@@ -483,32 +512,34 @@ class Application(object):
     if Inspection.find_calling_module() == '__main__':
       if None in self._commands:
         defaults = (self._commands[None].__name__, function.__name__)
-        raise Application.Error('Found two default commands: %s and %s' % defaults)
+        raise self.Error('Found two default commands: %s and %s' % defaults)
       self._commands[None] = function
     return function
 
+  @pre_initialization
   def command_option(self, *args, **kwargs):
     """
       Decorator to add an option only for a specific command.
     """
     def register_option(function):
       added_option = self._get_option_from_args(args, kwargs)
-      if not hasattr(function, Application.OPTIONS_ATTR):
-        setattr(function, Application.OPTIONS_ATTR, deque())
-      getattr(function, Application.OPTIONS_ATTR).appendleft(added_option)
+      if not hasattr(function, self.OPTIONS_ATTR):
+        setattr(function, self.OPTIONS_ATTR, deque())
+      getattr(function, self.OPTIONS_ATTR).appendleft(added_option)
       return function
     return register_option
 
+  @pre_initialization
   def copy_command_options(self, command_function):
     """
       Decorator to copy command options from another command.
     """
     def register_options(function):
-      if hasattr(command_function, Application.OPTIONS_ATTR):
-        if not hasattr(function, Application.OPTIONS_ATTR):
-          setattr(function, Application.OPTIONS_ATTR, deque())
-        command_options = getattr(command_function, Application.OPTIONS_ATTR)
-        getattr(function, Application.OPTIONS_ATTR).extendleft(command_options)
+      if hasattr(command_function, self.OPTIONS_ATTR):
+        if not hasattr(function, self.OPTIONS_ATTR):
+          setattr(function, self.OPTIONS_ATTR, deque())
+        command_options = getattr(command_function, self.OPTIONS_ATTR)
+        getattr(function, self.OPTIONS_ATTR).extendleft(command_options)
       return function
     return register_options
 
@@ -517,7 +548,7 @@ class Application(object):
       Function to add all options from a command
     """
     module = inspect.getmodule(command_function).__name__
-    for option in getattr(command_function, Application.OPTIONS_ATTR, []):
+    for option in getattr(command_function, self.OPTIONS_ATTR, ()):
       self._add_option(module, option)
 
   def _debug_log(self, msg):
@@ -546,7 +577,7 @@ class Application(object):
     """
       Return all valid commands registered by __main__
     """
-    return filter(None, self._commands.keys())
+    return list(filter(None, self._commands.keys()))
 
   def get_commands_and_docstrings(self):
     """
@@ -566,6 +597,7 @@ class Application(object):
         setattr(new_values, opt.dest, getattr(self._option_values, opt.dest))
     return new_values
 
+  @pre_initialization
   def set_usage(self, usage):
     """
       Set the usage message should the user call --help or invalidly specify options.
@@ -582,13 +614,13 @@ class Application(object):
     """
       Print the application help message and exit.
     """
-    self._short_help(*(None,)*4)
+    self._short_help(None, None, None, None)
 
+  @pre_initialization
   def set_name(self, application_name):
     """
       Set the application name.  (Autodetect otherwise.)
     """
-    self._raise_if_initialized("Cannot set application name.")
     self._name = application_name
 
   def name(self):
@@ -602,15 +634,12 @@ class Application(object):
     else:
       try:
         return Inspection.find_application_name()
-      except:
+      # TODO(wickman) Be more specific
+      except Exception:
         return 'unknown'
 
-  def quit(self, rc, exit_function=sys.exit):
-    self._debug_log('Shutting application down.')
-    self._teardown_modules()
-    self._debug_log('Finishing up module teardown.')
+  def quit(self, return_code):
     nondaemons = 0
-    self.dump_profile()
     for thr in threading.enumerate():
       self._debug_log('  Active thread%s: %s' % (' (daemon)' if thr.isDaemon() else '', thr))
       if thr is not threading.current_thread() and not thr.isDaemon():
@@ -619,7 +648,7 @@ class Application(object):
       self._debug_log('More than one active non-daemon thread, your application may hang!')
     else:
       self._debug_log('Exiting cleanly.')
-    exit_function(rc)
+    self._exit_function(return_code)
 
   def profiler(self):
     if self._option_values.twitter_common_app_profiling:
@@ -640,19 +669,85 @@ class Application(object):
       else:
         self.profiler().print_stats(sort='time')
 
-  def _run_main(self, main_method, *args, **kwargs):
+  # The thread module provides the interrupt_main() function which does
+  # precisely what it says, sending a KeyboardInterrupt to MainThread.  The
+  # only problem is that it only delivers the exception while the MainThread
+  # is running.  If one does time.sleep(10000000) it will simply block
+  # forever.  Sending an actual SIGINT seems to be the only way around this. 
+  # Of course, applications can trap SIGINT and prevent the quitquitquit
+  # handlers from working.
+  #
+  # Furthermore, the following cannot work:
+  #
+  # def main():
+  #   shutdown_event = threading.Event()
+  #   app.register_shutdown_command(lambda rc: shutdown_event.set())
+  #   shutdown_event.wait()
+  #
+  # because threading.Event.wait() is uninterruptible.  This is why
+  # abortabortabort is so severe.  An application that traps SIGTERM will
+  # render the framework unable to abort it, so SIGKILL is really the only
+  # way to be sure to force termination because it cannot be trapped.
+  #
+  # For the particular case where the bulk of the work is taking place in
+  # background threads, use app.wait_forever().
+  def quitquitquit(self):
+    self._state = self.ABORTING
+    os.kill(os.getpid(), signal.SIGINT)
+
+  def abortabortabort(self):
+    self._state = self.SHUTDOWN
+    os.kill(os.getpid(), signal.SIGKILL)
+
+  def register_shutdown_command(self, command):
+    if not callable(command):
+      raise TypeError('Shutdown command must be a callable.')
+    if self._state >= self.ABORTING:
+      raise self.Error('Cannot register a shutdown command while shutting down.')
+    self._shutdown_commands.append(command)
+
+  def _wrap_method(self, method, method_name=None):
+    method_name = method_name or method.__name__
     try:
-      if self.profiler():
-        rc = self.profiler().runcall(main_method, *args, **kwargs)
-      else:
-        rc = main_method(*args, **kwargs)
+      return_code = method()
     except SystemExit as e:
-      rc = e.code
-      self._debug_log('main_method exited with return code = %s' % repr(rc))
+      self._debug_log('%s sys.exited' % method_name)
+      return_code = e.code
     except KeyboardInterrupt as e:
-      rc = None
-      self._debug_log('main_method exited with ^C')
-    return rc
+      if self._state >= self.ABORTING:
+        self._debug_log('%s being shutdown' % method_name)
+        return_code = 0
+      else:
+        self._debug_log('%s exited with ^C' % method_name)
+        return_code = self.SIGINT_RETURN_CODE
+    except Exception as e:
+      return_code = 1
+      self._debug_log('%s excepted with %s:' % (method_name, type(e)))
+      self._debug_log('\n'.join(traceback.format_exc()))
+    return return_code
+
+  @post_initialization
+  def _run_main(self, main_method, *args, **kwargs):
+    if self.profiler():
+      main = lambda: self.profiler().runcall(main_method, *args, **kwargs)
+    else:
+      main = lambda: main_method(*args, **kwargs)
+
+    self._state = self.RUNNING
+    return self._wrap_method(main, method_name='main')
+
+  def _run_shutdown_commands(self, return_code):
+    while self._state != self.SHUTDOWN and self._shutdown_commands:
+      command = self._shutdown_commands.pop(0)
+      command(return_code)
+
+  def _run_module_teardown(self):
+    if self._state != self.SHUTDOWN:
+      raise self.Error('Expected application to be in SHUTDOWN state!')
+    self._debug_log('Shutting application down.')
+    self._teardown_modules()
+    self._debug_log('Finishing up module teardown.')
+    self.dump_profile()
 
   def _import_module(self, name):
     """
@@ -664,6 +759,49 @@ class Application(object):
     except ImportError:
       return False
 
+  def _validate_main_module(self):
+    main_module = Inspection.find_calling_module()
+    return main_module == '__main__'
+
+  def _default_command_is_defined(self):
+    return None in self._commands
+
+  # Allow for overrides in test
+  def _find_main_method(self):
+    try:
+      return Inspection.find_main_from_caller()
+    except Inspection.InternalError:
+      pass
+
+  def _get_main_method(self):
+    caller_main = self._find_main_method()
+    if self._default_command_is_defined() and caller_main is not None:
+      print('Error: Cannot define both main and a default command.', file=sys.stderr)
+      self._exit_function(1)
+      return
+    main_method = self._commands.get(self._command) or caller_main
+    if main_method is None:
+      commands = sorted(self.get_commands())
+      if commands:
+        print('Must supply one of the following commands:', ', '.join(commands), file=sys.stderr)
+      else:
+        print('No main() or command defined! Application must define one of these.',
+            file=sys.stderr)
+    return main_method
+
+  def wait_forever(self):
+    """Convenience function to block the application until it is terminated
+       by ^C or lifecycle functions."""
+    while True:
+      time.sleep(0.5)
+
+  def shutdown(self, return_code):
+    self._wrap_method(lambda: self._run_shutdown_commands(return_code),
+         method_name='shutdown commands')
+    self._state = self.SHUTDOWN
+    self._run_module_teardown()
+    self.quit(return_code)
+
   def main(self):
     """
       If called from __main__ module, run script's main() method with arguments passed
@@ -674,15 +812,15 @@ class Application(object):
          main(args)
          main(args, options)
     """
-    main_module = Inspection.find_calling_module()
-    if main_module != '__main__':
+    if not self._validate_main_module():
       # only support if __name__ == '__main__'
       return
 
     # Pull in modules in twitter.common.app.modules
     if not self._import_module('twitter.common.app.modules'):
       print('Unable to import twitter app modules!', file=sys.stderr)
-      sys.exit(1)
+      self._exit_function(1)
+      return
 
     # defer init as long as possible.
     self.init()
@@ -691,28 +829,17 @@ class Application(object):
       print('RC filename: %s' % self._rc_filename())
       return
 
-    try:
-      caller_main = Inspection.find_main_from_caller()
-    except Inspection.InternalError:
-      caller_main = None
-    if None in self._commands:
-      assert caller_main is None, "Error: Cannot define both main and a default command."
-    else:
-      self._commands[None] = caller_main
-    main_method = self._commands[self._command]
+    main_method = self._get_main_method()
     if main_method is None:
-      commands = sorted(self.get_commands())
-      if commands:
-        print('Must supply one of the following commands:', ', '.join(commands), file=sys.stderr)
-      else:
-        print('No main() or command defined! Application must define one of these.', file=sys.stderr)
-      sys.exit(1)
+      self._exit_function(1)
+      return
 
     try:
       argspec = inspect.getargspec(main_method)
     except TypeError as e:
       print('Malformed main(): %s' % e, file=sys.stderr)
-      sys.exit(1)
+      self._exit_function(1)
+      return
 
     if len(argspec.args) == 1:
       args = [self._argv]
@@ -722,7 +849,11 @@ class Application(object):
       if len(self._argv) != 0:
         print('main() takes no arguments but got leftover arguments: %s!' %
           ' '.join(self._argv), file=sys.stderr)
-        sys.exit(1)
+        self._exit_function(1)
+        return
       args = []
-    rc = self._run_main(main_method, *args)
-    self.quit(rc)
+
+    self.shutdown(self._run_main(main_method, *args))
+
+  del post_initialization
+  del pre_initialization
