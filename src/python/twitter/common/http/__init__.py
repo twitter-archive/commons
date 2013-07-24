@@ -14,10 +14,5 @@
 # limitations under the License.
 # ==================================================================================================
 
-__author__ = 'Brian Wickman'
-
-from .server import HttpServer
-
-__all__ = [
-  'HttpServer',
-]
+from .plugin import Plugin
+from .server import *

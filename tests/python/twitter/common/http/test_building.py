@@ -49,9 +49,10 @@ def test_basic_server_method_binding():
       return 'Hello, %s %s!' % (first, last)
 
   server = MyServer()
-  assert server.app().handle('/hello') == 'Hello, Zaphod Beeblebrox!'
-  assert server.app().handle('/hello/Brian') == 'Hello, Brian Beeblebrox!'
-  assert server.app().handle('/hello/Brian/Horfgorf') == 'Hello, Brian Horfgorf!'
+  assert server.app.handle('/hello') == 'Hello, Zaphod Beeblebrox!'
+  assert server.app.handle('/hello/Brian') == 'Hello, Brian Beeblebrox!'
+  assert server.app.handle('/hello/Brian/Horfgorf') == 'Hello, Brian Horfgorf!'
+
 
 
 @skipifpy3k
@@ -72,11 +73,11 @@ def test_basic_server_error_binding():
   server.mount_routes(mserver)
 
   # Test 404 error handling.
-  resp = server.app()(make_request('/nonexistent_page'), functools.partial(response_asserter, 404))
+  resp = server.app(make_request('/nonexistent_page'), functools.partial(response_asserter, 404))
   assert resp[0] == BREAKAGE
 
   # Test 500 error handling.
-  resp = server.app()(make_request('/broken'), functools.partial(response_asserter, 500))
+  resp = server.app(make_request('/broken'), functools.partial(response_asserter, 500))
   assert resp[0] == BREAKAGE
 
 
@@ -111,4 +112,3 @@ def test_bind_method():
   bs._bind_method(BaseServerIsSubclass(), 'method_two')
   assert bs.method_one() == 'method_one'
   assert bs.method_two() == 'method_two'
-

@@ -14,30 +14,32 @@
 # limitations under the License.
 # ==================================================================================================
 
+import pstats
 import sys
 import threading
 import traceback
-import pstats
+
 try:
   import cStringIO as StringIO
 except ImportError:
   import StringIO
-from twitter.common.http import HttpServer
 
 try:
   from twitter.common import app
-  HAS_APP=True
+  HAS_APP = True
 except ImportError:
-  HAS_APP=False
+  HAS_APP = False
+
+from .server import HttpServer, route
 
 
 class DiagnosticsEndpoints(object):
   """
     Export the thread stacks of the running process.
   """
-  @staticmethod
-  def generate_stacks():
-    threads = dict([(th.ident, th) for th in threading.enumerate()])
+  @classmethod
+  def generate_stacks(cls):
+    threads = dict((th.ident, th) for th in threading.enumerate())
     tb = []
     for thread_id, stack in sys._current_frames().items():
       tb.append("\n\n# Thread%s: %s (%s, %d)" % (
@@ -49,11 +51,11 @@ class DiagnosticsEndpoints(object):
           tb.append("    %s" % (line.strip()))
     return '<pre>' + "<br>".join(tb) + '</pre>'
 
-  @HttpServer.route("/threads")
+  @route("/threads")
   def handle_threads(self):
     return self.generate_stacks()
 
-  @HttpServer.route("/profile")
+  @route("/profile")
   def handle_profile(self):
     if HAS_APP and app.profiler() is not None:
       output_stream = StringIO.StringIO()
@@ -66,6 +68,6 @@ class DiagnosticsEndpoints(object):
     else:
       return 'Profiling is disabled'
 
-  @HttpServer.route("/health")
+  @route("/health")
   def handle_health(self):
     return 'OK'
