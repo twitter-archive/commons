@@ -1,7 +1,6 @@
 python_test_suite(
   name = 'all',
   dependencies = [
-    pants(':test_serverset'),
     pants(':test_kazoo_serverset'),
   ],
 )
@@ -12,16 +11,6 @@ python_library(
   dependencies = [
     pants('src/python/twitter/common/zookeeper:testing'),
   ]
-)
-
-python_tests(
-  name = 'test_serverset',
-  sources = ['test_serverset.py'],
-  timeout = Amount(5, Time.MINUTES),
-  dependencies = [
-    pants(':test_base'),
-    pants('src/python/twitter/common/zookeeper/serverset'),
-  ],
 )
 
 python_tests(

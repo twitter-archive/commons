@@ -1,7 +1,6 @@
 python_test_suite(
   name = 'group',
   dependencies = [
-    pants(':test_group'),
     pants(':test_kazoo_group'),
   ],
 )
@@ -12,17 +11,6 @@ python_library(
   dependencies = [
     pants('src/python/twitter/common/zookeeper:testing'),
   ]
-)
-
-python_tests(
-  name = 'test_group',
-  sources = ['test_group.py'],
-  timeout = Amount(20, Time.MINUTES),
-  dependencies = [
-    pants(':test_base'),
-    pants('src/python/twitter/common/zookeeper/group'),
-  ],
-  coverage = 'twitter.common.zookeeper.group.group'
 )
 
 python_tests(

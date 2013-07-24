@@ -47,10 +47,19 @@ class TestKazooGroup(GroupTestBase, unittest.TestCase):
   def make_zk(cls, ensemble, **kw):
     if 'authentication' in kw:
       kw.update(auth_data = [kw.pop('authentication')])
-    return TwitterKazooClient.make(
-        ensemble,
+    tzk = TwitterKazooClient.make(
+        ensemble + ('/%08d' % GroupTestBase.CHROOT_PREFIX),
         timeout=cls.CONNECT_TIMEOUT_SECS,
         max_retries=cls.CONNECT_RETRIES, **kw)
+    started = threading.Event()
+    def listen(state):
+      if state == KazooState.CONNECTED:
+        started.set()
+      return True
+    tzk.add_listener(listen)
+    started.wait()
+    tzk.ensure_path('/')
+    return tzk
 
   @classmethod
   def session_id(cls, zk):
