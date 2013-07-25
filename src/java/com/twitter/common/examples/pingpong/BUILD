@@ -44,6 +44,8 @@ jvm_binary(name='pingpong',
   ]
 )
 
+# TODO(Bill Farner): Remove this once issue 160 [1] is fixed.
+# [1] https://github.com/twitter/commons/issues/160
 jvm_app(name='pingpong-app',
   basename='pingpong',
   binary=pants(':pingpong'),
