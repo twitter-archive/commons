@@ -722,8 +722,8 @@ class Application(object):
         return_code = self.SIGINT_RETURN_CODE
     except Exception as e:
       return_code = 1
-      self._debug_log('%s excepted with %s:' % (method_name, type(e)))
-      self._debug_log('\n'.join(traceback.format_exc()))
+      self._debug_log('%s excepted with %s' % (method_name, type(e)))
+      print(traceback.format_exc(), file=sys.stderr)
     return return_code
 
   @post_initialization
