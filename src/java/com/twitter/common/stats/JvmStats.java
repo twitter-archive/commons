@@ -23,6 +23,7 @@ import java.lang.management.MemoryMXBean;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadMXBean;
+import java.util.Map;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
@@ -229,6 +230,13 @@ public class JvmStats {
       Stats.exportString(
           new StatImpl<String>("jvm_prop_" + Stats.normalizeName(property)) {
             @Override public String read() { return System.getProperty(property); }
+          });
+    }
+
+    for (final Map.Entry<String, String> environmentVariable : System.getenv().entrySet()) {
+      Stats.exportString(
+          new StatImpl<String>("system_env_" + Stats.normalizeName(environmentVariable.getKey())) {
+            @Override public String read() { return environmentVariable.getValue(); }
           });
     }
   }
