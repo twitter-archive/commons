@@ -202,7 +202,7 @@ jar_library(name = 'dnsjava',
             ])
 
 # common rev for all com.twitter%finagle* artifacts
-FINAGLE_REV = '6.1.4'
+FINAGLE_REV = '6.5.2'
 
 jar_library(name = 'finagle-zipkin',
             dependencies = [ jar(org = 'com.twitter', name = 'finagle-zipkin', rev = FINAGLE_REV) ])
@@ -416,7 +416,7 @@ jar_library(name = 'mustache',
 
 jar_library(name = 'ostrich',
             dependencies = [
-              jar(org = 'com.twitter', name = 'ostrich', rev = '8.2.2').with_sources()
+              jar(org = 'com.twitter', name = 'ostrich', rev = '9.1.2').with_sources()
             ])
 
 jar_library(name = 'protobuf-2.4.1',
@@ -570,7 +570,7 @@ jar_library(name = 'twitter-config-yaml',
             ])
 
 # common rev for all com.twitter%util* artifacts
-UTIL_REV = '6.2.5'
+UTIL_REV = '6.3.8'
 
 jar_library(name = 'util',
             dependencies = [
