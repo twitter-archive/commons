@@ -71,20 +71,22 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
    * provided deserializer. Removal of child nodes triggers the "nodeRemoved" method indicating the
    * name of the ZNode which is no longer present in the map.
    */
-  public interface ZKMapListener<V> {
-    
+  public interface Listener<V> {
+
     /**
      * Fired when a node is added to the ZooKeeperMap or changed.
+     *
      * @param nodeName indicates the name of the ZNode that was added or changed.
      * @param value is the new value of the node after passing through your supplied deserializer.
     */
-    public void nodeChanged(String nodeName, V value);
+    void nodeChanged(String nodeName, V value);
 
     /**
      * Fired when a node is removed from the ZooKeeperMap.
+     *
      * @param nodeName indicates the name of the ZNode that was removed from the ZooKeeperMap.
     */
-    public void nodeRemoved(String nodeName);
+    void nodeRemoved(String nodeName);
   }
 
   /**
@@ -92,6 +94,12 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
    * in this map.
    */
   public static final Function<byte[], byte[]> BYTE_ARRAY_VALUES = Functions.identity();
+
+  public static final Listener NOOP_LISTENER = new Listener() {
+    public void nodeChanged(String nodeName, Object value) {}
+    public void nodeRemoved(String nodeName) {}
+  };
+
 
   private static final Logger LOG = Logger.getLogger(ZooKeeperMap.class.getName());
 
@@ -103,7 +111,7 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
   private final Map<String, V> unmodifiableLocalMap;
   private final BackoffHelper backoffHelper;
 
-  private final ZKMapListener<V> mapListener;
+  private final Listener<V> mapListener;
 
   // Whether it's safe to re-establish watches if our zookeeper session has expired.
   private final Object safeToRewatchLock;
@@ -117,7 +125,7 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
    * @param nodePath path to a node whose data will be watched
    * @param deserializer a function that converts byte[] data from a zk node to this map's
    *     value type V
-   * @param listener is a ZKMapListener which fires when values are added, changed, or removed.
+   * @param listener is a Listener which fires when values are added, changed, or removed.
    *
    * @throws InterruptedException if the underlying zookeeper server transaction is interrupted
    * @throws KeeperException.NoNodeException if the given nodePath doesn't exist
@@ -126,7 +134,7 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
    *     cluster
    */
   public static <V> ZooKeeperMap<V> create(ZooKeeperClient zkClient, String nodePath,
-      Function<byte[], V> deserializer, ZKMapListener<V> listener) throws InterruptedException, KeeperException,
+      Function<byte[], V> deserializer, Listener<V> listener) throws InterruptedException, KeeperException,
       ZooKeeperConnectionException {
     ZooKeeperMap<V> zkMap = new ZooKeeperMap<V>(zkClient, nodePath, deserializer, listener);
     zkMap.init();
@@ -151,7 +159,7 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
   public static <V> ZooKeeperMap<V> create(ZooKeeperClient zkClient, String nodePath,
       Function<byte[], V> deserializer) throws InterruptedException, KeeperException,
       ZooKeeperConnectionException {
-    return ZooKeeperMap.create(zkClient, nodePath, deserializer, null);
+    return ZooKeeperMap.create(zkClient, nodePath, deserializer, NOOP_LISTENER);
   }
 
   /**
@@ -166,7 +174,7 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
    * @param nodePath top-level node path under which the map data lives
    * @param deserializer a function that converts byte[] data from a zk node to this map's
    *     value type V
-   * @param listener is a ZKMapListener which fires when values are added, changed, or removed.
+   * @param mapListener is a Listener which fires when values are added, changed, or removed.
    *
    * @throws InterruptedException if the underlying zookeeper server transaction is interrupted
    * @throws KeeperException.NoNodeException if the given nodePath doesn't exist
@@ -176,7 +184,7 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
    */
   @VisibleForTesting
   ZooKeeperMap(ZooKeeperClient zkClient, String nodePath,
-      Function<byte[], V> deserializer, ZKMapListener<V> mapListener) throws InterruptedException, KeeperException,
+      Function<byte[], V> deserializer, Listener<V> mapListener) throws InterruptedException, KeeperException,
       ZooKeeperConnectionException {
     super();
     this.mapListener = mapListener;
@@ -379,13 +387,13 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
   @VisibleForTesting
   void removeEntry(String key) {
     localMap.remove(key);
-    if (mapListener != null) mapListener.nodeRemoved(key);
+    mapListener.nodeRemoved(key);
   }
 
   @VisibleForTesting
   void putEntry(String key, V value) {
     localMap.put(key, value);
-    if (mapListener != null) mapListener.nodeChanged(key, value);
+    mapListener.nodeChanged(key, value);
   }
 
   private void rewatchDataNodes() throws InterruptedException {
