@@ -234,7 +234,7 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
    ZooKeeperMap(ZooKeeperClient zkClient, String nodePath,
        Function<byte[], V> deserializer) throws InterruptedException, KeeperException,
        ZooKeeperConnectionException {
-     this(zkClient, nodePath, deserializer, null);
+     this(zkClient, nodePath, deserializer, ZooKeeperMap.<V>noopListener());
    }
 
   /**
