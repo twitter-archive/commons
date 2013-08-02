@@ -95,13 +95,18 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
    */
   public static final Function<byte[], byte[]> BYTE_ARRAY_VALUES = Functions.identity();
 
-  /**
-   * A listener that ignores all events.
-   */
-  public static final Listener NOOP_LISTENER = new Listener() {
+  private static final Listener<?> NOOP_LISTENER = new Listener<Object>() {
     public void nodeChanged(String nodeName, Object value) {}
     public void nodeRemoved(String nodeName) {}
   };
+
+  /**
+   * A listener that ignores all events.
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> Listener<T> noopListener() {
+    return (Listener <T>) NOOP_LISTENER;
+  }
 
   private static final Logger LOG = Logger.getLogger(ZooKeeperMap.class.getName());
 
@@ -143,6 +148,7 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
     return zkMap;
   }
 
+
   /**
    * Returns an initialized ZooKeeperMap.  The given path must exist at the time of
    * creation or a {@link KeeperException} will be thrown.
@@ -161,7 +167,7 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
   public static <V> ZooKeeperMap<V> create(ZooKeeperClient zkClient, String nodePath,
       Function<byte[], V> deserializer) throws InterruptedException, KeeperException,
       ZooKeeperConnectionException {
-    return ZooKeeperMap.create(zkClient, nodePath, deserializer, NOOP_LISTENER);
+    return ZooKeeperMap.create(zkClient, nodePath, deserializer, ZooKeeperMap.<V>noopListener());
   }
 
   /**

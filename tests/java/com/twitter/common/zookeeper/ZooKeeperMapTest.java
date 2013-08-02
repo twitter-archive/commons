@@ -396,20 +396,20 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
   }
 
   private Map<String, String> makeMap(String path) throws Exception {
-    return makeMap(path, ZooKeeperMap.NOOP_LISTENER);
+    return makeMap(path, ZooKeeperMap.<String>noopListener());
   }
 
-  private Map<String, String> makeMap(String path, ZooKeeperMap.Listener listener) throws Exception {
+  private Map<String, String> makeMap(String path, ZooKeeperMap.Listener<String> listener) throws Exception {
     ZooKeeperMap<String> zkMap = makeUninitializedMap(path, listener);
     zkMap.init();
     return zkMap;
   }
 
   private ZooKeeperMap<String> makeUninitializedMap(String path) throws Exception {
-    return makeUninitializedMap(path, ZooKeeperMap.NOOP_LISTENER);
+    return makeUninitializedMap(path, ZooKeeperMap.<String>noopListener());
   }
 
-  private ZooKeeperMap<String> makeUninitializedMap(String path, ZooKeeperMap.Listener listener) throws Exception {
+  private ZooKeeperMap<String> makeUninitializedMap(String path, ZooKeeperMap.Listener<String> listener) throws Exception {
     return new ZooKeeperMap<String>(zkClient, path, BYTES_TO_STRING, listener) {
       @Override void putEntry(String key, String value) {
         super.putEntry(key, value);
