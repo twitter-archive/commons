@@ -55,22 +55,22 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
           return new String(from);
         }};
 
-  private static class TestListener<T> implements ZooKeeperMap.Listener<T> {
-    private final BlockingQueue<Pair<String, T>> queue =
-            new LinkedBlockingQueue<Pair<String, T>>();
+  private static class TestListener implements ZooKeeperMap.Listener<String> {
+    private final BlockingQueue<Pair<String, String>> queue =
+            new LinkedBlockingQueue<Pair<String, String>>();
 
-    public Pair<String, T> waitForUpdate() throws InterruptedException {
+    public Pair<String, String> waitForUpdate() throws InterruptedException {
       return queue.take();
     }
 
     @Override
-    public void nodeChanged(String name, T value) {
+    public void nodeChanged(String name, String value) {
       queue.offer(Pair.of(name, value));
     }
 
     @Override
     public void nodeRemoved(String name) {
-      queue.offer(Pair.of(name, (T) null));
+      queue.offer(Pair.of(name, (String) null));
     }
   }
 

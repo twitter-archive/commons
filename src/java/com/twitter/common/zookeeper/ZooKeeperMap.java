@@ -78,14 +78,14 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
      *
      * @param nodeName indicates the name of the ZNode that was added or changed.
      * @param value is the new value of the node after passing through your supplied deserializer.
-    */
+     */
     void nodeChanged(String nodeName, V value);
 
     /**
      * Fired when a node is removed from the ZooKeeperMap.
      *
      * @param nodeName indicates the name of the ZNode that was removed from the ZooKeeperMap.
-    */
+     */
     void nodeRemoved(String nodeName);
   }
 
@@ -95,11 +95,13 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
    */
   public static final Function<byte[], byte[]> BYTE_ARRAY_VALUES = Functions.identity();
 
+  /**
+   * A listener that ignores all events.
+   */
   public static final Listener NOOP_LISTENER = new Listener() {
     public void nodeChanged(String nodeName, Object value) {}
     public void nodeRemoved(String nodeName) {}
   };
-
 
   private static final Logger LOG = Logger.getLogger(ZooKeeperMap.class.getName());
 
@@ -187,7 +189,7 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
       Function<byte[], V> deserializer, Listener<V> mapListener) throws InterruptedException, KeeperException,
       ZooKeeperConnectionException {
     super();
-    this.mapListener = mapListener;
+    this.mapListener = Preconditions.checkNotNull(mapListener);
     this.zkClient = Preconditions.checkNotNull(zkClient);
     this.nodePath = MorePreconditions.checkNotBlank(nodePath);
     this.deserializer = Preconditions.checkNotNull(deserializer);
