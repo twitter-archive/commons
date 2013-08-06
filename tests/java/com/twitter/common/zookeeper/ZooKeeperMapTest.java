@@ -16,19 +16,6 @@
 
 package com.twitter.common.zookeeper;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.twitter.common.collections.Pair;
-import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.data.ACL;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
 import java.util.Iterator;
@@ -37,14 +24,27 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.ZooDefs;
+import org.apache.zookeeper.data.ACL;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.twitter.common.collections.Pair;
+import com.twitter.common.zookeeper.ZooKeeperMap.Listener;
+import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-/**
- * @author Adam Samet
- */
 public class ZooKeeperMapTest extends BaseZooKeeperTest {
 
   private static final List<ACL> ACL = ZooDefs.Ids.OPEN_ACL_UNSAFE;
@@ -57,7 +57,7 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
 
   private static class TestListener implements ZooKeeperMap.Listener<String> {
     private final BlockingQueue<Pair<String, String>> queue =
-            new LinkedBlockingQueue<Pair<String, String>>();
+        new LinkedBlockingQueue<Pair<String, String>>();
 
     public Pair<String, String> waitForUpdate() throws InterruptedException {
       return queue.take();
@@ -399,7 +399,9 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
     return makeMap(path, ZooKeeperMap.<String>noopListener());
   }
 
-  private Map<String, String> makeMap(String path, ZooKeeperMap.Listener<String> listener) throws Exception {
+  private Map<String, String> makeMap(String path, ZooKeeperMap.Listener<String> listener)
+      throws Exception {
+
     ZooKeeperMap<String> zkMap = makeUninitializedMap(path, listener);
     zkMap.init();
     return zkMap;
@@ -409,7 +411,9 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
     return makeUninitializedMap(path, ZooKeeperMap.<String>noopListener());
   }
 
-  private ZooKeeperMap<String> makeUninitializedMap(String path, ZooKeeperMap.Listener<String> listener) throws Exception {
+  private ZooKeeperMap<String> makeUninitializedMap(String path, Listener<String> listener)
+      throws Exception {
+
     return new ZooKeeperMap<String>(zkClient, path, BYTES_TO_STRING, listener) {
       @Override void putEntry(String key, String value) {
         super.putEntry(key, value);
