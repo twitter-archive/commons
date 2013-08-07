@@ -14,6 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
+# TODO: move EasyMockTest to easymock subpackage
 java_library(name='testing',
   dependencies=[
     pants('3rdparty:easymock'),
