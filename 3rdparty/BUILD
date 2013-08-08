@@ -366,43 +366,6 @@ jar_library(name = 'kryo',
               jar(org = 'com.esotericsoftware.kryo', name = 'kryo', rev = '2.21')
             ])
 
-# TODO: move all lucene targets to 3rdparty/jvm/org/apache/lucene
-def lucene_jar_library(name, jar_name, rev, force=False):
-  jar_library(name = name,
-              dependencies = [
-                jar(org = 'org.apache.lucene',
-                    name = jar_name,
-                    rev = rev,
-                    force=force)
-                .withSources()])
-
-LUCENE_TARGETS = ('lucene-analyzers-common', \
-                  'lucene-core', \
-                  'lucene-queries', \
-                  'lucene-spatial', \
-                  'lucene-queryparser', \
-                  'lucene-test-framework', \
-                  'lucene-analyzers-smartcn', \
-                  'lucene-facet', \
-                  'lucene-suggest')
-
-# make backwards compatible unversioned default targets
-for t in LUCENE_TARGETS:
-  lucene_jar_library(t, t, '4.1.0')
-
-# Alias for lucene-analyzers-common to be backwards compatible
-# TODO: fix this
-jar_library(name = 'lucene-analyzers',
-            dependencies = [pants(':lucene-analyzers-common')])
-
-# Make explicitly versioned targets
-# **** Please don't edit this target, instead, create a new, similar one below,
-# **** or edit the loop above instead for new revisions.
-# **** This is important because we don't want this target to ever change without warning
-# **** as it can cause long-lived indexes stored on disk or in hdfs to become unreadable / invalid
-for t in LUCENE_TARGETS:
-  lucene_jar_library(t + '-4.1.0', t, '4.1.0', force=True)
-
 jar_library(name = 'mimepull',
             dependencies = [ jar(org='org.jvnet.mimepull', name='mimepull', rev='1.8').with_sources() ])
 
