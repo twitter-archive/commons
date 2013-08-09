@@ -26,9 +26,9 @@ from os.path import basename
 
 
 try:
-  from xmlrpclib import ServerProxy, Fault, Binary
+  from xmlrpclib import ServerProxy, Error as XMLRPCError, Binary
 except ImportError:
-  from xmlrpc.client import ServerProxy, Fault, Binary
+  from xmlrpc.client import ServerProxy, Error as XMLRPCError, Binary
 
 mimetypes.init()
 
@@ -75,7 +75,7 @@ class Confluence(object):
 
     try:
       return Confluence(api, confluence_url, api.login(user, password), fmt)
-    except Fault as e:
+    except XMLRPCError as e:
       raise ConfluenceError('Failed to log in to %s: %s' % (confluence_url, e))
 
   @staticmethod
@@ -98,7 +98,7 @@ class Confluence(object):
     """
     try:
       return self._api_entrypoint.getPage(self._session_token, wiki_space, page_title)
-    except Fault as e:
+    except XMLRPCError as e:
       log.warn('Failed to fetch page %s: %s' % (page_title, e))
       return None
 
@@ -109,7 +109,7 @@ class Confluence(object):
     """
     try:
       return self._api_entrypoint.storePage(self._session_token, page)
-    except Fault as e:
+    except XMLRPCError as e:
       log.error('Failed to store page %s: %s' % (page.get('title', '[unknown title]'), e))
       return None
 
@@ -120,7 +120,7 @@ class Confluence(object):
     """
     try:
       self._api_entrypoint.removePage(self._session_token, page)
-    except Fault as e:
+    except XMLRPCError as e:
       raise ConfluenceError('Failed to delete page: %s' % e)
 
   def create(self, space, title, content, parent_page=None, **pageoptions):
@@ -179,7 +179,7 @@ class Confluence(object):
     except (IOError, OSError) as e:
       log.error('Failed to read data from file %s: %s' % (filename, str(e)))
       return None
-    except Fault as e:
+    except XMLRPCError as e:
       log.error('Failed to add file attachment %s to page: %s' %
           (filename, page.get('title', '[unknown title]')))
       return None
