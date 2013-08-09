@@ -19,19 +19,9 @@ Running pingpong tests:
 ./pants goal test tests/java/com/twitter/common/examples/pingpong
 
 Running the pingpong example, pinging itself:
-(NOTE: this command may not work due to issue 160.
-If so, skip to 'Workaround'.)
 
 ./pants goal run src/java/com/twitter/common/examples/pingpong \
     --jvm-run-args="-http_port=8888 -ping_target=localhost:8888"
-
-Workaround:
-Due to issue 160, it may be necessary to use the bundle target and run the
-bundle jar directly:
-./pants goal bundle \
-    src/java/com/twitter/common/examples/pingpong:pingpong-app
-java -jar dist/pingpong-bundle/pingpong.jar -http_port=8888 \
-    -ping_target=localhost:8888
 
 Initiate the pingpong sequence:
 $ curl localhost:8888/ping/hello
