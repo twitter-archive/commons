@@ -155,7 +155,9 @@ class Confluence(object):
     if self._content_format == 'markdown':
       content = '{html}\n\n%s\n\n{html}' % html
     elif self._content_format == 'xhtml':
-      content = html
+      content = '''<ac:macro ac:name="html">
+          <ac:plain-text-body><![CDATA[%s]]></ac:plain-text-body>
+          </ac:macro>''' % html
     else:
       raise ConfluenceError("Don't know how to convert %s to HTML" % format)
     return self.create(space, title, content, parent_page, **pageoptions)
