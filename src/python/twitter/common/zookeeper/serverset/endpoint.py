@@ -111,10 +111,18 @@ class ServiceInstance(object):
         raise ValueError('Expected to find %s in ServiceInstance JSON!' % key)
     additional_endpoints = dict((name, Endpoint(value['host'], value['port']))
       for name, value in blob['additionalEndpoints'].items())
+    shard = blob.get('shard')
+    if shard is not None:
+      try:
+        shard = int(shard)
+      except ValueError:
+        log.warn('Failed to deserialize shard from value %r' % shard)
+        shard = None
     return cls(
       service_endpoint=Endpoint(blob['serviceEndpoint']['host'], blob['serviceEndpoint']['port']),
       additional_endpoints=additional_endpoints,
-      status=Status.from_string(blob['status']))
+      status=Status.from_string(blob['status']),
+      shard=shard)
 
   @classmethod
   def unpack_thrift(cls, blob):
@@ -125,24 +133,29 @@ class ServiceInstance(object):
     return cls(
       service_endpoint=Endpoint.unpack_thrift(blob.serviceEndpoint),
       additional_endpoints=additional_endpoints,
-      status=Status.unpack_thrift(blob.status))
+      status=Status.from_thrift(blob.status),
+      shard=blob.shard)
 
   @classmethod
   def to_dict(cls, service_instance):
-    return dict(
-      serviceEndpoint = Endpoint.to_dict(service_instance.service_endpoint),
-      additionalEndpoints = dict((name, Endpoint.to_dict(endpoint))
+    instance = dict(
+      serviceEndpoint=Endpoint.to_dict(service_instance.service_endpoint),
+      additionalEndpoints=dict((name, Endpoint.to_dict(endpoint))
           for name, endpoint in service_instance.additional_endpoints.items()),
-      status = service_instance.status.name()
+      status=service_instance.status.name()
     )
+    if service_instance.shard is not None:
+      instance.update(shard=service_instance.shard)
+    return instance
 
   @classmethod
   def pack(cls, service_instance):
     return json.dumps(cls.to_dict(service_instance))
 
-  def __init__(self, service_endpoint, additional_endpoints=None, status='ALIVE'):
+  def __init__(self, service_endpoint, additional_endpoints=None, status='ALIVE', shard=None):
     if not isinstance(service_endpoint, Endpoint):
       raise ValueError('Expected service_endpoint to be an Endpoint, got %r' % service_endpoint)
+    self._shard = shard
     self._service_endpoint = service_endpoint
     self._additional_endpoints = additional_endpoints or {}
     if not isinstance(self._additional_endpoints, dict):
@@ -173,13 +186,20 @@ class ServiceInstance(object):
   def status(self):
     return self._status
 
+  @property
+  def shard(self):
+    return self._shard
+
   def __eq__(self, other):
-    return self.service_endpoint == other.service_endpoint and (
-           self.additional_endpoints == other.additional_endpoints and
-           self.status == other.status)
+    return isinstance(other, self.__class__) and (
+        self.service_endpoint == other.service_endpoint and
+        self.additional_endpoints == other.additional_endpoints and
+        self.status == other.status and
+        self.shard == other.shard)
 
   def __str__(self):
-    return 'ServiceInstance(%s, addl: %s, status: %s)' % (
+    return 'ServiceInstance(%s, %saddl: %s, status: %s)' % (
       self.service_endpoint,
+      ('shard: %s, ' % self._shard) if self._shard is not None else '',
       ' : '.join('%s=>%s' % (key, val) for key, val in self.additional_endpoints.items()),
       self.status)

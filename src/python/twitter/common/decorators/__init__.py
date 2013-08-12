@@ -29,10 +29,12 @@ except ImportError:
     print(msg, file=sys.stderr)
 
 from .lru_cache import lru_cache
+from .threads import identify_thread
 
 __all__ = (
   'deprecated',
   'deprecated_with_warning',
+  'identify_thread',
   'lru_cache'
 )
 

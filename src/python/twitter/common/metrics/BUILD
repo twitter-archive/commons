@@ -18,6 +18,7 @@ python_library(
   name = "metrics",
   sources = rglobs("*.py"),
   dependencies = [
-    'src/python/twitter/common/lang'
+    pants('src/python/twitter/common/exceptions'),
+    pants('src/python/twitter/common/lang'),
   ]
 )

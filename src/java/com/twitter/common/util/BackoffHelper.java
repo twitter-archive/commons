@@ -131,7 +131,7 @@ public class BackoffHelper {
   private <T, E extends Exception> T retryWork(ExceptionalSupplier<T, E> work)
       throws E, InterruptedException, BackoffStoppedException {
     long currentBackoffMs = 0;
-    while (backoffStrategy.shouldContinue()) {
+    while (backoffStrategy.shouldContinue(currentBackoffMs)) {
       currentBackoffMs = backoffStrategy.calculateBackoffMs(currentBackoffMs);
       LOG.fine("Operation failed, backing off for " + currentBackoffMs + "ms");
       clock.waitFor(currentBackoffMs);

@@ -47,6 +47,10 @@ public class PossessiveContractionTokenCombinerTest {
     stream.reset("this desk is Keita's.");
     assertEquals(ImmutableList.of("this", "desk", "is", "Keita's", "."),
         stream.toStringList());
+
+    stream.reset("YELLING THIS DESK IS KEITA'S.");
+    assertEquals(ImmutableList.of("YELLING", "THIS", "DESK", "IS", "KEITA'S", "."),
+        stream.toStringList());
   }
 
   @Test
@@ -57,6 +61,10 @@ public class PossessiveContractionTokenCombinerTest {
 
     stream.reset("Let's ask what we should've done");
     assertEquals(ImmutableList.of("Let's", "ask", "what", "we", "should've", "done"),
+        stream.toStringList());
+
+    stream.reset("LET'S YELL WHAT WE SHOULD'VE DONE");
+    assertEquals(ImmutableList.of("LET'S", "YELL", "WHAT", "WE", "SHOULD'VE", "DONE"),
         stream.toStringList());
   }
 

@@ -22,7 +22,7 @@ import sys
 from contextlib import contextmanager
 from zipfile import ZipFile
 
-from twitter.pants import goal, is_internal
+from twitter.pants import get_buildroot, goal, is_internal
 from twitter.pants.base.parse_context import ParseContext
 from twitter.pants.python.python_chroot import PythonChroot
 from twitter.pants.targets import JavaLibrary, JvmBinary, ScalaLibrary
@@ -32,7 +32,7 @@ def reinstall(context):
   pex = os.path.join(ROOT_DIR, 'pants.pex')
   with ParseContext.temp(os.path.basename(__file__)):
     pants_exe = pants('src/python/twitter/pants').resolve().next()
-    chroot = PythonChroot(pants_exe, ROOT_DIR)
+    chroot = PythonChroot(pants_exe, ROOT_DIR, conn_timeout=context.options.conn_timeout)
     chroot.dump().build(pex)
 
   print('\nPants reinstalled from live local source.')
@@ -214,3 +214,16 @@ goal(name='checkstyle',
      action=Checkstyle,
      dependencies=['gen', 'resolve']).install('compile')
 
+
+from twitter.pants import set_scm
+from twitter.pants.scm.git import Git
+
+set_scm(Git(worktree=get_buildroot(), remote='origin', branch='master'))
+
+
+from twitter.pants.tasks.what_changed import ScmWhatChanged
+
+goal(
+  name='changed',
+  action=ScmWhatChanged,
+).install().with_description('Print the targets changed since some prior commit.')

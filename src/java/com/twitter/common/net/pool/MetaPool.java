@@ -16,17 +16,6 @@
 
 package com.twitter.common.net.pool;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.twitter.common.base.Closure;
-import com.twitter.common.base.Command;
-import com.twitter.common.quantity.Amount;
-import com.twitter.common.quantity.Time;
-import com.twitter.common.net.loadbalancing.LoadBalancer;
-import com.twitter.common.net.loadbalancing.LoadBalancingStrategy.ConnectionResult;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -38,6 +27,19 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
+import com.twitter.common.base.Closure;
+import com.twitter.common.base.Command;
+import com.twitter.common.net.loadbalancing.LoadBalancer;
+import com.twitter.common.net.loadbalancing.LoadBalancingStrategy.ConnectionResult;
+import com.twitter.common.quantity.Amount;
+import com.twitter.common.quantity.Time;
 
 /**
  * A connection pool that picks connections from a set of backend pools.  Backend pools are selected
@@ -57,11 +59,17 @@ import java.util.logging.Logger;
  */
 public class MetaPool<T, E> implements ObjectPool<Connection<T, E>> {
 
-  private final Command stopCommand;
+  private final Command stopBackendRestorer;
 
   private Map<E, ObjectPool<Connection<T, E>>> backends = null;
-  private final LoadBalancer<E> loadBalancer;
+
+  // Locks to guard mutation of the backends set.
+  private final Lock backendsReadLock;
+  private final Lock backendsWriteLock;
+
   private final Closure<Collection<E>> onBackendsChosen;
+
+  private final LoadBalancer<E> loadBalancer;
 
   /**
    * Creates a connection pool with no backends.  Backends may be added post-creation by calling
@@ -96,11 +104,16 @@ public class MetaPool<T, E> implements ObjectPool<Connection<T, E>> {
 
     this.loadBalancer = Preconditions.checkNotNull(loadBalancer);
     this.onBackendsChosen = Preconditions.checkNotNull(onBackendsChosen);
+
+    ReadWriteLock backendsLock = new ReentrantReadWriteLock(true);
+    backendsReadLock = backendsLock.readLock();
+    backendsWriteLock = backendsLock.writeLock();
+
     setBackends(backends);
 
     Preconditions.checkNotNull(restoreInterval);
     Preconditions.checkArgument(restoreInterval.getValue() > 0);
-    stopCommand = startDeadBackendRestorer(restoreInterval);
+    stopBackendRestorer = startDeadBackendRestorer(restoreInterval);
   }
 
   /**
@@ -108,9 +121,14 @@ public class MetaPool<T, E> implements ObjectPool<Connection<T, E>> {
    *
    * @param pools New pools to use.
    */
-  public synchronized void setBackends(Map<E, ObjectPool<Connection<T, E>>> pools) {
-    backends = Preconditions.checkNotNull(pools);
-    loadBalancer.offerBackends(pools.keySet(), onBackendsChosen);
+  public void setBackends(Map<E, ObjectPool<Connection<T, E>>> pools) {
+    backendsWriteLock.lock();
+    try {
+      backends = Preconditions.checkNotNull(pools);
+      loadBalancer.offerBackends(pools.keySet(), onBackendsChosen);
+    } finally {
+      backendsWriteLock.unlock();
+    }
   }
 
   private Command startDeadBackendRestorer(final Amount<Long, Time> restoreInterval) {
@@ -144,15 +162,36 @@ public class MetaPool<T, E> implements ObjectPool<Connection<T, E>> {
 
   private static final Logger LOG = Logger.getLogger(MetaPool.class.getName());
 
-  private synchronized void restoreDeadBackends(Amount<Long, Time> restoreInterval) {
-    for (E backend : backends.keySet()) {
+  private void restoreDeadBackends(Amount<Long, Time> restoreInterval) {
+    for (E backend : snapshotBackends()) {
+      ObjectPool<Connection<T, E>> pool;
+      backendsReadLock.lock();
       try {
-        release(get(backend, restoreInterval));
-      } catch (TimeoutException e) {
-        LOG.warning("Backend restorer failed to revive backend: " + backend + " -> " + e);
-      } catch (ResourceExhaustedException e) {
-        LOG.warning("Backend restorer failed to revive backend: " + backend + " -> " + e);
+        pool = backends.get(backend);
+      } finally {
+        backendsReadLock.unlock();
       }
+
+      // We can lose a race if the backends change - and that's fine, we'll restore the new set of
+      // backends in the next scheduled restoration run.
+      if (pool != null) {
+        try {
+          release(get(backend, pool, restoreInterval));
+        } catch (TimeoutException e) {
+          LOG.warning("Backend restorer failed to revive backend: " + backend + " -> " + e);
+        } catch (ResourceExhaustedException e) {
+          LOG.warning("Backend restorer failed to revive backend: " + backend + " -> " + e);
+        }
+      }
+    }
+  }
+
+  private Iterable<E> snapshotBackends() {
+    backendsReadLock.lock();
+    try {
+      return ImmutableList.copyOf(backends.keySet());
+    } finally {
+      backendsReadLock.unlock();
     }
   }
 
@@ -165,7 +204,22 @@ public class MetaPool<T, E> implements ObjectPool<Connection<T, E>> {
   public Connection<T, E> get(Amount<Long, Time> timeout)
       throws ResourceExhaustedException, TimeoutException {
 
-    return get(loadBalancer.nextBackend(), timeout);
+    E backend;
+    ObjectPool<Connection<T, E>> pool;
+
+    backendsReadLock.lock();
+    try {
+      backend = loadBalancer.nextBackend();
+      Preconditions.checkNotNull(backend, "Load balancer gave a null backend.");
+
+      pool = backends.get(backend);
+      Preconditions.checkNotNull(backend,
+          "Given backend %s not found in tracked backends: %s", backend, backends);
+    } finally {
+      backendsReadLock.unlock();
+    }
+
+    return get(backend, pool, timeout);
   }
 
   private static class ManagedConnection<T, E> implements Connection<T, E> {
@@ -210,12 +264,10 @@ public class MetaPool<T, E> implements ObjectPool<Connection<T, E>> {
     }
   }
 
-  private Connection<T, E> get(E backend, Amount<Long, Time> timeout)
-      throws ResourceExhaustedException, TimeoutException {
+  private Connection<T, E> get(E backend, ObjectPool<Connection<T, E>> pool,
+      Amount<Long, Time> timeout) throws ResourceExhaustedException, TimeoutException {
+
     long startNanos = System.nanoTime();
-
-    ObjectPool<Connection<T, E>> pool = Preconditions.checkNotNull(backends.get(backend));
-
     try {
       Connection<T, E> connection = (timeout.getValue() == 0) ? pool.get() : pool.get(timeout);
 
@@ -224,6 +276,10 @@ public class MetaPool<T, E> implements ObjectPool<Connection<T, E>> {
       // Catching intermediate exceptions ourselves and pro-actively returning the connection to the
       // pool before re-throwing is not a viable option since the return would have to succeed,
       // forcing us to ignore the timeout passed in.
+
+      // NOTE: LoadBalancer gracefully ignores backends it does not know about so even if we acquire
+      // a (backend, pool) pair atomically that has since been removed, we can safely let the lb
+      // know about backend events and it will just ignore us.
 
       try {
         loadBalancer.connected(backend, System.nanoTime() - startNanos);
@@ -240,11 +296,6 @@ public class MetaPool<T, E> implements ObjectPool<Connection<T, E>> {
       throw e;
     }
   }
-
-  // Locks to guard mutation of the backends set.
-  private final ReadWriteLock backendsLock = new ReentrantReadWriteLock(true);
-  private final Lock backendsReadLock = backendsLock.readLock();
-  private final Lock backendsWriteLock = backendsLock.writeLock();
 
   @Override
   public void release(Connection<T, E> connection) {
@@ -277,28 +328,16 @@ public class MetaPool<T, E> implements ObjectPool<Connection<T, E>> {
   }
 
   @Override
-  public synchronized void close() {
-    stop();
+  public void close() {
+    stopBackendRestorer.execute();
 
-    backendsReadLock.lock();
+    backendsWriteLock.lock();
     try {
       for (ObjectPool<Connection<T, E>> backend : backends.values()) {
         backend.close();
       }
     } finally {
-      backendsReadLock.unlock();
+      backendsWriteLock.unlock();
     }
-  }
-
-  /**
-   * Stops dead backend restoration attempts.
-   *
-   * <p>TODO(John Sirois): stop functionality is needed to properly implement a close that frees all
-   * pool resources; however having to expose it for subclasses is a hack that solely supports
-   * ServerSetConnectionPool - this might be made cleaner by injecting the dead pool restorer
-   * instead.
-   */
-  protected final void stop() {
-    stopCommand.execute();
   }
 }

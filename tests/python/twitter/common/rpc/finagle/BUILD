@@ -14,10 +14,9 @@
 # limitations under the License.
 # ==================================================================================================
 
-# Disabled pending fix for non-existant src/thrift/com/twitter/service
-#python_tests(name = 'finagle',
-#  sources = globs('*.py'),
-#  dependencies = [
-#    'src/python/twitter/common/rpc/finagle'
-#  ]
-#)
+python_tests(name = 'finagle',
+  sources = globs('*.py'),
+  dependencies = [
+    pants('src/python/twitter/common/rpc/finagle')
+  ]
+)

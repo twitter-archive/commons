@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
-import com.twitter.common.util.testing.FakeClock;
+import com.twitter.common.util.testing.FakeTicker;
 
 import static org.junit.Assert.assertEquals;
 
@@ -18,36 +18,36 @@ public class ElapsedTest {
 
   private static final String NAME = "elapsed";
 
-  private FakeClock clock;
+  private FakeTicker ticker;
 
   @Before
   public void setUp() {
-    clock = new FakeClock();
+    ticker = new FakeTicker();
     Stats.flush();
   }
 
   private Elapsed elapsed(Time granularity) {
-    return new Elapsed(NAME, granularity, clock);
+    return new Elapsed(NAME, granularity, ticker);
   }
 
   @Test
   public void testTimeSince() {
     Elapsed elapsed = elapsed(Time.MILLISECONDS);
     checkValue(0);
-    clock.advance(ONE_SECOND);
+    ticker.advance(ONE_SECOND);
     checkValue(1000);
 
     elapsed.reset();
     checkValue(0);
 
     elapsed.reset();
-    clock.advance(ONE_SECOND);
+    ticker.advance(ONE_SECOND);
     checkValue(1000);
-    clock.advance(ONE_SECOND);
+    ticker.advance(ONE_SECOND);
     checkValue(2000);
-    clock.advance(ONE_SECOND);
+    ticker.advance(ONE_SECOND);
     checkValue(3000);
-    clock.advance(ONE_SECOND);
+    ticker.advance(ONE_SECOND);
     checkValue(4000);
   }
 
@@ -55,11 +55,11 @@ public class ElapsedTest {
   public void testGranularity() {
     Elapsed elapsed = elapsed(Time.HOURS);
     checkValue(0);
-    clock.advance(Amount.of(1L, Time.DAYS));
+    ticker.advance(Amount.of(1L, Time.DAYS));
     checkValue(24);
 
     elapsed.reset();
-    clock.advance(Amount.of(1L, Time.MINUTES));
+    ticker.advance(Amount.of(1L, Time.MINUTES));
     checkValue(0);
   }
 

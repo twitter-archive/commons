@@ -108,10 +108,9 @@ public class DynamicPoolTest extends BaseZooKeeperTest {
     connectionPool.get();
   }
 
-  private EndpointStatus join(String host, Status status)
-      throws JoinException, InterruptedException {
-    return serverSet.join(InetSocketAddress.createUnresolved(host, 42),
-        ImmutableMap.<String, InetSocketAddress>of(), status);
+  private EndpointStatus join(String host) throws JoinException, InterruptedException {
+    return serverSet.join(
+        InetSocketAddress.createUnresolved(host, 42), ImmutableMap.<String, InetSocketAddress>of());
   }
 
   @Test
@@ -137,7 +136,7 @@ public class DynamicPoolTest extends BaseZooKeeperTest {
     assertTrue("Should not have any dead pools on initial rebuild", rebuild1.getFirst().isEmpty());
     assertNoLivePools(rebuild1);
 
-    EndpointStatus fooStatus = join("foo", Status.ALIVE);
+    EndpointStatus fooStatus = join("foo");
 
     Pair<Set<ObjectPool<Connection<TTransport, InetSocketAddress>>>,
         Map<InetSocketAddress, ObjectPool<Connection<TTransport, InetSocketAddress>>>>
@@ -145,7 +144,7 @@ public class DynamicPoolTest extends BaseZooKeeperTest {
     assertTrue("The NULL pool should never be tracked as dead", rebuild2.getFirst().isEmpty());
     assertEquals(transport, connectionPool.get().get());
 
-    fooStatus.update(Status.STOPPING);
+    fooStatus.leave();
 
     Pair<Set<ObjectPool<Connection<TTransport, InetSocketAddress>>>,
         Map<InetSocketAddress, ObjectPool<Connection<TTransport, InetSocketAddress>>>>

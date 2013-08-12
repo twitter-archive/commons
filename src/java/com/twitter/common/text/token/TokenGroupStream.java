@@ -18,6 +18,7 @@ package com.twitter.common.text.token;
 
 import java.util.List;
 
+import org.apache.lucene.util.Attribute;
 import org.apache.lucene.util.AttributeSource;
 
 /**
@@ -27,8 +28,14 @@ public class TokenGroupStream extends TokenStream {
   private List<AttributeSource.State> states;
   private int currentIndex;
 
-  public TokenGroupStream(AttributeSource source, List<AttributeSource.State> states) {
-    super(source);
+  public TokenGroupStream(List<Class<? extends Attribute>> attributeClasses) {
+    for (Class<? extends Attribute> attributeClass : attributeClasses) {
+      addAttribute(attributeClass);
+    }
+    currentIndex = 0;
+  }
+
+  public void setStates(List<AttributeSource.State> states) {
     this.states = states;
     currentIndex = 0;
   }

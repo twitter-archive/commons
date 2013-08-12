@@ -82,8 +82,16 @@ public class ZooKeeperTestServer {
     this.defaultSessionTimeout = Preconditions.checkNotNull(defaultSessionTimeout);
 
     zooKeeperServer =
-        new ZooKeeperServer(new FileTxnSnapLog(createTempDir(), createTempDir()),
-            new BasicDataTreeBuilder());
+        new ZooKeeperServer(
+            new FileTxnSnapLog(createTempDir(), createTempDir()),
+            new BasicDataTreeBuilder()) {
+
+          // TODO(John Sirois): Introduce a builder to configure the in-process server if and when
+          // some folks need JMX for in-process tests.
+          @Override protected void registerJMX() {
+            // noop
+          }
+        };
   }
 
   /**

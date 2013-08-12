@@ -16,143 +16,122 @@
 
 package com.twitter.common.net.http.handlers;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
+
+import javax.annotation.Nullable;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.base.Splitter;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.net.MediaType;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.inject.Inject;
-import com.google.visualization.datasource.Capabilities;
-import com.google.visualization.datasource.DataSourceServlet;
-import com.google.visualization.datasource.base.DataSourceException;
-import com.google.visualization.datasource.base.ReasonType;
-import com.google.visualization.datasource.datatable.ColumnDescription;
-import com.google.visualization.datasource.datatable.DataTable;
-import com.google.visualization.datasource.datatable.TableRow;
-import com.google.visualization.datasource.datatable.value.ValueType;
-import com.google.visualization.datasource.query.AbstractColumn;
-import com.google.visualization.datasource.query.Query;
-import com.google.visualization.datasource.query.QueryFilter;
-import com.google.visualization.datasource.query.QueryLabels;
-import com.google.visualization.datasource.query.QuerySelection;
-import com.google.visualization.datasource.query.SimpleColumn;
+
 import com.twitter.common.collections.Iterables2;
 import com.twitter.common.stats.TimeSeries;
 import com.twitter.common.stats.TimeSeriesRepository;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-
 /**
- * A servlet that implements the Google Visuaization Data Source API and provides time series data.
- *
- * Queries supported:
- *   'SELECT * LIMIT 0': Retrieve a listing of all available time series columns.
- *   'SELECT $col': Select a specific column or set of columns.
- *   'WHERE $filter': Row filter.
- *   'LIMIT N': Limit the number of rows returned.
- *   'OFFSET N': Skips the first N columns that would otherwise be returend.
- *
- * @author William Farner
+ * A servlet that provides time series data in JSON format.
  */
-public class TimeSeriesDataSource extends DataSourceServlet {
+public class TimeSeriesDataSource extends HttpServlet {
 
-  @VisibleForTesting
-  static final String TIME_COLUMN = "time";
+  @VisibleForTesting static final String TIME_METRIC = "time";
+
+  private static final String METRICS = "metrics";
+  private static final String SINCE = "since";
 
   private final TimeSeriesRepository timeSeriesRepo;
+  private final Gson gson = new Gson();
 
   @Inject
   public TimeSeriesDataSource(TimeSeriesRepository timeSeriesRepo) {
     this.timeSeriesRepo = Preconditions.checkNotNull(timeSeriesRepo);
   }
 
-  @Override
-  protected boolean isRestrictedAccessMode() {
-    // Allow requests from other hosts, WARNING: this exposes us to XSRF.
-    return false;
-  }
+  @VisibleForTesting
+  String getResponse(
+      @Nullable String metricsQuery,
+      @Nullable String sinceQuery) throws MetricException {
 
-  @Override
-  public Capabilities getCapabilities() {
-    return Capabilities.SQL;
-  }
-
-  @Override
-  public DataTable generateDataTable(Query query, HttpServletRequest request)
-      throws DataSourceException {
-    Preconditions.checkNotNull(query);
-
-    int offset = query.getRowOffset();
-    int limit = query.getRowLimit() == -1 ? Integer.MAX_VALUE : query.getRowLimit();
-    QueryFilter queryFilter = query.getFilter();
-
-    QuerySelection select = query.getSelection();
-    // We only allow the selection to be null (which is equivalent to SELECT *) if no rows are
-    // being returned.  This allows the caller to get the available columns.
-    if (select == null && limit != 0) {
-      throw new DataSourceException(ReasonType.INVALID_REQUEST, "Selection must be specified.");
+    if (metricsQuery == null) {
+      // Return metric listing.
+      return gson.toJson(ImmutableList.copyOf(timeSeriesRepo.getAvailableSeries()));
     }
 
-    // Gather query attributes.
-    final QueryLabels labels = query.getLabels() == null ? new QueryLabels() : query.getLabels();
-
-    List<AbstractColumn> columns = getColumns(select);
-    DataTable table = new DataTable();
-
-    // Create columns.
-    table.addColumns(Lists.transform(columns, new Function<AbstractColumn, ColumnDescription>() {
-      @Override public ColumnDescription apply(AbstractColumn column) {
-        return new ColumnDescription(column.getId(), ValueType.NUMBER,
-            labels.getLabel(column) != null ? labels.getLabel(column) : column.getId());
+    List<Iterable<Number>> tsData = Lists.newArrayList();
+    tsData.add(timeSeriesRepo.getTimestamps());
+    // Ignore requests for "time" since it is implicitly returned.
+    Iterable<String> names = Iterables.filter(
+        Splitter.on(",").split(metricsQuery),
+        Predicates.not(Predicates.equalTo(TIME_METRIC)));
+    for (String metric : names) {
+      TimeSeries series = timeSeriesRepo.get(metric);
+      if (series == null) {
+        JsonObject response = new JsonObject();
+        response.addProperty("error", "Unknown metric " + metric);
+        throw new MetricException(gson.toJson(response));
       }
-    }));
-
-    if (limit != 0) {
-      List<Iterable<Number>> columnData = Lists.newArrayList();
-      for (AbstractColumn column : columns) {
-        columnData.add(getData(column));
-      }
-
-      // Build table rows.
-      for (List<Number> rowData : Iterables.skip(Iterables2.zip(columnData, 0), offset)) {
-        TableRow row = new TableRow();
-        for (Number number : rowData) {
-          row.addCell(number.doubleValue());
-        }
-
-        if (queryFilter == null || queryFilter.isMatch(table, row)) table.addRow(row);
-
-        if (table.getNumberOfRows() >= limit) break;
-      }
+      tsData.add(series.getSamples());
     }
 
-    return table;
+    final long since = Long.parseLong(Optional.fromNullable(sinceQuery).or("0"));
+    Predicate<List<Number>> sinceFilter = new Predicate<List<Number>>() {
+      @Override public boolean apply(List<Number> next) {
+        return next.get(0).longValue() > since;
+      }
+    };
+
+    ResponseStruct response = new ResponseStruct(
+        ImmutableList.<String>builder().add(TIME_METRIC).addAll(names).build(),
+        FluentIterable.from(Iterables2.zip(tsData, 0)).filter(sinceFilter).toImmutableList());
+    return gson.toJson(response);
   }
 
-  private static final Function<String, AbstractColumn> TO_SIMPLE_COLUMN =
-      new Function<String, AbstractColumn>() {
-        @Override public AbstractColumn apply(String colId) {
-          return new SimpleColumn(colId);
-        }
-      };
+  @Override
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
 
-  private List<AbstractColumn> getColumns(QuerySelection select) {
-    if (select != null) return select.getColumns();
-
-    // No columns specified, default to all columns.
-    return Lists.newArrayList(
-        Iterables.transform(timeSeriesRepo.getAvailableSeries(), TO_SIMPLE_COLUMN));
-  }
-
-  private Iterable<Number> getData(AbstractColumn column) throws DataSourceException {
-    if (column.getId().equals(TIME_COLUMN)) return timeSeriesRepo.getTimestamps();
-
-    TimeSeries series = timeSeriesRepo.get(column.getId());
-    if (series == null) {
-      throw new DataSourceException(ReasonType.INVALID_REQUEST, "Unknown column " + column);
+    resp.setContentType(MediaType.JSON_UTF_8.toString());
+    PrintWriter out = resp.getWriter();
+    try {
+      out.write(getResponse(req.getParameter(METRICS), req.getParameter(SINCE)));
+    } catch (MetricException e) {
+      resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      out.write(e.getMessage());
     }
+  }
 
-    return series.getSamples();
+  @VisibleForTesting
+  static class ResponseStruct {
+    // Fields must be non-final for deserialization.
+    List<String> names;
+    List<List<Number>> data;
+
+    ResponseStruct(List<String> names, List<List<Number>> data) {
+      this.names = names;
+      this.data = data;
+    }
+  }
+
+  @VisibleForTesting
+  static class MetricException extends Exception {
+    MetricException(String message) {
+      super(message);
+    }
   }
 }

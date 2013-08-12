@@ -34,7 +34,13 @@ import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException
 import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
 
 import static com.google.common.testing.junit4.JUnitAsserts.assertNotEqual;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author John Sirois
@@ -185,6 +191,39 @@ public class ZooKeeperClientTest extends BaseZooKeeperTest {
     ZooKeeperClient authenticatedClient2 = createZkClient("creator", "creator");
     setData(authenticatedClient2, path, "37");
     assertEquals("37", getData(authenticatedClient2, path));
+  }
+
+  @Test
+  public void testHasCredentials() {
+    assertFalse(createZkClient().hasCredentials());
+    assertFalse(createZkClient(Credentials.NONE).hasCredentials());
+    assertFalse(createZkClient(new Credentials() {
+      @Override
+      public void authenticate(ZooKeeper zooKeeper) {
+        // noop
+      }
+      @Override public String scheme() {
+        return "";
+      }
+      @Override public byte[] authToken() {
+        return new byte[0];
+      }
+    }).hasCredentials());
+
+    assertTrue(createZkClient("creator", "creator").hasCredentials());
+    assertTrue(createZkClient(new Credentials() {
+      @Override public void authenticate(ZooKeeper zooKeeper) {
+        // noop
+      }
+      @Override public String scheme() {
+        return "custom";
+      }
+      @Override public byte[] authToken() {
+        // a zero-length token should be ok - ZooKeeper says nothing about the validity of token
+        // data a scheme can accept.
+        return new byte[0];
+      }
+    }).hasCredentials());
   }
 
   private void setData(ZooKeeperClient zkClient, String path, String data) throws Exception {

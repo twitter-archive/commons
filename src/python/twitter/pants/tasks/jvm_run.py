@@ -13,15 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==================================================================================================
+from twitter.pants.goal.workunit import WorkUnit
 
 __author__ = 'Benjy Weinberger'
 
 import shlex
 
 from twitter.common.dirutil import safe_open
+
+from twitter.pants.binary_util import runjava_indivisible
 from twitter.pants.targets import JvmBinary
 from twitter.pants.tasks import Task, TaskError
-from twitter.pants.tasks.binary_utils import runjava
 from twitter.pants.tasks.jvm_task import JvmTask
 
 
@@ -60,27 +62,50 @@ class JvmRun(JvmTask):
       self.jvm_args.extend(context.config.getlist('jvm', 'debug_args'))
     self.confs = context.config.getlist('jvm-run', 'confs')
     self.only_write_cmd_line = context.options.only_write_cmd_line
+    context.products.require_data('exclusives_groups')
 
   def execute(self, targets):
-    # Run the first target that is a binary.
+    # The called binary may block for a while, allow concurrent pants activity during this pants
+    # idle period.
+    #
+    # TODO(John Sirois): refactor lock so that I can do:
+    # with self.context.lock.yield():
+    #   - blocking code
+    #
+    # Currently re-acquiring the lock requires a path argument that was set up by the goal
+    # execution engine.  I do not want task code to learn the lock location.
+    # http://jira.local.twitter.com/browse/AWESOME-1317
+
     self.context.lock.release()
+    # Run the first target that is a binary.
     binaries = filter(is_binary, targets)
     if len(binaries) > 0:  # We only run the first one.
       main = binaries[0].main
+      egroups = self.context.products.get_data('exclusives_groups')
+      group_key = egroups.get_group_key_for_target(binaries[0])
+      group_classpath = egroups.get_classpath_for_group(group_key)
 
-      def run_binary(only_write_cmd_line_to):
-        result = runjava(
+      # TODO(John Sirois): Since --dry-run is plumbed throughout the Task infra it seems like we
+      # should just be using that.  Ask Benjy why this particular task uses a custom file.
+      def run_binary(dryrun=False):
+        def run_workunit_factory(name, labels=list(), cmd=''):
+          return self.context.new_workunit(name=name, labels=[WorkUnit.RUN] + labels, cmd=cmd)
+
+        result = runjava_indivisible(
           jvmargs=self.jvm_args,
-          classpath=(self.classpath(confs=self.confs)),
+          classpath=(self.classpath(confs=self.confs, exclusives_classpath=group_classpath)),
           main=main,
           args=self.args,
-          only_write_cmd_line_to=only_write_cmd_line_to
+          dryrun=dryrun,
+          workunit_factory=run_workunit_factory,
+          workunit_name='run'
         )
+        if dryrun:
+          return result
         if result != 0:
           raise TaskError()
 
-      if self.only_write_cmd_line is None:
-        run_binary(None)
-      else:
+      result = run_binary(dryrun=self.only_write_cmd_line)
+      if self.only_write_cmd_line:
         with safe_open(self.only_write_cmd_line, 'w') as fd:
-          run_binary(fd)
+          fd.write(result)

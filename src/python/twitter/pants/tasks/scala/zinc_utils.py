@@ -14,8 +14,6 @@
 # limitations under the License.
 # ==================================================================================================
 
-__author__ = 'Benjy Weinberger'
-
 import os
 import shutil
 import textwrap
@@ -24,12 +22,13 @@ from contextlib import closing
 from xml.etree import ElementTree
 
 from twitter.common.collections import OrderedDict
-from twitter.common.contextutil import open_zip as open_jar, temporary_file_path
+from twitter.common.contextutil import open_zip as open_jar, temporary_dir
 from twitter.common.dirutil import  safe_open
 
 from twitter.pants import get_buildroot
+from twitter.pants.goal.workunit import WorkUnit
 from twitter.pants.tasks import TaskError
-from twitter.pants.tasks.binary_utils import find_java_home, profile_classpath
+from twitter.pants.binary_util import find_java_home
 
 
 # Well known metadata file required to register scalac plugins with nsc.
@@ -40,9 +39,9 @@ class ZincUtils(object):
 
   Instances are immutable, and all methods are reentrant (assuming that the java_runner is).
   """
-  def __init__(self, context, java_runner, color):
-    self._context = context
-    self._java_runner = java_runner
+  def __init__(self, context, nailgun_task, color):
+    self.context = context
+    self._nailgun_task = nailgun_task  # We run zinc on this task's behalf.
     self._color = color
 
     self._pants_home = get_buildroot()
@@ -61,9 +60,7 @@ class ZincUtils(object):
     else:
       self._scalac_args.extend(context.config.getlist('scala-compile', 'no_warning_args'))
 
-    def cp_for_profile(profile):
-      return profile_classpath(profile, java_runner=self._java_runner, config=self._context.config)
-
+    cp_for_profile = self._nailgun_task.profile_classpath
     self._zinc_classpath = cp_for_profile(self._zinc_profile)
     self._compiler_classpath = cp_for_profile(self._compile_profile)
     self._plugin_jars = cp_for_profile(self._plugins_profile) if self._plugins_profile else []
@@ -93,17 +90,18 @@ class ZincUtils(object):
     """The jars containing code for enabled plugins."""
     return self._plugin_jars
 
-  def run_zinc(self, args):
+  def run_zinc(self, args, workunit_name='zinc', workunit_labels=None):
     zinc_args = [
-      '-log-level', self._context.options.log_level or 'info',
+      '-log-level', self.context.options.log_level or 'info',
       '-mirror-analysis',
     ]
     if not self._color:
       zinc_args.append('-no-color')
     zinc_args.extend(self._zinc_jar_args)
     zinc_args.extend(args)
-    return self._java_runner(self._main, classpath=self._zinc_classpath,
-                             args=zinc_args, jvmargs=self._jvm_args)
+    return self._nailgun_task.runjava_indivisible(self._main, classpath=self._zinc_classpath,
+                             args=zinc_args, jvmargs=self._jvm_args, workunit_name=workunit_name,
+                             workunit_labels=workunit_labels)
 
   def compile(self, classpath, sources, output_dir, analysis_file, upstream_analysis_files):
     # To pass options to scalac simply prefix with -S.
@@ -114,7 +112,8 @@ class ZincUtils(object):
       # For the command-line argument here, we need to change that to map the same keys
       # to just the artifact_file.
       args.extend(
-        ['-analysis-map', ','.join(['%s:%s' % (kv[0], kv[1].analysis_file) for kv in upstream_analysis_files.items()])])
+        ['-analysis-map', ','.join(['%s:%s' % (kv[0], kv[1].analysis_file)
+                                    for kv in upstream_analysis_files.items()])])
 
     args.extend([
       '-analysis-cache', analysis_file,
@@ -122,16 +121,16 @@ class ZincUtils(object):
       '-d', output_dir
     ])
     args.extend(sources)
-    return self.run_zinc(args)
+    return self.run_zinc(args, workunit_labels=[WorkUnit.COMPILER])
 
   # Run zinc in analysis manipulation mode.
-  def run_zinc_analysis(self, analysis_file, args):
+  def run_zinc_analysis(self, analysis_file, args, workunit_name='analysis'):
     zinc_analysis_args = [
       '-analysis',
       '-cache', analysis_file,
     ]
     zinc_analysis_args.extend(args)
-    return self.run_zinc(args=zinc_analysis_args)
+    return self.run_zinc(args=zinc_analysis_args, workunit_name=workunit_name)
 
   # src_cache - split this analysis cache.
   # splits - a list of (sources, dst_cache), where sources is a list of the sources whose analysis
@@ -140,14 +139,14 @@ class ZincUtils(object):
     zinc_split_args = [
       '-split', ','.join(['{%s}:%s' % (':'.join(x[0]), x[1]) for x in splits]),
     ]
-    return self.run_zinc_analysis(src_analysis_file, zinc_split_args)
+    return self.run_zinc_analysis(src_analysis_file, zinc_split_args, workunit_name='split')
 
   # src_analysis_files - a list of analysis files to merge into dst_analysis_file.
   def run_zinc_merge(self, src_analysis_files, dst_analysis_file):
     zinc_merge_args = [
       '-merge', ':'.join(src_analysis_files),
     ]
-    return self.run_zinc_analysis(dst_analysis_file, zinc_merge_args)
+    return self.run_zinc_analysis(dst_analysis_file, zinc_merge_args, workunit_name='merge')
 
   # cache - the analysis cache to rebase.
   # rebasings - a list of pairs (rebase_from, rebase_to). Behavior is undefined if any
@@ -157,7 +156,7 @@ class ZincUtils(object):
     zinc_rebase_args = [
       '-rebase', ','.join(['%s:%s' % rebasing for rebasing in rebasings]),
     ]
-    return self.run_zinc_analysis(analysis_file, zinc_rebase_args)
+    return self.run_zinc_analysis(analysis_file, zinc_rebase_args, workunit_name='rebase')
 
   IVY_HOME_PLACEHOLDER = '/IVY_HOME_PLACEHOLDER'
   PANTS_HOME_PLACEHOLDER = '/PANTS_HOME_PLACEHOLDER'
@@ -172,7 +171,8 @@ class ZincUtils(object):
     #
     # In practice the JVM changes rarely, and it should be fine to require a full rebuild
     # in those rare cases.
-    with temporary_file_path() as tmp_analysis_file:
+    with temporary_dir() as tmp_analysis_dir:
+      tmp_analysis_file = os.path.join(tmp_analysis_dir, "analysis")
       shutil.copy(src, tmp_analysis_file)
       rebasings = [
         (self._java_home, ''),  # Erase java deps.
@@ -185,7 +185,8 @@ class ZincUtils(object):
       return exit_code
 
   def localize_analysis_file(self, src, dst):
-    with temporary_file_path() as tmp_analysis_file:
+    with temporary_dir() as tmp_analysis_dir:
+      tmp_analysis_file = os.path.join(tmp_analysis_dir, "analysis")
       shutil.copy(src, tmp_analysis_file)
       rebasings = [
         (ZincUtils.IVY_HOME_PLACEHOLDER, self._ivy_home),

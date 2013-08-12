@@ -17,6 +17,7 @@
 python_tests(name = 'decorators',
   sources = globs('*.py'),
   dependencies = [
-    'src/python/twitter/common/decorators',
+    pants('src/python/twitter/common/decorators'),
+    pants('src/python/twitter/common/log'),
   ]
 )

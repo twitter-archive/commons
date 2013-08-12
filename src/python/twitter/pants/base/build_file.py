@@ -28,24 +28,20 @@ class BuildFile(object):
   _PATTERN = re.compile('^%s(\.[a-z]+)?$' % _CANONICAL_NAME)
 
   @staticmethod
-  def is_buildfile(name):
-    return BuildFile._is_buildfile_name(os.path.basename(name))
-
-  @staticmethod
   def _is_buildfile_name(name):
     return BuildFile._PATTERN.match(name)
 
   @staticmethod
-  def scan_buildfiles(root_dir, base_path = None):
+  def scan_buildfiles(root_dir, base_path=None):
     """Looks for all BUILD files under base_path"""
 
-    buildfiles = OrderedSet()
+    buildfiles = []
     for root, dirs, files in os.walk(base_path if base_path else root_dir):
       for filename in files:
         if BuildFile._is_buildfile_name(filename):
           buildfile_relpath = os.path.relpath(os.path.join(root, filename), root_dir)
-          buildfiles.add(BuildFile(root_dir, buildfile_relpath))
-    return buildfiles
+          buildfiles.append(BuildFile(root_dir, buildfile_relpath))
+    return OrderedSet(sorted(buildfiles, key=lambda buildfile: buildfile.full_path))
 
   def __init__(self, root_dir, relpath, must_exist=True):
     """Creates a BuildFile object representing the BUILD file set at the specified path.
@@ -65,7 +61,7 @@ class BuildFile(object):
 
     if must_exist:
       if not os.path.exists(buildfile):
-        raise IOError("BUILD file does not exist at: %s" % (buildfile))
+        raise IOError("BUILD file does not exist at: %s" % buildfile)
 
       if not BuildFile._is_buildfile_name(os.path.basename(buildfile)):
         raise IOError("%s is not a BUILD file" % buildfile)
@@ -73,8 +69,8 @@ class BuildFile(object):
       if not os.path.exists(buildfile):
         raise IOError("BUILD file does not exist at: %s" % buildfile)
 
-    self.root_dir = root_dir
-    self.full_path = buildfile
+    self.root_dir = os.path.realpath(root_dir)
+    self.full_path = os.path.realpath(buildfile)
 
     self.name = os.path.basename(self.full_path)
     self.parent_path = os.path.dirname(self.full_path)
@@ -84,6 +80,10 @@ class BuildFile(object):
 
     self.relpath = os.path.relpath(self.full_path, self.root_dir)
     self.canonical_relpath = os.path.join(os.path.dirname(self.relpath), BuildFile._CANONICAL_NAME)
+
+  def exists(self):
+    """Returns True if this BuildFile corresponds to a real BUILD file on disk."""
+    return os.path.exists(self.full_path)
 
   def descendants(self):
     """Returns all BUILD files in descendant directories of this BUILD file's parent directory."""

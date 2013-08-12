@@ -29,6 +29,7 @@ import time
 from thrift.transport.TTransport import TTransportException
 import zookeeper
 
+from twitter.common.contextutil import environment_as
 from twitter.common.dirutil import safe_rmtree
 from twitter.common.rpc import make_client
 from twitter.common.rpc.finagle import TFinagleProtocol
@@ -61,7 +62,7 @@ class ZookeeperServer(object):
   BUILD_COMMAND = """
     ./pants goal binary --binary-deployjar src/java/com/twitter/common/zookeeper/testing/angrybird
   """
-  COMMAND = "java -jar dist/angrybird.jar -thrift_port %(thrift_port)s -zk_port 0"
+  COMMAND = "java -jar dist/angrybird.jar -thrift_port %(thrift_port)s -zk_port %(zookeeper_port)s"
   BUILT = False
   CONNECT_RETRIES = 5
   CONNECT_BACKOFF_SECS = 6.0
@@ -71,16 +72,24 @@ class ZookeeperServer(object):
   @classmethod
   def build(cls):
     if not cls.BUILT:
+      pex_keys = {}
+      for key in os.environ:
+        if key.startswith('PEX'):
+          pex_keys[key] = os.environ[key]
+          os.unsetenv(key)
       assert subprocess.call(cls.BUILD_COMMAND.split()) == 0
+      for key in pex_keys:
+        os.putenv(key, pex_keys[key])
       cls.BUILT = True
 
-  def __init__(self):
-    self.build()
-    self.thrift_port = None
+  def __init__(self, zookeeper_port=None, thrift_port=None):
     self._service = None
     self._zh = None
-    self.thrift_port = get_random_port()
-    command = self.COMMAND % {'thrift_port': self.thrift_port}
+    self.thrift_port = thrift_port or get_random_port()
+    self.zookeeper_port = zookeeper_port or get_random_port()
+    self.build()
+    command = self.COMMAND % {
+        'thrift_port': self.thrift_port, 'zookeeper_port': self.zookeeper_port}
     self._po = subprocess.Popen(command.split())
     self._orphaned_pids.add(self._po.pid)
     self.angrybird = self.setup_thrift()

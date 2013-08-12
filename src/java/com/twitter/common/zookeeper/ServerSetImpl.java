@@ -16,10 +16,14 @@
 
 package com.twitter.common.zookeeper;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.InetSocketAddress;
+import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -28,7 +32,9 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -36,7 +42,7 @@ import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
@@ -46,13 +52,10 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 import com.google.common.util.concurrent.UncheckedExecutionException;
-import com.google.gson.GsonBuilder;
+import com.google.gson.Gson;
 
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.KeeperException.NoNodeException;
-import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 
@@ -63,7 +66,6 @@ import com.twitter.common.base.Function;
 import com.twitter.common.base.Supplier;
 import com.twitter.common.io.Codec;
 import com.twitter.common.io.CompatibilityCodec;
-import com.twitter.common.io.JsonCodec;
 import com.twitter.common.io.ThriftCodec;
 import com.twitter.common.util.BackoffHelper;
 import com.twitter.common.zookeeper.Group.GroupChangeListener;
@@ -75,17 +77,18 @@ import com.twitter.thrift.Endpoint;
 import com.twitter.thrift.ServiceInstance;
 import com.twitter.thrift.Status;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
- * Implementation of {@link ServerSet}.
- *
- * @author John Sirois
+ * ZooKeeper-backed implementation of {@link ServerSet}.
  */
 public class ServerSetImpl implements ServerSet {
   private static final Logger LOG = Logger.getLogger(ServerSetImpl.class.getName());
 
   @CmdLine(name = "serverset_encode_json",
-           help = "If true, use JSON for encoding server set information. Defaults to false (use Thrift).")
-  private static final Arg<Boolean> ENCODE_JSON = Arg.create(false);
+           help = "If true, use JSON for encoding server set information."
+               + " Defaults to true (use JSON).")
+  private static final Arg<Boolean> ENCODE_JSON = Arg.create(true);
 
   private final ZooKeeperClient zkClient;
   private final Group group;
@@ -132,9 +135,9 @@ public class ServerSetImpl implements ServerSet {
    *     from a byte array
    */
   public ServerSetImpl(ZooKeeperClient zkClient, Group group, Codec<ServiceInstance> codec) {
-    this.zkClient = Preconditions.checkNotNull(zkClient);
-    this.group = Preconditions.checkNotNull(group);
-    this.codec = Preconditions.checkNotNull(codec);
+    this.zkClient = checkNotNull(zkClient);
+    this.group = checkNotNull(group);
+    this.codec = checkNotNull(codec);
 
     // TODO(John Sirois): Inject the helper so that backoff strategy can be configurable.
     backoffHelper = new BackoffHelper();
@@ -146,14 +149,35 @@ public class ServerSetImpl implements ServerSet {
   }
 
   @Override
-  public EndpointStatus join(InetSocketAddress endpoint,
-      Map<String, InetSocketAddress> additionalEndpoints, Status status)
+  public EndpointStatus join(
+      InetSocketAddress endpoint,
+      Map<String, InetSocketAddress> additionalEndpoints)
       throws JoinException, InterruptedException {
-    Preconditions.checkNotNull(endpoint);
-    Preconditions.checkNotNull(additionalEndpoints);
-    Preconditions.checkNotNull(status);
 
-    final MemberStatus memberStatus = new MemberStatus(endpoint, additionalEndpoints, status);
+    LOG.log(Level.WARNING,
+        "Joining a ServerSet without a shard ID is deprecated and will soon break.");
+    return join(endpoint, additionalEndpoints, Optional.<Integer>absent());
+  }
+
+  @Override
+  public EndpointStatus join(
+      InetSocketAddress endpoint,
+      Map<String, InetSocketAddress> additionalEndpoints,
+      int shardId) throws JoinException, InterruptedException {
+
+    return join(endpoint, additionalEndpoints, Optional.of(shardId));
+  }
+
+  private EndpointStatus join(
+      InetSocketAddress endpoint,
+      Map<String, InetSocketAddress> additionalEndpoints,
+      Optional<Integer> shardId) throws JoinException, InterruptedException {
+
+    checkNotNull(endpoint);
+    checkNotNull(additionalEndpoints);
+
+    final MemberStatus memberStatus =
+        new MemberStatus(endpoint, additionalEndpoints, shardId);
     Supplier<byte[]> serviceInstanceSupplier = new Supplier<byte[]>() {
       @Override public byte[] get() {
         return memberStatus.serializeServiceInstance();
@@ -163,10 +187,35 @@ public class ServerSetImpl implements ServerSet {
 
     return new EndpointStatus() {
       @Override public void update(Status status) throws UpdateException {
-        Preconditions.checkNotNull(status);
-        memberStatus.updateStatus(membership, status);
+        checkNotNull(status);
+        LOG.warning("This method is deprecated. Please use leave() instead.");
+        if (status == Status.DEAD) {
+          leave();
+        } else {
+          LOG.warning("Status update has been ignored");
+        }
+      }
+
+      @Override public void leave() throws UpdateException {
+        memberStatus.leave(membership);
       }
     };
+  }
+
+  @Override
+  public EndpointStatus join(
+      InetSocketAddress endpoint,
+      Map<String, InetSocketAddress> additionalEndpoints,
+      Status status) throws JoinException, InterruptedException {
+
+    LOG.warning("This method is deprecated. Please do not specify a status field.");
+    if (status != Status.ALIVE) {
+      LOG.severe("**************************************************************************\n"
+          + "WARNING: MUTABLE STATUS FIELDS ARE NO LONGER SUPPORTED.\n"
+          + "JOINING WITH STATUS ALIVE EVEN THOUGH YOU SPECIFIED " + status
+          + "\n**************************************************************************");
+    }
+    return join(endpoint, additionalEndpoints);
   }
 
   @Override
@@ -184,62 +233,45 @@ public class ServerSetImpl implements ServerSet {
   private class MemberStatus {
     private final InetSocketAddress endpoint;
     private final Map<String, InetSocketAddress> additionalEndpoints;
-    private volatile Status status;
+    private final Optional<Integer> shardId;
 
-    private MemberStatus(InetSocketAddress endpoint,
-        Map<String, InetSocketAddress> additionalEndpoints, Status status) {
+    private MemberStatus(
+        InetSocketAddress endpoint,
+        Map<String, InetSocketAddress> additionalEndpoints,
+        Optional<Integer> shardId) {
 
       this.endpoint = endpoint;
       this.additionalEndpoints = additionalEndpoints;
-      this.status = status;
+      this.shardId = shardId;
     }
 
-    synchronized void updateStatus(Membership membership, Status status) throws UpdateException {
-      if (this.status != status) {
-        this.status = status;
-        if (Status.DEAD == status) {
-          try {
-            membership.cancel();
-          } catch (JoinException e) {
-            throw new UpdateException(
-                "Failed to auto-cancel group membership on transition to DEAD status", e);
-          }
-        } else {
-          try {
-            membership.updateMemberData();
-          } catch (Group.UpdateException e) {
-            throw new UpdateException(
-                "Failed to update service data for: " + membership.getMemberPath(), e);
-          }
-        }
+    synchronized void leave(Membership membership) throws UpdateException {
+      try {
+        membership.cancel();
+      } catch (JoinException e) {
+        throw new UpdateException(
+            "Failed to auto-cancel group membership on transition to DEAD status", e);
       }
     }
 
     byte[] serializeServiceInstance() {
-      ServiceInstance serviceInstance =
-          new ServiceInstance(toEndpoint(endpoint),
-              Maps.transformValues(additionalEndpoints, TO_ENDPOINT), status);
-      LOG.info("updating endpoint data to:\n\t" + serviceInstance);
-      ByteArrayOutputStream output = new ByteArrayOutputStream();
-      try {
-        codec.serialize(serviceInstance, output);
-      } catch (IOException e) {
-        throw new IllegalStateException("Unexpected problem serializing thrift struct: " +
-                                        serviceInstance + " to a byte[]", e);
+      ServiceInstance serviceInstance = new ServiceInstance(
+          ServerSets.toEndpoint(endpoint),
+          Maps.transformValues(additionalEndpoints, ServerSets.TO_ENDPOINT),
+          Status.ALIVE);
+
+      if (shardId.isPresent()) {
+        serviceInstance.setShard(shardId.get());
       }
-      return output.toByteArray();
+
+      LOG.fine("updating endpoint data to:\n\t" + serviceInstance);
+      try {
+        return ServerSets.serializeServiceInstance(serviceInstance, codec);
+      } catch (IOException e) {
+        throw new IllegalStateException("Unexpected problem serializing thrift struct " +
+            serviceInstance + "to a byte[]", e);
+      }
     }
-  }
-
-  private static final Function<InetSocketAddress, Endpoint> TO_ENDPOINT =
-      new Function<InetSocketAddress, Endpoint>() {
-        @Override public Endpoint apply(InetSocketAddress address) {
-          return toEndpoint(address);
-        }
-      };
-
-  private static Endpoint toEndpoint(InetSocketAddress address) {
-    return new Endpoint(address.getHostName(), address.getPort());
   }
 
   private static class ServiceInstanceFetchException extends RuntimeException {
@@ -253,13 +285,6 @@ public class ServerSetImpl implements ServerSet {
       super(path);
     }
   }
-
-  private static final Function<ServiceInstance, Endpoint> GET_PRIMARY_ENDPOINT =
-      new Function<ServiceInstance, Endpoint>() {
-        @Override public Endpoint apply(ServiceInstance serviceInstance) {
-          return serviceInstance.getServiceEndpoint();
-        }
-      };
 
   private class ServerSetWatcher {
     private final ZooKeeperClient zkClient;
@@ -287,48 +312,13 @@ public class ServerSetImpl implements ServerSet {
       });
     }
 
-    private Watcher serviceInstanceWatcher = new Watcher() {
-      @Override public void process(WatchedEvent event) {
-        if (event.getState() == KeeperState.SyncConnected) {
-          switch (event.getType()) {
-            case None:
-              // Ignore re-connects that happen while we're watching
-              break;
-            case NodeDeleted:
-              // Ignore deletes since these trigger a group change through the group node watch.
-              break;
-            case NodeDataChanged:
-              notifyNodeChange(event.getPath());
-              break;
-            case NodeCreated:
-              // This watcher is only applied to ephemeral sequential server set member nodes we
-              // already know the path of (ie: the ephemeral sequential exists and we're told about
-              // this by reading children).  Its not clear how we can get a NodeCreated event for a
-              // node we already know about - but this appears to occur in the wild.  Firing a
-              // change here is safe even if the event path does not represent a server set member.
-              // The node de-serializer will throw ServiceInstanceFetchException in this case and
-              // these exceptions are logged and filtered out of member sets.
-              notifyNodeChange(event.getPath());
-
-              // TODO(John Sirois): inject a Statsprovider and track these events in a stat
-              LOG.warning("Unexpected NodeCreated event while watching service node: " +
-                  event.getPath());
-
-              break;
-            default:
-              LOG.severe("Unexpected event watching service node: " + event);
-          }
-        }
-      }
-    };
-
     private ServiceInstance getServiceInstance(final String nodePath) {
       try {
         return backoffHelper.doUntilResult(new Supplier<ServiceInstance>() {
           @Override public ServiceInstance get() {
             try {
-              byte[] data = zkClient.get().getData(nodePath, serviceInstanceWatcher, null);
-              return codec.deserialize(new ByteArrayInputStream(data));
+              byte[] data = zkClient.get().getData(nodePath, false, null);
+              return ServerSets.deserializeServiceInstance(data, codec);
             } catch (InterruptedException e) {
               Thread.currentThread().interrupt();
               throw new ServiceInstanceFetchException(
@@ -373,13 +363,6 @@ public class ServerSetImpl implements ServerSet {
       Set<String> memberIds = ImmutableSet.copyOf(servicesByMemberId.asMap().keySet());
       servicesByMemberId.invalidateAll();
       notifyGroupChange(memberIds);
-    }
-
-    private void notifyNodeChange(String changedPath) {
-      // Invalidate the associated ServiceInstance to trigger a fetch on group notify.
-      String memberId = invalidateNodePath(changedPath);
-      notifyGroupChange(
-          Iterables.concat(servicesByMemberId.asMap().keySet(), ImmutableList.of(memberId)));
     }
 
     private String invalidateNodePath(String deletedPath) {
@@ -444,38 +427,130 @@ public class ServerSetImpl implements ServerSet {
     }
 
     private void logChange(Level level, ImmutableSet<ServiceInstance> newServerSet) {
-      StringBuilder message = new StringBuilder("server set change: ");
+      StringBuilder message = new StringBuilder("server set " + group.getPath() + " change: ");
       if (serverSet.size() != newServerSet.size()) {
         message.append("from ").append(serverSet.size())
             .append(" members to ").append(newServerSet.size());
       }
 
-      MapDifference<Endpoint, ServiceInstance> changes =
-          Maps.difference(
-              Maps.uniqueIndex(serverSet, GET_PRIMARY_ENDPOINT),
-              Maps.uniqueIndex(newServerSet, GET_PRIMARY_ENDPOINT));
       Joiner joiner = Joiner.on("\n\t\t");
-      Map<Endpoint, ServiceInstance> left = changes.entriesOnlyOnLeft();
+
+      SetView<ServiceInstance> left = Sets.difference(serverSet, newServerSet);
       if (!left.isEmpty()) {
-        message.append("\n\tleft:\n\t\t").append(joiner.join(left.values()));
+        message.append("\n\tleft:\n\t\t").append(joiner.join(left));
       }
-      Map<Endpoint, ServiceInstance> joined = changes.entriesOnlyOnRight();
+
+      SetView<ServiceInstance> joined = Sets.difference(newServerSet, serverSet);
       if (!joined.isEmpty()) {
-        message.append("\n\tjoined:\n\t\t").append(joiner.join(joined.values()));
+        message.append("\n\tjoined:\n\t\t").append(joiner.join(joined));
       }
-      Map<Endpoint, ValueDifference<ServiceInstance>> differing = changes.entriesDiffering();
-      if (!differing.isEmpty()) {
-        message.append("\n\tstatus changed:\n\t\t").append(joiner.join(differing.values()));
-      }
+
       LOG.log(level, message.toString());
     }
   }
 
+  private static class EndpointSchema {
+    final String host;
+    final Integer port;
+
+    EndpointSchema(Endpoint endpoint) {
+      Preconditions.checkNotNull(endpoint);
+      this.host = endpoint.getHost();
+      this.port = endpoint.getPort();
+    }
+
+    String getHost() {
+      return host;
+    }
+
+    Integer getPort() {
+      return port;
+    }
+  }
+
+  private static class ServiceInstanceSchema {
+    final EndpointSchema serviceEndpoint;
+    final Map<String, EndpointSchema> additionalEndpoints;
+    final Status status;
+    final Integer shard;
+
+    ServiceInstanceSchema(ServiceInstance instance) {
+      this.serviceEndpoint = new EndpointSchema(instance.getServiceEndpoint());
+      if (instance.getAdditionalEndpoints() != null) {
+        this.additionalEndpoints = Maps.transformValues(
+            instance.getAdditionalEndpoints(),
+            new Function<Endpoint, EndpointSchema>() {
+              @Override public EndpointSchema apply(Endpoint endpoint) {
+                return new EndpointSchema(endpoint);
+              }
+            }
+        );
+      } else {
+        this.additionalEndpoints = Maps.newHashMap();
+      }
+      this.status  = instance.getStatus();
+      this.shard = instance.isSetShard() ? instance.getShard() : null;
+    }
+
+    EndpointSchema getServiceEndpoint() {
+      return serviceEndpoint;
+    }
+
+    Map<String, EndpointSchema> getAdditionalEndpoints() {
+      return additionalEndpoints;
+    }
+
+    Status getStatus() {
+      return status;
+    }
+
+    Integer getShard() {
+      return shard;
+    }
+  }
+
+  /**
+   * An adapted JSON codec that makes use of {@link ServiceInstanceSchema} to circumvent the
+   * __isset_bit_vector internal thrift struct field that tracks primitive types.
+   */
+  private static class AdaptedJsonCodec implements Codec<ServiceInstance> {
+    private static final Charset ENCODING = Charsets.UTF_8;
+    private static final Class<ServiceInstanceSchema> CLASS = ServiceInstanceSchema.class;
+    private final Gson gson = new Gson();
+
+    @Override
+    public void serialize(ServiceInstance instance, OutputStream sink) throws IOException {
+      Writer w = new OutputStreamWriter(sink, ENCODING);
+      gson.toJson(new ServiceInstanceSchema(instance), CLASS, w);
+      w.flush();
+    }
+
+    @Override
+    public ServiceInstance deserialize(InputStream source) throws IOException {
+      ServiceInstanceSchema output = gson.fromJson(new InputStreamReader(source, ENCODING), CLASS);
+      Endpoint primary = new Endpoint(
+          output.getServiceEndpoint().getHost(), output.getServiceEndpoint().getPort());
+      Map<String, Endpoint> additional = Maps.transformValues(
+          output.getAdditionalEndpoints(),
+          new Function<EndpointSchema, Endpoint>() {
+            @Override public Endpoint apply(EndpointSchema endpoint) {
+              return new Endpoint(endpoint.getHost(), endpoint.getPort());
+            }
+          }
+      );
+      ServiceInstance instance =
+          new ServiceInstance(primary, ImmutableMap.copyOf(additional), output.getStatus());
+      if (output.getShard() != null) {
+        instance.setShard(output.getShard());
+      }
+      return instance;
+    }
+  }
+
   private static Codec<ServiceInstance> createCodec(final boolean useJsonEncoding) {
-    final Codec<ServiceInstance> json = JsonCodec.create(ServiceInstance.class, new GsonBuilder()
-        .setExclusionStrategies(JsonCodec.getThriftExclusionStrategy()).create());
-    final Codec<ServiceInstance> thrift = ThriftCodec.create(ServiceInstance.class,
-        ThriftCodec.BINARY_PROTOCOL);
+    final Codec<ServiceInstance> json = new AdaptedJsonCodec();
+    final Codec<ServiceInstance> thrift =
+        ThriftCodec.create(ServiceInstance.class, ThriftCodec.BINARY_PROTOCOL);
     final Predicate<byte[]> recognizer = new Predicate<byte[]>() {
       public boolean apply(byte[] input) {
         return (input.length > 1 && input[0] == '{' && input[1] == '\"') == useJsonEncoding;

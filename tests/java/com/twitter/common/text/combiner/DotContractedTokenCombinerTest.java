@@ -26,6 +26,12 @@ import com.google.common.collect.Lists;
 import com.twitter.common.text.token.TokenStream;
 import com.twitter.common.text.tokenizer.LatinTokenizer;
 
+/**
+ * Unit Test for DotContractedTokenCombiner
+ *
+ * @author Keita Fujii
+ * @author Cindy Lin
+ */
 public class DotContractedTokenCombinerTest {
   private TokenStream stream;
 
@@ -38,9 +44,14 @@ public class DotContractedTokenCombinerTest {
   @Test
   public void test() {
     test("Dr. Fujii works at Twitter Inc.", "Dr.", "Fujii", "works", "at", "Twitter", "Inc.");
-    test("Mr. Fujii and Mrs. Fujii are married.", "Mr.", "Fujii", "and", "Mrs.", "Fujii", "are", "married", ".");
+    test("Mr. Fujii and Mrs. Fujii are married.",
+         "Mr.", "Fujii", "and", "Mrs.", "Fujii", "are", "married", ".");
     test("no contracted word.", "no", "contracted", "word", ".");
-    test("Mr Fujii and Mrs Fujii are married.", "Mr", "Fujii", "and", "Mrs", "Fujii", "are", "married", ".");
+    test("Mr Fujii and Mrs Fujii are married.",
+         "Mr", "Fujii", "and", "Mrs", "Fujii", "are", "married", ".");
+    test("Ms. Lin started working at No. 1 social media company at Mon. Jan. 30.",
+         "Ms.", "Lin", "started", "working", "at", "No.", "1", "social", "media", "company",
+         "at", "Mon.", "Jan.", "30", ".");
   }
 
   private void test(String text, String... tokens) {

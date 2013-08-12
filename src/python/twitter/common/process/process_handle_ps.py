@@ -31,7 +31,7 @@ class ProcessHandlePs(ProcessHandle, ProcessHandleParserBase):
 
   TYPE_MAP = {
      'user': '%s',  'pid': '%d', 'ppid': '%d', 'pcpu': '%f', 'rss': '%d', 'vsz': '%d', 'stat': '%s',
-     'etime': '%s', 'time': '%s', 'comm': '%s'
+    'etime': '%s', 'time': '%s', 'comm': '%s'
   }
 
   HANDLERS = {
@@ -57,10 +57,10 @@ class ProcessHandlePs(ProcessHandle, ProcessHandleParserBase):
     return self._get_process_attrs(ProcessHandlePs.ATTRS)
 
   def cpu_time(self):
-    return self.get('time')
+    return self.get('time') or 0.0
 
   def wall_time(self):
-    return self.get('starttime')
+    return self.get('starttime') or 0.0
 
   def pid(self):
     return self.get('pid')
@@ -87,3 +87,4 @@ class ProcessHandlePs(ProcessHandle, ProcessHandleParserBase):
     # We don't read 'command' on the initial ps call, because the result contains spaces, and
     # our scanf-like parsing code won't read it. This isn't a performance issue in current usage.
     return self._get_process_attrs(['command']).strip()
+

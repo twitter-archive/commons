@@ -27,8 +27,6 @@ import java.util.logging.Logger;
 /**
  * Handles loading of a build properties file, and provides keys to look up known values in the
  * properties.
- *
- * @author William Farner
  */
 public class BuildInfo {
 

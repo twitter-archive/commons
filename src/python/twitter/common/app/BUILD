@@ -18,10 +18,17 @@ python_library(
   name = "app",
   sources = globs('*.py'),
   dependencies = [
-    'src/python/twitter/common/app/modules',
-    'src/python/twitter/common/dirutil',
-    'src/python/twitter/common/lang',
-    'src/python/twitter/common/options',
-    'src/python/twitter/common/util',
-  ]
+    pants('src/python/twitter/common'),
+    pants('src/python/twitter/common/process'),
+    pants('src/python/twitter/common/app/modules'),
+  ],
+  provides = setup_py(
+    name = 'twitter.common.app',
+    version = '0.0.0',
+    description = "Twitter's Python application lifecycle framework.",
+    namespace_packages = [
+      'twitter',
+      'twitter.common'
+    ]
+  )
 )

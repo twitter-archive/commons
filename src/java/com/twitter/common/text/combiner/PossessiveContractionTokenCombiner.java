@@ -26,7 +26,7 @@ import com.twitter.common.text.token.TokenStream;
  * a contraction form (e.g., isn't) back into a single token.
  */
 public class PossessiveContractionTokenCombiner extends ExtractorBasedTokenCombiner {
-  private static final Pattern APOSTROPHE_S = Pattern.compile("([a-zA-Z]+'(?:t|s|m|re|ve|ll|d))([^a-zA-Z]|$)");
+  private static final Pattern APOSTROPHE_S = Pattern.compile("([a-zA-Z]+'(?i:t|s|m|re|ve|ll|d))([^a-zA-Z]|$)");
 
   public PossessiveContractionTokenCombiner(TokenStream inputStream) {
     super(inputStream);

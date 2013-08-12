@@ -34,6 +34,12 @@ public class LatinTokenizerTest {
         "This", "is", "test", ",", "and", "it", "must", "pass", ".");
   }
 
+  @Test
+  public void testUnicodeSupplementaryCharacter() {
+    String text = String.format("banana %cpple orange", 0x00010400);
+    testTokenizer(tokenizer, text, "banana", String.format("%cpple", 0x00010400), "orange");
+  }
+
   private void testTokenizer(LatinTokenizer tokenizer, String test, String... expected) {
     tokenizer.reset(test);
     List<String> tokens = tokenizer.toStringList();

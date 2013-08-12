@@ -14,16 +14,16 @@
 # limitations under the License.
 # ==================================================================================================
 
-__author__ = 'John Sirois'
-
 import os
 
 from twitter.common.collections import OrderedSet
 
 from twitter.pants import is_scala, is_test
+from twitter.pants.binary_util import profile_classpath, runjava_indivisible, safe_args
+from twitter.pants.goal.workunit import WorkUnit
 from twitter.pants.tasks import Task, TaskError
-from twitter.pants.tasks.binary_utils import profile_classpath, runjava, safe_args
 from twitter.pants.tasks.jvm_task import JvmTask
+
 
 class SpecsRun(JvmTask):
   @classmethod
@@ -70,14 +70,20 @@ class SpecsRun(JvmTask):
   def execute(self, targets):
     if not self.skip:
       def run_tests(tests):
-        args = ['--color'] if self.color else []
-        args.append('--specs=%s' % ','.join(tests))
+        def workunit_factory(name, labels=list(), cmd=''):
+            return self.context.new_workunit(name=name, labels=[WorkUnit.TEST] + labels, cmd=cmd)
 
-        result = runjava(
+        opts = ['--color'] if self.color else []
+        opts.append('--specs=%s' % ','.join(tests))
+
+        result = runjava_indivisible(
           jvmargs=self.java_args,
-          classpath=self.classpath(profile_classpath(self.profile), confs=self.confs),
+          classpath=self.classpath(profile_classpath(self.profile), confs=self.confs,
+              exclusives_classpath=self.get_base_classpath_for_target(targets[0])),
           main='com.twitter.common.testing.ExplicitSpecsRunnerMain',
-          args=args
+          opts=opts,
+          workunit_factory=workunit_factory,
+          workunit_name='specs'
         )
         if result != 0:
           raise TaskError()

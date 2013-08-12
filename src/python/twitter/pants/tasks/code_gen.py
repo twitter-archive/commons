@@ -109,7 +109,7 @@ class CodeGen(Task):
           if lang_invalid:
             artifact_files.extend(self.genlang(lang, lang_invalid) or [])
         if self._artifact_cache and self.context.options.write_to_artifact_cache and artifact_files:
-          self.update_artifact_cache(vt, artifact_files)
+          self.update_artifact_cache([(vt, artifact_files)])
 
     # Link synthetic targets for all in-play gen targets
     for lang, tgts in gentargets_bylang.items():
@@ -121,9 +121,13 @@ class CodeGen(Task):
             target,
             dependees_by_gentarget.get(target, [])
           )
-          langtarget_by_gentarget[target].add_label("synthetic")
+          langtarget_by_gentarget[target].add_labels('synthetic')
         genmap = self.context.products.get(lang)
+        # synmap is a reverse map
+        # such as a map of java library target generated from java thrift target
+        synmap = self.context.products.get(lang + ':rev')
         for gentarget, langtarget in langtarget_by_gentarget.items():
+          synmap.add(langtarget, get_buildroot(), [gentarget])
           genmap.add(gentarget, get_buildroot(), [langtarget])
           # Transfer dependencies from gentarget to its synthetic counterpart.
           for dep in self.getdependencies(gentarget):

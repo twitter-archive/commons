@@ -18,23 +18,28 @@ __author__ = 'Brian Wickman'
 
 from pkg_resources import Requirement
 from twitter.pants.base import Target
+from .external_dependency import ExternalDependency
 
-class PythonRequirement(Target):
+class PythonRequirement(Target, ExternalDependency):
   """Pants wrapper around pkg_resources.Requirement"""
 
-  def __init__(self, requirement, dynamic=False, repository=None, name=None, version_filter=None):
+  def __init__(self, requirement, dynamic=False, repository=None, name=None, version_filter=None,
+              exclusives=None):
     self._requirement = Requirement.parse(requirement)
     self._name = name or self._requirement.project_name
     self._dynamic = dynamic
     self._repository = repository
     self._version_filter = version_filter or (lambda: True)
-    Target.__init__(self, self._name, False)
+    Target.__init__(self, self._name, exclusives=exclusives)
 
   def size(self):
     return 1
 
   def should_build(self):
     return self._version_filter()
+
+  def cache_key(self):
+    return str(self._requirement)
 
   def __repr__(self):
     return 'PythonRequirement(%s)' % self._requirement

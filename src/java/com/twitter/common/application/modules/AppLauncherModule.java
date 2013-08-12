@@ -17,12 +17,14 @@
 package com.twitter.common.application.modules;
 
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 
+import com.twitter.common.stats.Stats;
 import com.twitter.common.util.BuildInfo;
 
 /**
@@ -34,6 +36,7 @@ import com.twitter.common.util.BuildInfo;
 public class AppLauncherModule extends AbstractModule {
 
   private static final Logger LOG = Logger.getLogger(AppLauncherModule.class.getName());
+  private static final AtomicLong UNCAUGHT_EXCEPTIONS = Stats.exportLong("uncaught_exceptions");
 
   @Override
   protected void configure() {
@@ -43,6 +46,7 @@ public class AppLauncherModule extends AbstractModule {
 
   public static class LoggingExceptionHandler implements UncaughtExceptionHandler {
     @Override public void uncaughtException(Thread t, Throwable e) {
+      UNCAUGHT_EXCEPTIONS.incrementAndGet();
       LOG.log(Level.SEVERE, "Uncaught exception from " + t + ":" + e, e);
     }
   }

@@ -15,23 +15,41 @@
 # ==================================================================================================
 
 
-python_test_suite(name = 'python',
+python_test_suite(name = 'all',
   dependencies = [
-    ':test_nested',
-    ':test_platform',
+    pants('tests/python/twitter/common/python/http:all'),
+    pants(':test_nested'),
+    pants(':test_obtainer'),
+    pants(':test_platform'),
+    pants(':test_pex_builder_main'),
   ]
 )
 
 python_tests(name = 'test_nested',
   sources = ['test_nested.py'],
   dependencies = [
-    'src/python/twitter/common/python'
+    pants('src/python/twitter/common/python')
+  ]
+)
+
+python_tests(name = 'test_obtainer',
+  sources = ['test_obtainer.py'],
+  dependencies = [
+    pants('src/python/twitter/common/python')
   ]
 )
 
 python_tests(name = 'test_platform',
   sources = ['test_platform.py'],
   dependencies = [
-    'src/python/twitter/common/python'
+    pants('src/python/twitter/common/python')
+  ]
+)
+
+python_tests(name = 'test_pex_builder_main',
+  sources = ['test_pex_builder_main.py'],
+  dependencies = [
+    pants('src/python/twitter/common/python'),
+    pants('src/python/twitter/common/python:pex')
   ]
 )

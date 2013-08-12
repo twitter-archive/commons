@@ -14,12 +14,12 @@
 # limitations under the License.
 # ==================================================================================================
 
-__author__ = 'Benjy Weinberger'
-
 import shlex
+import subprocess
 
+from twitter.pants.binary_util import profile_classpath, runjava_indivisible
+from twitter.pants.goal.workunit import WorkUnit
 from twitter.pants.tasks import Task
-from twitter.pants.tasks.binary_utils import profile_classpath, runjava
 from twitter.pants.tasks.jvm_task import JvmTask
 
 
@@ -46,11 +46,47 @@ class ScalaRepl(JvmTask):
         self.args.extend(shlex.split(arg))
 
   def execute(self, targets):
+    # The repl session may last a while, allow concurrent pants activity during this pants idle
+    # period.
     self.context.lock.release()
-    runjava(
-      jvmargs=self.jvm_args,
-      classpath=self.classpath(profile_classpath(self.profile), confs=self.confs),
-      main=self.main,
-      args=self.args
-    )
+    self.save_stty_options()
 
+    def repl_workunit_factory(name, labels=list(), cmd=''):
+      return self.context.new_workunit(name=name, labels=[WorkUnit.REPL] + labels, cmd=cmd)
+
+    kwargs = {
+      'jvmargs': self.jvm_args,
+      'classpath': self.classpath(profile_classpath(self.profile), confs=self.confs,
+            exclusives_classpath=self.get_base_classpath_for_target(targets[0])),
+      'main': self.main,
+      'args': self.args
+    }
+    # Capture the cmd_line.
+    cmd = runjava_indivisible(dryrun=True, **kwargs)
+    with self.context.new_workunit(name='repl', labels=[WorkUnit.REPL, WorkUnit.JVM], cmd=cmd):
+      # Now actually run the REPL. We don't let runjava_indivisible create a workunit because we
+      # want the REPL's output to go straight to stdout and not get buffered by the report.
+      print('')  # Start REPL output on a new line.
+      try:
+        runjava_indivisible(dryrun=False, **kwargs)
+      except KeyboardInterrupt:
+        # TODO(John Sirois): Confirm with Steve Gury that finally does not work on mac and an
+        # explicit catch of KeyboardInterrupt is required.
+        pass
+      self.restore_ssty_options()
+
+  def save_stty_options(self):
+    """
+    The scala REPL changes some stty parameters and doesn't save/restore them after
+    execution, so if you have a terminal with non-default stty options, you end
+    up to a broken terminal (need to do a 'reset').
+    """
+    self.stty_options = self.run_cmd("stty -g 2>/dev/null")
+
+  def restore_ssty_options(self):
+    self.run_cmd("stty " + self.stty_options)
+
+  def run_cmd(self, cmd):
+    po = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    stdout, _ = po.communicate()
+    return stdout

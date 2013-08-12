@@ -25,6 +25,7 @@ from twitter_test.thrift.ttypes import IntType, StringType, BinaryType
 
 from recordio_test_harness import EphemeralFile
 
+
 def test_basic_thriftrecordwriter_write():
   test_string = StringType("hello world")
 
@@ -38,6 +39,7 @@ def test_basic_thriftrecordwriter_write():
     with open(fn) as fpr:
       rr = ThriftRecordReader(fpr, StringType)
       assert rr.read() == test_string
+
 
 def test_thriftrecordwriter_framing():
   test_string_1 = StringType("hello world")
@@ -59,6 +61,7 @@ def test_thriftrecordwriter_framing():
       assert rr.read() == test_string_1
       assert rr.read() == test_string_2
 
+
 def test_thriftrecordreader_iteration():
   test_string_1 = StringType("hello world")
   test_string_2 = StringType("ahoy ahoy, bonjour")
@@ -77,6 +80,7 @@ def test_thriftrecordreader_iteration():
       for record in rr:
         records.append(record)
       assert records == [test_string_1, test_string_2]
+
 
 def test_thriftrecordreader_nested_iteration():
   test_string_1 = StringType("hello world")
@@ -103,6 +107,7 @@ def test_thriftrecordreader_nested_iteration():
         test_string_2,
         test_string_1, test_string_2]
 
+
 def test_paranoid_thrift_append_framing():
   test_string_1 = StringType("hello world")
   test_string_2 = StringType("ahoy ahoy, bonjour")
@@ -117,6 +122,7 @@ def test_paranoid_thrift_append_framing():
       rr = ThriftRecordReader(fpr, StringType)
       assert rr.read() == test_string_1
       assert rr.read() == test_string_2
+
 
 def test_thrift_recordwriter_type_mismatch():
   test_string = StringType("hello world")
@@ -133,6 +139,7 @@ def test_thrift_recordwriter_type_mismatch():
       # ThriftType() with no serialization applied
       assert rr.read() == IntType()
 
+
 def test_premature_end_of_stream_mid_message_thrift():
   with EphemeralFile('w') as fp:
     fn = fp.name
@@ -145,6 +152,7 @@ def test_premature_end_of_stream_mid_message_thrift():
       rr = ThriftRecordReader(fpr, StringType)
       with pytest.raises(RecordIO.PrematureEndOfStream):
         rr.read()
+
 
 def test_thrift_garbage():
   with EphemeralFile('w') as fp:
@@ -159,10 +167,12 @@ def test_thrift_garbage():
       with pytest.raises(RecordIO.PrematureEndOfStream):
         rr.read()
 
+
 def test_thrift_invalid_codec_with_nonclass():
   with EphemeralFile('w') as fp:
     with pytest.raises(ThriftRecordIO.InvalidThriftException):
       ThriftRecordReader(fp, 5)
+
 
 def test_thrift_invalid_codec_with_object_instead_of_class():
   with EphemeralFile('w') as fp:

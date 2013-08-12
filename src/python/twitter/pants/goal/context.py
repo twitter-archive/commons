@@ -1,4 +1,3 @@
-
 from __future__ import print_function
 
 import os
@@ -15,8 +14,9 @@ from twitter.pants import get_buildroot
 from twitter.pants import SourceRoot
 from twitter.pants.base import ParseContext
 from twitter.pants.base.target import Target
-from twitter.pants.targets import Pants
 from twitter.pants.goal.products import Products
+from twitter.pants.reporting.report import Report
+from twitter.pants.targets import Pants
 
 
 # Utility definition for grabbing process info for locking.
@@ -39,19 +39,27 @@ class Context(object):
   """
 
   class Log(object):
-    def debug(self, msg): pass
-    def info(self, msg): pass
-    def warn(self, msg): pass
+    """A logger facade that logs into the pants reporting framework."""
+    def __init__(self, run_tracker):
+      self._run_tracker = run_tracker
 
-  def __init__(self, config, options, target_roots, requested_goals=None, lock=Lock.unlocked(), log=None, timer=None):
+    def debug(self, *msg_elements): self._run_tracker.log(Report.DEBUG, *msg_elements)
+    def info(self, *msg_elements): self._run_tracker.log(Report.INFO, *msg_elements)
+    def warn(self, *msg_elements): self._run_tracker.log(Report.WARN, *msg_elements)
+    def error(self, *msg_elements): self._run_tracker.log(Report.ERROR, *msg_elements)
+    def fatal(self, *msg_elements): self._run_tracker.log(Report.FATAL, *msg_elements)
+
+  def __init__(self, config, options, run_tracker, target_roots, requested_goals=None,
+               lock=Lock.unlocked(), log=None, target_base=None):
     self._config = config
     self._options = options
+    self.run_tracker = run_tracker
     self._lock = lock
-    self._log = log or Context.Log()
+    self._log = log or Context.Log(run_tracker)
+    self._target_base = target_base or Target
     self._state = {}
     self._products = Products()
     self._buildroot = get_buildroot()
-    self.timer = timer
     self.requested_goals = requested_goals or []
 
     self.replace_targets(target_roots)
@@ -94,6 +102,11 @@ class Context(object):
   def __str__(self):
     return 'Context(id:%s, state:%s, targets:%s)' % (self.id, self.state, self.targets())
 
+  @contextmanager
+  def new_workunit(self, name, labels=list(), cmd=''):
+    with self.run_tracker.new_workunit(name=name, labels=labels, cmd=cmd) as workunit:
+      yield workunit
+
   def acquire_lock(self):
     """ Acquire the global lock for the root directory associated with this context. When
     a goal requires serialization, it will call this to acquire the lock.
@@ -124,19 +137,20 @@ class Context(object):
     """Replaces all targets in the context with the given roots and their transitive
     dependencies.
     """
-    self._target_roots = target_roots
+    self._target_roots = list(target_roots)
+
     self._targets = OrderedSet()
-    for target in target_roots:
-      self._add_target(target)
+    for target in self._target_roots:
+      self.add_target(target)
     self.id = Target.identify(self._targets)
 
-  def _add_target(self, target):
+  def add_target(self, target):
     """Adds a target and its transitive dependencies to the run context.
 
     The target is not added to the target roots.
     """
     def add_targets(tgt):
-      self._targets.update(tgt.resolve())
+      self._targets.update(tgt for tgt in tgt.resolve() if isinstance(tgt, self._target_base))
     target.walk(add_targets)
 
   def add_new_target(self, target_base, target_type, *args, **kwargs):
@@ -151,7 +165,7 @@ class Context(object):
     else:
       derived_from = None
     target = self._create_new_target(target_base, target_type, *args, **kwargs)
-    self._add_target(target)
+    self.add_target(target)
     if derived_from:
       target.derived_from = derived_from
     return target
@@ -199,3 +213,11 @@ class Context(object):
     value = self._state.get(key, default)
     yield value
     self._state[key] = value
+
+  @contextmanager
+  def timing(self, label):
+    if self.timer:
+      with self.timer.timing(label):
+        yield
+    else:
+      yield

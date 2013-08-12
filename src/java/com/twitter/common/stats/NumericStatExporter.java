@@ -1,5 +1,5 @@
 // =================================================================================================
-// Copyright 2011 Twitter, Inc.
+// Copyright 2012 Twitter, Inc.
 // -------------------------------------------------------------------------------------------------
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this work except in compliance with the License.
@@ -44,6 +44,7 @@ public class NumericStatExporter {
 
   private final ScheduledExecutorService executor;
   private final Amount<Long, Time> exportInterval;
+  private final Closure<Map<String, ? extends Number>> exportSink;
 
   private final Runnable exporter;
 
@@ -59,10 +60,11 @@ public class NumericStatExporter {
     checkNotNull(exportSink);
     this.executor = checkNotNull(executor);
     this.exportInterval = checkNotNull(exportInterval);
+    this.exportSink = exportSink;
 
     exporter = new Runnable() {
       @Override public void run() {
-        exportSink.execute(Maps.transformValues(
+          exportSink.execute(Maps.transformValues(
             Maps.uniqueIndex(Stats.getNumericVariables(), GET_NAME), READ_STAT));
       }
     };
@@ -80,6 +82,8 @@ public class NumericStatExporter {
     shutdownRegistry.addAction(new Command() {
       @Override public void execute() {
         stop();
+        exportSink.execute(Maps.transformValues(
+            Maps.uniqueIndex(Stats.getNumericVariables(), GET_NAME), SAMPLE_AND_READ_STAT));
       }
     });
   }
@@ -112,6 +116,13 @@ public class NumericStatExporter {
       new Function<Stat<? extends Number>, Number>() {
         @Override public Number apply(Stat<? extends Number> stat) {
           return stat.read();
+        }
+      };
+
+  private static final Function<RecordingStat<? extends Number>, Number> SAMPLE_AND_READ_STAT =
+      new Function<RecordingStat<? extends Number>, Number>() {
+        @Override public Number apply(RecordingStat<? extends Number> stat) {
+          return stat.sample();
         }
       };
 }

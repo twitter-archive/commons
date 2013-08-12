@@ -84,7 +84,8 @@ public class TokenTypeAttributeSerializerTest {
     Assert.assertEquals(4, TokenType.EMOTICON.ordinal());
     Assert.assertEquals(5, TokenType.URL.ordinal());
     Assert.assertEquals(6, TokenType.STOCK.ordinal());
-    Assert.assertEquals(7, TokenType.values().length);
+    Assert.assertEquals(7, TokenType.CONTRACTION.ordinal());
+    Assert.assertEquals(8, TokenType.values().length);
   }
   // CHECKSTYLE:ON MagicNumber
 }

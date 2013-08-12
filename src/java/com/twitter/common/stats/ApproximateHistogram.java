@@ -1,11 +1,9 @@
 package com.twitter.common.stats;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.logging.Logger;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
 import com.twitter.common.quantity.Amount;
@@ -50,14 +48,18 @@ public final class ApproximateHistogram implements Histogram {
   private static final Logger LOG = Logger.getLogger(Histogram.class.getName());
   private static final Precision DEFAULT_PRECISION = new Precision(0.0001, 1000 * 1000);
   private static final Amount<Long, Data> DEFAULT_MAX_MEMORY = Amount.of(4L, Data.KB);
-  private static final int elemSize = 8; // sizeof long
+  private static final int ELEMSIZE = 8; // sizeof long
 
   // See above
-  private List<List<Long>> buffer;
+  @VisibleForTesting long[][] buffer;
+  @VisibleForTesting long count = 0L;
+  @VisibleForTesting int leafCount = 0; // number of elements in the bottom two leaves
+  @VisibleForTesting int currentTop = 1;
+  @VisibleForTesting int[] indices; // member for optimization reason
+  private int rootWeight = 1;
+  private long[][] bufferPool; // pool of buffers used for merging
   private int bufferSize;
   private int maxDepth;
-  private int rootWeight = 1;
-  private long count = 0L;
 
   /**
    * Private init method that is called only by constructors
@@ -65,11 +67,11 @@ public final class ApproximateHistogram implements Histogram {
    * @param bufSize size of each buffer
    * @param b maximum depth of the tree of buffers
    */
-  private void init(int bufSize, int maxDepth) {
+  @VisibleForTesting
+  void init(int bufSize, int maxDepth) {
     this.bufferSize = bufSize;
     this.maxDepth = maxDepth;
 
-    buffer = new ArrayList<List<Long>>(maxDepth);
     clear();
   }
 
@@ -106,22 +108,22 @@ public final class ApproximateHistogram implements Histogram {
 
   @Override
   public synchronized void add(long x) {
-    count += 1;
-
     // if the leaves of the tree are full, "collapse" recursively the tree
-    if (buffer.get(0).size() == bufferSize && buffer.get(1).size() == bufferSize) {
-      Collections.sort(buffer.get(0));
-      Collections.sort(buffer.get(1));
-      recCollapse(buffer.get(0), 1);
-      buffer.get(0).clear();
+    if (leafCount == 2 * bufferSize) {
+      Arrays.sort(buffer[0]);
+      Arrays.sort(buffer[1]);
+      recCollapse(buffer[0], 1);
+      leafCount = 0;
     }
 
     // Now we're sure there is space for adding x
-    int i = 1;
-    if (buffer.get(0).size() < bufferSize) {
-      i = 0;
+    if (leafCount < bufferSize) {
+      buffer[0][leafCount] = x;
+    } else {
+      buffer[1][leafCount - bufferSize] = x;
     }
-    buffer.get(i).add(x);
+    leafCount++;
+    count++;
   }
 
   @Override
@@ -132,24 +134,24 @@ public final class ApproximateHistogram implements Histogram {
       return output;
     }
 
-    int io = 0;
-    long qsum = 0;
-    long[] qss = quantilesSums(qs);
-    int iq = 0;
+    // the two leaves are the only buffer that can be partially filled
+    int buf0Size = Math.min(bufferSize, leafCount);
+    int buf1Size = Math.max(0, leafCount - buf0Size);
+    long sum = 0;
+    int i, id, io = 0;
 
-    Collections.sort(buffer.get(0));
-    Collections.sort(buffer.get(1));
-
-    int[] indices = new int[buffer.size()];
+    Arrays.sort(buffer[0], 0, buf0Size);
+    Arrays.sort(buffer[1], 0, buf1Size);
     Arrays.fill(indices, 0);
-    while (io < output.length || qsum < count) {
-      int i = smallest(indices);
-      long x = buffer.get(i).get(indices[i] - 1);
-      qsum += weight(i);
-      while (iq < qss.length && qss[iq] <= qsum) {
-        output[io] = x;
-        io += 1;
-        iq += 1;
+
+    while (io < output.length) {
+      i = smallest(buf0Size, buf1Size, indices);
+      id = indices[i];
+      indices[i]++;
+      sum += weight(i);
+      while (io < qs.length && (long) (qs[io] * count) <= sum) {
+        output[io] = buffer[i][id];
+        io++;
       }
     }
     return output;
@@ -158,9 +160,15 @@ public final class ApproximateHistogram implements Histogram {
   @Override
   public synchronized void clear() {
     count = 0L;
-    buffer.clear();
-    buffer.add(new ArrayList<Long>(bufferSize));
-    buffer.add(new ArrayList<Long>(bufferSize));
+    leafCount = 0;
+    rootWeight = 1;
+    bufferPool = new long[2][bufferSize];
+    indices = new int[bufferSize];
+    // All the buffers of the tree are allocated
+    buffer = new long[maxDepth + 1][bufferSize];
+    for (int i = 0; i < maxDepth; i++) {
+      buffer[i] = new long[bufferSize];
+    }
   }
 
   /**
@@ -189,11 +197,11 @@ public final class ApproximateHistogram implements Histogram {
    */
   private int computeMaxDepth(Amount<Long, Data> maxMemory, int bufferSize) {
     int bm = 0;
-    long n = maxMemory.as(Data.BYTES) - 100 - (elemSize * bufferSize);
+    long n = maxMemory.as(Data.BYTES) - 100 - (ELEMSIZE * bufferSize);
     if (n < 0) {
       bm = 2;
     } else {
-      bm = (int) (n / (16 + elemSize * bufferSize));
+      bm = (int) (n / (16 + ELEMSIZE * bufferSize));
     }
     if (bm < 2) {
       bm = 2;
@@ -202,11 +210,56 @@ public final class ApproximateHistogram implements Histogram {
   }
 
   /**
-   * return the weight of the level ie. 2^(i-1) except for the two tree leaves (weight=1) and for
-   * the root
+   * Return the level of the smallest element (using the indices array 'ids'
+   * to track which elements have been already returned). Every buffers has
+   * already been sorted at this point.
+   */
+  @VisibleForTesting
+  int smallest(final int buf0Size, final int buf1Size, final int[] ids) {
+    long smallest = Long.MAX_VALUE, x = Long.MAX_VALUE;
+    final int id0 = ids[0], id1 = ids[1];
+    int iSmallest = 0;
+
+    if (0 < leafCount && id0 < buf0Size) {
+      smallest = buffer[0][id0];
+    }
+    if (bufferSize < leafCount && id1 < buf1Size) {
+      x = buffer[1][id1];
+      if (x < smallest) {
+        smallest = x;
+        iSmallest = 1;
+      }
+    }
+    for (int i = 2; i < currentTop + 1; i++) {
+      if (!isBufferEmpty(i) && ids[i] < bufferSize) {
+        x = buffer[i][ids[i]];
+      }
+      if (x < smallest) {
+        smallest = x;
+        iSmallest = i;
+      }
+    }
+    return iSmallest;
+  }
+
+  /**
+   * Based on the number of elements inserted we can easily know if a buffer
+   * is empty or not
+   */
+  private boolean isBufferEmpty(int level) {
+    if (level == currentTop) {
+      return false; // root buffer (if present) is always full
+    } else {
+      return (count / (bufferSize * weight(level))) % 2 == 1;
+    }
+  }
+
+  /**
+   * return the weight of the level ie. 2^(i-1) except for the two tree
+   * leaves (weight=1) and for the root
    */
   private int weight(int level) {
-    int w = 0;
+    int w;
     if (level < 2) {
       w = 1;
     } else if (level == maxDepth) {
@@ -217,63 +270,34 @@ public final class ApproximateHistogram implements Histogram {
     return w;
   }
 
-  private long[] quantilesSums(double[] qs) {
-    long[] qss = new long[qs.length];
-    int i = 0;
-    while (i < qss.length) {
-      qss[i] = (long) (qs[i] * count);
-      i += 1;
-    }
-    return qss;
-  }
-
-  /**
-   * Return the level of the smallest element, and update the indices array
-   * the indices array represent (for each level of the tree) the index of the next value to read
-   */
-  private int smallest(int[] indices) {
-    int iSmallest = 0;
-    long smallest = Long.MAX_VALUE;
-    for (int i = 0; i < buffer.size(); i++) {
-      long head = Long.MAX_VALUE;
-      if (!buffer.get(i).isEmpty() && indices[i] < buffer.get(i).size()) {
-        head = buffer.get(i).get(indices[i]);
-      }
-      if (head < smallest) {
-        smallest = head;
-        iSmallest = i;
-      }
-    }
-    indices[iSmallest] += 1;
-    return iSmallest;
-  }
-
-  private void recCollapse(List<Long> buf, int level) {
-    assert isSorted(buf);
-
+  private void recCollapse(long[] buf, int level) {
     // if we reach the root, we can't add more buffer
     if (level == maxDepth) {
-      // weight() return the weight of the root, in that case we need the weight of merge result
+      // weight() return the weight of the root, in that case we need the
+      // weight of merge result
       int mergeWeight = 1 << (level - 1);
-      List<Long> merged = collapse(buf, mergeWeight, buffer.get(level), rootWeight);
-      buffer.set(level, merged);
+      int idx = level % 2;
+      long[] merged = bufferPool[idx];
+      long[] tmp = buffer[level];
+      collapse(buf, mergeWeight, buffer[level], rootWeight, merged);
+      buffer[level] = merged;
+      bufferPool[idx] = tmp;
       rootWeight += mergeWeight;
     } else {
-      int currentTop = buffer.size() - 1;
-      List<Long> merged = collapse(buf, 1, buffer.get(level), 1);
       if (level == currentTop) {
         // if we reach the top, add a new buffer
-        buffer.add(merged);
+        collapse1(buf, buffer[level], buffer[level + 1]);
+        currentTop += 1;
         rootWeight *= 2;
-      } else if (buffer.get(level + 1).isEmpty()) {
+      } else if (isBufferEmpty(level + 1)) {
         // if the upper buffer is empty, use it
-        buffer.set(level + 1, merged);
+        collapse1(buf, buffer[level], buffer[level + 1]);
       } else {
         // it the upper buffer isn't empty, collapse with it
+        long[] merged = bufferPool[level % 2];
+        collapse1(buf, buffer[level], merged);
         recCollapse(merged, level + 1);
       }
-      // now that the values have been collapsed, clean the buffer
-      buffer.get(level).clear();
     }
   }
 
@@ -284,56 +308,71 @@ public final class ApproximateHistogram implements Histogram {
    *     sort = [2,2,3,3,3,5,5,7,7,8,8,8,9,9,9]
    *     select every nth elems = [3,7,9]  (n = sum weight / 2)
    */
-  private List<Long> collapse(
-      List<Long> left,
-      int leftWeight,
-      List<Long> right,
-      int rightWeight) {
-    assert left.size() == right.size();
-    assert isSorted(left);
-    assert isSorted(right);
+  @VisibleForTesting
+  void collapse(
+    long[] left,
+    int leftWeight,
+    long[] right,
+    int rightWeight,
+    long[] output) {
 
+    int totalWeight = leftWeight + rightWeight;
+    int halfTotalWeight = (totalWeight / 2) - 1;
+    int cnt = 0;
     int i = 0;
     int j = 0;
-    int cnt = 0;
-    List<Long> output = new ArrayList<Long>(left.size());
+    int k = 0;
 
-    while (i < left.size() || j < right.size()) {
-      long smallest = 0;
-      int weight = 0;
-      if (i < left.size() && (j == right.size() || left.get(i) < right.get(j))) {
-        smallest = left.get(i);
+    int weight;
+    long smallest;
+
+    while (i < left.length || j < right.length) {
+      if (i < left.length && (j == right.length || left[i] < right[j])) {
+        smallest = left[i];
         weight = leftWeight;
-        i += 1;
+        i++;
       } else {
-        smallest = right.get(j);
+        smallest = right[j];
         weight = rightWeight;
-        j += 1;
+        j++;
       }
-      int totalWeight = leftWeight + rightWeight;
-      for (int t = 0; t < weight; t++) {
-        if (cnt % totalWeight == totalWeight / 2) {
-          output.add(smallest);
-        }
-        cnt += 1;
+
+      int cur = (cnt + halfTotalWeight) / totalWeight;
+      cnt += weight;
+      int next = (cnt + halfTotalWeight) / totalWeight;
+
+      for(; cur < next; cur++) {
+        output[k] = smallest;
+        k++;
       }
     }
-    assert isSorted(output);
-    return output;
   }
 
-  /**
-   * Only used by assert during development of the algorithm
-   */
-  private boolean isSorted(List<Long> list) {
-    boolean sorted = true;
-    int i = 0;
-    while (sorted && i < list.size() - 1) {
-      if (list.get(i) > list.get(i + 1)) {
-        sorted = false;
+/**
+ * Optimized version of collapse for colapsing two array of the same weight
+ * (which is what we want most of the time)
+ */
+  private void collapse1(
+    long[] left,
+    long[] right,
+    long[] output) {
+
+    int i = 0, j = 0, k = 0, cnt = 0;
+    long smallest;
+
+    while (i < left.length || j < right.length) {
+      if (i < left.length && (j == right.length || left[i] < right[j])) {
+        smallest = left[i];
+        i++;
+      } else {
+        smallest = right[j];
+        j++;
       }
-      i += 1;
+      if (cnt % 2 == 1) {
+        output[k] = smallest;
+        k++;
+      }
+      cnt++;
     }
-    return sorted;
   }
 }

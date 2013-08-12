@@ -1,57 +1,56 @@
+from abc import abstractmethod
+
+from twitter.common.lang import Interface
 from twitter.common.string import ScanfParser
 
-try:
-  from twitter.common import log
-except ImportError:
-  log = None
-
-
-class ProcessHandle(object):
+class ProcessHandle(Interface):
   """
     ProcessHandle interface.  Methods that must be exposed by whatever process
     monitoring mechanism you use.
   """
+  @abstractmethod
   def cpu_time(self):
     """
       Total cpu time of this process.
     """
-    raise NotImplementedError
 
+  @abstractmethod
   def wall_time(self):
     """
       Total wall time this process has been up.
     """
-    raise NotImplementedError
 
+  @abstractmethod
   def pid(self):
     """
       PID of the process.
     """
-    raise NotImplementedError
 
+  @abstractmethod
   def ppid(self):
     """
       Parent PID of the process.
     """
-    raise NotImplementedError
 
+  @abstractmethod
   def user(self):
     """
       The owner of the process.
     """
-    raise NotImplementedError
 
+  @abstractmethod
   def cwd(self):
     """
       The current working directory of the process.
     """
-    raise NotImplementedError
 
+  @abstractmethod
   def cmdline(self):
     """
       The full command line of the process.
     """
     raise NotImplementedError
+
 
 
 class ProcessHandleParser(ScanfParser):
@@ -69,7 +68,6 @@ class ProcessHandleParser(ScanfParser):
       for attr, value in zip(self._attrs, so.ungrouped()):
         d[attr] = self._handlers[attr](attr, value) if attr in self._handlers else value
     except ScanfParser.ParseError as e:
-      if log: log.error('ProcessHandleParser failed: %s' % e)
       return {}
     return d
 
@@ -78,6 +76,7 @@ class ProcessHandleParser(ScanfParser):
     self._handlers = handlers
     attr_list = map(type_map.get, attrs)
     ScanfParser.__init__(self, ' '.join(attr_list))
+
 
 class ProcessHandleParserBase(object):
   """
@@ -129,10 +128,7 @@ class ProcessHandleParserBase(object):
 
   def get(self, key):
     probe_key = self.ALIASES[key] if key in self.ALIASES else key
-    if probe_key in self._attrs:
-      return self._attrs.get(probe_key)
-    else:
-      raise AttributeError("%s not in ProcessHandle" % probe_key)
+    return self._attrs.get(probe_key)
 
   def refresh(self, line=None):
-    return self._realize() if line is None else self._realize_from_line(self, line)
+    return self._realize() if line is None else self._realize_from_line(line)

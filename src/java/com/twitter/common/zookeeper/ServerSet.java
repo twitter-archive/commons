@@ -29,8 +29,6 @@ import java.util.Map;
  * common service and their clients.
  *
  * TODO(William Farner): Explore decoupling this from thrift.
- *
- * @author William Farner
  */
 public interface ServerSet extends DynamicHostSet<ServiceInstance> {
 
@@ -43,10 +41,42 @@ public interface ServerSet extends DynamicHostSet<ServiceInstance> {
    * @return an EndpointStatus object that allows the endpoint to adjust its status
    * @throws JoinException if there was a problem joining the server set
    * @throws InterruptedException if interrupted while waiting to join the server set
+   * @deprecated The status field is deprecated. Please use {@link #join(InetSocketAddress, Map)}
    */
-  public EndpointStatus join(InetSocketAddress endpoint,
-      Map<String, InetSocketAddress> additionalEndpoints, Status status)
+  @Deprecated
+  public EndpointStatus join(
+      InetSocketAddress endpoint,
+      Map<String, InetSocketAddress> additionalEndpoints,
+      Status status) throws JoinException, InterruptedException;
+
+  /**
+   * Attempts to join a server set for this logical service group.
+   *
+   * @param endpoint the primary service endpoint
+   * @param additionalEndpoints and additional endpoints keyed by their logical name
+   * @return an EndpointStatus object that allows the endpoint to adjust its status
+   * @throws JoinException if there was a problem joining the server set
+   * @throws InterruptedException if interrupted while waiting to join the server set
+   */
+  public EndpointStatus join(
+      InetSocketAddress endpoint,
+      Map<String, InetSocketAddress> additionalEndpoints)
       throws JoinException, InterruptedException;
+
+  /**
+   * Attempts to join a server set for this logical service group.
+   *
+   * @param endpoint the primary service endpoint
+   * @param additionalEndpoints and additional endpoints keyed by their logical name
+   * @param shardId Unique shard identifier for this member of the service.
+   * @return an EndpointStatus object that allows the endpoint to adjust its status
+   * @throws JoinException if there was a problem joining the server set
+   * @throws InterruptedException if interrupted while waiting to join the server set
+   */
+  EndpointStatus join(
+      InetSocketAddress endpoint,
+      Map<String, InetSocketAddress> additionalEndpoints,
+      int shardId) throws JoinException, InterruptedException;
 
   /**
    * A handle to a service endpoint's status data that allows updating it to track current events.
@@ -59,8 +89,17 @@ public interface ServerSet extends DynamicHostSet<ServiceInstance> {
      *
      * @param status the current status of the endpoint
      * @throws UpdateException if there was a problem writing the update
+     * @deprecated Support for mutable status is deprecated. Please use {@link #leave()}
      */
+    @Deprecated
     void update(Status status) throws UpdateException;
+
+    /**
+     * Removes the endpoint from the server set.
+     *
+     * @throws UpdateException if there was a problem leaving the ServerSet.
+     */
+    void leave() throws UpdateException;
   }
 
   /**
@@ -69,6 +108,10 @@ public interface ServerSet extends DynamicHostSet<ServiceInstance> {
   public static class UpdateException extends Exception {
     public UpdateException(String message, Throwable cause) {
       super(message, cause);
+    }
+
+    public UpdateException(String message) {
+      super(message);
     }
   }
 }

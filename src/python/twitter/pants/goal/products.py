@@ -2,13 +2,14 @@ from collections import defaultdict
 
 class Products(object):
   class ProductMapping(object):
-    """
-      Maps products of a given type by target. Each product is a map from basedir to a list of files in that dir.
+    """Maps products of a given type by target. Each product is a map from basedir to a list of
+    files in that dir.
     """
 
     def __init__(self, typename):
       self.typename = typename
       self.by_target = defaultdict(lambda: defaultdict(list))
+
 
     def add(self, target, basedir, product_paths=None):
       """
@@ -44,6 +45,15 @@ class Products(object):
       """
       return self.by_target[target]
 
+    def __getitem__(self, target):
+      """
+        Support for subscripting into this mapping. Returns the product mapping for the given target
+        as a map of <basedir> -> <products list>.
+        If no mapping exists, returns an empty map whose values default to empty lists. So you
+        can use the result without checking for None.
+      """
+      return self.by_target[target]
+
     def itermappings(self):
       """
         Returns an iterable over all pairs (target, product) in this mapping.
@@ -69,16 +79,33 @@ class Products(object):
 
   def __init__(self):
     self.products = {}
+    self.data_products = {}
     self.predicates_for_type = defaultdict(list)
 
   def require(self, typename, predicate=None):
     """
-      Registers a requirement that products of the given type by mapped.  If a target predicate is
+      Registers a requirement that file products of the given type by mapped.  If a target predicate is
       supplied, only targets matching the predicate are mapped.
     """
     if predicate:
       self.predicates_for_type[typename].append(predicate)
     return self.products.setdefault(typename, Products.ProductMapping(typename))
+
+  def require_data(self, *typename):
+    for t in typename:
+      self.data_products[t] = {}
+
+  def is_required_data(self, typename):
+    return self.data_products.has_key(typename)
+
+  def get_data(self, typename):
+    if self.data_products.has_key(typename):
+      return self.data_products[typename]
+    else:
+      return None
+
+  def add_data(self, typename, data):
+    self.data_products[typename] = data
 
   def isrequired(self, typename):
     """
@@ -94,3 +121,27 @@ class Products(object):
   def get(self, typename):
     """Returns a ProductMapping for the given type name."""
     return self.require(typename)
+
+  def require_data(self, *typenames):
+    """ Registers a requirement that data produced by tasks is required.
+    Params:
+      typenames a list of names of data products that are should be generated.
+    """
+    for t in typenames:
+      self.data_products[t] = {}
+
+  def is_required_data(self, typename):
+    """ Checks if a particular data product is required by any tasks."""
+    return self.data_products.has_key(typename)
+
+  def get_data(self, typename):
+    """ Returns a data product, or None if the product isn't found."""
+    if self.data_products.has_key(typename):
+      return self.data_products[typename]
+    else:
+      return None
+
+  def set_data(self, typename, data):
+    """ Stores a required data product. If the product already exists, the value is replaced. """
+    self.data_products[typename] = data
+

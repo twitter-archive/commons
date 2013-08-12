@@ -70,6 +70,10 @@ class RootServer(HttpServer, app.Module):
     self.mount_routes(DiagnosticsEndpoints())
 
     class RootServerThread(threading.Thread):
+      def __init__(self):
+        threading.Thread.__init__(self)
+        self.daemon = True
+
       def run(self):
         rs = parent
         rs.run(options.twitter_common_http_root_server_host,

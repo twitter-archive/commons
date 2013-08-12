@@ -16,23 +16,21 @@
 
 package com.twitter.common.net.http.handlers;
 
-import com.google.common.base.Preconditions;
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+
 /**
  * A servlet that provides a way to remotely terminate the running process immediately.
- *
- * @author William Farner
  */
 public class AbortHandler extends HttpServlet {
 
@@ -56,12 +54,6 @@ public class AbortHandler extends HttpServlet {
   @Inject
   public AbortHandler(@Named(ABORT_HANDLER_KEY) Runnable abortListener) {
     this.abortListener = Preconditions.checkNotNull(abortListener);
-  }
-
-  @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    resp.getWriter().println("WARNING - aborting via HTTP GET is deprecated, please POST instead!");
-    doPost(req, resp);
   }
 
   @Override

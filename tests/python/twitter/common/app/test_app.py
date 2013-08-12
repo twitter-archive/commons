@@ -17,6 +17,7 @@
 import sys
 from twitter.common import app
 from twitter.common import options
+from twitter.common.app import Application
 
 import pytest
 import unittest
@@ -129,3 +130,30 @@ class TestApp(unittest.TestCase):
     app.init(force_args=['--option1', 'option1value', 'extraargs'])
     assert app.get_options().option1 == 'option1value'
     assert app.argv() == ['extraargs']
+
+  def test_app_copy_command_options(self):
+    option1 = options.TwitterOption('--test1')
+    option2 = options.TwitterOption('--test2')
+
+    @app.command_option(option1)
+    def test_command():
+      pass
+
+    @app.copy_command_options(test_command)
+    @app.command_option(option2)
+    def test_command_2():
+      pass
+
+    assert set([option1, option2]) == set(getattr(test_command_2, Application.OPTIONS_ATTR))
+
+  def test_app_add_command_options(self):
+    option_name = 'test_option_name'
+    option = options.TwitterOption('--test', dest=option_name)
+
+    @app.command_option(option)
+    def test_command():
+      pass
+
+    assert not hasattr(app.get_options(), option_name)
+    app.add_command_options(test_command)
+    assert hasattr(app.get_options(), option_name)

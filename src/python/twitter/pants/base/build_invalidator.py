@@ -1,5 +1,5 @@
 # ==================================================================================================
-# Copyright 2011 Twitter, Inc.
+# Copyright 2012 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -16,13 +16,15 @@
 
 import errno
 import hashlib
+import itertools
 import os
 
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 from collections import namedtuple
 
 from twitter.common.dirutil import safe_mkdir
-from twitter.common.lang import Compatibility
+from twitter.common.lang import Compatibility, Interface
+
 from twitter.pants.base.hash_utils import hash_all
 from twitter.pants.base.target import Target
 
@@ -32,39 +34,52 @@ from twitter.pants.base.target import Target
 #  - hash is a fingerprint of all invalidating inputs to the build step, i.e., it uniquely
 #    determines a given version of the artifacts created when building the target set.
 #  - num_sources is the number of source files used to build this version of the target set.
-#    Needed only for displaying stats.
+#    Needed only for display.
+#  - sources is an (optional) list of the source files used to compute this key.
+#    Needed only for display.
 
-CacheKey = namedtuple('CacheKey', ['id', 'hash', 'num_sources'])
+CacheKey = namedtuple('CacheKey', ['id', 'hash', 'num_sources', 'sources'])
 
 
-class SourceScope(object):
+class SourceScope(Interface):
   """Selects sources of a given scope from targets."""
-
-  __metaclass__ = ABCMeta
-
-  @staticmethod
-  def for_selector(selector):
-    class Scope(SourceScope):
-      def select(self, target):
-        return selector(target)
-    return Scope()
 
   @abstractmethod
   def select(self, target):
     """Selects source files from the given target and returns them as absolute paths."""
 
+  @abstractmethod
   def valid(self, target):
     """Returns True if the given target can be used with this SourceScope."""
+
+
+class NoSources(SourceScope):
+  """A SourceScope where all targets are valid but no sources are ever selected."""
+
+  def select(self, target):
+    return []
+
+  def valid(self, target):
+    return True
+
+NO_SOURCES = NoSources()
+
+
+class DefaultSourceScope(SourceScope):
+  """Selects sources from subclasses of TargetWithSources."""
+
+  def __init__(self, recursive, include_buildfile):
+    self._recursive = recursive
+    self._include_buildfile = include_buildfile
+
+  def select(self, tgt):
+    return tgt.expand_files(self._recursive, self._include_buildfile)
+
+  def valid(self, target):
     return hasattr(target, 'expand_files')
 
-
-NO_SOURCES = SourceScope.for_selector(lambda t: ())
-TARGET_SOURCES = SourceScope.for_selector(
-  lambda t: t.expand_files(recursive=False, include_buildfile=False)
-)
-TRANSITIVE_SOURCES = SourceScope.for_selector(
-  lambda t: t.expand_files(recursive=True, include_buildfile=False)
-)
+TARGET_SOURCES = DefaultSourceScope(recursive=False, include_buildfile=False)
+TRANSITIVE_SOURCES = DefaultSourceScope(recursive=True, include_buildfile=False)
 
 
 class CacheKeyGenerator(object):
@@ -87,7 +102,9 @@ class CacheKeyGenerator(object):
       combined_id = Target.maybe_readable_combine_ids(cache_key.id for cache_key in cache_keys)
       combined_hash = hash_all(sorted(cache_key.hash for cache_key in cache_keys))
       combined_num_sources = sum(cache_key.num_sources for cache_key in cache_keys)
-      return CacheKey(combined_id, combined_hash, combined_num_sources)
+      combined_sources = \
+        sorted(list(itertools.chain(*[cache_key.sources for cache_key in cache_keys])))
+      return CacheKey(combined_id, combined_hash, combined_num_sources, combined_sources)
 
   def key_for_target(self, target, sources=TARGET_SOURCES, fingerprint_extra=None):
     """Get a key representing the given target and its sources.
@@ -108,10 +125,10 @@ class CacheKeyGenerator(object):
 
     sha = hashlib.sha1()
     srcs = sorted(sources.select(target))
-    num_sources = self._sources_hash(sha, srcs)
+    actual_srcs = self._sources_hash(sha, srcs)
     if fingerprint_extra:
       fingerprint_extra(sha)
-    return CacheKey(target.id, sha.hexdigest(), num_sources)
+    return CacheKey(target.id, sha.hexdigest(), len(actual_srcs), actual_srcs)
 
   def key_for(self, id, sources):
     """Get a cache key representing some id and its associated source files.
@@ -119,15 +136,14 @@ class CacheKeyGenerator(object):
     Useful primarily in tests. Normally we use key_for_target().
     """
     sha = hashlib.sha1()
-    num_sources = self._sources_hash(sha, sources)
-    return CacheKey(id, sha.hexdigest(), num_sources)
+    actual_srcs = self._sources_hash(sha, sources)
+    return CacheKey(id, sha.hexdigest(), len(actual_srcs), actual_srcs)
 
   def _walk_paths(self, paths):
     """Recursively walk the given paths.
 
     :returns: Iterable of (relative_path, absolute_path).
     """
-    assert not isinstance(paths, Compatibility.string)
     for path in sorted(paths):
       if os.path.isdir(path):
         for dir_name, _, filenames in sorted(os.walk(path)):
@@ -140,15 +156,15 @@ class CacheKeyGenerator(object):
   def _sources_hash(self, sha, paths):
     """Update a SHA1 digest with the content of all files under the given paths.
 
-    :returns: The number of files found under the given paths.
+    :returns: The files found under the given paths.
     """
-    num_files = 0
+    files = []
     for relative_filename, filename in self._walk_paths(paths):
       with open(filename, "rb") as fd:
         sha.update(Compatibility.to_bytes(relative_filename))
         sha.update(fd.read())
-      num_files += 1
-    return num_files
+      files.append(filename)
+    return files
 
 
 # A persistent map from target set to cache key, which is a fingerprint of all
@@ -160,7 +176,7 @@ class BuildInvalidator(object):
   VERSION = 0
 
   def __init__(self, root):
-    self._root = os.path.join(root, str(BuildInvalidator.VERSION))
+    self._root = os.path.join(root, str(self.VERSION))
     safe_mkdir(self._root)
 
   def needs_update(self, cache_key):
@@ -169,8 +185,7 @@ class BuildInvalidator(object):
     :param cache_key: A CacheKey object (as returned by BuildInvalidator.key_for().
     :returns: True if the cached version of the item is out of date.
     """
-    cached_sha = self._read_sha(cache_key)
-    return cached_sha != cache_key.hash
+    return self._read_sha(cache_key) != cache_key.hash
 
   def update(self, cache_key):
     """Makes cache_key the valid version of the corresponding target set.
@@ -190,7 +205,8 @@ class BuildInvalidator(object):
   def existing_hash(self, id):
     """Returns the existing hash for the specified id.
 
-    Returns None if there is no existing hash for this id."""
+    Returns None if there is no existing hash for this id.
+    """
     return self._read_sha_by_id(id)
 
   def _sha_file(self, cache_key):

@@ -13,9 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==================================================================================================
-import os
 
 from twitter.pants.targets.exportable_jvm_library import ExportableJvmLibrary
+
 
  # TODO(Anand) Remove this from pants proper when a code adjoinment mechanism exists
  # or ok if/when thriftstore is open sourced as well..
@@ -25,30 +25,23 @@ class JavaThriftstoreDMLLibrary(ExportableJvmLibrary):
   def __init__(self,
                name,
                sources,
-               dependencies = None):
-
+               dependencies = None,
+               exclusives=None):
     """name: The name of this module target, addressable via pants via the portion of the spec
         following the colon
     sources: A list of paths containing the thriftstore source files this module's jar is compiled from
     dependencies: An optional list of Dependency objects specifying the binary (jar) dependencies of
         this module.
+    exclusives:   An optional map of exclusives tags. See CheckExclusives for details.
     """
 
     ExportableJvmLibrary.__init__(self,
                                   name,
                                   sources,
                                   provides = None,
-                                  dependencies = dependencies)
-    self.add_label('codegen')
+                                  dependencies = dependencies,
+                                  exclusives = exclusives)
+    self.add_labels('codegen', 'java')
 
   def _as_jar_dependency(self):
     return ExportableJvmLibrary._as_jar_dependency(self).with_sources()
-
-  def _create_template_data(self):
-    allsources = []
-    if self.sources:
-      allsources += list(os.path.join(self.target_base, src) for src in self.sources)
-
-    return ExportableJvmLibrary._create_template_data(self).extend(
-      allsources = allsources,
-    )

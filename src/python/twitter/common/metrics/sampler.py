@@ -14,41 +14,106 @@
 # limitations under the License.
 # ==================================================================================================
 
+import json
 import time
 import threading
-from .metrics import MetricProvider
-from twitter.common.quantity import Amount, Time
 
 try:
   from twitter.common import log
 except ImportError:
   log = None
 
-class MetricSampler(threading.Thread, MetricProvider):
+from twitter.common.exceptions import ExceptionalThread
+from twitter.common.quantity import Amount, Time
+
+from .metrics import MetricProvider
+
+
+class SamplerBase(ExceptionalThread):
+  def __init__(self, period, clock):
+    self._stop = threading.Event()
+    self._period = period
+    self._clock = clock
+    ExceptionalThread.__init__(self)
+    self.daemon = True
+
+  def stop(self):
+    self._stop.set()
+
+  def is_stopped(self):
+    return self._stop.is_set()
+
+  def iterate(self):
+    raise NotImplementedError
+
+  def run(self):
+    while True:
+      self._clock.sleep(self._period.as_(Time.SECONDS))
+      if self.is_stopped():
+        break
+      self.iterate()
+
+
+class MetricSampler(SamplerBase, MetricProvider):
   """
     A thread that periodically samples from a MetricProvider and caches the
     samples.
   """
-  def __init__(self, metric_registry, period = Amount(1, Time.SECONDS)):
-    self._registry = metric_registry
-    self._period = period
-    self._last_sample = self._registry.sample()
+  def __init__(self, provider, period=Amount(1, Time.SECONDS), clock=time):
+    self._provider = provider
+    self._last_sample = self._provider.sample()
     self._lock = threading.Lock()
-    self._shutdown = False
-    threading.Thread.__init__(self)
+    SamplerBase.__init__(self, period, clock)
+    self.daemon = True
 
   def sample(self):
     with self._lock:
       return self._last_sample
 
-  def run(self):
-    if log: log.debug('Starting metric sampler.')
-    while not self._shutdown:
-      time.sleep(self._period.as_(Time.SECONDS))
-      new_sample = self._registry.sample()
-      with self._lock:
-        self._last_sample = new_sample
+  def iterate(self):
+    new_sample = self._provider.sample()
+    with self._lock:
+      self._last_sample = new_sample
 
-  def shutdown(self):
-    if log: log.debug('Shutting down metric sampler.')
-    self._shutdown = True
+
+class DiskMetricWriter(SamplerBase):
+  """
+    Takes a MetricProvider and periodically samples its values to disk in JSON format.
+  """
+
+  def __init__(self, provider, filename, period=Amount(15, Time.SECONDS), clock=time):
+    self._provider = provider
+    self._filename = filename
+    SamplerBase.__init__(self, period, clock)
+    self.daemon = True
+
+  def iterate(self):
+    with open(self._filename, 'w') as fp:
+      json.dump(self._provider.sample(), fp)
+
+
+class DiskMetricReader(SamplerBase, MetricProvider):
+  """
+    Given an input JSON file, periodically reads the contents from disk and exports it
+    using the MetricProvider interface.
+  """
+
+  def __init__(self, filename, period=Amount(15, Time.SECONDS), clock=time):
+    self._filename = filename
+    self._sample = {}
+    self._lock = threading.Lock()
+    SamplerBase.__init__(self, period, clock)
+    self.daemon = True
+
+  def sample(self):
+    with self._lock:
+      return self._sample
+
+  def iterate(self):
+    with self._lock:
+      try:
+        with open(self._filename, 'r') as fp:
+          self._sample = json.load(fp)
+      except (IOError, OSError, ValueError) as e:
+        if log:
+          log.warn('Failed to collect sample: %s' % e)

@@ -1,13 +1,60 @@
+# ==================================================================================================
+# Copyright 2013 Twitter, Inc.
+# --------------------------------------------------------------------------------------------------
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this work except in compliance with the License.
+# You may obtain a copy of the License in the LICENSE file, or at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==================================================================================================
+
 from __future__ import print_function
+
+import sys
+import time
 
 from collections import defaultdict
 from optparse import OptionParser
 
 from twitter.common.collections import OrderedDict, OrderedSet
-from twitter.pants.goal import GoalError
-from twitter.pants.goal.group import Group
-from twitter.pants.goal.context import Context
+
+from twitter.pants.base import TargetDefinitionException
 from twitter.pants.tasks import TaskError
+
+from .context import Context
+from .group import Group
+
+from . import GoalError
+
+
+#Set this value to True if you want to upload pants runtime stats to a HTTP server.
+STATS_COLLECTION = True
+
+
+class Timer(object):
+  """Provides timing support for goal execution."""
+
+  def __init__(self, timer=time.time, log=None):
+    """
+      timer:  A callable that returns the current time in fractional seconds.
+      log:    A callable that can log timing messages, prints to stdout by default.
+    """
+    self._now = timer
+    self._log = log or (lambda message: print(message, file=sys.stdout))
+
+  def now(self):
+    """Returns the current time in fractional seconds."""
+    return self._now()
+
+  def log(self, message):
+    """Logs timing results."""
+    self._log(message)
 
 
 class SingletonPhases(type):
@@ -89,33 +136,22 @@ class Phase(PhaseBase):
 
   @staticmethod
   def attempt(context, phases):
-    """
-      Attempts to reach the goals for the supplied phases, optionally recording phase timings and
-      then logging then when all specified phases have completed.
-    """
+    """Attempts to reach the goals for the supplied phases."""
     executed = OrderedDict()
-
-    # I'd rather do this in a finally block below, but some goals os.fork and each of these cause
-    # finally to run, printing goal timings multiple times instead of once at the end.
-    def emit_timings():
-      if context.timer:
-        for phase, timings in executed.items():
-          for goal, times in timings.items():
-            context.timer.log('%s:%s' % (phase, goal), times)
 
     try:
       # Prepare tasks roots to leaves and allow for goals introducing new goals in existing phases.
       tasks_by_goal = {}
       expanded = OrderedSet()
       prepared = set()
-      round = 0
+      round_ = 0
       while True:
         goals = list(Phase.execution_order(phases))
         if set(goals) == prepared:
           break
         else:
-          round += 1
-          context.log.debug('Preparing goals in round %d' % round)
+          round_ += 1
+          context.log.debug('Preparing goals in round %d' % round_)
           for goal in reversed(goals):
             if goal not in prepared:
               phase = Phase.of(goal)
@@ -126,30 +162,36 @@ class Phase(PhaseBase):
               tasks_by_goal[goal] = task
 
       # Execute phases leaves to roots
-      context.log.debug(
-        'Executing goals in phases %s' % ' -> '.join(map(str, reversed(expanded)))
-      )
+      execution_phases = ' -> '.join(map(str, reversed(expanded)))
+
+      context.log.debug('Executing goals in phases %s' % execution_phases)
+
+      if getattr(context.options, 'explain', None):
+        print("Phase Execution Order:\n\n%s\n" % execution_phases)
+        print("Phase [Goal->Task] Order:\n")
+
       for phase in phases:
         Group.execute(phase, tasks_by_goal, context, executed)
 
-      emit_timings()
-      return 0
-    except (TaskError, GoalError) as e:
+      ret = 0
+    except (TargetDefinitionException, TaskError, GoalError) as e:
+
       message = '%s' % e
       if message:
         print('\nFAILURE: %s\n' % e)
       else:
         print('\nFAILURE\n')
-      emit_timings()
-      return 1
+      ret = 1
+    return ret
 
   @staticmethod
   def execute(context, *names):
+    """Run pants as if the named goals were specified on the command line by a user."""
     parser = OptionParser()
     phases = [Phase(name) for name in names]
     Phase.setup_parser(parser, [], phases)
     options, _ = parser.parse_args([])
-    context = Context(context.config, options, context.target_roots, log=context.log)
+    context = Context(context.config, options, context.run_tracker, context.target_roots, log=context.log)
     return Phase.attempt(context, phases)
 
   @staticmethod
@@ -177,7 +219,7 @@ class Phase(PhaseBase):
       after: Places the goal after the named goal in the execution list
     """
 
-    if int(first) + int(replace) + int(bool(before)) + int(bool(after)) > 1:
+    if (first or replace or before or after) and not (first ^ replace ^ bool(before) ^ bool(after)):
       raise GoalError('Can only specify one of first, replace, before or after')
 
     Phase._phase_by_goal[goal] = self
@@ -200,6 +242,13 @@ class Phase(PhaseBase):
     """Renames this goal."""
     PhaseBase.rename(self, name)
     return self
+
+  def copy_to(self, name):
+    """Copies this phase to the new named phase carrying along goal dependencies and description."""
+    copy = Phase(name)
+    copy.goals().extend(self.goals())
+    copy.description = self.description
+    return copy
 
   def remove(self, name):
     """Removes the named goal from this phase's list of goals to attempt."""

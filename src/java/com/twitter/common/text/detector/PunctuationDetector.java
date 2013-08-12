@@ -30,7 +30,7 @@ import com.twitter.common.text.token.attribute.TokenType;
 public class PunctuationDetector extends RegexDetector {
   // Newlines in tweets function as punctuation
   private static final String SPACE_EXCEPTIONS = "\\n\\r";
-  public static final String SPACE_CHAR_CLASS = "\\p{C}\\p{Z}&&[^" + SPACE_EXCEPTIONS + "]";
+  public static final String SPACE_CHAR_CLASS = "\\p{C}\\p{Z}&&[^" + SPACE_EXCEPTIONS + "\\p{Cs}]";
   public static final String SPACE_REGEX = "[" + SPACE_CHAR_CLASS + "]";
 
   public static final String PUNCTUATION_CHAR_CLASS = "\\p{P}\\p{M}\\p{S}" + SPACE_EXCEPTIONS;

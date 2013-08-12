@@ -1,35 +1,19 @@
-# ==================================================================================================
-# Copyright 2011 Twitter, Inc.
-# --------------------------------------------------------------------------------------------------
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this work except in compliance with the License.
-# You may obtain a copy of the License in the LICENSE file, or at:
-#
-#  http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ==================================================================================================
-
-
-
 java_library(name = 'http',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'net-http',
-    repo = 'build-support/commons/ivy:public',
+    repo = pants('build-support/commons/ivy:public'),
   ),
   dependencies = [
-    '3rdparty:guava',
-    '3rdparty:guice',
-    '3rdparty:guice-servlet',
-    '3rdparty:jetty',
-    '3rdparty:jsr305',
-    '3rdparty:servlet-api',
-    'src/java/com/twitter/common/net/http/handlers:text',
+    pants('3rdparty:guava'),
+    pants('3rdparty:guice'),
+    pants('3rdparty:guice-servlet'),
+    pants('3rdparty:jetty'),
+    pants('3rdparty:jsr305'),
+    pants('3rdparty:servlet-api'),
+    pants('src/java/com/twitter/common/base'),
+    pants('src/java/com/twitter/common/net/http/handlers:text'),
+    pants('src/java/com/twitter/common/util:system-mocks'),
   ],
   sources = globs('*.java')
 )

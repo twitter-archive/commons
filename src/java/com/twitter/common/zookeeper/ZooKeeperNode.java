@@ -1,37 +1,29 @@
-// =================================================================================================
-// Copyright 2011 Twitter, Inc.
-// -------------------------------------------------------------------------------------------------
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this work except in compliance with the License.
-// You may obtain a copy of the License in the LICENSE file, or at:
-//
-//  http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-// =================================================================================================
-
 package com.twitter.common.zookeeper;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.annotation.Nullable;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
-import com.twitter.common.base.*;
-import com.twitter.common.util.BackoffHelper;
-import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException;
+
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.data.Stat;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.annotation.Nullable;
+import com.twitter.common.base.Closure;
+import com.twitter.common.base.Closures;
+import com.twitter.common.base.Command;
+import com.twitter.common.base.ExceptionalSupplier;
+import com.twitter.common.base.MorePreconditions;
+import com.twitter.common.util.BackoffHelper;
+import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException;
 
 /**
  * An implementation of {@link Supplier} that offers a readonly view of a
@@ -44,8 +36,6 @@ import javax.annotation.Nullable;
  * appropriate node size and total number of nodes you should be using.
  *
  * @param <T> the type of data this node stores
- *
- * @author Adam Samet
  */
 public class ZooKeeperNode<T> implements Supplier<T> {
   /**
@@ -190,6 +180,7 @@ public class ZooKeeperNode<T> implements Supplier<T> {
           }
         } catch (InterruptedException e) {
           LOG.log(Level.WARNING, "Interrupted while trying to re-establish watch.", e);
+          Thread.currentThread().interrupt();
         }
       }
     });
@@ -251,15 +242,16 @@ public class ZooKeeperNode<T> implements Supplier<T> {
   private void watchDataNode() throws InterruptedException, KeeperException,
       ZooKeeperConnectionException {
     final Watcher nodeWatcher = new Watcher() {
-      @Override
-      public void process(WatchedEvent event) {
-        if (event.getType() == Watcher.Event.EventType.NodeDataChanged ||
-            event.getType() == Watcher.Event.EventType.NodeDeleted) {
+      @Override public void process(WatchedEvent event) {
+        if (event.getState() == KeeperState.SyncConnected) {
           try {
             tryWatchDataNode();
           } catch (InterruptedException e) {
             LOG.log(Level.WARNING, "Interrupted while trying to watch a data node.", e);
+            Thread.currentThread().interrupt();
           }
+        } else {
+          LOG.info("Ignoring watcher event " + event);
         }
       }
     };
@@ -289,6 +281,7 @@ public class ZooKeeperNode<T> implements Supplier<T> {
             tryWatchDataNode();
           } catch (InterruptedException e) {
             LOG.log(Level.WARNING, "Interrupted while trying to watch a data node.", e);
+            Thread.currentThread().interrupt();
           }
         }
       }
@@ -314,7 +307,7 @@ public class ZooKeeperNode<T> implements Supplier<T> {
     /**
      * @param data the byte array returned from ZooKeeper when a watch is triggered.
      * @param stat a ZooKeeper {@link Stat} object. Populated by
-     *             {@link ZooKeeper#getData(String, boolean, Stat)}.
+     *             {@link org.apache.zookeeper.ZooKeeper#getData(String, boolean, Stat)}.
      */
     T deserialize(byte[] data, Stat stat);
   }

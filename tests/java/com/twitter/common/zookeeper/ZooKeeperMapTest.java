@@ -16,10 +16,19 @@
 
 package com.twitter.common.zookeeper;
 
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.twitter.common.collections.Pair;
-import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
+
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
@@ -27,19 +36,15 @@ import org.apache.zookeeper.data.ACL;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.AbstractMap.SimpleEntry;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import com.twitter.common.collections.Pair;
+import com.twitter.common.zookeeper.ZooKeeperMap.Listener;
+import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-/**
- * @author Adam Samet
- */
 public class ZooKeeperMapTest extends BaseZooKeeperTest {
 
   private static final List<ACL> ACL = ZooDefs.Ids.OPEN_ACL_UNSAFE;
@@ -49,6 +54,25 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
         public String apply(byte[] from) {
           return new String(from);
         }};
+
+  private static class TestListener implements ZooKeeperMap.Listener<String> {
+    private final BlockingQueue<Pair<String, String>> queue =
+        new LinkedBlockingQueue<Pair<String, String>>();
+
+    public Pair<String, String> waitForUpdate() throws InterruptedException {
+      return queue.take();
+    }
+
+    @Override
+    public void nodeChanged(String name, String value) {
+      queue.offer(Pair.of(name, value));
+    }
+
+    @Override
+    public void nodeRemoved(String name) {
+      queue.offer(Pair.of(name, (String) null));
+    }
+  }
 
   private ZooKeeperClient zkClient;
   private BlockingQueue<Pair<String, String>> entryChanges;
@@ -193,7 +217,10 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
     ZooKeeperUtils.ensurePath(zkClient, ACL, parentPath);
     zkClient.get().create(nodePath, data1.getBytes(), ACL, CreateMode.PERSISTENT);
 
-    Map<String, String> zkMap = makeMap(parentPath);
+    TestListener testListener = new TestListener();
+    Map<String, String> zkMap = makeMap(parentPath, testListener);
+
+    assertEquals(Pair.of(node, data1), testListener.waitForUpdate());
 
     assertEquals(1, zkMap.size());
     assertEquals(data1, zkMap.get(node));
@@ -202,9 +229,13 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
     waitForEntryChange(node, data2);
     assertEquals(1, zkMap.size());
 
+    assertEquals(Pair.of(node, data2), testListener.waitForUpdate());
+
     zkClient.get().setData(nodePath, data3.getBytes(), -1);
     waitForEntryChange(node, data3);
     assertEquals(1, zkMap.size());
+
+    assertEquals(Pair.of(node, data3), testListener.waitForUpdate());
   }
 
   @Test
@@ -217,12 +248,17 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
     ZooKeeperUtils.ensurePath(zkClient, ACL, parentPath);
     zkClient.get().create(nodePath, data.getBytes(), ACL, CreateMode.PERSISTENT);
 
-    Map<String, String> zkMap = makeMap(parentPath);
+    TestListener testListener = new TestListener();
+    Map<String, String> zkMap = makeMap(parentPath, testListener);
     assertEquals(1, zkMap.size());
     assertEquals(data, zkMap.get(node));
 
+    assertEquals(Pair.of(node, data), testListener.waitForUpdate());
+
     zkClient.get().delete(nodePath, -1);
     zkClient.get().delete(parentPath, -1);
+
+    assertEquals(Pair.of(node, null), testListener.waitForUpdate());
 
     waitForEntryChange(node, null);
     assertEquals(0, zkMap.size());
@@ -278,6 +314,77 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
     assertEquals(data, zkMap.get(node));
   }
 
+  private interface TestFunction {
+    void apply() throws Exception;
+  }
+
+  private static void assertThrows(TestFunction function, Class<? extends Exception> throwable)
+      throws Exception {
+    try {
+      function.apply();
+      fail("Expected to fail with exception: " + throwable.getName());
+    } catch (Exception e) {
+      if (!throwable.isAssignableFrom(e.getClass())) {
+        // Not our expected exception
+        throw e;
+      }
+    }
+  }
+
+  @Test
+  public void testReadOnly() throws Exception {
+    String parentPath = "/twitter/path";
+    final String node = "node";
+    String nodePath = parentPath + "/" + node;
+    String data = "DaTa";
+
+    ZooKeeperUtils.ensurePath(zkClient, ACL, parentPath);
+    zkClient.get().create(nodePath, data.getBytes(), ACL, CreateMode.PERSISTENT);
+
+    final Map<String, String> zkMap = ZooKeeperMap.create(zkClient, parentPath, BYTES_TO_STRING);
+
+    assertThrows(new TestFunction() {
+      public void apply() {
+        zkMap.clear();
+      }
+    }, UnsupportedOperationException.class);
+
+    assertThrows(new TestFunction() {
+      public void apply() {
+        zkMap.remove(node);
+      }
+    }, UnsupportedOperationException.class);
+
+    assertThrows(new TestFunction() {
+      public void apply() {
+        zkMap.put("othernode", "othervalue");
+      }
+    }, UnsupportedOperationException.class);
+
+    assertThrows(new TestFunction() {
+      public void apply() {
+        zkMap.putAll(ImmutableMap.of("othernode", "othervalue"));
+      }
+    }, UnsupportedOperationException.class);
+
+    List<Collection<?>> collections =
+            ImmutableList.of(zkMap.entrySet(), zkMap.keySet(), zkMap.values());
+    for (Collection<?> collection : collections) {
+      final Iterator<?> it = collection.iterator();
+      assertTrue(it.hasNext());
+      it.next();
+      assertThrows(new TestFunction() {
+        public void apply() {
+          it.remove();
+        }
+      }, UnsupportedOperationException.class);
+    }
+
+    // Ensure contents didn't change
+    assertEquals(1, zkMap.size());
+    assertEquals(data, zkMap.get(node));
+  }
+
   private void waitForEntryChange(String key, String value) throws Exception {
     Pair<String, String> expectedEntry = Pair.of(key, value);
     while (true) {
@@ -289,13 +396,25 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
   }
 
   private Map<String, String> makeMap(String path) throws Exception {
-    ZooKeeperMap<String> zkMap = makeUninitializedMap(path);
+    return makeMap(path, ZooKeeperMap.<String>noopListener());
+  }
+
+  private Map<String, String> makeMap(String path, ZooKeeperMap.Listener<String> listener)
+      throws Exception {
+
+    ZooKeeperMap<String> zkMap = makeUninitializedMap(path, listener);
     zkMap.init();
     return zkMap;
   }
 
   private ZooKeeperMap<String> makeUninitializedMap(String path) throws Exception {
-    return new ZooKeeperMap<String>(zkClient, path, BYTES_TO_STRING) {
+    return makeUninitializedMap(path, ZooKeeperMap.<String>noopListener());
+  }
+
+  private ZooKeeperMap<String> makeUninitializedMap(String path, Listener<String> listener)
+      throws Exception {
+
+    return new ZooKeeperMap<String>(zkClient, path, BYTES_TO_STRING, listener) {
       @Override void putEntry(String key, String value) {
         super.putEntry(key, value);
         recordEntryChange(key);

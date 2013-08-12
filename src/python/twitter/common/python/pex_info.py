@@ -1,9 +1,13 @@
 from __future__ import print_function
 
-from collections import namedtuple
+import getpass
 import json
 import os
+import socket
 import sys
+
+from collections import namedtuple
+from time import localtime, strftime
 from pkg_resources import get_platform
 
 from .interpreter import PythonInterpreter
@@ -46,7 +50,7 @@ class PexInfo(object):
 
   # TODO(wickman) This probably belongs in pants, not in here?
   @classmethod
-  def build_properties(cls):
+  def make_build_properties(cls):
     pi = PythonInterpreter()
     base_info = {
       'class': pi.identity().interpreter,
@@ -54,8 +58,30 @@ class PexInfo(object):
       'platform': get_platform(),
     }
     try:
-      from twitter.pants.base.build_info import get_build_info
-      base_info.update(get_build_info()._asdict())
+      from twitter.pants import get_buildroot, get_scm
+      buildroot = get_buildroot()
+      scm = get_scm()
+
+      now = localtime()
+      if scm:
+        revision = scm.commit_id
+        tag = scm.tag_name or 'none'
+        branchname = scm.branch_name or revision
+      else:
+        revision = 'unknown'
+        tag = 'none'
+        branchname = 'unknown'
+      base_info.update({
+        'date': strftime('%A %b %d, %Y', now),
+        'time': strftime('%H:%M:%S', now),
+        'timestamp': strftime('%m.%d.%Y %H:%M', now),
+        'branch': branchname,
+        'tag': tag,
+        'sha': revision,
+        'user': getpass.getuser(),
+        'machine': socket.gethostname(),
+        'path': buildroot
+      })
     except ImportError:
       pass
     return base_info
@@ -65,7 +91,7 @@ class PexInfo(object):
     pi = PythonInterpreter()
     pex_info = {
       'requirements': [],
-      'build_properties': cls.build_properties(),
+      'build_properties': cls.make_build_properties(),
     }
     return cls(json.dumps(pex_info))
 
@@ -87,6 +113,10 @@ class PexInfo(object):
     self._repositories = OrderedSet(self._pex_info.get('repositories', []))
     self._indices = OrderedSet(self._pex_info.get('indices', []))
     self._egg_caches = OrderedSet(self._pex_info.get('egg_caches', []))
+
+  @property
+  def build_properties(self):
+    return self._pex_info.get('build_properties', {})
 
   @property
   def zip_safe(self):

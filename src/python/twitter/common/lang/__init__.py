@@ -18,7 +18,12 @@ __author__ = 'Brian Wickman'
 
 from sys import version_info as sys_version_info
 from numbers import Integral, Real
+from .lockable import Lockable
 
+
+# StringIO / BytesIO
+# TODO(wickman)  Since the io package is available in 2.6.x, use that instead of
+# cStringIO/StringIO
 try:
   # CPython 2.x
   from cStringIO import StringIO
@@ -31,21 +36,21 @@ except ImportError:
     from io import StringIO
     from io import BytesIO
 
+
+# Singletons
 class SingletonMetaclass(type):
   """
     Singleton metaclass.
   """
-  def __init__(cls, name, bases, attrs):
-    super(SingletonMetaclass, cls).__init__(name, bases, attrs)
-    cls.instance = None
-
   def __call__(cls, *args, **kw):
-    if cls.instance is None:
+    if not hasattr(cls, 'instance'):
       cls.instance = super(SingletonMetaclass, cls).__call__(*args, **kw)
     return cls.instance
 
 Singleton = SingletonMetaclass('Singleton', (object,), {})
 
+
+# total_ordering
 try:
   from functools import total_ordering
 except ImportError:
@@ -76,6 +81,20 @@ except ImportError:
               opfunc.__doc__ = getattr(int, opname).__doc__
               setattr(cls, opname, opfunc)
       return cls
+
+
+# Abstract base classes w/o __metaclass__ or meta =
+from abc import ABCMeta
+AbstractClass = ABCMeta('AbstractClass', (object,), {})
+
+
+# Coroutine initialization
+def coroutine(func):
+  def start(*args, **kwargs):
+    cr = func(*args, **kwargs)
+    cr.next()
+    return cr
+  return start
 
 
 class Compatibility(object):
@@ -117,6 +136,44 @@ def exec_function(ast, globals_map):
 """, "<exec_function>", "exec"))
 
 __all__ = [
-  'Singleton',
+  'AbstractClass',
   'Compatibility',
+  'Lockable',
+  'Singleton',
 ]
+
+
+class InheritDocstringsMetaclass(type):
+  """
+  For each method in a (sub)class without a defined docstring, inherit the docstring for the method
+  from a parent class, if it exists. Useful mostly for abstract class/interface definitions.
+
+    Example usage:
+       >>> class Foo(object):
+       ...   def my_method(self):
+       ...     '''This method has a nice docstring!'''
+       ...     print "In Foo"
+       ...
+       >>> class Bar(Foo):
+       ...   __metaclass__ = InheritDocstringsMetaclass
+       ...   def my_method(self):
+       ...     print "In Bar"
+       ...
+       >>> Bar().my_method.__doc__
+       'This method has a nice docstring!'
+       >>> Bar().my_method()
+       In Bar
+
+  """
+  def __new__(self, class_name, bases, namespace):
+    for key, value in namespace.iteritems():
+      if callable(value) and not value.__doc__:
+        for parent in bases:
+          if hasattr(parent, key) and getattr(parent, key).__doc__:
+            value.__doc__ = getattr(parent, key).__doc__
+            break
+    return type.__new__(self, class_name, bases, namespace)
+
+
+class InterfaceMetaclass(ABCMeta, InheritDocstringsMetaclass): pass
+Interface = InterfaceMetaclass('Interface', (object, ), {})

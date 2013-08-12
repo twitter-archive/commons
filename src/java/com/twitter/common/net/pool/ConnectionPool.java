@@ -266,7 +266,7 @@ public final class ConnectionPool<S extends Connection<?, ?>> implements ObjectP
                   addConnection(connection);
                 } else {
                   LOG.log(Level.WARNING, "Failed to create a new connection for a waiting client " +
-                      "due to due to maximum pool size or timeout");
+                      "due to maximum pool size or timeout");
                 }
               } catch (Exception e) {
                 LOG.log(Level.WARNING, "Failed to create a new connection for a waiting client", e);

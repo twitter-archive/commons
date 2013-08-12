@@ -18,8 +18,8 @@ python_library(
   name = "recordio",
   sources = rglobs('*.py') - ['thrift_recordio.py'],
   dependencies = [
-    'src/python/twitter/common/log',
-    'src/python/twitter/common/lang'
+    pants('src/python/twitter/common/log'),
+    pants('src/python/twitter/common/lang')
   ]
 )
 
@@ -27,7 +27,7 @@ python_library(
   name = "recordio-thrift",
   sources = ['thrift_recordio.py'],
   dependencies = [
-    ':recordio',
-    '3rdparty/python:thrift-0.7'
+    pants(':recordio'),
+    python_requirement('thrift')
   ]
 )

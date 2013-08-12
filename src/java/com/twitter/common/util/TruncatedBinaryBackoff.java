@@ -28,8 +28,6 @@ public class TruncatedBinaryBackoff implements BackoffStrategy {
   private final long maxBackoffIntervalMs;
   private final boolean stopAtMax;
 
-  private volatile boolean stop = false;
-
   /**
    * Creates a new TruncatedBinaryBackoff that will start by backing off for {@code initialBackoff}
    * and then backoff of twice as long each time its called until reaching the {@code maxBackoff} at
@@ -66,12 +64,14 @@ public class TruncatedBinaryBackoff implements BackoffStrategy {
     Preconditions.checkArgument(lastBackoffMs >= 0);
     long backoff = (lastBackoffMs == 0) ? initialBackoffMs
         : Math.min(maxBackoffIntervalMs, lastBackoffMs * 2);
-    stop = stop || (stopAtMax && (backoff >= maxBackoffIntervalMs));
     return backoff;
   }
 
   @Override
-  public boolean shouldContinue() {
+  public boolean shouldContinue(long lastBackoffMs) {
+    Preconditions.checkArgument(lastBackoffMs >= 0);
+    boolean stop = stopAtMax && (lastBackoffMs >= maxBackoffIntervalMs);
+
     return !stop;
   }
 }

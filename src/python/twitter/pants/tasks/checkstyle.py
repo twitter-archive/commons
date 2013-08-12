@@ -14,15 +14,11 @@
 # limitations under the License.
 # ==================================================================================================
 
-__author__ = 'John Sirois'
-
 import os
 
-from twitter.common import log
 from twitter.common.dirutil import safe_open
-from twitter.pants import is_codegen, is_java
+from twitter.pants import is_java, is_synthetic
 from twitter.pants.tasks import TaskError
-from twitter.pants.tasks.binary_utils import nailgun_profile_classpath
 from twitter.pants.tasks.nailgun_task import NailgunTask
 
 
@@ -32,7 +28,7 @@ CHECKSTYLE_MAIN = 'com.puppycrawl.tools.checkstyle.Main'
 class Checkstyle(NailgunTask):
   @staticmethod
   def _is_checked(target):
-    return is_java(target) and not is_codegen(target)
+    return is_java(target) and not is_synthetic(target)
 
   @classmethod
   def setup_parser(cls, option_group, args, mkflag):
@@ -53,6 +49,7 @@ class Checkstyle(NailgunTask):
     self._work_dir = context.config.get('checkstyle', 'workdir')
     self._properties = context.config.getdict('checkstyle', 'properties')
     self._confs = context.config.getlist('checkstyle', 'confs')
+    self.context.products.require_data('exclusives_groups')
 
   def execute(self, targets):
     if not self.context.options.checkstyle_skip:
@@ -62,7 +59,7 @@ class Checkstyle(NailgunTask):
           invalid_targets.extend(vt.targets)
         sources = self.calculate_sources(invalid_targets)
         if sources:
-          result = self.checkstyle(sources)
+          result = self.checkstyle(sources, invalid_targets)
           if result != 0:
             raise TaskError('%s returned %d' % (CHECKSTYLE_MAIN, result))
 
@@ -73,12 +70,14 @@ class Checkstyle(NailgunTask):
                       for source in target.sources if source.endswith('.java')])
     return sources
 
-  def checkstyle(self, sources):
-    classpath = nailgun_profile_classpath(self, self._profile)
-    with self.context.state('classpath', []) as cp:
-      classpath.extend(jar for conf, jar in cp if conf in self._confs)
+  def checkstyle(self, sources, targets):
+    egroups = self.context.products.get_data('exclusives_groups')
+    etag = egroups.get_group_key_for_target(targets[0])
+    classpath = self.profile_classpath(self._profile)
+    cp = egroups.get_classpath_for_group(etag)
+    classpath.extend(jar for conf, jar in cp if conf in self._confs)
 
-    args = [
+    opts = [
       '-c', self._configuration_file,
       '-f', 'plain'
     ]
@@ -88,8 +87,8 @@ class Checkstyle(NailgunTask):
       with safe_open(properties_file, 'w') as pf:
         for k, v in self._properties.items():
           pf.write('%s=%s\n' % (k, v))
-      args.extend(['-p', properties_file])
+      opts.extend(['-p', properties_file])
 
-    args.extend(sources)
-    log.debug('Executing: %s %s' % (CHECKSTYLE_MAIN, ' '.join(args)))
-    return self.runjava(CHECKSTYLE_MAIN, classpath=classpath, args=args)
+    return self.runjava(CHECKSTYLE_MAIN, classpath=classpath, opts=opts, args=sources,
+                        workunit_name='checkstyle')
+

@@ -41,7 +41,6 @@ import org.apache.zookeeper.KeeperException.NoNodeException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
-import org.apache.zookeeper.common.PathUtils;
 import org.apache.zookeeper.data.ACL;
 
 import com.twitter.common.base.Command;
@@ -53,31 +52,23 @@ import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException
 
 /**
  * This class exposes methods for joining and monitoring distributed groups.  The groups this class
- * monitors are realized as persistent paths in ZooKeeper with ephemeral sequential child nodes for
+ * monitors are realized as persistent paths in ZooKeeper with ephemeral child nodes for
  * each member of a group.
- *
- * @author John Sirois
  */
 public class Group {
   private static final Logger LOG = Logger.getLogger(Group.class.getName());
 
   private static final Supplier<byte[]> NO_MEMBER_DATA = Suppliers.ofInstance(null);
-
   private static final String DEFAULT_NODE_NAME_PREFIX = "member_";
 
   private final ZooKeeperClient zkClient;
   private final ImmutableList<ACL> acl;
   private final String path;
-  private final String nodeNamePrefix;
-  private final NodeNameScheme nodeNameScheme;
+
+  private final NodeScheme nodeScheme;
+  private final Predicate<String> nodeNameFilter;
 
   private final BackoffHelper backoffHelper;
-
-  @VisibleForTesting static String normalizePath(String path) {
-    String normalizedPath = path.replaceAll("//+", "/").replaceFirst("(.+)/$", "$1");
-    PathUtils.validatePath(normalizedPath);
-    return normalizedPath;
-  }
 
   /**
    * Creates a group rooted at the given {@code path}.  Paths must be absolute and trailing or
@@ -92,55 +83,56 @@ public class Group {
    * @param zkClient the client to use for interactions with ZooKeeper
    * @param acl the ACL to use for creating the persistent group path if it does not already exist
    * @param path the absolute persistent path that represents this group
-   * @param nodeNamePrefix Node name prefix that denotes group membership.
-   * @param nodeNameScheme the naming scheme that defines how nodes are named within the path
+   * @param nodeScheme the scheme that defines how nodes are created
    */
-  public Group(ZooKeeperClient zkClient, Iterable<ACL> acl, String path, String nodeNamePrefix,
-      NodeNameScheme nodeNameScheme) {
+  public Group(ZooKeeperClient zkClient, Iterable<ACL> acl, String path, NodeScheme nodeScheme) {
     this.zkClient = Preconditions.checkNotNull(zkClient);
     this.acl = ImmutableList.copyOf(acl);
-    this.path = normalizePath(Preconditions.checkNotNull(path));
-    this.nodeNamePrefix = MorePreconditions.checkNotBlank(nodeNamePrefix);
-    this.nodeNameScheme = Preconditions.checkNotNull(nodeNameScheme);
+    this.path = ZooKeeperUtils.normalizePath(Preconditions.checkNotNull(path));
+
+    this.nodeScheme = Preconditions.checkNotNull(nodeScheme);
+    nodeNameFilter = new Predicate<String>() {
+      @Override public boolean apply(String nodeName) {
+        return Group.this.nodeScheme.isMember(nodeName);
+      }
+    };
 
     backoffHelper = new BackoffHelper();
   }
 
   /**
-   * Equivalent to {@link #Group(ZooKeeperClient, Iterable, String, String)} with a default
-   * {@code nodeNamePrefix} of 'member_' and a DefaultNamingScheme for a {@code nodeNameScheme}.
+   * Equivalent to {@link #Group(ZooKeeperClient, Iterable, String, String)} with a
+   * {@code namePrefix} of 'member_'.
    */
   public Group(ZooKeeperClient zkClient, Iterable<ACL> acl, String path) {
-    this(zkClient, acl, path, DEFAULT_NODE_NAME_PREFIX,
-        new DefaultNamingScheme(DEFAULT_NODE_NAME_PREFIX));
+    this(zkClient, acl, path, DEFAULT_NODE_NAME_PREFIX);
   }
 
   /**
-   * Equivalent to {@link #Group(ZooKeeperClient, Iterable, String, String)} with a
-   * DefaultNamingScheme for a {@code nodeNameScheme}.
+   * Equivalent to {@link #Group(ZooKeeperClient, Iterable, String, NodeScheme)} with a
+   * {@link DefaultScheme} using {@code namePrefix}.
    */
-  public Group(ZooKeeperClient zkClient, Iterable<ACL> acl, String path, String nodeNamePrefix) {
-    this(zkClient, acl, path, nodeNamePrefix, new DefaultNamingScheme(nodeNamePrefix));
-  }
-
-  /**
-   * Equivalent to {@link #Group(ZooKeeperClient, Iterable, String, String)} with a default
-   * {@code nodeNamePrefix} of 'member_'.
-   */
-  public Group(ZooKeeperClient zkClient, Iterable<ACL> acl, String path,
-      NodeNameScheme nodeNameScheme) {
-    this(zkClient, acl, path, DEFAULT_NODE_NAME_PREFIX, nodeNameScheme);
+  public Group(ZooKeeperClient zkClient, Iterable<ACL> acl, String path, String namePrefix) {
+    this(zkClient, acl, path, new DefaultScheme(namePrefix));
   }
 
   public String getMemberPath(String memberId) {
     return path + "/" + MorePreconditions.checkNotBlank(memberId);
   }
 
+  public String getPath() {
+    return path;
+  }
+
   public String getMemberId(String nodePath) {
     MorePreconditions.checkNotBlank(nodePath);
     Preconditions.checkArgument(nodePath.startsWith(path + "/"),
         "Not a member of this group[%s]: %s", path, nodePath);
-    return nodeNameScheme.extractMemberId(nodePath);
+
+    String memberId = StringUtils.substringAfterLast(nodePath, "/");
+    Preconditions.checkArgument(nodeScheme.isMember(memberId),
+        "Not a group member: %s", memberId);
+    return memberId;
   }
 
   /**
@@ -153,8 +145,7 @@ public class Group {
    */
   public Iterable<String> getMemberIds()
       throws ZooKeeperConnectionException, KeeperException, InterruptedException {
-    return Iterables.filter(zkClient.get().getChildren(path, false),
-        nodeNameScheme.getNodeNameFilter());
+    return Iterables.filter(zkClient.get().getChildren(path, false), nodeNameFilter);
   }
 
   /**
@@ -427,8 +418,12 @@ public class Group {
       }
 
       byte[] membershipData = memberData.get();
-      nodePath = nodeNameScheme.createNodePath(zkClient, path, membershipData, acl);
-      memberId = nodeNameScheme.extractMemberId(nodePath);
+      String nodeName = nodeScheme.createName(membershipData);
+      CreateMode createMode = nodeScheme.isSequential()
+          ? CreateMode.EPHEMERAL_SEQUENTIAL
+          : CreateMode.EPHEMERAL;
+      nodePath = zkClient.get().create(path + "/" + nodeName, membershipData, acl, createMode);
+      memberId = Group.this.getMemberId(nodePath);
       LOG.info("Set group member ID to " + memberId);
       this.membershipData = membershipData;
 
@@ -494,40 +489,32 @@ public class Group {
   }
 
   /**
-   * An interface that dictates the naming scheme to use for storing and filtering nodes on the
-   * ZooKeeper server.
+   * An interface that dictates the scheme to use for storing and filtering nodes that represent
+   * members of a distributed group.
    */
-
-  public interface NodeNameScheme {
+  public interface NodeScheme {
     /**
-     * Returns a predicate that filters the names of nodes on the ZooKeeper path, leaving only the
-     * nodes that are named according to this scheme.
-     */
-    Predicate<String> getNodeNameFilter();
-
-    /**
-     * Creates a node on the given {@code path} according to the naming scheme of the class.
+     * Determines if a child node is a member of a group by examining the node's name.
      *
-     * @param zkClient the client to use for interactions with ZooKeeper
-     * @param path the absolute persistent path that represents this group
-     * @param membershipData the data to store in the member node
-     * @param acl the ACL to use for creating the persistent group path if it does not already exist
-     * @throws InterruptedException if this thread is interrupted awaiting completion of the join
-     * @throws ZooKeeperConnectionException if there was a problem connecting to ZooKeeper
-     * @throws KeeperException if there was a problem reading this member's data
-     * @return the path to the newly created node
+     * @param nodeName the name of a child node found in a group
+     * @return {@code true} if {@code nodeName} identifies a group member in this scheme
      */
-    String createNodePath(ZooKeeperClient zkClient, String path, byte[] membershipData,
-        ImmutableList<ACL> acl) throws ZooKeeperConnectionException, KeeperException,
-           InterruptedException;
+    boolean isMember(String nodeName);
 
     /**
-     * Given a path to a node, determines the node's member ID from its name.
+     * Generates a node name for the node representing this process in the distributed group.
      *
-     * @param nodePath the path to the node
-     * @return the node's member ID
+     * @param membershipData the data that will be stored in this node
+     * @return the name for the node that will represent this process in the group
      */
-    String extractMemberId(String nodePath);
+    String createName(byte[] membershipData);
+
+    /**
+     * Indicates whether this scheme needs ephemeral sequential nodes or just ephemeral nodes.
+     *
+     * @return {@code true} if this scheme requires sequential node names; {@code false} otherwise
+     */
+    boolean isSequential();
   }
 
   /**
@@ -635,7 +622,7 @@ public class Group {
         throws ZooKeeperConnectionException, InterruptedException, KeeperException {
 
       List<String> children = zkClient.get().getChildren(path, groupWatcher);
-      setMembers(Iterables.filter(children, nodeNameScheme.getNodeNameFilter()));
+      setMembers(Iterables.filter(children, nodeNameFilter));
     }
 
     synchronized void setMembers(Iterable<String> members) {
@@ -662,48 +649,35 @@ public class Group {
    * prefix is "member_", the node's full path will look something like
    * {@code /discovery/servicename/member_0000000007}.
    */
-  private static class DefaultNamingScheme implements Group.NodeNameScheme {
-    private final String nodeNamePrefix;
-    private final Predicate<String> nodeNameFilter;
+  public static class DefaultScheme implements NodeScheme {
+    private final String namePrefix;
+    private final Pattern namePattern;
 
     /**
-     * Creates a naming scheme based on the given prefix.
+     * Creates a sequential node scheme based on the given node name prefix.
      *
-     * @param nodeNamePrefix the prefix for the names of the member nodes
+     * @param namePrefix the prefix for the names of the member nodes
      */
-    public DefaultNamingScheme(String nodeNamePrefix) {
-      this.nodeNamePrefix = MorePreconditions.checkNotBlank(nodeNamePrefix);
-
-      final Pattern groupNodeNamePattern = Pattern.compile(
-          "^" + Pattern.quote(nodeNamePrefix) + "[0-9]+$");
-      nodeNameFilter = new Predicate<String>() {
-          @Override public boolean apply(String childNodeName) {
-            return groupNodeNamePattern.matcher(childNodeName).matches();
-          }
-      };
+    public DefaultScheme(String namePrefix) {
+      this.namePrefix = MorePreconditions.checkNotBlank(namePrefix);
+      namePattern = Pattern.compile("^" + Pattern.quote(namePrefix) + "[0-9]+$");
     }
 
     @Override
-    public String createNodePath(ZooKeeperClient zkClient, String path, byte[] membershipData,
-        ImmutableList<ACL> acl)
-          throws ZooKeeperConnectionException, InterruptedException, KeeperException {
-      return zkClient.get().create(path + "/" + nodeNamePrefix, membershipData, acl,
-          CreateMode.EPHEMERAL_SEQUENTIAL);
+    public boolean isMember(String nodeName) {
+      return namePattern.matcher(nodeName).matches();
     }
 
     @Override
-    public String extractMemberId(String nodePath) {
-      String memberId = StringUtils.substringAfterLast(nodePath, "/");
-      Preconditions.checkArgument(nodeNameFilter.apply(memberId), "Not a group member: %s", memberId);
-      return memberId;
+    public String createName(byte[] membershipData) {
+      return namePrefix;
     }
 
     @Override
-    public Predicate<String> getNodeNameFilter() {
-      return nodeNameFilter;
+    public boolean isSequential() {
+      return true;
     }
   }
-
 
   @Override
   public String toString() {

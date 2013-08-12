@@ -14,25 +14,27 @@
 # limitations under the License.
 # ==================================================================================================
 
-
-
 java_library(name = 'http',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'application-http',
-    repo = 'build-support/commons/ivy:public',
+    repo = pants('build-support/commons/ivy:public'),
   ),
   dependencies = [
-    '3rdparty:guava',
-    '3rdparty:guice',
-    '3rdparty:guice-multibindings',
-    'src/java/com/twitter/common/application:action',
-    'src/java/com/twitter/common/base',
-    'src/java/com/twitter/common/net/http/handlers',
+    pants('3rdparty:guava'),
+    pants('3rdparty:guice'),
+    pants('3rdparty:guice-multibindings'),
+    pants('src/java/com/twitter/common/application:action'),
+    pants('src/java/com/twitter/common/base'),
+    pants('src/java/com/twitter/common/net/http'),
+    pants('src/java/com/twitter/common/net/http/handlers'),
   ],
   sources = globs('*.java'),
   resources = [
-    'dygraph-combined.js',
-    'graphview.html',
+    'graphview/dygraph-combined.js',
+    'graphview/dygraph-extra.js',
+    'graphview/grapher.js',
+    'graphview/parser.js',
+    'graphview/graphview.html',
   ]
 )

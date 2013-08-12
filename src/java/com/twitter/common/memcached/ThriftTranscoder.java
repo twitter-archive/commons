@@ -57,7 +57,7 @@ public class ThriftTranscoder<T extends TBase> implements Transcoder<T> {
    * @param encoder a factory that can produce a transport for a given protocol
    */
   public ThriftTranscoder(Class<T> thriftStructType, Function<TTransport, TProtocol> encoder) {
-    this.codec = new ThriftCodec<T>(thriftStructType, encoder);
+    this.codec = ThriftCodec.create(thriftStructType, encoder);
   }
 
   @Override

@@ -20,6 +20,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 
+import javax.annotation.Nullable;
+
 import com.google.common.base.Preconditions;
 
 /**
@@ -85,5 +87,20 @@ public final class MoreSuppliers {
       declaredConstructor.setAccessible(true);
       return declaredConstructor;
     }
+  }
+
+  /**
+   * Returns an {@link ExceptionalSupplier} that always supplies {@code item} without error.
+   *
+   * @param item The item to supply.
+   * @param <T> The type of item being supplied.
+   * @return A supplier that will always supply {@code item}.
+   */
+  public static <T> Supplier<T> ofInstance(@Nullable final T item) {
+    return new Supplier<T>() {
+      @Override public T get() {
+        return item;
+      }
+    };
   }
 }

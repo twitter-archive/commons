@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableList;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs.Ids;
+import org.apache.zookeeper.common.PathUtils;
 import org.apache.zookeeper.data.ACL;
 
 import com.twitter.common.quantity.Amount;
@@ -33,8 +34,6 @@ import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException
 
 /**
  * Utilities for dealing with zoo keeper.
- *
- * @author John Sirois
  */
 public final class ZooKeeperUtils {
 
@@ -50,6 +49,12 @@ public final class ZooKeeperUtils {
    * version number.
    */
   public static final int ANY_VERSION = -1;
+
+  /**
+   * An ACL that gives all permissions any user authenticated or not.
+   */
+  public static final ImmutableList<ACL> OPEN_ACL_UNSAFE =
+      ImmutableList.copyOf(Ids.OPEN_ACL_UNSAFE);
 
   /**
    * An ACL that gives all permissions to node creators and read permissions only to everyone else.
@@ -144,6 +149,19 @@ public final class ZooKeeperUtils {
         LOG.info("Node existed when trying to ensure path " + path + ", somebody beat us to it?");
       }
     }
+  }
+
+  /**
+   * Validate and return a normalized zookeeper path which doesn't contain consecutive slashes and
+   * never ends with a slash (except for root path).
+   *
+   * @param path the path to be normalized
+   * @return normalized path string
+   */
+  public static String normalizePath(String path) {
+    String normalizedPath = path.replaceAll("//+", "/").replaceFirst("(.+)/$", "$1");
+    PathUtils.validatePath(normalizedPath);
+    return normalizedPath;
   }
 
   private ZooKeeperUtils() {

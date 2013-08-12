@@ -28,6 +28,7 @@ class AnsiColorDiagnosticListener<T extends FileObject> extends FilteredDiagnost
   private final PrintWriter outWriter;
   private final PrintWriter errWriter;
   private boolean colorOutput;
+  private boolean includeSourceInfo;
 
   /**
    * Creates a diagnostic listener that outputs notes to {@link System#out} and warnings and errors
@@ -48,6 +49,16 @@ class AnsiColorDiagnosticListener<T extends FileObject> extends FilteredDiagnost
 
   private static String getMessage(Diagnostic<? extends FileObject> diagnostic) {
     return diagnostic.getMessage(Locale.getDefault());
+  }
+
+  /**
+   * When set to {@code true} this listener will output source and line information in addition to
+   * the underlying diagnostic message.
+   *
+   * @param includeSourceInfo {@code true} to include source and line info.
+   */
+  void setIncludeSourceInfo(boolean includeSourceInfo) {
+    this.includeSourceInfo = includeSourceInfo;
   }
 
   /**
@@ -101,16 +112,26 @@ class AnsiColorDiagnosticListener<T extends FileObject> extends FilteredDiagnost
     String message = getMessage(diagnostic);
     CharSequence sourceCode = extractSource(diagnostic);
     if (sourceCode == null) {
-      out.println(ansi.format("%s", message));
+      out.println(ansi.format("%s%s", includeSourceInfo ? kindMessage(diagnostic) : "", message));
     } else {
       out.println(ansi.format(
-          "%s\n%s\n%s^",
+          "%s%s\n%s\n%s^",
+          includeSourceInfo
+              ? String.format("%s:%d: %s",
+                              diagnostic.getSource().toUri().getPath(),
+                              diagnostic.getLineNumber(),
+                              kindMessage(diagnostic))
+              : "",
           message,
           sourceCode,
           spaces((int) diagnostic.getColumnNumber() - 1)));
     }
     out.print(Ansi.ansi().reset());
     out.flush();
+  }
+
+  private String kindMessage(Diagnostic<? extends FileObject> diagnostic) {
+    return String.format("%s: ", diagnostic.getKind().name().toLowerCase());
   }
 
   private CharSequence extractSource(Diagnostic<? extends FileObject> diagnostic) {

@@ -52,8 +52,6 @@ import static com.twitter.common.base.MorePreconditions.checkNotBlank;
  * @param <T> THe type of objects that the caller uses to represent states.
  *
  * TODO(William Farner): Consider merging the stats-tracking ala PipelineStats into this.
- *
- * @author William Farner
  */
 public class StateMachine<T> {
   private static final Logger LOG = Logger.getLogger(StateMachine.class.getName());
@@ -129,7 +127,7 @@ public class StateMachine<T> {
     try {
       if (!allowedStates.contains(currentState)) {
         throw new IllegalStateException(
-            String.format("In state %s, expected to be in %s.", allowedStates, currentState));
+            String.format("In state %s, expected to be in %s.", currentState, allowedStates));
       }
     } finally {
       readLock.unlock();

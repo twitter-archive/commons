@@ -20,6 +20,7 @@ import os
 import errno
 import time
 
+
 def _tail_lines(fd, linesback=10):
   if fd is None:
     return
@@ -47,6 +48,7 @@ def _tail_lines(fd, linesback=10):
     start = 0
 
   return lines[start:start+linesback]
+
 
 def wait_until_opened(filename, forever=True, clock=time):
   while True:

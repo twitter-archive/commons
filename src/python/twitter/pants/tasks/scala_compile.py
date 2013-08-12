@@ -12,27 +12,28 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# ==================================================================================================
+# ===================================================================================================
 
 __author__ = 'Benjy Weinberger'
 
 import os
 
-from collections import namedtuple
-from twitter.pants import  is_scalac_plugin, get_buildroot
+from twitter.pants import has_sources, is_scalac_plugin
+from twitter.pants.goal.workunit import WorkUnit
 from twitter.pants.targets.scala_library import ScalaLibrary
-from twitter.pants.targets.scala_tests import ScalaTests
 from twitter.pants.tasks import Task, TaskError
 from twitter.pants.tasks.jvm_dependency_cache import JvmDependencyCache
 from twitter.pants.tasks.nailgun_task import NailgunTask
+from twitter.pants.reporting.reporting_utils import items_to_report_element
 from twitter.pants.tasks.scala.zinc_artifact import ZincArtifactFactory, AnalysisFileSpec
 from twitter.pants.tasks.scala.zinc_utils import ZincUtils
 
-class ScalaCompile(NailgunTask):
-  @staticmethod
-  def _has_scala_sources(target):
-    return isinstance(target, ScalaLibrary) or isinstance(target, ScalaTests)
 
+def _is_scala(target):
+  return has_sources(target, '.scala')
+
+
+class ScalaCompile(NailgunTask):
   @classmethod
   def setup_parser(cls, option_group, args, mkflag):
     NailgunTask.setup_parser(option_group, args, mkflag)
@@ -52,36 +53,34 @@ class ScalaCompile(NailgunTask):
            'to compile all sources together. Set this to 0 to compile target-by-target. ' \
            'Default is set in pants.ini.')
 
-    option_group.add_option(mkflag('color'), mkflag('color', negate=True),
-                            dest='scala_compile_color',
-                            action='callback', callback=mkflag.set_bool,
-                            help='[True] Enable color in logging.')
     JvmDependencyCache.setup_parser(option_group, args, mkflag)
 
 
-  def __init__(self, context, workdir=None):
+  def __init__(self, context):
     NailgunTask.__init__(self, context, workdir=context.config.get('scala-compile', 'nailgun_dir'))
 
     # Set up the zinc utils.
-    # Command line switch overrides color setting set in pants.ini
-    color = context.options.scala_compile_color if context.options.scala_compile_color is not None else \
-            context.config.getbool('scala-compile', 'color', default=True)
-
-    self._zinc_utils = ZincUtils(context=context, java_runner=self.runjava, color=color)
+    color = not context.options.no_color
+    self._zinc_utils = ZincUtils(context=context, nailgun_task=self, color=color)
 
     # The rough number of source files to build in each compiler pass.
-    self._partition_size_hint = \
-      context.options.scala_compile_partition_size_hint \
-      if context.options.scala_compile_partition_size_hint != -1 else \
-      context.config.getint('scala-compile', 'partition_size_hint')
+    self._partition_size_hint = (context.options.scala_compile_partition_size_hint
+                                 if context.options.scala_compile_partition_size_hint != -1
+                                 else context.config.getint('scala-compile', 'partition_size_hint',
+                                                            default=1000))
 
     # Set up dep checking if needed.
     if context.options.scala_check_missing_deps:
       JvmDependencyCache.init_product_requirements(self)
 
+    self._opts = context.config.getlist('scala-compile', 'args')
+    if context.options.scala_compile_warnings:
+      self._opts.extend(context.config.getlist('scala-compile', 'warning_args'))
+    else:
+      self._opts.extend(context.config.getlist('scala-compile', 'no_warning_args'))
+
     # Various output directories.
-    self._buildroot = get_buildroot()
-    workdir = context.config.get('scala-compile', 'workdir') if workdir is None else workdir
+    workdir = context.config.get('scala-compile', 'workdir')
     self._resources_dir = os.path.join(workdir, 'resources')
     self._artifact_factory = ZincArtifactFactory(workdir, self.context, self._zinc_utils)
 
@@ -89,8 +88,17 @@ class ScalaCompile(NailgunTask):
     self._confs = context.config.getlist('scala-compile', 'confs')
 
     # The artifact cache to read from/write to.
-    artifact_cache_spec = context.config.getlist('scala-compile', 'artifact_caches')
+    artifact_cache_spec = context.config.getlist('scala-compile', 'artifact_caches', default=[])
     self.setup_artifact_cache(artifact_cache_spec)
+
+    # If we are compiling scala libraries with circular deps on java libraries we need to make sure
+    # those cycle deps are present.
+    self._inject_java_cycles()
+
+  def _inject_java_cycles(self):
+    for scala_target in self.context.targets(lambda t: isinstance(t, ScalaLibrary)):
+      for java_target in scala_target.java_sources:
+        self.context.add_target(java_target)
 
   def product_type(self):
     return 'classes'
@@ -99,38 +107,50 @@ class ScalaCompile(NailgunTask):
     return True
 
   def execute(self, targets):
-    scala_targets = filter(ScalaCompile._has_scala_sources, targets)
+    scala_targets = filter(_is_scala, targets)
     if not scala_targets:
       return
 
-    # Get the classpath generated by upstream JVM tasks (including previous calls to execute()).
-    with self.context.state('classpath', []) as cp:
-      self._add_globally_required_classpath_entries(cp)
-      with self.context.state('upstream_analysis_map', {}) as upstream_analysis_map:
-        with self.invalidated(scala_targets, invalidate_dependents=True,
-                              partition_size_hint=self._partition_size_hint) as invalidation_check:
-          # Process partitions one by one.
-          for vts in invalidation_check.all_vts_partitioned:
-            if not self.dry_run:
-              merged_artifact = self._process_target_partition(vts, cp, upstream_analysis_map)
-              vts.update()
-              # Note that we add the merged classes_dir to the upstream.
-              # This is because zinc doesn't handle many upstream dirs well.
-              if os.path.exists(merged_artifact.classes_dir):
-                for conf in self._confs:
-                  cp.append((conf, merged_artifact.classes_dir))
-                if os.path.exists(merged_artifact.analysis_file):
-                  upstream_analysis_map[merged_artifact.classes_dir] = \
-                    AnalysisFileSpec(merged_artifact.analysis_file, merged_artifact.classes_dir)
+    # Get the exclusives group for the targets to compile.
+    # Group guarantees that they'll be a single exclusives key for them.
+    egroups = self.context.products.get_data('exclusives_groups')
+    exclusives_key = egroups.get_group_key_for_target(targets[0])
+    exclusives_classpath = egroups.get_classpath_for_group(exclusives_key)
 
-    # Check for missing dependencies.
-    all_analysis_files = set()
-    for target in scala_targets:
-      analysis_file_spec = self._artifact_factory.analysis_file_for_targets([target])
-      if os.path.exists(analysis_file_spec.analysis_file):
-        all_analysis_files.add(analysis_file_spec)
-    deps_cache = JvmDependencyCache(self.context, scala_targets, all_analysis_files)
-    deps_cache.check_undeclared_dependencies()
+    with self.context.state('upstream_analysis_map', {}) as upstream_analysis_map:
+      with self.invalidated(scala_targets, invalidate_dependents=True,
+                            partition_size_hint=self._partition_size_hint) as invalidation_check:
+        # Process partitions one by one.
+        for vts in invalidation_check.all_vts_partitioned:
+          # Refresh the classpath, to pick up any changes from update_compatible_classpaths.
+          exclusives_classpath = egroups.get_classpath_for_group(exclusives_key)
+          # Get the classpath generated by upstream JVM tasks (including previous calls to execute()).
+          # Add the global classpaths here, directly, instead of doing the
+          # add-to-compatible thing.
+          self._add_globally_required_classpath_entries(exclusives_classpath)
+
+          if not self.dry_run:
+            merged_artifact = self._process_target_partition(vts, exclusives_classpath,
+                                                             upstream_analysis_map)
+            vts.update()
+            # Note that we add the merged classes_dir to the upstream.
+            # This is because zinc doesn't handle many upstream dirs well.
+            if os.path.exists(merged_artifact.classes_dir):
+              for conf in self._confs: ### CLASSPATH UPDATE
+                # Update the exclusives group classpaths.
+                egroups.update_compatible_classpaths(exclusives_key, [(conf, merged_artifact.classes_dir)])
+              if os.path.exists(merged_artifact.analysis_file):
+                upstream_analysis_map[merged_artifact.classes_dir] = \
+                  AnalysisFileSpec(merged_artifact.analysis_file, merged_artifact.classes_dir)
+        if invalidation_check.invalid_vts:
+          # Check for missing dependencies.
+          all_analysis_files = set()
+          for target in scala_targets:
+            analysis_file_spec = self._artifact_factory.analysis_file_for_targets([target])
+            if os.path.exists(analysis_file_spec.analysis_file):
+              all_analysis_files.add(analysis_file_spec)
+          deps_cache = JvmDependencyCache(self.context, scala_targets, all_analysis_files)
+          deps_cache.check_undeclared_dependencies()
 
   def _add_globally_required_classpath_entries(self, cp):
     # Add classpath entries necessary both for our compiler calls and for downstream JVM tasks.
@@ -143,9 +163,8 @@ class ScalaCompile(NailgunTask):
     # Localize the analysis files we read from the artifact cache.
     for vt in vts:
       analysis_file = self._artifact_factory.analysis_file_for_targets(vt.targets)
-      self.context.log.debug('Localizing analysis file %s' % analysis_file.analysis_file)
-      if self._zinc_utils.localize_analysis_file(ZincArtifactFactory.portable(analysis_file.analysis_file),
-                                                 analysis_file.analysis_file):
+      if self._zinc_utils.localize_analysis_file(
+          ZincArtifactFactory.portable(analysis_file.analysis_file), analysis_file.analysis_file):
         self.context.log.warn('Zinc failed to localize analysis file: %s. Incremental rebuild' \
                               'of that target may not be possible.' % analysis_file)
 
@@ -153,17 +172,19 @@ class ScalaCompile(NailgunTask):
     # Special handling for scala artifacts.
     cached_vts, uncached_vts = Task.check_artifact_cache(self, vts)
 
-    # Localize the portable analysis files.
-    self._localize_portable_analysis_files(cached_vts)
+    if cached_vts:
+      # Localize the portable analysis files.
+      with self.context.new_workunit('localize', labels=[WorkUnit.MULTITOOL]):
+        self._localize_portable_analysis_files(cached_vts)
 
-    # Split any merged artifacts.
-    for vt in cached_vts:
-      if len(vt.targets) > 1:
-        artifacts = [self._artifact_factory.artifact_for_target(t) for t in vt.targets]
-        merged_artifact = self._artifact_factory.merged_artifact(artifacts)
-        merged_artifact.split()
-        for v in vt.versioned_targets:
-          v.update()
+      # Split any merged artifacts.
+      for vt in cached_vts:
+        if len(vt.targets) > 1:
+          artifacts = [self._artifact_factory.artifact_for_target(t) for t in vt.targets]
+          merged_artifact = self._artifact_factory.merged_artifact(artifacts)
+          merged_artifact.split()
+          for v in vt.versioned_targets:
+            v.update()
     return cached_vts, uncached_vts
 
   def _process_target_partition(self, vts, cp, upstream_analysis_map):
@@ -195,16 +216,23 @@ class ScalaCompile(NailgunTask):
 
       # Invoke the compiler if needed.
       if any([not vt.valid for vt in vts.versioned_targets]):
+        # Do some reporting.
+        self.context.log.info(
+          'Operating on a partition containing ',
+          items_to_report_element(vts.cache_key.sources, 'source'),
+          ' in ',
+          items_to_report_element([t.address.reference() for t in vts.targets], 'target'), '.')
         old_state = current_state
         classpath = [entry for conf, entry in cp if conf in self._confs]
-        self.context.log.info('Compiling targets %s' % vts.targets)
-        # Zinc may delete classfiles, then later exit on a compilation error. Then if the
-        # change triggering the error is reverted, we won't rebuild to restore the missing
-        # classfiles. So we force-invalidate here, to be on the safe side.
-        vts.force_invalidate()
-        if self._zinc_utils.compile(classpath, merged_artifact.sources, merged_artifact.classes_dir,
-                                    merged_artifact.analysis_file, upstream_analysis_map):
-          raise TaskError('Compile failed.')
+        with self.context.new_workunit('compile'):
+          # Zinc may delete classfiles, then later exit on a compilation error. Then if the
+          # change triggering the error is reverted, we won't rebuild to restore the missing
+          # classfiles. So we force-invalidate here, to be on the safe side.
+          vts.force_invalidate()
+          if self._zinc_utils.compile(classpath, merged_artifact.sources,
+                                      merged_artifact.classes_dir,
+                                      merged_artifact.analysis_file, upstream_analysis_map):
+            raise TaskError('Compile failed.')
 
         write_to_artifact_cache = self._artifact_cache and \
                                   self.context.options.write_to_artifact_cache
@@ -213,10 +241,8 @@ class ScalaCompile(NailgunTask):
         if write_to_artifact_cache:
           # Write the entire merged artifact, and each individual split artifact,
           # to the artifact cache, if needed.
-          self._update_artifact_cache(merged_artifact, vts)
-          for artifact, vt in zip(artifacts, vts.versioned_targets):
-            assert artifact.targets == vt.targets  # Something is horribly wrong if this fails.
-            self._update_artifact_cache(artifact, vt)
+          vts_artifact_pairs = zip(vts.versioned_targets, artifacts) + [(vts, merged_artifact)]
+          self._update_artifact_cache(vts_artifact_pairs)
 
       # Register the products, if needed. TODO: Make sure this is safe to call concurrently.
       # In practice the GIL will make it fine, but relying on that is insanitary.
@@ -239,14 +265,19 @@ class ScalaCompile(NailgunTask):
         basedir, plugin_info_file = self._zinc_utils.write_plugin_info(self._resources_dir, target)
         genmap.add(target, basedir, [plugin_info_file])
 
-  def _update_artifact_cache(self, artifact, vt):
+  def _update_artifact_cache(self, vts_artifact_pairs):
     # Relativize the analysis.
     # TODO: Relativize before splitting? This will require changes to Zinc, which currently
     # eliminates paths it doesn't recognize (including our placeholders) when splitting.
-    if os.path.exists(artifact.analysis_file) and \
-       self._zinc_utils.relativize_analysis_file(artifact.analysis_file,
-                                                 artifact.portable_analysis_file):
-      raise TaskError('Zinc failed to relativize analysis file: %s' % artifact.analysis_file)
-      # Write the per-target artifacts to the cache.
-    artifact_files = [artifact.classes_dir, artifact.portable_analysis_file]
-    self.update_artifact_cache(vt, artifact_files)
+    vts_artifactfiles_pairs = []
+    with self.context.new_workunit(name='cacheprep'):
+      with self.context.new_workunit(name='relativize', labels=[WorkUnit.MULTITOOL]):
+        for vts, artifact in vts_artifact_pairs:
+          if os.path.exists(artifact.analysis_file) and \
+              self._zinc_utils.relativize_analysis_file(artifact.analysis_file,
+                                                        artifact.portable_analysis_file):
+            raise TaskError('Zinc failed to relativize analysis file: %s' % artifact.analysis_file)
+          artifact_files = [artifact.classes_dir, artifact.portable_analysis_file]
+          vts_artifactfiles_pairs.append((vts, artifact_files))
+
+    self.update_artifact_cache(vts_artifactfiles_pairs)

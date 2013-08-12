@@ -30,7 +30,10 @@ public class DotContractedTokenCombiner extends LookAheadTokenCombiner {
   private Set<String> contractedWords = ImmutableSet.of(
       "mr", "mrs", "ms", "dr", "drs", "prof",
       "gen", "rep", "sen", "st", "jr", "sr",   // social titles
-      "inc", "co", "corp"                      // company names
+      "inc", "co", "corp", "ltd",              // company names
+      "no",                                    // special list
+      "mon", "tue", "wed", "thu", "fri", "sat", "sun", // day of a week
+      "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec" // months
       );
 
   public DotContractedTokenCombiner(TokenStream inputStream) {

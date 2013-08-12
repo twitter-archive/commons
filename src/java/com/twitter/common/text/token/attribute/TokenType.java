@@ -26,7 +26,8 @@ public enum TokenType {
   USERNAME("username"),
   EMOTICON("emoticon"),
   URL("URL"),
-  STOCK("stock symbol");
+  STOCK("stock symbol"),
+  CONTRACTION("contraction");
 
   // More human-readable version of the token type; avoid screaming.
   public final String name;

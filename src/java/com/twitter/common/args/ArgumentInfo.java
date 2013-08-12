@@ -171,7 +171,7 @@ public abstract class ArgumentInfo<T> {
       Annotation annotation = pair.getSecond();
 
       @SuppressWarnings("unchecked") // type.getType() is T
-      Class<? extends T> rawType = (Class<? extends T>) type.getType();
+      Class<? extends T> rawType = (Class<? extends T>) type.getRawType();
 
       String constraint = verifier.toString(rawType, annotation);
       constraints.add(constraint);

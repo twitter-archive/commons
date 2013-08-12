@@ -17,6 +17,7 @@
 python_tests(name = 'string',
   sources = globs('*.py'),
   dependencies = [
-    'src/python/twitter/common/string',
-  ]
+    pants('src/python/twitter/common/string'),
+  ],
+  coverage = 'twitter.common.string'
 )

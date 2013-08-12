@@ -97,7 +97,7 @@ public class AngryBirdZooKeeperTest extends TearDownTestCase {
     ZooKeeperClient zkClient3 = createZKClient();
 
     // Expire the follower's session.
-    zkServer.expireFollower(ROOT_PATH, Optional.<Integer>absent());
+    zkServer.expireFollower(ROOT_PATH, Optional.<String>absent());
 
     // Make sure the leader's session is not expired.
     zkClient1.get().exists(zkPaths.get(zkClient1), null);
@@ -128,7 +128,7 @@ public class AngryBirdZooKeeperTest extends TearDownTestCase {
     ZooKeeperClient zkClient4 = createZKClient("4@1235:81".getBytes());
 
     // Expire the 3rd follower's session.
-    zkServer.expireFollower(ROOT_PATH, Optional.of(3));
+    zkServer.expireFollower(ROOT_PATH, Optional.of("3"));
 
     // Make sure the expected sessions non expired.
     zkClient1.get().exists(zkPaths.get(zkClient1), null);

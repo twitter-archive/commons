@@ -18,17 +18,10 @@ package com.twitter.common.zookeeper;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.regex.Pattern;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.ImmutableList;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs.Ids;
-import org.apache.zookeeper.data.ACL;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,9 +33,9 @@ import com.twitter.common.testing.EasyMockTest;
 import com.twitter.common.zookeeper.Group.GroupChangeListener;
 import com.twitter.common.zookeeper.Group.JoinException;
 import com.twitter.common.zookeeper.Group.Membership;
+import com.twitter.common.zookeeper.Group.NodeScheme;
 import com.twitter.common.zookeeper.ZooKeeperClient.Credentials;
 import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
-import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException;
 
 import static com.google.common.testing.junit4.JUnitAsserts.assertNotEqual;
 import static org.easymock.EasyMock.createMock;
@@ -55,9 +48,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-/**
- * @author John Sirois
- */
 public class GroupTest extends BaseZooKeeperTest {
 
   private ZooKeeperClient zkClient;
@@ -104,68 +94,22 @@ public class GroupTest extends BaseZooKeeperTest {
     }
   }
 
-  private static class CustomNamingScheme implements Group.NodeNameScheme {
-    public static final String NODENAME = "custom_name";
+  private static class CustomScheme implements NodeScheme {
+    static final String NODE_NAME = "custom_name";
 
-    private Predicate<String> nodeNameFilter;
-
-    public CustomNamingScheme() {
-      final Pattern groupNodeNamePattern = Pattern.compile("^" + Pattern.quote(NODENAME));
-      nodeNameFilter = new Predicate<String>() {
-          @Override public boolean apply(String childNodeName) {
-            return groupNodeNamePattern.matcher(childNodeName).matches();
-          }
-      };
+    @Override
+    public boolean isMember(String nodeName) {
+      return NODE_NAME.equals(nodeName);
     }
 
     @Override
-    public Predicate<String> getNodeNameFilter() {
-      return nodeNameFilter;
+    public String createName(byte[] membershipData) {
+      return NODE_NAME;
     }
 
     @Override
-    public String createNodePath(ZooKeeperClient zkClient, String path, byte[] membershipData,
-        ImmutableList<ACL> acl) throws ZooKeeperConnectionException, KeeperException,
-           InterruptedException {
-      return zkClient.get().create(path + "/" + NODENAME, membershipData, acl,
-          CreateMode.EPHEMERAL);
-
-    }
-
-    @Override
-    public String extractMemberId(String nodePath) {
-      String memberId = StringUtils.substringAfterLast(nodePath, "/");
-      return memberId;
-    }
-  }
-
-  @Test
-  public void testLenientPaths() {
-    assertEquals("/", Group.normalizePath("///"));
-    assertEquals("/a/group", Group.normalizePath("/a/group"));
-    assertEquals("/a/group", Group.normalizePath("/a/group/"));
-    assertEquals("/a/group", Group.normalizePath("/a//group"));
-    assertEquals("/a/group", Group.normalizePath("/a//group//"));
-
-    try {
-      Group.normalizePath("a/group");
-      fail("Relative paths should not be allowed.");
-    } catch (IllegalArgumentException e) {
-      // expected
-    }
-
-    try {
-      Group.normalizePath("/a/./group");
-      fail("Relative paths should not be allowed.");
-    } catch (IllegalArgumentException e) {
-      // expected
-    }
-
-    try {
-      Group.normalizePath("/a/../group");
-      fail("Relative paths should not be allowed.");
-    } catch (IllegalArgumentException e) {
-      // expected
+    public boolean isSequential() {
+      return false;
     }
   }
 
@@ -263,7 +207,8 @@ public class GroupTest extends BaseZooKeeperTest {
 
   @Test
   public void testJoinCustomNamingScheme() throws Exception {
-    group = new Group(zkClient, ZooKeeperUtils.EVERYONE_READ_CREATOR_ALL, "/a/group", new CustomNamingScheme());
+    group = new Group(zkClient, ZooKeeperUtils.EVERYONE_READ_CREATOR_ALL, "/a/group",
+        new CustomScheme());
 
     listener = new RecordingListener();
     group.watch(listener);
@@ -272,7 +217,7 @@ public class GroupTest extends BaseZooKeeperTest {
     Membership membership = group.join();
     String memberId = membership.getMemberId();
 
-    assertEquals("Wrong member ID.", CustomNamingScheme.NODENAME, memberId);
+    assertEquals("Wrong member ID.", CustomScheme.NODE_NAME, memberId);
     assertMembershipObserved(memberId);
 
     expireSession(zkClient);

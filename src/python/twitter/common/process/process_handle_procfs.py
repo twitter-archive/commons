@@ -1,8 +1,9 @@
-import os
 import errno
-import time
+import os
 import pwd
-from process_handle import ProcessHandleParserBase
+import time
+
+from .process_handle import ProcessHandleParserBase
 
 class ProcessHandlersProcfs(object):
   BOOT_TIME = None
@@ -34,11 +35,11 @@ class ProcessHandlersProcfs(object):
 
 
 class ProcessHandleProcfs(ProcessHandleParserBase):
-  ATTRS = \
+  ATTRS = (
     """pid comm state ppid pgrp session tty_nr tpgid flags minflt cminflt majflt cmajflt utime
        stime cutime cstime priority nice num_threads itrealvalue starttime vsize rss rsslim
        startcode endcode startstack kstkesp kstkeip signal blocked sigignore sigcatch wchan nswap
-       cnswap exit_signal processor rt_priority policy""".split()
+       cnswap exit_signal processor rt_priority policy""".split())
 
   TYPE_MAP = {
             "pid":   "%d",         "comm":   "%s",       "state":  "%c",        "ppid":  "%d",
@@ -90,14 +91,12 @@ class ProcessHandleProcfs(ProcessHandleParserBase):
 
   def user(self):
     try:
-      # stat = (mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime)
-      stat = os.stat('/proc/%s' % self.pid())
+      uid = os.stat('/proc/%s' % self.pid()).st_uid
       try:
-        # pwd_entry = (pw_name, pw_passwd, pw_uid, pw_gid, pw_gecos, pw_dir, pw_shell)
-        pwd_entry = pwd.getpwuid(stat[4])
+        pwd_entry = pwd.getpwuid(uid)
       except KeyError:
         return None
-      return pwd_entry[0]
+      return pwd_entry.pw_name
     except OSError:
       return None
 
@@ -115,3 +114,4 @@ class ProcessHandleProcfs(ProcessHandleParserBase):
     except OSError:
       # Likely permission denied or no such file or directory
       return None
+

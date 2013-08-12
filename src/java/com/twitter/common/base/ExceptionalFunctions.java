@@ -30,15 +30,16 @@ public final class ExceptionalFunctions {
   }
 
   /**
-   * Returns an {@link ExceptionalSupplier}/{@link java.util.concurrent.Callable} object that
-   * will return the result of {@code function} applied to {@code argument}.  Evaluation is lazy
-   * and un-memoized.
+   * Returns an {@link ExceptionalSupplier}/{@link java.util.concurrent.Callable} object that will
+   * return the result of {@code function} applied to {@code argument}.  Evaluation is lazy and
+   * un-memoized.
    */
   public static <S, T, E extends Exception> CallableExceptionalSupplier<T, E> curry(
       final ExceptionalFunction<S, T, E> function, final S argument) {
 
     return new CallableExceptionalSupplier<T, E>() {
-      @Override public T get() throws E {
+      @Override
+      public T get() throws E {
         return function.apply(argument);
       }
     };
@@ -50,7 +51,8 @@ public final class ExceptionalFunctions {
   public static <T, E extends Exception> ExceptionalFunction<T, T, E> compose(
       final Iterable<ExceptionalFunction<T, T, E>> functions) {
     return new ExceptionalFunction<T, T, E>() {
-      @Override public T apply(T input) throws E {
+      @Override
+      public T apply(T input) throws E {
         T result = input;
         for (ExceptionalFunction<T, T, E> f : functions) {
           result = f.apply(result);
@@ -69,5 +71,86 @@ public final class ExceptionalFunctions {
         .add(function)
         .add(functions)
         .build());
+  }
+
+  /**
+   * Returns a new ExceptionalFunction which composes two ExceptionalFunctions of compatible types.
+   *
+   * @param second function to apply to result of first.
+   * @param first function to apply to input item.
+   * @param <A> input type of first.
+   * @param <B> input type of second.
+   * @param <C> output type of second.
+   * @param <E> exception type.
+   * @return new composed ExceptionalFunction.
+   */
+  public static <A, B, C, E extends Exception> ExceptionalFunction<A, C, E> compose(
+      final ExceptionalFunction<B, C, ? extends E> second,
+      final ExceptionalFunction<A, ? extends B, ? extends E> first) {
+    return new ExceptionalFunction<A, C, E>() {
+      @Override
+      public C apply(A item) throws E {
+        return second.apply(first.apply(item));
+      }
+    };
+  }
+
+  /**
+   * Builds an ExceptionalFunction from {@link com.google.common.base.Function}.
+   *
+   * @param function guava Function.
+   * @param <S> input type.
+   * @param <T> output type.
+   * @param <E> exception type.
+   * @return new ExceptionalFunction.
+   */
+  public static <S, T, E extends Exception> ExceptionalFunction<S, T, E> forFunction(
+      final com.google.common.base.Function<S, T> function) {
+    return new ExceptionalFunction<S, T, E>() {
+      @Override
+      public T apply(S item) {
+        return function.apply(item);
+      }
+    };
+  }
+
+  /**
+   * Builds an ExceptionalFunction from a return value. The returned ExceptionalFunction will always
+   * return the given value.
+   *
+   * @param value value to return.
+   * @param <S> input type.
+   * @param <T> output type.
+   * @param <E> exception type.
+   * @return new ExceptionalFunction.
+   */
+  public static <S, T, E extends Exception> ExceptionalFunction<S, T, E> constant(
+      final T value) {
+    return new ExceptionalFunction<S, T, E>() {
+      @Override
+      public T apply(S item) throws E {
+        return value;
+      }
+    };
+  }
+
+  /**
+   * Builds an ExceptionalFunction from an Exception. The returned ExceptionalFunction will always
+   * throw the given Exception.
+   *
+   * @param exception exception to throw.
+   * @param <S> input type.
+   * @param <T> output type.
+   * @param <E> exception type.
+   * @return new ExceptionalFunction.
+   */
+  public static <S, T, E extends Exception> ExceptionalFunction<S, T, E> forException(
+      final E exception) {
+    return new ExceptionalFunction<S, T, E>() {
+      @Override
+      public T apply(S item) throws E {
+        throw exception;
+      }
+    };
   }
 }

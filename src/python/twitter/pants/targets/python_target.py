@@ -13,22 +13,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==================================================================================================
-
+from collections import defaultdict
 from twitter.common.collections import OrderedSet
 from twitter.pants.base import Target
-from twitter.pants.targets.util import resolve
-from twitter.pants.targets.with_sources import TargetWithSources
+
+from .util import resolve
+from .with_sources import TargetWithSources
+
 
 class PythonTarget(TargetWithSources):
-  def __init__(self, name, sources, resources=None, dependencies=None):
-    TargetWithSources.__init__(self, name)
-
+  def __init__(self, name, sources, resources=None, dependencies=None, provides=None,
+               exclusives=None):
+    TargetWithSources.__init__(self, name, sources, exclusives=exclusives)
     processed_dependencies = resolve(dependencies)
 
-    self.add_label('python')
-    self.sources = self._resolve_paths(self.target_base, sources)
+    self.add_labels('python')
     self.resources = self._resolve_paths(self.target_base, resources) if resources else OrderedSet()
-    self.dependencies = OrderedSet(processed_dependencies) if processed_dependencies else OrderedSet()
+    self.dependencies = OrderedSet(processed_dependencies or ())
+    self.provides = provides
+    if self.provides:
+      self.provides.library = self
+
+  def _propagate_exclusives(self):
+    self.exclusives = defaultdict(set)
+    for k in self.declared_exclusives:
+      self.exclusives[k] = self.declared_exclusives[k]
+    for t in self.dependencies:
+      if isinstance(t, Target):
+        t._propagate_exclusives()
+        self.add_to_exclusives(t.exclusives)
+      elif hasattr(t, "declared_exclusives"):
+        self.add_to_exclusives(t.declared_exclusives)
 
   def _walk(self, walked, work, predicate = None):
     Target._walk(self, walked, work, predicate)

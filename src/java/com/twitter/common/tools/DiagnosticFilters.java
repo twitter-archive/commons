@@ -139,9 +139,15 @@ final class DiagnosticFilters {
       @Override public Treatment categorize(Diagnostic<? extends T> diagnostic) {
         FileObject source = diagnostic.getSource();
         if (source != null) {
-          for (String pathPrefix : pathPrefixes) {
-            if (source.toUri().getPath().startsWith(pathPrefix)) {
-              return Treatment.IGNORE;
+          // URI's need not have a path in general and in practice diagnostics get emitted for
+          // jar:// sources that in fact do not have a path - guard against these cases since we
+          // only need to match against file:// to satisfy this filter.
+          String path = source.toUri().getPath();
+          if (path != null) {
+            for (String pathPrefix : pathPrefixes) {
+              if (path.startsWith(pathPrefix)) {
+                return Treatment.IGNORE;
+              }
             }
           }
         }

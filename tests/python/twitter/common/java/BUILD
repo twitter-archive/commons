@@ -23,7 +23,7 @@ python_tests(
   name = 'java',
   sources = ['test_class_file.py'],
   dependencies = [
-    'src/python/twitter/common/java',
-    ':resources',
+    pants('src/python/twitter/common/java'),
+    pants(':resources'),
   ]
 )

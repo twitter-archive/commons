@@ -19,28 +19,16 @@ from __future__ import print_function
 import pprint
 import pystache
 
+from twitter.common.lang import Compatibility
+from twitter.pants.base.mustache import MustacheRenderer
 
-def _expand(map):
-  # Add foo? for each foo in the map that evaluates to true.
-  # Mustache needs this, especially in cases where foo is a list: there is no way to render a
-  # block exactly once iff a list is not empty.
-  # Note: if the original map contains foo?, it will take precedence over our synthetic foo?.
-  def set_to_map(x):
-    # Pystache can't handle sets, so we convert to maps of key->True.
-    if isinstance(x, set):
-      return dict([(k, True) for k in x])
-    else:
-      return x
-  items = [(key, set_to_map(val)) for (key, val) in map.items()]
-  ret = dict([(key + '?', True) for (key, val) in items if val and not key.endswith('?')])
-  ret.update(dict(items))
-  return ret
 
 class TemplateData(dict):
-  """Encapsulates data for a mustache template as a property-addressable read-only map-like struct."""
+  """Encapsulates data for a mustache template as a property-addressable read-only map-like struct.
+  """
 
   def __init__(self, **kwargs):
-    dict.__init__(self, _expand(kwargs))
+    dict.__init__(self, MustacheRenderer.expand(kwargs))
 
   def extend(self, **kwargs):
     """Returns a new TemplateData with this template's data overlayed by the key value pairs
@@ -66,11 +54,15 @@ class Generator(object):
   """Generates pants intermediary output files using a configured mustache template."""
 
   def __init__(self, template_text, **template_data):
-    self._template =  pystache.parse(unicode(template_text))
+    # pystache does a typecheck for unicode in python 2.x but rewrites its sources to deal unicode
+    # via str in python 3.x.
+    if Compatibility.PY2:
+      template_text = unicode(template_text)
+    self._template =  pystache.parse(template_text)
     self.template_data = template_data
 
   def write(self, stream):
     """Applies the template to the template data and writes the result to the given file-like
     stream."""
-    stream.write(pystache.render(self._template, self.template_data))
 
+    stream.write(pystache.render(self._template, self.template_data))

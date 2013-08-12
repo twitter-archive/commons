@@ -18,6 +18,10 @@ package com.twitter.common.text.tokenizer;
 
 import java.util.regex.Pattern;
 
+import javax.annotation.Nullable;
+
+import org.apache.lucene.util.AttributeSource;
+
 import com.twitter.common.text.detector.PunctuationDetector;
 
 /**
@@ -34,14 +38,26 @@ public class LatinTokenizer extends RegexTokenizer {
 
   // Please use Builder
   protected LatinTokenizer() {
-    setDelimiterPattern(SPLIT_PATTERN);
-    setPunctuationGroupInDelimiterPattern(PUNCTUATION_GROUP);
-    setKeepPunctuation(true);
+  }
+
+  protected LatinTokenizer(AttributeSource attributeSource) {
+    super(attributeSource);
   }
 
   public static final class Builder extends AbstractBuilder<LatinTokenizer, Builder> {
     public Builder() {
-      super(new LatinTokenizer());
+      setDelimiterPattern(SPLIT_PATTERN);
+      setPunctuationGroupInDelimiterPattern(PUNCTUATION_GROUP);
+      setKeepPunctuation(true);
+    }
+
+    @Override
+    protected LatinTokenizer buildTokenizer(@Nullable AttributeSource attributeSource) {
+      if (attributeSource == null) {
+        return new LatinTokenizer();
+      } else {
+        return new LatinTokenizer(attributeSource);
+      }
     }
   }
 }

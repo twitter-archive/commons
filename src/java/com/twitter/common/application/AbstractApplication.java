@@ -23,17 +23,10 @@ import com.google.inject.Module;
 /**
  * A base application class that provides empty implementations of all but the {@link #run()}
  * method.
- *
- * @author William Farner
  */
 public abstract class AbstractApplication implements Application {
   @Override
   public Iterable<? extends Module> getModules() {
-    return Collections.emptyList();
-  }
-
-  @Override
-  public Iterable<? extends Module> getOverridingModules() {
     return Collections.emptyList();
   }
 }

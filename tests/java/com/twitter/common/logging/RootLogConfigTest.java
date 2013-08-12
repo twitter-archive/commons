@@ -18,7 +18,9 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Franco Callari
@@ -101,7 +103,7 @@ public class RootLogConfigTest {
 
   // The following two methods are used to inject our fake root logger, so to avoid test flakyness
   // due to background threads.
-  private RootLogConfig.Configuration getConfig() {
+  private RootLogConfig.Builder getConfig() {
     return RootLogConfig.builder().rootLoggerName(fakeRootLogger.getName());
   }
 
@@ -158,7 +160,7 @@ public class RootLogConfigTest {
     assertHasLoggedToFile();
 
     // Configure logtostderr
-    getConfig().logToStderr(true).apply();
+    getConfig().logToStderr(true).build().apply();
     resetLogs();
 
     // Verify that severe, warning, info logs go to stderr only.
@@ -189,7 +191,7 @@ public class RootLogConfigTest {
     resetLogs();
 
     // Configure alsologtostderr
-    getConfig().alsoLogToStderr(true).apply();
+    getConfig().alsoLogToStderr(true).build().apply();
     resetLogs();
 
     // Verify that severe, warning, info logs go to both.
@@ -219,7 +221,7 @@ public class RootLogConfigTest {
     assertHasLoggedToFile();
 
     // Configure with logtostderr AND alsologtostderr
-    getConfig().logToStderr(true).alsoLogToStderr(true).apply();
+    getConfig().logToStderr(true).alsoLogToStderr(true).build().apply();
     resetLogs();
 
     // Verify that severe, warning, info logs go to stderr only.
@@ -243,7 +245,7 @@ public class RootLogConfigTest {
   public void testUseGLogFormatter() {
     // Configure glogformatter. We test in "logtostderr" mode so to verify correct formatting
     // for both handlers.
-    getConfig().logToStderr(true).useGLogFormatter(true).apply();
+    getConfig().logToStderr(true).useGLogFormatter(true).build().apply();
     resetLogs();
 
     testLogger.severe("Severe Log Message");
@@ -255,20 +257,19 @@ public class RootLogConfigTest {
     output = output.replaceAll("\n", "");
 
     // Verify that it is on glog format.
-    assertTrue(output.matches(
-                                 new StringBuilder()
-                                     .append("S\\d+ ")  // Level, month, day.
-                                     .append("\\d\\d:\\d\\d:\\d\\d\\.\\d+ ")  // Timestamp.
-                                     .append("THREAD\\d\\d ") // Thread id.
-                                     .append(RootLogConfigTest.class.getName() + "\\.testUseGLogFormatter: ") // Class name.
-                                     .append("Severe Log Message")  // Message.
-                                     .toString()));
+    assertTrue("Unexpected output: " + output,
+        output.matches("E\\d+ " // Level, month, day.
+            + "\\d\\d:\\d\\d:\\d\\d\\.\\d+ " // Timestamp.
+            + "THREAD\\d+ " // Thread id.
+            + RootLogConfigTest.class.getName() + "\\.testUseGLogFormatter: " // Class name.
+            + "Severe Log Message" // Message.
+        ));
   }
 
   @Test
   public void testVlog() {
     // Configure with logtoStderr and vlog==FINE;
-    getConfig().logToStderr(true).vlog(RootLogConfig.LogLevel.FINE).apply();
+    getConfig().logToStderr(true).vlog(RootLogConfig.LogLevel.FINE).build().apply();
     resetLogs();
 
     // Verify logging at levels fine and above.
@@ -281,7 +282,7 @@ public class RootLogConfigTest {
     Map<Class<?>, RootLogConfig.LogLevel> vmoduleMap =
         ImmutableMap.of(ClassA.class, RootLogConfig.LogLevel.FINE,
                         ClassB.class, RootLogConfig.LogLevel.WARNING);
-    getConfig().logToStderr(true).vmodule(vmoduleMap).apply();
+    getConfig().logToStderr(true).vmodule(vmoduleMap).build().apply();
     resetLogs();
 
     // No verbose logging other than in ClassA and ClassB.
@@ -303,7 +304,7 @@ public class RootLogConfigTest {
                         ClassB.class, RootLogConfig.LogLevel.INFO);
     // Configure setting default vlog=FINER
     getConfig()
-        .logToStderr(true).vlog(RootLogConfig.LogLevel.FINER).vmodule(vmoduleMap).apply();
+        .logToStderr(true).vlog(RootLogConfig.LogLevel.FINER).vmodule(vmoduleMap).build().apply();
     resetLogs();
 
     // Default logging is at finer level.

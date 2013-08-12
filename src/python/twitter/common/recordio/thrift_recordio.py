@@ -27,12 +27,13 @@ try:
 except ImportError:
   _SER = None
   _HAS_THRIFT = False
-  print("WARNING: Unable to load thrift in record_writer", file=sys.stderr)
+  print("WARNING: Unable to load thrift in thrift_recordio", file=sys.stderr)
 
-class ThriftRecordIO:
-  class ThriftUnavailableException(Exception): pass
-  class ThriftUnsuppliedException(Exception): pass
-  class InvalidThriftException(Exception): pass
+
+class ThriftRecordIO(object):
+  class ThriftUnavailableException(RecordIO.Error): pass
+  class ThriftUnsuppliedException(RecordIO.Error): pass
+  class InvalidThriftException(RecordIO.InvalidTypeException): pass
 
   @staticmethod
   def assert_has_thrift():
@@ -69,6 +70,7 @@ class ThriftRecordIO:
         raise RecordIO.PrematureEndOfStream(e)
       return base
 
+
 class ThriftRecordReader(RecordIO.Reader):
   """
     RecordReader that deserializes Thrift objects instead of strings.
@@ -76,18 +78,18 @@ class ThriftRecordReader(RecordIO.Reader):
 
   def __init__(self, fp, thrift_base):
     """
-      Supplying a file pointer and Thrift class thrift_base, construct a
-      ThriftRecordReader.
+      Construct a ThriftRecordReader from given file pointer and Thrift class thrift_base
 
       May raise:
         RecordIO.ThriftUnavailableException if thrift deserialization is unavailable.
-        RecordIO.ThriftUnsuppliedException if thrift argument not supplied
+        RecordIO.ThriftUnsuppliedException if thrift_base not supplied
     """
     ThriftRecordIO.assert_has_thrift()
     if not thrift_base:
       raise ThriftRecordIO.ThriftUnsuppliedException(
         'Must construct ThriftRecordReader with valid thrift_base!')
     RecordIO.Reader.__init__(self, fp, ThriftRecordIO.ThriftCodec(thrift_base))
+
 
 class ThriftRecordWriter(RecordIO.Writer):
   """
@@ -96,7 +98,7 @@ class ThriftRecordWriter(RecordIO.Writer):
 
   def __init__(self, fp):
     """
-      Supplying a file pointer, construct a ThriftRecordWriter.
+      Construct a ThiftRecordWriter from given file pointer.
 
       May raise:
         RecordIO.ThriftUnavailableException if thrift deserialization is unavailable.

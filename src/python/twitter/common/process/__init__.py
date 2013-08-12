@@ -1,7 +1,139 @@
 __author__ = 'Brian Wickman'
 
+import atexit
+import os
+import sys
 from process_provider_ps import ProcessProvider_PS
 from process_provider_procfs import ProcessProvider_Procfs
+
+from twitter.common.dirutil import lock_file
+
+
+_PIDFILE = None
+
+def spawn_daemon(pidfile=None, stdout='/dev/null', stderr='/dev/null', quiet=False):
+  """
+    Spawns a new daemon process without terminating the current process.
+    Returns ``True`` to daemon process and ``False`` to curent process.
+    `pidfile`: 
+      :Deafult: ``None``
+      The pid file to store the daemon procees pid.
+    `stdout`:
+      :Default: ``'/dev/null'``
+      Location to redirect stdout
+    `stderr`:
+      :Default: ``'/dev/null'``
+      Location to redirect stderr
+    `quiet`:
+      :Default: ``False``
+      If ``True`` supresses output to stdout and stderr
+
+    Typical Usage:
+    Import
+    >>> from twitter.common.process import spawn_daemon
+
+    >>> def do_daemon_process():
+    ...   while(1):
+    ...     time.sleep(1)
+    ...     print("I am asleep for ever")
+
+    Call spawn_daemon
+    >>> if spawn_daemon("/tmp/pid", quiet=True):
+    ...   do_daemon_process()
+
+    Returns to python interactive shell and continues the execution
+    >>> print("I am continuing with main")
+    I am continuing with main
+   >>>
+
+   The daemon process is running
+   [bash]$ ps -p `cat /tmp/pid`
+     PID TTY           TIME CMD
+   33095 ??         0:21.50 /usr/bin/python2.6 /var/folders/t_/ck6c/T/tmpolW2xb
+  """
+  return not _daemonize(pidfile, stdout, stderr, quiet, exit_parent=False)
+
+
+def daemonize(pidfile=None, stdout='/dev/null', stderr='/dev/null', quiet=False):
+  """
+    Exits the current process and starts a new daemon process.
+    `pidfile`: 
+      :Deafult: ``None``
+      The pid file to store the daemon procees pid.
+    `stdout`:
+      :Default: ``'/dev/null'``
+      Location to redirect stdout
+    `stderr`:
+      :Default: ``'/dev/null'``
+      Location to redirect stderr
+    `quiet`:
+      :Default: ``False``
+      If ``True`` supresses output to stdout and stderr
+
+    Typical Usage:
+    Import
+    >>> from twitter.common.process import daemonize
+
+    Define the daemon method and call daemonize
+    >>> def run_daemon():
+    ...   daemonize('/tmp/pid')
+    ...   while(1):
+    ...    print("i am asleep...")
+
+    Run 
+    >>> run_daemon()
+        Writing pid 32758 into /tmp/pid
+    [bash]$
+    The current python interactive shell terminates and a daemon_process 32758 is running
+    [bash]$ ps -p 32758
+      PID TTY           TIME CMD
+    32758 ??         0:39.68 /usr/bin/python2.6 /var/folders/t_/ck6c3z/T/tmptkO6Wc
+    """
+  _daemonize(pidfile, stdout, stderr, quiet, exit_parent=True)
+
+
+# TODO(wickman)  Leverage PEP-3143 http://pypi.python.org/pypi/python-daemon/
+def _daemonize(pidfile, stdout, stderr, quiet, exit_parent):
+  global _PIDFILE
+  def daemon_fork(exit_parent=True):
+    try:
+      if os.fork() > 0:
+        if exit_parent:
+          os._exit(0)
+        return True
+      return False
+    except OSError as e:
+      sys.stderr.write('Failed to fork: %s\n' % e)
+      sys.exit(1)
+
+  parent = daemon_fork(exit_parent)
+  if parent:
+    return True
+  os.setsid()
+  daemon_fork()
+
+  if pidfile:
+    _PIDFILE = lock_file(pidfile, 'w+')
+    if _PIDFILE:
+      pid = os.getpid()
+      if not quiet:
+        sys.stderr.write('Writing pid %s into %s\n' % (pid, pidfile))
+      _PIDFILE.write(str(pid))
+      _PIDFILE.flush()
+    else:
+      if not quiet:
+        sys.stderr.write('Could not acquire pidfile %s, another process running!\n' % pidfile)
+      sys.exit(1)
+
+    def shutdown():
+      os.unlink(pidfile)
+      _PIDFILE.close()
+    atexit.register(shutdown)
+
+  sys.stdin = open('/dev/null', 'r')
+  sys.stdout = open(stdout, 'a+')
+  sys.stderr = open(stderr, 'a+', 1)
+
 
 class ProcessProviderFactory(object):
   """

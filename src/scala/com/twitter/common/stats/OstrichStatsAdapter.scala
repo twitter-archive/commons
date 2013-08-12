@@ -16,21 +16,31 @@
 
 package com.twitter.common.stats
 
-import com.google.common.base.Supplier
-import com.twitter.ostrich.{Stats => OstrichStats}
-import com.twitter.common.stats.StatsProvider.RequestTimer
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicLong
+
+import com.google.common.base.Supplier
+
+import com.twitter.ostrich.stats.{Stats => OstrichStats}
+import com.twitter.common.stats.StatsProvider.RequestTimer
 
 /**
  * Adapts Ostrich Stats to science commons StatsProvider.
- *
- * @author jsirois
  */
 object OstrichStatsAdapter extends StatsProvider {
-  def makeCounter(name: String) = createCounter(name).value
+  // Science stats has a single global namespace - grab the ostrich equivalent.
+  private[this] lazy val stats = OstrichStats.get("")
+
+  /**
+   * Returns this `OstrichStatsAdapter` since ostrich stats don't have an equivalent tracking mode
+   * built-in but rely instead on attaching a [[com.twitter.ostrich.stats.StatsListener]].
+   */
+  def untracked() = this
+
+  def makeCounter(name: String) = createCounter(name)
 
   def makeGauge[T <: Number](name: String, gauge: Supplier[T]) = {
-    OstrichStats.makeGauge(name) {
+    stats.addGauge(name) {
       gauge.get.doubleValue
     }
     new Stat[T] {
@@ -45,27 +55,29 @@ object OstrichStatsAdapter extends StatsProvider {
     val reconnects = createCounter(name + "_reconnects")
     val timeouts = createCounter(name + "_timeouts")
 
-    val timingStat = OstrichStats.getTiming(name + "_requests_ms")
+    val timingStat = stats.getMetric(name + "_requests_ms")
     new RequestTimer {
-      def requestComplete(timingMicros: Long) = {
-        requests.incr()
+      def requestComplete(timingMicros: Long) {
+        requests.incrementAndGet()
         timingStat.add(TimeUnit.MICROSECONDS.toMillis(timingMicros).toInt)
       }
-      def incErrors = {
+      def incErrors() {
         // science adds a timing of 0 here to bump the request count - we just use a separate
         // counter so that we don't under-report success timings
-        requests.incr()
-        errors.incr()
+        requests.incrementAndGet()
+        errors.incrementAndGet()
       }
-      def incReconnects = reconnects.incr()
-      def incTimeouts = timeouts.incr()
+      def incReconnects() { reconnects.incrementAndGet() }
+      def incTimeouts() { timeouts.incrementAndGet() }
     }
   }
 
   /**
-   * Subclasses can override to create custom {@link Counter}s.
+   * Subclasses can override to create custom counters.
    */
   protected def createCounter(name: String) = {
-    OstrichStats.getCollection.getCounter(name)
+    val atomicLong = new AtomicLong
+    stats.makeCounter(name, atomicLong)
+    atomicLong
   }
 }
