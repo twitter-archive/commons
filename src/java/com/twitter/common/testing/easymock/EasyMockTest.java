@@ -14,7 +14,7 @@
 // limitations under the License.
 // =================================================================================================
 
-package com.twitter.common.testing;
+package com.twitter.common.testing.easymock;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;

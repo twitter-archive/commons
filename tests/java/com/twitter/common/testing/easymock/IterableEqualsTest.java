@@ -8,8 +8,6 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.twitter.common.testing.EasyMockTest;
-
 import static org.easymock.EasyMock.expect;
 
 import static com.twitter.common.testing.easymock.IterableEquals.eqCollection;

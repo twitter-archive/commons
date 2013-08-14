@@ -21,7 +21,7 @@ java_tests(name = 'metrics',
     pants('src/java/com/twitter/common/junit/annotations'),
     pants('src/java/com/twitter/common/metrics'),
     pants('src/java/com/twitter/common/objectsize'),
-    pants('src/java/com/twitter/common/testing'),
+    pants('src/java/com/twitter/common/testing/easymock'),
     pants('src/java/com/twitter/common/util:system-mocks'),
     pants('src/java/com/twitter/common/util:testing')
   ],

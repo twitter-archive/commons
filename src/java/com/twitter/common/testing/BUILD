@@ -14,21 +14,6 @@
 # limitations under the License.
 # ==================================================================================================
 
-# TODO: move EasyMockTest to easymock subpackage
-java_library(name='testing',
-  dependencies=[
-    pants('3rdparty:easymock'),
-    pants('3rdparty:guava'),
-    pants('3rdparty:junit'),
-    pants('3rdparty:mockito'),
-    pants('3rdparty:tl4j'),
-  ],
-  sources=[
-    'EasyMockTest.java',
-    'MockitoTest.java'
-  ]
-)
-
 java_library(name='action',
   dependencies=[
     pants('3rdparty:guava'),

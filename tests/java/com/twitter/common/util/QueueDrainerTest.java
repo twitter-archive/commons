@@ -22,7 +22,7 @@ import java.util.concurrent.Executor;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.twitter.common.testing.EasyMockTest;
+import com.twitter.common.testing.easymock.EasyMockTest;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;

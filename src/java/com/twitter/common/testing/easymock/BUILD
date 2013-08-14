@@ -1,5 +1,5 @@
 # ==================================================================================================
-# Copyright 2011 Twitter, Inc.
+# Copyright 2013 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -15,9 +15,16 @@
 # ==================================================================================================
 
 java_library(name='easymock',
+  provides = artifact(
+    org = 'com.twitter.common',
+    name = 'testing-easymock',
+    repo = pants('build-support/commons/ivy:public'),
+  ),
   dependencies = [
     pants('3rdparty:easymock'),
     pants('3rdparty:guava'),
+    pants('3rdparty:junit'),
+    pants('3rdparty:tl4j'),
   ],
   sources = globs('*.java'),
 )

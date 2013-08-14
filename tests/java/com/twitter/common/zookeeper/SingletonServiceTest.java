@@ -48,7 +48,7 @@ import com.twitter.common.zookeeper.SingletonService.LeaderControl;
 import com.twitter.common.zookeeper.SingletonService.LeadershipListener;
 import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
 
-import static com.twitter.common.testing.EasyMockTest.createCapture;
+import static com.twitter.common.testing.easymock.EasyMockTest.createCapture;
 import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.createControl;
 import static org.easymock.EasyMock.expect;

@@ -9,7 +9,7 @@ import com.google.common.collect.Lists;
 import org.junit.Before;
 
 import com.twitter.common.stats.Stat;
-import com.twitter.common.testing.EasyMockTest;
+import com.twitter.common.testing.easymock.EasyMockTest;
 
 import static org.easymock.EasyMock.expect;
 

@@ -18,7 +18,7 @@ package com.twitter.common.net.loadbalancing;
 
 import com.google.common.collect.Sets;
 import com.twitter.common.base.Closure;
-import com.twitter.common.testing.EasyMockTest;
+import com.twitter.common.testing.easymock.EasyMockTest;
 import com.twitter.common.net.pool.ResourceExhaustedException;
 import com.twitter.common.net.loadbalancing.LoadBalancingStrategy.ConnectionResult;
 import com.twitter.common.net.loadbalancing.RequestTracker.RequestResult;

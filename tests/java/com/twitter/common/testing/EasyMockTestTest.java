@@ -14,7 +14,7 @@
 // limitations under the License.
 // =================================================================================================
 
-package com.twitter.common.testing;
+package com.twitter.common.testing.easymock;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;

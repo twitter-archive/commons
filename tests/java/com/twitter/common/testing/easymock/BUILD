@@ -19,8 +19,6 @@ java_tests(name='easymock',
     pants('3rdparty:easymock'),
     pants('3rdparty:guava'),
     pants('3rdparty:junit'),
-    # TODO: remove this dependency once EasyMockTest migrates to easymock subpackage
-    pants('src/java/com/twitter/common/testing'),
     pants('src/java/com/twitter/common/testing/easymock'),
   ],
   sources = globs('*.java'),

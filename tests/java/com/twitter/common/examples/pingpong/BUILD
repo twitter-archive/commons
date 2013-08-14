@@ -20,7 +20,7 @@ java_tests(name = 'pingpong',
     pants('3rdparty:guava'),
     pants('3rdparty:junit'),
     pants('src/java/com/twitter/common/examples/pingpong'),
-    pants('src/java/com/twitter/common/testing'),
+    pants('src/java/com/twitter/common/testing/easymock'),
   ],
   sources = globs('*.java'),
 )

@@ -32,7 +32,7 @@ import com.twitter.common.base.Closure;
 import com.twitter.common.base.Command;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
-import com.twitter.common.testing.MockitoTest;
+import com.twitter.common.testing.mockito.MockitoTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyLong;

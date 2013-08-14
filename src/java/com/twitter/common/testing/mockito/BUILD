@@ -1,5 +1,5 @@
 # ==================================================================================================
-# Copyright 2011 Twitter, Inc.
+# Copyright 2013 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -14,17 +14,15 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name = 'util',
+java_library(name='mockito',
+  provides = artifact(
+    org = 'com.twitter.common',
+    name = 'testing-mockito',
+    repo = pants('build-support/commons/ivy:public'),
+  ),
   dependencies = [
-    pants('3rdparty:easymock'),
-    pants('3rdparty:guava'),
     pants('3rdparty:junit'),
-    pants('src/java/com/twitter/common/base'),
-    pants('src/java/com/twitter/common/collections'),
-    pants('src/java/com/twitter/common/quantity'),
-    pants('src/java/com/twitter/common/testing/easymock'),
-    pants('src/java/com/twitter/common/util'),
-    pants('src/java/com/twitter/common/util:testing'),
+    pants('3rdparty:mockito'),
   ],
-  sources = globs('*.java') + globs('testing/*.java')
+  sources = globs('*.java'),
 )

@@ -14,7 +14,7 @@
 // limitations under the License.
 // =================================================================================================
 
-package com.twitter.common.testing;
+package com.twitter.common.testing.mockito;
 
 import org.junit.Before;
 import org.mockito.MockitoAnnotations;

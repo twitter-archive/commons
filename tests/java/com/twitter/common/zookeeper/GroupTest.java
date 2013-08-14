@@ -31,7 +31,7 @@ import com.twitter.common.base.Command;
 import com.twitter.common.base.Supplier;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
-import com.twitter.common.testing.EasyMockTest;
+import com.twitter.common.testing.easymock.EasyMockTest;
 import com.twitter.common.zookeeper.Group.GroupChangeListener;
 import com.twitter.common.zookeeper.Group.JoinException;
 import com.twitter.common.zookeeper.Group.Membership;

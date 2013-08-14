@@ -24,7 +24,7 @@ java_tests(name='handlers',
     'src/java/com/twitter/common/net/http/handlers',
     'src/java/com/twitter/common/net/http/handlers:time-series',
     'src/java/com/twitter/common/stats:time-series',
-    'src/java/com/twitter/common/testing',
+    'src/java/com/twitter/common/testing/easymock',
   ],
   sources=globs('*.java')
 )

@@ -16,7 +16,7 @@ import org.junit.Test;
 import com.twitter.common.base.Command;
 import com.twitter.common.net.pool.DynamicHostSet.HostChangeMonitor;
 import com.twitter.common.net.pool.DynamicHostSet.MonitorException;
-import com.twitter.common.testing.EasyMockTest;
+import com.twitter.common.testing.easymock.EasyMockTest;
 import com.twitter.thrift.ServiceInstance;
 
 import static org.easymock.EasyMock.createControl;
