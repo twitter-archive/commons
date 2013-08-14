@@ -14,6 +14,7 @@ import com.google.common.base.Supplier;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.data.Stat;
 
@@ -159,6 +160,47 @@ public class ZooKeeperNode<T> implements Supplier<T> {
   }
 
   /**
+   * When a call to ZooKeeper.getData is made, the Watcher is added to a Set before the the network request is made
+   * and if the request fails, the Watcher remains. There's a problem where WatcherS can accumulate when there are
+   * failed requests. This implementation of Watcher implements hashCode and equals using a defined name and an
+   * instance of ZooKeeperNode so that retried calls to getData won't accumulate additional WatcherS.
+   */
+  private abstract static class ZooKeeperNodeWatcher implements Watcher {
+    private final String name;
+    private final ZooKeeperNode node;
+
+    public ZooKeeperNodeWatcher(String name, ZooKeeperNode node) {
+      this.name = name;
+      this.node = node;
+    }
+
+    @Override
+    public String toString() {
+      return name + "-" + node.nodePath;
+    }
+
+    @Override
+    public int hashCode() {
+      int h = 1;
+      h = 31 * h + name.hashCode();
+      // being defensive here in case hashCode is implemented on ZooKeeperNode: a different ZooKeeperNode 
+      // instance's WatcherS should not collide with this one even if they watch the same path
+      h = 31 * h + System.identityHashCode(node);
+      return h;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj instanceof ZooKeeperNodeWatcher) {
+        ZooKeeperNodeWatcher other = (ZooKeeperNodeWatcher) obj;
+        // defensively comparing the node on identity rather than .equals-- see note in hashCode()
+        return this.name.equals(other.name) && this.node == other.node;
+      }
+      return false;
+    }
+  }
+
+  /**
    * Initialize zookeeper tracking for this {@link Supplier}.  Once this call returns, this object
    * will be tracking data in zookeeper.
    *
@@ -241,7 +283,7 @@ public class ZooKeeperNode<T> implements Supplier<T> {
 
   private void watchDataNode() throws InterruptedException, KeeperException,
       ZooKeeperConnectionException {
-    final Watcher nodeWatcher = new Watcher() {
+    final Watcher nodeWatcher = new ZooKeeperNodeWatcher("NewDataWatcher", this) {
       @Override public void process(WatchedEvent event) {
         if (event.getState() == KeeperState.SyncConnected) {
           try {
@@ -273,7 +315,7 @@ public class ZooKeeperNode<T> implements Supplier<T> {
 
   private void watchForExistence() throws InterruptedException, KeeperException,
       ZooKeeperConnectionException {
-    final Watcher watcher = new Watcher() {
+    final Watcher watcher = new ZooKeeperNodeWatcher("ExistenceWatcher", this) {
       @Override
       public void process(WatchedEvent event) {
         if (event.getType() == Watcher.Event.EventType.NodeCreated) {
