@@ -14,6 +14,7 @@ import com.google.common.base.Supplier;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.data.Stat;
 
@@ -159,6 +160,48 @@ public class ZooKeeperNode<T> implements Supplier<T> {
   }
 
   /**
+   * ZooKeeper stores WatcherS in a Set so that the same Watcher can be used in each getData
+   * call without adding duplicates.
+   *
+   * This implementation of Watcher implements hashCode and equals using a defined name and an
+   * instance of ZooKeeperNode.
+   */
+  private abstract static class ZooKeeperNodeWatcher implements Watcher {
+    private final String name;
+    private final ZooKeeperNode node;
+
+    public ZooKeeperNodeWatcher(String name, ZooKeeperNode node) {
+      this.name = name;
+      this.node = node;
+    }
+
+    @Override
+    public String toString() {
+      return name + "-" + node.nodePath;
+    }
+
+    @Override
+    public int hashCode() {
+      int h = 1;
+      h = 31 * h + name.hashCode();
+      // being defensive here in case hashCode is implemented on ZooKeeperNode: a different ZooKeeperNode 
+      // instance's WatcherS should not collide with this one even if they watch the same path
+      h = 31 * h + System.identityHashCode(node);
+      return h;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj instanceof ZooKeeperNodeWatcher) {
+        ZooKeeperNodeWatcher other = (ZooKeeperNodeWatcher) obj;
+        // defensively comparing the node on identity rather than .equals-- see note in hashCode()
+        return this.name.equals(other.name) && this.node == other.node;
+      }
+      return false;
+    }
+  }
+
+  /**
    * Initialize zookeeper tracking for this {@link Supplier}.  Once this call returns, this object
    * will be tracking data in zookeeper.
    *
@@ -170,20 +213,24 @@ public class ZooKeeperNode<T> implements Supplier<T> {
   @VisibleForTesting
   void init() throws InterruptedException, KeeperException,
       ZooKeeperConnectionException {
-    Watcher watcher = zkClient.registerExpirationHandler(new Command() {
-      @Override public void execute() {
-        try {
-          synchronized (safeToRewatchLock) {
-            if (safeToRewatch) {
-              tryWatchDataNode();
+
+    Watcher watcher = new ZooKeeperNodeWatcher("ExpiredWatcher", this){
+      public void process(WatchedEvent event) {
+        if (event.getType() == EventType.None && event.getState() == KeeperState.Expired) {
+          try {
+            synchronized (safeToRewatchLock) {
+              if (safeToRewatch) {
+                tryWatchDataNode();
+              }
             }
+          } catch (InterruptedException e) {
+            LOG.log(Level.WARNING, "Interrupted while trying to re-establish watch.", e);
+            Thread.currentThread().interrupt();
           }
-        } catch (InterruptedException e) {
-          LOG.log(Level.WARNING, "Interrupted while trying to re-establish watch.", e);
-          Thread.currentThread().interrupt();
         }
-      }
-    });
+        
+      }};
+    zkClient.register(watcher);
 
     try {
       /*
@@ -241,7 +288,7 @@ public class ZooKeeperNode<T> implements Supplier<T> {
 
   private void watchDataNode() throws InterruptedException, KeeperException,
       ZooKeeperConnectionException {
-    final Watcher nodeWatcher = new Watcher() {
+    final Watcher nodeWatcher = new ZooKeeperNodeWatcher("NewDataWatcher", this) {
       @Override public void process(WatchedEvent event) {
         if (event.getState() == KeeperState.SyncConnected) {
           try {
@@ -273,7 +320,7 @@ public class ZooKeeperNode<T> implements Supplier<T> {
 
   private void watchForExistence() throws InterruptedException, KeeperException,
       ZooKeeperConnectionException {
-    final Watcher watcher = new Watcher() {
+    final Watcher watcher = new ZooKeeperNodeWatcher("ExistenceWatcher", this) {
       @Override
       public void process(WatchedEvent event) {
         if (event.getType() == Watcher.Event.EventType.NodeCreated) {
