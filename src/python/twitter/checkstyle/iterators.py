@@ -78,7 +78,9 @@ def tuple_from_diff(diff):
 
   # Check diff lines between two
   if diff.a_blob and diff.b_blob and diff.b_blob.path.endswith('.py'):
-    return diff.b_blob.path, partial(diff_lines, diff.a_blob, diff.b_blob)
+    paths = diff.b_blob.path.split('\t')  # Handle rename, which are "old.py\tnew.py"
+    paths = paths[1] if len(paths) != 1 else paths[0]
+    return paths, partial(diff_lines, diff.a_blob, diff.b_blob)
 
 
 def git_iterator(args, options):

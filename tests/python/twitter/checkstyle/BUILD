@@ -9,6 +9,7 @@ python_test_suite(
   name = 'checkstyle',
   dependencies = [
     pants(':test_common'),
+    pants(':test_git_iterators'),
     pants(':test_iterators'),
     pants(':test_pep8'),
     pants(':test_pyflakes'),
@@ -21,6 +22,15 @@ python_tests(
   sources = ['test_common.py'],
   dependencies = [
     pants('src/python/twitter/checkstyle:common'),
+  ]
+)
+
+python_tests(
+  name = 'test_git_iterators',
+  sources = ['test_git_iterators.py'],
+  dependencies = [
+    pants('3rdparty/python:git-python'),
+    pants('src/python/twitter/checkstyle:iterators'),
   ]
 )
 
