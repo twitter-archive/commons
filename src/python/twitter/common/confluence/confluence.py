@@ -47,7 +47,7 @@ class Confluence(object):
     self._content_format = content_format
 
   @staticmethod
-  def login(confluence_url, user=None, api_entrypoint='confluence1'):
+  def login(confluence_url, user=None, api_entrypoint='confluence2'):
     """Prompts the user to log in to confluence, and returns a Confluence object.
 
     confluence_url: Base url of wiki, e.g. https://confluence.atlassian.com/
