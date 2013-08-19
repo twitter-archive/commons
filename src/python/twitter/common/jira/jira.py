@@ -75,7 +75,7 @@ class Jira(object):
       raise JiraError(cause=e)
 
   # create a new issue using project key and issuetype names, i.e. TEST, Incident
-  def create_issue(self, project, issue_type, summary, description=None):
+  def create_issue(self, project, issue_type, summary, description=None, **kw):
     data = {
       'fields': {
         'project': {'key': project},
@@ -84,8 +84,23 @@ class Jira(object):
         'description': description
       }
     }
+    data['fields'].update(kw)
+
     try:
-      self.api_call('issue', data)
+      return self.api_call('issue', data)
+    except urllib2.URLError as e:
+      raise JiraError(cause=e)
+
+  def fetch_issue_fields(self, project_key, issue_type):
+    data = {
+      "projectKeys" : project_key,
+      "issuetypeIds" : issue_type,
+      "expand" : "projects.issuetypes.fields"
+    }
+    qs = urllib.urlencode(data)
+    endpoint = '%s?%s' % ('issue/createmeta', qs)
+    try:
+      return self.api_call(endpoint)
     except urllib2.URLError as e:
       raise JiraError(cause=e)
 
