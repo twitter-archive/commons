@@ -182,14 +182,17 @@ class HttpServer(object):
   def __getattr__(self, attr):
     return getattr(self._app, attr)
 
+  @classmethod
+  def source_name(cls, class_or_instance):
+    return getattr(class_or_instance, '__name__', class_or_instance.__class__.__name__)
+
   def _bind_method(self, class_instance, method_name):
     """
       Delegate class_instance.method_name to self.method_name
     """
     if not hasattr(class_instance, method_name):
       raise ValueError('No method %s.%s exists for bind_method!' % (
-        class_instance.__name__ if hasattr(class_instance, '__name__')
-        else class_instance.__class__.__name__, method_name))
+        self.source_name(class_instance), method_name))
     if isinstance(getattr(class_instance, method_name), types.MethodType):
       method_self = getattr(class_instance, method_name).im_self
       if method_self is None:
@@ -225,14 +228,14 @@ class HttpServer(object):
         # Apply view annotations
         if hasattr(callback, self.VIEW_ATTRIBUTE):
           args, kw = getattr(callback, self.VIEW_ATTRIBUTE)
-          setattr(self, callback_name, bottle.view(*args, **kw)(getattr(self, callback_name)))
+          setattr(self, callback_name, bottle.view(*args, **kw)(callback))
         # Apply route annotations
         for args, kw in getattr(callback, self.ROUTES_ATTRIBUTE, ()):
           kw = self._apply_plugins(class_instance, copy.deepcopy(kw))
-          kw.update(callback=getattr(self, callback_name))
+          kw.update(callback=callback)
           self._app.route(*args, **kw)
         for error_code in getattr(callback, self.ERROR_ATTRIBUTE, ()):
-          self._app.error(error_code)(getattr(self, callback_name))
+          self._app.error(error_code)(callback)
 
   @property
   def app(self):
@@ -260,7 +263,7 @@ class HttpServer(object):
   def __str__(self):
     return 'HttpServer(%s, mixins: %s)' % (
         '%s:%s' (self.hostname, self.port) if self.hostname else 'unbound',
-        ', '.join(instance.__name__ for instance in self._mounts))
+        ', '.join(self.source_name(instance) for instance in self._mounts))
 
 
 abort = HttpServer.abort
