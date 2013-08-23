@@ -211,6 +211,19 @@ public class ZooKeeperClient {
 
   /**
    * Creates an unconnected client that will lazily attempt to connect on the first call to
+   * {@link #get}.
+   *
+   * @param sessionTimeout the ZK session timeout
+   * @param zooKeeperServers the set of servers forming the ZK cluster
+   * @param chroot the ZK chroot
+   */
+  public ZooKeeperClient(Amount<Integer, Time> sessionTimeout,
+      Iterable<InetSocketAddress> zooKeeperServers, String chroot) {
+    this(sessionTimeout, Credentials.NONE, zooKeeperServers, chroot);
+  }
+
+  /**
+   * Creates an unconnected client that will lazily attempt to connect on the first call to
    * {@link #get()}.  All successful connections will be authenticated with the given
    * {@code credentials}.
    *
@@ -235,17 +248,33 @@ public class ZooKeeperClient {
    */
   public ZooKeeperClient(Amount<Integer, Time> sessionTimeout, Credentials credentials,
       Iterable<InetSocketAddress> zooKeeperServers) {
+    this(sessionTimeoutMs, credentials, zooKeeperServers, "");
+  }
+
+  /**
+   * Creates an unconnected client that will lazily attempt to connect on the first call to
+   * {@link #get}.  All successful connections will be authenticated with the given
+   * {@code credentials}.
+   *
+   * @param sessionTimeout the ZK session timeout
+   * @param credentials the credentials to authenticate with
+   * @param zooKeeperServers the set of servers forming the ZK cluster
+   * @param chroot the ZK chroot
+   */
+  public ZooKeeperClient(Amount<Integer, Time> sessionTimeout, Credentials credentials,
+      Iterable<InetSocketAddress> zooKeeperServers, String chroot) {
     this.sessionTimeoutMs = Preconditions.checkNotNull(sessionTimeout).as(Time.MILLISECONDS);
     this.credentials = Preconditions.checkNotNull(credentials);
 
     Preconditions.checkNotNull(zooKeeperServers);
     Preconditions.checkArgument(!Iterables.isEmpty(zooKeeperServers),
         "Must present at least 1 ZK server");
+    Preconditions.checkNotNull(chroot);
 
     Iterable<String> servers =
         Iterables.transform(ImmutableSet.copyOf(zooKeeperServers),
             InetSocketAddressHelper.INET_TO_STR);
-    this.zooKeeperServers = Joiner.on(',').join(servers);
+    this.zooKeeperServers = Joiner.on(',').join(servers) + chroot;
   }
 
   /**
