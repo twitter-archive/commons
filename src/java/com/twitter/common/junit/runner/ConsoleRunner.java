@@ -7,6 +7,7 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -608,11 +609,30 @@ public class ConsoleRunner {
     runner.run(tests);
   }
 
+  public static final Predicate<Constructor<?>> IS_PUBLIC_CONSTRUCTOR =
+      new Predicate<Constructor<?>>() {
+        @Override public boolean apply(Constructor<?> constructor) {
+          return Modifier.isPublic(constructor.getModifiers());
+        }
+      };
+
+  private static final Predicate<Method> IS_ANNOTATED_TEST_METHOD = new Predicate<Method>() {
+    @Override public boolean apply(Method method) {
+      return Modifier.isPublic(method.getModifiers())
+          && method.isAnnotationPresent(org.junit.Test.class);
+    }
+  };
+
   private static boolean isTest(final Class<?> clazz) {
     // Must be a public concrete class to be a runnable junit Test.
     if (clazz.isInterface()
         || Modifier.isAbstract(clazz.getModifiers())
         || !Modifier.isPublic(clazz.getModifiers())) {
+      return false;
+    }
+
+    // The class must have some public constructor to be instantiated by the runner being used
+    if (!Iterables.any(Arrays.asList(clazz.getConstructors()), IS_PUBLIC_CONSTRUCTOR)) {
       return false;
     }
 
@@ -627,12 +647,7 @@ public class ConsoleRunner {
     }
 
     // Support junit 4.x @Test annotated methods.
-    return Iterables.any(Arrays.asList(clazz.getMethods()), new Predicate<Method>() {
-      @Override public boolean apply(Method method) {
-        return Modifier.isPublic(method.getModifiers())
-            && method.isAnnotationPresent(org.junit.Test.class);
-      }
-    });
+    return Iterables.any(Arrays.asList(clazz.getMethods()), IS_ANNOTATED_TEST_METHOD);
   }
 
   private static void exit(int code) {
