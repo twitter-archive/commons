@@ -240,13 +240,15 @@ public class TokenizedCharSequence implements CharSequence {
 
     if (types.length == 1) {
       List<Token> tokens = typeToTokensMap.get(types[0]);
-      return (tokens != null) ? tokens : Lists.<Token>newArrayList();
+      return (tokens != null) ? tokens : Collections.<Token>emptyList();
     }
 
     List<Token> subtokens = Lists.newArrayList();
     for (TokenType type : types) {
       List<Token> tokens = typeToTokensMap.get(type);
-      subtokens.addAll((tokens != null) ? tokens : Lists.<Token>newArrayList());
+      if (tokens != null) {
+        subtokens.addAll(tokens);
+      }
     }
     return subtokens;
   }
