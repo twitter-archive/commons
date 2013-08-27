@@ -25,7 +25,7 @@ IMPORT_CHUNKS = {
   """),
 
   ImportType.GEN: strip_newline("""
-  from gen.twitter.mesos.ttypes import TwitterTaskInfo
+  from gen.twitter.aurora.ttypes import TwitterTaskInfo
   """),
 
   ImportType.PACKAGE: strip_newline("""
