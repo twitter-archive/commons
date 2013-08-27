@@ -228,7 +228,8 @@ class HttpServer(object):
         # Apply view annotations
         if hasattr(callback, self.VIEW_ATTRIBUTE):
           args, kw = getattr(callback, self.VIEW_ATTRIBUTE)
-          setattr(self, callback_name, bottle.view(*args, **kw)(callback))
+          callback = bottle.view(*args, **kw)(callback)
+          setattr(self, callback_name, callback)
         # Apply route annotations
         for args, kw in getattr(callback, self.ROUTES_ATTRIBUTE, ()):
           kw = self._apply_plugins(class_instance, copy.deepcopy(kw))
