@@ -117,10 +117,10 @@ public class ZooKeeperClientModule extends PrivateModule {
    * Instances of this class are immutable, but builder-style chained calls are supported.
    */
   public static class ClientConfig {
-    private final Iterable<InetSocketAddress> servers;
-    private final boolean inProcess;
-    private final Amount<Integer, Time> sessionTimeout;
-    private final Credentials credentials;
+    public final Iterable<InetSocketAddress> servers;
+    public final boolean inProcess;
+    public final Amount<Integer, Time> sessionTimeout;
+    public final Credentials credentials;
 
     /**
      * Creates a new client configuration.
