@@ -16,6 +16,8 @@
 
 package com.twitter.common.util;
 
+import java.io.Serializable;
+
 /**
  * An abstraction of the system clock.
  *
@@ -25,8 +27,9 @@ public interface Clock {
 
   /**
    * A clock that returns the the actual time reported by the system.
+   * This clock is guaranteed to be serializable.
    */
-  Clock SYSTEM_CLOCK = new Clock() {
+  Clock SYSTEM_CLOCK = new SerializableClock() {
     @Override public long nowMillis() {
       return System.currentTimeMillis();
     }
@@ -62,3 +65,8 @@ public interface Clock {
    */
   void waitFor(long millis) throws InterruptedException;
 }
+
+/**
+ * A typedef to support anonymous {@link Clock} implementations that are also {@link Serializable}.
+ */
+interface SerializableClock extends Clock, Serializable { }
