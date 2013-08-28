@@ -393,19 +393,19 @@ jar_library(name = 'protobuf-java',
 
 jar_library(name = 'scala-compiler',
             dependencies = [
-              jar(org='org.scala-lang', name='scala-compiler', rev='2.9.2').with_sources()
+              jar(org='org.scala-lang', name='scala-compiler', rev='2.9.3').with_sources()
             ]
            )
 
 jar_library(name = 'scala-library',
             dependencies = [
-              jar(org='org.scala-lang', name='scala-library', rev='2.9.2').with_sources()
+              jar(org='org.scala-lang', name='scala-library', rev='2.9.3').with_sources()
             ]
            )
 
 jar_library(name = 'scalacheck',
             dependencies = [
-              jar(org='org.scalacheck', name='scalacheck_2.9.2', rev='1.10.0').with_sources()
+              jar(org='org.scalacheck', name='scalacheck_2.9.3', rev='1.10.0').with_sources()
             ]
            )
 
@@ -633,12 +633,12 @@ jar_library(name = 'jline',
 
 jar_library(name = 'scalap',
             dependencies = [
-              jar(org = 'org.scala-lang', name = 'scalap', rev = '2.9.2')
+              jar(org = 'org.scala-lang', name = 'scalap', rev = '2.9.3')
             ])
 
 jar_library(name = 'specs_2.9',
             dependencies = [
-              jar(org = 'org.scala-tools.testing', name = 'specs_2.9.2', rev = '1.6.9')
+              jar(org = 'org.scala-tools.testing', name = 'specs_2.9.3', rev = '1.6.9')
             ]
            )
 
