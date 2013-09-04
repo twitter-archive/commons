@@ -14,8 +14,12 @@
 # limitations under the License.
 # ==================================================================================================
 
+from collections import defaultdict
+
+from twitter.common.collections import maybe_list
 from twitter.common.lang import Compatibility, Singleton
 from twitter.common.util import topological_sort, DependencyCycle
+
 
 class AppModule(Singleton):
   """
@@ -28,46 +32,44 @@ class AppModule(Singleton):
     setup_function and teardown_function respectively.
   """
 
-  class Unimplemented(Exception): pass
-  class DependencyCycle(Exception): pass
+  class Error(Exception): pass
+  class Unimplemented(Error): pass
+  class DependencyCycle(Error): pass
+
   _MODULE_REGISTRY = {}
-  _MODULE_DEPENDENCIES = {}
+  _MODULE_DEPENDENCIES = defaultdict(set)
 
-  @staticmethod
-  def module_registry():
-    return AppModule._MODULE_REGISTRY
+  @classmethod
+  def module_registry(cls):
+    return cls._MODULE_REGISTRY
 
-  @staticmethod
-  def module_dependencies():
-    return AppModule._MODULE_DEPENDENCIES
+  @classmethod
+  def module_dependencies(cls):
+    return cls._MODULE_DEPENDENCIES
 
   # for testing
-  @staticmethod
-  def clear_registry():
-    AppModule._MODULE_REGISTRY = {}
-    AppModule._MODULE_DEPENDENCIES = {}
+  @classmethod
+  def clear_registry(cls):
+    cls._MODULE_REGISTRY = {}
+    cls._MODULE_DEPENDENCIES = defaultdict(set)
 
-  def __init__(self, label, dependencies=None, description=None):
+  def __init__(self, label, dependencies=None, dependents=None, description=None):
     """
       @label = the label that identifies this module for dependency management
       @dependencies = a string or list of strings of modules this module depends upon (optional)
+      @dependents = a string or list of strings of modules that depend upon this module (optional)
       @description = a one-liner describing this application module, e.g. "Logging module"
     """
     self._label = label
     self._description = description
-    if isinstance(dependencies, list):
-      self._dependencies = set(dependencies)
-    elif isinstance(dependencies, Compatibility.string):
-      self._dependencies = set([dependencies])
-    elif dependencies is None:
-      self._dependencies = set()
-    else:
-      raise TypeError('Dependencies should be None, string or list of strings, got: %s' %
-        type(dependencies))
-    AppModule._MODULE_REGISTRY[label] = self
-    AppModule._MODULE_DEPENDENCIES[label] = self._dependencies
+    self._dependencies = maybe_list(dependencies or [])
+    self._dependents = maybe_list(dependents or [])
+    self._MODULE_REGISTRY[label] = self
+    self._MODULE_DEPENDENCIES[label].update(self._dependencies)
+    for dependent in self._dependents:
+      self._MODULE_DEPENDENCIES[dependent].add(label)
     try:
-      list(topological_sort(AppModule._MODULE_DEPENDENCIES))
+      list(topological_sort(self._MODULE_DEPENDENCIES))
     except DependencyCycle:
       raise AppModule.DependencyCycle("Found a cycle in app module dependencies!")
 
