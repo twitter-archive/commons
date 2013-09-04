@@ -1,4 +1,6 @@
+import logging
 import threading
+import sys
 
 from twitter.common.metrics import (
     AtomicGauge,
@@ -12,6 +14,9 @@ from kazoo.protocol.states import KazooState, KeeperState
 class TwitterKazooClient(KazooClient, Observable):
   @classmethod
   def make(cls, *args, **kw):
+    verbose = kw.pop('verbose', False)
+    if verbose is False:
+      kw['logger'] = logging.Logger('kazoo.devnull', level=sys.maxsize)
     zk = cls(*args, **kw)
     zk.start_async()
     zk.connecting.wait()

@@ -62,6 +62,8 @@ class ServerSet(object):
     """
     underlying = underlying or first(
         pick_group(zk, on_join, on_leave) for pick_group in GROUP_SELECTORS)
+    if underlying is None:
+      raise ValueError("Couldn't find a suitable group implementation!")
     assert issubclass(underlying, GroupInterface), (
         'Underlying group implementation must be a subclass of GroupInterface, got %s'
             % type(underlying))
