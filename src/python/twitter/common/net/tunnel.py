@@ -110,9 +110,8 @@ class TunnelHelper(object):
     return False
 
   @classmethod
-  def create_tunnel(
-        cls, remote_host, remote_port, tunnel_host=None, tunnel_port=None,
-        timeout=DEFAULT_TIMEOUT):
+  def create_tunnel(cls, remote_host, remote_port, tunnel_host=None, tunnel_port=None,
+                    timeout=DEFAULT_TIMEOUT):
     """
       Create or retrieve a memoized SSH tunnel to the remote host & port, using
       tunnel_host:tunnel_port as the tunneling server.
