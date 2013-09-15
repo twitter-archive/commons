@@ -17,7 +17,7 @@
 java_library(
   name='jquery',
   provides=artifact(
-    org='com.twitter.common-webassets',
+    org='com.twitter.common.webassets',
     name='jquery',
     repo=pants('build-support/commons/ivy:public'),
   ),

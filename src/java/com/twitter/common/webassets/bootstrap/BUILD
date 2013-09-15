@@ -17,7 +17,7 @@
 java_library(
   name='bootstrap',
   provides=artifact(
-    org='com.twitter.common-webassets',
+    org='com.twitter.common.webassets',
     name='bootstrap',
     repo=pants('build-support/commons/ivy:public'),
   ),
