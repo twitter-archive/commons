@@ -472,6 +472,17 @@ class Application(object):
     added_option = self._get_option_from_args(args, kwargs)
     self._add_option(calling_module, added_option)
 
+  def _set_command_origin(self, function, command_name):
+    function.__app_command_origin__ = (self, command_name)
+
+  def _get_command_name(self, function):
+    assert self._is_app_command(function)
+    return function.__app_command_origin__[1]
+
+  def _is_app_command(self, function):
+    return callable(function) and (
+        getattr(function, '__app_command_origin__', (None, None))[0] == self)
+
   def command(self, function=None, name=None):
     """
       Decorator to turn a function into an application command.
@@ -487,22 +498,37 @@ class Application(object):
         ...
     """
     if name is None:
-      return self._register_command(function)
+      return self._command(function)
     else:
-      return partial(self._register_command, command_name=name)
+      return partial(self._command, name=name)
+
+  def _command(self, function, name=None):
+    command_name = name or function.__name__
+    self._set_command_origin(function, command_name)
+    if Inspection.find_calling_module() == '__main__':
+      self._register_command(function, command_name)
+    return function
+
+  def register_commands_from(self, *modules):
+    """
+      Given an imported module, walk the module for commands that have been
+      annotated with @app.command and register them against this
+      application.
+    """
+    for module in modules:
+      for _, function in inspect.getmembers(module, predicate=lambda fn: callable(fn)):
+        if self._is_app_command(function):
+          self._register_command(function, self._get_command_name(function))
 
   @pre_initialization
-  def _register_command(self, function, command_name=None):
+  def _register_command(self, function, command_name):
     """
       Registers function as the handler for command_name. Uses function.__name__ if command_name
       is None.
     """
-    if Inspection.find_calling_module() == '__main__':
-      if command_name is None:
-        command_name = function.__name__
-      if command_name in self._commands:
-        raise self.Error('Found two definitions for command %s' % command_name)
-      self._commands[command_name] = function
+    if command_name in self._commands:
+      raise self.Error('Found two definitions for command %s' % command_name)
+    self._commands[command_name] = function
     return function
 
   def default_command(self, function):
@@ -673,7 +699,7 @@ class Application(object):
   # precisely what it says, sending a KeyboardInterrupt to MainThread.  The
   # only problem is that it only delivers the exception while the MainThread
   # is running.  If one does time.sleep(10000000) it will simply block
-  # forever.  Sending an actual SIGINT seems to be the only way around this. 
+  # forever.  Sending an actual SIGINT seems to be the only way around this.
   # Of course, applications can trap SIGINT and prevent the quitquitquit
   # handlers from working.
   #
