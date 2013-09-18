@@ -18,7 +18,7 @@ import os
 
 from collections import Sequence
 
-from twitter.pants import is_concrete
+from twitter.pants import get_buildroot, is_concrete
 from twitter.pants.base import ParseContext, Target
 from twitter.pants.targets.with_sources import TargetWithSources
 
@@ -26,6 +26,18 @@ from twitter.pants.targets.with_sources import TargetWithSources
 class Resources(TargetWithSources):
   """Describes a set of resource files to be embedded in a library or binary."""
 
+  def __init__(self, name, sources=None, exclusives=None, prefix=None):
+    TargetWithSources.__init__(self, name, sources=sources, exclusives=exclusives)
+    self.prefix = prefix
+
+  def archive_paths(self):
+    # if no path, use the build root. Otherwise it would be
+    # very easy to get conflicting files.
+    prefix = self.prefix
+    if prefix is None:
+      prefix = get_buildroot()
+    for abspath in self.expand_files(recursive=False):
+      yield (abspath, os.path.relpath(abspath, prefix))
 
 class WithLegacyResources(TargetWithSources):
   """Collects resources whether they are specified using globs against an assumed parallel

@@ -86,6 +86,7 @@ class BinaryCreate(JvmBinaryTask):
       if self.deployjar:
         for basedir, externaljar in self.list_jar_dependencies(binary):
           self.dump(os.path.join(basedir, externaljar), jar)
+      self.dump_resources(binary, jar)
 
       manifest = Manifest()
       manifest.addentry(Manifest.MANIFEST_VERSION, '1.0')
@@ -98,6 +99,12 @@ class BinaryCreate(JvmBinaryTask):
       jar.writestr(Manifest.PATH, manifest.contents())
 
       jarmap.add(binary, self.outdir, [binary_jarname])
+
+  def dump_resources(self, binary, jarfile):
+    for resources in binary.resources:
+      self.context.log.debug('  writing resources from: %s' % repr(resources))
+      for path, arcpath in resources.archive_paths():
+        jarfile.write(path, arcpath)
 
   def dump(self, jarpath, jarfile):
     self.context.log.debug('  dumping %s' % jarpath)
