@@ -136,9 +136,6 @@ limitations under the License.
         <property name="checkFirstSentence" value="false"/>
         <property name="checkEmptyJavadoc" value="true"/>
       </module>
-      <module name="BooleanExpressionComplexity">
-        <property name="max" value="4"/>
-      </module>
 
       <!-- Checks for Naming Conventions.                  -->
       <module name="ClassTypeParameterName"/>
