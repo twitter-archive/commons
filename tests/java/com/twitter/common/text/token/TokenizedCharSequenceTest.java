@@ -89,6 +89,18 @@ public class TokenizedCharSequenceTest {
 
     List<String> hash_user = tokenized.getTokenStringsOf(TokenType.HASHTAG, TokenType.USERNAME);
     assertEquals(ImmutableList.of("#hashtag", "@username"), hash_user);
+
+    // no token type specified.
+    List<Token> tokens = tokenized.getTokensOf();
+    assertTrue(tokens.isEmpty());
+
+    // test unavailable token type
+    tokens = tokenized.getTokensOf(TokenType.EMOTICON);
+    assertTrue(tokens.isEmpty());
+
+    tokens = tokenized.getTokensOf(TokenType.TOKEN, TokenType.EMOTICON);
+    assertEquals(1, tokens.size());
+    assertEquals("test", tokens.get(0).toString());
   }
 
   @Test
