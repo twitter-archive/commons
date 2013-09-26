@@ -32,6 +32,7 @@ jvm_binary(name = 'metrics-precision',
   main = 'com.twitter.common.metrics.demo.MetricsPrecisionDemo',
   source = 'demo/MetricsPrecisionDemo.java',
   dependencies = [
+    pants('tests/java/com/twitter/common/metrics'),
     pants('src/java/com/twitter/common/metrics'),
     pants('src/java/com/twitter/common/objectsize'),
     jar(org = 'com.twitter.common', name = 'metrics-data-sample', rev = '0.0.1'),

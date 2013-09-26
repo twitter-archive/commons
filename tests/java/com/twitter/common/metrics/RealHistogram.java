@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.twitter.common.stats.Histograms;
 
-class RealHistogram implements com.twitter.common.stats.Histogram {
+public class RealHistogram implements com.twitter.common.stats.Histogram {
   private List<Long> buffer = new ArrayList<Long>();
 
   @Override public void add(long x) {
