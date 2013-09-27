@@ -16,13 +16,14 @@
 
 package com.twitter.common.util;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.twitter.common.base.MorePreconditions;
-
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.google.common.annotations.VisibleForTesting;
+
+import com.twitter.common.base.MorePreconditions;
 
 /**
  * Handles loading of a build properties file, and provides keys to look up known values in the

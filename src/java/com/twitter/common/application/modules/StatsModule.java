@@ -16,6 +16,7 @@
 
 package com.twitter.common.application.modules;
 
+import java.util.Properties;
 import java.util.logging.Logger;
 
 import com.google.common.base.Supplier;
@@ -118,21 +119,22 @@ public class StatsModule extends AbstractModule {
     }
 
     @Override public void execute() {
-      LOG.info("Build information: " + buildInfo.getProperties());
-      for (final BuildInfo.Key key : BuildInfo.Key.values()) {
-        final String stringValue = buildInfo.getProperties().getProperty(key.value);
+      Properties properties = buildInfo.getProperties();
+      LOG.info("Build information: " + properties);
+      for (String name : properties.stringPropertyNames()) {
+        final String stringValue = properties.getProperty(name);
         if (stringValue == null) {
           continue;
         }
         final Long longValue = Longs.tryParse(stringValue);
         if (longValue != null) {
-          Stats.exportStatic(new StatImpl<Long>(Stats.normalizeName(key.value)) {
+          Stats.exportStatic(new StatImpl<Long>(Stats.normalizeName(name)) {
             @Override public Long read() {
               return longValue;
             }
           });
         } else {
-          Stats.exportString(new StatImpl<String>(Stats.normalizeName(key.value)) {
+          Stats.exportString(new StatImpl<String>(Stats.normalizeName(name)) {
             @Override public String read() {
               return stringValue;
             }
