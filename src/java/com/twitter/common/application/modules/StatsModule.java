@@ -19,6 +19,7 @@ package com.twitter.common.application.modules;
 import java.util.logging.Logger;
 
 import com.google.common.base.Supplier;
+import com.google.common.primitives.Longs;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -119,11 +120,24 @@ public class StatsModule extends AbstractModule {
     @Override public void execute() {
       LOG.info("Build information: " + buildInfo.getProperties());
       for (final BuildInfo.Key key : BuildInfo.Key.values()) {
-        Stats.exportString(new StatImpl<String>(Stats.normalizeName(key.value)) {
-          @Override public String read() {
-            return buildInfo.getProperties().getProperty(key.value);
-          }
-        });
+        final String stringValue = buildInfo.getProperties().getProperty(key.value);
+        if (stringValue == null) {
+          continue;
+        }
+        final Long longValue = Longs.tryParse(stringValue);
+        if (longValue != null) {
+          Stats.exportStatic(new StatImpl<Long>(Stats.normalizeName(key.value)) {
+            @Override public Long read() {
+              return longValue;
+            }
+          });
+        } else {
+          Stats.exportString(new StatImpl<String>(Stats.normalizeName(key.value)) {
+            @Override public String read() {
+              return stringValue;
+            }
+          });
+        }
       }
 
       JvmStats.export();
