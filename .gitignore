@@ -22,6 +22,8 @@
 .factorypath
 .python
 .pydevproject
+.twkeys
+dot.twkeys
 bin/
 build/
 build-support/*.pex
