@@ -24,7 +24,6 @@ from twitter.common.contextutil import temporary_file
 from twitter.common.string import ScanfParser
 from twitter.common.util.command_util import CommandUtil
 
-
 class HDFSHelper(object):
   """
   This Class provides a set of function for hadoop operations.
@@ -35,7 +34,8 @@ class HDFSHelper(object):
             '%(year)d-%(month)d-%(day)d %(hour)d:%(minute)d')
 
   def __init__(self, config, command_class=CommandUtil):
-    #Point to test hadoop cluster if no config given
+    if not os.path.isdir(config):
+      raise ValueError("hadoop requires root of a config tree")
     self._config = config
     self._cmd_class = command_class
 
@@ -174,11 +174,7 @@ class HDFSHelper(object):
     with temporary_file() as fp:
       fp.write(text)
       fp.flush()
-      te = self._call('-copyFromLocal', fp.name, filename)
-      print "sel",te
-      return te
       return self._call('-copyFromLocal', fp.name, filename)
-
 
   def mkdir(self, path):
     """
