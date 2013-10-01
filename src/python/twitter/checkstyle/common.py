@@ -247,6 +247,7 @@ class Nit(object):
 
 class CheckstylePlugin(Interface):
   """Interface for checkstyle plugins."""
+
   def __init__(self, python_file, line_filter=None):
     if not isinstance(python_file, PythonFile):
       raise TypeError('CheckstylePlugin takes PythonFile objects.')
@@ -275,8 +276,6 @@ class CheckstylePlugin(Interface):
     for nit in self:
       if nit.severity is Nit.ERROR:
         yield nit
-
-  # Helper functions to create nits.
 
   def nit(self, code, severity, message, line_number_or_ast=None):
     line_number = None

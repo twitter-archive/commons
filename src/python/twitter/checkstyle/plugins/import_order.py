@@ -4,12 +4,6 @@ from distutils import sysconfig
 from ..common import CheckstylePlugin
 
 
-# TODO(wickman)
-#   - Warn if a package is marked as a 3rdparty but it's actually a package
-#     in the current working directory that should be a package-absolute
-#     import (i.e. from __future__ import absolute_imports)
-
-
 class ImportType(object):
   STDLIB = 1
   TWITTER = 2
@@ -33,6 +27,11 @@ class ImportType(object):
 
 
 class ImportOrder(CheckstylePlugin):
+  # TODO(wickman)
+  #   - Warn if a package is marked as a 3rdparty but it's actually a package
+  #     in the current working directory that should be a package-absolute
+  #     import (i.e. from __future__ import absolute_imports)
+
   PLAT_SPECIFIC_PATH = sysconfig.get_python_lib(plat_specific=1)
   STANDARD_LIB_PATH = sysconfig.get_python_lib(standard_lib=1)
 

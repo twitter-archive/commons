@@ -6,7 +6,8 @@ from ..common import CheckstylePlugin
 
 
 class TrailingWhitespace(CheckstylePlugin):
-  # TODO(wickman) This needs a test
+  # TODO(wickman): This class needs a test
+
   @classmethod
   def build_exception_map(cls, tokens):
     """Generates a set of ranges where we accept trailing slashes, specifically within comments
