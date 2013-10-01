@@ -183,6 +183,7 @@ public final class ApproximateHistogram implements Histogram {
     }
     leafCount++;
     count++;
+    leavesSorted = (leafCount == 1);
   }
 
   @Override

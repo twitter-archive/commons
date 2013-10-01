@@ -282,6 +282,19 @@ public class ApproximateHistogramTest {
     }
   }
 
+  @Test
+  public void testYetAnotherGetQuantiles() {
+    // this test originates from issue CSL-586
+    ApproximateHistogram hist = new ApproximateHistogram();
+    hist.add(0);
+    hist.add(4);
+    hist.add(9);
+    hist.add(8);
+    double[] quantiles = new double[]{0.5, 0.9, 0.99};
+    long[] expected = new long[]{8,9,9};
+    assertArrayEquals(hist.getQuantiles(quantiles), expected);
+  }
+
   private static void initializeValues(ApproximateHistogram hist, int n, Supplier<Long> what) {
     for (int i=0; i<n ; i++) {
       hist.add(what.get());
