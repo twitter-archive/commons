@@ -111,6 +111,39 @@ public class TokenStreamSerializer {
     return baos.toByteArray();
   };
 
+  /**
+   * Same as above but serializers a lucene TokenStream.
+   */
+  public final byte[] serialize(final org.apache.lucene.analysis.TokenStream tokenStream)
+      throws IOException {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    AttributeOutputStream output = new AttributeOutputStream(baos);
+
+    for (AttributeSerializer serializer : attributeSerializers) {
+      serializer.initialize(tokenStream, CURRENT_VERSION);
+    }
+
+    int numTokens = 0;
+
+    while (tokenStream.incrementToken()) {
+      serializeAttributes(output);
+      numTokens++;
+    }
+
+    output.flush();
+
+    byte[] data = baos.toByteArray();
+    baos.close();
+    baos = new ByteArrayOutputStream(8 + data.length);
+    output = new AttributeOutputStream(baos);
+    output.writeVInt(CURRENT_VERSION.ordinal());
+    output.writeInt(attributeSerializersFingerprint);
+    output.writeVInt(numTokens);
+    output.write(data);
+    output.flush();
+
+    return baos.toByteArray();
+  };
 
   /**
    * Deserializes the previously serialized TokenStream using the provided AttributeSerializer(s).
@@ -301,10 +334,21 @@ public class TokenStreamSerializer {
     }
 
     /**
-     * Writes a value using VInt encoding.
+     * Writes an integer value using VInt encoding.
      */
     public final void writeVInt(int value) throws IOException {
       while ((value & ~0x7F) != 0) {
+        writeByte((byte)((value & 0x7f) | 0x80));
+        value >>>= 7;
+      }
+      writeByte((byte)value);
+    }
+
+    /**
+     * Writes a long value using VInt encoding.
+     */
+    public final void writeVLong(long value) throws IOException {
+      while ((value & ~0x7FL) != 0) {
         writeByte((byte)((value & 0x7f) | 0x80));
         value >>>= 7;
       }
@@ -321,7 +365,7 @@ public class TokenStreamSerializer {
     }
 
     /**
-     * Reads a value using VInt encoding.
+     * Reads a int value using VInt encoding.
      */
     public final int readVInt() throws IOException {
       byte b = readByte();
@@ -329,6 +373,20 @@ public class TokenStreamSerializer {
       for (int shift = 7; (b & 0x80) != 0; shift += 7) {
         b = readByte();
         value |= (b & 0x7F) << shift;
+      }
+      return value;
+    }
+
+    /**
+     * Reads a long value using VInt encoding.
+     */
+    public final long readVLong() throws IOException {
+      byte b = readByte();
+      long value = b & 0x7FL;
+      for (int shift = 7; (b & 0x80) != 0; shift += 7) {
+        b = readByte();
+        // Must use 0x7FL here instead of 0x7F.
+        value |= (b & 0x7FL) << shift;
       }
       return value;
     }

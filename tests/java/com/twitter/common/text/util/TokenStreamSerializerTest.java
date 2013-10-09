@@ -94,6 +94,33 @@ public class TokenStreamSerializerTest {
   }
 
   @Test
+  public void testVLong() throws Exception {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    TokenStreamSerializer.AttributeOutputStream out =
+        new TokenStreamSerializer.AttributeOutputStream(baos);
+
+    final int N = 100000;
+    final long[] expected = new long[N];
+
+    Random rnd = new Random();
+    for (int i = 0; i < N; i++) {
+      expected[i] = rnd.nextLong();
+      out.writeVLong(expected[i]);
+    }
+
+    out.flush();
+    byte[] data = baos.toByteArray();
+
+    ByteArrayInputStream bais = new ByteArrayInputStream(data);
+    TokenStreamSerializer.AttributeInputStream in =
+        new TokenStreamSerializer.AttributeInputStream(bais);
+
+    for (int i = 0; i < N; i++) {
+      assertEquals(expected[i], in.readVLong());
+    }
+  }
+
+  @Test
   public void testIncompatibleStreams() throws Exception {
     final String text = "Test that incompatible streams are - actually -incompatible.";
 
