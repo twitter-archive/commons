@@ -3,6 +3,7 @@ package com.twitter.common.junit.runner;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.twitter.common.junit.annotations.TestSerial;
@@ -69,10 +70,27 @@ public class ConsoleRunnerTest {
     Assert.assertEquals("test13 test31", TestRegistry.getCalledTests());
   }
 
+  @Test
+  @Ignore("Ignored before the updated ConsoleRunner is published")
+  public void testFlakyTests() throws Exception {
+    TestRegistry.consoleRunnerTestRunsFlakyTests = true;
+    try {
+      ConsoleRunner.main(asArgsArray("FlakyTest -num-retries 2"));
+      Assert.fail("Should have failed with RuntimeException due to FlakyTest.methodAlwaysFails");
+    } catch (RuntimeException ex) {
+      // Expected due to FlakyTest.methodAlwaysFails()
+    } finally {
+      TestRegistry.consoleRunnerTestRunsFlakyTests = false;
+    }
+
+    Assert.assertEquals("flaky1 flaky1 flaky2 flaky2 flaky2 flaky3 flaky3 flaky3 notflaky",
+        TestRegistry.getCalledTests());
+  }
+
   private String[] asArgsArray(String cmdLine) {
     String[] args = cmdLine.split(" ");
     for (int i = 0; i < args.length; i++) {
-      if (args[i].startsWith("MockTest")) {
+      if (args[i].contains("Test")) {
         args[i] = getClass().getPackage().getName() + '.' + args[i];
       }
     }

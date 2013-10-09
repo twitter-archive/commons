@@ -14,32 +14,9 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_library(name='runner',
-  provides=artifact(
-    org='com.twitter.common',
-    name='junit-runner',
-    repo=pants('build-support/commons/ivy:public'),
-  ),
+java_library(name='withretry',
   dependencies=[
-    pants('src/java/com/twitter/common/junit/annotations'),
-    pants('src/java/com/twitter/common/junit/runner/withretry'),
-    pants('3rdparty:args4j'),
-    pants('3rdparty:guava'),
     pants('3rdparty:junit'),
   ],
   sources=globs('*.java')
 )
-
-jvm_binary(name='main',
-  main='com.twitter.common.junit.runner.ConsoleRunner',
-  dependencies=[
-    pants(":runner"),
-  ]
-).with_description("""
-  A replacement for org.junit.runner.JUnitCore.main that adds:
-  + support for running individual test methods using [classname]#[methodname]
-  + support for stderr and stdout redirection for tests
-  + support for ant style junit-report xml output
-  + support for per test class timer
-  + support for running test classes in parallel
-""")

@@ -1,7 +1,8 @@
 package com.twitter.common.junit.runner;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
+import java.util.List;
 
 /**
  * This is used by each of our mock tests to register the fact that it was called.
@@ -12,7 +13,9 @@ import java.util.LinkedHashSet;
  */
 final class TestRegistry {
 
-  private static LinkedHashSet<String> testsCalled = new LinkedHashSet<String>();
+  /** Should be set to true only while tests from FlakyTest is executed from ConsoleRunnerTest */
+  public static boolean consoleRunnerTestRunsFlakyTests = false;
+  private static List<String> testsCalled = new ArrayList<String>();
 
   // No instances of this classes can be constructed
   private TestRegistry() { }
@@ -31,6 +34,10 @@ final class TestRegistry {
   }
 
   static synchronized String getCalledTests(boolean sort) {
+    if (testsCalled.isEmpty()) {
+      return "";
+    }
+
     String[] tests = testsCalled.toArray(new String[testsCalled.size()]);
     if (sort) {
       Arrays.sort(tests);

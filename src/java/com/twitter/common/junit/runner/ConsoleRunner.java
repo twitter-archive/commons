@@ -30,11 +30,13 @@ import com.google.common.collect.Sets;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 
+import org.junit.runner.Computer;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
+import org.junit.runner.Runner;
 import org.junit.runner.manipulation.Filter;
 import org.junit.runners.model.InitializationError;
 import org.kohsuke.args4j.Argument;
@@ -42,6 +44,8 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.StringArrayOptionHandler;
+
+import com.twitter.common.junit.runner.withretry.AllDefaultPossibilitiesBuilderWithRetry;
 
 /**
  * An alternative to {@link JUnitCore} with stream capture and junit-report xml output capabilities.
@@ -230,7 +234,7 @@ public class ConsoleRunner {
   private final int parallelThreads;
   private final int testShard;
   private final int numTestShards;
-
+  private final int numRetries;
 
   ConsoleRunner(
       boolean failFast,
@@ -241,7 +245,8 @@ public class ConsoleRunner {
       boolean defaultParallel,
       int parallelThreads,
       int testShard,
-      int numTestShards) {
+      int numTestShards,
+      int numRetries) {
 
     this.failFast = failFast;
     this.suppressOutput = suppressOutput;
@@ -252,14 +257,16 @@ public class ConsoleRunner {
     this.parallelThreads = parallelThreads;
     this.testShard = testShard;
     this.numTestShards = numTestShards;
+    this.numRetries = numRetries;
   }
 
   void run(Iterable<String> tests) {
     final PrintStream out = System.out;
+    final PrintStream err = System.err;
     System.setOut(new PrintStream(SWAPPABLE_OUT));
     System.setErr(new PrintStream(SWAPPABLE_ERR));
 
-    List<Request> requests = parseRequests(out, tests);
+    List<Request> requests = parseRequests(out, err, tests);
 
     if (numTestShards > 0) {
       requests = setFilterForTestShard(requests);
@@ -330,7 +337,7 @@ public class ConsoleRunner {
     exit(failures);
   }
 
-  private List<Request> parseRequests(PrintStream out, Iterable<String> specs) {
+  private List<Request> parseRequests(PrintStream out, PrintStream err, Iterable<String> specs) {
     /**
      * Datatype representing an individual test method.
      */
@@ -380,14 +387,26 @@ public class ConsoleRunner {
     if (!classes.isEmpty()) {
       if (this.perTestTimer || this.parallelThreads > 1) {
         for (Class<?> clazz : classes) {
-          requests.add(new AnnotatedClassRequest(clazz));
+          requests.add(new AnnotatedClassRequest(clazz, numRetries, err));
         }
       } else {
-        requests.add(Request.classes(classes.toArray(new Class<?>[classes.size()])));
+        // The code below does what the original call
+        // requests.add(Request.classes(classes.toArray(new Class<?>[classes.size()])));
+        // does, except that it instantiates our own builder, needed to support retries
+        try {
+          AllDefaultPossibilitiesBuilderWithRetry builder =
+              new AllDefaultPossibilitiesBuilderWithRetry(numRetries, err);
+          Runner suite = new Computer().getSuite(
+              builder, classes.toArray(new Class<?>[classes.size()]));
+          requests.add(Request.runner(suite));
+        } catch (InitializationError e) {
+          throw new RuntimeException(
+              "Internal error: Suite constructor, called as above, should always complete");
+        }
       }
     }
     for (TestMethod testMethod : testMethods) {
-      requests.add(new AnnotatedClassRequest(testMethod.clazz)
+      requests.add(new AnnotatedClassRequest(testMethod.clazz, numRetries, err)
           .filterWith(Description.createTestDescription(testMethod.clazz, testMethod.name)));
     }
     return requests;
@@ -482,6 +501,7 @@ public class ConsoleRunner {
       private int parallelThreads = 0;
       private int testShard = 0;
       private int numTestShards = 0;
+      private int numRetries = 0;
       private File outdir = new File(System.getProperty("java.io.tmpdir"));
       private List<String> tests = Lists.newArrayList();
 
@@ -531,7 +551,7 @@ public class ConsoleRunner {
               + "or 0 to set automatically.")
       public void setParallelThreads(int parallelThreads) throws CmdLineException {
         if (parallelThreads < 0) {
-          throw new CmdLineException(parser, "-parallelThreads cannot be negative");
+          throw new CmdLineException(parser, "-parallel-threads cannot be negative");
         }
         this.parallelThreads = parallelThreads;
         if (parallelThreads == 0) {
@@ -557,6 +577,15 @@ public class ConsoleRunner {
         if (testShard < 0 || numTestShards <= 0 || testShard >= numTestShards) {
           throw new CmdLineException(parser, "0 <= M < N is required in -test-shard M/N");
         }
+      }
+
+      @Option(name = "-num-retries",
+          usage = "Number of attempts to retry each failing test, 0 by default")
+      public void setNumRetries(int numRetries) throws CmdLineException {
+        if (numRetries < 0) {
+          throw new CmdLineException(parser, "-num-retries cannot be negative");
+        }
+        this.numRetries = numRetries;
       }
 
       @Argument(usage = "Names of junit test classes or test methods to run.  Names prefixed "
@@ -589,7 +618,8 @@ public class ConsoleRunner {
             options.defaultParallel,
             options.parallelThreads,
             options.testShard,
-            options.numTestShards);
+            options.numTestShards,
+            options.numRetries);
 
     List<String> tests = Lists.newArrayList();
     for (String test : options.tests) {
