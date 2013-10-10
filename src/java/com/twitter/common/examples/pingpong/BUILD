@@ -14,6 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
+# java_library: most source and dependencies
+
 java_library(name = 'pingpong-lib',
   dependencies = [
     pants('3rdparty:guava'),
@@ -35,6 +37,8 @@ java_library(name = 'pingpong-lib',
   ],
   sources = globs('*.java')
 )
+
+# jvm_binary: specifies the main
 
 jvm_binary(name='pingpong',
   basename='pingpong',
