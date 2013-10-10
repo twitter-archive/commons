@@ -3,7 +3,6 @@ package com.twitter.common.junit.runner;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.twitter.common.junit.annotations.TestSerial;
@@ -71,7 +70,6 @@ public class ConsoleRunnerTest {
   }
 
   @Test
-  @Ignore("Ignored before the updated ConsoleRunner is published")
   public void testFlakyTests() throws Exception {
     TestRegistry.consoleRunnerTestRunsFlakyTests = true;
     try {

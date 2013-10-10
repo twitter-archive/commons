@@ -51,5 +51,5 @@ III.) The operation below should be done on MASTER. Publish a jar with:
 3) looks ok? do it:
 yes | ./pants goal publish --no-publish-dryrun src/java/com/twitter/common/junit/runner
 
-IV.) Switch back to a dev branch. Make a change that bumps the corresponding
-build-support/profiles/*.ivy.xml and un-@Ignores any tests temporarily ignored in step I.
+IV.) Switch back to a dev branch. Make a change that bumps the revision number in
+build-support/profiles/junit.ivy.xml and un-@Ignores any tests temporarily ignored in step I.
