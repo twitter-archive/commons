@@ -4,18 +4,13 @@ import json
 import urllib
 import urllib2
 import urlparse
-import xmlrpclib
-
-try:
-  from xmlrpclib import ServerProxy, Fault
-except ImportError:
-  from xmlrpc.client import ServerProxy, Fault
 
 from twitter.common import log
 
 
 class JiraError(Exception):
   '''Indicates a problem performing an action with JIRA.'''
+
   def __init__(self, cause=None, message=None):
     self._cause = cause
     self._message = message
@@ -63,7 +58,7 @@ class Jira(object):
   def resolve(self, issue, comment=None):
     data = {
       'fields': {'resolution': {'name': 'Fixed'}},
-      'transition': {'id': Jira.RESOLVED_STATUS_ID}
+      'transition': {'id': self.RESOLVED_STATUS_ID}
     }
     if comment:
       data['update'] = {'comment': [{'add': {'body': comment}}]}
@@ -93,9 +88,9 @@ class Jira(object):
 
   def fetch_issue_fields(self, project_key, issue_type):
     data = {
-      "projectKeys" : project_key,
-      "issuetypeIds" : issue_type,
-      "expand" : "projects.issuetypes.fields"
+      "projectKeys": project_key,
+      "issuetypeIds": issue_type,
+      "expand": "projects.issuetypes.fields"
     }
     qs = urllib.urlencode(data)
     endpoint = '%s?%s' % ('issue/createmeta', qs)
