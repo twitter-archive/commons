@@ -1,5 +1,5 @@
 # ==================================================================================================
-# Copyright 2011 Twitter, Inc.
+# Copyright 2013 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -14,33 +14,23 @@
 # limitations under the License.
 # ==================================================================================================
 
-python_library(
-  name = 'resources',
-  resources = globs('resources/*'),
-)
+import pkgutil
 
-python_test_suite(
-  name = 'java',
-  dependencies = [
-    pants(':class_file'),
-    pants(':perfdata'),
-  ]
-)
+from twitter.common.java.perfdata import PerfData
 
-python_tests(
-  name = 'class_file',
-  sources = ['test_class_file.py'],
-  dependencies = [
-    pants('src/python/twitter/common/java'),
-    pants(':resources'),
-  ]
-)
 
-python_tests(
-  name = 'perfdata',
-  sources = ['test_perfdata.py'],
-  dependencies = [
-    pants('src/python/twitter/common/java/perfdata'),
-    pants(':resources'),
-  ]
-)
+_EXAMPLE_RESOURCE = 'resources/example_hsperfdata'
+
+
+def test_perfdata_integration():
+  provider = lambda: pkgutil.get_data('twitter.common.java', _EXAMPLE_RESOURCE)
+  perfdata = PerfData.get(provider)
+  assert perfdata is not None
+  perfdata.sample()
+
+  assert len(perfdata) > 0
+  keys = set(perfdata)
+  for key in perfdata:
+    assert key in keys
+    assert perfdata[key] is not None
+

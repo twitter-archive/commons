@@ -1,5 +1,5 @@
 # ==================================================================================================
-# Copyright 2011 Twitter, Inc.
+# Copyright 2013 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -14,33 +14,53 @@
 # limitations under the License.
 # ==================================================================================================
 
-python_library(
-  name = 'resources',
-  resources = globs('resources/*'),
-)
+class Units(object):
+  INVALID = 0
+  NONE = 1
+  BYTES = 2
+  TICKS = 3
+  EVENTS = 4
+  STRING = 5
+  HERTZ = 6
 
-python_test_suite(
-  name = 'java',
-  dependencies = [
-    pants(':class_file'),
-    pants(':perfdata'),
-  ]
-)
 
-python_tests(
-  name = 'class_file',
-  sources = ['test_class_file.py'],
-  dependencies = [
-    pants('src/python/twitter/common/java'),
-    pants(':resources'),
-  ]
-)
+class Variability(object):
+  INVALID = 0
+  CONSTANT = 1
+  MONOTONIC = 2
+  VARIABLE = 3
 
-python_tests(
-  name = 'perfdata',
-  sources = ['test_perfdata.py'],
-  dependencies = [
-    pants('src/python/twitter/common/java/perfdata'),
-    pants(':resources'),
-  ]
-)
+
+class TypeCode(object):
+  BOOLEAN = 0
+  CHAR = 1
+  FLOAT = 2
+  DOUBLE = 3
+  BYTE = 4
+  SHORT = 5
+  INT = 6
+  LONG = 7
+  OBJECT = 8
+  ARRAY = 9
+  VOID = 10
+
+  MAP = {
+    'Z': (bool, BOOLEAN),
+    'C': (str, CHAR),
+    'F': (float, FLOAT),
+    'D': (float, DOUBLE),
+    'B': (int, BYTE),
+    'S': (int, SHORT),
+    'I': (int, INT),
+    'J': (int, LONG),
+    'L': (str, OBJECT),
+    '[': (str, ARRAY),
+    'V': (str, VOID),
+  }
+
+  @classmethod
+  def to_code(cls, b):
+    try:
+      return cls.MAP[b][1]
+    except KeyError:
+      raise ValueError('Unknown TypeCode: %r' % b)
