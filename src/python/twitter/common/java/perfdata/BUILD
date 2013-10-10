@@ -1,5 +1,5 @@
 # ==================================================================================================
-# Copyright 2011 Twitter, Inc.
+# Copyright 2013 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -15,32 +15,15 @@
 # ==================================================================================================
 
 python_library(
-  name = 'resources',
-  resources = globs('resources/*'),
-)
-
-python_test_suite(
-  name = 'java',
-  dependencies = [
-    pants(':class_file'),
-    pants(':perfdata'),
-  ]
-)
-
-python_tests(
-  name = 'class_file',
-  sources = ['test_class_file.py'],
-  dependencies = [
-    pants('src/python/twitter/common/java'),
-    pants(':resources'),
-  ]
-)
-
-python_tests(
   name = 'perfdata',
-  sources = ['test_perfdata.py'],
+  sources = globs('*.py') + globs('builders/*.py'),
+)
+
+python_binary(
+  name = 'jammystat',
+  source = 'bin/jammystat.py',
   dependencies = [
-    pants('src/python/twitter/common/java/perfdata'),
-    pants(':resources'),
+    pants('src/python/twitter/common/app'),
+    pants(':perfdata')
   ]
 )
