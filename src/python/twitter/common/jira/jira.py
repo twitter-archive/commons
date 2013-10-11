@@ -1,6 +1,7 @@
 import base64
 import getpass
 import json
+import textwrap
 import urllib
 import urllib2
 import urlparse
@@ -31,10 +32,6 @@ class Jira(object):
      credentials.
   '''
 
-  # Values documented at:
-  # http://docs.atlassian.com/software/jira/docs/api/5.0.1/constant-values.html
-  RESOLVED_STATUS_ID = 5
-
   def __init__(self, server_url, api_base='/rest/api/2/', user=None, password=None):
     self._base_url = urlparse.urljoin(server_url, api_base)
     self._user = user or getpass.getuser()
@@ -55,10 +52,29 @@ class Jira(object):
   def get_transitions(self, issue):
     return self.api_call('issue/%s/transitions' % issue)
 
+  def _get_resolve_transition_id(self, issue):
+    '''Find the transition id to resolve the issue'''
+    try:
+      transitions = json.loads(self.get_transitions(issue))['transitions']
+    except (KeyError, ValueError) as e:
+      raise JiraError('Transitions list did not have the expected JSON format: %s', e)
+
+    for transition in transitions:
+      if transition['name'] == 'Resolve':
+        return transition['id']
+
+    raise JiraError(textwrap.dedent('''
+    Could not find the id of the JIRA \'Resolve\' transition, here were the
+    available transitions:
+    %s
+    ''' % (transitions)))
+
   def resolve(self, issue, comment=None):
+    transition_id = self._get_resolve_transition_id(issue)
+
     data = {
       'fields': {'resolution': {'name': 'Fixed'}},
-      'transition': {'id': self.RESOLVED_STATUS_ID}
+      'transition': {'id': transition_id}
     }
     if comment:
       data['update'] = {'comment': [{'add': {'body': comment}}]}
