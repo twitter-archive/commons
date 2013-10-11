@@ -89,7 +89,8 @@ class PerfData2Format(object):
             variability not in (Variability.CONSTANT, Variability.VARIABLE)):
           raise ValueError('Unexpected vector monitor: code:%s units:%s variability:%s' % (
               code, entry.data_units, variability))
-        monitor_map[name] = (entry.data_units, data[data_start:data_start + entry.vector_length])
+        monitor_map[name] = (entry.data_units,
+            data[data_start:data_start + entry.vector_length].rstrip('\r\n\x00'))
 
       start_offset += entry.entry_length
       parsed_entries += 1
