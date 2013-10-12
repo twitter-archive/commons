@@ -25,19 +25,20 @@ public class BlockJUnit4ClassRunnerWithRetry extends BlockJUnit4ClassRunner {
     this.err = err;
   }
 
+  protected Statement createStatement(FrameworkMethod method) {
+    return super.methodBlock(method);
+  }
+
   @Override
-  protected Statement methodInvoker(FrameworkMethod method, Object test) {
-    Statement invokeMethod = super.methodInvoker(method, test);
-    return new InvokeWithRetry(invokeMethod, method);
+  protected Statement methodBlock(FrameworkMethod method) {
+    return new InvokeWithRetry(method);
   }
 
   private class InvokeWithRetry extends Statement {
 
-    private final Statement fNext;
     private final FrameworkMethod method;
 
-    public InvokeWithRetry(Statement next, FrameworkMethod method) {
-      fNext = next;
+    public InvokeWithRetry(FrameworkMethod method) {
       this.method = method;
     }
 
@@ -46,7 +47,11 @@ public class BlockJUnit4ClassRunnerWithRetry extends BlockJUnit4ClassRunner {
       Throwable error = null;
       for (int i = 0; i <= numRetries; i++) {
         try {
-          fNext.evaluate();
+          // This re-creates the Test object every time (including retries), to make everything
+          // as close as possible to clean manual re-invocation of the failed test. It also
+          // ensures that all the things encapsulated by the top-level Statement, e.g. setup/
+          // teardown, checking for expected exceptions, etc., are redone every time.
+          createStatement(method).evaluate();
           // The test succeeded. However, if it has been retried, it's flaky.
           if (i > 0) {
             Method m = method.getMethod();

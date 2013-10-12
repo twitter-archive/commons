@@ -3,6 +3,7 @@ package com.twitter.common.junit.runner;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.twitter.common.junit.annotations.TestSerial;
@@ -69,6 +70,7 @@ public class ConsoleRunnerTest {
     Assert.assertEquals("test13 test31", TestRegistry.getCalledTests());
   }
 
+  @Ignore("Ignored until updated ConsoleRunner code is published")
   @Test
   public void testFlakyTests() throws Exception {
     TestRegistry.consoleRunnerTestRunsFlakyTests = true;
@@ -81,8 +83,16 @@ public class ConsoleRunnerTest {
       TestRegistry.consoleRunnerTestRunsFlakyTests = false;
     }
 
-    Assert.assertEquals("flaky1 flaky1 flaky2 flaky2 flaky2 flaky3 flaky3 flaky3 notflaky",
-        TestRegistry.getCalledTests());
+    Assert.assertEquals("expected_ex flaky1 flaky1 flaky2 flaky2 flaky2 flaky3 flaky3 flaky3 "
+        + "notflaky", TestRegistry.getCalledTests());
+
+    // Verify that FlakyTest class has been instantiated once per test method invocation,
+    // including flaky test method invocations.
+    Assert.assertEquals(10, FlakyTest.numFlakyTestInstantiations);
+
+    // Verify that a method with expected exception is not treated
+    // as flaky - that is, it should be invoked only once.
+    Assert.assertEquals(1, FlakyTest.numExpectedExceptionMethodInvocations);
   }
 
   private String[] asArgsArray(String cmdLine) {
