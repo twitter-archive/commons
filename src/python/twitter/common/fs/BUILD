@@ -20,6 +20,6 @@ python_library(
   dependencies = [
         pants('src/python/twitter/common'),
         pants("src/python/twitter/common/string"),
-        pants('src/python/twitter/common/util')
+        pants('src/python/twitter/common/util'),
         ]
 )

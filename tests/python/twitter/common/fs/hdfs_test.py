@@ -24,6 +24,7 @@ import fake_filesystem as pyfakefs
 import twitter.common.fs
 from twitter.common.fs import HDFSHelper
 
+
 class MockCommandUtil:
 
   @staticmethod
@@ -64,7 +65,7 @@ class MockCommandUtil:
         with open(tmp_file, "r") as f:
           text1 = f.read()
         return (text1 == "write_text" and
-          " ".join(cmd) == " ".join(["hadoop", "--config", "/etc/hadoop/hadoop-conf-tst-smf1", 
+          " ".join(cmd) == " ".join(["hadoop", "--config", "/etc/hadoop/hadoop-conf-tst-smf1",
                                      "dfs", "-copyFromLocal", tmp_file, "somefile"]))
     #For rest all cases return the command
     return " ".join(cmd)
@@ -186,7 +187,7 @@ class HdfsTest(unittest.TestCase):
     self.assertEqual(cmd, expected_cmd)
 
   def test_cp(self):
-    hdfs_helper = HDFSHelper("/etc/hadoop/hadoop-conf-tst-smf1", 
+    hdfs_helper = HDFSHelper("/etc/hadoop/hadoop-conf-tst-smf1",
                              command_class=MockCommandUtil)
     cmd = hdfs_helper.cp('src','dest')
     expected_cmd = "hadoop --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -cp src dest"

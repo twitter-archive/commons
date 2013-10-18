@@ -19,7 +19,8 @@ import os
 import subprocess
 import sys
 import tempfile
-from twitter.common.contextutil import temporary_file
+from twitter.common.contextutil import environment_as, temporary_file
+from twitter.common.quantity import Amount, Data
 from twitter.common.string import ScanfParser
 from twitter.common.util.command_util import CommandUtil
 
@@ -32,11 +33,16 @@ class HDFSHelper(object):
   PARSER = ScanfParser('%(mode)s %(dirents)s %(user)s %(group)s %(filesize)d '
             '%(year)d-%(month)d-%(day)d %(hour)d:%(minute)d')
 
-  def __init__(self, config, command_class=CommandUtil):
+  def __init__(self, config, command_class=CommandUtil, heap_limit=Amount(256, Data.MB)):
+    """heap_limit is the maximum heap that should be allocated to the hadoop process,
+    defined using twitter.common.quantity.Data."""
     if not os.path.isdir(config):
       raise ValueError("hadoop requires root of a config tree")
     self._config = config
     self._cmd_class = command_class
+    if heap_limit is None:
+      raise ValueError('The hadoop heap_limit must not be specified as "None".')
+    self._heap_limit = heap_limit
 
   @property
   def config(self):
@@ -47,14 +53,16 @@ class HDFSHelper(object):
     Checks the result of the call by default but this can be disabled with check=False.
     """
     cmd = ['hadoop', '--config', self._config, 'dfs', cmd] + list(args)
-    if kwargs.get('check'):
-      return self._cmd_class.check_call(cmd)
-    elif kwargs.get('return_output'):
-      return self._cmd_class.execute_and_get_output(cmd)
-    elif kwargs.get('supress_output'):
-      return self._cmd_class.execute_suppress_stdout(cmd)
-    else:
-      return self._cmd_class.execute(cmd)
+    heapsize = "%sm" % int(self._heap_limit.as_(Data.MB))
+    with environment_as(HADOOP_HEAPSIZE=heapsize):
+      if kwargs.get('check'):
+        return self._cmd_class.check_call(cmd)
+      elif kwargs.get('return_output'):
+        return self._cmd_class.execute_and_get_output(cmd)
+      elif kwargs.get('supress_output'):
+        return self._cmd_class.execute_suppress_stdout(cmd)
+      else:
+        return self._cmd_class.execute(cmd)
 
   def get(self, src, dst):
     """

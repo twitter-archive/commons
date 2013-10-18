@@ -18,6 +18,7 @@ python_tests(name = 'fs',
   sources = globs('*.py'),
   dependencies = [
     pants('src/python/twitter/common/fs'),
+    pants('src/python/twitter/common/quantity'),
     pants('src/python/twitter/common/util'),
     pants('3rdparty/python:mock'),
     pants('3rdparty/python:pyfakefs')
