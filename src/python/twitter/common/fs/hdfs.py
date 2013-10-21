@@ -53,7 +53,7 @@ class HDFSHelper(object):
     Checks the result of the call by default but this can be disabled with check=False.
     """
     cmd = ['hadoop', '--config', self._config, 'dfs', cmd] + list(args)
-    heapsize = "%sm" % int(self._heap_limit.as_(Data.MB))
+    heapsize = str(int(self._heap_limit.as_(Data.MB)))
     with environment_as(HADOOP_HEAPSIZE=heapsize):
       if kwargs.get('check'):
         return self._cmd_class.check_call(cmd)
