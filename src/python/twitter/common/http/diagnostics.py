@@ -37,6 +37,8 @@ class DiagnosticsEndpoints(object):
   """
     Export the thread stacks of the running process.
   """
+  UNHEALTHY = threading.Event()
+
   @classmethod
   def generate_stacks(cls):
     threads = dict((th.ident, th) for th in threading.enumerate())
@@ -70,4 +72,4 @@ class DiagnosticsEndpoints(object):
 
   @route("/health")
   def handle_health(self):
-    return 'OK'
+    return 'UNHEALTHY' if self.UNHEALTHY.is_set() else 'OK'
