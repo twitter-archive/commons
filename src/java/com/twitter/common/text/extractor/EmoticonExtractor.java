@@ -47,6 +47,23 @@ public class EmoticonExtractor extends RegexExtractor {
     setRegexPattern(EMOTICON_REGEX_PATTERN, 1, 1);
   }
 
+  @Override
+  public void reset(CharSequence input) {
+    // check if input contains ':' or '<'
+    boolean found = false;
+    for (int i = 0; i < input.length(); i++) {
+      if (input.charAt(i) == ':' || input.charAt(i) == '<') {
+        found = true;
+        break;
+      }
+    }
+
+    // apply Regex only if input contains ':' or '<'
+    if (found) {
+      super.reset(input);
+    }
+  }
+
   /**
    * Returns the polarity (happy, sad...) of a given emoticon.
    *
