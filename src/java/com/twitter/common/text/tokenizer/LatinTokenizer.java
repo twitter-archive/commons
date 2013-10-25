@@ -44,6 +44,17 @@ public class LatinTokenizer extends RegexTokenizer {
     super(attributeSource);
   }
 
+  @Override
+  protected boolean isSpace(char c) {
+    // A newline is considered as punctuation.
+    return Character.isSpaceChar(c) && c != '\n' && c != '\r';
+  }
+
+  @Override
+  protected boolean isLetter(char c) {
+    return Character.isLetter(c);
+  }
+
   public static final class Builder extends AbstractBuilder<LatinTokenizer, Builder> {
     public Builder() {
       setDelimiterPattern(SPLIT_PATTERN);

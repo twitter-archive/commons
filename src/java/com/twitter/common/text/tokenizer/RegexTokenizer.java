@@ -89,6 +89,22 @@ public class RegexTokenizer extends TokenStream {
     tokens = Lists.newArrayList();
     tokenTypes = Lists.newArrayList();
 
+    // reset tokenIndex
+    tokenIndex = 0;
+
+    if (input.length() == 0) {
+      return;
+    } else if (input.length() == 1) {
+      char c = input.charAt(0);
+      if (isSpace(c)) {
+        return;
+      } else if (isLetter(c)) {
+        tokens.add(CharBuffer.wrap(input));
+        tokenTypes.add(TokenType.TOKEN);
+        return;
+      }
+    }
+
     Matcher matcher = delimiterPattern.matcher(input);
     int lastMatch = 0;
 
@@ -110,9 +126,30 @@ public class RegexTokenizer extends TokenStream {
       tokens.add(CharBuffer.wrap(input, lastMatch, input.length()));
       tokenTypes.add(TokenType.TOKEN);
     }
+  }
 
-    // reset tokenIndex
-    tokenIndex = 0;
+  /**
+   * Checks if a given character is a space or not.
+   * A subclass can override this method to skip applying Regex
+   * for an input with single space character.
+   *
+   * @param c a character to examine
+   * @return true if a given character is a space.
+   */
+  protected boolean isSpace(char c) {
+    return false;
+  }
+
+  /**
+   * Checks if a given character is a letter or not.
+   * A subclass can override this method to skip applying Regex
+   * for an input with single letter character.
+   *
+   * @param c a character to examine
+   * @return true if a given character is a letter.
+   */
+  protected boolean isLetter(char c) {
+    return false;
   }
 
   /**
