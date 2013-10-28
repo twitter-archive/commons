@@ -29,11 +29,13 @@ import javax.annotation.Nullable;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.KeeperException.SessionExpiredException;
 import org.apache.zookeeper.WatchedEvent;
@@ -150,6 +152,22 @@ public class ZooKeeperClient {
 
       @Override public byte[] authToken() {
         return authToken;
+      }
+
+      @Override public boolean equals(Object o) {
+        if (!(o instanceof Credentials)) {
+          return false;
+        }
+
+        Credentials other = (Credentials) o;
+        return new EqualsBuilder()
+            .append(scheme, other.scheme())
+            .append(authToken, other.authToken())
+            .isEquals();
+      }
+
+      @Override public int hashCode() {
+        return Objects.hashCode(scheme, authToken);
       }
     };
   }
