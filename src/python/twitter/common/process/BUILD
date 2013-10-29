@@ -17,5 +17,22 @@
 python_library(
   name = "process",
   sources = rglobs("*.py"),
-  dependencies = [ pants("src/python/twitter/common/string") ]
+  dependencies = [
+    pants("src/python/twitter/common/string"),
+  ],
+  provides = setup_py(
+    name = 'twitter.common.process',
+    version = '0.1.0',
+    description = 'twitter.common process management wrapper.',
+    namespace_packages = ['twitter', 'twitter.common'],
+    url = 'https://github.com/twitter/commons',
+    license = 'Apache License, Version 2.0',
+    zip_safe = True,
+    classifiers = [
+      'Intended Audience :: Developers',
+      'License :: OSI Approved :: Apache Software License',
+      'Operating System :: OS Independent',
+      'Programming Language :: Python',
+    ]
+  )
 )
