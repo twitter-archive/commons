@@ -18,17 +18,30 @@ python_library(
   name = "app",
   sources = globs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common'),
+    pants('src/python/twitter/common/collections'),
+    pants('src/python/twitter/common/lang'),
+    pants('src/python/twitter/common/log'),
+    pants('src/python/twitter/common/options'),
     pants('src/python/twitter/common/process'),
+    pants('src/python/twitter/common/util'),
     pants('src/python/twitter/common/app/modules'),
   ],
   provides = setup_py(
     name = 'twitter.common.app',
-    version = '0.0.0',
+    version = '0.1.0',
     description = "Twitter's Python application lifecycle framework.",
     namespace_packages = [
       'twitter',
       'twitter.common'
+    ],
+    url = 'https://github.com/twitter/commons/tree/master/src/python/twitter/common/app',
+    license = 'Apache License, Version 2.0',
+    zip_safe = True,
+    classifiers = [
+      'Intended Audience :: Developers',
+      'License :: OSI Approved :: Apache Software License',
+      'Operating System :: OS Independent',
+      'Programming Language :: Python',
     ]
   )
 )
