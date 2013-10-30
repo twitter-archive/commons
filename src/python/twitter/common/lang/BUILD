@@ -17,19 +17,4 @@
 python_library(
   name = 'lang',
   sources = globs('*.py'),
-  provides = setup_py(
-    name = 'twitter.common.lang',
-    version = '0.1.0',
-    description = 'twitter.common python language and compatibility facilities.',
-    namespace_packages = ['twitter', 'twitter.common'],
-    url = 'https://github.com/twitter/commons',
-    license = 'Apache License, Version 2.0',
-    zip_safe = True,
-    classifiers = [
-      'Intended Audience :: Developers',
-      'License :: OSI Approved :: Apache Software License',
-      'Operating System :: OS Independent',
-      'Programming Language :: Python',
-    ]
-  )
 )
