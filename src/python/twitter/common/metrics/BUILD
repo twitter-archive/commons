@@ -20,20 +20,5 @@ python_library(
   dependencies = [
     pants('src/python/twitter/common/exceptions'),
     pants('src/python/twitter/common/lang'),
-  ],
-  provides = setup_py(
-    name = 'twitter.common.metrics',
-    version = '0.1.0',
-    description = 'twitter.common metrics registry and collector.',
-    namespace_packages = ['twitter', 'twitter.common'],
-    url = 'https://github.com/twitter/commons',
-    license = 'Apache License, Version 2.0',
-    zip_safe = True,
-    classifiers = [
-      'Intended Audience :: Developers',
-      'License :: OSI Approved :: Apache Software License',
-      'Operating System :: OS Independent',
-      'Programming Language :: Python',
-    ]
-  )
+  ]
 )
