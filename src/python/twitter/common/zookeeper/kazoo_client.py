@@ -15,11 +15,16 @@ class TwitterKazooClient(KazooClient, Observable):
   @classmethod
   def make(cls, *args, **kw):
     verbose = kw.pop('verbose', False)
+    async = kw.pop('async', True)
     if verbose is False:
       kw['logger'] = logging.Logger('kazoo.devnull', level=sys.maxsize)
     zk = cls(*args, **kw)
-    zk.start_async()
-    zk.connecting.wait()
+    if async:
+      zk.start_async()
+      zk.connecting.wait()
+    else:
+      zk.start()
+
     return zk
 
   def __init__(self, *args, **kw):
