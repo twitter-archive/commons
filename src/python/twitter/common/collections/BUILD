@@ -17,4 +17,19 @@
 python_library(
   name = "collections",
   sources = rglobs('*.py'),
+  provides = setup_py(
+    name = 'twitter.common.collections',
+    version = '0.1.0',
+    description = 'twitter.common collections library.',
+    namespace_packages = ['twitter', 'twitter.common'],
+    url = 'https://github.com/twitter/commons',
+    license = 'Apache License, Version 2.0',
+    zip_safe = True,
+    classifiers = [
+      'Intended Audience :: Developers',
+      'License :: OSI Approved :: Apache Software License',
+      'Operating System :: OS Independent',
+      'Programming Language :: Python',
+    ]
+  )
 )
