@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==================================================================================================
+import uuid
 
 __author__ = 'John Sirois, Brian Wickman'
 
@@ -105,6 +106,27 @@ def temporary_file(root_dir=None, cleanup=True):
       if cleanup:
         safe_delete(fd.name)
 
+@contextmanager
+def safe_file(path, suffix=None, cleanup=True):
+  """A with-context that copies a file, and copies the copy back to the original file on success.
+
+  This is useful for doing work on a file but only changing its state on success.
+
+    - suffix: Use this suffix to create the copy. Otherwise use a random string.
+    - cleanup: Whether or not to clean up the copy.
+  """
+  safe_path = path + '.%s' % suffix or uuid.uuid4()
+  if os.path.exists(path):
+    shutil.copy(path, safe_path)
+  try:
+    yield safe_path
+    if cleanup:
+      shutil.move(safe_path, path)
+    else:
+      shutil.copy(safe_path, path)
+  finally:
+    if cleanup:
+      safe_delete(safe_path)
 
 @contextmanager
 def pushd(directory):
