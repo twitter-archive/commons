@@ -18,14 +18,18 @@ package com.twitter.common.text.token;
 
 import java.nio.CharBuffer;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 
@@ -139,9 +143,6 @@ public class TokenizedCharSequence implements CharSequence {
   private final CharSequence term;
   private final List<Token> tokens;
 
-  private List<String> strTokens = null;
-  private Map<TokenType, List<Token>> typeToTokensMap = null;
-
   private String strValue = null;
   private int hashCode;
   private boolean hashCodeCalced = false;
@@ -199,21 +200,21 @@ public class TokenizedCharSequence implements CharSequence {
     return tokens;
   }
 
+  private static final Function<Token, String> TOKEN_TO_STRING_CONVERTER =
+      new Function<Token, String>() {
+        @Override
+        public String apply(Token token) {
+          return token.getTerm().toString();
+        }
+      };
+
   /**
    * Returns all tokens as String.
    *
    * @return a list of tokens as String objects
    */
   public List<String> getTokenStrings() {
-    if (strTokens == null) {
-      // lazy initialization
-      strTokens = Lists.newArrayListWithCapacity(tokens.size());
-      for (Token token : tokens) {
-        strTokens.add(token.getTerm().toString());
-      }
-    }
-
-    return strTokens;
+    return Lists.transform(tokens, TOKEN_TO_STRING_CONVERTER);
   }
 
   /**
@@ -223,30 +224,20 @@ public class TokenizedCharSequence implements CharSequence {
    * @return tokens of the specified type(s)
    */
   public List<Token> getTokensOf(TokenType... types) {
-    if (typeToTokensMap == null) {
-      // lazy initialization
-      typeToTokensMap = Maps.newHashMap();
-
-      for (Token token : tokens) {
-        List<Token> subtokens = typeToTokensMap.get(token.getType());
-        if (subtokens == null) {
-          subtokens = Lists.newArrayList(token);
-          typeToTokensMap.put(token.getType(), subtokens);
-        } else {
-          subtokens.add(token);
-        }
-      }
+    if (types.length == 0) {
+      return Collections.emptyList();
     }
 
-    if (types.length == 1) {
-      return typeToTokensMap.get(types[0]);
-    }
+    final Set<TokenType> tokenTypeSet = EnumSet.of(types[0], types);
 
-    List<Token> subtokens = Lists.newArrayList();
-    for (TokenType type : types) {
-      subtokens.addAll(typeToTokensMap.get(type));
-    }
-    return subtokens;
+    return ImmutableList.copyOf(
+        Iterables.filter(tokens, new Predicate<Token>() {
+          @Override
+          public boolean apply(Token token) {
+            return tokenTypeSet.contains(token.getType());
+          }
+        })
+    );
   }
 
   /**
@@ -256,12 +247,7 @@ public class TokenizedCharSequence implements CharSequence {
    * @return list of tokens of specified type(s) as String objects
    */
   public List<String> getTokenStringsOf(TokenType... types) {
-    List<String> strSubtokens = Lists.newArrayListWithCapacity(tokens.size());
-    for (Token token : getTokensOf(types)) {
-      strSubtokens.add(token.getTerm().toString());
-    }
-
-    return strSubtokens;
+    return Lists.transform(getTokensOf(types), TOKEN_TO_STRING_CONVERTER);
   }
 
   public static final class Builder {
