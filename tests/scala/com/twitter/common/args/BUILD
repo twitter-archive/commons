@@ -14,11 +14,12 @@
 # limitations under the License.
 # ==================================================================================================
 
-scala_tests(name = 'args',
-  dependencies = [
-    '3rdparty:specs',
-    'src/scala/com/twitter/common/args:flags',
-    'src/java/com/twitter/common/args:args',
+junit_tests(name='args',
+  dependencies=[
+    pants('3rdparty:junit'),
+    pants('3rdparty:specs'),
+    pants('src/scala/com/twitter/common/args:flags'),
+    pants('src/java/com/twitter/common/args:args'),
   ],
-  sources = rglobs('*Spec.scala')
+  sources=globs('*.scala')
 )

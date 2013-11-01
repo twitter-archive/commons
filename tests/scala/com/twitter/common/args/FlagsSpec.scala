@@ -16,7 +16,8 @@
 
 package com.twitter.common.args
 
-import org.specs.Specification
+import org.specs.SpecificationWithJUnit
+import com.twitter.common.junit.annotations.TestParallel
 
 case class TopLevel(int: Int,  string: String)
 case class WithAnnotations(
@@ -31,10 +32,8 @@ case class WithAnnotations(
       "sin and suffering it had bred.")
   string: String)
 
-/**
- * @author nkallen
- */
-class FlagsSpec extends Specification {
+@TestParallel
+class FlagsSpec extends SpecificationWithJUnit {
   case class Nested(int: Int,  string: String)
 
   "Flags" should {
@@ -51,7 +50,8 @@ class FlagsSpec extends Specification {
     }
 
     "work with annotations" in {
-      val result = Flags(WithAnnotations(101, "Nantucket"), Seq("-queequeg=7685", "-starbuck=Rokovoko"))
+      val result = Flags(WithAnnotations(101, "Nantucket"),
+        Seq("-queequeg=7685", "-starbuck=Rokovoko"))
       result.int mustEqual 7685
       result.string mustEqual "Rokovoko"
     }
