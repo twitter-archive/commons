@@ -2,5 +2,28 @@
   <!-- For CI environment, ivy cache is set to workspace name under user home -->
   <properties environment="env"/>
   <property name="ivy.cache.dir" value="${env.LOCAL_CACHE_DIR}" override="false"/>
-  <include file="ivysettings.xml"/>
+
+  <property name="root.dir" value="${ivy.settings.dir}/../.." override="false"/>
+  <properties file="${root.dir}/build.properties" override="false"/>
+
+  <settings defaultResolver="chain-repos"/>
+
+  <!--
+    Allow for relocatable ivysettings.xml with a fixed root location for pants jvm backend builder.
+  -->
+  <include file="${ivysettings.file}"/>
+
+  <resolvers>
+    <chain name="chain-repos" returnFirst="true">
+      <_remote_resolvers name="remote-repos"/>
+    </chain>
+  </resolvers>
+
+  <!-- don't use the default shared cache with other projects because it gets polluted,
+       but do share it for this project so that deploys that re-clone each time share it -->
+  <caches default="default" lockStrategy="no-lock" useOrigin="true">
+    <cache name="default" basedir="${ivy.cache.dir}" useOrigin="true" defaultTTL="8h">
+      <ttl revision="latest.integration" duration="0ms" />
+    </cache>
+  </caches>
 </ivysettings>
