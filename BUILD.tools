@@ -62,3 +62,10 @@ jar_library(name = 'junit',
               jar(org = 'org.hamcrest', name = 'hamcrest-core', rev = '1.2'),
               jar(org = 'com.twitter.common', name = 'junit-runner', rev = '0.0.30')
             ])
+
+jar_library(name = 'scala-specs-2.9.2',
+            dependencies = [
+              jar(org = 'org.scala-lang', name = 'scala-library', rev = '2.9.2').intransitive(),
+              jar(org = 'org.scala-tools.testing', name = 'specs_2.9.2', rev = '1.6.9'),
+              jar(org = 'com.twitter.common', name = 'specs-testing', rev = '0.0.5')
+            ])
