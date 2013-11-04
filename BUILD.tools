@@ -1,0 +1,2 @@
+jar_library(name = 'xalan',
+            dependencies = [jar(org = 'xalan', name = 'xalan', rev = '2.7.1')])
