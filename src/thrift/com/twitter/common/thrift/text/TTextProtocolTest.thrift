@@ -77,6 +77,10 @@ struct TTextProtocolTestMsg {
   14: required Letter p;
 
   15: required set<Letter> q;
+
+  16: required map<Sub, i64> r;
+
+  17: required map<map<map<i64, i64>, i64>, i64> s;
 }
 
 struct TTextProtocolTestMsgUnion {
