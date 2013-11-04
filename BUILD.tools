@@ -20,6 +20,18 @@ jar_library(name = 'java-compiler',
 jar_library(name = 'nailgun-server',
             dependencies = [jar(org = 'com.martiansoftware', name = 'nailgun-server', rev = '0.9.1')])
 
+jar_library(name = 'benchmark-caliper-0.5',
+            dependencies = [jar(org = 'com.google.caliper', name = 'caliper', rev = '0.5-rc1')])
+
+jar_library(name = 'benchmark-java-allocation-instrumenter-2.1',
+            dependencies = [
+              jar(
+                org = 'com.google.code.java-allocation-instrumenter',
+                name = 'java-allocation-instrumenter',
+                rev = '2.1'
+              ).intransitive()
+            ])
+
 jar_library(name = 'zinc',
             dependencies = [
               jar(org = 'jline', name = 'jline', rev = '1.0'),
