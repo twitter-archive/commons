@@ -18,6 +18,8 @@ package com.twitter.common.inject;
 
 import java.lang.annotation.Annotation;
 
+import javax.inject.Qualifier;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
@@ -182,8 +184,10 @@ public final class Bindings {
    */
   public static <T extends Annotation> Class<T> checkBindingAnnotation(Class<T> annotationType) {
     Preconditions.checkNotNull(annotationType);
-    Preconditions.checkArgument(annotationType.isAnnotationPresent(BindingAnnotation.class),
-        "%s is not a @BindingAnnotation", annotationType);
+    boolean bindingAnnotation = annotationType.isAnnotationPresent(BindingAnnotation.class);
+    boolean qualifier = annotationType.isAnnotationPresent(Qualifier.class);
+    Preconditions.checkArgument(bindingAnnotation || qualifier,
+        "%s is not a @BindingAnnotation or @Qualifier", annotationType);
     return annotationType;
   }
 
