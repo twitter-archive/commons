@@ -24,7 +24,6 @@ python_library(
     name = 'twitter.common.util',
     version = '0.1.0',
     description = 'twitter.common commands wrapper.',
-    namespace_packages = ['twitter', 'twitter.common'],
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',
     zip_safe = True,

@@ -1,5 +1,5 @@
 # ==================================================================================================
-# Copyright 2011 Twitter, Inc.
+# Copyright 2013 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -14,4 +14,4 @@
 # limitations under the License.
 # ==================================================================================================
 
-__author__ = 'John Sirois, Brian Wickman'
+__import__('pkg_resources').declare_namespace(__name__)
