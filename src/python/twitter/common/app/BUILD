@@ -30,10 +30,6 @@ python_library(
     name = 'twitter.common.app',
     version = '0.1.0',
     description = "Twitter's Python application lifecycle framework.",
-    namespace_packages = [
-      'twitter',
-      'twitter.common'
-    ],
     url = 'https://github.com/twitter/commons/tree/master/src/python/twitter/common/app',
     license = 'Apache License, Version 2.0',
     zip_safe = True,

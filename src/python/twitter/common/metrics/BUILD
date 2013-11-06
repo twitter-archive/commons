@@ -26,7 +26,6 @@ python_library(
     name = 'twitter.common.metrics',
     version = '0.1.0',
     description = 'twitter.common metrics registry and collector.',
-    namespace_packages = ['twitter', 'twitter.common'],
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',
     zip_safe = True,
