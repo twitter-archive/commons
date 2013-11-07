@@ -33,7 +33,7 @@ case class WithAnnotations(
   string: String)
 
 @TestParallel
-class FlagsSpec extends SpecificationWithJUnit {
+class FlagsSpec extends SpecificationWithJUnit WithJUnit {
   case class Nested(int: Int,  string: String)
 
   "Flags" should {

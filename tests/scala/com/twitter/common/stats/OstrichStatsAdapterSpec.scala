@@ -30,7 +30,7 @@ import org.specs.SpecificationWithJUnit
 import com.twitter.ostrich.stats.{Stats => OstrichStats, Distribution}
 
 @RunWith(classOf[JUnitSuiteRunner])
-class OstrichStatsAdapterSpec extends SpecificationWithJUnit with Mockito {
+class OstrichStatsAdapterSpec extends SpecificationWithJUnit WithJUnit with Mockito {
   "An OstrichStatsAdapter" should {
 
     val stats = OstrichStats.get("")
