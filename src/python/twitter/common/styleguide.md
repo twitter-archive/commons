@@ -86,8 +86,25 @@ If you are importing more than two or three symbols from a single package, consi
 
 ## Best practices
 
-1. Wrapped lines should (most of the time) be indented 4 spaces, but guide your decision by common sense aesthetics.
+1. Wrapped lines should be indented 4 spaces, rather than aligned with the opening delimiter:
 
+    _No:_
+
+            def my_function(some_args,
+                            that_would_be,
+                            too_long_for_one_line):
+              do_something()
+
+    _Yes:_
+
+            def my_function(
+                some_args,
+                that_would_be,
+                too_long_for_one_line):
+
+              do_something()
+
+    *Note:* For function definitions, the first arg is on its own line, and there's a blank line between the end of the args and the first line of the function.
 
 2. Prefer accessors/getters for all but the most trivial externally accessible variables, for which you may use properties.
 
@@ -114,8 +131,8 @@ your code is compliant with both Python 2.6+ and 3.x.
           print('Hello world')
           print('Get off my lawn!', file=sys.stderr)
           print('Processing...', end='')
-    
-    
+
+
 5. Only use new style classes, e.g.:
 
           class MyClass(object):
@@ -252,7 +269,7 @@ require learning a new DSL.
           import baz
           from baz import poop
 
-6. Almost always use list/generator comprehensions instead of `filter` or `map`. The latter should only be used in the specific circumstance where a) the equivalent comprehension would be significantly longer; and b) the use case is clearly consume-once (for example, as input to `for` loops). 
+6. Almost always use list/generator comprehensions instead of `filter` or `map`. The latter should only be used in the specific circumstance where a) the equivalent comprehension would be significantly longer; and b) the use case is clearly consume-once (for example, as input to `for` loops).
 
     Further, `filter`s or `map`s should _never_ be returned from functions, or as part of an API - this is particularly dangerous with the change in their behaviour between Python 2.x and 3.x (i.e. returning lists in the former and generators in the latter).
 
