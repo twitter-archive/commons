@@ -17,6 +17,9 @@
 python_library(
   name = 'perfdata',
   sources = globs('*.py') + globs('builders/*.py'),
+  dependencies = [
+    pants('src/python/twitter/common/lang'),
+  ]
 )
 
 python_binary(
