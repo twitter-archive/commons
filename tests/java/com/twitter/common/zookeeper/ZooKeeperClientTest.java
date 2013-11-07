@@ -34,6 +34,8 @@ import com.twitter.common.zookeeper.ZooKeeperClient.ZooKeeperConnectionException
 import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
 
 import static com.google.common.testing.junit4.JUnitAsserts.assertNotEqual;
+
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -224,6 +226,22 @@ public class ZooKeeperClientTest extends BaseZooKeeperTest {
         return new byte[0];
       }
     }).hasCredentials());
+  }
+
+  @Test
+  public void testChrootPath() throws Exception {
+    ZooKeeperClient rootClient = createZkClient();
+    String rootPath = "/test";
+    String subPath = "/test/subtest";
+    assertEquals(rootPath,
+            rootClient.get().create(rootPath, "42".getBytes(),
+                ZooKeeperUtils.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT));
+    assertEquals(subPath,
+            rootClient.get().create(subPath, "37".getBytes(),
+                ZooKeeperUtils.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT));
+
+    ZooKeeperClient chrootedClient = createZkClient(rootPath);
+    assertArrayEquals("37".getBytes(), chrootedClient.get().getData("/subtest", false, null));
   }
 
   private void setData(ZooKeeperClient zkClient, String path, String data) throws Exception {

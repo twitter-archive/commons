@@ -19,6 +19,7 @@ package com.twitter.common.zookeeper.guice.client.flagged;
 import java.net.InetSocketAddress;
 import java.util.List;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 
@@ -45,6 +46,9 @@ public class FlaggedClientConfig {
   @CmdLine(name = "zk_endpoints", help ="Endpoint specification for the ZooKeeper servers.")
   private static final Arg<List<InetSocketAddress>> ZK_ENDPOINTS = Arg.create();
 
+  @CmdLine(name = "zk_chroot_path", help = "chroot path to use for the ZooKeeper connections")
+  private static final Arg<String> CHROOT_PATH = Arg.create(null);
+
   @CmdLine(name = "zk_session_timeout", help ="The ZooKeeper session timeout.")
   private static final Arg<Amount<Integer, Time>> SESSION_TIMEOUT =
       Arg.create(ZooKeeperUtils.DEFAULT_ZK_SESSION_TIMEOUT);
@@ -61,6 +65,7 @@ public class FlaggedClientConfig {
   public static ClientConfig create() {
     return new ClientConfig(
         ZK_ENDPOINTS.get(),
+        Optional.fromNullable(CHROOT_PATH.get()),
         IN_PROCESS.get(),
         SESSION_TIMEOUT.get(),
         DIGEST_CREDENTIALS.hasAppliedValue()

@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.logging.Logger;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 
@@ -76,7 +77,7 @@ public class ZooKeeperClientModule extends PrivateModule {
       bind(clientKey).toProvider(LocalClientProvider.class).in(Singleton.class);
     } else {
       ZooKeeperClient client =
-          new ZooKeeperClient(config.sessionTimeout, config.credentials, config.servers);
+          new ZooKeeperClient(config.sessionTimeout, config.credentials, config.chrootPath, config.servers);
       bind(clientKey).toInstance(client);
     }
     expose(clientKey);
@@ -120,6 +121,7 @@ public class ZooKeeperClientModule extends PrivateModule {
     public final Iterable<InetSocketAddress> servers;
     public final boolean inProcess;
     public final Amount<Integer, Time> sessionTimeout;
+    public final Optional<String> chrootPath;
     public final Credentials credentials;
 
     /**
@@ -136,7 +138,27 @@ public class ZooKeeperClientModule extends PrivateModule {
         Amount<Integer, Time> sessionTimeout,
         Credentials credentials) {
 
+      this(servers, Optional.<String>absent(), inProcess, sessionTimeout, credentials);
+    }
+
+    /**
+     * Creates a new client configuration.
+     *
+     * @param servers ZooKeeper server addresses.
+     * @param inProcess Whether to run and create clients for an in-process ZooKeeper server.
+     * @param chrootPath an optional chroot path
+     * @param sessionTimeout Timeout duration for established sessions.
+     * @param credentials ZooKeeper authentication credentials.
+     */
+    public ClientConfig(
+        Iterable<InetSocketAddress> servers,
+        Optional<String> chrootPath,
+        boolean inProcess,
+        Amount<Integer, Time> sessionTimeout,
+        Credentials credentials) {
+
       this.servers = servers;
+      this.chrootPath = chrootPath;
       this.inProcess = inProcess;
       this.sessionTimeout = sessionTimeout;
       this.credentials = credentials;
@@ -151,6 +173,7 @@ public class ZooKeeperClientModule extends PrivateModule {
     public static ClientConfig create(Iterable<InetSocketAddress> servers) {
       return new ClientConfig(
           servers,
+          Optional.<String> absent(),
           false,
           ZooKeeperUtils.DEFAULT_ZK_SESSION_TIMEOUT,
           Credentials.NONE);
@@ -164,7 +187,7 @@ public class ZooKeeperClientModule extends PrivateModule {
      * @return A modified clone of this configuration.
      */
     public ClientConfig withSessionTimeout(Amount<Integer, Time> sessionTimeout) {
-      return new ClientConfig(servers, inProcess, sessionTimeout, credentials);
+      return new ClientConfig(servers, chrootPath, inProcess, sessionTimeout, credentials);
     }
 
     /**
@@ -175,7 +198,7 @@ public class ZooKeeperClientModule extends PrivateModule {
      * @return A modified clone of this configuration.
      */
     public ClientConfig withCredentials(Credentials credentials) {
-      return new ClientConfig(servers, inProcess, sessionTimeout, credentials);
+      return new ClientConfig(servers, chrootPath, inProcess, sessionTimeout, credentials);
     }
 
     /**
@@ -198,7 +221,18 @@ public class ZooKeeperClientModule extends PrivateModule {
      * @return A modified clone of this configuration.
      */
     public ClientConfig inProcess(boolean inProcess) {
-      return new ClientConfig(servers, inProcess, sessionTimeout, credentials);
+      return new ClientConfig(servers, chrootPath, inProcess, sessionTimeout, credentials);
+    }
+
+    /**
+     * Creates a new configuration identical to this configuration, but with the provided
+     * chroot path setting.
+     *
+     * @param chrootPath a valid ZooKeeper path used  as a chroot for ZooKeeper connections.
+     * @return A modified clone of this configuration.
+     */
+    public ClientConfig withChrootPath(String chrootPath) {
+      return new ClientConfig(servers, Optional.of(chrootPath), inProcess, sessionTimeout, credentials);
     }
   }
 }
