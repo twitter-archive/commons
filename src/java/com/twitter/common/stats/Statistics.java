@@ -23,6 +23,7 @@ package com.twitter.common.stats;
  */
 public class Statistics {
   private long populationSize = 0;
+  private long sum = 0;
   private double accumulatedVariance = 0;
   private double runningMean = 0;
 
@@ -31,6 +32,7 @@ public class Statistics {
 
   public void accumulate(long value) {
     populationSize++;
+    sum += value;
     double delta = value - runningMean;
     runningMean += delta / populationSize;
     accumulatedVariance += delta * (value - runningMean);
@@ -64,13 +66,18 @@ public class Statistics {
     return maxValue - minValue;
   }
 
+  public long sum() {
+    return sum;
+  }
+
   public long populationSize() {
     return populationSize;
   }
 
   @Override
   public String toString() {
-    return String.format("Mean: %f, Min: %d, Max: %d, Range: %d, Stddev: %f, Variance: %f",
-        mean(), min(), max(), range(), standardDeviation(), variance());
+    return String.format("Mean: %f, Min: %d, Max: %d, Range: %d, Stddev: %f, Variance: %f, " +
+        "Population: %d, Sum: %d", mean(), min(), max(), range(), standardDeviation(),
+        variance(), populationSize(), sum());
   }
 }
