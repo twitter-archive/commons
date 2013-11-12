@@ -80,7 +80,7 @@ class KazooGroup(GroupBase, GroupInterface):
     for _, callback in triggered:
       callback()
 
-  def __once(self, keeper_state, callback):
+  def _once(self, keeper_state, callback):
     """Ensure a callback is called once we reach the given state: either
        immediately, if currently in that state, or on the next transition to
        that state."""
@@ -125,7 +125,7 @@ class KazooGroup(GroupBase, GroupInterface):
       try:
         content, stat = result.get()
       except self.DISCONNECT_EXCEPTIONS:
-        self.__once(KazooState.CONNECTED, do_info)
+        self._once(KazooState.CONNECTED, do_info)
         return
       except ke.NoNodeException:
         future = self._members.pop(member, Future())
@@ -166,14 +166,14 @@ class KazooGroup(GroupBase, GroupInterface):
         expiry_capture.set()
 
     def expire_notifier():
-      self.__once(KazooState.LOST, expiry_capture.set)
+      self._once(KazooState.LOST, expiry_capture.set)
 
     def exists_completion(path, result):
       try:
         if result.get() is None:
           expiry_capture.set()
       except self.DISCONNECT_EXCEPTIONS:
-        self.__once(KazooState.CONNECTED, partial(do_exists, path))
+        self._once(KazooState.CONNECTED, partial(do_exists, path))
 
     def acreate_completion(result):
       try:
@@ -183,7 +183,7 @@ class KazooGroup(GroupBase, GroupInterface):
         # Remove this one 1.3 is cut.
         path = self._zk.unchroot(result.get())
       except self.DISCONNECT_EXCEPTIONS:
-        self.__once(KazooState.CONNECTED, do_join)
+        self._once(KazooState.CONNECTED, do_join)
         return
       except ke.KazooException as e:
         log.warning('Unexpected Kazoo result in join: (%s)%s' % (type(e), e))
@@ -196,7 +196,7 @@ class KazooGroup(GroupBase, GroupInterface):
           result_future.set_result(blob)
           self._members[membership] = result_future
         if expire_callback:
-          self.__once(KazooState.CONNECTED, expire_notifier)
+          self._once(KazooState.CONNECTED, expire_notifier)
           do_exists(path)
 
       membership_capture.set(membership)
@@ -215,7 +215,7 @@ class KazooGroup(GroupBase, GroupInterface):
       try:
         success = result.get()
       except self.DISCONNECT_EXCEPTIONS:
-        self.__once(KazooState.CONNECTED, do_cancel)
+        self._once(KazooState.CONNECTED, do_cancel)
         return
       except ke.NoNodeError:
         success = True
@@ -246,7 +246,19 @@ class KazooGroup(GroupBase, GroupInterface):
         wait_exists()
 
     def exists_completion(result):
-      if result.get():
+      try:
+        stat = result.get()
+      except self.DISCONNECT_EXCEPTIONS:
+        self._once(KazooState.CONNECTED, wait_exists)
+        return
+      except ke.NoNodeError:
+        wait_exists()
+        return
+      except ke.KazooException as e:
+        log.warning('Unexpected exists_completion result: (%s)%s' % (type(e), e))
+        return
+
+      if stat:
         do_monitor()
 
     def do_monitor():
@@ -271,7 +283,7 @@ class KazooGroup(GroupBase, GroupInterface):
       try:
         children = result.get()
       except self.DISCONNECT_EXCEPTIONS:
-        self.__once(KazooState.CONNECTED, do_monitor)
+        self._once(KazooState.CONNECTED, do_monitor)
         return
       except ke.NoNodeError:
         wait_exists()
@@ -298,5 +310,93 @@ class KazooGroup(GroupBase, GroupInterface):
         except ke.NoNodeException:
           return []
       except self.DISCONNECT_EXCEPTIONS:
-        self.__once(KazooState.CONNECTED, wait_event.set)
+        self._once(KazooState.CONNECTED, wait_event.set)
         wait_event.wait()
+
+
+class ActiveKazooGroup(KazooGroup):
+  def __init__(self, *args, **kwargs):
+    super(ActiveKazooGroup, self).__init__(*args, **kwargs)
+    self._monitor_queue = []
+    self._monitor_members()
+
+  def monitor(self, membership=frozenset(), callback=None):
+    capture = Capture(callback)
+    if not set_different(capture, membership, self._members):
+      self._monitor_queue.append((membership, capture))
+
+    return capture()
+
+  def _monitor_members(self):
+    def wait_exists():
+      self._zk.exists_async(self._path, exists_watch).rawlink(exists_completion)
+
+    def exists_watch(event):
+      if event.state == KeeperState.EXPIRED_SESSION:
+        wait_exists()
+        return
+      if event.type == EventType.CREATED:
+        do_monitor()
+      elif event.type == EventType.DELETED:
+        wait_exists()
+
+    def exists_completion(result):
+      try:
+        stat = result.get()
+      except self.DISCONNECT_EXCEPTIONS:
+        self._once(KazooState.CONNECTED, wait_exists)
+        return
+      except ke.NoNodeError:
+        wait_exists()
+        return
+      except ke.KazooException as e:
+        log.warning('Unexpected exists_completion result: (%s)%s' % (type(e), e))
+        return
+
+      if stat:
+        do_monitor()
+
+    def do_monitor():
+      self._zk.get_children_async(self._path, get_watch).rawlink(get_completion)
+
+    def get_watch(event):
+      if event.state == KeeperState.EXPIRED_SESSION:
+        wait_exists()
+        return
+      if event.state != KeeperState.CONNECTED:
+        return
+      if event.type == EventType.DELETED:
+        wait_exists()
+        return
+
+      do_monitor()
+
+    def get_completion(result):
+      try:
+        children = result.get()
+      except self.DISCONNECT_EXCEPTIONS:
+        self._once(KazooState.CONNECTED, do_monitor)
+        return
+      except ke.NoNodeError:
+        wait_exists()
+        return
+      except ke.KazooException as e:
+        log.warning('Unexpected get_completion result: (%s)%s' % (type(e), e))
+        return
+
+      children = [child for child in children if self.znode_owned(child)]
+      _, new = self._update_children(children)
+      for child in new:
+        def devnull(*args, **kw): pass
+        self.info(child, callback=devnull)
+
+      monitor_queue = self._monitor_queue[:]
+      self._monitor_queue = []
+      members = set(Membership(self.znode_to_id(child)) for child in children)
+      for membership, capture in monitor_queue:
+        if set(membership) != members:
+          capture.set(members)
+        else:
+          self._monitor_queue.append((membership, capture))
+
+    do_monitor()
