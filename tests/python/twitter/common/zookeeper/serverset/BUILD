@@ -3,6 +3,7 @@ python_test_suite(
   dependencies = [
     pants(':test_kazoo_serverset'),
     pants(':test_serverset_unit'),
+    pants(':endpoint'),
   ],
 )
 
@@ -22,6 +23,14 @@ python_tests(
     pants(':test_base'),
     pants('src/python/twitter/common/zookeeper/serverset:kazoo_serverset'),
   ],
+)
+
+python_tests(
+  name = 'endpoint',
+  sources = ['test_endpoint.py'],
+  dependencies = [
+    pants('src/python/twitter/common/zookeeper/serverset:serverset_base')
+  ]
 )
 
 python_tests(
