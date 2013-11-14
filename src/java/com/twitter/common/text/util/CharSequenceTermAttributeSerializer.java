@@ -49,4 +49,9 @@ public class CharSequenceTermAttributeSerializer implements TokenStreamSerialize
     termAtt.setOffset(input.readVInt());
     termAtt.setLength(input.readVInt());
   }
+
+  @Override
+  public TokenStreamSerializer.AttributeSerializer newInstance() {
+    return new CharSequenceTermAttributeSerializer();
+  }
 }

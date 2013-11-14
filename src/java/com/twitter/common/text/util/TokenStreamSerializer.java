@@ -300,6 +300,11 @@ public class TokenStreamSerializer {
      */
     public abstract void deserialize(AttributeInputStream input, CharSequence charSequence)
         throws IOException;
+
+    /**
+     * Create a new instance of this AttributeSerializer.
+     */
+    public abstract AttributeSerializer newInstance();
   }
 
   /**
@@ -322,6 +327,19 @@ public class TokenStreamSerializer {
      */
     public TokenStreamSerializer build() {
       return new TokenStreamSerializer(attributeSerializers);
+    }
+
+    /**
+     * Build a TokenStreamSerializer. This can be repeatedly called to create TokenStreamSerializers
+     * that do not share AttributeSerializers
+     */
+    public TokenStreamSerializer safeBuild() {
+      List<AttributeSerializer> attributeSerializersCopy =
+          Lists.newArrayListWithCapacity(attributeSerializers.size());
+      for(AttributeSerializer serializer : attributeSerializers) {
+        attributeSerializersCopy.add(serializer.newInstance());
+      }
+      return new TokenStreamSerializer(attributeSerializersCopy);
     }
   }
 

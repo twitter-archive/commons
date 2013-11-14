@@ -43,4 +43,9 @@ public class PositionIncrementAttributeSerializer implements TokenStreamSerializ
                           CharSequence charSequence) throws IOException {
     posIncrAttribute.setPositionIncrement(input.readVInt());
   }
+
+  @Override
+  public TokenStreamSerializer.AttributeSerializer newInstance() {
+    return new PositionIncrementAttributeSerializer();
+  }
 }

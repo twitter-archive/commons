@@ -45,4 +45,9 @@ public class TokenTypeAttributeSerializer implements TokenStreamSerializer.Attri
                              CharSequence charSequence) throws IOException {
     tokenTypeAttribute.setType(TokenType.values()[input.readByte()]);
   }
+
+  @Override
+  public TokenStreamSerializer.AttributeSerializer newInstance() {
+    return new TokenTypeAttributeSerializer();
+  }
 }
