@@ -331,8 +331,8 @@ jar_library(name = 'joda-money',
 
 jar_library(name = 'joda-time',
             dependencies = [
-              jar(org = 'joda-time', name = 'joda-time', rev = '2.1'),
-              jar(org = 'org.joda', name = 'joda-convert', rev = '1.2')
+              jar(org = 'joda-time', name = 'joda-time', rev = '2.3'),
+              jar(org = 'org.joda', name = 'joda-convert', rev = '1.5')
             ]
            )
 
