@@ -23,21 +23,6 @@ import time
 from twitter.common import log
 from twitter.common.quantity import Amount, Time
 
-try:
-  from twitter.common import app
-  HAS_APP = True
-
-  app.add_option(
-    '--tunnel_host',
-    type='string',
-    dest='tunnel_host',
-    default='nest1.corp.twitter.com',
-    help='Host to tunnel commands through (default: %default)')
-
-except ImportError:
-  HAS_APP = False
-
-
 __all__ = (
   'TunnelHelper',
 )
@@ -82,10 +67,7 @@ class TunnelHelper(object):
     return port
 
   @classmethod
-  def acquire_host_pair(cls, host=None, port=None):
-    if HAS_APP:
-      host = host or app.get_options().tunnel_host
-    assert host is not None, 'Must specify tunnel host!'
+  def acquire_host_pair(cls, host, port=None):
     port = port or cls.get_random_port()
     return host, port
 
@@ -110,8 +92,14 @@ class TunnelHelper(object):
     return False
 
   @classmethod
-  def create_tunnel(cls, remote_host, remote_port, tunnel_host=None, tunnel_port=None,
-                    timeout=DEFAULT_TIMEOUT):
+  def create_tunnel(
+      cls,
+      remote_host,
+      remote_port,
+      tunnel_host,
+      tunnel_port=None,
+      timeout=DEFAULT_TIMEOUT):
+
     """
       Create or retrieve a memoized SSH tunnel to the remote host & port, using
       tunnel_host:tunnel_port as the tunneling server.
@@ -119,11 +107,7 @@ class TunnelHelper(object):
     tunnel_key = (remote_host, remote_port)
     if tunnel_key in cls.TUNNELS:
       return 'localhost', cls.TUNNELS[tunnel_key][0]
-    if HAS_APP:
-      tunnel_host = tunnel_host or app.get_options().tunnel_host
-    if tunnel_host is None:
-      raise cls.TunnelError('Must specify tunnel host!')
-    tunnel_port = tunnel_port or cls.get_random_port()
+    tunnel_host, tunnel_port = cls.acquire_host_pair(tunnel_host, tunnel_port)
     cls.log('opening connection to %s:%s via %s:%s' %
         (remote_host, remote_port, tunnel_host, tunnel_port))
     ssh_cmd_args = ('ssh', '-N', '-T', '-L', '%d:%s:%s' % (tunnel_port, remote_host, remote_port),
@@ -136,7 +120,7 @@ class TunnelHelper(object):
     return 'localhost', tunnel_port
 
   @classmethod
-  def create_proxy(cls, proxy_host=None, proxy_port=None, timeout=DEFAULT_TIMEOUT):
+  def create_proxy(cls, proxy_host, proxy_port=None, timeout=DEFAULT_TIMEOUT):
     """
       Create or retrieve a memoized SOCKS proxy using the specified proxy host:port
     """

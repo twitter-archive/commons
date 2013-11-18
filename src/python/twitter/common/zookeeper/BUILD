@@ -7,11 +7,6 @@ python_library(
     python_requirement('zc-zookeeper-static'),
     pants('src/python/twitter/common')
   ],
-  provides = setup_py(
-    name = 'twitter.common.zookeeper',
-    version = '0.0.0',
-    description = "Twitter's reliable Zookeeper wrapper."
-  )
 )
 
 python_library(
@@ -32,4 +27,18 @@ python_library(
     pants('src/python/twitter/common/rpc/finagle'),
     pants('src/thrift/com/twitter/common/zookeeper/testing/angrybird:py-thrift')
   ]
+)
+
+python_library(
+  name = 'zookeeper-packaged',
+  dependencies = [
+    pants(':kazoo_client'),
+    pants('src/python/twitter/common/zookeeper/group:kazoo_group'),
+    pants('src/python/twitter/common/zookeeper/serverset:kazoo_serverset'),
+  ],
+  provides = setup_py(
+    name = 'twitter.common.zookeeper',
+    version = '0.1.0',
+    description = "Implementations of Twitter's service discovery libraries on top of Kazoo."
+  )
 )

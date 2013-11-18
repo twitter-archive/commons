@@ -15,6 +15,13 @@
 # ==================================================================================================
 
 python_library(
+  name = 'all',
+  dependencies = [
+    pants(':tsslsocket'),
+  ]
+)
+
+python_library(
   name = 'tsslsocket',
   sources = ['tsslsocket.py'],
   dependencies = [

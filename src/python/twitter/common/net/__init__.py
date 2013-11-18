@@ -1,5 +1,5 @@
 # ==================================================================================================
-# Copyright 2011 Twitter, Inc.
+# Copyright 2013 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -13,25 +13,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==================================================================================================
-
-python_library(
-  name = 'quantity',
-  sources = rglobs('*.py'),
-  dependencies = [
-    pants('src/python/twitter/common/lang')
-  ],
-  provides = setup_py(
-    name = 'twitter.common.quantity',
-    version = '0.1.0',
-    description = 'twitter.common quantity and unit classes.',
-    url = 'https://github.com/twitter/commons',
-    license = 'Apache License, Version 2.0',
-    zip_safe = True,
-    classifiers = [
-      'Intended Audience :: Developers',
-      'License :: OSI Approved :: Apache Software License',
-      'Operating System :: OS Independent',
-      'Programming Language :: Python',
-    ]
-  )
-)
