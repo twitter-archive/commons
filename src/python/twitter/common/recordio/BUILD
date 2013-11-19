@@ -28,7 +28,7 @@ python_library(
   sources = ['thrift_recordio.py'],
   dependencies = [
     pants(':recordio'),
-    python_requirement('thrift'),
+    pants('3rdparty/python:thrift'),
   ]
 )
 
@@ -40,7 +40,7 @@ python_library(
   ],
   provides = setup_py(
     name = 'twitter.common.recordio',
-    version = '0.1.0',
+    version = '0.1.1',
     description = 'twitter.common simple record reader/writer library',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',
