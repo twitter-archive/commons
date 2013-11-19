@@ -18,7 +18,7 @@ python_library(
   name = 'rpc',
   sources = globs('*.py'),
   dependencies = [
-    python_requirement('thrift'),
+    pants('3rdparty/python:thrift'),
     pants('src/python/twitter/common/lang')
   ],
 )
@@ -32,7 +32,7 @@ python_library(
   ],
   provides = setup_py(
     name = 'twitter.common.rpc',
-    version = '0.1.0',
+    version = '0.1.1',
     description = 'twitter.common thrift helpers including finagle and ssl transports.',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',
