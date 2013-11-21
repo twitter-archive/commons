@@ -19,48 +19,58 @@ package com.twitter.common.metrics.bench;
 import com.google.caliper.SimpleBenchmark;
 
 import com.twitter.common.metrics.Counter;
-import com.twitter.common.metrics.Histogram;
 import com.twitter.common.metrics.Metrics;
-import com.twitter.common.metrics.WindowedApproxHistogram;
 
 /**
- * Bench different sorts of insertion in Metrics
+ * Bench different Counter.increment under different contented scenario.
  */
-public class MetricsInsertionBench extends SimpleBenchmark {
+public class MetricsContendedInsertionBench extends SimpleBenchmark {
 
-  private static final int INPUT_RANGE = 15000;
   private Metrics metrics;
-  private Counter counter;
-  private Histogram h;
-  private WindowedApproxHistogram wh;
 
   @Override
   protected void setUp() {
     metrics = Metrics.createDetached();
-    counter = metrics.createCounter("counter");
-    h = new Histogram("histogram", metrics);
-    wh = new WindowedApproxHistogram();
   }
 
-  public void timeIncrementCounter(int n) {
-    while(n != 0) {
-      counter.increment();
-      n--;
+  public void timeIncrementCounter(final int n) {
+    final Counter counter = metrics.createCounter("counter1");
+    contend(1, new Runnable() {
+      @Override
+      public void run() {
+        int i = n;
+        while(i != 0) {
+          counter.increment();
+          i--;
+        }
+      }
+    });
+  }
+
+  public void timeContendedIncrementCounter(final int n) {
+    final Counter counter = metrics.createCounter("counter16");
+    contend(16, new Runnable() {
+      @Override
+      public void run() {
+        int i = n;
+        while(i != 0) {
+          counter.increment();
+          i--;
+        }
+      }
+    });
+  }
+
+  private void contend(int nThreads, Runnable action) {
+    Thread[] threads = new Thread[nThreads];
+    for (int i=0; i < nThreads; i++) {
+      threads[i] = new Thread(action);
+      threads[i].start();
+    }
+    for (int i=0; i < nThreads; i++) {
+      try {
+        threads[i].join();
+      } catch(InterruptedException e) {}
     }
   }
-
-  public void timeAddValueInHistogram(int n) {
-    while(n != 0) {
-      h.add(1);
-      n--;
-    }
-  }
-
-  public void timeAddValueInWinHistogram(int n) {
-    while(n != 0) {
-      wh.add(1);
-      n--;
-    }
-  }
-
 }

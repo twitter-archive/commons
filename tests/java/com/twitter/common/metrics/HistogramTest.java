@@ -36,11 +36,11 @@ public class HistogramTest {
     Histogram hist = new Histogram(name, metrics);
 
     Map<String, Number> sample = metrics.sample();
-    assertEquals(0L, sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "min"));
-    assertEquals(0L, sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "max"));
-    assertEquals(0L, sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "count"));
-    assertEquals(0L, sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "sum"));
-    assertEquals(0L, sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "avg"));
+    assertEquals(0L, sample.get(name + ScopedRegistry.SCOPE_DELIMITER + "min"));
+    assertEquals(0L, sample.get(name + ScopedRegistry.SCOPE_DELIMITER + "max"));
+    assertEquals(0L, sample.get(name + ScopedRegistry.SCOPE_DELIMITER + "count"));
+    assertEquals(0L, sample.get(name + ScopedRegistry.SCOPE_DELIMITER + "sum"));
+    assertEquals(0L, sample.get(name + ScopedRegistry.SCOPE_DELIMITER + "avg"));
     long[] expected = {0L, 0L, 0L, 0L, 0L, 0L};
     checkQuantiles(expected, sample, ERROR);
   }
@@ -63,12 +63,12 @@ public class HistogramTest {
     clock.advance(Amount.of(31L, Time.SECONDS));
 
     Map<String, Number> sample = metrics.sample();
-    assertEquals(1L, sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "min"));
-    assertEquals((long) n, sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "max"));
-    assertEquals((long) n, sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "count"));
+    assertEquals(1L, sample.get(name + ScopedRegistry.SCOPE_DELIMITER + "min"));
+    assertEquals((long) n, sample.get(name + ScopedRegistry.SCOPE_DELIMITER + "max"));
+    assertEquals((long) n, sample.get(name + ScopedRegistry.SCOPE_DELIMITER + "count"));
     assertEquals((long) (n * (n + 1) / 2),
-        sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "sum"));
-    assertEquals((long) n / 2, sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "avg"));
+        sample.get(name + ScopedRegistry.SCOPE_DELIMITER + "sum"));
+    assertEquals((long) n / 2, sample.get(name + ScopedRegistry.SCOPE_DELIMITER + "avg"));
     long[] expected = new long[Histogram.DEFAULT_QUANTILES.length];
     for (int i = 0; i < Histogram.DEFAULT_QUANTILES.length; i++) {
       expected[i] = (long) (Histogram.DEFAULT_QUANTILES[i] * n);
@@ -95,12 +95,12 @@ public class HistogramTest {
     clock.advance(Amount.of(31L, Time.SECONDS));
 
     Map<String, Number> sample = metrics.sample();
-    assertEquals(1L, sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "min"));
-    assertEquals((long) n, sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "max"));
-    assertEquals((long) n, sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "count"));
+    assertEquals(1L, sample.get(name + ScopedRegistry.SCOPE_DELIMITER + "min"));
+    assertEquals((long) n, sample.get(name + ScopedRegistry.SCOPE_DELIMITER + "max"));
+    assertEquals((long) n, sample.get(name + ScopedRegistry.SCOPE_DELIMITER + "count"));
     assertEquals((long) (n * (n + 1) / 2),
-        sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "sum"));
-    assertEquals((long) n / 2, sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "avg"));
+        sample.get(name + ScopedRegistry.SCOPE_DELIMITER + "sum"));
+    assertEquals((long) n / 2, sample.get(name + ScopedRegistry.SCOPE_DELIMITER + "avg"));
 
     long[] expected = new long[Histogram.DEFAULT_QUANTILES.length];
     for (int i = 0; i < Histogram.DEFAULT_QUANTILES.length; i++) {
@@ -126,11 +126,11 @@ public class HistogramTest {
     }
 
     Map<String, Number> sample = metrics.sample();
-    assertEquals(-100L, sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "min"));
-    assertEquals(99L, sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "max"));
-    assertEquals(200L, sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "count"));
-    assertEquals(-100L, sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "sum"));
-    assertEquals(0L, sample.get(name + ScopedMetrics.SCOPE_DELIMITER + "avg"));
+    assertEquals(-100L, sample.get(name + ScopedRegistry.SCOPE_DELIMITER + "min"));
+    assertEquals(99L, sample.get(name + ScopedRegistry.SCOPE_DELIMITER + "max"));
+    assertEquals(200L, sample.get(name + ScopedRegistry.SCOPE_DELIMITER + "count"));
+    assertEquals(-100L, sample.get(name + ScopedRegistry.SCOPE_DELIMITER + "sum"));
+    assertEquals(0L, sample.get(name + ScopedRegistry.SCOPE_DELIMITER + "avg"));
 
     long[] expected = new long[Histogram.DEFAULT_QUANTILES.length];
     for (int i = 0; i < Histogram.DEFAULT_QUANTILES.length; i++) {
@@ -148,7 +148,7 @@ public class HistogramTest {
       double q = Histogram.DEFAULT_QUANTILES[i];
       String gName = Histogram.gaugeName(q);
       assertEquals((double) expectedQuantiles[i],
-          sample.get(name + ScopedMetrics.SCOPE_DELIMITER + gName).doubleValue(), e);
+          sample.get(name + ScopedRegistry.SCOPE_DELIMITER + gName).doubleValue(), e);
     }
   }
 }

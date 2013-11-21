@@ -1,7 +1,22 @@
+// =================================================================================================
+// Copyright 2013 Twitter, Inc.
+// -------------------------------------------------------------------------------------------------
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this work except in compliance with the License.
+// You may obtain a copy of the License in the LICENSE file, or at:
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// =================================================================================================
+
 package com.twitter.common.metrics;
 
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -38,15 +53,15 @@ public class MetricsIT {
 
   @Test
   public void testDerivedVars() {
-    AtomicLong longVar = root.registerLong("long");
+    Counter longVar = root.createCounter("long");
     MetricRegistry barScope = root.scope("bar");
-    AtomicLong longVar2 = barScope.registerLong("long");
+    Counter longVar2 = barScope.createCounter("long");
     checkSamples(ImmutableMap.<String, Number>of("long", 0L, "bar.long", 0L));
 
-    longVar.addAndGet(10);
+    longVar.add(10);
     checkSamples(ImmutableMap.<String, Number>of("long", 10L, "bar.long", 0L));
 
-    longVar2.addAndGet(20);
+    longVar2.add(20);
     checkSamples(ImmutableMap.<String, Number>of("long", 10L, "bar.long", 20L));
   }
 

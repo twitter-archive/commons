@@ -47,7 +47,7 @@ public class MetricsQueryBench extends SimpleBenchmark {
     rnd = new Random(1);
 
     for (int i = 0; i < 1000; i++) {
-      metrics.registerCounter("counter-" + i).increment();
+      metrics.createCounter("counter-" + i).increment();
       Histogram h = new Histogram("hist-" + i, metrics);
       for (int j=0; j < N; j++) {
         h.add(rnd.nextInt(RANGE));

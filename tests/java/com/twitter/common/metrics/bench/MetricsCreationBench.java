@@ -46,7 +46,7 @@ public class MetricsCreationBench extends SimpleBenchmark {
   public void timeCreatingCounter(int n) {
     Counter counter;
     while(n != 0) {
-      counter = metrics.registerCounter("counter");
+      counter = metrics.createCounter("counter");
       counter.increment();
       n--;
     }

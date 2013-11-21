@@ -1,7 +1,22 @@
+// =================================================================================================
+// Copyright 2013 Twitter, Inc.
+// -------------------------------------------------------------------------------------------------
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this work except in compliance with the License.
+// You may obtain a copy of the License in the LICENSE file, or at:
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// =================================================================================================
+
 package com.twitter.common.metrics;
 
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -26,7 +41,7 @@ public class MetricsTest {
 
   @Before
   public void setUp() {
-    metrics = new Metrics();
+    metrics = Metrics.createDetached();
   }
 
   @Test
@@ -36,20 +51,20 @@ public class MetricsTest {
 
   @Test
   public void testScoping() {
-    AtomicLong foo = metrics.registerLong("foo");
-    foo.getAndSet(10);
+    Counter foo = metrics.createCounter("foo");
+    foo.add(10);
 
     checkSamples(ImmutableMap.<String, Number>of("foo", 10L));
 
     MetricRegistry barScope = metrics.scope("bar");
-    AtomicLong barFoo = barScope.registerLong("foo");
-    barFoo.getAndSet(2);
+    Counter barFoo = barScope.createCounter("foo");
+    barFoo.add(2);
 
     checkSamples(ImmutableMap.<String, Number>of("foo", 10L, "bar.foo", 2L));
 
     MetricRegistry bazScope = barScope.scope("baz");
-    AtomicLong bazFoo = bazScope.registerLong("foo");
-    bazFoo.getAndSet(3);
+    Counter bazFoo = bazScope.createCounter("foo");
+    bazFoo.add(3);
 
     checkSamples(ImmutableMap.<String, Number>of("foo", 10L, "bar.foo", 2L, "bar.baz.foo", 3L));
   }
@@ -59,13 +74,13 @@ public class MetricsTest {
     String name = "foo";
     long value  = 10L;
     Metrics detached = Metrics.createDetached();
-    AtomicLong foo = detached.registerLong(name);
-    foo.getAndSet(value);
+    Counter foo = detached.createCounter(name);
+    foo.add(value);
 
     Number readValue = detached.sample().get(name);
     assertEquals(readValue, value);
 
-    foo.incrementAndGet();
+    foo.increment();
 
     Number readValue2 = detached.sample().get(name);
     assertEquals(readValue2, value + 1);
@@ -75,11 +90,11 @@ public class MetricsTest {
 
   @Test
   public void testOverwrite() {
-    AtomicLong foo = metrics.registerLong("foo");
-    foo.getAndSet(10);
+    Counter foo = metrics.createCounter("foo");
+    foo.add(10);
 
-    AtomicLong foo2 = metrics.registerLong("foo");
-    foo2.getAndSet(100);
+    Counter foo2 = metrics.createCounter("foo");
+    foo2.add(100);
 
     checkSamples(ImmutableMap.<String, Number>of("foo", 100L));
   }
