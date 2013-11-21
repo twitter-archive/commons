@@ -20,7 +20,6 @@ public class Histogram {
   private final com.twitter.common.stats.Histogram histogram;
   private final String name;
   private final double[] quantiles;
-  private volatile long sum = 0;
   private volatile Statistics stats;
 
   /**
@@ -86,7 +85,6 @@ public class Histogram {
    * Adds a data point.
    */
   public synchronized void add(long n) {
-    sum += n;
     stats.accumulate(n);
     histogram.add(n);
   }
@@ -103,7 +101,7 @@ public class Histogram {
     });
     registry.register(new AbstractGauge<Long>("sum") {
       @Override public Long read() {
-        return sum;
+        return stats.sum();
       }
     });
     registry.register(new AbstractGauge<Long>("avg") {
