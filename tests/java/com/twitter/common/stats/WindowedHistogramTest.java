@@ -14,7 +14,7 @@
 // limitations under the License.
 // =================================================================================================
 
-package com.twitter.common.metrics;
+package com.twitter.common.stats;
 
 import java.util.List;
 
@@ -26,14 +26,14 @@ import com.twitter.common.objectsize.ObjectSizeCalculator;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Data;
 import com.twitter.common.quantity.Time;
-import com.twitter.common.stats.Histogram;
+import com.twitter.common.stats.testing.RealHistogram;
 import com.twitter.common.util.testing.FakeClock;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import static com.twitter.common.metrics.WindowedApproxHistogram.DEFAULT_MAX_MEMORY;
+import static com.twitter.common.stats.WindowedApproxHistogram.DEFAULT_MAX_MEMORY;
 
 /**
  * Tests WindowedHistogram.
@@ -169,7 +169,10 @@ public class WindowedHistogramTest {
   public void testWinHistogramMemory() {
     ImmutableList.Builder<Amount<Long, Data>> builder = ImmutableList.builder();
     builder.add(Amount.of(8L, Data.KB));
+    builder.add(Amount.of(12L, Data.KB));
     builder.add(Amount.of(16L, Data.KB));
+    builder.add(Amount.of(20L, Data.KB));
+    builder.add(Amount.of(24L, Data.KB));
     builder.add(Amount.of(32L, Data.KB));
     builder.add(Amount.of(64L, Data.KB));
     builder.add(Amount.of(256L, Data.KB));
@@ -178,13 +181,16 @@ public class WindowedHistogramTest {
     builder.add(Amount.of(32L, Data.MB));
     List<Amount<Long, Data>> sizes = builder.build();
 
+    // large estimation of the memory used outside of buffers
+    long fixSize = Amount.of(4, Data.KB).as(Data.BYTES);
+
     for (Amount<Long, Data> maxSize: sizes) {
       WindowedApproxHistogram hist = new WindowedApproxHistogram(
           Amount.of(60L, Time.SECONDS), 6, maxSize);
       hist.add(1L);
       hist.getQuantile(0.5);
       long size = ObjectSizeCalculator.getObjectSize(hist);
-      assertTrue(size < maxSize.as(Data.BYTES));
+      assertTrue(size < fixSize + maxSize.as(Data.BYTES));
     }
   }
 

@@ -8,6 +8,7 @@ import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Data;
 import com.twitter.common.stats.Precision;
 import com.twitter.common.stats.Statistics;
+import com.twitter.common.stats.WindowedApproxHistogram;
 
 /**
  * A Histogram is a representation of a distribution of values.

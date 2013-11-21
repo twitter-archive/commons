@@ -21,7 +21,7 @@ import com.google.caliper.SimpleBenchmark;
 import com.twitter.common.metrics.Counter;
 import com.twitter.common.metrics.Histogram;
 import com.twitter.common.metrics.Metrics;
-import com.twitter.common.metrics.WindowedApproxHistogram;
+import com.twitter.common.stats.WindowedApproxHistogram;
 
 /**
  * Bench different sorts of insertion in Metrics
@@ -43,23 +43,26 @@ public class MetricsInsertionBench extends SimpleBenchmark {
   }
 
   public void timeIncrementCounter(int n) {
-    while(n != 0) {
+    int i = n;
+    while (i != 0) {
       counter.increment();
-      n--;
+      i--;
     }
   }
 
   public void timeAddValueInHistogram(int n) {
-    while(n != 0) {
+    int i = n;
+    while (i != 0) {
       h.add(1);
-      n--;
+      i--;
     }
   }
 
   public void timeAddValueInWinHistogram(int n) {
-    while(n != 0) {
+    int i = n;
+    while (i != 0) {
       wh.add(1);
-      n--;
+      i--;
     }
   }
 

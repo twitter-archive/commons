@@ -39,7 +39,7 @@ public class MetricsContendedInsertionBench extends SimpleBenchmark {
       @Override
       public void run() {
         int i = n;
-        while(i != 0) {
+        while (i != 0) {
           counter.increment();
           i--;
         }
@@ -53,7 +53,7 @@ public class MetricsContendedInsertionBench extends SimpleBenchmark {
       @Override
       public void run() {
         int i = n;
-        while(i != 0) {
+        while (i != 0) {
           counter.increment();
           i--;
         }
@@ -63,14 +63,14 @@ public class MetricsContendedInsertionBench extends SimpleBenchmark {
 
   private void contend(int nThreads, Runnable action) {
     Thread[] threads = new Thread[nThreads];
-    for (int i=0; i < nThreads; i++) {
+    for (int i = 0; i < nThreads; i++) {
       threads[i] = new Thread(action);
       threads[i].start();
     }
-    for (int i=0; i < nThreads; i++) {
+    for (int i = 0; i < nThreads; i++) {
       try {
         threads[i].join();
-      } catch(InterruptedException e) {}
+      } catch (InterruptedException e) { /*ignore*/ }
     }
   }
 }

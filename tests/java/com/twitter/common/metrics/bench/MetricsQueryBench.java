@@ -16,26 +16,24 @@
 
 package com.twitter.common.metrics.bench;
 
+import java.util.Random;
+
 import com.google.caliper.SimpleBenchmark;
 
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicLong;
-
-import com.twitter.common.quantity.Amount;
-import com.twitter.common.quantity.Data;
-import com.twitter.common.metrics.Counter;
 import com.twitter.common.metrics.Histogram;
 import com.twitter.common.metrics.Metrics;
-import com.twitter.common.metrics.WindowedApproxHistogram;
+import com.twitter.common.quantity.Amount;
+import com.twitter.common.quantity.Data;
+import com.twitter.common.stats.WindowedApproxHistogram;
 
 /**
  * This bench tests different sorts of queries.
  */
 public class MetricsQueryBench extends SimpleBenchmark {
 
-  private static int N = 100 * 1000;
-  private static int RANGE = 15 * 1000;
-  private static double[] quantiles = {0.5, 0.9, 0.95, 0.99};
+  private static final int N = 100 * 1000;
+  private static final int RANGE = 15 * 1000;
+  private static final double[] QUANTILES = {0.5, 0.9, 0.95, 0.99};
   private Metrics metrics;
   private Random rnd;
   private WindowedApproxHistogram bigHist;
@@ -49,14 +47,14 @@ public class MetricsQueryBench extends SimpleBenchmark {
     for (int i = 0; i < 1000; i++) {
       metrics.createCounter("counter-" + i).increment();
       Histogram h = new Histogram("hist-" + i, metrics);
-      for (int j=0; j < N; j++) {
+      for (int j = 0; j < N; j++) {
         h.add(rnd.nextInt(RANGE));
       }
     }
 
     smallHist = new WindowedApproxHistogram();
     bigHist = new WindowedApproxHistogram(Amount.of(1L, Data.MB));
-    for (int j=0; j < N; j++) {
+    for (int j = 0; j < N; j++) {
       smallHist.add(rnd.nextInt(RANGE));
       bigHist.add(rnd.nextInt(RANGE));
     }
@@ -67,25 +65,28 @@ public class MetricsQueryBench extends SimpleBenchmark {
    */
   public void timeQueryMetrics(int n) {
     long x;
-    while(n != 0) {
+    int i = n;
+    while (i != 0) {
       metrics.sample();
-      n--;
+      i--;
     }
   }
 
   public void timeQueryHistograms(int n) {
     long[] res;
-    while(n != 0) {
-      res = smallHist.getQuantiles(quantiles);
-      n--;
+    int i = n;
+    while (i != 0) {
+      res = smallHist.getQuantiles(QUANTILES);
+      i--;
     }
   }
 
   public void timeQueryBigHistograms(int n) {
     long[] res;
-    while(n != 0) {
-      res = bigHist.getQuantiles(quantiles);
-      n--;
+    int i = n;
+    while (i != 0) {
+      res = bigHist.getQuantiles(QUANTILES);
+      i--;
     }
   }
 }

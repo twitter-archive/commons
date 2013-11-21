@@ -146,5 +146,8 @@ java_library(name = 'util',
     'ReservoirSampler.java',
     'Significance.java',
     'Statistics.java',
+    'Windowed.java',
+    'WindowedApproxHistogram.java',
+    'WindowedHistogram.java',
   ],
 )

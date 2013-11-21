@@ -16,17 +16,15 @@
 
 package com.twitter.common.metrics.bench;
 
-import com.google.caliper.SimpleBenchmark;
-
 import java.util.Random;
 
-import com.twitter.common.quantity.Amount;
-import com.twitter.common.quantity.Data;
+import com.google.caliper.SimpleBenchmark;
+
 import com.twitter.common.metrics.Counter;
 import com.twitter.common.metrics.Histogram;
 import com.twitter.common.metrics.Metrics;
-import com.twitter.common.metrics.WindowedApproxHistogram;
 import com.twitter.common.stats.ApproximateHistogram;
+import com.twitter.common.stats.WindowedApproxHistogram;
 
 /**
  * Bench memory allocated for each component of Metrics
@@ -45,10 +43,11 @@ public class MetricsCreationBench extends SimpleBenchmark {
 
   public void timeCreatingCounter(int n) {
     Counter counter;
-    while(n != 0) {
+    int i = n;
+    while (i != 0) {
       counter = metrics.createCounter("counter");
       counter.increment();
-      n--;
+      i--;
     }
   }
 
@@ -59,10 +58,11 @@ public class MetricsCreationBench extends SimpleBenchmark {
    */
   public void timeCreatingHistogram(int n) {
     Histogram h;
-    while(n != 0) {
+    int i = n;
+    while (i != 0) {
       h = new Histogram("histogram", metrics);
       h.add(1);
-      n--;
+      i--;
     }
   }
 
@@ -71,10 +71,11 @@ public class MetricsCreationBench extends SimpleBenchmark {
    */
   public void timeCreatingApproxHistogram(int n) {
     ApproximateHistogram h;
-    while(n != 0) {
+    int i = n;
+    while (i != 0) {
       h = new ApproximateHistogram();
       h.add(1);
-      n--;
+      i--;
     }
   }
 
@@ -83,10 +84,11 @@ public class MetricsCreationBench extends SimpleBenchmark {
    */
   public void timeCreatingWindowedHistogram(int n) {
     WindowedApproxHistogram h;
-    while(n != 0) {
+    int i = n;
+    while (i != 0) {
       h = new WindowedApproxHistogram();
       h.add(1);
-      n--;
+      i--;
     }
   }
 }

@@ -25,9 +25,9 @@ import java.util.Random;
 import com.twitter.common.objectsize.ObjectSizeCalculator;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Data;
-import com.twitter.common.metrics.RealHistogram;
 import com.twitter.common.stats.ApproximateHistogram;
 import com.twitter.common.stats.Histogram;
+import com.twitter.common.stats.testing.RealHistogram;
 
 final class MetricsPrecisionDemo {
 

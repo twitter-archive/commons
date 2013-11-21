@@ -21,9 +21,10 @@ java_tests(name = 'metrics',
     pants('src/java/com/twitter/common/junit/annotations'),
     pants('src/java/com/twitter/common/metrics'),
     pants('src/java/com/twitter/common/objectsize'),
+    pants('src/java/com/twitter/common/stats'),
     pants('src/java/com/twitter/common/testing/easymock'),
     pants('src/java/com/twitter/common/util:system-mocks'),
-    pants('src/java/com/twitter/common/util:testing')
+    pants('src/java/com/twitter/common/util:testing'),
   ],
   sources = globs('*.java')
 )
@@ -35,6 +36,7 @@ jvm_binary(name = 'metrics-precision',
     pants('tests/java/com/twitter/common/metrics'),
     pants('src/java/com/twitter/common/metrics'),
     pants('src/java/com/twitter/common/objectsize'),
+    pants('src/java/com/twitter/common/stats/testing:histogram'),
     jar(org = 'com.twitter.common', name = 'metrics-data-sample', rev = '0.0.1'),
   ]
 ).with_description('''Demo code to show precision/memory performance based on constructor

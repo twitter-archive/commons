@@ -14,10 +14,7 @@
 // limitations under the License.
 // =================================================================================================
 
-package com.twitter.common.metrics;
-
-import java.lang.reflect.Array;
-import java.util.Arrays;
+package com.twitter.common.stats;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
@@ -25,8 +22,6 @@ import com.google.common.base.Supplier;
 
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
-import com.twitter.common.stats.Histogram;
-import com.twitter.common.stats.Histograms;
 import com.twitter.common.util.Clock;
 
 /**
@@ -58,12 +53,8 @@ import com.twitter.common.util.Clock;
  * merging the underlying histograms.
  * </p>
  */
-public class WindowedHistogram<H extends Histogram> implements Histogram {
+public class WindowedHistogram<H extends Histogram> extends Windowed<H> implements Histogram {
 
-  private final H[] buffers;
-  private final long sliceDuration;
-  private final Clock clock;
-  private long index = -1L;
   private long mergedHistIndex = -1L;
   private Function<H[], Histogram> merger;
   private Histogram mergedHistogram = null;
@@ -76,30 +67,20 @@ public class WindowedHistogram<H extends Histogram> implements Histogram {
    *
    * @param clazz the type of the underlying Histogram H
    * @param window the length of the window
-   * @param slices the number of slices
+   * @param slices the number of slices (the window will be divided into {@code slices} slices)
    * @param sliceProvider the supplier of histogram
    * @param merger the function that merge an array of histogram H[] into a single Histogram
    * @param clock the clock used for to select the appropriate histogram
    */
-  protected WindowedHistogram(Class<H> clazz, Amount<Long, Time> window, int slices,
-      Supplier<H> sliceProvider, Function<H[], Histogram> merger, Clock clock) {
-    Preconditions.checkNotNull(window);
-    // Ensure that we have at least 1ms per slice
-    Preconditions.checkArgument(window.as(Time.MILLISECONDS) > (slices + 1));
-    Preconditions.checkArgument(0 < slices);
-    Preconditions.checkNotNull(sliceProvider);
+  public WindowedHistogram(Class<H> clazz, Amount<Long, Time> window, int slices,
+        Supplier<H> sliceProvider, Function<H[], Histogram> merger, Clock clock) {
+    super(clazz, window, slices, sliceProvider, new Function<H, H>() {
+      @Override
+      public H apply(H h) { h.clear(); return h; }
+    }, clock);
     Preconditions.checkNotNull(merger);
-    Preconditions.checkNotNull(clock);
 
-    this.sliceDuration = window.as(Time.MILLISECONDS) / slices;
-    @SuppressWarnings("unchecked") // safe because we have the clazz proof of type H
-    H[] bufs = (H[]) Array.newInstance(clazz, slices + 1);
-    for (int i = 0; i < bufs.length; i++) {
-      bufs[i] = sliceProvider.get();
-    }
-    this.buffers = bufs;
     this.merger = merger;
-    this.clock = clock;
   }
 
   @Override
@@ -118,12 +99,7 @@ public class WindowedHistogram<H extends Histogram> implements Histogram {
   public synchronized long getQuantile(double quantile) {
     long currentIndex = getCurrentIndex();
     if (mergedHistIndex < currentIndex) {
-      sync(currentIndex);
-      H[] tmp = Arrays.copyOf(buffers, buffers.length - 1);
-      for (int i = 0; i < tmp.length; i++) {
-        int idx = (int) ((currentIndex + 1 + i) % buffers.length);
-        tmp[i] = buffers[idx];
-      }
+      H[] tmp = getTenured();
       mergedHistogram = merger.apply(tmp);
       mergedHistIndex = currentIndex;
     }
@@ -133,37 +109,5 @@ public class WindowedHistogram<H extends Histogram> implements Histogram {
   @Override
   public synchronized long[] getQuantiles(double[] quantiles) {
     return Histograms.extractQuantiles(this, quantiles);
-  }
-
-  /**
-   * Return the index of the latest Histogram.
-   * You have to modulo it with buffer.length before accessing the array with this number.
-   */
-  private int getCurrentIndex() {
-    long now = clock.nowMillis();
-    return (int) (now / sliceDuration);
-  }
-
-  /**
-   * Check for expired Histograms and return the current Histogram.
-   */
-  private Histogram getCurrent() {
-    sync(getCurrentIndex());
-    return buffers[(int) (index % buffers.length)];
-  }
-
-  /**
-   * Synchronize histograms with a point in time.
-   * i.e. Check for expired Histograms and clear them, and update the index variable.
-   */
-  private void sync(long currentIndex) {
-    if (index < currentIndex) {
-      long from = Math.max(index + 1, currentIndex - buffers.length + 1);
-      for (long i = from; i <= currentIndex; i++) {
-        int idx = (int) (i % buffers.length);
-        buffers[idx].clear();
-      }
-      index = currentIndex;
-    }
   }
 }

@@ -11,6 +11,7 @@ import com.twitter.common.quantity.Data;
 import com.twitter.common.quantity.Time;
 import com.twitter.common.stats.ApproximateHistogram;
 import com.twitter.common.stats.Precision;
+import com.twitter.common.stats.WindowedApproxHistogram;
 import com.twitter.common.util.testing.FakeClock;
 
 import static org.junit.Assert.assertEquals;
@@ -113,9 +114,7 @@ public class HistogramTest {
   public void testNegative() {
     FakeClock clock = new FakeClock();
     Histogram hist = new Histogram(name,
-        new WindowedApproxHistogram(WindowedApproxHistogram.DEFAULT_WINDOW,
-            WindowedApproxHistogram.DEFAULT_SLICES,
-            WindowedApproxHistogram.DEFAULT_MAX_MEMORY, clock),
+        new WindowedApproxHistogram(clock),
         Histogram.DEFAULT_QUANTILES, metrics);
     int[] data = new int[200];
     for (int i = 0; i < data.length; ++i) {
