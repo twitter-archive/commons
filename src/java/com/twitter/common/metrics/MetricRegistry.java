@@ -44,4 +44,13 @@ public interface MetricRegistry {
    * @return Counter (initialized to zero) to increment the value.
    */
   Counter createCounter(String name);
+
+  /**
+   * Creates a gauge and returns an {@link Counter} that can be incremented.
+   * @deprecated Please use createCounter instead.
+   * @param name Name to associate with the gauge.
+   * @return Counter (initialized to zero) to increment the value.
+   */
+  @Deprecated
+  Counter registerCounter(String name);
 }

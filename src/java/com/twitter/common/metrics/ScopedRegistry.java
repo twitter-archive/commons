@@ -69,4 +69,9 @@ public class ScopedRegistry implements MetricRegistry {
   public Counter createCounter(String gaugeName) {
     return parent.createCounter(scopeName(gaugeName));
   }
+
+  @Override
+  public Counter registerCounter(String gaugeName) {
+    return createCounter(gaugeName);
+  }
 }

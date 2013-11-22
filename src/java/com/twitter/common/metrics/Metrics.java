@@ -69,6 +69,11 @@ public class Metrics implements MetricRegistry, MetricProvider {
   }
 
   @Override
+  public Counter registerCounter(String name) {
+    return createCounter(name);
+  }
+
+  @Override
   public Counter createCounter(String name) {
     final LongAdder adder = new LongAdder();
     register(new AbstractGauge<Long>(name) {
