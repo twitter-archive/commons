@@ -116,6 +116,8 @@ a:visited {
   color: black;
 }
 
+/* Outcome colors. */
+
 .aborted {
   color: purple;
 }
@@ -135,6 +137,32 @@ a:visited {
 .unknown {
   color: black;
 }
+
+
+/* Log level colors. */
+
+.fatal {
+  color: red;
+}
+
+.error {
+  color: red;
+}
+
+.warn {
+  color: orange;
+}
+
+.info {
+  color: green;
+}
+
+.debug {
+  color: cyan;
+}
+
+
+/* Header toggling. */
 
 .toggle-header {
   font-weight: bold;
