@@ -41,3 +41,11 @@ jvm_binary(name = 'metrics-precision',
   ]
 ).with_description('''Demo code to show precision/memory performance based on constructor
 parameters (used to find default values)''')
+
+# useful for testing everything
+dependencies(name='all',
+  dependencies=[
+    pants(':metrics'),
+    pants('tests/scala/com/twitter/common/metrics')
+  ]
+)
