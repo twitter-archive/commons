@@ -14,7 +14,7 @@
 // limitations under the License.
 // =================================================================================================
 
-package com.twitter.common.examples.pingpong;
+package com.twitter.common.examples.pingpong.bin;
 
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -40,6 +40,7 @@ import com.twitter.common.args.Arg;
 import com.twitter.common.args.CmdLine;
 import com.twitter.common.args.constraints.NotNull;
 import com.twitter.common.base.Closure;
+import com.twitter.common.examples.pingpong.handler.PingHandler;
 
 /**
  * An application that serves HTTP requests to /ping/{message}/{ttl}, and

@@ -20,7 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.twitter.common.base.Closure;
-import com.twitter.common.testing.EasyMockTest;
+import com.twitter.common.testing.easymock.EasyMockTest;
 
 public class PingHandlerTest extends EasyMockTest {
 
