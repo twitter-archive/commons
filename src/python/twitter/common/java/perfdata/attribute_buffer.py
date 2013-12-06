@@ -42,7 +42,10 @@ class AttributeBuffer(Interface):
     new_format_str = ''.join(
         ('%c%c' % ('>' if self.endianness is self.BIG_ENDIAN else '<', format)
         for format in format_str))
-    value = struct.unpack(new_format_str, self.data[data_range])
+    try:
+      value = struct.unpack(new_format_str, self.data[data_range])
+    except struct.error as e:
+      raise ValueError('Possibly corrupt data buffer: %s' % e)
     if len(format_str) > 1:
       return value
     else:
