@@ -40,6 +40,7 @@ python_tests(
   name = 'perfdata',
   sources = ['test_perfdata.py'],
   dependencies = [
+    pants('3rdparty/python:mock'),
     pants('src/python/twitter/common/java/perfdata'),
     pants(':resources'),
   ]

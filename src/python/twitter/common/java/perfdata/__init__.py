@@ -80,7 +80,10 @@ class PerfData(object):
     """
     if hsperf[0:4] != cls.MAGIC:
       raise ValueError('Buffer does not appear to be hsperf')
-    endianness, major, minor = struct.unpack('BBB', hsperf[4:7])
+    try:
+      endianness, major, minor = struct.unpack('BBB', hsperf[4:7])
+    except struct.error as e:
+      raise ValueError('Failed to unpack hsperfdata header: %s' % e)
     endianness = AttributeBuffer.BIG_ENDIAN if endianness == 0 else AttributeBuffer.LITTLE_ENDIAN
     return (major, minor, endianness)
 
