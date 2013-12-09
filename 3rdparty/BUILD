@@ -434,26 +434,26 @@ jar_library(name = 'protobuf-java',
 
 jar_library(name = 'scala-compiler',
             dependencies = [
-              jar(org='org.scala-lang', name='scala-compiler', rev='2.9.2').with_sources()
+              jar(org='org.scala-lang', name='scala-compiler', rev='2.9.3').with_sources()
             ]
            )
 
 jar_library(name = 'scala-library',
             dependencies = [
-              jar(org='org.scala-lang', name='scala-library', rev='2.9.2').with_sources()
+              jar(org='org.scala-lang', name='scala-library', rev='2.9.3').with_sources()
             ]
            )
 
 jar_library(name = 'scalacheck',
             dependencies = [
-              jar(org='org.scalacheck', name='scalacheck_2.9.2', rev='1.10.0').with_sources()
+              jar(org='org.scalacheck', name='scalacheck_2.9.3', rev='1.10.0').with_sources()
             ]
            )
 
 # NOTE(rschonberger): Note that this library needs to be updated every scal compiler update.
 jar_library(name = 'scalatest',
             dependencies = [
-              jar(org='org.scalatest', name='scalatest_2.9.2', rev='1.8').with_sources()
+              jar(org='org.scalatest', name='scalatest_2.9.3', rev='1.8').with_sources()
             ]
            )
 
@@ -466,7 +466,7 @@ jar_library(name = 'scrooge-runtime',
 
 jar_library(name = 'jerkson',
             dependencies = [
-              jar(org='com.codahale', name='jerkson_2.9.2', rev='0.5.0').with_sources()
+              jar(org='com.codahale', name='jerkson_2.9.3', rev='0.5.0').with_sources()
             ]
            )
 
@@ -648,12 +648,12 @@ jar_library(name = 'jline',
 
 jar_library(name = 'scalap',
             dependencies = [
-              jar(org = 'org.scala-lang', name = 'scalap', rev = '2.9.2')
+              jar(org = 'org.scala-lang', name = 'scalap', rev = '2.9.3')
             ])
 
 jar_library(name = 'specs_2.9',
             dependencies = [
-              jar(org = 'org.scala-tools.testing', name = 'specs_2.9.2', rev = '1.6.9')
+              jar(org = 'org.scala-tools.testing', name = 'specs_2.9.3', rev = '1.6.9')
             ]
            )
 
