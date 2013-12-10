@@ -16,13 +16,13 @@
 
 jar_library(name = 'small',
   dependencies = [
-    pants('3rdparty:junit'),
     pants('tests/java/com/twitter/common/application'),
     pants('tests/java/com/twitter/common/application/modules:all'),
     pants('tests/java/com/twitter/common/args:small'),
     pants('tests/java/com/twitter/common/base'),
     pants('tests/java/com/twitter/common/collections'),
     pants('tests/java/com/twitter/common/inject'),
+    pants('tests/java/com/twitter/common/jar/tool'),
     pants('tests/java/com/twitter/common/junit/runner'),
     pants('tests/java/com/twitter/common/io'),
     pants('tests/java/com/twitter/common/logging'),
