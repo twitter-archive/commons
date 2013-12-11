@@ -49,7 +49,11 @@ public final class JULBridgeLogManager extends LogManager {
   public static final String USE_EXTENDED_LOCATION_INFO_PROPERTYNAME =
       "com.twitter.common.logging.julbridge.use-extended-location-info";
 
-  private JULBridgeLogManager() {}
+  /*
+   * LogManager requires a public no-arg constructor to be present so a new instance can be created
+   * when configured using the system property. A private constructor will throw an exception.
+   */
+  public JULBridgeLogManager() {}
 
   @Override
   public void readConfiguration() {
