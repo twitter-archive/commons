@@ -25,7 +25,17 @@ java_library(name='tool',
     # qualified.
     pants('3rdparty:commons-io'),
     pants('3rdparty:guava'),
+    pants('src/java/com/twitter/common/args'),
     pants('src/java/com/twitter/common/io'),
   ],
   sources=globs('*.java')
 )
+
+jvm_binary(name='main',
+  main='com.twitter.common.jar.tool.Main',
+  dependencies=[
+    pants(":tool"),
+    pants('src/java/com/twitter/common/logging'),
+  ]
+).with_description('A jar tool that supports adding duplicate entries.')
+
