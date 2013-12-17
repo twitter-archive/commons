@@ -19,14 +19,17 @@ import os
 import subprocess
 import sys
 import tempfile
+
 from twitter.common.contextutil import environment_as, temporary_file
 from twitter.common.quantity import Amount, Data
 from twitter.common.string import ScanfParser
 from twitter.common.util.command_util import CommandUtil
 
+
 class HDFSHelper(object):
   """
-  This Class provides a set of function for hadoop operations.
+  This Class provides a set of functions for hadoop operations. 
+  NOTE: This class assumes a local hadoop client on the path.
   """
   class InternalError(Exception): pass
 
@@ -95,16 +98,16 @@ class HDFSHelper(object):
       self._call('-rm', '-skipTrash', hdfs_dst)
     return self._call('-put', source, hdfs_dst)
 
-  def exists(self, path, flag = '-e'):
+  def exists(self, path, flag='-e'):
     """
     Checks if the path exists in hdfs
     Returns true if it exists or else
     Returns false
     """
     try:
-        return self._call("-test", flag, path) == 0
+      return self._call("-test", flag, path) == 0
     except subprocess.CalledProcessError:
-        return False
+      return False
 
   def cat(self, remote_file_pattern, local_file=sys.stdout):
     """
@@ -122,7 +125,7 @@ class HDFSHelper(object):
     if exit_code != 0:
       raise self.InternalError("Error occurred. %s.Check logs for details" % ls_result)
     file_list = []
-    if ls_result == None:
+    if ls_result is None:
       return file_list
     lines = ls_result.splitlines()
     for line in lines:
