@@ -181,9 +181,20 @@ def safe_size(path, on_error=None):
 
 def safe_bsize(path):
   """
-    Safely return the space a file consumes on disk.  Returns 0 if file does not exist.
+    Safely return the space a file consumes on disk. Returns 0 if an OSError is
+    raised.
   """
   return _size_base(path, calculate_usage=_calculate_bsize)
+
+
+def safe_mtime(filename):
+  """
+    Safely return the mtime of a file. Returns 0 if an OSError is raised.
+  """
+  try:
+    return os.path.getmtime(filename)
+  except OSError:
+    return 0
 
 
 def du(directory):
@@ -301,6 +312,7 @@ __all__ = (
   'safe_bsize',
   'safe_delete',
   'safe_mkdir',
+  'safe_mtime',
   'safe_open',
   'safe_size',
   'tail_f',
