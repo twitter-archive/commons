@@ -18,6 +18,8 @@ limitations under the License.
 -->
 
 <ivysettings>
+  <property name="ivy.cache.dir" value="${user.home}/.ivy2/twitter-commons" override="false"/>
+
   <macrodef name="_remote_resolvers">
     <chain returnFirst="true">
       <ibiblio name="maven2"
