@@ -138,7 +138,7 @@ limitations under the License.
       </module>
 
       <!-- Checks for Naming Conventions.                  -->
-      <module name="ClassTypeParameterName"/>
+      <module name="ClassTypeParameterName" value="^[A-Z][A-Z0-9]?$"/>
       <module name="ConstantName"/>
       <module name="LocalFinalVariableName">
         <!-- allow VAR_NAME and varName in local final variables,
