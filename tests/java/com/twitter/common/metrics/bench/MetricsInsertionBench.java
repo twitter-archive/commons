@@ -19,7 +19,7 @@ package com.twitter.common.metrics.bench;
 import com.google.caliper.SimpleBenchmark;
 
 import com.twitter.common.metrics.Counter;
-import com.twitter.common.metrics.Histogram;
+import com.twitter.common.metrics.HistogramInterface;
 import com.twitter.common.metrics.Metrics;
 import com.twitter.common.stats.WindowedApproxHistogram;
 
@@ -31,14 +31,14 @@ public class MetricsInsertionBench extends SimpleBenchmark {
   private static final int INPUT_RANGE = 15000;
   private Metrics metrics;
   private Counter counter;
-  private Histogram h;
+  private HistogramInterface h;
   private WindowedApproxHistogram wh;
 
   @Override
   protected void setUp() {
     metrics = Metrics.createDetached();
     counter = metrics.createCounter("counter");
-    h = new Histogram("histogram", metrics);
+    h = metrics.createHistogram("histogram");
     wh = new WindowedApproxHistogram();
   }
 

@@ -20,7 +20,7 @@ import java.util.Random;
 
 import com.google.caliper.SimpleBenchmark;
 
-import com.twitter.common.metrics.Histogram;
+import com.twitter.common.metrics.HistogramInterface;
 import com.twitter.common.metrics.Metrics;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Data;
@@ -46,7 +46,7 @@ public class MetricsQueryBench extends SimpleBenchmark {
 
     for (int i = 0; i < 1000; i++) {
       metrics.createCounter("counter-" + i).increment();
-      Histogram h = new Histogram("hist-" + i, metrics);
+      HistogramInterface h = metrics.createHistogram("hist-" + i);
       for (int j = 0; j < N; j++) {
         h.add(rnd.nextInt(RANGE));
       }

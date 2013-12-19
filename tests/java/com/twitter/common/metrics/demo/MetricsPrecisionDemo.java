@@ -29,6 +29,8 @@ import com.twitter.common.stats.ApproximateHistogram;
 import com.twitter.common.stats.Histogram;
 import com.twitter.common.stats.testing.RealHistogram;
 
+import static com.twitter.common.metrics.Histogram.DEFAULT_QUANTILES;
+
 final class MetricsPrecisionDemo {
 
   private MetricsPrecisionDemo() { }
@@ -41,7 +43,7 @@ final class MetricsPrecisionDemo {
     System.out.println("Real Histogram size: " + realSize + "B, Approx histogram size: "
         + histSize + "B");
 
-    double[] quantiles = com.twitter.common.metrics.Histogram.DEFAULT_QUANTILES;
+    double[] quantiles = DEFAULT_QUANTILES;
     for (int i = 0; i < quantiles.length; i++) {
       double q = quantiles[i];
       long realQuantile = real.getQuantile(q);

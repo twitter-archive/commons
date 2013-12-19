@@ -22,13 +22,17 @@ package com.twitter.common.stats;
  * @author William Farner
  */
 public class Statistics {
-  private long populationSize = 0;
-  private long sum = 0;
-  private double accumulatedVariance = 0;
-  private double runningMean = 0;
+  private long populationSize;
+  private long sum;
+  private double accumulatedVariance;
+  private double runningMean;
 
-  private long minValue = Long.MAX_VALUE;
-  private long maxValue = Long.MIN_VALUE;
+  private long minValue;
+  private long maxValue;
+
+  public Statistics() {
+    clear();
+  }
 
   public void accumulate(long value) {
     populationSize++;
@@ -40,6 +44,15 @@ public class Statistics {
     // Update max/min.
     minValue = value < minValue ? value : minValue;
     maxValue = value > maxValue ? value : maxValue;
+  }
+
+  public void clear() {
+    populationSize = 0;
+    sum = 0;
+    accumulatedVariance = 0;
+    runningMean = 0;
+    minValue = Long.MAX_VALUE;
+    maxValue = Long.MIN_VALUE;
   }
 
   public double variance() {

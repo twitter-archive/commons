@@ -72,18 +72,19 @@ public class MetricsTest {
   @Test
   public void testDetachedRoot() {
     String name = "foo";
-    long value  = 10L;
+    Long value = 10L;
     Metrics detached = Metrics.createDetached();
     Counter foo = detached.createCounter(name);
     foo.add(value);
 
-    Number readValue = detached.sample().get(name);
+    Long readValue = (Long) detached.sample().get(name);
     assertEquals(readValue, value);
 
     foo.increment();
 
-    Number readValue2 = detached.sample().get(name);
-    assertEquals(readValue2, value + 1);
+    Long readValue2 = (Long) detached.sample().get(name);
+    value += 1;
+    assertEquals(readValue2, value);
 
     assertNull(Metrics.root().sample().get(name));
   }

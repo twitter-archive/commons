@@ -38,9 +38,9 @@ public interface MetricRegistry {
   <T extends Number> void register(Gauge<T> gauge);
 
   /**
-   * Creates a gauge and returns an {@link Counter} that can be incremented.
+   * Creates and returns a {@link Counter} that can be incremented.
    *
-   * @param name Name to associate with the gauge.
+   * @param name Name to associate with the counter.
    * @return Counter (initialized to zero) to increment the value.
    */
   Counter createCounter(String name);
@@ -53,4 +53,17 @@ public interface MetricRegistry {
    */
   @Deprecated
   Counter registerCounter(String name);
+
+  /**
+   * Create a HistogramInterface (with default parameters).
+   * @return the newly created histogram.
+   */
+  HistogramInterface createHistogram(String name);
+
+  /**
+   * Register an HistogramInterface into the Metrics registry.
+   * Useful when you want to create custom histogram (e.g. with better precision).
+   * @return the Histogram you registered for chaining purposes.
+   */
+  HistogramInterface registerHistogram(HistogramInterface histogram);
 }

@@ -24,9 +24,6 @@ import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.twitter.common.quantity.Amount;
-import com.twitter.common.quantity.Time;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -36,14 +33,11 @@ import static org.junit.Assert.assertNotNull;
 public class MetricsIT {
 
   private static final double EPS = 1e-8;
-
-  private static final Amount<Long, Time> ONE_SECOND = Amount.of(1L, Time.SECONDS);
-
-  private Metrics root;
+  private Metrics metrics;
 
   @Before
   public void setUp() {
-    root = new Metrics();
+    metrics = Metrics.createDetached();
   }
 
   @Test
@@ -53,8 +47,8 @@ public class MetricsIT {
 
   @Test
   public void testDerivedVars() {
-    Counter longVar = root.createCounter("long");
-    MetricRegistry barScope = root.scope("bar");
+    Counter longVar = metrics.createCounter("long");
+    MetricRegistry barScope = metrics.scope("bar");
     Counter longVar2 = barScope.createCounter("long");
     checkSamples(ImmutableMap.<String, Number>of("long", 0L, "bar.long", 0L));
 
@@ -66,7 +60,7 @@ public class MetricsIT {
   }
 
   private void checkSamples(Map<String, Number> expected) {
-    Map<String, Number> samples = Maps.newHashMap(root.sample());
+    Map<String, Number> samples = Maps.newHashMap(metrics.sample());
     for (Map.Entry<String, Number> expectedSample : expected.entrySet()) {
       Number value = samples.remove(expectedSample.getKey());
       assertNotNull("Missing metric " + expectedSample.getKey(), value);

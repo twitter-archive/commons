@@ -1,148 +1,188 @@
 package com.twitter.common.metrics;
 
+import javax.annotation.Nullable;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
 import com.twitter.common.base.MorePreconditions;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Data;
+import com.twitter.common.quantity.Time;
 import com.twitter.common.stats.Precision;
 import com.twitter.common.stats.Statistics;
 import com.twitter.common.stats.WindowedApproxHistogram;
+import com.twitter.common.util.Clock;
+
+import static com.twitter.common.stats.WindowedApproxHistogram.DEFAULT_MAX_MEMORY;
+import static com.twitter.common.stats.WindowedApproxHistogram.DEFAULT_SLICES;
+import static com.twitter.common.stats.WindowedApproxHistogram.DEFAULT_WINDOW;
 
 /**
  * A Histogram is a representation of a distribution of values.
  * It can be queried for quantiles or basic statistics (min, max, avg, count).
  */
-public class Histogram {
+public class Histogram implements HistogramInterface {
   @VisibleForTesting
   public static final double[] DEFAULT_QUANTILES = {.50, .90, .95, .99, .999, .9999};
 
-  private final com.twitter.common.stats.Histogram histogram;
   private final String name;
-  private final double[] quantiles;
+  private final com.twitter.common.stats.Histogram histogram;
   private volatile Statistics stats;
+  private final double[] quantiles;
 
   /**
-   * Construct an histogram, create gauges and register it into the registry.
-   *
-   * @param name is the name of the histogram used for Gauge name.
-   * @param histogram is the inner common.stats.Histogram used for storing data.
-   * @param quantiles is the quantiles values that will be used for the gauges.
-   * @param registry is the registry in which gauges will be registered.
+   * Construct a Histogram.
+   * This constructor only exists for backward compatibility reasons.
+   * See #Histogram(String, Amount<Long, Time>, int, Amount<Long, Data>,
+   *   Precision, double[], Clock)
    */
-  @VisibleForTesting Histogram(
-    String name,
-    com.twitter.common.stats.Histogram histogram,
-    double[] quantiles,
-    MetricRegistry registry) {
+  public Histogram(String name, Amount<Long, Time> window, int slices,
+      @Nullable Amount<Long, Data> maxMemory, @Nullable Precision precision,
+      double[] quantiles,
+      Clock clock,
+      @Nullable MetricRegistry registry) {
+    Preconditions.checkArgument(precision != null ^ maxMemory != null,
+        "You must specify either memory or precision constraint but not both!");
+    Preconditions.checkNotNull(window);
+    Preconditions.checkArgument(0 < slices);
+    for (double q: quantiles) {
+      Preconditions.checkArgument(0.0 <= q && q <= 1.0);
+    }
+    Preconditions.checkNotNull(clock);
 
-    MorePreconditions.checkNotBlank(name);
-    Preconditions.checkNotNull(quantiles);
-    Preconditions.checkArgument(0 < quantiles.length);
-    Preconditions.checkNotNull(registry);
-
-    this.name = name;
-    this.histogram = histogram;
-    this.quantiles = quantiles;
+    this.name = MorePreconditions.checkNotBlank(name);
+    this.quantiles = Preconditions.checkNotNull(quantiles);
+    if (maxMemory != null) {
+      this.histogram = new WindowedApproxHistogram(window, slices, maxMemory, clock);
+    } else {
+      this.histogram = new WindowedApproxHistogram(window, slices, precision, clock);
+    }
     this.stats = new Statistics();
 
-    registerInto(registry);
+    if (registry != null) {
+      registry.registerHistogram(this);
+    }
+  }
+
+  /**
+   * Default constructor
+   * This histogram is composed of a WindowedHistogram with a window duration of {@code window}
+   * and decomposed in {@code slices} Histograms (See #WindowedHistogram for more details about
+   * that).
+   *
+   * @param window duration of the window
+   * @param slices number of slices in the window
+   * @param maxMemory maximum memory used by the whole histogram (can be null if precision isn't)
+   * @param precision precision of the whole histogram (can be null if maxMemory isn't)
+   * @param quantiles array of quantiles that will be computed
+   * @param clock clock used to store elements in the the WindowedHistogram (for testing purposes
+   * only)
+   */
+  public Histogram(String name, Amount<Long, Time> window, int slices,
+      @Nullable Amount<Long, Data> maxMemory, @Nullable Precision precision,
+      double[] quantiles,
+      Clock clock) {
+    this(name, window, slices,
+        maxMemory, precision,
+        quantiles,
+        clock,
+        null);
   }
 
   /**
    * Construct a Histogram with default arguments except name.
-   * @see #Histogram(String, Histogram, double[], MetricRegistry).
+   * @see #Histogram(String, Amount<Long, Time>, int, Amount<Long, Data>, Precision, double[],
+   * Clock, Histogram).
    */
+  public Histogram(String name) {
+    this(name, DEFAULT_WINDOW, DEFAULT_SLICES,
+        DEFAULT_MAX_MEMORY, null,
+        DEFAULT_QUANTILES,
+        Clock.SYSTEM_CLOCK,
+        null);
+  }
+
+  /**
+   * Construct a Histogram with default arguments except name.
+   * @see #Histogram(String, Amount<Long, Time>, int, Amount<Long, Data>, Precision, double[],
+   *   Clock, Histogram).
+   * 12/11/2013: Remove this method after the next deprecation cycle.
+   * @deprecated Prefer registry.createHistogram(String)
+   */
+  @Deprecated
   public Histogram(String name, MetricRegistry registry) {
-    this(name, new WindowedApproxHistogram(), DEFAULT_QUANTILES, registry);
+    this(name, DEFAULT_WINDOW, DEFAULT_SLICES,
+        DEFAULT_MAX_MEMORY, null,
+        DEFAULT_QUANTILES,
+        Clock.SYSTEM_CLOCK,
+        registry);
   }
 
   /**
    * Construct a Histogram with default arguments except name and precision.
-   * @see #Histogram(String, Histogram, double[], MetricRegistry).
+   * @see #Histogram(String, Amount<Long, Time>, int, Amount<Long, Data>, Precision, double[],
+   *   Clock, Histogram).
    */
-  public Histogram(String name, Precision precision, MetricRegistry registry) {
-    this(name, new WindowedApproxHistogram(precision), DEFAULT_QUANTILES, registry);
+  public Histogram(String name, Precision precision) {
+    this(name, DEFAULT_WINDOW, DEFAULT_SLICES,
+        null, precision,
+        DEFAULT_QUANTILES,
+        Clock.SYSTEM_CLOCK,
+        null);
   }
 
   /**
    * Construct a Histogram with default arguments except name and maxMemory.
-   * @see #Histogram(String, Histogram, double[], MetricRegistry).
+   * @see #Histogram(String, Config).
    */
-  public Histogram(String name, Amount<Long, Data> maxMemory, MetricRegistry registry) {
-    this(name, new WindowedApproxHistogram(maxMemory), DEFAULT_QUANTILES, registry);
+  public Histogram(String name, Amount<Long, Data> maxMemory) {
+    this(name, DEFAULT_WINDOW, DEFAULT_SLICES,
+        maxMemory, null,
+        DEFAULT_QUANTILES,
+        Clock.SYSTEM_CLOCK,
+        null);
   }
 
-  /**
-   * Resets the state of this Histogram. Clears all data points collected so far.
-   */
+  @Override
+  public String getName() {
+    return name;
+  }
+
+  @Override
   public synchronized void clear() {
-    stats = new Statistics();
+    stats.clear();
     histogram.clear();
   }
 
-  /**
-   * Adds a data point.
-   */
+  @Override
   public synchronized void add(long n) {
     stats.accumulate(n);
     histogram.add(n);
   }
 
-  /**
-   * Create multiple Gauges and register them into the MetricRegistry.
-   */
-  private void registerInto(final MetricRegistry metrics) {
-    MetricRegistry registry = metrics.scope(name);
-    registry.register(new AbstractGauge<Long>("count") {
-      @Override public Long read() {
-        return stats.populationSize();
-      }
-    });
-    registry.register(new AbstractGauge<Long>("sum") {
-      @Override public Long read() {
-        return stats.sum();
-      }
-    });
-    registry.register(new AbstractGauge<Long>("avg") {
-      @Override public Long read() {
-        return (long) stats.mean();
-      }
-    });
-    registry.register(new AbstractGauge<Long>("min") {
-      @Override public Long read() {
-        if (stats.populationSize() == 0) {
-          return 0L;
-        } else {
-          return stats.min();
-        }
-      }
-    });
-    registry.register(new AbstractGauge<Long>("max") {
-      @Override public Long read() {
-        if (stats.populationSize() == 0) {
-          return 0L;
-        } else {
-          return stats.max();
-        }
-      }
-    });
-    for (final double q : quantiles) {
-      registry.register(new AbstractGauge<Long>(gaugeName(q)) {
-        @Override public Long read() {
-          return histogram.getQuantile(q);
-        }
-      });
+  @Override
+  public synchronized Snapshot snapshot() {
+    final long count = stats.populationSize();
+    final long sum = stats.sum();
+    final double avg = stats.mean();
+    final long min = count == 0 ? 0L : stats.min();
+    final long max = count == 0 ? 0L : stats.max();
+    final double stddev = stats.standardDeviation();
+    final Percentile[] ps = new Percentile[quantiles.length];
+    long[] values = histogram.getQuantiles(quantiles);
+    for (int i = 0; i < ps.length; i++) {
+      ps[i] = new Percentile(quantiles[i], values[i]);
     }
-  }
 
-  @VisibleForTesting
-  static String gaugeName(double quantile) {
-    String gname = "p" + (int) (quantile * 10000);
-    if (3 < gname.length() && "00".equals(gname.substring(3))) {
-      gname = gname.substring(0, 3);
-    }
-    return gname;
+    return new Snapshot() {
+      @Override public long count() { return count; }
+      @Override public long sum() { return sum; }
+      @Override public double avg() { return avg; }
+      @Override public long min() { return min; }
+      @Override public long max() { return max; }
+      @Override public double stddev() { return stddev; }
+      @Override public Percentile[] percentiles() { return ps; }
+    };
   }
 }

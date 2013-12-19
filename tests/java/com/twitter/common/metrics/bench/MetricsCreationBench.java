@@ -21,7 +21,7 @@ import java.util.Random;
 import com.google.caliper.SimpleBenchmark;
 
 import com.twitter.common.metrics.Counter;
-import com.twitter.common.metrics.Histogram;
+import com.twitter.common.metrics.HistogramInterface;
 import com.twitter.common.metrics.Metrics;
 import com.twitter.common.stats.ApproximateHistogram;
 import com.twitter.common.stats.WindowedApproxHistogram;
@@ -57,10 +57,10 @@ public class MetricsCreationBench extends SimpleBenchmark {
    * "p25", "p50", "p75", "p90", "p95", "p99", "p999", "p9999"
    */
   public void timeCreatingHistogram(int n) {
-    Histogram h;
+    HistogramInterface h;
     int i = n;
     while (i != 0) {
-      h = new Histogram("histogram", metrics);
+      h = metrics.createHistogram("histogram");
       h.add(1);
       i--;
     }

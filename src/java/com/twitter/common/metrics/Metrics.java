@@ -16,9 +16,10 @@
 
 package com.twitter.common.metrics;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
@@ -27,16 +28,16 @@ import com.twitter.jsr166e.LongAdder;
 /**
  * Root metric registry.
  */
-public class Metrics implements MetricRegistry, MetricProvider {
-
+public final class Metrics implements MetricRegistry, MetricProvider {
   private static final Metrics ROOT = new Metrics();
 
-  private final Map<String, Gauge<?>> metrics = Maps.newConcurrentMap();
+  private final Map<String, Gauge<?>> gauges = Maps.newConcurrentMap();
+  private final Map<String, LongAdder> counters = Maps.newConcurrentMap();
+  private final Set<HistogramInterface> histograms;
 
-
-  @VisibleForTesting
-  Metrics() {
-    // Package private.
+  private Metrics() {
+    Map<HistogramInterface, Boolean> underlying = Maps.newConcurrentMap();
+    histograms = Collections.newSetFromMap(underlying);
   }
 
   /**
@@ -59,13 +60,13 @@ public class Metrics implements MetricRegistry, MetricProvider {
 
   @Override
   public MetricRegistry scope(String name) {
-    return new ScopedRegistry(name, this);
+    return new ScopedRegistry(this, name);
   }
 
   @Override
   public <T extends Number> void register(Gauge<T> gauge) {
     // TODO(wfarner): Define a policy for handling collisions.
-    metrics.put(gauge.getName(), gauge);
+    gauges.put(gauge.getName(), gauge);
   }
 
   @Override
@@ -76,11 +77,7 @@ public class Metrics implements MetricRegistry, MetricProvider {
   @Override
   public Counter createCounter(String name) {
     final LongAdder adder = new LongAdder();
-    register(new AbstractGauge<Long>(name) {
-      @Override public Long read() {
-        return adder.sum();
-      }
-    });
+    counters.put(name, adder);
     return new Counter() {
       public void increment() {
         adder.increment();
@@ -92,11 +89,58 @@ public class Metrics implements MetricRegistry, MetricProvider {
   }
 
   @Override
+  public HistogramInterface createHistogram(String name) {
+    return registerHistogram(new Histogram(name));
+  }
+
+  @Override
+  public HistogramInterface registerHistogram(HistogramInterface histogram) {
+    histograms.add(histogram);
+    return histogram;
+  }
+
+  @Override
   public Map<String, Number> sample() {
     ImmutableMap.Builder<String, Number> samples = ImmutableMap.builder();
-    for (Map.Entry<String, Gauge<?>> metric : metrics.entrySet()) {
-      samples.put(metric.getKey(), metric.getValue().read());
+    // Collect all gauges
+    for (Map.Entry<String, Gauge<?>> metric : gauges.entrySet()) {
+      Gauge<?> gauge = metric.getValue();
+      if (gauge == null) {
+        gauges.remove(metric.getKey());
+      } else {
+        samples.put(metric.getKey(), gauge.read());
+      }
+    }
+    // Collect all counters
+    for (Map.Entry<String, LongAdder> metric : counters.entrySet()) {
+      samples.put(metric.getKey(), metric.getValue().sum());
+    }
+    // Collect all statistics of histograms
+    for (HistogramInterface h: histograms) {
+      Snapshot snapshot = h.snapshot();
+      samples.put(named(h.getName(), "count"), snapshot.count());
+      samples.put(named(h.getName(), "sum"), snapshot.sum());
+      samples.put(named(h.getName(), "avg"), snapshot.avg());
+      samples.put(named(h.getName(), "min"), snapshot.min());
+      samples.put(named(h.getName(), "max"), snapshot.max());
+      samples.put(named(h.getName(), "stddev"), snapshot.stddev());
+      for (Percentile p: snapshot.percentiles()) {
+        String percentileName = named(h.getName(), gaugeName(p.getQuantile()));
+        samples.put(percentileName, p.getValue());
+      }
     }
     return samples.build();
+  }
+
+  private static String named(String histogramName, String statName) {
+    return histogramName + ScopedRegistry.DEFAULT_SCOPE_DELIMITER + statName;
+  }
+
+  private static String gaugeName(double quantile) {
+    String gname = "p" + (int) (quantile * 10000);
+    if (3 < gname.length() && "00".equals(gname.substring(3))) {
+      gname = gname.substring(0, 3);
+    }
+    return gname;
   }
 }

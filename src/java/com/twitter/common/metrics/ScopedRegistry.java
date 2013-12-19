@@ -24,13 +24,12 @@ import com.twitter.common.base.MorePreconditions;
 /**
  * A metric registry that is a 'child' of another metric registry.
  */
-public class ScopedRegistry implements MetricRegistry {
+class ScopedRegistry implements MetricRegistry {
 
-  @VisibleForTesting static final String SCOPE_DELIMITER = ".";
+  @VisibleForTesting public static final String DEFAULT_SCOPE_DELIMITER = ".";
 
   private final MetricRegistry parent;
   private final String name;
-
 
   /**
    * Creates a new scoped metric registry.
@@ -41,18 +40,18 @@ public class ScopedRegistry implements MetricRegistry {
    * @param parent Parent scope to register gauges with.
    */
   @VisibleForTesting
-  ScopedRegistry(String name, MetricRegistry parent) {
-    this.name = MorePreconditions.checkNotBlank(name);
+  ScopedRegistry(MetricRegistry parent, String name) {
     this.parent = Preconditions.checkNotNull(parent);
+    this.name = MorePreconditions.checkNotBlank(name);
   }
 
   @Override
   public MetricRegistry scope(String scopeName) {
-    return new ScopedRegistry(scopeName, this);
+    return new ScopedRegistry(this, scopeName);
   }
 
   private String scopeName(String metricName) {
-    return name + SCOPE_DELIMITER + metricName;
+    return name + DEFAULT_SCOPE_DELIMITER + metricName;
   }
 
   @Override
@@ -73,5 +72,22 @@ public class ScopedRegistry implements MetricRegistry {
   @Override
   public Counter registerCounter(String gaugeName) {
     return createCounter(gaugeName);
+  }
+
+  @Override
+  public HistogramInterface createHistogram(String gaugeName) {
+    return parent.createHistogram(scopeName(gaugeName));
+  }
+
+  @Override
+  public HistogramInterface registerHistogram(final HistogramInterface histogram) {
+    HistogramInterface h = new HistogramInterface() {
+      @Override public String getName() { return scopeName(histogram.getName()); }
+      @Override public void clear() { histogram.clear(); }
+      @Override public void add(long n) { histogram.add(n); }
+      @Override public Snapshot snapshot() { return histogram.snapshot(); }
+    };
+    parent.registerHistogram(h);
+    return h;
   }
 }

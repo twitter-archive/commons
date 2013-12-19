@@ -30,9 +30,10 @@ import com.twitter.common.util.Clock;
  * ApproximateHistogram as the underlying storing histogram.
  */
 public class WindowedApproxHistogram extends WindowedHistogram<ApproximateHistogram> {
-  @VisibleForTesting static final int DEFAULT_SLICES = 3;
-  @VisibleForTesting static final Amount<Long, Time> DEFAULT_WINDOW = Amount.of(1L, Time.MINUTES);
-  @VisibleForTesting static final Amount<Long, Data> DEFAULT_MAX_MEMORY = Amount.of(
+  @VisibleForTesting public static final int DEFAULT_SLICES = 3;
+  @VisibleForTesting public static final Amount<Long, Time> DEFAULT_WINDOW =
+      Amount.of(1L, Time.MINUTES);
+  @VisibleForTesting public static final Amount<Long, Data> DEFAULT_MAX_MEMORY = Amount.of(
       (DEFAULT_SLICES + 1) * ApproximateHistogram.DEFAULT_MAX_MEMORY.as(Data.BYTES), Data.BYTES);
 
   /**
