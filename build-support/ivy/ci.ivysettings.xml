@@ -1,7 +1,9 @@
 <ivysettings>
+  <!-- TODO(John Sirois): remove this setting once http://go/rb/228151 is released as a pex
+       as part of http://go/jira/DPB-71 work. -->
   <!-- For CI environment, ivy cache is set to workspace name under user home -->
   <properties environment="env"/>
-  <property name="ivy.cache.dir" value="${env.LOCAL_CACHE_DIR}" override="false"/>
+  <property name="ivy.cache.dir" value="${env.PANTS_IVY_CACHE_DIR}" override="false"/>
 
   <property name="root.dir" value="${ivy.settings.dir}/../.." override="false"/>
   <properties file="${root.dir}/build.properties" override="false"/>
@@ -19,6 +21,8 @@
     </chain>
   </resolvers>
 
+  <!-- TODO(John Sirois): remove this setting once http://go/rb/228151 is released as a pex
+       as part of http://go/jira/DPB-71 work. -->
   <!-- don't use the default shared cache with other projects because it gets polluted,
        but do share it for this project so that deploys that re-clone each time share it -->
   <caches default="default" lockStrategy="no-lock" useOrigin="true">
