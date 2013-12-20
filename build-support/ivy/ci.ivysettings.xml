@@ -21,13 +21,7 @@
     </chain>
   </resolvers>
 
-  <!-- TODO(John Sirois): remove this setting once http://go/rb/228151 is released as a pex
-       as part of http://go/jira/DPB-71 work. -->
-  <!-- don't use the default shared cache with other projects because it gets polluted,
-       but do share it for this project so that deploys that re-clone each time share it -->
-  <caches default="default" lockStrategy="no-lock" useOrigin="true">
-    <cache name="default" basedir="${ivy.cache.dir}" useOrigin="true" defaultTTL="8h">
-      <ttl revision="latest.integration" duration="0ms" />
-    </cache>
+  <caches default="default" lockStrategy="no-lock" useOrigin="false">
+    <cache name="default" basedir="${ivy.cache.dir}"/>
   </caches>
 </ivysettings>
