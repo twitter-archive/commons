@@ -84,6 +84,9 @@ public final class Main {
   @CmdLine(name = "update", help = "Update the jar if it already exists, otherwise create it.")
   private static final Arg<Boolean> UPDATE = Arg.create(false);
 
+  @CmdLine(name = "compress", help = "Compress jar entries.")
+  private static final Arg<Boolean> COMPRESS = Arg.create(false);
+
   @CmdLine(name = "files",
       help = "A mapping from filesystem paths to jar paths. The mapping is specified in the form "
           + "[fs path1]=[jar path1],[fs path2]=[jar path2]. For example: "
@@ -249,7 +252,7 @@ public final class Main {
 
     DuplicateHandler duplicateHandler = new DuplicateHandler(DEFAULT_ACTION.get(), POLICIES.get());
     try {
-      jarBuilder.write(duplicateHandler, SKIP.get());
+      jarBuilder.write(COMPRESS.get(), duplicateHandler, SKIP.get());
     } catch (DuplicateEntryException e) {
       exit(1, "Refusing to write duplicate entry: %s", e.getMessage());
     } catch (IOException e) {

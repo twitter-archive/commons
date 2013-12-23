@@ -263,11 +263,35 @@ public class JarBuilderTest {
       }
     }
 
-    private void assertContents(JarFile jar, String path, String expectedContent)
+    private void assertCompressedContents(
+        JarFile jar,
+        String path,
+        String expectedContent)
+        throws IOException {
+
+      assertContents(jar, path, expectedContent, true /* compressed */);
+    }
+
+    private void assertStoredContents(
+        JarFile jar,
+        String path,
+        String expectedContent)
+        throws IOException {
+
+      assertContents(jar, path, expectedContent, false /* compressed */);
+    }
+
+    private void assertContents(
+        JarFile jar,
+        String path,
+        String expectedContent,
+        boolean compressed)
         throws IOException {
 
       Closer closer = Closer.create();
-      InputStream entryIn = closer.register(jar.getInputStream(jar.getJarEntry(path)));
+      JarEntry jarEntry = jar.getJarEntry(path);
+      assertEquals(compressed ? JarEntry.DEFLATED : JarEntry.STORED, jarEntry.getMethod());
+      InputStream entryIn = closer.register(jar.getInputStream(jarEntry));
       try {
         assertEquals(expectedContent, new String(ByteStreams.toByteArray(entryIn), Charsets.UTF_8));
       } catch (IOException e) {
@@ -343,7 +367,7 @@ public class JarBuilderTest {
       doWithJar(destinationJar, new ExceptionalClosure<JarFile, IOException>() {
         @Override public void execute(JarFile jar) throws IOException {
           assertListing(jar, "meaning/", "meaning/of/", "meaning/of/life");
-          assertContents(jar, "meaning/of/life", "42");
+          assertStoredContents(jar, "meaning/of/life", "42");
         }
       });
     }
@@ -366,8 +390,8 @@ public class JarBuilderTest {
               "meaning/of/life/used/",
               "meaning/of/life/used/to/",
               "meaning/of/life/used/to/be");
-          assertContents(jar, "meaning/of/life/is", "42");
-          assertContents(jar, "meaning/of/life/used/to/be", "1/137");
+          assertStoredContents(jar, "meaning/of/life/is", "42");
+          assertStoredContents(jar, "meaning/of/life/used/to/be", "1/137");
         }
       });
 
@@ -391,8 +415,8 @@ public class JarBuilderTest {
               "meaning/of/life",
               "meaning/of/the/",
               "meaning/of/the/universe");
-          assertContents(jar, "meaning/of/life", "42");
-          assertContents(jar, "meaning/of/the/universe", "1/137");
+          assertStoredContents(jar, "meaning/of/life", "42");
+          assertStoredContents(jar, "meaning/of/the/universe", "1/137");
         }
       });
     }
@@ -415,6 +439,7 @@ public class JarBuilderTest {
               .add(dir, "meaning/of/life")
               .addJar(sourceJar)
               .write(
+                  true, // compress
                   DuplicateHandler.always(DuplicateAction.THROW),
                   Pattern.compile("is$"),
                   Pattern.compile("/README"));
@@ -431,9 +456,9 @@ public class JarBuilderTest {
               "meaning/of/life/used/to/be",
               "meaning/of/the/",
               "meaning/of/the/universe");
-          assertContents(jar, "meaning/of/life/isn't", "43");
-          assertContents(jar, "meaning/of/life/used/to/be", "4");
-          assertContents(jar, "meaning/of/the/universe", "1/137");
+          assertCompressedContents(jar, "meaning/of/life/isn't", "43");
+          assertCompressedContents(jar, "meaning/of/life/used/to/be", "4");
+          assertCompressedContents(jar, "meaning/of/the/universe", "1/137");
         }
       });
     }
@@ -447,7 +472,7 @@ public class JarBuilderTest {
       jarBuilder(destinationJar)
           .add(content("42\n"), "meaning/of/life")
           .add(content("jake\n"), "meaning/of/life")
-          .write(alwaysConcat);
+          .write(true /* compress */, alwaysConcat);
 
       File jar = jarBuilder().add(content("more\n"), "meaning/of/life").write();
 
@@ -457,7 +482,7 @@ public class JarBuilderTest {
       jarBuilder(destinationJar)
           .addJar(jar)
           .add(dir, "meaning/of")
-          .write(alwaysConcat);
+          .write(true /* compress */, alwaysConcat);
 
       doWithJar(destinationJar, new ExceptionalClosure<JarFile, IOException>() {
         @Override public void execute(JarFile jar) throws IOException {
@@ -465,7 +490,7 @@ public class JarBuilderTest {
               "meaning/",
               "meaning/of/",
               "meaning/of/life");
-          assertContents(jar, "meaning/of/life", "1/137\n42\njake\nmore\njane");
+          assertCompressedContents(jar, "meaning/of/life", "1/137\n42\njake\nmore\njane");
         }
       });
     }
@@ -478,12 +503,12 @@ public class JarBuilderTest {
           jarBuilder()
               .add(content("1/137"), "meaning/of/life")
               .add(content("!"), "meaning/of/life")
-              .write(alwaysSkip);
+              .write(true /* compress */, alwaysSkip);
 
       jarBuilder(destinationJar)
           .addJar(destinationJar)
           .add(content("42"), "meaning/of/life")
-          .write(alwaysSkip);
+          .write(true /* compress */, alwaysSkip);
 
       doWithJar(destinationJar, new ExceptionalClosure<JarFile, IOException>() {
         @Override public void execute(JarFile jar) throws IOException {
@@ -491,7 +516,7 @@ public class JarBuilderTest {
               "meaning/",
               "meaning/of/",
               "meaning/of/life");
-          assertContents(jar, "meaning/of/life", "1/137");
+          assertCompressedContents(jar, "meaning/of/life", "1/137");
         }
       });
     }
@@ -507,7 +532,7 @@ public class JarBuilderTest {
               .add(content("1/137"), "meaning/of/life")
               .add(content("!"), "meaning/of/life")
               .add(content("1/137"), "meaning/of/brian")
-              .write(replaceMeaningOfLife);
+              .write(false /* compress */, replaceMeaningOfLife);
 
       doWithJar(destinationJar, new ExceptionalClosure<JarFile, IOException>() {
         @Override public void execute(JarFile jar) throws IOException {
@@ -516,15 +541,15 @@ public class JarBuilderTest {
               "meaning/of/",
               "meaning/of/life",
               "meaning/of/brian");
-          assertContents(jar, "meaning/of/life", "!");
-          assertContents(jar, "meaning/of/brian", "1/137");
+          assertStoredContents(jar, "meaning/of/life", "!");
+          assertStoredContents(jar, "meaning/of/brian", "1/137");
         }
       });
 
       jarBuilder(destinationJar)
           .add(content("42"), "meaning/of/life")
           .add(content("jane"), "meaning/of/life")
-          .write(replaceMeaningOfLife);
+          .write(true /* compress */, replaceMeaningOfLife);
 
       doWithJar(destinationJar, new ExceptionalClosure<JarFile, IOException>() {
         @Override public void execute(JarFile jar) throws IOException {
@@ -533,8 +558,8 @@ public class JarBuilderTest {
               "meaning/of/",
               "meaning/of/life",
               "meaning/of/brian");
-          assertContents(jar, "meaning/of/life", "jane");
-          assertContents(jar, "meaning/of/brian", "1/137");
+          assertCompressedContents(jar, "meaning/of/life", "jane");
+          assertCompressedContents(jar, "meaning/of/brian", "1/137");
         }
       });
     }
@@ -546,7 +571,7 @@ public class JarBuilderTest {
 
       JarBuilder jarBuilder = jarBuilder(destinationJar).add(content("42"), "meaning/of/life");
       try {
-        jarBuilder.write(alwaysThrow);
+        jarBuilder.write(true /* compress */, alwaysThrow);
         fail("Expected jar processing to throw a DuplicateEntryException.");
       } catch (DuplicateEntryException e) {
         assertEquals("meaning/of/life", e.getPath());
@@ -563,7 +588,7 @@ public class JarBuilderTest {
               .add(content("!"), "meaning/of/life");
 
       try {
-        jarBuilder.write(alwaysThrow);
+        jarBuilder.write(true /* compress */, alwaysThrow);
         fail("Expected jar processing to throw a DuplicateEntryException.");
       } catch (DuplicateEntryException e) {
         assertEquals("meaning/of/life", e.getPath());
@@ -588,7 +613,10 @@ public class JarBuilderTest {
 
       jarBuilder(folder.newFile(), listener)
           .add(content("skipped write"), "skipped/write")
-          .write(DuplicateHandler.always(DuplicateAction.THROW), Pattern.compile("skipped/"));
+          .write(
+              false /* compress */,
+              DuplicateHandler.always(DuplicateAction.THROW),
+              Pattern.compile("skipped/"));
 
       assertEquals("skipped/write", Iterables.getOnlyElement(skipped.getValue()).getJarPath());
     }
@@ -623,7 +651,7 @@ public class JarBuilderTest {
           .add(one, "skipped/write")
           .add(two, "skipped/write")
           .add(three, "skipped/write")
-          .write(DuplicateHandler.always(DuplicateAction.SKIP));
+          .write(false /* compress */, DuplicateHandler.always(DuplicateAction.SKIP));
 
       assertEquals("one", retained.getValue().get().getName());
       assertEquals("skipped/write", retained.getValue().get().getJarPath());
@@ -646,7 +674,7 @@ public class JarBuilderTest {
           .add(one, "concatenated/write")
           .add(two, "concatenated/write")
           .add(three, "concatenated/write")
-          .write(DuplicateHandler.always(DuplicateAction.CONCAT));
+          .write(false /* compress */, DuplicateHandler.always(DuplicateAction.CONCAT));
 
       assertEquals(ImmutableList.of("one", "two", "three"),
           FluentIterable.from(concatenated.getValue()).transform(GET_NAME).toList());
@@ -668,7 +696,7 @@ public class JarBuilderTest {
           .add(one, "replaced/write")
           .add(two, "replaced/write")
           .add(three, "replaced/write")
-          .write(DuplicateHandler.always(DuplicateAction.REPLACE));
+          .write(false /* compress */, DuplicateHandler.always(DuplicateAction.REPLACE));
 
       assertEquals(ImmutableList.of("one", "two"),
           FluentIterable.from(originals.getValue()).transform(GET_NAME).toList());

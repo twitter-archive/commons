@@ -22,6 +22,7 @@ import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.regex.Pattern;
+import java.util.zip.CRC32;
 
 import javax.annotation.Nullable;
 
@@ -40,6 +41,7 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import com.google.common.io.ByteProcessor;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closer;
 import com.google.common.io.Files;
@@ -525,7 +527,7 @@ public class JarBuilder implements Closeable {
 
   /**
    * Creates a JarBuilder that will write scheduled jar additions to {@code target} upon
-   * {@link #write()}.
+   * {@link #write}.
    * <p>
    * If the {@code target} does not exist a new jar will be created at its path.
    *
@@ -537,7 +539,7 @@ public class JarBuilder implements Closeable {
 
   /**
    * Creates a JarBuilder that will write scheduled jar additions to {@code target} upon
-   * {@link #write()}.
+   * {@link #write}.
    * <p>
    * If the {@code target} does not exist a new jar will be created at its path.
    *
@@ -556,7 +558,7 @@ public class JarBuilder implements Closeable {
   /**
    * Schedules addition of the given {@code contents} to the entry at {@code jarPath}. In addition,
    * individual parent directory entries will be created when this builder is
-   * {@link #write() written} in he spirit of {@code mkdir -p}.
+   * {@link #write written} in he spirit of {@code mkdir -p}.
    *
    * @param contents The contents of the entry to add.
    * @param jarPath The path of the entry to add.
@@ -580,7 +582,7 @@ public class JarBuilder implements Closeable {
   /**
    * Schedules addition of the given {@code file}'s contents to the entry at {@code jarPath}. In
    * addition, individual parent directory entries will be created when this builder is
-   * {@link #write() written} in the spirit of {@code mkdir -p}.  If the file points to a directory,
+   * {@link #write written} in the spirit of {@code mkdir -p}.  If the file points to a directory,
    * its subtree is scheduled for addition rooted at {@code jarPath} in the resulting jar.
    *
    * @param file And existing file or directory to add to the jar.
@@ -678,7 +680,7 @@ public class JarBuilder implements Closeable {
   }
 
   /**
-   * Registers the given Manifest to be used in the jar written out by {@link #write()}.
+   * Registers the given Manifest to be used in the jar written out by {@link #write}.
    *
    * @param customManifest The manifest to use for the built jar.
    * @return This builder for chaining.
@@ -691,7 +693,7 @@ public class JarBuilder implements Closeable {
   }
 
   /**
-   * Registers the given Manifest to be used in the jar written out by {@link #write()}.
+   * Registers the given Manifest to be used in the jar written out by {@link #write}.
    *
    * @param customManifest The manifest to use for the built jar.
    * @return This builder for chaining.
@@ -708,7 +710,7 @@ public class JarBuilder implements Closeable {
   }
 
   /**
-   * Registers the given Manifest to be used in the jar written out by {@link #write()}.
+   * Registers the given Manifest to be used in the jar written out by {@link #write}.
    *
    * @param customManifest The manifest to use for the built jar.
    * @return This builder for chaining.
@@ -725,7 +727,7 @@ public class JarBuilder implements Closeable {
   }
 
   /**
-   * Registers the given Manifest to be used in the jar written out by {@link #write()}.
+   * Registers the given Manifest to be used in the jar written out by {@link #write}.
    *
    * @param customManifest The manifest to use for the built jar.
    * @return This builder for chaining.
@@ -759,19 +761,34 @@ public class JarBuilder implements Closeable {
 
   /**
    * Creates a jar at the configured target path applying the scheduled additions and skipping any
-   * duplicate entries found.
+   * duplicate entries found.  Entries will not be compressed.
    *
    * @return The jar file that was written.
    * @throws IOException if there was a problem writing the jar file.
    */
   public File write() throws IOException {
-    return write(DuplicateHandler.always(DuplicateAction.SKIP));
+    return write(false, DuplicateHandler.always(DuplicateAction.SKIP));
+  }
+
+  /**
+   * Creates a jar at the configured target path applying the scheduled additions and skipping any
+   * duplicate entries found.
+   *
+   * @param compress Pass {@code true} to compress all jar entries; otherwise, they will just be
+   *     stored.
+   * @return The jar file that was written.
+   * @throws IOException if there was a problem writing the jar file.
+   */
+  public File write(boolean compress) throws IOException {
+    return write(compress, DuplicateHandler.always(DuplicateAction.SKIP));
   }
 
   /**
    * Creates a jar at the configured target path applying the scheduled additions per the given
    * {@code duplicateHandler}.
    *
+   * @param compress Pass {@code true} to compress all jar entries; otherwise, they will just be
+   *     stored.
    * @param duplicateHandler A handler for dealing with duplicate entries.
    * @param skipPatterns An optional list of patterns that match entry paths that should be
    *     excluded.
@@ -780,8 +797,13 @@ public class JarBuilder implements Closeable {
    * @throws DuplicateEntryException if the the policy in effect for an entry is
    *     {@link DuplicateAction#THROW} and that entry is a duplicate.
    */
-  public File write(DuplicateHandler duplicateHandler, Pattern... skipPatterns) throws IOException {
-    return write(duplicateHandler, ImmutableList.copyOf(skipPatterns));
+  public File write(
+      boolean compress,
+      DuplicateHandler duplicateHandler,
+      Pattern... skipPatterns)
+      throws IOException {
+
+    return write(compress, duplicateHandler, ImmutableList.copyOf(skipPatterns));
   }
 
   private static final Function<Pattern, Predicate<CharSequence>> AS_PATH_SELECTOR =
@@ -795,6 +817,8 @@ public class JarBuilder implements Closeable {
    * Creates a jar at the configured target path applying the scheduled additions per the given
    * {@code duplicateHandler}.
    *
+   * @param compress Pass {@code true} to compress all jar entries; otherwise, they will just be
+   *     stored.
    * @param duplicateHandler A handler for dealing with duplicate entries.
    * @param skipPatterns An optional sequence of patterns that match entry paths that should be
    *     excluded.
@@ -803,7 +827,10 @@ public class JarBuilder implements Closeable {
    * @throws DuplicateEntryException if the the policy in effect for an entry is
    *     {@link DuplicateAction#THROW} and that entry is a duplicate.
    */
-  public File write(DuplicateHandler duplicateHandler, Iterable<Pattern> skipPatterns)
+  public File write(
+      final boolean compress,
+      DuplicateHandler duplicateHandler,
+      Iterable<Pattern> skipPatterns)
       throws DuplicateEntryException, IOException {
 
     Preconditions.checkNotNull(duplicateHandler);
@@ -815,7 +842,7 @@ public class JarBuilder implements Closeable {
     FileUtils.SYSTEM_TMP.doWithFile(new ExceptionalClosure<File, IOException>() {
       @Override public void execute(File tmp) throws IOException {
         try {
-          JarWriter writer = jarWriter(tmp);
+          JarWriter writer = jarWriter(tmp, compress);
           writer.write(JarFile.MANIFEST_NAME, manifest == null ? DEFAULT_MANIFEST : manifest);
           for (ReadableEntry entry : entries) {
             writer.write(entry.getJarPath(), entry.contents);
@@ -950,20 +977,62 @@ public class JarBuilder implements Closeable {
   }
 
   private static final class JarWriter {
+    static class EntryFactory {
+      private final boolean compress;
+
+      EntryFactory(boolean compress) {
+        this.compress = compress;
+      }
+
+      JarEntry createEntry(String path, InputSupplier<? extends InputStream> contents)
+          throws IOException {
+
+        JarEntry entry = new JarEntry(path);
+        entry.setMethod(compress ? JarEntry.DEFLATED : JarEntry.STORED);
+        if (!compress) {
+          prepareEntry(entry, contents);
+        }
+        return entry;
+      }
+
+      private void prepareEntry(JarEntry entry, InputSupplier<? extends InputStream> contents)
+          throws IOException {
+
+        final CRC32 crc32 = new CRC32();
+        long size = ByteStreams.readBytes(contents, new ByteProcessor<Long>() {
+          private long size = 0;
+
+          @Override public boolean processBytes(byte[] buf, int off, int len) throws IOException {
+            size += len;
+            crc32.update(buf, off, len);
+            return true;
+          }
+
+          @Override public Long getResult() {
+            return size;
+          }
+        });
+        entry.setSize(size);
+        entry.setCompressedSize(size);
+        entry.setCrc(crc32.getValue());
+      }
+    }
     private static final Joiner JAR_PATH_JOINER = Joiner.on('/');
 
     private final Set<List<String>> directories = Sets.newHashSet();
     private final JarOutputStream out;
+    private final EntryFactory entryFactory;
 
-    private JarWriter(JarOutputStream out) {
+    private JarWriter(JarOutputStream out, boolean compress) {
       this.out = out;
+      this.entryFactory = new EntryFactory(compress);
     }
 
     public void write(String path, InputSupplier<? extends InputStream> contents)
         throws IOException {
 
       ensureParentDir(path);
-      out.putNextEntry(new JarEntry(path));
+      out.putNextEntry(entryFactory.createEntry(path, contents));
       ByteStreams.copy(contents, out);
     }
 
@@ -984,7 +1053,7 @@ public class JarBuilder implements Closeable {
     }
   }
 
-  private JarWriter jarWriter(File path) throws IOException {
+  private JarWriter jarWriter(File path, boolean compress) throws IOException {
     FileOutputStream out = closer.register(new FileOutputStream(path));
     final JarOutputStream jar = closer.register(new JarOutputStream(out));
     closer.register(new Closeable() {
@@ -992,7 +1061,7 @@ public class JarBuilder implements Closeable {
         jar.closeEntry();
       }
     });
-    return new JarWriter(jar);
+    return new JarWriter(jar, compress);
   }
 
   private static InputSupplier<InputStream> entrySupplier(
