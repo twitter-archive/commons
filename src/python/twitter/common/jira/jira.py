@@ -120,7 +120,7 @@ class Jira(object):
     headers = {'User-Agent': 'twitter.common.jira'}
     base64string = authorization or base64.b64encode('%s:%s' % (self._user, self._getpass()))
     headers['Authorization'] = 'Basic %s' % base64string
-    log.info(headers)
+    log.debug(headers)
     data = json.dumps(post_json) if post_json else None
     if data:
       headers['Content-Type'] = 'application/json'
