@@ -13,6 +13,7 @@ import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
@@ -22,6 +23,7 @@ import com.google.common.io.Closer;
 import com.google.common.io.InputSupplier;
 
 import org.apache.commons.io.FileUtils;
+import org.easymock.Capture;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -38,11 +40,17 @@ import com.twitter.common.jar.tool.JarBuilder.DuplicateAction;
 import com.twitter.common.jar.tool.JarBuilder.DuplicateEntryException;
 import com.twitter.common.jar.tool.JarBuilder.DuplicateHandler;
 import com.twitter.common.jar.tool.JarBuilder.DuplicatePolicy;
+import com.twitter.common.jar.tool.JarBuilder.Entry;
+import com.twitter.common.jar.tool.JarBuilder.Listener;
 import com.twitter.common.testing.easymock.EasyMockTest;
 
 import static com.google.common.testing.junit4.JUnitAsserts.assertNotEqual;
 
+import static org.easymock.EasyMock.capture;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -164,16 +172,45 @@ public class JarBuilderTest {
     }
   }
 
-  public static class WriteTest {
-
-    private static InputSupplier<? extends InputStream> content(String content) {
+  public static class WriteTestBase {
+    protected static InputSupplier<? extends InputStream> content(String content) {
       return ByteStreams.newInputStreamSupplier(content.getBytes(Charsets.UTF_8));
     }
 
-    private static String content(InputSupplier<? extends InputStream> content) throws IOException {
+    protected static String content(InputSupplier<? extends InputStream> content)
+        throws IOException {
+
       return new String(ByteStreams.toByteArray(content), Charsets.UTF_8);
     }
 
+    @Rule public TemporaryFolder folder = new TemporaryFolder();
+
+    private Closer tearDownCloser;
+
+    @Before
+    public void setUpCloser() {
+      tearDownCloser = Closer.create();
+    }
+
+    @After
+    public void tearDownCloser() throws IOException {
+      tearDownCloser.close();
+    }
+
+    protected JarBuilder jarBuilder() throws IOException {
+      return jarBuilder(folder.newFile());
+    }
+
+    protected JarBuilder jarBuilder(File destinationJar) {
+      return jarBuilder(destinationJar, Listener.NOOP);
+    }
+
+    protected JarBuilder jarBuilder(File destinationJar, Listener listener) {
+      return tearDownCloser.register(new JarBuilder(destinationJar, listener));
+    }
+  }
+
+  public static class WriteTest extends WriteTestBase {
     private static void assertListing(JarFile jar, String... paths) {
       assertListing(jar, Arrays.asList(paths), true);
     }
@@ -199,20 +236,6 @@ public class JarBuilderTest {
       Collection<String> actual = ordered ? actualEntries.toList() : actualEntries.toSet();
 
       assertEquals(expected, actual);
-    }
-
-    @Rule public TemporaryFolder folder = new TemporaryFolder();
-
-    private Closer tearDownCloser;
-
-    @Before
-    public void setUpCloser() {
-      tearDownCloser = Closer.create();
-    }
-
-    @After
-    public void tearDownCloser() throws IOException {
-      tearDownCloser.close();
     }
 
     private void doWithJar(File path, final ExceptionalClosure<JarFile, IOException> work)
@@ -252,14 +275,6 @@ public class JarBuilderTest {
       } finally {
         closer.close();
       }
-    }
-
-    private JarBuilder jarBuilder() throws IOException {
-      return jarBuilder(folder.newFile());
-    }
-
-    private JarBuilder jarBuilder(File destinationJar) {
-      return tearDownCloser.register(new JarBuilder(destinationJar));
     }
 
     @Test
@@ -554,6 +569,111 @@ public class JarBuilderTest {
         assertEquals("meaning/of/life", e.getPath());
         assertEquals("!", content(e.getSource()));
       }
+    }
+  }
+
+  public static class ListenerTest extends WriteTestBase {
+    private static final Function<Entry, String> GET_NAME = new Function<Entry, String>() {
+      @Override public String apply(Entry entry) {
+        return entry.getName();
+      }
+    };
+
+    @Test
+    public void testOnSkip() throws IOException {
+      Listener listener = createMock(Listener.class);
+      Capture<Iterable<? extends Entry>> skipped = new Capture<Iterable<? extends Entry>>();
+      listener.onSkip(eq(Optional.<Entry>absent()), capture(skipped));
+      replay(listener);
+
+      jarBuilder(folder.newFile(), listener)
+          .add(content("skipped write"), "skipped/write")
+          .write(DuplicateHandler.always(DuplicateAction.THROW), Pattern.compile("skipped/"));
+
+      assertEquals("skipped/write", Iterables.getOnlyElement(skipped.getValue()).getJarPath());
+    }
+
+    @Test
+    public void testOnWrite() throws IOException {
+      Listener listener = createMock(Listener.class);
+      Capture<Entry> written = new Capture<Entry>();
+      listener.onWrite(capture(written));
+      replay(listener);
+
+      jarBuilder(folder.newFile(), listener)
+          .add(content("simple write"), "simple/write")
+          .write();
+
+      assertEquals("simple/write", written.getValue().getJarPath());
+    }
+
+    @Test
+    public void testOnDuplicateSkip() throws IOException {
+      Listener listener = createMock(Listener.class);
+      Capture<Optional<Entry>> retained = new Capture<Optional<Entry>>();
+      Capture<Iterable<? extends Entry>> skipped = new Capture<Iterable<? extends Entry>>();
+      listener.onSkip(capture(retained), capture(skipped));
+      replay(listener);
+
+      File one = folder.newFile("one");
+      File two = folder.newFile("two");
+      File three = folder.newFile("three");
+
+      jarBuilder(folder.newFile(), listener)
+          .add(one, "skipped/write")
+          .add(two, "skipped/write")
+          .add(three, "skipped/write")
+          .write(DuplicateHandler.always(DuplicateAction.SKIP));
+
+      assertEquals("one", retained.getValue().get().getName());
+      assertEquals("skipped/write", retained.getValue().get().getJarPath());
+      assertEquals(ImmutableList.of("two", "three"),
+          FluentIterable.from(skipped.getValue()).transform(GET_NAME).toList());
+    }
+
+    @Test
+    public void testOnDuplicateConcat() throws IOException {
+      Listener listener = createMock(Listener.class);
+      Capture<Iterable<? extends Entry>> concatenated = new Capture<Iterable<? extends Entry>>();
+      listener.onConcat(eq("concatenated/write"), capture(concatenated));
+      replay(listener);
+
+      File one = folder.newFile("one");
+      File two = folder.newFile("two");
+      File three = folder.newFile("three");
+
+      jarBuilder(folder.newFile(), listener)
+          .add(one, "concatenated/write")
+          .add(two, "concatenated/write")
+          .add(three, "concatenated/write")
+          .write(DuplicateHandler.always(DuplicateAction.CONCAT));
+
+      assertEquals(ImmutableList.of("one", "two", "three"),
+          FluentIterable.from(concatenated.getValue()).transform(GET_NAME).toList());
+    }
+
+    @Test
+    public void testOnDuplicateReplace() throws IOException {
+      Listener listener = createMock(Listener.class);
+      Capture<Iterable<? extends Entry>> originals = new Capture<Iterable<? extends Entry>>();
+      Capture<Entry> replacement = new Capture<Entry>();
+      listener.onReplace(capture(originals), capture(replacement));
+      replay(listener);
+
+      File one = folder.newFile("one");
+      File two = folder.newFile("two");
+      File three = folder.newFile("three");
+
+      jarBuilder(folder.newFile(), listener)
+          .add(one, "replaced/write")
+          .add(two, "replaced/write")
+          .add(three, "replaced/write")
+          .write(DuplicateHandler.always(DuplicateAction.REPLACE));
+
+      assertEquals(ImmutableList.of("one", "two"),
+          FluentIterable.from(originals.getValue()).transform(GET_NAME).toList());
+      assertEquals("three", replacement.getValue().getName());
+      assertEquals("replaced/write", replacement.getValue().getJarPath());
     }
   }
 
