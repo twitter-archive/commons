@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
@@ -114,6 +115,8 @@ public class ArgScannerTest {
     static final Arg<Double> DOUBLE_VAL = Arg.create(0D);
     @CmdLine(name = "bool", help = "help")
     static final Arg<Boolean> BOOL = Arg.create(false);
+    @CmdLine(name = "regex", help = "help")
+    static final Arg<Pattern> REGEX = Arg.create(null);
     @CmdLine(name = "time_amount", help = "help")
     static final Arg<Amount<Long, Time>> TIME_AMOUNT = Arg.create(Amount.of(1L, Time.SECONDS));
     @CmdLine(name = "data_amount", help = "help")
@@ -190,6 +193,13 @@ public class ArgScannerTest {
           @Override public void execute() { assertThat(StandardArgs.BOOL.get(), is(true)); }
         },
         "bool", "");
+    test(StandardArgs.class,
+        new Command() {
+          @Override public void execute() {
+            assertThat(StandardArgs.REGEX.get().matcher("jack").matches(), is(true));
+          }
+        },
+        "regex", ".*ack$");
     test(StandardArgs.class,
         new Command() {
           @Override public void execute() { assertThat(StandardArgs.BOOL.get(), is(false)); }

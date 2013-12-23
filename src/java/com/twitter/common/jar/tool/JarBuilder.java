@@ -21,16 +21,19 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.base.Splitter;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
@@ -405,7 +408,8 @@ public class JarBuilder implements Closeable {
      * A listener that ignores all events.
      */
     Listener NOOP = new Listener() {
-      @Override public void onSkip(Entry original, Iterable<? extends Entry> skipped) {
+      @Override public void onSkip(Optional<? extends Entry> original,
+                                   Iterable<? extends Entry> skipped) {
         // noop
       }
       @Override public void onReplace(Iterable<? extends Entry> originals, Entry replacement) {
@@ -420,12 +424,15 @@ public class JarBuilder implements Closeable {
     };
 
     /**
-     * Called to notify the listener that newer entries are being skipped in favor of the original.
+     * Called to notify the listener that entries are being skipped.
+     *
+     * If original is present this indicates it it being retained in preference to the skipped
+     * entries.
      *
      * @param original The original entry being retained.
      * @param skipped The new entries being skipped.
      */
-    void onSkip(Entry original, Iterable<? extends Entry> skipped);
+    void onSkip(Optional<? extends Entry> original, Iterable<? extends Entry> skipped);
 
     /**
      * Called to notify the listener that original entries are being replaced by a subsequently
@@ -765,21 +772,52 @@ public class JarBuilder implements Closeable {
    * Creates a jar at the configured target path applying the scheduled additions per the given
    * {@code duplicateHandler}.
    *
+   * @param duplicateHandler A handler for dealing with duplicate entries.
+   * @param skipPatterns An optional list of patterns that match entry paths that should be
+   *     excluded.
    * @return The jar file that was written.
    * @throws IOException if there was a problem writing the jar file.
    * @throws DuplicateEntryException if the the policy in effect for an entry is
    *     {@link DuplicateAction#THROW} and that entry is a duplicate.
    */
-  public File write(DuplicateHandler duplicateHandler)
+  public File write(DuplicateHandler duplicateHandler, Pattern... skipPatterns) throws IOException {
+    return write(duplicateHandler, ImmutableList.copyOf(skipPatterns));
+  }
+
+  private static final Function<Pattern, Predicate<CharSequence>> AS_PATH_SELECTOR =
+      new Function<Pattern, Predicate<CharSequence>>() {
+        @Override public Predicate<CharSequence> apply(Pattern item) {
+          return Predicates.contains(item);
+        }
+      };
+
+  /**
+   * Creates a jar at the configured target path applying the scheduled additions per the given
+   * {@code duplicateHandler}.
+   *
+   * @param duplicateHandler A handler for dealing with duplicate entries.
+   * @param skipPatterns An optional sequence of patterns that match entry paths that should be
+   *     excluded.
+   * @return The jar file that was written.
+   * @throws IOException if there was a problem writing the jar file.
+   * @throws DuplicateEntryException if the the policy in effect for an entry is
+   *     {@link DuplicateAction#THROW} and that entry is a duplicate.
+   */
+  public File write(DuplicateHandler duplicateHandler, Iterable<Pattern> skipPatterns)
       throws DuplicateEntryException, IOException {
 
-    final Iterable<ReadableEntry> merged = getEntries(duplicateHandler);
+    Preconditions.checkNotNull(duplicateHandler);
+    Predicate<CharSequence> skipPath =
+        Predicates.or(Iterables.transform(ImmutableList.copyOf(skipPatterns), AS_PATH_SELECTOR));
+
+    final Iterable<ReadableEntry> entries = getEntries(skipPath, duplicateHandler);
+
     FileUtils.SYSTEM_TMP.doWithFile(new ExceptionalClosure<File, IOException>() {
       @Override public void execute(File tmp) throws IOException {
         try {
           JarWriter writer = jarWriter(tmp);
           writer.write(JarFile.MANIFEST_NAME, manifest == null ? DEFAULT_MANIFEST : manifest);
-          for (ReadableEntry entry : merged) {
+          for (ReadableEntry entry : entries) {
             writer.write(entry.getJarPath(), entry.contents);
           }
         } catch (IOException e) {
@@ -796,60 +834,69 @@ public class JarBuilder implements Closeable {
     return target;
   }
 
-  private Iterable<ReadableEntry> getEntries(final DuplicateHandler duplicateHandler)
+  private Iterable<ReadableEntry> getEntries(
+      final Predicate<CharSequence> skipPath,
+      final DuplicateHandler duplicateHandler)
       throws JarBuilderException {
 
-    return Iterables.transform(getAdditions().asMap().entrySet(),
-        new Function<Map.Entry<String, Collection<ReadableEntry>>, ReadableEntry>() {
-          @Override public ReadableEntry apply(Map.Entry<String, Collection<ReadableEntry>> item) {
+    Function<Map.Entry<String, Collection<ReadableEntry>>, Iterable<ReadableEntry>> mergeEntries =
+        new Function<Map.Entry<String, Collection<ReadableEntry>>, Iterable<ReadableEntry>>() {
+          @Override
+          public Iterable<ReadableEntry> apply(Map.Entry<String, Collection<ReadableEntry>> item) {
             String jarPath = item.getKey();
             Collection<ReadableEntry> entries = item.getValue();
-            return mergeEntries(duplicateHandler, jarPath, entries);
+            return processEntries(skipPath, duplicateHandler, jarPath, entries).asSet();
           }
-        });
+        };
+    return FluentIterable.from(getAdditions().asMap().entrySet()).transformAndConcat(mergeEntries);
   }
 
-  private ReadableEntry mergeEntries(
+  private Optional<ReadableEntry> processEntries(
+      Predicate<CharSequence> skipPath,
       DuplicateHandler duplicateHandler,
       String jarPath,
       Collection<ReadableEntry> itemEntries) {
 
-    boolean duplicate = itemEntries.size() > 1;
-    if (!duplicate) {
+    if (skipPath.apply(jarPath)) {
+      listener.onSkip(Optional.<Entry>absent(), itemEntries);
+      return Optional.absent();
+    }
+
+    if (itemEntries.size() < 2) {
       ReadableEntry entry = Iterables.getOnlyElement(itemEntries);
       listener.onWrite(entry);
-      return entry;
-    } else {
-      DuplicateAction action = duplicateHandler.actionFor(jarPath);
-      switch (action) {
-        case SKIP:
-          ReadableEntry original = Iterables.get(itemEntries, 0);
-          listener.onSkip(original, Iterables.skip(itemEntries, 1));
-          return original;
+      return Optional.of(entry);
+    }
 
-        case REPLACE:
-          ReadableEntry replacement = Iterables.getLast(itemEntries);
-          listener.onReplace(Iterables.limit(itemEntries, itemEntries.size() - 1), replacement);
-          return replacement;
+    DuplicateAction action = duplicateHandler.actionFor(jarPath);
+    switch (action) {
+      case SKIP:
+        ReadableEntry original = Iterables.get(itemEntries, 0);
+        listener.onSkip(Optional.of(original), Iterables.skip(itemEntries, 1));
+        return Optional.of(original);
 
-        case CONCAT:
-          InputSupplier<InputStream> concat =
-              ByteStreams.join(Iterables.transform(itemEntries, ReadableEntry.GET_CONTENTS));
+      case REPLACE:
+        ReadableEntry replacement = Iterables.getLast(itemEntries);
+        listener.onReplace(Iterables.limit(itemEntries, itemEntries.size() - 1), replacement);
+        return Optional.of(replacement);
 
-          ReadableEntry concatenatedEntry =
-              new ReadableEntry(
-                  NamedInputSupplier.create(memorySource(), jarPath, concat),
-                  jarPath);
+      case CONCAT:
+        InputSupplier<InputStream> concat =
+            ByteStreams.join(Iterables.transform(itemEntries, ReadableEntry.GET_CONTENTS));
 
-          listener.onConcat(jarPath, itemEntries);
-          return concatenatedEntry;
+        ReadableEntry concatenatedEntry =
+            new ReadableEntry(
+                NamedInputSupplier.create(memorySource(), jarPath, concat),
+                jarPath);
 
-        case THROW:
-          throw new DuplicateEntryException(Iterables.get(itemEntries, 1));
+        listener.onConcat(jarPath, itemEntries);
+        return Optional.of(concatenatedEntry);
 
-        default:
-          throw new IllegalArgumentException("Unrecognized DuplicateAction " + action);
-      }
+      case THROW:
+        throw new DuplicateEntryException(Iterables.get(itemEntries, 1));
+
+      default:
+        throw new IllegalArgumentException("Unrecognized DuplicateAction " + action);
     }
   }
 

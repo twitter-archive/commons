@@ -10,6 +10,7 @@ import java.util.jar.Attributes.Name;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.regex.Pattern;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Predicate;
@@ -376,6 +377,47 @@ public class JarBuilderTest {
               "meaning/of/the/",
               "meaning/of/the/universe");
           assertContents(jar, "meaning/of/life", "42");
+          assertContents(jar, "meaning/of/the/universe", "1/137");
+        }
+      });
+    }
+
+    @Test
+    public void testSkip() throws IOException {
+      File dir = folder.newFolder("life/of/brian");
+      FileUtils.write(new File(dir, "is"), "42");
+      FileUtils.write(new File(dir, "used/to/be"), "4");
+
+      File sourceJar =
+          jarBuilder()
+              .add(content("1/137"), "meaning/of/the/universe")
+              .add(content("fine structure constant"), "meaning/of/the/universe/README")
+              .write();
+
+      File destinationJar =
+          jarBuilder()
+              .add(content("43"), "meaning/of/life/isn't")
+              .add(dir, "meaning/of/life")
+              .addJar(sourceJar)
+              .write(
+                  DuplicateHandler.always(DuplicateAction.THROW),
+                  Pattern.compile("is$"),
+                  Pattern.compile("/README"));
+
+      doWithJar(destinationJar, new ExceptionalClosure<JarFile, IOException>() {
+        @Override public void execute(JarFile jar) throws IOException {
+          assertListing(jar,
+              "meaning/",
+              "meaning/of/",
+              "meaning/of/life/",
+              "meaning/of/life/isn't",
+              "meaning/of/life/used/",
+              "meaning/of/life/used/to/",
+              "meaning/of/life/used/to/be",
+              "meaning/of/the/",
+              "meaning/of/the/universe");
+          assertContents(jar, "meaning/of/life/isn't", "43");
+          assertContents(jar, "meaning/of/life/used/to/be", "4");
           assertContents(jar, "meaning/of/the/universe", "1/137");
         }
       });

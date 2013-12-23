@@ -11,6 +11,7 @@ import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -84,18 +85,33 @@ public final class Main {
   private static final Arg<Boolean> UPDATE = Arg.create(false);
 
   @CmdLine(name = "files",
-      help = "A mapping from files to add to the path to add them at in the jar")
+      help = "A mapping from filesystem paths to jar paths. The mapping is specified in the form "
+          + "[fs path1]=[jar path1],[fs path2]=[jar path2]. For example: "
+          + "/etc/hosts=hosts,/var/log=logs would create a jar with a hosts file entry and the "
+          + "contents of the /var/log tree added as individual entries under the logs/ directory "
+          + "in the jar.")
   private static final Arg<Map<File, String>> FILES =
       Arg.<Map<File, String>>create(ImmutableMap.<File, String>of());
 
   @CmdLine(name = "jars", help = "A list of jar files whose entries to add to the output jar")
   private static final Arg<List<File>> JARS = Arg.<List<File>>create(ImmutableList.<File>of());
 
+  @CmdLine(name = "skip", help = "A list of regular expressions identifying entries to skip.")
+  private static final Arg<List<Pattern>> SKIP =
+      Arg.<List<Pattern>>create(ImmutableList.<Pattern>of());
+
+  private static final String ACTIONS = "SKIP|REPLACE|CONCAT|THROW";
+
   @CmdLine(name = "default_action",
-      help = "The default duplicate action to apply if no policies match.")
+      help = "The default duplicate action to apply if no policies match. Can be any of "
+          + ACTIONS)
   private static final Arg<DuplicateAction> DEFAULT_ACTION = Arg.create(DuplicateAction.SKIP);
 
-  @CmdLine(name = "policies", help = "A list of duplicate policies to apply.")
+  @CmdLine(name = "policies",
+      help = "A list of duplicate policies to apply. Policies are specified as [regex]=[action], "
+          + "and the action can be any one of " + ACTIONS + ". For example: "
+          + "^META-INF/services/=CONCAT would concatenate duplicate service files into one large "
+          + "service file.")
   private static final Arg<List<DuplicatePolicy>> POLICIES =
       Arg.<List<DuplicatePolicy>>create(ImmutableList.<DuplicatePolicy>of());
 
@@ -113,10 +129,14 @@ public final class Main {
     }
 
     @Override
-    public void onSkip(Entry original, Iterable<? extends Entry> skipped) {
+    public void onSkip(Optional<? extends Entry> original, Iterable<? extends Entry> skipped) {
       if (LOG.isLoggable(Level.FINE)) {
-        LOG.fine(String.format("Retaining %s and skipping %s", identify(original),
-            identify(skipped)));
+        if (original.isPresent()) {
+          LOG.fine(String.format("Retaining %s and skipping %s", identify(original.get()),
+              identify(skipped)));
+        } else {
+          LOG.fine(String.format("Skipping %s", identify(skipped)));
+        }
       }
     }
 
@@ -229,7 +249,7 @@ public final class Main {
 
     DuplicateHandler duplicateHandler = new DuplicateHandler(DEFAULT_ACTION.get(), POLICIES.get());
     try {
-      jarBuilder.write(duplicateHandler);
+      jarBuilder.write(duplicateHandler, SKIP.get());
     } catch (DuplicateEntryException e) {
       exit(1, "Refusing to write duplicate entry: %s", e.getMessage());
     } catch (IOException e) {
