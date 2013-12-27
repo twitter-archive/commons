@@ -378,11 +378,18 @@ public class JarBuilderTest {
       FileUtils.write(new File(dir, "is"), "42");
       FileUtils.write(new File(dir, "used/to/be"), "1/137");
 
-      File destinationJar = jarBuilder().add(dir, "meaning/of/life").write();
+      File destinationJar = jarBuilder()
+          .addDirectory(dir, Optional.<String>absent())
+          .addDirectory(dir, Optional.of("meaning/of/life"))
+          .write();
 
       doWithJar(destinationJar, new ExceptionalClosure<JarFile, IOException>() {
         @Override public void execute(JarFile jar) throws IOException {
           assertListingUnordered(jar,
+              "is",
+              "used/",
+              "used/to/",
+              "used/to/be",
               "meaning/",
               "meaning/of/",
               "meaning/of/life/",
@@ -390,6 +397,8 @@ public class JarBuilderTest {
               "meaning/of/life/used/",
               "meaning/of/life/used/to/",
               "meaning/of/life/used/to/be");
+          assertStoredContents(jar, "is", "42");
+          assertStoredContents(jar, "used/to/be", "1/137");
           assertStoredContents(jar, "meaning/of/life/is", "42");
           assertStoredContents(jar, "meaning/of/life/used/to/be", "1/137");
         }
@@ -436,7 +445,7 @@ public class JarBuilderTest {
       File destinationJar =
           jarBuilder()
               .add(content("43"), "meaning/of/life/isn't")
-              .add(dir, "meaning/of/life")
+              .addDirectory(dir, Optional.of("meaning/of/life"))
               .addJar(sourceJar)
               .write(
                   true, // compress
@@ -481,7 +490,7 @@ public class JarBuilderTest {
 
       jarBuilder(destinationJar)
           .addJar(jar)
-          .add(dir, "meaning/of")
+          .addDirectory(dir, Optional.of("meaning/of"))
           .write(true /* compress */, alwaysConcat);
 
       doWithJar(destinationJar, new ExceptionalClosure<JarFile, IOException>() {
@@ -648,9 +657,9 @@ public class JarBuilderTest {
       File three = folder.newFile("three");
 
       jarBuilder(folder.newFile(), listener)
-          .add(one, "skipped/write")
-          .add(two, "skipped/write")
-          .add(three, "skipped/write")
+          .addFile(one, "skipped/write")
+          .addFile(two, "skipped/write")
+          .addFile(three, "skipped/write")
           .write(false /* compress */, DuplicateHandler.always(DuplicateAction.SKIP));
 
       assertEquals("one", retained.getValue().get().getName());
@@ -671,9 +680,9 @@ public class JarBuilderTest {
       File three = folder.newFile("three");
 
       jarBuilder(folder.newFile(), listener)
-          .add(one, "concatenated/write")
-          .add(two, "concatenated/write")
-          .add(three, "concatenated/write")
+          .addFile(one, "concatenated/write")
+          .addFile(two, "concatenated/write")
+          .addFile(three, "concatenated/write")
           .write(false /* compress */, DuplicateHandler.always(DuplicateAction.CONCAT));
 
       assertEquals(ImmutableList.of("one", "two", "three"),
@@ -693,9 +702,9 @@ public class JarBuilderTest {
       File three = folder.newFile("three");
 
       jarBuilder(folder.newFile(), listener)
-          .add(one, "replaced/write")
-          .add(two, "replaced/write")
-          .add(three, "replaced/write")
+          .addFile(one, "replaced/write")
+          .addFile(two, "replaced/write")
+          .addFile(three, "replaced/write")
           .write(false /* compress */, DuplicateHandler.always(DuplicateAction.REPLACE));
 
       assertEquals(ImmutableList.of("one", "two"),

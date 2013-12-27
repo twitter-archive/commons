@@ -47,8 +47,11 @@ import com.google.common.io.Closer;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.twitter.common.base.ExceptionalClosure;
 import com.twitter.common.base.Function;
+import com.twitter.common.base.MorePreconditions;
 import com.twitter.common.io.FileUtils;
 
 /**
@@ -580,55 +583,79 @@ public class JarBuilder implements Closeable {
   }
 
   /**
-   * Schedules addition of the given {@code file}'s contents to the entry at {@code jarPath}. In
-   * addition, individual parent directory entries will be created when this builder is
-   * {@link #write written} in the spirit of {@code mkdir -p}.  If the file points to a directory,
-   * its subtree is scheduled for addition rooted at {@code jarPath} in the resulting jar.
+   * Schedules recursive addition of all files contained within {@code directory} to the resulting
+   * jar.  The path of each file relative to {@code directory} will be used for the corresponding
+   * jar entry path.  If a {@code jarPath} is present then all subtree entries will be prefixed
+   * with it.
    *
-   * @param file And existing file or directory to add to the jar.
-   * @param jarPath The path of the entry to add.
+   * @param directory An existing directory to add to the jar.
+   * @param jarPath An optional base path to graft the {@code directory} onto.
    * @return This builder for chaining.
    */
-  public JarBuilder add(final File file, final String jarPath) {
-    Preconditions.checkNotNull(file);
-    Preconditions.checkNotNull(jarPath);
+  public JarBuilder addDirectory(final File directory, final Optional<String> jarPath) {
+    Preconditions.checkArgument(directory.isDirectory(),
+        "Expected a directory, given a file: %s", directory);
+    Preconditions.checkArgument(!jarPath.isPresent() || StringUtils.isNotBlank(jarPath.get()));
 
     additions.add(new EntryIndexer() {
       @Override public void execute(Multimap<String, ReadableEntry> entries)
           throws JarBuilderException {
 
-        if (file.isDirectory()) {
-          Source directorySource = directorySource(file);
-          Iterable<String> jarBasePath = JAR_PATH_SPLITTER.split(jarPath);
-          Collection<File> files =
-              org.apache.commons.io.FileUtils.listFiles(
-                  file,
-                  null /* any extension */,
-                  true /* recursive */);
-          for (File child : files) {
-            Iterable<String> path = Iterables.concat(jarBasePath, relpathComponents(child, file));
-            String entryPath = JAR_PATH_JOINER.join(relpathComponents(child, file));
-            if (!JarFile.MANIFEST_NAME.equals(entryPath)) {
-              NamedInputSupplier<FileInputStream> contents =
-                  NamedInputSupplier.create(
-                      directorySource,
-                      entryPath,
-                      Files.newInputStreamSupplier(child));
-              add(entries, contents, JAR_PATH_JOINER.join(path));
-            }
+        Source directorySource = directorySource(directory);
+        Iterable<String> jarBasePath = jarPath.isPresent()
+            ? JAR_PATH_SPLITTER.split(jarPath.get()) : ImmutableList.<String>of();
+
+        Collection<File> files =
+            org.apache.commons.io.FileUtils.listFiles(
+                directory,
+                null /* any extension */,
+                true /* recursive */);
+        for (File child : files) {
+          Iterable<String> relpathComponents = relpathComponents(child, directory);
+          Iterable<String> path = Iterables.concat(jarBasePath, relpathComponents);
+          String entryPath = JAR_PATH_JOINER.join(relpathComponents);
+          if (!JarFile.MANIFEST_NAME.equals(entryPath)) {
+            NamedInputSupplier<FileInputStream> contents =
+                NamedInputSupplier.create(
+                    directorySource,
+                    entryPath,
+                    Files.newInputStreamSupplier(child));
+            add(entries, contents, JAR_PATH_JOINER.join(path));
           }
-        } else {
-          if (JarFile.MANIFEST_NAME.equals(jarPath)) {
-            throw new JarBuilderException(
-                "A custom manifest entry should be added via the useCustomManifest methods");
-          }
-          NamedInputSupplier<FileInputStream> contents =
-              NamedInputSupplier.create(
-                  fileSource(file),
-                  file.getName(),
-                  Files.newInputStreamSupplier(file));
-          add(entries, contents, jarPath);
         }
+      }
+    });
+    return this;
+  }
+
+  /**
+   * Schedules addition of the given {@code file}'s contents to the entry at {@code jarPath}. In
+   * addition, individual parent directory entries will be created when this builder is
+   * {@link #write written} in the spirit of {@code mkdir -p}.
+   *
+   * @param file An existing file to add to the jar.
+   * @param jarPath The path of the entry to add.
+   * @return This builder for chaining.
+   */
+  public JarBuilder addFile(final File file, final String jarPath) {
+    Preconditions.checkArgument(!file.isDirectory(),
+        "Expected a file, given a directory: %s", file);
+    MorePreconditions.checkNotBlank(jarPath);
+
+    additions.add(new EntryIndexer() {
+      @Override public void execute(Multimap<String, ReadableEntry> entries)
+          throws JarBuilderException {
+
+        if (JarFile.MANIFEST_NAME.equals(jarPath)) {
+          throw new JarBuilderException(
+              "A custom manifest entry should be added via the useCustomManifest methods");
+        }
+        NamedInputSupplier<FileInputStream> contents =
+            NamedInputSupplier.create(
+                fileSource(file),
+                file.getName(),
+                Files.newInputStreamSupplier(file));
+        add(entries, contents, jarPath);
       }
     });
     return this;

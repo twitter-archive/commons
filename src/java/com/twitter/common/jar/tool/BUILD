@@ -25,6 +25,7 @@ java_library(name='tool',
     # qualified.
     pants('3rdparty:commons-io'),
     pants('3rdparty:guava'),
+    pants('3rdparty:jsr305'),
     pants('src/java/com/twitter/common/args'),
     pants('src/java/com/twitter/common/io'),
     pants('src/java/com/twitter/common/logging'),

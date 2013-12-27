@@ -1,17 +1,19 @@
 package com.twitter.common.jar.tool;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+
+import javax.annotation.Nullable;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -20,7 +22,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.io.Closer;
 import com.google.common.reflect.TypeToken;
@@ -34,6 +36,7 @@ import com.twitter.common.args.ParserOracle;
 import com.twitter.common.args.Positional;
 import com.twitter.common.args.constraints.CanRead;
 import com.twitter.common.args.constraints.Exists;
+import com.twitter.common.base.MorePreconditions;
 import com.twitter.common.jar.tool.JarBuilder.DuplicateAction;
 import com.twitter.common.jar.tool.JarBuilder.DuplicateEntryException;
 import com.twitter.common.jar.tool.JarBuilder.DuplicateHandler;
@@ -57,7 +60,7 @@ public final class Main {
 
       List<String> components = ImmutableList.copyOf(REGEX_ACTION_SPLITTER.split(raw));
       Preconditions.checkArgument(components.size() == 2,
-          "Failed to parse jar path regex/action pair " + raw);
+          "Failed to parse jar path regex/action pair %s", raw);
 
       String regex = components.get(0);
 
@@ -69,16 +72,80 @@ public final class Main {
     }
   }
 
+  static class FileSource {
+    private static final Splitter JAR_PATH_SPLITTER = Splitter.on('/');
+
+    private final File source;
+    @Nullable private final String destination;
+
+    FileSource(File source, @Nullable String destination) {
+      if (!source.exists() || !source.canRead()) {
+        throw new IllegalArgumentException(
+            String.format("The source %s is not a readable path", source));
+      }
+      if (!source.isDirectory() && destination == null) {
+        throw new IllegalArgumentException(
+            String.format("The source file %s must have a jar destination specified.", source));
+      }
+      if (destination != null) {
+        MorePreconditions.checkNotBlank(destination, "The destination path cannot be blank");
+        Preconditions.checkArgument(
+            !destination.startsWith("/"),
+            "The destination path cannot be absolute, given: %s", destination);
+        Preconditions.checkArgument(
+            !ImmutableSet.copyOf(JAR_PATH_SPLITTER.split(destination)).contains(".."),
+            "The destination path cannot be relative, given: %s", destination);
+      }
+
+      this.source = source;
+      this.destination = destination;
+    }
+
+    void addTo(JarBuilder jarBuilder) {
+      if (source.isDirectory()) {
+        jarBuilder.addDirectory(source, Optional.fromNullable(destination));
+      } else {
+        jarBuilder.addFile(source, destination);
+      }
+    }
+  }
+
+  @ArgParser
+  static class FileSourceParser implements Parser<FileSource> {
+    private static final Splitter DESTINATION_SPLITTER =
+        Splitter.on("=").trimResults().omitEmptyStrings();
+
+    @Override
+    public FileSource parse(ParserOracle parserOracle, Type type, String raw)
+        throws IllegalArgumentException {
+
+      List<String> components = ImmutableList.copyOf(DESTINATION_SPLITTER.split(raw));
+      Preconditions.checkArgument(1 <= components.size() && components.size() <= 2,
+          "Failed to parse entry %s", raw);
+
+      File source = new File(components.get(0));
+      @Nullable String destination = components.size() == 2 ? components.get(1) : null;
+      return new FileSource(source, destination);
+    }
+  }
+
   @CmdLine(name = "main",
-      help = "The name of the fully qualified main class."
-          + " Its an error to specify both a main and a manifest.")
+      help = "The name of the fully qualified main class. "
+          + "If a -manifest is specified its contents will be used but this -main will override "
+          + "any entry already present.")
   private static final Arg<String> MAIN_CLASS = Arg.create(null);
+
+  @CmdLine(name = "classpath",
+      help = "A list of classpath entries. "
+          + "If a -manifest is specified its contents will be used but this -classpath will "
+          + "override any entry already present.")
+  private static final Arg<List<String>> CLASS_PATH = Arg.create(null);
 
   @Exists
   @CanRead
   @CmdLine(name = "manifest",
-      help = "A path to a manifest file to use. "
-          + "Its an error to specify both a main and a manifest.")
+      help = "A path to a manifest file to use. If -main or -classpath is specified those values "
+          + "will overwrite the corresponding entry in this manifest.")
   private static final Arg<File> MANIFEST = Arg.create(null);
 
   @CmdLine(name = "update", help = "Update the jar if it already exists, otherwise create it.")
@@ -89,12 +156,13 @@ public final class Main {
 
   @CmdLine(name = "files",
       help = "A mapping from filesystem paths to jar paths. The mapping is specified in the form "
-          + "[fs path1]=[jar path1],[fs path2]=[jar path2]. For example: "
+          + "[fs path1](=[jar path1]),[fs path2](=[jar path2]). For example: "
           + "/etc/hosts=hosts,/var/log=logs would create a jar with a hosts file entry and the "
           + "contents of the /var/log tree added as individual entries under the logs/ directory "
-          + "in the jar.")
-  private static final Arg<Map<File, String>> FILES =
-      Arg.<Map<File, String>>create(ImmutableMap.<File, String>of());
+          + "in the jar.  For directories, the mapping can be skipped in which case the directory "
+          + "tree is added as-is to the resulting jar.")
+  private static final Arg<List<FileSource>> FILES =
+      Arg.<List<FileSource>>create(ImmutableList.<FileSource>of());
 
   @CmdLine(name = "jars", help = "A list of jar files whose entries to add to the output jar")
   private static final Arg<List<File>> JARS = Arg.<List<File>>create(ImmutableList.<File>of());
@@ -232,18 +300,18 @@ public final class Main {
     });
     JarBuilder jarBuilder = closer.register(new JarBuilder(target, new LoggingListener(target)));
 
-    if (MAIN_CLASS.hasAppliedValue()) {
-      Manifest manifest = JarBuilder.createDefaultManifest();
-      manifest.getMainAttributes().put(Name.MAIN_CLASS, MAIN_CLASS.get());
-      jarBuilder.useCustomManifest(manifest);
-    } else if (MANIFEST.hasAppliedValue()) {
-      jarBuilder.useCustomManifest(MANIFEST.get());
+    try {
+      @Nullable Manifest manifest = getManifest();
+      if (manifest != null) {
+        jarBuilder.useCustomManifest(manifest);
+      }
+    } catch (IOException e) {
+      exit(1, "Failed to configure custom manifest: %s", e.getMessage());
+      return;
     }
 
-    for (Map.Entry<File, String> entry : FILES.get().entrySet()) {
-      File file = entry.getKey();
-      String jarPath = entry.getValue();
-      jarBuilder.add(file, jarPath);
+    for (FileSource fileSource : FILES.get()) {
+      fileSource.addTo(jarBuilder);
     }
 
     for (File jar : JARS.get()) {
@@ -259,6 +327,60 @@ public final class Main {
       exit(1, "Unexpected problem writing target jar %s: %s", target, e.getMessage());
     }
     exit(0);
+  }
+
+  private static final Splitter CLASS_PATH_SPLITTER =
+      Splitter.on(File.pathSeparatorChar).omitEmptyStrings();
+
+  private static final Function<String, Iterable<String>> ENTRY_TO_PATHS =
+      new Function<String, Iterable<String>>() {
+        @Override public Iterable<String> apply(String entry) {
+          return CLASS_PATH_SPLITTER.split(entry);
+        }
+      };
+
+  private static final Joiner CLASS_PATH_JOINER = Joiner.on(' ');
+
+  @Nullable
+  private static Manifest getManifest() throws IOException {
+    if (!MANIFEST.hasAppliedValue()
+        && !MAIN_CLASS.hasAppliedValue()
+        && !CLASS_PATH.hasAppliedValue()) {
+
+      return null;
+    }
+
+    Manifest manifest = JarBuilder.createDefaultManifest();
+    if (MANIFEST.hasAppliedValue()) {
+      try {
+        loadManifest(manifest, MANIFEST.get());
+      } catch (IOException e) {
+        throw new IOException("Failed to load manifest from " + MANIFEST.get(), e);
+      }
+    }
+
+    if (MAIN_CLASS.hasAppliedValue()) {
+      manifest.getMainAttributes().put(Name.MAIN_CLASS, MAIN_CLASS.get());
+    }
+    if (CLASS_PATH.hasAppliedValue()) {
+      String classpath =
+          CLASS_PATH_JOINER.join(
+              FluentIterable.from(CLASS_PATH.get()).transformAndConcat(ENTRY_TO_PATHS));
+      manifest.getMainAttributes().put(Name.CLASS_PATH, classpath);
+    }
+    return manifest;
+  }
+
+  private static void loadManifest(Manifest manifest, File file) throws IOException {
+    Closer closer = Closer.create();
+    try {
+      FileInputStream input = closer.register(new FileInputStream(file));
+      manifest.read(input);
+    } catch (IOException e) {
+      throw closer.rethrow(e);
+    } finally {
+      closer.close();
+    }
   }
 
   private static void exit(int code) {
