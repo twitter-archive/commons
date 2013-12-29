@@ -30,8 +30,8 @@ class AnalysisElement(object):
     # Subclasses can alias the elements of self.args in their own __init__, for convenience.
     self.args = args
 
-  def write(self, outfile, inline_vals=True):
-    Util.write_multiple_sections(outfile, self.headers, self.args, inline_vals)
+  def write(self, outfile, inline_vals=True, rebasings=None):
+    Util.write_multiple_sections(outfile, self.headers, self.args, inline_vals, rebasings)
 
 
 class AnalysisJSONEncoder(json.JSONEncoder):
@@ -122,8 +122,8 @@ class Analysis(object):
     Analysis._verify_version(infile)
     # Note: relies on the fact that these headers appear in this order in the file.
     bin_deps = Analysis._find_repeated_at_header(infile, 'binary dependencies')
-    src_deps = Analysis._find_repeated_at_header(infile, 'source dependencies')
-    ext_deps = Analysis._find_repeated_at_header(infile, 'external dependencies')
+    src_deps = Analysis._find_repeated_at_header(infile, 'direct source dependencies')
+    ext_deps = Analysis._find_repeated_at_header(infile, 'direct external dependencies')
     return Util.merge_dicts([bin_deps, src_deps, ext_deps])
 
   @staticmethod
@@ -133,7 +133,7 @@ class Analysis(object):
       pass
     return Util.parse_section(lines_iter, expected_header=None)
 
-  FORMAT_VERSION_LINE = 'format version: 1\n'
+  FORMAT_VERSION_LINE = 'format version: 3\n'
   @staticmethod
   def _verify_version(lines_iter):
     version_line = lines_iter.next()
@@ -144,20 +144,11 @@ class Analysis(object):
   def rebase(input_analysis_path, output_analysis_path, rebasings):
     """Rebase file paths in an analysis file.
 
-    rebasings: a list of path prefix pairs [from_prefix, to_prefix] to rewrite.
-
-    Note that this is implemented using string.replace, for efficiency, so this will
-    actually just replace everywhere, not just path prefixes. However in practice this
-    makes no difference, and the performance gains are considerable.
+    rebasings: A list of path prefix pairs [from_prefix, to_prefix] to rewrite.
+               to_prefix may be None, in which case matching paths are removed entirely.
     """
-    # TODO: Can make this more efficient if needed, e.g., we know which sections contain
-    # which path prefixes. But for now this is fine.
-    with open(input_analysis_path, 'r') as infile:
-      txt = infile.read()
-    for rebase_from, rebase_to in rebasings:
-      txt = txt.replace(rebase_from, rebase_to)
-    with open(output_analysis_path, 'w') as outfile:
-      outfile.write(txt)
+    analysis = Analysis.parse_from_path(input_analysis_path)
+    analysis.write_to_path(output_analysis_path, rebasings=rebasings)
 
   @staticmethod
   def split_to_paths(analysis_path, split_path_pairs, catchall_path=None):
@@ -195,6 +186,7 @@ class Analysis(object):
     src_prod = Util.merge_dicts([a.relations.src_prod for a in analyses])
     binary_dep = Util.merge_dicts([a.relations.binary_dep for a in analyses])
     classes = Util.merge_dicts([a.relations.classes for a in analyses])
+    used = Util.merge_dicts([a.relations.used for a in analyses])
 
     class_to_source = dict((v, k) for k, vs in classes.iteritems() for v in vs)
 
@@ -211,12 +203,28 @@ class Analysis(object):
             external[k].append(v)  # Remains external.
       return internal, external
 
-    internal, external = merge_dependencies([a.relations.internal_src_dep for a in analyses],
-                                            [a.relations.external_dep for a in analyses])
+    internal, external = merge_dependencies(
+      [a.relations.internal_src_dep for a in analyses],
+      [a.relations.external_dep for a in analyses])
 
-    internal_pi, external_pi = merge_dependencies([a.relations.internal_src_dep_pi for a in analyses],
-                                                  [a.relations.external_dep_pi for a in analyses])
-    relations = Relations((src_prod, binary_dep, internal, external, internal_pi, external_pi, classes))
+    internal_pi, external_pi = merge_dependencies(
+      [a.relations.internal_src_dep_pi for a in analyses],
+      [a.relations.external_dep_pi for a in analyses])
+
+    member_ref_internal, member_ref_external = merge_dependencies(
+      [a.relations.member_ref_internal_dep for a in analyses],
+      [a.relations.member_ref_external_dep for a in analyses])
+
+    inheritance_internal, inheritance_external = merge_dependencies(
+      [a.relations.inheritance_internal_dep for a in analyses],
+      [a.relations.inheritance_external_dep for a in analyses])
+
+    relations = Relations((src_prod, binary_dep,
+                           internal, external,
+                           internal_pi, external_pi,
+                           member_ref_internal, member_ref_external,
+                           inheritance_internal, inheritance_external,
+                           classes, used))
 
     # Merge stamps.
     products = Util.merge_dicts([a.stamps.products for a in analyses])
@@ -255,22 +263,27 @@ class Analysis(object):
     (self.relations, self.stamps, self.apis, self.source_infos, self.compilations, self.compile_setup) = \
       (relations, stamps, apis, source_infos, compilations, compile_setup)
 
-  def write_to_path(self, outfile_path):
+  def write_to_path(self, outfile_path, rebasings=None):
     with open(outfile_path, 'w') as outfile:
-      self.write(outfile)
+      self.write(outfile, rebasings)
 
   def write_json_to_path(self, outfile_path):
     with open(outfile_path, 'w') as outfile:
       self.write_json(outfile)
 
-  def write(self, outfile):
+  def write(self, outfile, rebasings=None):
+    """Write this Analysis to outfile.
+
+    rebasings: A list of path prefix pairs [from_prefix, to_prefix] to rewrite.
+               to_prefix may be None, in which case matching paths are removed entirely.
+    """
     outfile.write(Analysis.FORMAT_VERSION_LINE)
-    self.relations.write(outfile)
-    self.stamps.write(outfile)
-    self.apis.write(outfile, inline_vals=False)
-    self.source_infos.write(outfile, inline_vals=False)
-    self.compilations.write(outfile, inline_vals=False)
-    self.compile_setup.write(outfile, inline_vals=False)
+    self.relations.write(outfile, rebasings=rebasings)
+    self.stamps.write(outfile, rebasings=rebasings)
+    self.apis.write(outfile, inline_vals=False, rebasings=rebasings)
+    self.source_infos.write(outfile, inline_vals=False, rebasings=rebasings)
+    self.compilations.write(outfile, inline_vals=True, rebasings=rebasings)
+    self.compile_setup.write(outfile, inline_vals=True, rebasings=rebasings)
 
   def write_json(self, outfile):
     obj = dict(zip(('relations', 'stamps', 'apis', 'source_infos', 'compilations', 'compile_setup'),
@@ -322,9 +335,19 @@ class Analysis(object):
     internal_splits, external_splits = split_dependencies(self.relations.internal_src_dep, self.relations.external_dep)
     internal_pi_splits, external_pi_splits = split_dependencies(self.relations.internal_src_dep_pi, self.relations.external_dep_pi)
 
+    member_ref_internal_splits, member_ref_external_splits = \
+      split_dependencies(self.relations.member_ref_internal_dep, self.relations.member_ref_external_dep)
+    inheritance_internal_splits, inheritance_external_splits = \
+      split_dependencies(self.relations.inheritance_internal_dep, self.relations.inheritance_external_dep)
+    used_splits = Util.split_dict(self.relations.used, splits)
+
     relations_splits = []
-    for args in zip(src_prod_splits, binary_dep_splits, internal_splits, external_splits,
-                    internal_pi_splits, external_pi_splits, classes_splits):
+    for args in zip(src_prod_splits, binary_dep_splits,
+                    internal_splits, external_splits,
+                    internal_pi_splits, external_pi_splits,
+                    member_ref_internal_splits, member_ref_external_splits,
+                    inheritance_internal_splits, inheritance_external_splits,
+                    classes_splits, used_splits):
       relations_splits.append(Relations(args))
 
     # Split stamps.
@@ -370,13 +393,23 @@ class Analysis(object):
 
 
 class Relations(AnalysisElement):
-  headers = ('products', 'binary dependencies', 'source dependencies', 'external dependencies',
-             'public inherited source dependencies', 'public inherited external dependencies', 'class names')
+  headers = ('products', 'binary dependencies',
+             # TODO: The following 4 headers will go away after SBT completes the
+             # transition to the new headers (the 4 after that).
+             'direct source dependencies', 'direct external dependencies',
+             'public inherited source dependencies', 'public inherited external dependencies',
+             'member reference internal dependencies', 'member reference external dependencies',
+             'inheritance internal dependencies', 'inheritance external dependencies',
+             'class names', 'used names')
 
   def __init__(self, args):
     super(Relations, self).__init__(args)
-    (self.src_prod, self.binary_dep, self.internal_src_dep, self.external_dep,
-     self.internal_src_dep_pi, self.external_dep_pi, self.classes) = self.args
+    (self.src_prod, self.binary_dep,
+     self.internal_src_dep, self.external_dep,
+     self.internal_src_dep_pi, self.external_dep_pi,
+     self.member_ref_internal_dep, self.member_ref_external_dep,
+     self.inheritance_internal_dep, self.inheritance_external_dep,
+     self.classes, self.used) = self.args
 
 
 class Stamps(AnalysisElement):
@@ -412,11 +445,12 @@ class Compilations(AnalysisElement):
 
 
 class CompileSetup(AnalysisElement):
-  headers = ('compile setup', )
+  headers = ('output directories','compile options','javac options','compiler version', 'compile order')
 
   def __init__(self, args):
     super(CompileSetup, self).__init__(args)
-    (self.compile_setup, ) = self.args
+    (self.output_dirs, self.compile_options, self.javac_options,
+     self.compiler_version, self.compile_order) = self.args
 
 class Util(object):
   num_items_re = re.compile(r'(\d+) items\n')
@@ -436,10 +470,10 @@ class Util(object):
     return [Util.parse_section(lines_iter, header) for header in expected_headers]
 
   @staticmethod
-  def write_multiple_sections(outfile, headers, reps, inline_vals=True):
+  def write_multiple_sections(outfile, headers, reps, inline_vals=True, rebasings=None):
     """Write multiple sections."""
     for header, rep in zip(headers, reps):
-      Util.write_section(outfile, header, rep, inline_vals)
+      Util.write_section(outfile, header, rep, inline_vals, rebasings)
 
   @staticmethod
   def parse_section(lines_iter, expected_header=None):
@@ -458,20 +492,28 @@ class Util(object):
     return relation
 
   @staticmethod
-  def write_section(outfile, header, rep, inline_vals=True):
+  def write_section(outfile, header, rep, inline_vals=True, rebasings=None):
     """Write a single section.
 
-    Itens are sorted, for ease of testing."""
+    Itens are sorted, for ease of testing.
+    """
+    def rebase(txt):
+      for rebase_from, rebase_to in rebasings:
+        if rebase_to is None:
+          if rebase_from in txt:
+            return None
+        else:
+          txt = txt.replace(rebase_from, rebase_to)
+      return txt
+
+    rebasings = rebasings or []
     outfile.write(header + ':\n')
     items = []
-    if isinstance(rep, dict):
-      for k, vals in rep.iteritems():
-        for v in vals:
-          items.append('%s -> %s%s' % (k, '' if inline_vals else '\n', v))
-    else:
-      for x in rep:
-        items.append(x)
-
+    for k, vals in rep.iteritems():
+      for v in vals:
+        item = rebase('%s -> %s%s' % (k, '' if inline_vals else '\n', v))
+        if item:
+          items.append(item)
     items.sort()
     outfile.write('%d items\n' % len(items))
     for item in items:

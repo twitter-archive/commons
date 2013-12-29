@@ -17,12 +17,14 @@
 import collections
 import copy
 import os
+import os.path
 
 from contextlib import contextmanager
 
 from twitter.common.lang import Compatibility
-from twitter.pants import get_buildroot
+from twitter.pants.base.build_environment import get_buildroot
 from twitter.pants.base import BuildFile
+from twitter.pants.base.fileset import Fileset
 
 
 class ContextError(Exception):
@@ -37,7 +39,7 @@ class ParseContext(object):
   _parsed = set()
 
   _strs_to_exec = [
-    "from twitter.pants import *",
+    "from twitter.pants.base.build_file_context import *",
     "from twitter.common.quantity import Amount, Time",
   ]
 
@@ -98,6 +100,8 @@ class ParseContext(object):
     stack to find these globals and thus locate themselves for the purposes of finding files
     (see locate() and bind())."""
 
+    from twitter.pants.targets.sources import SourceRoot
+
     if self.buildfile not in ParseContext._parsed:
       buildfile_family = tuple(self.buildfile.family())
 
@@ -107,23 +111,23 @@ class ParseContext(object):
         Compatibility.exec_function(ast, pants_context)
 
       with ParseContext.activate(self):
-        start = os.path.abspath(os.curdir)
-        try:
-          os.chdir(self.buildfile.parent_path)
-          for buildfile in buildfile_family:
-            # We may have traversed a sibling already, guard against re-parsing it.
-            if buildfile not in ParseContext._parsed:
-              ParseContext._parsed.add(buildfile)
+        for buildfile in buildfile_family:
+          # We may have traversed a sibling already, guard against re-parsing it.
+          if buildfile not in ParseContext._parsed:
+            ParseContext._parsed.add(buildfile)
 
-              eval_globals = copy.copy(pants_context)
-              eval_globals.update({
-                'ROOT_DIR': buildfile.root_dir,
-                '__file__': buildfile.full_path,
-              })
-              eval_globals.update(global_args)
-              Compatibility.exec_function(buildfile.code(), eval_globals)
-        finally:
-          os.chdir(start)
+            buildfile_dir = os.path.dirname(buildfile.full_path)
+
+            eval_globals = copy.copy(pants_context)
+            eval_globals.update({
+              'ROOT_DIR': buildfile.root_dir,
+              '__file__': buildfile.full_path,
+              'globs': Fileset.lazy_rel_globs(buildfile_dir),
+              'rglobs': Fileset.lazy_rel_rglobs(buildfile_dir),
+              'source_root': SourceRoot.lazy_rel_source_root(buildfile_dir),
+            })
+            eval_globals.update(global_args)
+            Compatibility.exec_function(buildfile.code(), eval_globals)
 
   def on_context_exit(self, func, *args, **kwargs):
     """ Registers a command to invoke just before this parse context is exited. It is an error to

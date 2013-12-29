@@ -23,7 +23,7 @@ import uuid
 from twitter.common import contextutil
 from twitter.common.dirutil import safe_mkdir, safe_rmtree
 
-from twitter.pants import has_sources, is_scalac_plugin, get_buildroot
+from twitter.pants.base.build_environment import get_buildroot
 from twitter.pants.base import Target
 from twitter.pants.base.worker_pool import Work
 from twitter.pants.targets import resolve_target_sources
@@ -97,8 +97,7 @@ class ScalaCompile(JvmCompile):
 
     self.context.products.require_data('exclusives_groups')
 
-    artifact_cache_spec = context.config.getlist('scala-compile', 'artifact_caches', default=[])
-    self.setup_artifact_cache(artifact_cache_spec)
+    self.setup_artifact_cache_from_config(config_section='scala-compile')
 
     # A temporary, but well-known, dir to munge analysis files in before caching. It must be
     # well-known so we know where to find the files when we retrieve them from the cache.
@@ -150,7 +149,8 @@ class ScalaCompile(JvmCompile):
     # TODO(benjy): Add a pre-execute phase for injecting deps into targets, so we
     # can inject a dep on the scala runtime library and still have it ivy-resolve.
 
-    scala_targets = filter(lambda t: has_sources(t, '.scala'), targets)
+    scala_targets = [t for t in targets if t.has_sources('.scala')]
+    
     if not scala_targets:
       return
 
@@ -251,7 +251,7 @@ class ScalaCompile(JvmCompile):
             self.check_for_missing_dependencies(sources, actual_deps_filtered)
 
             # Kick off the background artifact cache write.
-            if self.get_artifact_cache() and self.context.options.write_to_artifact_cache:
+            if self.artifact_cache_writes_enabled():
               self._write_to_artifact_cache(analysis_file, vts, invalid_sources_by_target)
 
           if ZincUtils.is_nonempty_analysis(self._invalid_analysis_file):
@@ -346,6 +346,7 @@ class ScalaCompile(JvmCompile):
         with contextutil.temporary_dir() as tmpdir:
           tmp_analysis = os.path.join(tmpdir, 'analysis')
           Analysis.merge_from_paths(analyses_to_merge, tmp_analysis)
+          shutil.move(tmp_analysis, self._analysis_file)
 
     self._ensure_analysis_tmpdir()
     return Task.do_check_artifact_cache(self, vts, post_process_cached_vts=post_process_cached_vts)
@@ -425,6 +426,6 @@ class ScalaCompile(JvmCompile):
 
       # TODO(John Sirois): Map target.resources in the same way
       # Create and Map scala plugin info files to the owning targets.
-      if is_scalac_plugin(target) and target.classname:
+      if target.is_scalac_plugin and target.classname:
         basedir, plugin_info_file = ZincUtils.write_plugin_info(self._resources_dir, target)
         genmap.add(target, basedir, [plugin_info_file])

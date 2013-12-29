@@ -24,7 +24,7 @@ import traceback
 from twitter.common.dirutil import Lock
 
 from twitter.common.process import ProcessProviderFactory
-from twitter.pants import get_buildroot, get_version
+from twitter.pants.base.build_environment import get_buildroot, get_version
 from twitter.pants.base import Address, Config
 from twitter.pants.base.rcfile import RcFile
 from twitter.pants.commands import Command
@@ -140,8 +140,10 @@ def _run():
   run_tracker.start(report)
 
   url = run_tracker.run_info.get_info('report_url')
-  run_tracker.log(Report.INFO, 'See a report at: %s' % url)
-  run_tracker.log(Report.INFO, '(To run a reporting server: ./pants server)')
+  if url:
+    run_tracker.log(Report.INFO, 'See a report at: %s' % url)
+  else:
+    run_tracker.log(Report.INFO, '(To run a reporting server: ./pants server)')
 
   command = command_class(run_tracker, root_dir, parser, command_args)
   try:

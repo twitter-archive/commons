@@ -13,22 +13,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==================================================================================================
+from collections import defaultdict
 
+import itertools
 import os
 import shutil
 import sys
+import threading
 
 from contextlib import contextmanager
-import itertools
 
 from twitter.common.collections.orderedset import OrderedSet
+from twitter.pants import Config
 from twitter.pants.base.worker_pool import Work
 from twitter.pants.cache import create_artifact_cache
 
 from twitter.pants.base.hash_utils import hash_file
 from twitter.pants.base.build_invalidator import CacheKeyGenerator
 from twitter.pants.binary_util import runjava_indivisible
-from twitter.pants.goal.workunit import WorkUnit
+from twitter.pants.cache.read_write_artifact_cache import ReadWriteArtifactCache
+from twitter.pants.base.workunit import WorkUnit
 from twitter.pants.reporting.reporting_utils import items_to_report_element
 from twitter.pants.tasks.bootstrap_utils import BootstrapUtils
 from twitter.pants.tasks.cache_manager import CacheManager, InvalidationCheck, VersionedTargetSet
@@ -38,6 +42,9 @@ from twitter.pants.tasks.task_error import TaskError
 
 
 class Task(object):
+  # Protect writes to the global map of jar path -> symlinks to that jar.
+  symlink_map_lock = threading.Lock()
+
   @classmethod
   def setup_parser(cls, option_group, args, mkflag):
     """Set up the cmd-line parser.
@@ -51,36 +58,57 @@ class Task(object):
     self.context = context
     self.dry_run = self.can_dry_run() and context.options.dry_run
     self._cache_key_generator = CacheKeyGenerator(context.config.getdefault('cache_key_gen_version', default=None))
-    self._artifact_cache_spec = None
+    self._read_artifact_cache_spec = None
+    self._write_artifact_cache_spec = None
     self._artifact_cache = None
+    self._artifact_cache_setup_lock = threading.Lock()
     self._build_invalidator_dir = os.path.join(context.config.get('tasks', 'build_invalidator'),
                                                self.product_type())
     self._bootstrap_utils = BootstrapUtils(self.context.products)
 
-  def setup_artifact_cache(self, spec):
+  def setup_artifact_cache_from_config(self, config_section=None):
     """Subclasses can call this in their __init__() to set up artifact caching for that task type.
 
+    Uses standard config file keys to find the cache spec.
+    The cache is created lazily, as needed.
+    """
+    section = config_section or Config.DEFAULT_SECTION
+    read_spec = self.context.config.getlist(section, 'read_artifact_caches', default=[])
+    write_spec = self.context.config.getlist(section, 'write_artifact_caches', default=[])
+    self.setup_artifact_cache(read_spec, write_spec)
+
+  def setup_artifact_cache(self, read_spec, write_spec):
+    """Subclasses can call this in their __init__() to set up artifact caching for that task type.
+
+    See docstring for pants.cache.create_artifact_cache() for details on the spec format.
     The cache is created lazily, as needed.
 
-    spec should be a list of urls/file path prefixes, which are used in that order.
-    By default, no artifact caching is used.
     """
-    self._artifact_cache_spec = spec
+    self._read_artifact_cache_spec = read_spec
+    self._write_artifact_cache_spec = write_spec
 
-  def create_artifact_cache(self, spec):
+  def _create_artifact_cache(self, spec, action):
     if len(spec) > 0:
       pants_workdir = self.context.config.getdefault('pants_workdir')
       my_name = self.__class__.__name__
-      return create_artifact_cache(self.context.log, pants_workdir, spec, my_name,
-                                   self.context.options.local_artifact_cache_readonly,
-                                   self.context.options.remote_artifact_cache_readonly)
+      return create_artifact_cache(self.context.log, pants_workdir, spec, my_name, action)
     else:
       return None
 
   def get_artifact_cache(self):
-    if self._artifact_cache is None and self._artifact_cache_spec is not None:
-      self._artifact_cache = self.create_artifact_cache(self._artifact_cache_spec)
-    return self._artifact_cache
+    with self._artifact_cache_setup_lock:
+      if self._artifact_cache is None and \
+        (self._read_artifact_cache_spec or self._write_artifact_cache_spec):
+        self._artifact_cache = \
+          ReadWriteArtifactCache(self._create_artifact_cache(self._read_artifact_cache_spec, 'will read from'),
+                                 self._create_artifact_cache(self._write_artifact_cache_spec, 'will write to'))
+      return self._artifact_cache
+
+  def artifact_cache_reads_enabled(self):
+    return bool(self._read_artifact_cache_spec) and self.context.options.read_from_artifact_cache
+
+  def artifact_cache_writes_enabled(self):
+    return bool(self._write_artifact_cache_spec) and self.context.options.write_to_artifact_cache
 
   def product_type(self):
     """Set the product type for this task.
@@ -161,8 +189,7 @@ class Task(object):
 
     invalidation_check = cache_manager.check(targets, partition_size_hint)
 
-    if invalidation_check.invalid_vts and self.get_artifact_cache() and \
-        self.context.options.read_from_artifact_cache:
+    if invalidation_check.invalid_vts and self.artifact_cache_reads_enabled():
       with self.context.new_workunit('cache'):
         cached_vts, uncached_vts = \
           self.check_artifact_cache(self.check_artifact_cache_for(invalidation_check))
@@ -273,7 +300,7 @@ class Task(object):
       - artifactfiles is a list of paths to artifacts for the VersionedTargetSet.
     """
     cache = cache or self.get_artifact_cache()
-    if cache and self.context.options.write_to_artifact_cache and not cache.read_only:
+    if cache:
       if len(vts_artifactfiles_pairs) == 0:
         return None
         # Do some reporting.
@@ -297,11 +324,9 @@ class Task(object):
       items_to_report_element([t.address.reference() for t in targets], 'target'),
       suffix)
 
-  def ivy_resolve(self, targets, java_runner=None, ivy_args=None, symlink_ivyxml=False, silent=False,
+  def ivy_resolve(self, targets, java_runner=None, symlink_ivyxml=False, silent=False,
                   workunit_name=None, workunit_labels=None):
     java_runner = java_runner or runjava_indivisible
-
-    ivy_args = ivy_args or []
 
     targets = set(targets)
 
@@ -318,16 +343,18 @@ class Task(object):
       global_vts = VersionedTargetSet.from_versioned_targets(invalidation_check.all_vts)
       target_workdir = os.path.join(work_dir, global_vts.cache_key.hash)
       target_classpath_file = os.path.join(target_workdir, 'classpath')
-      target_classpath_file_tmp = target_classpath_file + '.tmp'
+      raw_target_classpath_file = target_classpath_file + '.raw'
+      raw_target_classpath_file_tmp = raw_target_classpath_file + '.tmp'
+      symlink_dir = os.path.join(target_workdir, 'jars')
+
       # Note that it's possible for all targets to be valid but for no classpath file to exist at
       # target_classpath_file, e.g., if we previously built a superset of targets.
-      if invalidation_check.invalid_vts or not os.path.exists(target_classpath_file):
+      if invalidation_check.invalid_vts or not os.path.exists(raw_target_classpath_file):
         ivy_utils = IvyUtils(config=self.context.config,
                              options=self.context.options,
                              log=self.context.log)
-        args = (['-cachepath', target_classpath_file_tmp] +
-                ['-confs'] + confs +
-                ivy_args)
+        args = (['-cachepath', raw_target_classpath_file_tmp] +
+                ['-confs'] + confs)
 
         def exec_ivy():
           ivy_utils.exec_ivy(
@@ -346,11 +373,22 @@ class Task(object):
         else:
           exec_ivy()
 
-        if not os.path.exists(target_classpath_file_tmp):
-          raise TaskError('Ivy failed to create classpath file at %s' % target_classpath_file_tmp)
-        shutil.move(target_classpath_file_tmp, target_classpath_file)
-        if self.get_artifact_cache() and self.context.options.write_to_artifact_cache:
-          self.update_artifact_cache([(global_vts, [target_classpath_file])])
+        if not os.path.exists(raw_target_classpath_file_tmp):
+          raise TaskError('Ivy failed to create classpath file at %s' % raw_target_classpath_file_tmp)
+        shutil.move(raw_target_classpath_file_tmp, raw_target_classpath_file)
+
+        if self.artifact_cache_writes_enabled():
+          self.update_artifact_cache([(global_vts, [raw_target_classpath_file])])
+
+    # Make our actual classpath be symlinks, so that the paths are uniform across systems.
+    # Note that we must do this even if we read the raw_target_classpath_file from the artifact
+    # cache. If we cache the target_classpath_file we won't know how to create the symlinks.
+    symlink_map = IvyUtils.symlink_cachepath(raw_target_classpath_file, symlink_dir, target_classpath_file)
+    with Task.symlink_map_lock:
+      all_symlinks_map = self.context.products.get_data('symlink_map') or defaultdict(list)
+      for path, symlink in symlink_map.items():
+        all_symlinks_map[os.path.realpath(path)].append(symlink)
+      self.context.products.set_data('symlink_map', all_symlinks_map)
 
     with IvyUtils.cachepath(target_classpath_file) as classpath:
       stripped_classpath = [path.strip() for path in classpath]

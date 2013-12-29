@@ -26,9 +26,9 @@ from twitter.common.collections import OrderedDict
 from twitter.common.contextutil import open_zip as open_jar, temporary_dir
 from twitter.common.dirutil import  safe_open
 
-from twitter.pants import get_buildroot
+from twitter.pants.base.build_environment import get_buildroot
 from twitter.pants.base.hash_utils import hash_file
-from twitter.pants.goal.workunit import WorkUnit
+from twitter.pants.base.workunit import WorkUnit
 from twitter.pants.tasks import TaskError
 
 
@@ -53,7 +53,7 @@ class ZincUtils(object):
     # The target scala version.
     self._compile_bootstrap_key = 'scalac'
     compile_bootstrap_tools = context.config.getlist('scala-compile', 'compile-bootstrap-tools',
-                                                     default=[':scala-compile-2.9.2'])
+                                                     default=[':scala-compile-2.9.3'])
     self._bootstrap_utils.register_jvm_build_tools(self._compile_bootstrap_key, compile_bootstrap_tools)
 
     # The zinc version (and the scala version it needs, which may differ from the target version).
@@ -176,21 +176,14 @@ class ZincUtils(object):
     # In practice the JVM changes rarely, and it should be fine to require a full rebuild
     # in those rare cases.
     with temporary_dir() as tmp_analysis_dir:
-      stripped_src = os.path.join(tmp_analysis_dir, 'analysis.nojava')
       tmp_analysis_file = os.path.join(tmp_analysis_dir, 'analysis.relativized')
 
-      # Strip all lines containing self._java_home.
-      with open(src, 'r') as infile:
-        with open (stripped_src, 'w') as outfile:
-          for line in infile:
-            if not self._java_home in line:
-              outfile.write(line)
-
       rebasings = [
+        (self._java_home, None),
         (self._ivy_home, ZincUtils.IVY_HOME_PLACEHOLDER),
         (self._pants_home, ZincUtils.PANTS_HOME_PLACEHOLDER),
       ]
-      Analysis.rebase(stripped_src, tmp_analysis_file, rebasings)
+      Analysis.rebase(src, tmp_analysis_file, rebasings)
       shutil.move(tmp_analysis_file, dst)
 
   def localize_analysis_file(self, src, dst):

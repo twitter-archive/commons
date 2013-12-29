@@ -7,9 +7,9 @@ from collections import namedtuple, defaultdict
 from pystache.renderer import Renderer
 
 from twitter.common.dirutil import safe_mkdir
-from twitter.pants import get_buildroot
+from twitter.pants.base.build_environment import get_buildroot
 from twitter.pants.base.mustache import MustacheRenderer
-from twitter.pants.goal.workunit import WorkUnit
+from twitter.pants.base.workunit import WorkUnit
 from twitter.pants.reporting.linkify import linkify
 from twitter.pants.reporting.report import Report
 from twitter.pants.reporting.reporter import Reporter
@@ -34,7 +34,7 @@ class HtmlReporter(Reporter):
     self._html_dir = settings.html_dir
 
     # We render HTML from mustache templates.
-    self._renderer = MustacheRenderer(Renderer(search_dirs=settings.template_dir))
+    self._renderer = MustacheRenderer(settings.template_dir, __name__)
 
     # We serve files relative to the build root.
     self._buildroot = get_buildroot()

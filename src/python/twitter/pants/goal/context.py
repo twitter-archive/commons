@@ -11,13 +11,13 @@ from twitter.common.dirutil import Lock
 from twitter.common.process import ProcessProviderFactory
 from twitter.common.process.process_provider import ProcessProvider
 
-from twitter.pants import get_buildroot
-from twitter.pants import SourceRoot
+from twitter.pants.base.build_environment import get_buildroot
+from twitter.pants.targets.sources import SourceRoot
 from twitter.pants.base import ParseContext
 from twitter.pants.base.target import Target
 from twitter.pants.binary_util import find_java_home
 from twitter.pants.goal.products import Products
-from twitter.pants.goal.workunit import WorkUnit
+from twitter.pants.base.workunit import WorkUnit
 from twitter.pants.reporting.report import Report
 from twitter.pants.targets import Pants
 
@@ -131,9 +131,8 @@ class Context(object):
       # we manipulate the context manually instead of using it as a contextmanager.
       # This is slightly funky, but the with-context usage is so pervasive and
       # useful elsewhere that it's worth the funkiness in this one place.
-      workunit_parent_ctx = self.run_tracker.new_workunit(name=parent_workunit_name,
-                                                          labels=[WorkUnit.MULTITOOL],
-                                                          parent=background_root_workunit)
+      workunit_parent_ctx = self.run_tracker.new_workunit_under_parent(
+        name=parent_workunit_name, labels=[WorkUnit.MULTITOOL], parent=background_root_workunit)
       workunit_parent = workunit_parent_ctx.__enter__()
       done_hook = lambda: workunit_parent_ctx.__exit__(None, None, None)
     else:
@@ -147,8 +146,9 @@ class Context(object):
     return self.run_tracker.background_worker_pool()
 
   @contextmanager
-  def new_workunit(self, name, labels=list(), cmd='', parent=None):
-    with self.run_tracker.new_workunit(name=name, labels=labels, cmd=cmd, parent=parent) as workunit:
+  def new_workunit(self, name, labels=list(), cmd=''):
+    """Create a new workunit under the calling thread's current workunit."""
+    with self.run_tracker.new_workunit(name=name, labels=labels, cmd=cmd) as workunit:
       yield workunit
 
   def acquire_lock(self):

@@ -13,10 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==================================================================================================
+import re
 
 import daemon
 
-import errno
 import inspect
 import multiprocessing
 import os
@@ -33,13 +33,15 @@ from twitter.common import log
 from twitter.common.collections import OrderedSet
 from twitter.common.dirutil import safe_mkdir, safe_rmtree
 from twitter.common.lang import Compatibility
-from twitter.pants import get_buildroot, goal, group, has_sources, is_apt, is_java, is_scala
+from twitter.pants import binary_util
+from twitter.pants.base.build_environment import get_buildroot
+from twitter.pants.goal import Goal as goal, Group as group
 from twitter.pants.base import Address, BuildFile, Config, ParseContext, Target
 from twitter.pants.base.rcfile import RcFile
 from twitter.pants.commands import Command
 from twitter.pants.goal.initialize_reporting import update_reporting
-from twitter.pants.goal.workunit import WorkUnit
-from twitter.pants.reporting.reporting_server import ReportingServer
+from twitter.pants.base.workunit import WorkUnit
+from twitter.pants.reporting.reporting_server import ReportingServer, ReportingServerManager
 from twitter.pants.tasks import Task, TaskError
 from twitter.pants.tasks.console_task import ConsoleTask
 from twitter.pants.tasks.nailgun_task import NailgunTask
@@ -67,7 +69,10 @@ def _list_goals(context, message):
 class List(Task):
   @classmethod
   def setup_parser(cls, option_group, args, mkflag):
-    option_group.add_option(mkflag("all"), dest="goal_list_all", default=False, action="store_true",
+    option_group.add_option(mkflag("all"),
+                            dest="goal_list_all",
+                            default=False,
+                            action="store_true",
                             help="[%default] List all goals even if no description is available.")
 
   def execute(self, targets):
@@ -196,10 +201,13 @@ class Goal(Command):
 
     Option("--read-from-artifact-cache", "--no-read-from-artifact-cache", action="callback",
       callback=_set_bool, dest="read_from_artifact_cache", default=True,
-      help="Whether to read artifacts from cache instead of building them, when possible."),
+      help="Whether to read artifacts from cache instead of building them, if configured to do so."),
     Option("--write-to-artifact-cache", "--no-write-to-artifact-cache", action="callback",
       callback=_set_bool, dest="write_to_artifact_cache", default=True,
-      help="Whether to write artifacts to cache ."),
+      help="Whether to write artifacts to cache if configured to do so."),
+
+    # NONE OF THE ARTIFACT CACHE FLAGS BELOW DO ANYTHING ANY MORE.
+    # TODO: Remove them once all uses of them are killed.
     Option("--verify-artifact-cache", "--no-verify-artifact-cache", action="callback",
       callback=_set_bool, dest="verify_artifact_cache", default=False,
       help="Whether to verify that cached artifacts are identical after rebuilding them."),
@@ -468,7 +476,7 @@ class Goal(Command):
 
 
 # Install all default pants provided goals
-from twitter.pants import junit_tests
+from twitter.pants.targets import JavaTests as junit_tests
 from twitter.pants.targets import Benchmark, JvmBinary
 from twitter.pants.tasks.antlr_gen import AntlrGen
 from twitter.pants.tasks.benchmark_run import BenchmarkRun
@@ -498,48 +506,59 @@ from twitter.pants.tasks.thrift_gen import ThriftGen
 from twitter.pants.tasks.scrooge_gen import ScroogeGen
 
 
-class Invalidator(Task):
-  def execute(self, targets):
-    build_invalidator_dir = self.context.config.get('tasks', 'build_invalidator')
-    safe_rmtree(build_invalidator_dir)
-goal(name='invalidate', action=Invalidator).install().with_description('Invalidate all targets')
-
-class ArtifactCacheWiper(Task):
-  def execute(self, targets):
-    artifact_cache_dir = self.context.config.get('tasks', 'artifact_cache')
-    safe_rmtree(artifact_cache_dir)
-goal(name='wipe-local-artifact-cache', action=ArtifactCacheWiper
-).install().with_description('Delete all cached artifacts')
-
-goal(
-  name='clean-all',
-  action=lambda ctx: safe_rmtree(ctx.config.getdefault('pants_workdir')),
-  dependencies=['invalidate']
-).install().with_description('Cleans all intermediate build output')
-
+def _cautious_rmtree(root):
+  real_buildroot = os.path.realpath(os.path.abspath(get_buildroot()))
+  real_root = os.path.realpath(os.path.abspath(root))
+  if not real_root.startswith(real_buildroot):
+    raise TaskError('DANGER: Attempting to delete %s, which is not under the build root!')
+  safe_rmtree(real_root)
 
 try:
   import daemon
-
-  def async_safe_rmtree(root):
+  def _async_cautious_rmtree(root):
     if os.path.exists(root):
       new_path = root + '.deletable.%f' % time.time()
       os.rename(root, new_path)
       with daemon.DaemonContext():
-        safe_rmtree(new_path)
-
-  goal(
-    name='clean-all-async',
-    action=lambda ctx: async_safe_rmtree(ctx.config.getdefault('pants_workdir')),
-    dependencies=['invalidate']
-  ).install().with_description('Cleans all intermediate build output in a background process')
+        _cautious_rmtree(new_path)
 except ImportError:
   pass
 
+class Invalidator(ConsoleTask):
+  def execute(self, targets):
+    build_invalidator_dir = self.context.config.get('tasks', 'build_invalidator')
+    _cautious_rmtree(build_invalidator_dir)
+goal(
+  name='invalidate',
+  action=Invalidator,
+  dependencies=['ng-killall']
+).install().with_description('Invalidate all targets')
 
-class NailgunKillall(Task):
+
+class Cleaner(ConsoleTask):
+  def execute(self, targets):
+    _cautious_rmtree(self.context.config.getdefault('pants_workdir'))
+goal(
+  name='clean-all',
+  action=Cleaner,
+  dependencies=['invalidate']
+).install().with_description('Cleans all build output')
+
+
+class AsyncCleaner(ConsoleTask):
+  def execute(self, targets):
+    _async_cautious_rmtree(self.context.config.getdefault('pants_workdir'))
+goal(
+  name='clean-all-async',
+  action=AsyncCleaner,
+  dependencies=['invalidate']
+).install().with_description('Cleans all build output in a background process')
+
+
+class NailgunKillall(ConsoleTask):
   @classmethod
   def setup_parser(cls, option_group, args, mkflag):
+    super(NailgunKillall, cls).setup_parser(option_group, args, mkflag)
     option_group.add_option(mkflag("everywhere"), dest="ng_killall_everywhere",
                             default=False, action="store_true",
                             help="[%default] Kill all nailguns servers launched by pants for "
@@ -548,54 +567,36 @@ class NailgunKillall(Task):
   def execute(self, targets):
     NailgunTask.killall(self.context.log, everywhere=self.context.options.ng_killall_everywhere)
 
-ng_killall = goal(name='ng-killall', action=NailgunKillall)
-ng_killall.install().with_description('Kill any running nailgun servers spawned by pants.')
+goal(
+  name='ng-killall',
+  action=NailgunKillall
+).install().with_description('Kill any running nailgun servers spawned by pants.')
 
-ng_killall.install('clean-all', first=True)
 
-
-def get_port_and_pidfile(context):
-  port = context.options.port or context.config.getint('reporting', 'reporting_port')
-  # We don't put the pidfile in .pants.d, because we want to find it even after a clean.
-  # TODO: Fold pants.run and other pidfiles into here. Generalize the pidfile idiom into
-  # some central library.
-  pidfile = os.path.join(get_buildroot(), '.pids', 'port_%d.pid' % port)
-  return port, pidfile
-
-class RunServer(Task):
+class RunServer(ConsoleTask):
   @classmethod
   def setup_parser(cls, option_group, args, mkflag):
+    super(RunServer, cls).setup_parser(option_group, args, mkflag)
     option_group.add_option(mkflag("port"), dest="port", action="store", type="int", default=0,
-      help="Serve on this port.")
+      help="Serve on this port. Leave unset to choose a free port automatically (recommended if "
+           "using pants concurrently in multiple workspaces on the same host).")
     option_group.add_option(mkflag("allowed-clients"), dest="allowed_clients",
       default=["127.0.0.1"], action="append",
       help="Only requests from these IPs may access this server. Useful for temporarily showing " \
            "build results to a colleague. The special value ALL means any client may connect. " \
            "Use with caution, as your source code is exposed to all allowed clients!")
 
-  def execute(self, targets):
+  def console_output(self, targets):
     DONE = '__done_reporting'
 
+    port = ReportingServerManager.get_current_server_port()
+    if port:
+      return ['Server already running at http://localhost:%d' % port]
+
     def run_server(reporting_queue):
-      (port, pidfile) = get_port_and_pidfile(self.context)
-      def write_pidfile():
-        safe_mkdir(os.path.dirname(pidfile))
-        with open(pidfile, 'w') as outfile:
-          outfile.write(str(os.getpid()))
-
-      def report_launch():
+      def report_launch(actual_port):
         reporting_queue.put(
-          'Launching server with pid %d at http://localhost:%d' % (os.getpid(), port))
-        show_latest_run_msg()
-
-      def show_latest_run_msg():
-        url = 'http://localhost:%d/run/latest' % port
-        try:
-          from colors import magenta
-          url = magenta(url)
-        except ImportError:
-          pass
-        reporting_queue.put('Automatically see latest run at %s' % url)
+          'Launching server with pid %d at http://localhost:%d' % (os.getpid(), actual_port))
 
       def done_reporting():
         reporting_queue.put(DONE)
@@ -607,24 +608,25 @@ class RunServer(Task):
         if not os.fork():
           # Child process.
           info_dir = self.context.config.getdefault('info_dir')
+          # If these are specified explicitly in the config, use those. Otherwise
+          # they will be None, and we'll use the ones baked into this package.
           template_dir = self.context.config.get('reporting', 'reports_template_dir')
           assets_dir = self.context.config.get('reporting', 'reports_assets_dir')
           settings = ReportingServer.Settings(info_dir=info_dir, template_dir=template_dir,
                                               assets_dir=assets_dir, root=get_buildroot(),
                                               allowed_clients=self.context.options.allowed_clients)
-          server = ReportingServer(port, settings)
+          server = ReportingServer(self.context.options.port, settings)
+          actual_port = server.server_port()
+          ReportingServerManager.save_current_server_port(actual_port)
+          report_launch(actual_port)
+          done_reporting()
           # Block forever here.
-          server.start(run_before_blocking=[write_pidfile, report_launch, done_reporting])
-      except socket.error, e:
-        if e.errno == errno.EADDRINUSE:
-          reporting_queue.put('Server already running at http://localhost:%d' % port)
-          show_latest_run_msg()
-          done_reporting()
-          return
-        else:
-          done_reporting()
-          raise
-    # We do reporting on behalf of the child process (necessary, since reporting is buffered in a
+          server.start()
+      except socket.error:
+        done_reporting()
+        raise
+
+    # We do reporting on behalf of the child process (necessary, since reporting may be buffered in a
     # background thread). We use multiprocessing.Process() to spawn the child so we can use that
     # module's inter-process Queue implementation.
     reporting_queue = multiprocessing.Queue()
@@ -632,36 +634,38 @@ class RunServer(Task):
     proc.daemon = True
     proc.start()
     s = reporting_queue.get()
+    ret = []
     while s != DONE:
-      self.context.log.info(s)
+      ret.append(s)
       s = reporting_queue.get()
     # The child process is done reporting, and is now in the server loop, so we can proceed.
+    server_port = ReportingServerManager.get_current_server_port()
+    if server_port:
+      binary_util.ui_open('http://localhost:%d/run/latest' % server_port)
+    return ret
 
 goal(
   name='server',
   action=RunServer,
 ).install().with_description('Run the pants reporting server.')
 
-class KillServer(Task):
-  @classmethod
-  def setup_parser(cls, option_group, args, mkflag):
-    option_group.add_option(mkflag("port"), dest="port", action="store", type="int", default=0,
-      help="Serve on this port.")
-
-  def execute(self, targets):
-    (port, pidfile) = get_port_and_pidfile(self.context)
-    if os.path.exists(pidfile):
+class KillServer(ConsoleTask):
+  pidfile_re = re.compile(r'port_(\d+)\.pid')
+  def console_output(self, targets):
+    pidfiles_and_ports = ReportingServerManager.get_current_server_pidfiles_and_ports()
+    if not pidfiles_and_ports:
+      return ['No server found.']
+    # There should only be one pidfile, but in case there are many, we kill them all here.
+    for pidfile, port in pidfiles_and_ports:
       with open(pidfile, 'r') as infile:
         pidstr = infile.read()
       try:
         os.unlink(pidfile)
         pid = int(pidstr)
         os.kill(pid, signal.SIGKILL)
-        self.context.log.info('Killed server with pid %d at http://localhost:%d\n' % (pid, port))
+        return ['Killed server with pid %d at http://localhost:%d' % (pid, port)]
       except (ValueError, OSError):
-        pass
-    else:
-      self.context.log.info('No server found.')
+        return []
 
 goal(
   name='killserver',
@@ -703,7 +707,7 @@ goal(
 # When chunking a group, we don't need a new chunk for targets with no sources at all
 # (which do sometimes exist, e.g., when creating a BUILD file ahead of its code).
 def _has_sources(target, extension):
-  return has_sources(target, extension) or target.has_label('sources') and not target.sources
+  return target.has_sources(extension) or target.has_label('sources') and not target.sources
 
 # Note: codegen targets shouldn't really be 'is_java' or 'is_scala', but right now they
 # are so they don't cause a lot of islands while chunking. The jvm group doesn't act on them
@@ -711,14 +715,14 @@ def _has_sources(target, extension):
 # TODO: Make chunking only take into account the targets actually acted on? This would require
 # task types to declare formally the targets they act on.
 def _is_java(target):
-  return (is_java(target)
-          or (isinstance(target, (JvmBinary, junit_tests, Benchmark))
-              and _has_sources(target, '.java')))
+  return (target.is_java or 
+          (isinstance(target, (JvmBinary, junit_tests, Benchmark))
+           and _has_sources(target, '.java')))
 
 def _is_scala(target):
-  return (is_scala(target)
-          or (isinstance(target, (JvmBinary, junit_tests, Benchmark))
-              and _has_sources(target, '.scala')))
+  return (target.is_scala or 
+          (isinstance(target, (JvmBinary, junit_tests, Benchmark))
+           and _has_sources(target, '.scala')))
 
 
 goal(name='scala',
@@ -732,7 +736,7 @@ class AptCompile(JavaCompile): pass  # So they're distinct in log messages etc.
 
 goal(name='apt',
      action=AptCompile,
-     group=group('jvm', is_apt),
+     group=group('jvm', lambda t: t.is_apt),
      dependencies=['gen', 'resolve', 'check-exclusives', 'bootstrap']).install('compile')
 
 goal(name='java',

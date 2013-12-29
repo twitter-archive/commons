@@ -15,6 +15,7 @@
 # ==================================================================================================
 
 from __future__ import print_function
+from collections import defaultdict
 
 import os
 import shutil
@@ -37,13 +38,13 @@ class IvyResolve(NailgunTask):
 
     flag = mkflag('override')
     option_group.add_option(flag, action='append', dest='ivy_resolve_overrides',
-                            help='''Specifies a jar dependency override in the form:
+                            help="""Specifies a jar dependency override in the form:
                             [org]#[name]=(revision|url)
 
                             For example, to specify 2 overrides:
                             %(flag)s=com.foo#bar=0.1.2 \\
                             %(flag)s=com.baz#spam=file:///tmp/spam.jar
-                            ''' % dict(flag=flag))
+                            """ % dict(flag=flag))
 
     report = mkflag("report")
     option_group.add_option(report, mkflag("report", negate=True), dest = "ivy_resolve_report",
@@ -63,18 +64,14 @@ class IvyResolve(NailgunTask):
                             help="Use this directory as the ivy cache, instead of the "
                                  "default specified in pants.ini.")
 
-    option_group.add_option(mkflag("args"), dest="ivy_args", action="append", default=[],
-                            help = "Pass these extra args to ivy.")
-
     option_group.add_option(mkflag("mutable-pattern"), dest="ivy_mutable_pattern",
                             help="If specified, all artifact revisions matching this pattern will "
                                  "be treated as mutable unless a matching artifact explicitly "
                                  "marks mutable as False.")
 
   def __init__(self, context, confs=None):
-    classpath = context.config.getlist('ivy', 'classpath')
     nailgun_dir = context.config.get('ivy-resolve', 'nailgun_dir')
-    NailgunTask.__init__(self, context, classpath=classpath, workdir=nailgun_dir)
+    NailgunTask.__init__(self, context, workdir=nailgun_dir)
 
     self._cachedir = context.options.ivy_resolve_cache or context.config.get('ivy', 'cache_dir')
     self._confs = confs or context.config.getlist('ivy-resolve', 'confs')
@@ -95,8 +92,7 @@ class IvyResolve(NailgunTask):
     context.products.require_data('exclusives_groups')
 
     # Typically this should be a local cache only, since classpaths aren't portable.
-    artifact_cache_spec = context.config.getlist('ivy-resolve', 'artifact_caches', default=[])
-    self.setup_artifact_cache(artifact_cache_spec)
+    self.setup_artifact_cache_from_config(config_section='ivy-resolve')
 
   def invalidate_for(self):
     return self.context.options.ivy_resolve_overrides
@@ -105,9 +101,7 @@ class IvyResolve(NailgunTask):
     """Resolves the specified confs for the configured targets and returns an iterator over
     tuples of (conf, jar path).
     """
-
     groups = self.context.products.get_data('exclusives_groups')
-
 
     # Below, need to take the code that actually execs ivy, and invoke it once for each
     # group. Then after running ivy, we need to take the resulting classpath, and load it into
@@ -137,15 +131,14 @@ class IvyResolve(NailgunTask):
       classpath = self.ivy_resolve(group_targets,
                                    java_runner=self.runjava_indivisible,
                                    symlink_ivyxml=True)
+      if self.context.products.isrequired('ivy_jar_products'):
+        self._populate_ivy_jar_products(group_targets)
       for conf in self._confs:
         for path in classpath:
           groups.update_compatible_classpaths(group_key, [(conf, path)])
 
       if self._report:
         self._generate_ivy_report(group_targets)
-
-    if self.context.products.isrequired('ivy_jar_products'):
-      self._populate_ivy_jar_products(targets)
 
     create_jardeps_for = self.context.products.isrequired(self._ivy_utils._mapfor_typename())
     if create_jardeps_for:
@@ -161,11 +154,11 @@ class IvyResolve(NailgunTask):
 
   def _populate_ivy_jar_products(self, targets):
     """Populate the build products with an IvyInfo object for each generated ivy report."""
-    ivy_products = {}
+    ivy_products = self.context.products.get_data('ivy_jar_products') or defaultdict(list)
     for conf in self._confs:
       ivyinfo = self._ivy_utils.parse_xml_report(targets, conf)
       if ivyinfo:
-        ivy_products[conf] = ivyinfo
+        ivy_products[conf].append(ivyinfo)  # Value is a list, to accommodate multiple exclusives groups.
     self.context.products.set_data('ivy_jar_products', ivy_products)
 
   def _generate_ivy_report(self, targets):

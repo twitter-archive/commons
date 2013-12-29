@@ -25,9 +25,9 @@ import re
 import threading
 
 from twitter.common.collections import OrderedSet
-from twitter.common.dirutil import safe_mkdir, safe_open
+from twitter.common.dirutil import safe_mkdir, safe_open, safe_delete
 
-from twitter.pants import binary_util, get_buildroot, is_internal, is_jar, is_jvm, is_concrete
+from twitter.pants import binary_util, get_buildroot
 from twitter.pants.base.generator import Generator, TemplateData
 from twitter.pants.base.revision import Revision
 from twitter.pants.base.target import Target
@@ -65,7 +65,6 @@ class IvyUtils(object):
     self._cachedir = (getattr(options, 'ivy_resolve_cache', None) or
                       config.get('ivy', 'cache_dir'))
 
-    self._ivy_args = getattr(options, 'ivy_args', [])
     self._mutable_pattern = (getattr(options, 'ivy_mutable_pattern', None) or
                              config.get('ivy-resolve', 'mutable_pattern', default=None))
 
@@ -75,9 +74,6 @@ class IvyUtils(object):
     self._work_dir = config.get('ivy-resolve', 'workdir')
     self._template_path = os.path.join('templates', 'ivy_resolve', 'ivy.mustache')
     self._confs = config.getlist('ivy-resolve', 'confs')
-    self._classpath_file = os.path.join(self._work_dir, 'classpath')
-    self._classpath_dir = os.path.join(self._work_dir, 'mapped')
-
 
     if self._mutable_pattern:
       try:
@@ -100,11 +96,11 @@ class IvyUtils(object):
         )
 
       def replace_rev(template):
-        _log.info(fmt_message('Overrode %(overridden)s with rev %(rev)s', template))
+        self._log.info(fmt_message('Overrode %(overridden)s with rev %(rev)s', template))
         return template.extend(version=rev_or_url, url=None, force=True)
 
       def replace_url(template):
-        _log.info(fmt_message('Overrode %(overridden)s with snapshot at %(url)s', template))
+        self._log.info(fmt_message('Overrode %(overridden)s with snapshot at %(url)s', template))
         return template.extend(version='SNAPSHOT', url=rev_or_url, force=True)
 
       replace = replace_url if re.match(r'^\w+://.+', rev_or_url) else replace_rev
@@ -122,6 +118,27 @@ class IvyUtils(object):
     else:
       with safe_open(path, 'r') as cp:
         yield (path.strip() for path in cp.read().split(os.pathsep) if path.strip())
+
+  @staticmethod
+  def symlink_cachepath(inpath, symlink_dir, outpath):
+    """Symlinks all paths listed in inpath into symlink_dir.
+
+    Writes the resulting paths to outpath.
+    Returns a map of path -> symlink to that path.
+    """
+    safe_mkdir(symlink_dir)
+    with safe_open(inpath, 'r') as infile:
+      paths = filter(None, infile.read().strip().split(os.pathsep))
+    symlinks = []
+    for path in paths:
+      symlink = os.path.join(symlink_dir, os.path.basename(path))
+      safe_delete(symlink)
+      os.symlink(path, symlink)
+      symlinks.append(symlink)
+    with safe_open(outpath, 'w') as outfile:
+      outfile.write(':'.join(symlinks))
+    symlink_map = dict(zip(paths, symlinks))
+    return symlink_map
 
   def identify(self, targets):
     targets = list(targets)
@@ -170,13 +187,12 @@ class IvyUtils(object):
     dependencies.
     """
     def is_classpath(target):
-      return is_jar(target) or (
-        is_internal(target) and any(jar for jar in target.jar_dependencies if jar.rev)
-      )
+      return (target.is_jar or 
+              target.is_internal and any(jar for jar in target.jar_dependencies if jar.rev))
 
     classpath_deps = OrderedSet()
     for target in targets:
-      classpath_deps.update(filter(is_classpath, filter(is_concrete, target.resolve())))
+      classpath_deps.update(t for t in target.resolve() if t.is_concrete and is_classpath(t))
     return classpath_deps
 
   def _generate_ivy(self, targets, jars, excludes, ivyxml):
@@ -200,7 +216,7 @@ class IvyUtils(object):
 
   def _calculate_classpath(self, targets):
     def is_jardependant(target):
-      return is_jar(target) or is_jvm(target)
+      return target.is_jar or target.is_jvm
 
     jars = {}
     excludes = set()
@@ -215,7 +231,7 @@ class IvyUtils(object):
       )
 
     def collect_jars(target):
-      if is_jar(target):
+      if target.is_jar:
         add_jar(target)
       elif target.jar_dependencies:
         for jar in target.jar_dependencies:
@@ -223,7 +239,7 @@ class IvyUtils(object):
             add_jar(jar)
 
       # Lift jvm target-level excludes up to the global excludes set
-      if is_jvm(target) and target.excludes:
+      if target.is_jvm and target.excludes:
         excludes.update(target.excludes)
 
     for target in targets:
@@ -346,7 +362,7 @@ class IvyUtils(object):
                workunit_factory=None,
                ivy_classpath=None,
                symlink_ivyxml=False):
-    ivy_classpath = ivy_classpath if ivy_classpath else self._config.getlist('ivy', 'classpath')
+    ivy_classpath = ivy_classpath or self._config.getlist('ivy', 'classpath')
     runjava = runjava or binary_util.runjava_indivisible
     ivyxml = os.path.join(target_workdir, 'ivy.xml')
     jars, excludes = self._calculate_classpath(targets)
@@ -360,7 +376,6 @@ class IvyUtils(object):
     if not self._transitive:
       ivy_opts.append('-notransitive')
     ivy_opts.extend(self._opts)
-    ivy_opts.extend(self._ivy_args)
 
     runjava_args = dict(
       main='org.apache.ivy.Main',

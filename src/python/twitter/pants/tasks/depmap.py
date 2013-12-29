@@ -19,7 +19,6 @@ from __future__ import print_function
 from twitter.pants.tasks.console_task import ConsoleTask
 from twitter.pants.tasks import TaskError
 
-from twitter.pants import is_jvm, is_jvm_app, is_python, is_concrete
 from twitter.pants.targets.jar_dependency import JarDependency
 
 
@@ -30,14 +29,14 @@ class Depmap(ConsoleTask):
 
   @staticmethod
   def _is_jvm(dep):
-    return is_jvm(dep) or is_jvm_app(dep)
+    return dep.is_jvm or dep.is_jvm_app
 
   @classmethod
-  def setup_parser(cls, option_group, args, mkflags):
-    super(Depmap, cls).setup_parser(option_group, args, mkflags)
+  def setup_parser(cls, option_group, args, mkflag):
+    super(Depmap, cls).setup_parser(option_group, args, mkflag)
 
-    cls.internal_only_flag = mkflags("internal-only")
-    cls.external_only_flag = mkflags("external-only")
+    cls.internal_only_flag = mkflag("internal-only")
+    cls.external_only_flag = mkflag("external-only")
     option_group.add_option(cls.internal_only_flag,
                             action="store_true",
                             dest="depmap_is_internal_only",
@@ -50,18 +49,18 @@ class Depmap(ConsoleTask):
                             default=False,
                             help='Specifies that only external dependencies should'
                                  ' be included in the graph output (only external jars).')
-    option_group.add_option(mkflags("minimal"),
+    option_group.add_option(mkflag("minimal"),
                             action="store_true",
                             dest="depmap_is_minimal",
                             default=False,
                             help='For a textual dependency tree, only prints a dependency the 1st'
                                  ' time it is encountered.  For graph output this does nothing.')
-    option_group.add_option(mkflags("separator"),
+    option_group.add_option(mkflag("separator"),
                             dest="depmap_separator",
                             default="-",
                             help='Specifies the separator to use between the org/name/rev'
                                  ' components of a dependency\'s fully qualified name.')
-    option_group.add_option(mkflags("graph"),
+    option_group.add_option(mkflag("graph"),
                             action="store_true",
                             dest="depmap_is_graph",
                             default=False,
@@ -89,12 +88,12 @@ class Depmap(ConsoleTask):
       raise TaskError("One or more target addresses are required.")
 
     for target in self.context.target_roots:
-      if all(self._is_jvm(t) for t in target.resolve() if is_concrete(t)):
+      if all(self._is_jvm(t) for t in target.resolve() if t.is_concrete):
         if self.is_graph:
           return self._output_digraph(target)
         else:
           return self._output_dependency_tree(target)
-      elif is_python(target):
+      elif target.is_python:
         raise TaskError('Unsupported for Python targets')
       else:
         raise TaskError('Unsupported for target %s' % target)

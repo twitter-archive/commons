@@ -22,7 +22,7 @@ import sys
 from contextlib import contextmanager
 from zipfile import ZipFile
 
-from twitter.pants import get_buildroot, goal, is_internal
+from twitter.pants.base.build_environment import get_buildroot
 from twitter.pants.base.parse_context import ParseContext
 from twitter.pants.python.python_chroot import PythonChroot
 from twitter.pants.targets import JavaLibrary, JvmBinary, ScalaLibrary
@@ -132,7 +132,7 @@ class ArgsResourceMapper(Task):
                 self.context.log.debug('No mapping for %s' % target)
 
           if transitive:
-            target.walk(add_clasnames, is_internal)
+            target.walk(add_clasnames, lambda t: t.is_internal)
           else:
             add_clasnames(target)
 

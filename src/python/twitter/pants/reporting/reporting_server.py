@@ -2,9 +2,9 @@ import itertools
 import json
 import mimetypes
 import os
+import pkgutil
 import pystache
 import re
-import sys
 import urllib
 import urlparse
 
@@ -14,6 +14,8 @@ from collections import namedtuple
 from datetime import date, datetime
 
 from pystache import Renderer
+from twitter.common.dirutil import safe_mkdir
+from twitter.pants import get_buildroot
 
 from twitter.pants.base.mustache import MustacheRenderer
 from twitter.pants.goal.run_tracker import RunInfo
@@ -130,8 +132,12 @@ class PantsHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       prettify_extra_langs = []
     else:
       prettify = True
-      prettify_extra_dir = os.path.join(self._settings.assets_dir, 'js', 'prettify_extra_langs')
-      prettify_extra_langs = [ {'name': x} for x in os.listdir(prettify_extra_dir) ]
+      if self._settings.assets_dir:
+        prettify_extra_dir = os.path.join(self._settings.assets_dir, 'js', 'prettify_extra_langs')
+        prettify_extra_langs = [ {'name': x} for x in os.listdir(prettify_extra_dir) ]
+      else:
+        # TODO: Find these from our package, somehow.
+        prettify_extra_langs = []
     linenums = True
     args = { 'prettify_extra_langs': prettify_extra_langs, 'content': content,
              'prettify': prettify, 'linenums': linenums }
@@ -139,10 +145,13 @@ class PantsHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
   def _handle_assets(self, relpath, params):
     """Statically serve assets: js, css etc."""
-    abspath = os.path.normpath(os.path.join(self._settings.assets_dir, relpath))
-    content_type = mimetypes.guess_type(abspath)[0] or 'text/plain'
-    with open(abspath, 'r') as infile:
-      content = infile.read()
+    if self._settings.assets_dir:
+      abspath = os.path.normpath(os.path.join(self._settings.assets_dir, relpath))
+      with open(abspath, 'r') as infile:
+        content = infile.read()
+    else:
+      content = pkgutil.get_data(__name__, os.path.join('assets', relpath))
+    content_type = mimetypes.guess_type(relpath)[0] or 'text/plain'
     self._send_content(content, content_type)
 
   def _handle_poll(self, relpath, params):
@@ -311,15 +320,17 @@ class PantsHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 class ReportingServer(object):
   # Reporting server settings.
   #   info_dir: path to dir containing RunInfo files.
-  #   template_dir: location of mustache template files.
-  #   assets_dir: location of assets (js, css etc.)
+  #   template_dir: location of mustache template files. If None, the templates
+  #                 embedded in our package are used.
+  #   assets_dir: location of assets (js, css etc.) If None, the assets
+  #               embedded in our package are used.
   #   root: build root.
   #   allowed_clients: list of ips or ['ALL'].
   Settings = namedtuple('Settings',
     ['info_dir', 'template_dir', 'assets_dir', 'root', 'allowed_clients'])
 
   def __init__(self, port, settings):
-    renderer = MustacheRenderer(Renderer(search_dirs=settings.template_dir))
+    renderer = MustacheRenderer(settings.template_dir, __name__)
 
     class MyHandler(PantsHandler):
       def __init__(self, request, client_address, server):
@@ -328,8 +339,49 @@ class ReportingServer(object):
     self._httpd = BaseHTTPServer.HTTPServer(('', port), MyHandler)
     self._httpd.timeout = 0.1  # Not the network timeout, but how often handle_request yields.
 
-  def start(self, run_before_blocking=list()):
-    for f in run_before_blocking:
-      f()
+  def server_port(self):
+    return self._httpd.server_port
+
+  def start(self):
     self._httpd.serve_forever()
 
+
+class ReportingServerManager(object):
+  @staticmethod
+  def _get_pidfile_dir():
+    return os.path.join(get_buildroot(), '.pids', 'daemon')
+
+  @staticmethod
+  def save_current_server_port(port):
+    """Save the port of the currently-running server, so we can find it across pants runs."""
+    # We don't put the pidfile in .pants.d, because we want to find it even after a clean.
+    # NOTE: If changing this dir/file name, also change get_current_server_pidfiles_and_ports
+    # appropriately.
+    # TODO: Generalize the pidfile idiom into some central library.
+    pidfile_dir = ReportingServerManager._get_pidfile_dir()
+    safe_mkdir(pidfile_dir)
+    pidfile = os.path.join(pidfile_dir, 'port_%d.pid' % port)
+    with open(pidfile, 'w') as outfile:
+      outfile.write(str(os.getpid()))
+
+  @staticmethod
+  def get_current_server_port():
+    """Returns the port of the currently-running server, or None if no server is detected."""
+    pidfiles_and_ports = ReportingServerManager.get_current_server_pidfiles_and_ports()
+    # There should only be one pidfile, but in case there are many due to error,
+    # pick the first one.
+    return pidfiles_and_ports[0][1] if pidfiles_and_ports else None
+
+  @staticmethod
+  def get_current_server_pidfiles_and_ports():
+    """Returns a list of pairs (pidfile, port) of all found pidfiles."""
+    pidfile_dir = ReportingServerManager._get_pidfile_dir()
+    # There should only be one pidfile, but there may be errors/race conditions where
+    # there are multiple of them.
+    pidfile_names = os.listdir(pidfile_dir) if os.path.exists(pidfile_dir) else []
+    ret = []
+    for pidfile_name in pidfile_names:
+      m = re.match(r'port_(\d+)\.pid', pidfile_name)
+      if m is not None:
+        ret.append((os.path.join(pidfile_dir, pidfile_name), int(m.group(1))))
+    return ret

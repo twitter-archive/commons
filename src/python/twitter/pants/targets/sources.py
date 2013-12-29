@@ -14,12 +14,13 @@
 # limitations under the License.
 # ==================================================================================================
 
+from functools import partial
 import os
 
 from collections import defaultdict
 
 from twitter.common.collections import OrderedSet
-from twitter.pants import get_buildroot
+from twitter.pants.base.build_environment import get_buildroot
 from twitter.pants.base import ParseContext
 
 class SourceRoot(object):
@@ -86,13 +87,18 @@ class SourceRoot(object):
     """Registers the given basedir as a source root for the given target types."""
     return SourceRoot(basedir, *types)
 
-  def __init__(self, basedir, *types):
+  @classmethod
+  def lazy_rel_source_root(cls, reldir):
+    return partial(cls, reldir=reldir)
+
+  def __init__(self, basedir, *types, **kwargs):
     """Initializes a source root at basedir for the given target types.
 
     :basedir The base directory to resolve sources relative to
     :types The target types to register :basedir: as a source root for
     """
-    basepath = os.path.abspath(basedir or os.path.curdir)
+    reldir = kwargs.pop('reldir', get_buildroot())
+    basepath = os.path.abspath(os.path.join(reldir, basedir))
     if get_buildroot() != os.path.commonprefix((basepath, get_buildroot())):
       raise ValueError('The supplied basedir %s is not a sub-path of the project root %s' % (
         basepath,
