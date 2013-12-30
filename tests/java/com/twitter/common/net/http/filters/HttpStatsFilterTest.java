@@ -1,6 +1,8 @@
 package com.twitter.common.net.http.filters;
 
+import java.io.IOException;
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -17,6 +19,7 @@ import com.twitter.common.util.testing.FakeClock;
 
 import static org.easymock.EasyMock.expectLastCall;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class HttpStatsFilterTest extends EasyMockTest {
   private FakeClock clock;
@@ -65,5 +68,36 @@ public class HttpStatsFilterTest extends EasyMockTest {
     SlidingStats stat = filter.counters.get(HttpServletResponse.SC_NOT_FOUND);
     assertEquals(responseTime.getValue() * numCalls, stat.getTotalCounter().get());
     assertEquals(numCalls, stat.getEventCounter().get());
+  }
+
+  @Test
+  public void testExceptionStatsCounting() throws Exception {
+    filterChain.doFilter(
+        EasyMock.anyObject(HttpServletRequest.class),
+        EasyMock.anyObject(HttpServletResponse.class));
+    expectLastCall().andThrow(new IOException());
+    filterChain.doFilter(
+        EasyMock.anyObject(HttpServletRequest.class),
+        EasyMock.anyObject(HttpServletResponse.class));
+    expectLastCall().andThrow(new ServletException());
+
+    control.replay();
+
+    try {
+      filter.doFilter(request, response, filterChain);
+      fail();
+    } catch (IOException e) {
+      // Exception is expected, but we still want to assert on the stat tracking, so we can't
+      //  just use @Test(expected...)
+      assertEquals(1, filter.exceptionCount.get());
+    }
+
+    try {
+      filter.doFilter(request, response, filterChain);
+      fail();
+    } catch (ServletException e) {
+      // See above.
+      assertEquals(2, filter.exceptionCount.get());
+    }
   }
 }

@@ -1,6 +1,7 @@
 package com.twitter.common.net.http.filters;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -16,6 +17,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.inject.Inject;
 
 import com.twitter.common.stats.SlidingStats;
+import com.twitter.common.stats.Stats;
 import com.twitter.common.util.Clock;
 
 /**
@@ -32,6 +34,9 @@ public class HttpStatsFilter extends AbstractHttpFilter {
           return new SlidingStats("http_" + status + "_responses", "nanos");
         }
       });
+
+  @VisibleForTesting
+  final AtomicLong exceptionCount = Stats.exportLong("http_request_exceptions");
 
   private static class ResponseWithStatus extends HttpServletResponseWrapper {
     // 200 response code is the default if none is explicitly set.
@@ -63,8 +68,17 @@ public class HttpStatsFilter extends AbstractHttpFilter {
 
     long start = clock.nowNanos();
     ResponseWithStatus wrapper = new ResponseWithStatus(response);
-    // TODO(jcohen): Trap exceptions thrown by the request and increment a counter
-    chain.doFilter(request, wrapper);
+
+    try {
+      chain.doFilter(request, wrapper);
+    } catch (IOException e) {
+      exceptionCount.incrementAndGet();
+      throw e;
+    } catch (ServletException e) {
+      exceptionCount.incrementAndGet();
+      throw e;
+    }
+
     counters.getUnchecked(wrapper.wrappedStatus).accumulate(clock.nowNanos() - start);
   }
 }
