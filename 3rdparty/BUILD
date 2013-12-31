@@ -675,7 +675,7 @@ jar_library(name = 'tl4j',
 jar_library(name = 'caliper',
             dependencies = [
               # Warning: keep the library version aligned with
-              # BUILD.tools:benchmark-caliper-0.5-ivy.xml
+              # BUILD.tools:benchmark-caliper-0.5
               jar(org = 'com.google.caliper', name = 'caliper', rev = '0.5-rc1').with_sources(),
             ]
            )
