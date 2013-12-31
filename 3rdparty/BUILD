@@ -459,7 +459,7 @@ jar_library(name = 'scalatest',
 
 jar_library(name = 'scrooge-runtime',
             dependencies = [
-              # used by scrooge-generator described in build-support/profiles/scrooge-gen.ivy.xml
+              # used by scrooge-generator in BUILD.tools:scrooge-gen
               jar(org='com.twitter', name='scrooge-runtime', rev='3.0.9').with_sources()
             ]
           )
@@ -675,7 +675,7 @@ jar_library(name = 'tl4j',
 jar_library(name = 'caliper',
             dependencies = [
               # Warning: keep the library version aligned with
-              # build-support/profiles/benchmark-caliper-0.5-ivy.xml
+              # BUILD.tools:benchmark-caliper-0.5-ivy.xml
               jar(org = 'com.google.caliper', name = 'caliper', rev = '0.5-rc1').with_sources(),
             ]
            )

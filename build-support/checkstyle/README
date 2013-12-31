@@ -9,6 +9,6 @@ place the rule you are fixing or developing early on the checkstyle classpath.
 want.
 3.) send out a review with your rule changes/additions
 4.) When you get ship it, submit and push a new checkstyle jar then update
-build-support/profiles/checkstyle-5.5.ivy.xml with the new custom check jar revision and send
+BUILD.tools:checkstyle with the new custom check jar revision and send
 another review.
 
