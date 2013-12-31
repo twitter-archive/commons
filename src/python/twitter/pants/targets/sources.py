@@ -17,11 +17,8 @@
 from functools import partial
 import os
 
-from collections import defaultdict
-
-from twitter.common.collections import OrderedSet
 from twitter.pants.base.build_environment import get_buildroot
-from twitter.pants.base import ParseContext
+
 
 class SourceRoot(object):
   """Allows registration of a source root for a set of targets.
@@ -32,70 +29,38 @@ class SourceRoot(object):
 
   It is illegal to have nested source roots.
   """
-  _ROOTS_BY_TYPE = defaultdict(OrderedSet)
-  _TYPES_BY_ROOT = defaultdict(OrderedSet)
-  _SEARCHED = set()
+  _ROOTS = set()
 
   @staticmethod
   def _register(sourceroot):
-    for t in sourceroot.types:
-      SourceRoot._ROOTS_BY_TYPE[t].add(sourceroot.basedir)
-      SourceRoot._TYPES_BY_ROOT[sourceroot.basedir].add(t)
+    SourceRoot._ROOTS.add(sourceroot.basedir)
 
   @staticmethod
   def find(target):
-    """Finds the source root for the given target.  If none is registered, the parent
-    directory of the target's BUILD file is returned.
+    """Finds the source root for the given target.
+
+    If none is registered, returns the parent directory of the target's BUILD file.
     """
     target_path = os.path.relpath(target.address.buildfile.parent_path, get_buildroot())
-
-    def _find():
-      for typ in target.__class__.mro():
-        for root in SourceRoot._ROOTS_BY_TYPE.get(typ, ()):
-          if target_path.startswith(root):
-            return root
-
-    # Try already registered roots
-    root = _find()
-    if root:
-      return root
-
-    # Fall back to searching the ancestor path for a root
-    for buildfile in reversed(target.address.buildfile.ancestors()):
-      if buildfile not in SourceRoot._SEARCHED:
-        SourceRoot._SEARCHED.add(buildfile)
-        ParseContext(buildfile).parse()
-        root = _find()
-        if root:
-          return root
-
-    # Finally, resolve files relative to the BUILD file parent dir as the target base
+    for root in SourceRoot._ROOTS:
+      if target_path.startswith(root):
+        return root
     return target_path
 
   @staticmethod
-  def types(root):
-    """Returns the set of target types rooted at root."""
-    return SourceRoot._TYPES_BY_ROOT[root]
-
-  @staticmethod
-  def here(*types):
-    """Registers the cwd as a source root for the given target types."""
-    return SourceRoot.register(None, *types)
-
-  @staticmethod
-  def register(basedir, *types):
+  def register(basedir):
     """Registers the given basedir as a source root for the given target types."""
-    return SourceRoot(basedir, *types)
+    return SourceRoot(basedir)
 
   @classmethod
   def lazy_rel_source_root(cls, reldir):
     return partial(cls, reldir=reldir)
 
-  def __init__(self, basedir, *types, **kwargs):
+  # TODO; Remove *args when we've fixed all source_root() calls.
+  def __init__(self, basedir, *args, **kwargs):
     """Initializes a source root at basedir for the given target types.
 
     :basedir The base directory to resolve sources relative to
-    :types The target types to register :basedir: as a source root for
     """
     reldir = kwargs.pop('reldir', get_buildroot())
     basepath = os.path.abspath(os.path.join(reldir, basedir))
@@ -106,5 +71,4 @@ class SourceRoot(object):
       ))
 
     self.basedir = os.path.relpath(basepath, get_buildroot())
-    self.types = types
     SourceRoot._register(self)

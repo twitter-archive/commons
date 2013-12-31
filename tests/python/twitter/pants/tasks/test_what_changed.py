@@ -58,7 +58,7 @@ class WhatChangedTest(BaseWhatChangedTest):
     super(WhatChangedTest, cls).setUpClass()
 
     cls.create_target('root', dedent('''
-      source_root('src/py', python_library)
+      source_root('src/py')
     '''))
 
     cls.create_target('root/src/py/a', dedent('''

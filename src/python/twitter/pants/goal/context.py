@@ -217,7 +217,7 @@ class Context(object):
   def _create_new_target(self, target_base, target_type, *args, **kwargs):
     if not os.path.exists(target_base):
       os.makedirs(target_base)
-    SourceRoot.register(target_base, target_type)
+    SourceRoot.register(target_base)
     with ParseContext.temp(target_base):
       return target_type(*args, **kwargs)
 
