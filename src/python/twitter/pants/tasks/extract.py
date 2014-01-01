@@ -70,7 +70,7 @@ class Extract(Task):
         config = Config.load()
         cls._EXTRACT_BASE = config.get('idl-extract', 'workdir')
         safe_mkdir(cls._EXTRACT_BASE)
-        SourceRoot.register(cls._EXTRACT_BASE, JavaThriftLibrary)
+        SourceRoot.register(cls._EXTRACT_BASE)
 
       with ParseContext.temp(cls._EXTRACT_BASE):
         # TODO(John Sirois): abstract ivy specific configurations notion away
