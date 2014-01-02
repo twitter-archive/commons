@@ -15,6 +15,7 @@
 // =================================================================================================
 
 namespace java com.twitter.thrift.descriptors
+#@namespace java com.twitter.thrift.descriptors.thriftscala
 namespace py gen.twitter.thrift.descriptors
 namespace rb Thriftutils.Descriptors
 

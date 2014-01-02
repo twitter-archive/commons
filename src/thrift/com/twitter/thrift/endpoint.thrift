@@ -21,6 +21,7 @@
 //  wherever the python service discovery stack lands.
 
 namespace java com.twitter.thrift
+#@namespace scala com.twitter.thrift.endpoint.thriftscala
 namespace rb Twitter.Thrift
 namespace py gen.twitter.thrift.endpoint
 
