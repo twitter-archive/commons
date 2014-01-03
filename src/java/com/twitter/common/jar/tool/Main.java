@@ -3,7 +3,6 @@ package com.twitter.common.jar.tool;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
@@ -30,6 +29,8 @@ import com.google.common.reflect.TypeToken;
 import com.twitter.common.args.Arg;
 import com.twitter.common.args.ArgParser;
 import com.twitter.common.args.ArgScanner;
+import com.twitter.common.args.Args;
+import com.twitter.common.args.Args.ArgsInfo;
 import com.twitter.common.args.CmdLine;
 import com.twitter.common.args.Parser;
 import com.twitter.common.args.ParserOracle;
@@ -45,7 +46,6 @@ import com.twitter.common.jar.tool.JarBuilder.Entry;
 import com.twitter.common.jar.tool.JarBuilder.Listener;
 import com.twitter.common.jar.tool.JarBuilder.Source;
 import com.twitter.common.logging.RootLogConfig;
-import com.twitter.common.logging.RootLogConfig.Configuration;
 import com.twitter.common.logging.RootLogConfig.LogLevel;
 
 public final class Main {
@@ -108,6 +108,11 @@ public final class Main {
         jarBuilder.addFile(source, destination);
       }
     }
+
+    @Override
+    public String toString() {
+      return String.format("FileSource{source=%s, destination=%s}", source, destination);
+    }
   }
 
   @ArgParser
@@ -133,26 +138,26 @@ public final class Main {
       help = "The name of the fully qualified main class. "
           + "If a -manifest is specified its contents will be used but this -main will override "
           + "any entry already present.")
-  private static final Arg<String> MAIN_CLASS = Arg.create(null);
+  private final Arg<String> mainClass = Arg.create(null);
 
   @CmdLine(name = "classpath",
       help = "A list of classpath entries. "
           + "If a -manifest is specified its contents will be used but this -classpath will "
           + "override any entry already present.")
-  private static final Arg<List<String>> CLASS_PATH = Arg.create(null);
+  private final Arg<List<String>> classPath = Arg.create(null);
 
   @Exists
   @CanRead
   @CmdLine(name = "manifest",
       help = "A path to a manifest file to use. If -main or -classpath is specified those values "
           + "will overwrite the corresponding entry in this manifest.")
-  private static final Arg<File> MANIFEST = Arg.create(null);
+  private final Arg<File> manifest = Arg.create(null);
 
   @CmdLine(name = "update", help = "Update the jar if it already exists, otherwise create it.")
-  private static final Arg<Boolean> UPDATE = Arg.create(false);
+  private final Arg<Boolean> update = Arg.create(false);
 
   @CmdLine(name = "compress", help = "Compress jar entries.")
-  private static final Arg<Boolean> COMPRESS = Arg.create(false);
+  private final Arg<Boolean> compress = Arg.create(false);
 
   @CmdLine(name = "files",
       help = "A mapping from filesystem paths to jar paths. The mapping is specified in the form "
@@ -161,33 +166,32 @@ public final class Main {
           + "contents of the /var/log tree added as individual entries under the logs/ directory "
           + "in the jar.  For directories, the mapping can be skipped in which case the directory "
           + "tree is added as-is to the resulting jar.")
-  private static final Arg<List<FileSource>> FILES =
+  private final Arg<List<FileSource>> files =
       Arg.<List<FileSource>>create(ImmutableList.<FileSource>of());
 
   @CmdLine(name = "jars", help = "A list of jar files whose entries to add to the output jar")
-  private static final Arg<List<File>> JARS = Arg.<List<File>>create(ImmutableList.<File>of());
+  private final Arg<List<File>> jars = Arg.<List<File>>create(ImmutableList.<File>of());
 
   @CmdLine(name = "skip", help = "A list of regular expressions identifying entries to skip.")
-  private static final Arg<List<Pattern>> SKIP =
-      Arg.<List<Pattern>>create(ImmutableList.<Pattern>of());
+  private final Arg<List<Pattern>> skip = Arg.<List<Pattern>>create(ImmutableList.<Pattern>of());
 
   private static final String ACTIONS = "SKIP|REPLACE|CONCAT|THROW";
 
   @CmdLine(name = "default_action",
       help = "The default duplicate action to apply if no policies match. Can be any of "
           + ACTIONS)
-  private static final Arg<DuplicateAction> DEFAULT_ACTION = Arg.create(DuplicateAction.SKIP);
+  private final Arg<DuplicateAction> defaultAction = Arg.create(DuplicateAction.SKIP);
 
   @CmdLine(name = "policies",
       help = "A list of duplicate policies to apply. Policies are specified as [regex]=[action], "
           + "and the action can be any one of " + ACTIONS + ". For example: "
           + "^META-INF/services/=CONCAT would concatenate duplicate service files into one large "
           + "service file.")
-  private static final Arg<List<DuplicatePolicy>> POLICIES =
+  private final Arg<List<DuplicatePolicy>> policies =
       Arg.<List<DuplicatePolicy>>create(ImmutableList.<DuplicatePolicy>of());
 
   @Positional(help = "The target jar file path to write.")
-  private static final Arg<List<File>> TARGET = Arg.create();
+  private final Arg<List<File>> target = Arg.create();
 
   private static final Logger LOG = Logger.getLogger(Main.class.getName());
 
@@ -254,38 +258,26 @@ public final class Main {
     // tool
   }
 
-  /**
-   * Creates or updates a jar with specified files, directories and jar files.
-   *
-   * @param args The command line arguments.
-   */
-  public static void main(String[] args) {
-    Configuration bootstrapLogConfig =
-        RootLogConfig.builder()
-            .logToStderr(true)
-            .useGLogFormatter(true)
-            .vlog(LogLevel.WARNING)
-            .build();
-    bootstrapLogConfig.apply();
+  static class ExitException extends Exception {
+    private final int code;
 
-    ArgScanner argScanner = new ArgScanner();
-    if (!argScanner.parse(Arrays.asList(args))) {
-      exit(1);
+    ExitException(int code, String message, Object... args) {
+      super(String.format(message, args));
+      this.code = code;
     }
+  }
 
-    Configuration logConfig = RootLogConfig.configurationFromFlags();
-    logConfig.apply();
-
-    if (MAIN_CLASS.hasAppliedValue() && MANIFEST.hasAppliedValue()) {
-      exit(1, "Can specify main or manifest but not both.");
+  private void run() throws ExitException {
+    if (mainClass.hasAppliedValue() && manifest.hasAppliedValue()) {
+      throw new ExitException(1, "Can specify main or manifest but not both.");
     }
-    if (TARGET.get().size() != 1) {
-      exit(1, "Must supply exactly 1 target jar path.");
+    if (target.get().size() != 1) {
+      throw new ExitException(1, "Must supply exactly 1 target jar path.");
     }
-    final File target = Iterables.getOnlyElement(TARGET.get());
+    final File targetJar = Iterables.getOnlyElement(this.target.get());
 
-    if (!UPDATE.get() && target.exists() && !target.delete()) {
-      exit(1, "Failed to delete file at requested target path %s", target);
+    if (!update.get() && targetJar.exists() && !targetJar.delete()) {
+      throw new ExitException(1, "Failed to delete file at requested target path %s", targetJar);
     }
 
     final Closer closer = Closer.create();
@@ -298,35 +290,34 @@ public final class Main {
         }
       }
     });
-    JarBuilder jarBuilder = closer.register(new JarBuilder(target, new LoggingListener(target)));
+    JarBuilder jarBuilder =
+        closer.register(new JarBuilder(targetJar, new LoggingListener(targetJar)));
 
     try {
-      @Nullable Manifest manifest = getManifest();
-      if (manifest != null) {
-        jarBuilder.useCustomManifest(manifest);
+      @Nullable Manifest mf = getManifest();
+      if (mf != null) {
+        jarBuilder.useCustomManifest(mf);
       }
     } catch (IOException e) {
-      exit(1, "Failed to configure custom manifest: %s", e.getMessage());
-      return;
+      throw new ExitException(1, "Failed to configure custom manifest: %s", e);
     }
 
-    for (FileSource fileSource : FILES.get()) {
+    for (FileSource fileSource : files.get()) {
       fileSource.addTo(jarBuilder);
     }
 
-    for (File jar : JARS.get()) {
+    for (File jar : jars.get()) {
       jarBuilder.addJar(jar);
     }
 
-    DuplicateHandler duplicateHandler = new DuplicateHandler(DEFAULT_ACTION.get(), POLICIES.get());
+    DuplicateHandler duplicateHandler = new DuplicateHandler(defaultAction.get(), policies.get());
     try {
-      jarBuilder.write(COMPRESS.get(), duplicateHandler, SKIP.get());
+      jarBuilder.write(compress.get(), duplicateHandler, skip.get());
     } catch (DuplicateEntryException e) {
-      exit(1, "Refusing to write duplicate entry: %s", e.getMessage());
+      throw new ExitException(1, "Refusing to write duplicate entry: %s", e);
     } catch (IOException e) {
-      exit(1, "Unexpected problem writing target jar %s: %s", target, e.getMessage());
+      throw new ExitException(1, "Unexpected problem writing target jar %s: %s", targetJar, e);
     }
-    exit(0);
   }
 
   private static final Splitter CLASS_PATH_SPLITTER =
@@ -342,60 +333,78 @@ public final class Main {
   private static final Joiner CLASS_PATH_JOINER = Joiner.on(' ');
 
   @Nullable
-  private static Manifest getManifest() throws IOException {
-    if (!MANIFEST.hasAppliedValue()
-        && !MAIN_CLASS.hasAppliedValue()
-        && !CLASS_PATH.hasAppliedValue()) {
+  private Manifest getManifest() throws IOException {
+    if (!manifest.hasAppliedValue()
+        && !mainClass.hasAppliedValue()
+        && !classPath.hasAppliedValue()) {
 
       return null;
     }
 
-    Manifest manifest = JarBuilder.createDefaultManifest();
-    if (MANIFEST.hasAppliedValue()) {
-      try {
-        loadManifest(manifest, MANIFEST.get());
-      } catch (IOException e) {
-        throw new IOException("Failed to load manifest from " + MANIFEST.get(), e);
-      }
+    Manifest mf = loadManifest();
+    if (mainClass.hasAppliedValue()) {
+      mf.getMainAttributes().put(Name.MAIN_CLASS, mainClass.get());
     }
-
-    if (MAIN_CLASS.hasAppliedValue()) {
-      manifest.getMainAttributes().put(Name.MAIN_CLASS, MAIN_CLASS.get());
-    }
-    if (CLASS_PATH.hasAppliedValue()) {
+    if (classPath.hasAppliedValue()) {
       String classpath =
           CLASS_PATH_JOINER.join(
-              FluentIterable.from(CLASS_PATH.get()).transformAndConcat(ENTRY_TO_PATHS));
-      manifest.getMainAttributes().put(Name.CLASS_PATH, classpath);
+              FluentIterable.from(classPath.get()).transformAndConcat(ENTRY_TO_PATHS));
+      mf.getMainAttributes().put(Name.CLASS_PATH, classpath);
     }
-    return manifest;
+    return mf;
   }
 
-  private static void loadManifest(Manifest manifest, File file) throws IOException {
-    Closer closer = Closer.create();
-    try {
-      FileInputStream input = closer.register(new FileInputStream(file));
-      manifest.read(input);
-    } catch (IOException e) {
-      throw closer.rethrow(e);
-    } finally {
-      closer.close();
+  private Manifest loadManifest() throws IOException {
+    Manifest mf = new Manifest();
+    if (this.manifest.hasAppliedValue()) {
+      Closer closer = Closer.create();
+      try {
+        FileInputStream input = closer.register(new FileInputStream(this.manifest.get()));
+        mf.read(input);
+      } catch (IOException e) {
+        throw closer.rethrow(
+            new IOException("Failed to load manifest from " + this.manifest.get(), e));
+      } finally {
+        closer.close();
+      }
     }
+    return JarBuilder.ensureDefaultManifestEntries(mf);
+  }
+
+  /**
+   * Creates or updates a jar with specified files, directories and jar files.
+   *
+   * @param args The command line arguments.
+   */
+  public static void main(String[] args) {
+    RootLogConfig.builder()
+        .logToStderr(true)
+        .useGLogFormatter(true)
+        .vlog(LogLevel.WARNING)
+        .build()
+        .apply();
+
+    Main main = new Main();
+    try {
+      ArgsInfo argsInfo = Args.from(main);
+      if (!new ArgScanner().parse(argsInfo, Arrays.asList(args))) {
+        exit(1);
+      }
+    } catch (IOException e) {
+      System.err.printf("Failed to load argument info: %s\n", e);
+      exit(1);
+    }
+
+    try {
+      main.run();
+    } catch (ExitException e) {
+      System.err.println(e.getMessage());
+      exit(e.code);
+    }
+    exit(0);
   }
 
   private static void exit(int code) {
-    exit(code, Optional.<String>absent());
-  }
-
-  private static void exit(int code, String message, Object... args) {
-    exit(code, Optional.of(String.format(message, args)));
-  }
-
-  private static void exit(int code, Optional<String> message) {
-    if (message.isPresent()) {
-      PrintStream out = code == 0 ? System.out : System.err;
-      out.println(message.get());
-    }
     // We're a main - its fine to exit.
     // SUPPRESS CHECKSTYLE RegexpSinglelineJava
     System.exit(code);

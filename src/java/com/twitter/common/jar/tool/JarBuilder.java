@@ -475,11 +475,19 @@ public class JarBuilder implements Closeable {
     };
   }
 
-  static Manifest createDefaultManifest() {
-    Manifest mf = new Manifest();
-    mf.getMainAttributes().put(Name.MANIFEST_VERSION, "1.0");
-    mf.getMainAttributes().put(new Name("Created-By"), JarBuilder.class.getName());
-    return mf;
+  static Manifest ensureDefaultManifestEntries(Manifest manifest) {
+    if (!manifest.getMainAttributes().containsKey(Name.MANIFEST_VERSION)) {
+      manifest.getMainAttributes().put(Name.MANIFEST_VERSION, "1.0");
+    }
+    Name createdBy = new Name("Created-By");
+    if (!manifest.getMainAttributes().containsKey(createdBy)) {
+      manifest.getMainAttributes().put(createdBy, JarBuilder.class.getName());
+    }
+    return manifest;
+  }
+
+  private static Manifest createDefaultManifest() {
+    return ensureDefaultManifestEntries(new Manifest());
   }
 
   private static final InputSupplier<InputStream> DEFAULT_MANIFEST =

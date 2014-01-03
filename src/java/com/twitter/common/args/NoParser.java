@@ -1,5 +1,5 @@
 // =================================================================================================
-// Copyright 2011 Twitter, Inc.
+// Copyright 2014 Twitter, Inc.
 // -------------------------------------------------------------------------------------------------
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this work except in compliance with the License.
@@ -16,22 +16,11 @@
 
 package com.twitter.common.args;
 
-import org.junit.Test;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
-
-public class ArgTest {
-
-  @Test
-  public void testSetAfterGet() {
-    Arg<Boolean> arg = new Arg<Boolean>(false);
-    arg.get();
-    try {
-      arg.set(true);
-      fail("Expected set after get to throw");
-    } catch (IllegalStateException e) {
-      assertFalse(arg.get());
-    }
+/**
+ * A sentinel parser type for internal use indicating no parser has been selected yet.
+ */
+abstract class NoParser implements Parser<Object> {
+  private NoParser() {
+    throw new UnsupportedOperationException("Not intended for construction.");
   }
 }

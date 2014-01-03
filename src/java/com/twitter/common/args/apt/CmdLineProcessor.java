@@ -16,6 +16,7 @@
 
 package com.twitter.common.args.apt;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
@@ -57,7 +58,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
+import com.google.common.collect.Sets;
 
 import com.twitter.common.args.Arg;
 import com.twitter.common.args.ArgParser;
@@ -85,8 +86,6 @@ import static com.twitter.common.args.apt.Configuration.VerifierInfo;
  * or more executable mains (as opposed to a library jar).  As a result, the embedded arg
  * definitions generated will occupy a special resource that is always checked for first during
  * runtime arg parsing.
- *
- * @author John Sirois
  */
 @SupportedOptions({
     CmdLineProcessor.MAIN_OPTION,
@@ -186,11 +185,23 @@ public class CmdLineProcessor extends AbstractProcessor {
       Set<? extends Element> parsers = getAnnotatedElements(roundEnv, ArgParser.class);
       @Nullable Set<String> parsedTypes = getParsedTypes(classpathConfiguration, parsers);
 
-      for (ArgInfo cmdLineInfo : processAnnotatedArgs(parsedTypes, roundEnv, CmdLine.class)) {
+      Set<? extends Element> cmdlineArgs = getAnnotatedElements(roundEnv, CmdLine.class);
+      Set<? extends Element> positionalArgs = getAnnotatedElements(roundEnv, Positional.class);
+
+      ImmutableSet<? extends Element> invalidArgs =
+          Sets.intersection(cmdlineArgs, positionalArgs).immutableCopy();
+      if (!invalidArgs.isEmpty()) {
+        error("An Arg cannot be annotated with both @CmdLine and @Positional, found bad Arg "
+            + "fields: %s", invalidArgs);
+      }
+
+      for (ArgInfo cmdLineInfo : processAnnotatedArgs(parsedTypes, cmdlineArgs, CmdLine.class)) {
         configBuilder.addCmdLineArg(cmdLineInfo);
       }
 
-      for (ArgInfo positionalInfo : processAnnotatedArgs(parsedTypes, roundEnv, Positional.class)) {
+      for (ArgInfo positionalInfo
+          : processAnnotatedArgs(parsedTypes, positionalArgs, Positional.class)) {
+
         configBuilder.addPositionalInfo(positionalInfo);
       }
       checkPositionalArgsAreLists(roundEnv);
@@ -209,7 +220,7 @@ public class CmdLineProcessor extends AbstractProcessor {
               configBuilder.build(classpathConfiguration).store(cmdLinePropertiesResource,
                   "Generated via apt by " + getClass().getName());
             } finally {
-              Closeables.closeQuietly(cmdLinePropertiesResource);
+              closeQuietly(cmdLinePropertiesResource);
             }
           }
         }
@@ -224,6 +235,14 @@ public class CmdLineProcessor extends AbstractProcessor {
           Throwables.getStackTraceAsString(e));
     }
     return true;
+  }
+
+  private void closeQuietly(Closeable closeable) {
+    try {
+      closeable.close();
+    } catch (IOException e) {
+      log(Kind.MANDATORY_WARNING, "Failed to close %s: %s", closeable, e);
+    }
   }
 
   private void checkPositionalArgsAreLists(RoundEnvironment roundEnv) {
@@ -274,10 +293,11 @@ public class CmdLineProcessor extends AbstractProcessor {
     return ImmutableSet.copyOf(parsersFor);
   }
 
-  private Iterable<ArgInfo> processAnnotatedArgs(@Nullable final Set<String> parsedTypes,
-      RoundEnvironment roundEnv, final Class<? extends Annotation> argAnnotation) {
+  private Iterable<ArgInfo> processAnnotatedArgs(
+      @Nullable final Set<String> parsedTypes,
+      Set<? extends Element> args,
+      final Class<? extends Annotation> argAnnotation) {
 
-    Set<? extends Element> args = getAnnotatedElements(roundEnv, argAnnotation);
     return Optional.presentInstances(Iterables.transform(args,
         new Function<Element, Optional<ArgInfo>>() {
           @Override public Optional<ArgInfo> apply(Element arg) {
@@ -316,8 +336,6 @@ public class CmdLineProcessor extends AbstractProcessor {
         return null;
       }
       if (!annotationElement.getModifiers().contains(Modifier.STATIC)) {
-        error("Found a @%s annotation on a non-static Arg field %s.%s",
-            annotationType.getSimpleName(), containingType, annotationElement);
         return null;
       }
 
