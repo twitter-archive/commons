@@ -49,12 +49,13 @@ if [ ! -e $VIRTUAL_PYTHON/bin/python ]; then
 fi
 
 if [ -z "${PANTS_DEV}" -a ! -e $MY_DIR/pants.pex ]; then
+  PANTS_DIST_DIR=`run_pants_bare getconfig pants_distdir`
   run_pants_bare src/python/twitter/pants:pants
-  if [ ! -e $MY_DIR/dist/pants.pex ]; then
+  if [ ! -e $PANTS_DIST_DIR/pants.pex ]; then
     echo "Unable to build pants!  Cannot continue!"
     exit 1
   else
-    mv $MY_DIR/dist/pants.pex $MY_DIR/pants.pex
+    mv $PANTS_DIST_DIR/pants.pex $MY_DIR/pants.pex
     cp $MY_DIR/pants.pex $VIRTUAL_PYTHON/pants.pex
   fi
 fi
