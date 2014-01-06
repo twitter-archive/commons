@@ -21,7 +21,7 @@ package com.twitter.common.stats;
  *
  * @author William Farner
  */
-public class Statistics {
+public class Statistics implements StatisticsInterface {
   private long populationSize;
   private long sum;
   private double accumulatedVariance;

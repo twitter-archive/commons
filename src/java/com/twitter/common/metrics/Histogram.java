@@ -10,8 +10,8 @@ import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Data;
 import com.twitter.common.quantity.Time;
 import com.twitter.common.stats.Precision;
-import com.twitter.common.stats.Statistics;
 import com.twitter.common.stats.WindowedApproxHistogram;
+import com.twitter.common.stats.WindowedStatistics;
 import com.twitter.common.util.Clock;
 
 import static com.twitter.common.stats.WindowedApproxHistogram.DEFAULT_MAX_MEMORY;
@@ -28,7 +28,7 @@ public class Histogram implements HistogramInterface {
 
   private final String name;
   private final com.twitter.common.stats.Histogram histogram;
-  private volatile Statistics stats;
+  private final WindowedStatistics stats;
   private final double[] quantiles;
 
   /**
@@ -58,7 +58,7 @@ public class Histogram implements HistogramInterface {
     } else {
       this.histogram = new WindowedApproxHistogram(window, slices, precision, clock);
     }
-    this.stats = new Statistics();
+    this.stats = new WindowedStatistics(window, slices, clock);
 
     if (registry != null) {
       registry.registerHistogram(this);

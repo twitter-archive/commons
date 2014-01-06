@@ -114,6 +114,15 @@ public abstract class Windowed<T> {
   }
 
   /**
+   * Clear all the elements.
+   */
+  public void clear() {
+    for (int i = 0; i <= buffers.length; i++) {
+      buffers[i] = clearer.apply(buffers[i]);
+    }
+  }
+
+  /**
    * Synchronize elements with a point in time.
    * i.e. Check for expired ones and clear them, and update the index variable.
    */
