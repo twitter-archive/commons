@@ -35,6 +35,7 @@ python_library(
     python_requirement('pytest'),
     python_requirement('pytest-cov'),
     python_requirement('python_daemon'),
+    python_requirement('distribute==0.6.34')
   ]
 )
 

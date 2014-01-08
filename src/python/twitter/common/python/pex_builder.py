@@ -156,7 +156,7 @@ class PEXBuilder(object):
     """
     bare_env = pkg_resources.Environment()
 
-    distribute_req = pkg_resources.Requirement.parse('distribute>=0.6.24')
+    distribute_req = pkg_resources.Requirement.parse('distribute==0.6.34')
     distribute_dist = None
 
     for dist in DistributionHelper.all_distributions(sys.path):
@@ -166,9 +166,16 @@ class PEXBuilder(object):
     else:
       raise DistributionNotFound('Could not find distribute!')
 
+    bootstrapped_distribute_lib = False
     for fn, content in DistributionHelper.walk_data(distribute_dist):
       if fn.startswith('pkg_resources.py') or fn.startswith('setuptools'):
         self._chroot.write(content, os.path.join(self.BOOTSTRAP_DIR, fn), 'resource')
+        bootstrapped_distribute_lib = True
+
+    if not bootstrapped_distribute_lib:
+      msg = "Could not find bootstrappable distribute! (Using a metapackage maybe?)"
+      raise DistributionNotFound(msg)
+
     libraries = (
       'twitter.common.dirutil',
       'twitter.common.collections',
