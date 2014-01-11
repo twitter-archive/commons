@@ -51,12 +51,12 @@ class TSaslClientTransport(TTransportBase, CReadableTransport):
       self.transport.open()
 
     self.send_sasl_msg(self.START, self.sasl.mechanism)
-    self.send_sasl_msg(self.OK, self.sasl.process())
+    self.send_sasl_msg(self.OK, self.sasl.process() or '')
 
     while True:
       status, challenge = self.recv_sasl_msg()
       if status == self.OK:
-        self.send_sasl_msg(self.OK, self.sasl.process(challenge))
+        self.send_sasl_msg(self.OK, self.sasl.process(challenge) or '')
       elif status == self.COMPLETE:
         if not self.sasl.complete:
           raise TTransportException("The server erroneously indicated "
@@ -68,6 +68,8 @@ class TSaslClientTransport(TTransportBase, CReadableTransport):
             % (status, challenge))
 
   def send_sasl_msg(self, status, body):
+    if body is None:
+      body = ''
     header = pack(">BI", status, len(body))
     self.transport.write(header + body)
     self.transport.flush()
