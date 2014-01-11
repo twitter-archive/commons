@@ -28,11 +28,12 @@ python_library(
   dependencies = [
     pants(':rpc'),
     pants('src/python/twitter/common/rpc/finagle'),
+    pants('src/python/twitter/common/rpc/sasl:sourceonly'),
     pants('src/python/twitter/common/rpc/transports:all'),
   ],
   provides = setup_py(
     name = 'twitter.common.rpc',
-    version = '0.1.2',
+    version = '0.2.0',
     description = 'twitter.common thrift helpers including finagle and ssl transports.',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',
@@ -42,6 +43,13 @@ python_library(
       'License :: OSI Approved :: Apache Software License',
       'Operating System :: OS Independent',
       'Programming Language :: Python',
-    ]
+    ],
+    # TODO(wickman) Build native support in pants for extras_require
+    extras_require = {
+      'sasl': [
+        'kerberos==1.1.1',
+        'pure-sasl==0.1.4',
+      ],
+    },
   )
 )
