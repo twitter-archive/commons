@@ -103,7 +103,7 @@ public interface CharSequenceTermAttribute extends Attribute {
 
   /**
    * Returns the term text as a {@code CharSequence}, without needing to construct a
-   * {@code String}. This method is preferred over {@link getTermString()}.
+   * {@code String}. This method is preferred over {@link #getTermString()}.
    *
    * @return {@code CharSequence} representing the term text.
    */
@@ -111,7 +111,7 @@ public interface CharSequenceTermAttribute extends Attribute {
 
   /**
    * Returns the term text as a {@code String}.
-   * {@link getTermCharSequence()} is preferred over this method.
+   * {@link #getTermCharSequence()} is preferred over this method.
    *
    * @return {@code String} representing the term text.
    */

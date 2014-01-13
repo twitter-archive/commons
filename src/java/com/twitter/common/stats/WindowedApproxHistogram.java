@@ -96,8 +96,8 @@ public class WindowedApproxHistogram extends WindowedHistogram<ApproximateHistog
 
   /**
    * Equivalent to calling
-   * {@link #WindowedApproxHistogram(Amount<Long, Time>, int, Amount<Long, Data>, Ticker)} with
-   * the System clock.
+   * {@link #WindowedApproxHistogram(Amount, int, Amount, Clock)}
+   * with the System clock.
    */
   public WindowedApproxHistogram(Amount<Long, Time> window, int slices,
       Amount<Long, Data> maxMemory) {
@@ -106,8 +106,8 @@ public class WindowedApproxHistogram extends WindowedHistogram<ApproximateHistog
 
   /**
    * Equivalent to calling
-   * {@link #WindowedApproxHistogram(Amount<Long, Time>, int, Amount<Long, Data>)} with default
-   * window and slices.
+   * {@link #WindowedApproxHistogram(Amount, int, Amount)}
+   * with default window and slices.
    */
   public WindowedApproxHistogram(Amount<Long, Data> maxMemory) {
     this(DEFAULT_WINDOW, DEFAULT_SLICES, maxMemory);
@@ -115,8 +115,8 @@ public class WindowedApproxHistogram extends WindowedHistogram<ApproximateHistog
 
   /**
    * Equivalent to calling
-   * {@link #WindowedApproxHistogram(Amount<Long, Time>, int, Precision, Ticker)} with the
-   * System clock.
+   * {@link #WindowedApproxHistogram(Amount, int, Precision, Clock)}
+   * with the System clock.
    */
   public WindowedApproxHistogram(Amount<Long, Time> window, int slices, Precision precision) {
     this(window, slices, precision, Clock.SYSTEM_CLOCK);
@@ -124,8 +124,8 @@ public class WindowedApproxHistogram extends WindowedHistogram<ApproximateHistog
 
   /**
    * Equivalent to calling
-   * {@link #WindowedApproxHistogram(Amount<Long, Time>, int, Precision} with default window and
-   * slices.
+   * {@link #WindowedApproxHistogram(Amount, int, Precision)}
+   * with default window and slices.
    */
   public WindowedApproxHistogram(Precision precision) {
     this(DEFAULT_WINDOW, DEFAULT_SLICES, precision);
@@ -133,8 +133,8 @@ public class WindowedApproxHistogram extends WindowedHistogram<ApproximateHistog
 
   /**
    * Equivalent to calling
-   * {@link #WindowedApproxHistogram(Amount<Long, Time>, int, Amount<Long, Data>,
-   * Ticker)} with the default maxMemory parameter and System clock.
+   * {@link #WindowedApproxHistogram(Amount, int, Amount, Clock)}
+   * with the default maxMemory parameter and System clock.
    */
   public WindowedApproxHistogram(Amount<Long, Time> window, int slices) {
     this(window, slices, DEFAULT_MAX_MEMORY, Clock.SYSTEM_CLOCK);

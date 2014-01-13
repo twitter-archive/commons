@@ -9,8 +9,6 @@ import org.junit.runners.model.Statement;
 
 /**
  * A Runner for running composite requests in a concurrent fashion.
- *
- * @author: Qicheng Ma
  */
 public class ConcurrentCompositeRequest extends CompositeRequest {
 

@@ -23,7 +23,7 @@ import org.apache.lucene.util.AttributeSource;
 import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;
 
 /**
- * (De)Serializes {@link CharSequenceTermAttribute).
+ * (De)Serializes {@link CharSequenceTermAttribute}.
  */
 public class CharSequenceTermAttributeSerializer implements TokenStreamSerializer.AttributeSerializer {
   private CharSequenceTermAttribute termAtt;

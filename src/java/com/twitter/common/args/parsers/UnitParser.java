@@ -33,8 +33,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 /**
  * Unit parser.
  * Units are matched (case sensitively) against the result of {@link Unit#toString()}.
- *
- * @author William Farner
  */
 @ArgParser
 public class UnitParser extends NonParameterizedTypeParser<Unit> {

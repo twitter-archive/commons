@@ -15,8 +15,6 @@ import org.junit.runners.model.InitializationError;
 
 /**
  * A JUnit {@link Request} that is composed of a list of {@link Request}s.
- *
- * @author: Qicheng Ma
  */
 public class CompositeRequest extends ParentRunner<Request> {
 

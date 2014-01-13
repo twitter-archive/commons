@@ -18,7 +18,7 @@ public final class MoreExecutors {
 
   /**
    * Returns a {@link ExecutorService} that passes uncaught exceptions to
-   * {@link Thread.UncaughtExceptionHandler}.
+   * {@link java.lang.Thread.UncaughtExceptionHandler}.
    * <p>
    * This may be useful because {@link java.util.concurrent.ThreadPoolExecutor} and
    * {@link java.util.concurrent.ScheduledThreadPoolExecutor} provide no built-in propagation of
@@ -62,7 +62,7 @@ public final class MoreExecutors {
 
   /**
    * Returns a {@link ScheduledExecutorService} that passes uncaught exceptions to
-   * {@link Thread.UncaughtExceptionHandler}.
+   * {@link java.lang.Thread.UncaughtExceptionHandler}.
    * <p>
    * This may be useful because {@link java.util.concurrent.ThreadPoolExecutor} and
    * {@link java.util.concurrent.ScheduledThreadPoolExecutor} provide no built-in propagation of

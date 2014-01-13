@@ -81,7 +81,7 @@ public class BuildInfo {
    * Fetches the properties stored in the resource location.
    *
    * @return The loaded properties, or a default properties object if there was a problem loading
-   *    the specified proeprites resource.
+   *    the specified properties resource.
    */
   public Properties getProperties() {
     if (properties == null) fetchProperties();

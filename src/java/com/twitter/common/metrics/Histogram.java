@@ -92,8 +92,7 @@ public class Histogram implements HistogramInterface {
 
   /**
    * Construct a Histogram with default arguments except name.
-   * @see #Histogram(String, Amount<Long, Time>, int, Amount<Long, Data>, Precision, double[],
-   * Clock, Histogram).
+   * @see #Histogram(String, Amount, int, Amount, Precision, double[], Clock, MetricRegistry)
    */
   public Histogram(String name) {
     this(name, DEFAULT_WINDOW, DEFAULT_SLICES,
@@ -105,8 +104,8 @@ public class Histogram implements HistogramInterface {
 
   /**
    * Construct a Histogram with default arguments except name.
-   * @see #Histogram(String, Amount<Long, Time>, int, Amount<Long, Data>, Precision, double[],
-   *   Clock, Histogram).
+   * @see #Histogram(String, Amount, int, Amount, Precision, double[], Clock, MetricRegistry)
+   *
    * 12/11/2013: Remove this method after the next deprecation cycle.
    * @deprecated Prefer registry.createHistogram(String)
    */
@@ -121,8 +120,7 @@ public class Histogram implements HistogramInterface {
 
   /**
    * Construct a Histogram with default arguments except name and precision.
-   * @see #Histogram(String, Amount<Long, Time>, int, Amount<Long, Data>, Precision, double[],
-   *   Clock, Histogram).
+   * @see #Histogram(String, Amount, int, Amount, Precision, double[], Clock, MetricRegistry)
    */
   public Histogram(String name, Precision precision) {
     this(name, DEFAULT_WINDOW, DEFAULT_SLICES,
@@ -134,7 +132,7 @@ public class Histogram implements HistogramInterface {
 
   /**
    * Construct a Histogram with default arguments except name and maxMemory.
-   * @see #Histogram(String, Config).
+   * @see #Histogram(String, Amount, int, Amount, Precision, double[], Clock, MetricRegistry)
    */
   public Histogram(String name, Amount<Long, Data> maxMemory) {
     this(name, DEFAULT_WINDOW, DEFAULT_SLICES,

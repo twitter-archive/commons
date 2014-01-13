@@ -51,9 +51,10 @@ public interface Clock {
 
   /**
    * Returns the current time in nanoseconds.  Should be used only for relative timing.
-   * {@see System.nanoTime()} for tips on using the value returned here.
+   * See {@code System.nanoTime()} for tips on using the value returned here.
    *
    * @return A measure of the current time in nanoseconds.
+   * @see System#nanoTime()
    */
   long nowNanos();
 

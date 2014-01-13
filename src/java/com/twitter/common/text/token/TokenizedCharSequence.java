@@ -71,7 +71,7 @@ public class TokenizedCharSequence implements CharSequence {
 
     /**
      * Returns a new Token object which represents a term starting with {@code offset} and with
-     * {@length}.
+     * {@code length}.
      *
      * @param offset offset of the sub-token
      * @param length length of the sub-token

@@ -58,19 +58,19 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * A module that registers all ports in the {@link LocalServiceRegistry} in an {@link ServerSet}.
- *
+ * <p/>
  * Required bindings:
  * <ul>
- *   <li> {@link ServerSet}
- *   <li> {@link ShutdownRegistry}
- *   <li> {@link LocalServiceRegistry}
+ * <li> {@link ServerSet}
+ * <li> {@link ShutdownRegistry}
+ * <li> {@link LocalServiceRegistry}
  * </ul>
- *
+ * <p/>
  * {@link LifecycleModule} must also be included by users so a startup action may be registered.
- *
+ * <p/>
  * Provided bindings:
  * <ul>
- *   <li> {@link Supplier<EndpointStatus>}
+ * <li> {@link Supplier}<{@link EndpointStatus}>
  * </ul>
  */
 public class ServerSetModule extends AbstractModule {
@@ -121,10 +121,10 @@ public class ServerSetModule extends AbstractModule {
     }
 
     /**
-     * Allows joining an auxillary port with the specified {@code name} as the primary port of the
+     * Allows joining an auxiliary port with the specified {@code name} as the primary port of the
      * ServerSet.
      *
-     * @param auxPortName The name of the auxillary port to join as the primary ServerSet port.
+     * @param auxPortName The name of the auxiliary port to join as the primary ServerSet port.
      * @return This builder for chaining calls.
      */
     public Builder namedPrimaryPort(String auxPortName) {

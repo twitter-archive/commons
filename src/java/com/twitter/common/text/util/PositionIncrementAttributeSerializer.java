@@ -22,7 +22,7 @@ import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.util.AttributeSource;
 
 /**
- * (De)Serializes {@link PositionIncrementAttribute)s.
+ * (De)Serializes {@link PositionIncrementAttribute}s.
  */
 public class PositionIncrementAttributeSerializer implements TokenStreamSerializer.AttributeSerializer {
   private PositionIncrementAttribute posIncrAttribute;

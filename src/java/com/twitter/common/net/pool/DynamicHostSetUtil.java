@@ -33,8 +33,6 @@ public class DynamicHostSetUtil {
    * Gets a snapshot of a set of dynamic hosts (e.g. a ServerSet) and returns a readable copy of
    * the underlying actual endpoints.
    * @param hostSet
-   * @param <T>
-   * @return
    * @throws DynamicHostSet.MonitorException
    */
   public static <T> ImmutableSet<T> getSnapshot(DynamicHostSet<T> hostSet)

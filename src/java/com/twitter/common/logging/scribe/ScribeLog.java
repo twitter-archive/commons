@@ -55,7 +55,7 @@ public class ScribeLog implements Log<LogEntry, ResultCode> {
   private final scribe.Iface client;
 
   /**
-   * Equivalent to {@link #ScribeLog(List<InetSocketAddress>, int)}
+   * Equivalent to {@link #ScribeLog(List, int)}
    * with a {@code maxConnections} of 5.
    */
   public ScribeLog(List<InetSocketAddress> hosts) throws ThriftFactory.ThriftFactoryException {
@@ -63,7 +63,7 @@ public class ScribeLog implements Log<LogEntry, ResultCode> {
   }
 
   /**
-   * Creats a new scribe client, connecting to the given hosts on the given port.
+   * Creates a new scribe client, connecting to the given hosts on the given port.
    *
    * @param hosts Thrift servers to connect to.
    * @param maxConnections Max connections allowed for the log client.

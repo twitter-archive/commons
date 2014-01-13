@@ -151,7 +151,7 @@ public final class ApproximateHistogram implements Histogram {
 
   /**
    * Constructor with memory constraint.
-   * @see #ApproximateHistogram(Amount<Long, Data>, int)
+   * @see #ApproximateHistogram(Amount, int)
    */
   public ApproximateHistogram(Amount<Long, Data> maxMemory) {
     this(maxMemory, DEFAULT_PRECISION.getN());
@@ -159,7 +159,7 @@ public final class ApproximateHistogram implements Histogram {
 
   /**
    * Default Constructor.
-   * @see #ApproximateHistogram(Amount<Long, Data>)
+   * @see #ApproximateHistogram(Amount)
    */
   public ApproximateHistogram() {
     this(DEFAULT_MAX_MEMORY);
