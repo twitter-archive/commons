@@ -22,7 +22,7 @@ class PythonAntlrLibrary(PythonTarget):
   """Generates a stub Python library from Antlr grammar files."""
 
   def __init__(self, name, module,
-               antlr_version = '3.1.3',
+               antlr_version = None,
                sources = None,
                resources = None,
                dependencies = None,
@@ -45,7 +45,12 @@ class PythonAntlrLibrary(PythonTarget):
 
     def get_all_deps():
       all_deps = OrderedSet()
-      all_deps.update(Pants('3rdparty/python:antlr-%s' % antlr_version).resolve())
+
+      # TODO(John Sirois):  This is broken and should probably use an anonymous PythonRequirement or
+      # or else a pants.ini injected repo default.
+      dep = 'antlr-%s' % antlr_version if antlr_version else 'antlr-python-runtime'
+      all_deps.update(Pants('3rdparty/python:%s' % dep).resolve())
+
       if dependencies:
         all_deps.update(dependencies)
       return all_deps

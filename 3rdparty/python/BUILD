@@ -47,10 +47,12 @@ make_dep('pure-sasl', '0.1.4')
 make_dep('pyfakefs', '2.3')
 make_dep('pygments', '1.4', 'Pygments')
 make_dep('pylint', '0.25.1')
+make_dep('pystache', '0.5.3'),
 make_dep('pytest', '2.3.5')
 make_dep('pytest-cov', '1.6')
+make_dep('python_daemon', '1.5.5'),
 make_dep('requests', '1.2.3')
-make_dep('setuptools', '1.1.7')
+make_dep('setuptools', '2.1')
 make_dep('socksipy-branch', '1.03', 'SocksiPy-Branch')
 make_dep('thrift', '0.9.1')
 make_dep('zc-zookeeper-static', '3.4.4')
