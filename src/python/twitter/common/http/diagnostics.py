@@ -51,22 +51,22 @@ class DiagnosticsEndpoints(object):
         tb.append('  File: "%s", line %d, in %s' % (filename, lineno, name))
         if line:
           tb.append("    %s" % (line.strip()))
-    return '<pre>' + "<br>".join(tb) + '</pre>'
+    return "\n".join(tb)
 
   @route("/threads")
   def handle_threads(self):
+    HttpServer.set_content_type('text/plain; charset=iso-8859-1')
     return self.generate_stacks()
 
   @route("/profile")
   def handle_profile(self):
+    HttpServer.set_content_type('text/plain; charset=iso-8859-1')
     if HAS_APP and app.profiler() is not None:
       output_stream = StringIO.StringIO()
       stats = pstats.Stats(app.profiler(), stream=output_stream)
       stats.sort_stats('time', 'name')
       stats.print_stats()
-      output = output_stream.getvalue()
-      output = output.replace('\n', '<br>')
-      return '<pre>' + output + '</pre>'
+      return output_stream.getvalue()
     else:
       return 'Profiling is disabled'
 

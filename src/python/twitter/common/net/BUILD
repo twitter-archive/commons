@@ -53,3 +53,10 @@ python_library(
   ]
 )
 
+python_library(
+  name = 'socks',
+  sources = ('socks.py',),
+  dependencies = [
+    pants('3rdparty/python:socksipy-branch')
+  ]
+)

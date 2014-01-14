@@ -4,7 +4,7 @@ python_library(
   name = 'zookeeper',
   sources = globs('*.py') - TEST_SERVER,
   dependencies = [
-    python_requirement('zc-zookeeper-static'),
+    pants('3rdparty/python:zc-zookeeper-static'),
     pants('src/python/twitter/common')
   ],
 )

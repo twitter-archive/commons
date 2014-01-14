@@ -26,7 +26,7 @@ python_tests(name = 'recordio',
   dependencies = [
     pants('src/python/twitter/common/recordio'),
     pants('src/thrift/com/twitter/test:py-thrift'),
-    python_requirement('mox')
+    pants('3rdparty/python:mox')
   ],
   coverage = 'twitter.common.recordio'
 )

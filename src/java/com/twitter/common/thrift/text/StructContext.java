@@ -16,6 +16,8 @@
 
 package com.twitter.common.thrift.text;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -83,6 +85,12 @@ class StructContext extends PairContext {
    * subclass, which has the knowledge of what fields exist, as well as
    * their types & relationships, will have to be the caller of
    * the TProtocol methods.
+   *
+   * Note: this approach does not handle TUnion, because TUnion has its own implementation of
+   * read/write and any TUnion thrift structure does not override its read and write method.
+   * Thus this algorithm fail to get current specific TUnion thrift structure by reading the stack.
+   * To fix this, we can track call stack of nested thrift objects on our own by overriding
+   * TProtocol.writeStructBegin(), rather than relying on the stack trace.
    */
   private Class<? extends TBase> getCurrentThriftMessageClass() {
     StackTraceElement[] frames =
@@ -94,7 +102,11 @@ class StructContext extends PairContext {
       try {
         Class clazz = Class.forName(className);
 
-        if (TBase.class.isAssignableFrom(clazz)) {
+        // Note, we need to check
+        // if the class is abstract, because abstract class does not have metaDataMap
+        // if the class has no-arg constructor, because FieldMetaData.getStructMetaDataMap
+        //   calls clazz.newInstance
+        if (isTBase(clazz) && !isAbstract(clazz) && hasNoArgConstructor(clazz)) {
           // Safe to suppress this, since I've just checked that clazz
           // can be assigned to a TBase.
           @SuppressWarnings("unchecked")
@@ -106,6 +118,26 @@ class StructContext extends PairContext {
       }
     }
     throw new RuntimeException("Must call (indirectly) from a TBase object.");
+  }
+
+  private boolean isTBase(Class clazz) {
+    return TBase.class.isAssignableFrom(clazz);
+  }
+
+  private boolean isAbstract(Class clazz) {
+    return Modifier.isAbstract(clazz.getModifiers());
+  }
+
+  private boolean hasNoArgConstructor(Class clazz) {
+    Constructor[] allConstructors = clazz.getConstructors();
+    for (Constructor ctor : allConstructors) {
+      Class<?>[] pType  = ctor.getParameterTypes();
+      if (pType.length == 0) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**

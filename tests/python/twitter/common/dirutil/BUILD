@@ -26,7 +26,7 @@ python_tests(name = 'dirutil',
   dependencies = [
     pants('src/python/twitter/common/contextutil'),
     pants('src/python/twitter/common/dirutil'),
-    python_requirement('mox')
+    pants('3rdparty/python:mox')
   ]
 )
 

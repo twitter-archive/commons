@@ -14,32 +14,30 @@
 # limitations under the License.
 # ==================================================================================================
 
-python_test_suite(name = 'log',
-  dependencies = [
-    pants(':test_log'),
-    pants(':test_log_with_scribe'),
-  ]
-)
+import unittest
 
-python_tests(name = 'test_log',
-  sources = globs('*.py'),
-  dependencies = [
-    pants('src/python/twitter/common/lang'),
-    pants('src/python/twitter/common/log'),
-    pants('src/python/twitter/common/testing'),
-    pants('3rdparty/python:mox')
-  ],
-  coverage = 'twitter.common.log'
-)
+from twitter.common.contextutil import temporary_file
+from twitter.common.python.platforms import Platform
 
-python_tests(name = 'test_log_with_scribe',
-  sources = globs('*.py'),
-  dependencies = [
-    pants('src/python/twitter/common/lang'),
-    pants('src/python/twitter/common/log'),
-    pants('src/python/twitter/common/testing'),
-    pants('src/thrift/org/apache/scribe:py-scribe'),
-    pants('3rdparty/python:mox')
-  ],
-  coverage = 'twitter.common.log'
-)
+from twitter.pants.base import Config
+from twitter.pants.python.resolver import get_platforms
+
+
+class ResolverTest(unittest.TestCase):
+  def setUp(self):
+    with temporary_file() as ini:
+      ini.write(
+'''
+[python-setup]
+platforms: [
+  'current',
+  'linux-x86_64']
+''')
+      ini.close()
+      self.config = Config.load(configpath=ini.name)
+
+  def test_get_current_platform(self):
+    expected_platforms = [Platform.current(), 'linux-x86_64']
+    self.assertEqual(expected_platforms,
+                     list(get_platforms(self.config.getlist('python-setup', 'platforms'))))
+
