@@ -57,10 +57,7 @@ if virtualenv -p $PY --distribute $BOOTSTRAP_ENVIRONMENT; then
   virtualenv --relocatable $BOOTSTRAP_ENVIRONMENT
   source $BOOTSTRAP_ENVIRONMENT/bin/activate
   for pkg in pystache==$PYSTACHE_VERSION requests==$REQUESTS_VERSION setuptools==$SETUPTOOLS_VERSION; do
-    pip install \
-      --download-cache=$CACHE \
-      -f https://pypi.python.org/simple \
-      -U --no-index $pkg
+    pip install --download-cache=$CACHE -U $pkg
   done
   deactivate
 fi

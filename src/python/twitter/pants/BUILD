@@ -42,6 +42,7 @@ python_library(
   name='pants-lib',
   dependencies=[
     pants(':pants-deps'),
+    pants('src/python/twitter/common/app'),
     pants('src/python/twitter/common/collections'),
     pants('src/python/twitter/common/config'),
     pants('src/python/twitter/common/confluence'),
