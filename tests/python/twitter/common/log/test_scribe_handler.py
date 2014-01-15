@@ -21,9 +21,10 @@ except ImportError:
 _CATEGORY = "python_default"
 _HOST = "localhost"
 _PORT = 1463
-_TEST_MSG = """For years, the war-crimes fugitive known as "The Terminator" was so supremely 
-confident that he played tennis at a luxury hotel near the Congo-Rwanda border, flaunting his 
-freedom while United Nations peacekeepers drove past."""
+_TEST_MSG = ("For years, the war-crimes fugitive known as 'The Terminator' was so supremely "
+             "confident that he played tennis at a luxury hotel near the Congo-Rwanda border, "
+             "flaunting his freedom while United Nations peacekeepers drove past.")
+
 if _SCRIBE_PRESENT:
   _MESSAGES = [scribe.LogEntry(category=_CATEGORY, message=_TEST_MSG)]
 

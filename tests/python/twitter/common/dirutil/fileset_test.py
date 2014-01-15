@@ -80,10 +80,13 @@ def test_lazy_raise():
 def test_zglobs():
   FILELIST = [
     'foo.txt',
+    '.hidden_file',
     'a/',
     'a/foo.txt',
+    'a/.hidden_file',
     'a/b/',
     'a/b/foo.txt',
+    'a/b/.hidden_file',
     'foo/bar/baz.txt',
     'foo/',
     'foo/bar/',
@@ -92,8 +95,11 @@ def test_zglobs():
 
   with Fileset.over(FILELIST):
     assert ll(Fileset.zglobs('*.txt')) == 1
+    assert ll(Fileset.zglobs('.*')) == 1
     assert ll(Fileset.zglobs('*/*.txt')) == 1
+    assert ll(Fileset.zglobs('*/.*')) == 1
     assert ll(Fileset.zglobs('*/*/*.txt')) == 2
+    assert ll(Fileset.zglobs('*/*/.*')) == 1
     assert ll(Fileset.zglobs('???.txt')) == 1
     assert ll(Fileset.zglobs('?/*.txt')) == 1
     assert ll(Fileset.zglobs('?/?/*.txt')) == 1
@@ -101,9 +107,11 @@ def test_zglobs():
     assert ll(Fileset.zglobs('a/b/*.txt')) == 1
     assert ll(Fileset.zglobs('a/???.txt')) == 1
     assert ll(Fileset.zglobs('a/?/*.txt')) == 1
+    assert ll(Fileset.zglobs('*.txt', '*/.*')) == 2
 
   with Fileset.over(FILELIST):
     assert leq(Fileset.zglobs('*'), 'foo.txt', 'a', 'foo')
+    assert leq(Fileset.zglobs('.*'), '.hidden_file')
     assert leq(Fileset.zglobs('**'), 'foo.txt', 'a', 'foo')
     assert leq(Fileset.zglobs('**/'), 'a/', 'a/b/', 'a/b/c/', 'foo/', 'foo/bar/')
     assert leq(Fileset.zglobs('**/*'),
@@ -120,6 +128,9 @@ def test_zglobs():
     assert leq(Fileset.zglobs('**/*.txt'), 'foo.txt', 'a/foo.txt', 'a/b/foo.txt',
         'foo/bar/baz.txt')
     assert leq(Fileset.zglobs('**/foo.txt'), 'foo.txt', 'a/foo.txt', 'a/b/foo.txt')
+    assert leq(Fileset.zglobs('**/.*'),
+        '.hidden_file', 'a/.hidden_file', 'a/b/.hidden_file')
+    assert leq(Fileset.zglobs('*', 'a/*.txt'), 'foo.txt', 'a', 'foo', 'a/foo.txt')
 
 
 def test_fnmatch():
@@ -130,9 +141,12 @@ def test_fnmatch():
     assert leq(Fileset.zglobs('?.txt'))
     assert leq(Fileset.zglobs('[].txt'))
     assert leq(Fileset.zglobs('.*'), '.txt')
-    assert leq(Fileset.rglobs('*.txt'), '.txt')
+    assert leq(Fileset.zglobs('*.py', '.*'), '.txt')
+    assert leq(Fileset.rglobs('*.txt'))
     assert leq(Fileset.rglobs('?.txt'))
     assert leq(Fileset.rglobs('[].txt'))
+    assert leq(Fileset.rglobs('.*'), '.txt')
+    assert leq(Fileset.rglobs('*.py', '.*'), '.txt')
 
   with Fileset.over(['a.txt']):
     for operation in (Fileset.rglobs, Fileset.zglobs):

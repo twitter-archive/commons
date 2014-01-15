@@ -21,13 +21,14 @@ python_test_suite(name = 'all',
     pants(':test_nested'),
     pants(':test_obtainer'),
     pants(':test_platform'),
-    pants(':test_pex_builder_main'),
+    pants(':test_pex_bootstrapper'),
   ]
 )
 
 python_tests(name = 'test_nested',
   sources = ['test_nested.py'],
   dependencies = [
+    pants('src/python/twitter/common/dirutil'),
     pants('src/python/twitter/common/python')
   ]
 )
@@ -46,10 +47,10 @@ python_tests(name = 'test_platform',
   ]
 )
 
-python_tests(name = 'test_pex_builder_main',
-  sources = ['test_pex_builder_main.py'],
+python_tests(name = 'test_pex_bootstrapper',
+  sources = ['test_pex_bootstrapper.py'],
   dependencies = [
+    pants('3rdparty/python:mock'),
     pants('src/python/twitter/common/python'),
-    pants('src/python/twitter/common/python:pex')
   ]
 )

@@ -3,9 +3,49 @@ try:
 except ImportError:
   import logging as log
 
-from twitter.common.zookeeper.group import ActiveGroup, Group, GroupInterface
+from twitter.common.zookeeper.group.group_base import GroupInterface
+
+try:
+  from twitter.common.zookeeper.client import ZooKeeper
+  from twitter.common.zookeeper.group.group import (
+      ActiveGroup,
+      Group)
+  def pick_zkpython_group(zk, on_join, on_leave):
+    # The default underlying implementation is Group if no active monitoring
+    # is requested of the ServerSet.  If active monitoring is requested by
+    # on_join or on_leave, then use ActiveGroup by default, which has better
+    # performance on monitor/iter calls.
+    if isinstance(zk, ZooKeeper):
+      return Group if (on_join is None and on_leave is None) else ActiveGroup
+except ImportError as e:
+  def pick_zkpython_group(zk, on_join, on_leave):
+    return None
+
+try:
+  from kazoo.client import KazooClient
+  from twitter.common.zookeeper.group.kazoo_group import ActiveKazooGroup, KazooGroup
+  def pick_kazoo_group(zk, on_join, on_leave):
+    if isinstance(zk, KazooClient):
+      return KazooGroup if (on_join is None and on_leave is None) else ActiveKazooGroup
+except ImportError as e:
+  def pick_kazoo_group(zk, on_join, on_leave):
+    return None
+
+GROUP_SELECTORS = [pick_zkpython_group, pick_kazoo_group]
 
 from .endpoint import ServiceInstance
+
+
+def first(iterable):
+  for element in iterable:
+    if element:
+      return element
+
+
+def validate_group_implementation(underlying):
+  assert issubclass(underlying, GroupInterface), (
+    'Underlying group implementation must be a subclass of GroupInterface, got %s'
+    % type(underlying))
 
 
 class ServerSet(object):
@@ -26,13 +66,13 @@ class ServerSet(object):
 
       All remaining arguments are passed to the underlying Group implementation.
     """
-    # The default underlying implementation is Group if no active monitoring is requested
-    # of the ServerSet.  If active monitoring is requested by on_join or on_leave, then
-    # use ActiveGroup by default, which has better performance on monitor/iter calls.
-    default_underlying = Group if (on_join is None and on_leave is None) else ActiveGroup
-    underlying = underlying or default_underlying
-    assert issubclass(underlying, GroupInterface), (
-        'Underlying group implementation must be a subclass of GroupInterface.')
+    underlying = underlying or first(
+        pick_group(zk, on_join, on_leave) for pick_group in GROUP_SELECTORS)
+    if underlying is None:
+      raise ValueError("Couldn't find a suitable group implementation!")
+
+    validate_group_implementation(underlying)
+
     self._path = path
     self._group = underlying(zk, path, **kwargs)
     def devnull(*args, **kw): pass
@@ -77,15 +117,22 @@ class ServerSet(object):
     cached = set(self._members)
     new_members = members - cached
     old_members = cached - members
+
     for service_instance in map(self._members.pop, old_members):
       self._on_leave(service_instance)
-    for member_id in new_members:
-      def on_finish(service_instance):
+
+    def make_callback(member_id):
+      def callback(service_instance):
         try:
           self._members[member_id] = ServiceInstance.unpack(service_instance)
         except Exception as e:
           log.warning('Failed to deserialize endpoint: %s' % e)
           return
         self._on_join(self._members[member_id])
-      self._group.info(member_id, on_finish)
+
+      return callback
+
+    for member_id in new_members:
+      self._group.info(member_id, make_callback(member_id))
+
     self._group.monitor(members, self._internal_monitor)

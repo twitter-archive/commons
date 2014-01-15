@@ -27,7 +27,7 @@ python_tests(name = 'test_log',
     pants('src/python/twitter/common/lang'),
     pants('src/python/twitter/common/log'),
     pants('src/python/twitter/common/testing'),
-    python_requirement('mox'),
+    pants('3rdparty/python:mox')
   ],
   coverage = 'twitter.common.log'
 )
@@ -39,7 +39,7 @@ python_tests(name = 'test_log_with_scribe',
     pants('src/python/twitter/common/log'),
     pants('src/python/twitter/common/testing'),
     pants('src/thrift/org/apache/scribe:py-scribe'),
-    python_requirement('mox'),
+    pants('3rdparty/python:mox')
   ],
   coverage = 'twitter.common.log'
 )

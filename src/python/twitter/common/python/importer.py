@@ -27,8 +27,9 @@ Usage:
   from twitter.common.python.importer import *
   monkeypatch()
 """
+from __future__ import absolute_import
 
-from collections import MappingView
+from collections import MappingView, MutableMapping
 import contextlib
 import os
 import sys
@@ -39,13 +40,52 @@ import types
 import zipfile
 import zipimport as builtin_zipimport
 
-from twitter.common.lang import Compatibility
-from twitter.common.python.marshaller import CodeMarshaller
-StringIO = Compatibility.BytesIO
+from .compatibility import (
+    BytesIO,
+    PY3,
+    exec_function,
+)
+from .marshaller import CodeMarshaller
+
+StringIO = BytesIO
+
+
+class ZipDirectoryCache(MutableMapping):
+  def __init__(self, shadow):
+    self.__shadow = shadow
+    self.__lookaside = {}
+
+  def __setitem__(self, key, value):
+    try:
+      self.__shadow[key] = value
+    except TypeError:
+      self.__lookaside[key] = value
+
+  def __getitem__(self, key):
+    try:
+      return self.__shadow[key]
+    except KeyError:
+      return self.__lookaside[key]
+
+  def __delitem__(self, key):
+    try:
+      del self.__lookaside[key]
+    except KeyError:
+      del self.__shadow[key]
+
+  def __iter__(self):
+    for key in self.__shadow:
+      yield key
+    for key in self.__lookaside:
+      yield key
+
+  def __len__(self):
+    return len(self.__shadow) + len(self.__lookaside)
+
 
 _zipfile_cache = {}
 _zipfile_namecache = {}
-_zip_directory_cache = builtin_zipimport._zip_directory_cache
+_zip_directory_cache = ZipDirectoryCache(builtin_zipimport._zip_directory_cache)
 
 
 class ZipFileCache(MappingView):
@@ -251,8 +291,6 @@ class Nested(object):
         assert provider is not None
         zf = _zipfile_cache[archive] = provider()
       _zipfile_namecache[archive] = set(zf.namelist())
-    # PyPy doesn't allow us to share its builtin_zipimport _zip_directory_cache.
-    # TODO(wickman)  Go back to the delegating proxy for zip directory cache.
     # TODO(wickman)  Do not leave handles open, as this could cause ulimits to
     # be exceeded.
     _zip_directory_cache[archive] = ZipFileCache(archive)
@@ -284,6 +322,7 @@ def zipimporter(path):
       for line in traceback.format_exc().splitlines():
         EggZipImporter._log(line, at_level=2)
     return bzi
+
 
 class EggZipImporter(object):
   """
@@ -392,7 +431,7 @@ class EggZipImporter(object):
     fullpath = '%s%s%s' % (self.archive, os.sep, relpath)
     source = Nested.read(fullpath)
     assert source is not None
-    if Compatibility.PY3:
+    if PY3:
       source = source.decode('utf8')
     source = source.replace('\r\n', '\n').replace('\r', '\n')
     return submodname, is_package, fullpath, source
@@ -404,12 +443,12 @@ class EggZipImporter(object):
     pyc = os.path.splitext(fullpath)[0] + '.pyc'
     try:
       with timed('Unmarshaling %s' % pyc, at_level=2):
-        pyc_object = CodeMarshaller.from_pyc(Compatibility.BytesIO(Nested.read(pyc)))
+        pyc_object = CodeMarshaller.from_pyc(BytesIO(Nested.read(pyc)))
     except (Nested.FileNotFound, ValueError, CodeMarshaller.InvalidCode) as e:
       with timed('Compiling %s because of %s' % (fullpath, e.__class__.__name__), at_level=2):
         py = Nested.read(fullpath)
         assert py is not None
-        if Compatibility.PY3:
+        if PY3:
           py = py.decode('utf8')
         pyc_object = CodeMarshaller.from_py(py, fullpath)
     return submodname, is_package, fullpath, pyc_object.code
@@ -459,7 +498,7 @@ class EggZipImporter(object):
         if is_package:
           mod.__path__ = [os.path.dirname(mod.__file__)]
           self._log('** __path__ = %s' % mod.__path__, at_level=4)
-        Compatibility.exec_function(code, mod.__dict__)
+        exec_function(code, mod.__dict__)
       except Exception as e:
         self._log('Caught exception: %s' % e)
         if fullmodname in sys.modules:
@@ -524,8 +563,13 @@ def monkeypatch():
 
 
 def monkeypatch_zipimport():
-  from pkgutil import iter_importer_modules, iter_zipimport_modules
   sys.modules['zipimport'] = sys.modules[__name__]
+
+  # PyPy pkgutil still references zipimport._zip_directory_cache directly.
+  import pkgutil
+  pkgutil.zipimport = sys.modules[__name__]
+
+  from pkgutil import iter_importer_modules, iter_zipimport_modules
 
   # replace the sys.path_hook for zipimport
   try:
@@ -607,6 +651,11 @@ def monkeypatch_pkg_resources():
   pkg_resources.zipimport = sys.modules[__name__]  # if monkeypatching after import
   pkg_resources.build_zipmanifest = build_zipmanifest
   pkg_resources.EggMetadata = EggMetadata
-  pkg_resources.register_finder(EggZipImporter, pkg_resources.find_in_zip)
+  try:
+    pkg_resources.register_finder(EggZipImporter, pkg_resources.find_in_zip)
+  except AttributeError:
+    # setuptools 2.1+ move find_in_zip to find_eggs_in_zip to make it clear this does not
+    # do wheels.
+    pkg_resources.register_finder(EggZipImporter, pkg_resources.find_eggs_in_zip)
   pkg_resources.register_namespace_handler(EggZipImporter, pkg_resources.file_ns_handler)
   pkg_resources.register_loader_type(EggZipImporter, pkg_resources.ZipProvider)

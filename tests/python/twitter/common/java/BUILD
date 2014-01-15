@@ -19,11 +19,29 @@ python_library(
   resources = globs('resources/*'),
 )
 
-python_tests(
+python_test_suite(
   name = 'java',
+  dependencies = [
+    pants(':class_file'),
+    pants(':perfdata'),
+  ]
+)
+
+python_tests(
+  name = 'class_file',
   sources = ['test_class_file.py'],
   dependencies = [
     pants('src/python/twitter/common/java'),
+    pants(':resources'),
+  ]
+)
+
+python_tests(
+  name = 'perfdata',
+  sources = ['test_perfdata.py'],
+  dependencies = [
+    pants('3rdparty/python:mock'),
+    pants('src/python/twitter/common/java/perfdata'),
     pants(':resources'),
   ]
 )

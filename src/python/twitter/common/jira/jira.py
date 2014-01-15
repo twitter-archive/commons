@@ -1,21 +1,17 @@
 import base64
 import getpass
 import json
+import textwrap
 import urllib
 import urllib2
 import urlparse
-import xmlrpclib
-
-try:
-  from xmlrpclib import ServerProxy, Fault
-except ImportError:
-  from xmlrpc.client import ServerProxy, Fault
 
 from twitter.common import log
 
 
 class JiraError(Exception):
   '''Indicates a problem performing an action with JIRA.'''
+
   def __init__(self, cause=None, message=None):
     self._cause = cause
     self._message = message
@@ -35,10 +31,6 @@ class Jira(object):
      Currently only works for situations where the user may be prompted for
      credentials.
   '''
-
-  # Values documented at:
-  # http://docs.atlassian.com/software/jira/docs/api/5.0.1/constant-values.html
-  RESOLVED_STATUS_ID = 5
 
   def __init__(self, server_url, api_base='/rest/api/2/', user=None, password=None):
     self._base_url = urlparse.urljoin(server_url, api_base)
@@ -60,10 +52,29 @@ class Jira(object):
   def get_transitions(self, issue):
     return self.api_call('issue/%s/transitions' % issue)
 
+  def _get_resolve_transition_id(self, issue):
+    '''Find the transition id to resolve the issue'''
+    try:
+      transitions = json.loads(self.get_transitions(issue))['transitions']
+    except (KeyError, ValueError) as e:
+      raise JiraError('Transitions list did not have the expected JSON format: %s', e)
+
+    for transition in transitions:
+      if transition['name'] == 'Resolve':
+        return transition['id']
+
+    raise JiraError(textwrap.dedent('''
+    Could not find the id of the JIRA \'Resolve\' transition, here were the
+    available transitions:
+    %s
+    ''' % (transitions)))
+
   def resolve(self, issue, comment=None):
+    transition_id = self._get_resolve_transition_id(issue)
+
     data = {
       'fields': {'resolution': {'name': 'Fixed'}},
-      'transition': {'id': Jira.RESOLVED_STATUS_ID}
+      'transition': {'id': transition_id}
     }
     if comment:
       data['update'] = {'comment': [{'add': {'body': comment}}]}
@@ -75,7 +86,7 @@ class Jira(object):
       raise JiraError(cause=e)
 
   # create a new issue using project key and issuetype names, i.e. TEST, Incident
-  def create_issue(self, project, issue_type, summary, description=None):
+  def create_issue(self, project, issue_type, summary, description=None, **kw):
     data = {
       'fields': {
         'project': {'key': project},
@@ -84,8 +95,23 @@ class Jira(object):
         'description': description
       }
     }
+    data['fields'].update(kw)
+
     try:
-      self.api_call('issue', data)
+      return self.api_call('issue', data)
+    except urllib2.URLError as e:
+      raise JiraError(cause=e)
+
+  def fetch_issue_fields(self, project_key, issue_type):
+    data = {
+      "projectKeys": project_key,
+      "issuetypeIds": issue_type,
+      "expand": "projects.issuetypes.fields"
+    }
+    qs = urllib.urlencode(data)
+    endpoint = '%s?%s' % ('issue/createmeta', qs)
+    try:
+      return self.api_call(endpoint)
     except urllib2.URLError as e:
       raise JiraError(cause=e)
 
@@ -94,7 +120,7 @@ class Jira(object):
     headers = {'User-Agent': 'twitter.common.jira'}
     base64string = authorization or base64.b64encode('%s:%s' % (self._user, self._getpass()))
     headers['Authorization'] = 'Basic %s' % base64string
-    log.info(headers)
+    log.debug(headers)
     data = json.dumps(post_json) if post_json else None
     if data:
       headers['Content-Type'] = 'application/json'

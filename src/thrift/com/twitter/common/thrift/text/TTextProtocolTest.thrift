@@ -30,6 +30,11 @@ enum Letter {
   ECHO    = 5,
 }
 
+union TestUnion {
+  1: binary f1
+  2: i32 f2
+}
+
 struct SubSub {
   1: required i32 x
 }
@@ -72,5 +77,13 @@ struct TTextProtocolTestMsg {
   14: required Letter p;
 
   15: required set<Letter> q;
+
+  16: required map<Sub, i64> r;
+
+  17: required map<map<map<i64, i64>, i64>, i64> s;
+}
+
+struct TTextProtocolTestMsgUnion {
+  1: required TestUnion u;
 }
 

@@ -18,6 +18,7 @@ python_library(
   name = 'tunnel',
   sources = ('tunnel.py',),
   dependencies = [
+    pants('src/python/twitter/common/log'),
     pants('src/python/twitter/common/quantity')
   ]
 )
@@ -28,7 +29,21 @@ python_library(
   name = 'net',
   dependencies = [
     pants(':tunnel'),
-  ]
+  ],
+  provides = setup_py(
+    name = 'twitter.common.net',
+    version = '0.1.0',
+    description = 'twitter.common tunneling and network utilities.',
+    url = 'https://github.com/twitter/commons',
+    license = 'Apache License, Version 2.0',
+    zip_safe = True,
+    classifiers = [
+      'Intended Audience :: Developers',
+      'License :: OSI Approved :: Apache Software License',
+      'Operating System :: OS Independent',
+      'Programming Language :: Python',
+    ]
+  )
 )
 
 python_library(
@@ -38,3 +53,10 @@ python_library(
   ]
 )
 
+python_library(
+  name = 'socks',
+  sources = ('socks.py',),
+  dependencies = [
+    pants('3rdparty/python:socksipy-branch')
+  ]
+)

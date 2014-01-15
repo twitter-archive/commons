@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==================================================================================================
-import uuid
 
 __author__ = 'John Sirois, Brian Wickman'
 
@@ -23,6 +22,7 @@ import tarfile
 import tempfile
 import time
 import sys
+import uuid
 import zipfile
 
 from contextlib import closing, contextmanager
@@ -33,21 +33,21 @@ from twitter.common.lang import Compatibility
 
 @contextmanager
 def environment_as(**kwargs):
-  """
-    Update the environment to the supplied values, for example:
+  """Update the environment to the supplied values, for example:
 
-    with environment_as(PYTHONPATH = 'foo:bar:baz',
-                        PYTHON = '/usr/bin/python2.6'):
-      subprocess.Popen(foo).wait()
+  with environment_as(PYTHONPATH='foo:bar:baz',
+                      PYTHON='/usr/bin/python2.6'):
+    subprocess.Popen(foo).wait()
   """
   new_environment = kwargs
   old_environment = {}
 
   def setenv(key, val):
     if val is not None:
-      os.putenv(key, val)
+      os.environ[key] = val
     else:
-      os.unsetenv(key)
+      if key in os.environ:
+        del os.environ[key]
 
   for key, val in new_environment.items():
     old_environment[key] = os.environ.get(key)
@@ -106,6 +106,7 @@ def temporary_file(root_dir=None, cleanup=True):
       if cleanup:
         safe_delete(fd.name)
 
+
 @contextmanager
 def safe_file(path, suffix=None, cleanup=True):
   """A with-context that copies a file, and copies the copy back to the original file on success.
@@ -127,6 +128,7 @@ def safe_file(path, suffix=None, cleanup=True):
   finally:
     if cleanup:
       safe_delete(safe_path)
+
 
 @contextmanager
 def pushd(directory):
@@ -171,8 +173,14 @@ def open_zip(path_or_file, *args, **kwargs):
   """
     A with-context for zip files.  Passes through positional and kwargs to zipfile.ZipFile.
   """
-  with closing(zipfile.ZipFile(path_or_file, *args, **kwargs)) as zip:
-    yield zip
+  try:
+    zf = zipfile.ZipFile(path_or_file, *args, **kwargs)
+  except zipfile.BadZipfile as bze:
+    raise zipfile.BadZipfile("Bad Zipfile %s: %s" % (path_or_file, bze))
+  try:
+    yield zf
+  finally:
+    zf.close()
 
 
 @contextmanager

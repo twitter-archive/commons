@@ -85,8 +85,6 @@ def branch(sha, project=None, repo=None):
   try:
     checkout_branch(repo, sha, branch_name)
     yield
-  except Exception as e:
-    print('Caught exception: %s' % e)
   finally:
     print('Resetting head: %s' % active_head)
     active_head.checkout()

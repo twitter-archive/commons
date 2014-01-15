@@ -15,6 +15,7 @@
 # ==================================================================================================
 
 import json
+import os
 import time
 import threading
 
@@ -108,6 +109,13 @@ class DiskMetricReader(SamplerBase, MetricProvider):
   def sample(self):
     with self._lock:
       return self._sample
+
+  @property
+  def age(self):
+    try:
+      return time.time() - os.path.getmtime(self._filename)
+    except (IOError, OSError):
+      return 0
 
   def iterate(self):
     with self._lock:

@@ -124,8 +124,8 @@ class RecordioTestBase(mox.MoxTestBase):
 
     self.mox.ReplayAll()
 
-    rr = RecordReader(fp)
-    assert list(rr) == []
+    with pytest.raises(RecordIO.Error):
+      list(RecordReader(fp))
 
   def test_basic_recordreader_dup_failure(self):
     fp = self.mox.CreateMock(FileLike)

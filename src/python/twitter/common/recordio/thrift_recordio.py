@@ -66,8 +66,8 @@ class ThriftRecordIO(object):
       base = self._base()
       try:
         _SER.deserialize(base, input)
-      except EOFError as e:
-        raise RecordIO.PrematureEndOfStream(e)
+      except EOFError:
+        raise RecordIO.PrematureEndOfStream("Reached EOF while decoding frame")
       return base
 
 

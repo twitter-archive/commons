@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 import ast
 from contextlib import closing
@@ -7,27 +7,17 @@ import sys
 import tempfile
 import zipfile
 
-try:
-  from twitter.common import app
-  HAS_APP = True
-except ImportError:
-  HAS_APP = False
-
-try:
-  from twitter.common import log
-  log_info = log.info
-except ImportError:
-  log_info = lambda msg: sys.stdout.write(msg + '\n')
+from .common import safe_mkdir
 
 from pkg_resources import Distribution, get_build_platform
-from twitter.common.dirutil import safe_mkdir
+
 
 NAMESPACE_STUB = """
 try:
   __import__('pkg_resources').declare_namespace(__name__)
 except ImportError:
   from sys import stderr
-  stderr.write('Unable to declare namespace for %%s\\n' % __name__)
+  stderr.write('Unable to declare namespace for %s\\n' % __name__)
   stderr.write('This package may not work!\\n')
 """
 
@@ -40,11 +30,11 @@ def __bootstrap__():
   import sys, imp, tempfile
   try:
     from cStringIO import StringIO
-  except:
+  except ImportError:
     try:
       from StringIO import StringIO
-    except:
-      from io import ByteIO as StringIO
+    except ImportError:
+      from io import BytesIO as StringIO
 
   # open multiply-nested-zip
   def nested_open(path, full_path=None, zf=None):
@@ -88,7 +78,7 @@ def __bootstrap__():
 
   try:
     fd, name = tempfile.mkstemp()
-    with os.fdopen(fd, 'w') as fp:
+    with os.fdopen(fd, 'wb') as fp:
       fp.write(content)
 
     __file__ = name
@@ -114,7 +104,7 @@ class Distiller(object):
     >>> psutil_link = SourceLink('http://psutil.googlecode.com/files/psutil-0.6.1.tar.gz',
     ...                          opener=Web())
     >>> psutil_dist = Installer(psutil_link.fetch()).distribution()
-    >>> Distiller(pstil_dist).distill()
+    >>> Distiller(psutil_dist).distill()
     Writing native stub for _psutil_linux.so
     Writing native stub for _psutil_posix.so
     Skipping file outside of top_level: psutil-0.6.1-py2.7.egg-info/SOURCES.txt
@@ -141,7 +131,7 @@ class Distiller(object):
 
   class InvalidDistribution(Exception): pass
 
-  def __init__(self, distribution, debug=True):
+  def __init__(self, distribution, debug=False):
     self._debug = debug
     self._dist = distribution
     assert isinstance(self._dist, Distribution)
@@ -161,6 +151,7 @@ class Distiller(object):
       'twitter.common.python.installer, or is an already-distilled .egg.')
 
     self._top_levels = self._get_lines('top_level.txt')
+
     self._installed_files = [
       os.path.realpath(os.path.join(self._dist.egg_info, fn)) for fn in
         self._get_lines('installed-files.txt')]
@@ -171,7 +162,7 @@ class Distiller(object):
 
   def _log(self, msg):
     if self._debug:
-      log_info(msg)
+      print(msg, file=sys.stderr)
 
   def _get_lines(self, txt):
     return list(self._dist.get_metadata_lines(txt))
@@ -192,7 +183,7 @@ class Distiller(object):
       if not fn.endswith('.py'):
         continue
 
-      with open(fn) as fn_fp:
+      with open(fn, 'rb') as fn_fp:
         try:
           parsed_fn = ast.parse(fn_fp.read())
         except SyntaxError as e:
@@ -248,7 +239,7 @@ class Distiller(object):
       if fn.startswith(egg_info_dir) and not skip(fn):
         rel_fn = os.path.relpath(fn, egg_info_dir)
         if rel_fn == '.': continue
-        with open(fn) as fp:
+        with open(fn, 'rb') as fp:
           yield egg_info_name(rel_fn), fp.read()
 
     # dump native_libs.txt
@@ -311,31 +302,3 @@ class Distiller(object):
 
     os.rename(filename + '~', filename)
     return filename
-
-
-def main(args, options):
-  from pkg_resources import WorkingSet, Requirement, find_distributions
-
-  if not options.site_dir:
-    app.error('Must supply --site')
-
-  distributions = list(find_distributions(options.site_dir))
-  working_set = WorkingSet()
-  for dist in distributions:
-    working_set.add(dist)
-
-  for arg in args:
-    arg_req = Requirement.parse(arg)
-    found_dist = working_set.find(arg_req)
-    if not found_dist:
-      print('Could not find %s!' % arg_req)
-    out_zip = Distiller(found_dist).distill()
-    print('Dumped %s => %s' % (arg_req, out_zip))
-
-
-if HAS_APP:
-  if __name__ == '__main__':
-    app.add_option('--site', dest='site_dir', metavar='DIR', default=None,
-                   help='Directory to search for the requirement.')
-
-  app.main()
