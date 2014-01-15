@@ -44,17 +44,22 @@ import time
 
 DEBUG = 'PANTS_DEV' in os.environ
 
+logger = logging.getLogger()
+if DEBUG:
+  logger.setLevel(logging.DEBUG)
+else:
+  logger.setLevel(logging.INFO)
+formatter = logging.Formatter("%(asctime)s %(filename)s:%(lineno)d - %(message)s")
+stream_handler = logging.StreamHandler(sys.stderr)
+stream_handler.setFormatter(formatter)
+logger.addHandler(stream_handler)
+
 # Use pants.pex if in the repo - primarily for development
 LOCAL_PEX = os.path.exists('pants.pex')
 
 
-def log(msg, stream=sys.stdout):
-  stream.write(msg + '\n')
-
-
-def error(msg='', code=1):
-  if msg:
-    log(msg, stream=sys.stderr)
+def error(msg, code=1):
+  logger.error(msg)
   sys.exit(code)
 
 
@@ -80,10 +85,8 @@ def has_python(ver):
 
 start = time.time()
 def restart(exe):
-  if DEBUG:
-    log('selected %s in %fs bootstrapping from python%d.%d' % (exe, time.time() - start, major,
-                                                               minor),
-        stream=sys.stderr)
+  logger.debug('selected %s in %fs bootstrapping from python%d.%d' % (
+    exe, time.time() - start, major, minor))
   os.execv(exe, [exe] + sys.argv)
 
 # Check to see if user exported python version manually
@@ -111,9 +114,6 @@ elif major == 2:
 if (major, minor) != (2, 6) and (major, minor) != (2, 7):
   error('Pants requires a valid python2.6 or python2.7')
 
-if DEBUG:
-  log('Running with python version: %s.%s' % (major, minor), stream=sys.stderr)
-
 if major == 3:
   from configparser import ConfigParser
   import urllib.error as urllib_error
@@ -130,8 +130,6 @@ PANTS_CACHE = os.path.expanduser('~/.pants.d')
 PANTS_PEX_CACHE = '%s/bin/pants.pex' % PANTS_CACHE
 
 CHUNK_SIZE = 102400
-
-logger = logging.getLogger()
 
 config = ConfigParser({
   'pants_pex_filename_pattern': 'pants-%s-py%s%s.pex',
@@ -230,15 +228,7 @@ def fetch_pants():
 
 
 def main():
-  if DEBUG:
-    logger.setLevel(logging.DEBUG)
-  else:
-    logger.setLevel(logging.INFO)
-  formatter = logging.Formatter("%(asctime)s %(filename)s:%(lineno)d - %(message)s")
-  stream_handler = logging.StreamHandler(sys.stderr)
-  stream_handler.setFormatter(formatter)
-  logger.addHandler(stream_handler)
-
+  logger.debug('Running with python version: %s.%s' % (major, minor))
   fetch_ivy()
   logger.debug('launching %s' % fetch_pants())
   os.execv(fetch_pants(), sys.argv)
