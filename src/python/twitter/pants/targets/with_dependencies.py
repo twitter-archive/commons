@@ -21,8 +21,8 @@ from .util import resolve
 
 
 class TargetWithDependencies(Target):
-  def __init__(self, name, dependencies=None):
-    Target.__init__(self, name)
+  def __init__(self, name, dependencies=None, exclusives=None):
+    Target.__init__(self, name, exclusives=exclusives)
     self.dependencies = OrderedSet(resolve(dependencies)) if dependencies else OrderedSet()
 
   def _walk(self, walked, work, predicate=None):

@@ -106,6 +106,7 @@ def temporary_file(root_dir=None, cleanup=True):
       if cleanup:
         safe_delete(fd.name)
 
+
 @contextmanager
 def safe_file(path, suffix=None, cleanup=True):
   """A with-context that copies a file, and copies the copy back to the original file on success.
@@ -127,6 +128,7 @@ def safe_file(path, suffix=None, cleanup=True):
   finally:
     if cleanup:
       safe_delete(safe_path)
+
 
 @contextmanager
 def pushd(directory):

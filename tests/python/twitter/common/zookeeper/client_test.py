@@ -16,6 +16,7 @@
 
 import os
 import pytest
+import socket
 import threading
 import time
 import zookeeper
@@ -25,6 +26,8 @@ from twitter.common.log.options import LogOptions
 
 from twitter.common.zookeeper.client import ZooKeeper, ZooDefs
 from twitter.common.zookeeper.test_server import ZookeeperServer
+
+import mox
 
 MAX_EVENT_WAIT_SECS = 30.0
 MAX_EXPIRE_WAIT_SECS = 60.0
@@ -105,7 +108,6 @@ def test_client_connect_with_auth():
 
 
 def test_client_connect_times_out():
-  import socket
   sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
   sock.bind(('localhost', 0))
   _, port = sock.getsockname()
@@ -135,7 +137,38 @@ def test_client_reconnect():
 
 
 def test_expand_ensemble():
-  assert ZooKeeper.expand_ensemble('localhost:1234') == '127.0.0.1:1234'
+  m = mox.Mox()
+  m.StubOutWithMock(socket, 'gethostbyname_ex')
+  socket.gethostbyname_ex('localhost').AndReturn(('localhost', [], ['foo']))
+  socket.gethostbyname_ex('localhost').AndReturn(('localhost', [], ['bar']))
+  socket.gethostbyname_ex('localhost').AndReturn(('localhost', [], ['baz', 'bak']))
+  m.ReplayAll()
+
+  assert ZooKeeper.expand_ensemble('localhost:1234') == 'foo:1234'
+  assert ZooKeeper.expand_ensemble('localhost:1234,localhost') == 'bar:1234,baz:2181,bak:2181'
+
+  m.UnsetStubs()
+  m.VerifyAll()
+
+
+def test_bad_ensemble():
+  with pytest.raises(ZooKeeper.InvalidEnsemble):
+     ZooKeeper.expand_ensemble('localhost:')
+
+  with pytest.raises(ZooKeeper.InvalidEnsemble):
+     ZooKeeper.expand_ensemble('localhost:sheeps')
+
+  m = mox.Mox()
+  m.StubOutWithMock(socket, 'gethostbyname_ex')
+  socket.gethostbyname_ex('zookeeper.twitter.com').AndRaise(
+      socket.gaierror(8, 'nodename nor servname provided, or not known'))
+  m.ReplayAll()
+
+  with pytest.raises(ZooKeeper.InvalidEnsemble):
+    ZooKeeper.expand_ensemble('zookeeper.twitter.com:2181')
+
+  m.UnsetStubs()
+  m.VerifyAll()
 
 
 def test_async_while_headless():

@@ -22,7 +22,7 @@ class PythonAntlrLibrary(PythonTarget):
   """Generates a stub Python library from Antlr grammar files."""
 
   def __init__(self, name, module,
-               antlr_version = None,
+               antlr_version = '3.1.3',
                sources = None,
                resources = None,
                dependencies = None,
@@ -40,23 +40,17 @@ class PythonAntlrLibrary(PythonTarget):
     :param dependencies: List of :class:`twitter.pants.base.target.Target` instances
       this target depends on.
     :type dependencies: list of targets
-    :param exclusives: An optional map of exclusives tags. See CheckExclusives for details.
+    :param dict exclusives: An optional dict of exclusives tags. See CheckExclusives for details.
     """
 
     def get_all_deps():
       all_deps = OrderedSet()
-
-      # TODO(John Sirois):  This is broken and should probably use an anonymous PythonRequirement or
-      # or else a pants.ini injected repo default.
-      dep = 'antlr-%s' % antlr_version if antlr_version else 'antlr-python-runtime'
-      all_deps.update(Pants('3rdparty/python:%s' % dep).resolve())
-
+      all_deps.update(Pants('3rdparty/python:antlr-%s' % antlr_version).resolve())
       if dependencies:
         all_deps.update(dependencies)
       return all_deps
 
-    PythonTarget.__init__(self, name, sources, resources, get_all_deps(),
-                          exclusives=exclusives or {})
+    PythonTarget.__init__(self, name, sources, resources, get_all_deps(), exclusives=exclusives)
 
     self.module = module
     self.antlr_version = antlr_version

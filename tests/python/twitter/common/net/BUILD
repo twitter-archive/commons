@@ -1,5 +1,5 @@
 # ==================================================================================================
-# Copyright 2012 Twitter, Inc.
+# Copyright 2013 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -14,49 +14,18 @@
 # limitations under the License.
 # ==================================================================================================
 
-python_library(
-  name = 'tunnel',
-  sources = ('tunnel.py',),
+python_test_suite(
+  name = 'all',
   dependencies = [
-    pants('src/python/twitter/common/log'),
-    pants('src/python/twitter/common/quantity')
+    pants(':socks'),
   ]
 )
 
-
-# aliases
-python_library(
-  name = 'net',
-  dependencies = [
-    pants(':tunnel'),
-  ],
-  provides = setup_py(
-    name = 'twitter.common.net',
-    version = '0.1.0',
-    description = 'twitter.common tunneling and network utilities.',
-    url = 'https://github.com/twitter/commons',
-    license = 'Apache License, Version 2.0',
-    zip_safe = True,
-    classifiers = [
-      'Intended Audience :: Developers',
-      'License :: OSI Approved :: Apache Software License',
-      'Operating System :: OS Independent',
-      'Programming Language :: Python',
-    ]
-  )
-)
-
-python_library(
-  name = 'ssh',
-  dependencies = [
-    pants(':tunnel'),
-  ]
-)
-
-python_library(
+python_tests(
   name = 'socks',
-  sources = ('socks.py',),
+  sources = ['test_socks.py'],
   dependencies = [
-    python_requirement('Socksipy-branch>=1.02')
-  ]
+    pants('src/python/twitter/common/net:socks'),
+    python_requirement('mox')
+  ],
 )

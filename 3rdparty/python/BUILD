@@ -29,7 +29,7 @@ def make_dep(name, version, dependency_name=None):
 
 
 make_dep('ansicolors', '1.0.2')
-make_dep('antlr-python-runtime', '3.1.3', 'antlr_python_runtime')
+make_dep('antlr-3.1.3', '3.1.3', 'antlr_python_runtime')
 make_dep('bottle', '0.11.6')
 make_dep('distribute', '0.6.28')
 make_dep('elementtree', '1.2.7_20070827_preview')
@@ -56,3 +56,5 @@ make_dep('setuptools', '2.1')
 make_dep('socksipy-branch', '1.03', 'SocksiPy-Branch')
 make_dep('thrift', '0.9.1')
 make_dep('zc-zookeeper-static', '3.4.4')
+
+dependencies(name='antlr-python-runtime', dependencies=[':antlr-3.1.3'])
