@@ -21,5 +21,6 @@ java_tests(name='runtime',
     pants('src/java/com/twitter/common/io'),
     pants('src/java/com/twitter/common/runtime:native')
   ],
-  sources=globs('*.java')
+  sources=globs('*.java'),
+  resources=pants('tests/resources/com/twitter/common/runtime')
 )

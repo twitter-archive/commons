@@ -26,6 +26,6 @@ python_tests(
   sources = ['test_socks.py'],
   dependencies = [
     pants('src/python/twitter/common/net:socks'),
-    python_requirement('mox')
+    pants('3rdparty/python:mox')
   ],
 )

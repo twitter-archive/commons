@@ -77,13 +77,10 @@ import org.apache.thrift.transport.TTransportException;
  *
  * TODO(Alex Roetter): add support for enums
  *
- * @author Alex Roetter
  */
 public class TTextProtocol extends TProtocol {
   private static final Logger LOG = Logger.getLogger(
       TTextProtocol.class.getName());
-  private static final String OBJECT_AS_KEY_ILLEGAL =
-      "A JsonObject (map or struct) can't be a key in a map!";
   private static final String SEQUENCE_AS_KEY_ILLEGAL =
       "Can't have a sequence (list or set) as a key in a map!";
 
@@ -96,8 +93,18 @@ public class TTextProtocol extends TProtocol {
 
   private Stack<BaseContext> contextStack;
   private Base64 base64Encoder = new Base64();
-  private JsonWriter writer;
+  private final Stack<WriterByteArrayOutputStream> writers;
   private JsonStreamParser parser;
+
+  private static class WriterByteArrayOutputStream {
+    final JsonWriter writer;
+    final ByteArrayOutputStream baos;
+
+    public WriterByteArrayOutputStream(JsonWriter writer, ByteArrayOutputStream baos) {
+      this.writer = writer;
+      this.baos = baos;
+    }
+  }
 
   /**
    * Factory
@@ -109,7 +116,6 @@ public class TTextProtocol extends TProtocol {
     }
   }
 
-
   /**
    * Create a parser which can read from trans, and create the output writer
    * that can write to a TTransport
@@ -117,11 +123,10 @@ public class TTextProtocol extends TProtocol {
   public TTextProtocol(TTransport trans) {
     super(trans);
 
+    writers = new Stack<WriterByteArrayOutputStream>();
+
     ByteArrayOutputStream mybaos = new TTransportOutputStream();
-    OutputStreamWriter osw;
-    osw = new OutputStreamWriter(mybaos, Charsets.UTF_8);
-    writer = new JsonWriter(osw);
-    writer.setIndent("  ");  // two spaces
+    pushWriter(mybaos);
 
     reset();
 
@@ -174,7 +179,7 @@ public class TTextProtocol extends TProtocol {
   @Override
   public void writeFieldBegin(TField field) throws TException {
     try {
-      writer.name(field.name);
+      getCurrentWriter().name(field.name);
     } catch (IOException ex) {
       throw new TException(ex);
     }
@@ -206,11 +211,11 @@ public class TTextProtocol extends TProtocol {
   private void writeJsonObjectBegin(BaseContext context) throws TException {
     getCurrentContext().write();
     if (getCurrentContext().isMapKey()) {
-      throw new TException(OBJECT_AS_KEY_ILLEGAL);
+      pushWriter(new ByteArrayOutputStream());
     }
     pushContext(context);
     try {
-      writer.beginObject();
+      getCurrentWriter().beginObject();
     } catch (IOException ex) {
       throw new TException(ex);
     }
@@ -223,12 +228,17 @@ public class TTextProtocol extends TProtocol {
    */
   private void writeJsonObjectEnd() throws TException {
     try {
-      writer.endObject();
+      getCurrentWriter().endObject();
       popContext();
+      if (getCurrentContext().isMapKey()) {
+        String writerString = getWriterString();
+        popWriter();
+        getCurrentWriter().name(writerString);
+      }
 
       // flush at the end of the final struct.
       if (1 == contextStack.size()) {
-        writer.flush();
+        getCurrentWriter().flush();
       }
     } catch (IOException ex) {
       throw new TException(ex);
@@ -266,7 +276,7 @@ public class TTextProtocol extends TProtocol {
     pushContext(new SequenceContext(null));
 
     try {
-      writer.beginArray();
+      getCurrentWriter().beginArray();
     } catch (IOException ex) {
       throw new TTransportException(ex);
     }
@@ -278,7 +288,7 @@ public class TTextProtocol extends TProtocol {
    */
   private void writeSequenceEnd() throws TException {
     try {
-      writer.endArray();
+      getCurrentWriter().endArray();
     } catch (IOException ex) {
       throw new TTransportException(ex);
     }
@@ -332,13 +342,13 @@ public class TTextProtocol extends TProtocol {
    * handle the writing.
    */
   private <T> void writeNameOrValue(TypedParser<T> helper, T val)
-    throws TException {
+      throws TException {
     getCurrentContext().write();
     try {
       if (getCurrentContext().isMapKey()) {
-        writer.name(val.toString());
+        getCurrentWriter().name(val.toString());
       } else {
-        helper.writeValue(writer, val);
+        helper.writeValue(getCurrentWriter(), val);
       }
     } catch (IOException ex) {
       throw new TException(ex);
@@ -362,9 +372,6 @@ public class TTextProtocol extends TProtocol {
   @Override
   public TStruct readStructBegin() throws TException {
     getCurrentContext().read();
-    if (getCurrentContext().isMapKey()) {
-      throw new TException(OBJECT_AS_KEY_ILLEGAL);
-    }
 
     JsonElement structElem;
     // Reading a new top level struct if the only item on the stack
@@ -376,6 +383,10 @@ public class TTextProtocol extends TProtocol {
       }
     } else {
       structElem = getCurrentContext().getCurrentChild();
+    }
+
+    if (getCurrentContext().isMapKey()) {
+      structElem = new JsonStreamParser(structElem.getAsString()).next();
     }
 
     if (!structElem.isJsonObject()) {
@@ -418,11 +429,13 @@ public class TTextProtocol extends TProtocol {
   @Override
   public TMap readMapBegin() throws TException {
     getCurrentContext().read();
-    if (getCurrentContext().isMapKey()) {
-      throw new TException(OBJECT_AS_KEY_ILLEGAL);
-    }
 
     JsonElement curElem = getCurrentContext().getCurrentChild();
+
+    if (getCurrentContext().isMapKey()) {
+      curElem = new JsonStreamParser(curElem.getAsString()).next();
+    }
+
     if (!curElem.isJsonObject()) {
       throw new TException("Expected JSON Object!");
     }
@@ -462,8 +475,6 @@ public class TTextProtocol extends TProtocol {
 
   /**
    * Helper shared by read{List/Set}Begin
-   * @return
-   * @throws TException
    */
   private int readSequenceBegin() throws TException {
     getCurrentContext().read();
@@ -543,7 +554,7 @@ public class TTextProtocol extends TProtocol {
 
     JsonElement elem = getCurrentContext().getCurrentChild();
     if (getCurrentContext().isMapKey()) {
-      // Will throw a ClassCastException if this is not a JsonPrimitve string
+      // Will throw a ClassCastException if this is not a JsonPrimitive string
       return ch.readFromString(elem.getAsString());
     } else {
       return ch.readFromJsonElement(elem);
@@ -606,11 +617,45 @@ public class TTextProtocol extends TProtocol {
     contextStack.pop();
   }
 
+  /**
+   * Return the current parsing context
+   */
+  private JsonWriter getCurrentWriter() {
+    return writers.peek().writer;
+  }
+
+  private String getWriterString() throws TException {
+    WriterByteArrayOutputStream wbaos = writers.peek();
+    String ret;
+    try {
+      wbaos.writer.flush();
+      ret = new String(wbaos.baos.toByteArray());
+      wbaos.writer.close();
+    } catch (IOException e) {
+      throw new TException(e);
+    }
+    return ret;
+  }
+
+  private void pushWriter(ByteArrayOutputStream baos) {
+    OutputStreamWriter osw = new OutputStreamWriter(baos, Charsets.UTF_8);
+
+    JsonWriter writer = new JsonWriter(osw);
+    writer.setIndent("  ");  // two spaces
+
+    WriterByteArrayOutputStream wbaos = new WriterByteArrayOutputStream(writer, baos);
+    writers.push(wbaos);
+  }
+
+  private void popWriter() {
+    writers.pop();
+  }
+
   /** Just a byte array output stream that forwards all data to
    * a TTransport when it is flushed or closed
    */
   private class TTransportOutputStream extends ByteArrayOutputStream {
-    // This isn't necessary, but a good idea to close the tranport
+    // This isn't necessary, but a good idea to close the transport
     @Override
     public void close() throws IOException {
       flush();

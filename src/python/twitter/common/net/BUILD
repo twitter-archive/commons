@@ -57,6 +57,6 @@ python_library(
   name = 'socks',
   sources = ('socks.py',),
   dependencies = [
-    python_requirement('Socksipy-branch>=1.02')
+    pants('3rdparty/python:socksipy-branch')
   ]
 )

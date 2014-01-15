@@ -1,5 +1,5 @@
 # ==================================================================================================
-# Copyright 2012 Twitter, Inc.
+# Copyright 2014 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -14,13 +14,6 @@
 # limitations under the License.
 # ==================================================================================================
 
-python_tests(name = 'buildtimestats',
-  sources = globs('*.py'),
-  dependencies = [
-    pants("src/python/twitter/pants:pants-lib"),
-    pants("src/python/twitter/pants:pants-deps"),
-    pants('src/python/twitter/common/util'),
-    pants('3rdparty/python:mox'),
-    pants('3rdparty/python:psutil')
-  ]
+resources(name='text',
+  sources=['TTextProtocol_TestData.txt']
 )

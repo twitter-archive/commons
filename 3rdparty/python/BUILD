@@ -53,7 +53,7 @@ make_dep('pytest-cov', '1.6')
 make_dep('python_daemon', '1.5.5'),
 make_dep('requests', '1.2.3')
 make_dep('setuptools', '2.1')
-make_dep('socksipy-branch', '1.03', 'SocksiPy-Branch')
+make_dep('socksipy-branch', '1.01', 'SocksiPy-Branch')
 make_dep('thrift', '0.9.1')
 make_dep('zc-zookeeper-static', '3.4.4')
 

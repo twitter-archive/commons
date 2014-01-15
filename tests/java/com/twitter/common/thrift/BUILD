@@ -16,8 +16,8 @@
 
 
 
-java_tests(name = 'thrift',
-  dependencies = [
+java_tests(name='thrift',
+  dependencies=[
     '3rdparty:easymock',
     '3rdparty:guava',
     '3rdparty:guice',
@@ -43,5 +43,6 @@ java_tests(name = 'thrift',
     'src/thrift/com/twitter/common/thrift/text',
     'src/thrift/com/twitter/thrift',
   ],
-  sources = globs('*.java', 'callers/*.java', 'loadbalancing/*.java', 'monitoring/*.java', 'text/*.java')
+  sources=globs('*.java', 'callers/*.java', 'loadbalancing/*.java', 'monitoring/*.java', 'text/*.java'),
+  resources=pants('tests/resources/com/twitter/common/thrift/text')
 )

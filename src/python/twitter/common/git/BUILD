@@ -18,6 +18,6 @@ python_library(
   name = 'git',
   sources = ['__init__.py'],
   dependencies = [
-    python_requirement('GitPython')
+    pants('3rdparty/python:git-python')
   ]
 )
