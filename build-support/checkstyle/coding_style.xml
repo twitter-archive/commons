@@ -188,7 +188,8 @@ com.twitter. Each group should be separated by a single blank line." />
       <!-- See http://checkstyle.sf.net/config_sizes.html -->
       <module name="LineLength">
         <property name="max" value="100"/>
-        <property name="ignorePattern" value="^import"/>
+        <!-- Ignore import statements and javadoc comments                 -->
+        <property name="ignorePattern" value="^import.*$|^ *\*( |[^/]) *.*$"/>
       </module>
       <module name="OuterTypeNumber"/>
 
