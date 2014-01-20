@@ -14,7 +14,6 @@ from ctypes import (
 
 from twitter.common.lang import Compatibility
 
-__author__ = 'wickman@twitter.com (brian wickman)'
 
 class ScanfResult(object):
   def __init__(self):
@@ -41,6 +40,7 @@ class ScanfResult(object):
 
   def __iter__(self):
     return iter(self._list)
+
 
 class ScanfParser(object):
   class ParseError(Exception): pass

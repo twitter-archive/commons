@@ -15,6 +15,23 @@
 # ==================================================================================================
 
 python_library(
-  name = "testing",
-  sources = rglobs("*.py"),
+  name = 'testing',
+  sources = globs('*.py'),
+  dependencies = [
+    pants('src/python/twitter/common/lang'),
+  ],
+  provides = setup_py(
+    name = 'twitter.common.testing',
+    version = '0.1.0',
+    description = 'twitter.common testing libraries.',
+    url = 'https://github.com/twitter/commons',
+    license = 'Apache License, Version 2.0',
+    zip_safe = True,
+    classifiers = [
+      'Intended Audience :: Developers',
+      'License :: OSI Approved :: Apache Software License',
+      'Operating System :: OS Independent',
+      'Programming Language :: Python',
+    ]
+  )
 )

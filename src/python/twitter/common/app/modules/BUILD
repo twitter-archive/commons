@@ -55,6 +55,7 @@ python_library(
   sources = ['http.py'],
   dependencies = [
     pants(':modules'),
+    pants('src/python/twitter/common/exceptions'),
     pants('src/python/twitter/common/http')
   ]
 )

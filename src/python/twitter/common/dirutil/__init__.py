@@ -17,12 +17,17 @@
 import atexit
 from collections import defaultdict
 import errno
-import fcntl
 import os
 import shutil
 import stat
 import tempfile
 import threading
+
+try:
+  import fcntl
+  HAS_FCNTL = True
+except ImportError:
+  HAS_FCNTL = False
 
 
 def safe_mkdir(directory, clean=False):
@@ -38,16 +43,18 @@ def safe_mkdir(directory, clean=False):
     if e.errno != errno.EEXIST:
       raise
 
-def safe_mkdir_for(file, clean=False):
+
+def safe_mkdir_for(path, clean=False):
   """
     Ensure that the parent directory for a file is present.  If it's not there, create it.
     If it is, no-op. If clean is True, ensure the directory is empty.
   """
-  safe_mkdir(os.path.dirname(file), clean)
+  safe_mkdir(os.path.dirname(path), clean)
+
 
 _MKDTEMP_CLEANER = None
 _MKDTEMP_DIRS = defaultdict(set)
-_MKDTEMP_LOCK = threading.Lock()
+_MKDTEMP_LOCK = threading.RLock()
 
 
 def _mkdtemp_atexit_cleaner():
@@ -77,10 +84,17 @@ def safe_mkdtemp(cleaner=_mkdtemp_atexit_cleaner, **kw):
   """
   # proper lock sanitation on fork [issue 6721] would be desirable here.
   with _MKDTEMP_LOCK:
+    return register_rmtree(tempfile.mkdtemp(**kw), cleaner=cleaner)
+
+
+def register_rmtree(directory, cleaner=_mkdtemp_atexit_cleaner):
+  """
+    Register an existing directory to be cleaned up at process exit.
+  """
+  with _MKDTEMP_LOCK:
     _mkdtemp_register_cleaner(cleaner)
-    td = tempfile.mkdtemp(**kw)
-    _MKDTEMP_DIRS[os.getpid()].add(td)
-    return td
+    _MKDTEMP_DIRS[os.getpid()].add(directory)
+  return directory
 
 
 def safe_rmtree(directory):
@@ -169,9 +183,20 @@ def safe_size(path, on_error=None):
 
 def safe_bsize(path):
   """
-    Safely return the space a file consumes on disk.  Returns 0 if file does not exist.
+    Safely return the space a file consumes on disk. Returns 0 if an OSError is
+    raised.
   """
   return _size_base(path, calculate_usage=_calculate_bsize)
+
+
+def safe_mtime(filename):
+  """
+    Safely return the mtime of a file. Returns 0 if an OSError is raised.
+  """
+  try:
+    return os.path.getmtime(filename)
+  except OSError:
+    return 0
 
 
 def du(directory):
@@ -193,6 +218,16 @@ def chmod_plus_x(path):
     path_mode |= stat.S_IXGRP
   if path_mode & stat.S_IROTH:
     path_mode |= stat.S_IXOTH
+  os.chmod(path, path_mode)
+
+
+def chmod_plus_w(path):
+  """
+    Equivalent of unix `chmod +w path`
+  """
+  path_mode = os.stat(path).st_mode
+  path_mode &= int('777', 8)
+  path_mode |= stat.S_IWRITE
   os.chmod(path, path_mode)
 
 
@@ -229,6 +264,10 @@ def lock_file(filename, mode='r+', blocking=False):
       False if could not acquire the lock
       file object if the lock was acquired
   """
+  # TODO(wickman) We should probably adopt the lockfile project here as has
+  # a platform-independent file locking implementation.
+  if not HAS_FCNTL:
+    raise RuntimeError('Interpreter does not support fcntl!')
 
   try:
     fp = open(filename, mode)
@@ -253,6 +292,9 @@ def unlock_file(fp, close=False):
 
     Always returns True.
   """
+  if not HAS_FCNTL:
+    raise RuntimeError('Interpreter does not support fcntl!')
+
   try:
     fcntl.flock(fp, fcntl.LOCK_UN)
   finally:
@@ -272,6 +314,7 @@ __all__ = (
   'safe_bsize',
   'safe_delete',
   'safe_mkdir',
+  'safe_mtime',
   'safe_open',
   'safe_size',
   'tail_f',

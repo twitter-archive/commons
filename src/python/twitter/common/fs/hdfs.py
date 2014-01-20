@@ -13,31 +13,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==================================================================================================
-
 __author__ = 'tdesai'
 
 import os
 import subprocess
 import sys
 import tempfile
-from twitter.common.contextutil import temporary_file
+
+from twitter.common.contextutil import environment_as, temporary_file
+from twitter.common.quantity import Amount, Data
 from twitter.common.string import ScanfParser
 from twitter.common.util.command_util import CommandUtil
 
 
 class HDFSHelper(object):
   """
-  This Class provides a set of function for hadoop operations.
+  This Class provides a set of functions for hadoop operations. 
+  NOTE: This class assumes a local hadoop client on the path.
   """
   class InternalError(Exception): pass
 
   PARSER = ScanfParser('%(mode)s %(dirents)s %(user)s %(group)s %(filesize)d '
             '%(year)d-%(month)d-%(day)d %(hour)d:%(minute)d')
 
-  def __init__(self, config, command_class=CommandUtil):
-    #Point to test hadoop cluster if no config given
+  def __init__(self, config, command_class=CommandUtil, heap_limit=Amount(256, Data.MB)):
+    """heap_limit is the maximum heap that should be allocated to the hadoop process,
+    defined using twitter.common.quantity.Data."""
+    if not os.path.isdir(config):
+      raise ValueError("hadoop requires root of a config tree")
     self._config = config
     self._cmd_class = command_class
+    if heap_limit is None:
+      raise ValueError('The hadoop heap_limit must not be specified as "None".')
+    self._heap_limit = heap_limit
 
   @property
   def config(self):
@@ -48,14 +56,16 @@ class HDFSHelper(object):
     Checks the result of the call by default but this can be disabled with check=False.
     """
     cmd = ['hadoop', '--config', self._config, 'dfs', cmd] + list(args)
-    if kwargs.get('check'):
-      return self._cmd_class.check_call(cmd)
-    elif kwargs.get('return_output'):
-      return self._cmd_class.execute_and_get_output(cmd)
-    elif kwargs.get('supress_output'):
-      return self._cmd_class.execute_suppress_stdout(cmd)
-    else:
-      return self._cmd_class.execute(cmd)
+    heapsize = str(int(self._heap_limit.as_(Data.MB)))
+    with environment_as(HADOOP_HEAPSIZE=heapsize):
+      if kwargs.get('check'):
+        return self._cmd_class.check_call(cmd)
+      elif kwargs.get('return_output'):
+        return self._cmd_class.execute_and_get_output(cmd)
+      elif kwargs.get('supress_output'):
+        return self._cmd_class.execute_suppress_stdout(cmd)
+      else:
+        return self._cmd_class.execute(cmd)
 
   def get(self, src, dst):
     """
@@ -88,16 +98,16 @@ class HDFSHelper(object):
       self._call('-rm', '-skipTrash', hdfs_dst)
     return self._call('-put', source, hdfs_dst)
 
-  def exists(self, path, flag = '-e'):
+  def exists(self, path, flag='-e'):
     """
     Checks if the path exists in hdfs
     Returns true if it exists or else
     Returns false
     """
     try:
-        return self._call("-test", flag, path) == 0
+      return self._call("-test", flag, path) == 0
     except subprocess.CalledProcessError:
-        return False
+      return False
 
   def cat(self, remote_file_pattern, local_file=sys.stdout):
     """
@@ -115,7 +125,7 @@ class HDFSHelper(object):
     if exit_code != 0:
       raise self.InternalError("Error occurred. %s.Check logs for details" % ls_result)
     file_list = []
-    if ls_result == None:
+    if ls_result is None:
       return file_list
     lines = ls_result.splitlines()
     for line in lines:
@@ -174,11 +184,7 @@ class HDFSHelper(object):
     with temporary_file() as fp:
       fp.write(text)
       fp.flush()
-      te = self._call('-copyFromLocal', fp.name, filename)
-      print "sel",te
-      return te
       return self._call('-copyFromLocal', fp.name, filename)
-
 
   def mkdir(self, path):
     """

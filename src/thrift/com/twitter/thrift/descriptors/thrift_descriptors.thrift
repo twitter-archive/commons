@@ -15,6 +15,7 @@
 // =================================================================================================
 
 namespace java com.twitter.thrift.descriptors
+#@namespace java com.twitter.thrift.descriptors.thriftscala
 namespace py gen.twitter.thrift.descriptors
 namespace rb Thriftutils.Descriptors
 
@@ -83,9 +84,9 @@ struct MapType {
 // regular struct, and we enforce the union constraint in code.
 // TODO: Add Python support for 'union' in the Thrift compiler.
 union SimpleContainerType {
-  1: optional ListType listType,
-  2: optional SetType setType,
-  3: optional MapType mapType
+  1: ListType listType,
+  2: SetType setType,
+  3: MapType mapType
 }
 
 struct ContainerType {
@@ -103,9 +104,9 @@ struct Typeref {
 // regular struct, and we enforce the union constraint in code.
 // TODO: Add Python support for 'union' in the Thrift compiler.
 union SimpleType {
-  1: optional BaseType baseType,
-  2: optional ContainerType containerType,
-  3: optional Typeref typeref
+  1: BaseType baseType,
+  2: ContainerType containerType,
+  3: Typeref typeref
 }
 
 struct Type {

@@ -35,7 +35,10 @@ try:
 except ImportError:
   import logging as log
 
-from twitter.common.metrics import AtomicGauge
+from twitter.common.metrics import (
+    AtomicGauge,
+    LambdaGauge,
+    Observable)
 
 try:
   from Queue import Queue, Empty
@@ -135,7 +138,7 @@ class ZooDefs(object):
 del Acls, Ids, Perms
 
 
-class ZooKeeper(object):
+class ZooKeeper(Observable):
   """A convenience wrapper around the low-level ZooKeeper API.
 
   Blocks until the initial connection is established, and proxies method calls
@@ -201,7 +204,7 @@ class ZooKeeper(object):
         except ValueError:
           raise cls.InvalidEnsemble('Invalid ensemble string: %s' % server_port)
       try:
-        for ip in set(socket.gethostbyname_ex(server)[2]):
+        for ip in socket.gethostbyname_ex(server)[2]:
           server_ports.append('%s:%s' % (ip, port))
       except socket.gaierror:
         raise cls.InvalidEnsemble('Could not resolve %s' % server)
@@ -251,7 +254,10 @@ class ZooKeeper(object):
           raise
         self._logger('%s raced, re-enqueueing' % self)
         self._zk._add_completion(self._fn)
-      except (zookeeper.ConnectionLossException, zookeeper.InvalidStateException, SystemError) as e:
+      except (zookeeper.ConnectionLossException,
+              zookeeper.InvalidStateException,
+              zookeeper.SessionExpiredException,
+              SystemError) as e:
         self._logger('%s excepted (%s), re-enqueueing' % (self, e))
         self._zk._add_completion(self._fn)
       return zookeeper.OK
@@ -277,6 +283,7 @@ class ZooKeeper(object):
           return result
         except (zookeeper.ConnectionLossException,
                 zookeeper.InvalidStateException,
+                zookeeper.SessionExpiredException,
                 TypeError) as e:
           # TypeError because we raced on live latch from True=>False when _zh gets reinitialized.
           if isinstance(e, TypeError) and self._zk._zh is not None:
@@ -337,7 +344,7 @@ class ZooKeeper(object):
     self._watch = watch
     self._logger = logger
     self._max_reconnects = max_reconnects if max_reconnects is not None else default_reconnects
-    self._init_stats()
+    self._init_metrics()
     self.reconnect()
 
   def __del__(self):
@@ -346,10 +353,15 @@ class ZooKeeper(object):
   def _log(self, msg):
     self._logger('[zh:%s] %s' % (self._zh, msg))
 
-  def _init_stats(self):
-    self._gauge_session_expirations = AtomicGauge('session-expirations')
-    self._gauge_connection_losses = AtomicGauge('connection-losses')
+  def _init_metrics(self):
+    self._session_expirations = AtomicGauge('session_expirations')
+    self._connection_losses = AtomicGauge('connection_losses')
+    self.metrics.register(self._session_expirations)
+    self.metrics.register(self._connection_losses)
+    self.metrics.register(LambdaGauge('session_id', lambda: self.session_id))
+    self.metrics.register(LambdaGauge('live', lambda: int(self._live.is_set())))
 
+  @property
   def session_id(self):
     try:
       session_id, _ = zookeeper.client_id(self._zh)
@@ -359,15 +371,15 @@ class ZooKeeper(object):
 
   @property
   def session_expirations(self):
-    return self._gauge_session_expirations.read()
+    return self._session_expirations.read()
 
   @property
   def connection_losses(self):
-    return self._gauge_connection_losses.read()
+    return self._connection_losses.read()
 
   @property
   def live(self):
-    return self._live.is_set()
+    return self._live
 
   def stop(self):
     """Gracefully stop this Zookeeper session."""
@@ -453,7 +465,7 @@ class ZooKeeper(object):
         self._clear_completions()
       elif state == zookeeper.EXPIRED_SESSION_STATE:
         self._logger('Session lost, clearing live state.')
-        self._gauge_session_expirations.increment()
+        self._session_expirations.increment()
         self._live.clear()
         self._authenticated.clear()
         self._zh = None
@@ -461,7 +473,7 @@ class ZooKeeper(object):
         self.reconnect()
       else:
         self._logger('Connection lost, clearing live state.')
-        self._gauge_connection_losses.increment()
+        self._connection_losses.increment()
         self._live.clear()
 
     # this closure is exposed for testing only -- in order to simulate session events.

@@ -14,14 +14,30 @@
 # limitations under the License.
 # ==================================================================================================
 
-import pytest
-import sys
+import functools
+import wsgiref.util
 
 from twitter.common.http import HttpServer
 
+import pytest
+
+
+skipifpy3k = pytest.mark.skipif('sys.version_info >= (3,0)')
+
+
+def make_request(path):
+  test_req = {'REQUEST_METHOD': 'GET', 'PATH_INFO': path}
+  wsgiref.util.setup_testing_defaults(test_req)
+  return test_req
+
+
+def response_asserter(intended, status, headers):
+  assert int(status.split()[0]) == intended
+
+
 # TODO(wickman) Fix bind method delegation in py3x.  It's currently brittle
 # and the new module might actually allow for binding in this fashion now.
-@pytest.mark.skipif("sys.version_info >= (3,0)")
+@skipifpy3k
 def test_basic_server_method_binding():
   class MyServer(HttpServer):
     def __init__(self):
@@ -33,11 +49,39 @@ def test_basic_server_method_binding():
       return 'Hello, %s %s!' % (first, last)
 
   server = MyServer()
-  assert server.app().handle('/hello') == 'Hello, Zaphod Beeblebrox!'
-  assert server.app().handle('/hello/Brian') == 'Hello, Brian Beeblebrox!'
-  assert server.app().handle('/hello/Brian/Horfgorf') == 'Hello, Brian Horfgorf!'
+  assert server.app.handle('/hello') == 'Hello, Zaphod Beeblebrox!'
+  assert server.app.handle('/hello/Brian') == 'Hello, Brian Beeblebrox!'
+  assert server.app.handle('/hello/Brian/Horfgorf') == 'Hello, Brian Horfgorf!'
 
-@pytest.mark.skipif("sys.version_info >= (3,0)")
+
+
+@skipifpy3k
+def test_basic_server_error_binding():
+  BREAKAGE = '*****breakage*****'
+  class MyServer(object):
+    @HttpServer.route('/broken')
+    def broken_handler(self):
+      raise Exception('unhandled exception!')
+
+    @HttpServer.error(404)
+    @HttpServer.error(500)
+    def error_handler(self, error):
+      return BREAKAGE
+
+  server = HttpServer()
+  mserver = MyServer()
+  server.mount_routes(mserver)
+
+  # Test 404 error handling.
+  resp = server.app(make_request('/nonexistent_page'), functools.partial(response_asserter, 404))
+  assert resp[0] == BREAKAGE
+
+  # Test 500 error handling.
+  resp = server.app(make_request('/broken'), functools.partial(response_asserter, 500))
+  assert resp[0] == BREAKAGE
+
+
+@skipifpy3k
 def test_bind_method():
   class BaseServer(HttpServer):
     NAME = "heavens to murgatroyd!"
@@ -68,4 +112,3 @@ def test_bind_method():
   bs._bind_method(BaseServerIsSubclass(), 'method_two')
   assert bs.method_one() == 'method_one'
   assert bs.method_two() == 'method_two'
-

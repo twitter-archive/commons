@@ -1,23 +1,27 @@
+from __future__ import absolute_import
+
 import contextlib
 import os
 import posixpath
 import tarfile
 import zipfile
 
-from twitter.common.dirutil import safe_mkdir, safe_mkdtemp
-from twitter.common.lang import Compatibility
-from twitter.common.python.base import maybe_requirement
+from ..base import maybe_requirement
+from ..common import safe_mkdir, safe_mkdtemp
+from ..compatibility import PY3
 
-if Compatibility.PY3:
+from pkg_resources import (
+    Distribution,
+    EGG_NAME,
+    parse_version,
+    Requirement,
+    safe_name,
+)
+
+if PY3:
   import urllib.parse as urlparse
 else:
   import urlparse
-
-from pkg_resources import (
-  Distribution,
-  EGG_NAME,
-  parse_version,
-  Requirement)
 
 
 class Link(object):
@@ -98,8 +102,11 @@ class ExtendedLink(Link):
   def satisfies(self, requirement):
     """Does the signature of this filename match the requirement (pkg_resources.Requirement)?"""
     requirement = maybe_requirement(requirement)
-    return Distribution(project_name=self.name, version=self.raw_version,
-      py_version=self.py_version, platform=self.platform) in requirement
+    distribution = Distribution(project_name=self.name, version=self.raw_version,
+      py_version=self.py_version, platform=self.platform)
+    if distribution.key != requirement.key:
+      return False
+    return self.raw_version in requirement
 
 
 class SourceLink(ExtendedLink):
@@ -127,7 +134,7 @@ class SourceLink(ExtendedLink):
        ('django-plugin-2', '2.3')
     """
     def likely_version_component(enumerated_fragment):
-      return sum(v[0].isdigit() for v in enumerated_fragment[1].split('.'))
+      return sum(bool(v and v[0].isdigit()) for v in enumerated_fragment[1].split('.'))
     fragments = fragment.split('-')
     if len(fragments) == 1:
       return fragment, ''
@@ -149,11 +156,11 @@ class SourceLink(ExtendedLink):
 
   @property
   def name(self):
-    return self._name
+    return safe_name(self._name)
 
   @property
   def raw_version(self):
-    return self._raw_version
+    return safe_name(self._raw_version)
 
   @staticmethod
   def first_nontrivial_dir(path):
@@ -191,19 +198,23 @@ class EggLink(ExtendedLink):
     matcher = EGG_NAME(filename)
     if not matcher:
       raise self.InvalidLink('Could not match egg: %s' % filename)
+
     self._name, self._raw_version, self._py_version, self._platform = matcher.group(
         'name', 'ver', 'pyver', 'plat')
+
+    if self._raw_version is None or self._py_version is None:
+      raise self.InvalidLink('url with .egg extension but bad name: %s' % url)
 
   def __hash__(self):
     return hash((self.name, self.version, self.py_version, self.platform))
 
   @property
   def name(self):
-    return self._name
+    return safe_name(self._name)
 
   @property
   def raw_version(self):
-    return self._raw_version
+    return safe_name(self._raw_version)
 
   @property
   def py_version(self):

@@ -1,34 +1,35 @@
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
+import contextlib
 from distutils import sysconfig
+from hashlib import sha1
 import os
+import shutil
 from site import USER_SITE
 import sys
-from distutils import sysconfig
-from site import USER_SITE
+import uuid
+import zipfile
 
-from types import GeneratorType
-
-from twitter.common.collections import OrderedSet
-from twitter.common.contextutil import mutable_sys
-from twitter.common.dirutil import safe_mkdir
-from twitter.common.lang import Compatibility
 
 from .base import maybe_requirement_list
+from .common import mutable_sys, open_zip, safe_mkdir, safe_rmtree
+from .compatibility import exec_function
 from .dirwrapper import PythonDirectoryWrapper
 from .interpreter import PythonInterpreter
+from .orderedset import OrderedSet
 from .pex_info import PexInfo
 from .platforms import Platform
 from .tracer import Tracer
 from .util import DistributionHelper
 
 from pkg_resources import (
-    find_distributions,
     DistributionNotFound,
+    EntryPoint,
     Environment,
     Requirement,
-    WorkingSet)
-
+    WorkingSet,
+    find_distributions,
+)
 
 TRACER = Tracer(predicate=Tracer.env_filter('PEX_VERBOSE'), prefix='twitter.common.python.pex: ')
 
@@ -50,13 +51,21 @@ class PEX(object):
     except ImportError:
       sys.stderr.write('Could not bootstrap coverage module!\n')
 
-  def __init__(self, pex=sys.argv[0]):
+  @classmethod
+  def clean_environment(cls, forking=False):
+    os.unsetenv('MACOSX_DEPLOYMENT_TARGET')
+    if not forking:
+      for key in filter(lambda key: key.startswith('PEX_'), os.environ):
+        os.unsetenv(key)
+
+  def __init__(self, pex=sys.argv[0], interpreter=None):
     try:
       self._pex = PythonDirectoryWrapper.get(pex)
     except PythonDirectoryWrapper.Error as e:
       raise self.NotFound('Could not open PEX at %s: %s!' % (pex, e))
     self._pex_info = PexInfo.from_pex(self._pex)
     self._env = PEXEnvironment(self._pex.path(), self._pex_info)
+    self._interpreter = interpreter or PythonInterpreter.get()
 
   @property
   def info(self):
@@ -155,7 +164,7 @@ class PEX(object):
           old_name = globals()['__name__']
           try:
             globals()['__name__'] = '__main__'
-            Compatibility.exec_function(ast, globals())
+            exec_function(ast, globals())
           finally:
             globals()['__name__'] = old_name
         else:
@@ -176,8 +185,12 @@ class PEX(object):
       safe_mkdir(os.path.dirname(profile_output))
       cProfile.runctx('runner(entry_point)', globals=globals(), locals=locals(),
                       filename=profile_output)
+      try:
+        entries = int(os.environ.get('PEX_PROFILE_ENTRIES', 1000))
+      except ValueError:
+        entries = 1000
       pstats.Stats(profile_output).sort_stats(
-          os.environ.get('PEX_PROFILE_SORT', 'cumulative')).print_stats(1000)
+          os.environ.get('PEX_PROFILE_SORT', 'cumulative')).print_stats(entries)
 
   @staticmethod
   def execute_module(module_name):
@@ -186,7 +199,6 @@ class PEX(object):
 
   @staticmethod
   def execute_pkg_resources(spec):
-    from pkg_resources import EntryPoint
     entry = EntryPoint.parse("run = {0}".format(spec))
     runner = entry.load(require=False)  # trust that the environment is sane
     runner()
@@ -201,8 +213,7 @@ class PEX(object):
           ['-m', 'pylint.lint']
         args: Arguments to be passed to the application being invoked by the environment.
     """
-    interpreter = PythonInterpreter(sys.executable)
-    cmds = [interpreter.binary()]
+    cmds = [self._interpreter.binary]
     cmds.append(self._pex.path())
     cmds.extend(args)
     return cmds
@@ -216,6 +227,7 @@ class PEX(object):
                 If false, return the Popen object of the invoked subprocess.
     """
     import subprocess
+    self.clean_environment(forking=True)
 
     cmdline = self.cmdline(args)
     TRACER.log('PEX.run invoking %s' % ' '.join(cmdline))
@@ -240,7 +252,8 @@ class PEXEnvironment(Environment):
         with TRACER.timed('Activating cache %s' % self._path):
           for dist in find_distributions(self._path):
             if self._env.can_add(dist):
-              self._env.add(dist)
+              with TRACER.timed('Adding %s:%s' % (dist, dist.location)):
+                self._env.add(dist)
         self._activated = True
 
   @staticmethod
@@ -254,12 +267,52 @@ class PEXEnvironment(Environment):
     egg_metadata = dist.metadata_listdir('/')
     return 'zip-safe' in egg_metadata and 'native_libs.txt' not in egg_metadata
 
+  @staticmethod
+  def _hash_digest(filename, hasher=sha1):
+    file_hash = hasher()
+    block_size = file_hash.block_size * 1024
+    with open(filename, 'rb') as fh:
+      for chunk in iter(lambda: fh.read(block_size), ''):
+        file_hash.update(chunk)
+    return file_hash.hexdigest()
+
+  @classmethod
+  def resolve_internal_cache(cls, pex, pex_info):
+    # TODO(wickman) this logic is duplicated in pex_bootstrapper.py -- consider factoring it out
+    if os.path.exists(os.path.join(pex, pex_info.internal_cache)) or (
+        not pex_info.always_write_cache):
+      return os.path.join(pex, pex_info.internal_cache)
+
+    # we assume the pex is a zip, so write that instead.
+    with contextlib.closing(zipfile.ZipFile(pex)) as zf:
+      for zi in zf.infolist():
+        if zi.filename.endswith('/') or not zi.filename.startswith(pex_info.internal_cache):
+          # either it's a directory or not part of our cache
+          continue
+        relpath = os.path.relpath(zi.filename, pex_info.internal_cache)
+        target_path = os.path.join(pex_info.egg_install_cache, relpath)
+        if os.path.exists(target_path) and os.path.getsize(target_path) == zi.file_size:
+          # assume already cached
+          continue
+        safe_mkdir(os.path.dirname(target_path))
+        with TRACER.timed('Extracting %s' % target_path):
+          with open(target_path + '~', 'wb') as dst_fp:
+            with contextlib.closing(zf.open(zi.filename)) as src_fp:
+              shutil.copyfileobj(src_fp, dst_fp)
+        os.rename(target_path + '~', target_path)
+      return pex_info.egg_install_cache
+
   def __init__(self, pex, pex_info, platform=Platform.current(), python=Platform.python()):
+    with TRACER.timed('Establishing local cache'):
+      internal_cache = self.resolve_internal_cache(pex, pex_info)
     subcaches = sum([
-      [os.path.join(pex, pex_info.internal_cache)],
+      [internal_cache],
       [cache for cache in pex_info.egg_caches],
+      # TODO(wickman) We should create a symlink overlay of pex_install so as to not get
+      # non-deterministic dependency creep.
       [pex_info.install_cache if pex_info.install_cache else []]],
       [])
+    self._pex = pex
     self._pex_info = pex_info
     self._activated = False
     self._subcaches = [self.Subcache(cache, self) for cache in subcaches]
@@ -271,11 +324,11 @@ class PEXEnvironment(Environment):
     reqs = maybe_requirement_list(requirements)
     resolved = OrderedSet()
     for req in reqs:
-      with TRACER.timed('Resolved %s' % req):
+      with TRACER.timed('Resolving %s' % req):
         try:
           distributions = self._ws.resolve([req], env=self)
         except DistributionNotFound as e:
-          TRACER.log('Failed to resolve %s' % req)
+          TRACER.log('Failed to resolve %s: %s' % (req, e))
           if not ignore_errors:
             raise
           continue
@@ -303,6 +356,34 @@ class PEXEnvironment(Environment):
   def activate(self):
     if self._activated:
       return
+
+    if os.environ.get('PEX_FORCE_LOCAL', not self._pex_info.zip_safe) and os.path.isfile(self._pex):
+      pex_chksum = self._hash_digest(self._pex)
+      explode_dir = os.path.join(self._pex_info.zip_unsafe_cache, pex_chksum)
+      TRACER.log('zip_safe is False, explode_dir: %s' % explode_dir)
+      if not os.path.exists(explode_dir):
+        explode_tmp = explode_dir + '.' + uuid.uuid4().hex
+        with TRACER.timed('Unzipping %s' % self._pex):
+          try:
+            safe_mkdir(explode_tmp)
+            with open_zip(self._pex) as pex_zip:
+              pex_files = (x for x in pex_zip.namelist() if not x.startswith('.'))
+              pex_zip.extractall(explode_tmp, pex_files)
+          except:
+            safe_rmtree(explode_tmp)
+            raise
+        TRACER.log('Renaming %s to %s' % (explode_tmp, explode_dir))
+        os.rename(explode_tmp, explode_dir)
+
+      # Force subsequent imports to come from the .pex directory rather than the .pex file.
+      TRACER.log('Adding to the head of sys.path: %s' % explode_dir)
+      sys.path.insert(0, explode_dir)
+      for name, module in sys.modules.items():
+        if hasattr(module, "__path__"):
+          module_dir = os.path.join(explode_dir, *name.split("."))
+          TRACER.log('Adding to the head of %s.__path__: %s' % (module.__name__, module_dir))
+          module.__path__.insert(0, module_dir)
+
     if self._pex_info.inherit_path:
       self._ws = WorkingSet(sys.path)
 
@@ -311,7 +392,7 @@ class PEXEnvironment(Environment):
     all_reqs = [Requirement.parse(req) for req, _, _ in self._pex_info.requirements]
 
     for req in all_reqs:
-      with TRACER.timed('Resolved %s' % str(req)):
+      with TRACER.timed('Resolving %s' % req):
         try:
           resolved = self._ws.resolve([req], env=self)
         except DistributionNotFound as e:
@@ -320,9 +401,9 @@ class PEXEnvironment(Environment):
             raise
           continue
       for dist in resolved:
-        with TRACER.timed('  Activated %s' % dist):
+        with TRACER.timed('Activated %s' % dist):
           if os.environ.get('PEX_FORCE_LOCAL', not self._really_zipsafe(dist)):
-            with TRACER.timed('    Locally caching'):
+            with TRACER.timed('Locally caching'):
               new_dist = DistributionHelper.maybe_locally_cache(dist, self._pex_info.install_cache)
               new_dist.activate()
           else:

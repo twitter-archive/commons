@@ -33,11 +33,16 @@ python_library(
   ],
   provides = setup_py(
     name = 'twitter.common-core',
-    version = '0.0.0',
+    version = '0.1.0',
     description = "Twitter's core Python libraries.",
-    namespace_packages = [
-      'twitter',
-      'twitter.common'
+    url = 'https://github.com/twitter/commons',
+    license = 'Apache License, Version 2.0',
+    zip_safe = True,
+    classifiers = [
+      'Intended Audience :: Developers',
+      'License :: OSI Approved :: Apache Software License',
+      'Operating System :: OS Independent',
+      'Programming Language :: Python',
     ]
   )
 )

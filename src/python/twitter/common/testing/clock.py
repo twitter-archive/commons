@@ -34,8 +34,8 @@ class Handshake(object):
 
 
 class ThreadedClock(ClockInterface):
-  def __init__(self):
-    self._time = 0
+  def __init__(self, initial_value=0):
+    self._time = initial_value
     self._waiters = []  # queue of [stop time, Handshake]
 
   def time(self):

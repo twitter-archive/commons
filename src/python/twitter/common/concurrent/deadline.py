@@ -25,6 +25,7 @@ from twitter.common.quantity import Amount, Time
 class Timeout(Exception):
   pass
 
+
 def deadline(closure, timeout=Amount(150, Time.MILLISECONDS), daemon=False, propagate=False):
   """Run a closure with a timeout, raising an exception if the timeout is exceeded.
 

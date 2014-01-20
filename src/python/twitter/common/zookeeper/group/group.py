@@ -1,9 +1,7 @@
-from abc import abstractmethod
 import functools
 import posixpath
-import socket
 import threading
-import zookeeper
+import time
 
 try:
   from twitter.common import log
@@ -12,150 +10,23 @@ except ImportError:
 
 from twitter.common.concurrent import Future
 from twitter.common.exceptions import ExceptionalThread
-from twitter.common.lang import Interface
+from twitter.common.quantity import Amount, Time
 from twitter.common.zookeeper.constants import ReturnCode
 
+from .group_base import (
+    Capture,
+    GroupBase,
+    GroupInterface,
+    Membership,
+    set_different)
 
-class Membership(object):
-  ERROR_ID = -1
-
-  @staticmethod
-  def error():
-    return Membership(_id=Membership.ERROR_ID)
-
-  def __init__(self, _id):
-    self._id = _id
-
-  @property
-  def id(self):
-    return self._id
-
-  def __lt__(self, other):
-    return self._id < other._id
-
-  def __eq__(self, other):
-    if not isinstance(other, Membership):
-      return False
-    return self._id == other._id
-
-  def __ne__(self, other):
-    return not self == other
-
-  def __hash__(self):
-    return hash(self._id)
-
-  def __repr__(self):
-    if self._id == Membership.ERROR_ID:
-      return 'Membership.error()'
-    else:
-      return 'Membership(%r)' % self._id
+import zookeeper
 
 
-class GroupInterface(Interface):
+class Group(GroupBase, GroupInterface):
   """
-    A group of members backed by immutable blob data.
+    An implementation of GroupInterface against CZookeeper.
   """
-
-  @abstractmethod
-  def join(self, blob, callback=None, expire_callback=None):
-    """
-      Joins the Group using the blob.  Returns Membership synchronously if
-      callback is None, otherwise returned to callback.  Returns
-      Membership.error() on failure to join.
-
-      If expire_callback is provided, it is called with no arguments when
-      the membership is terminated for any reason.
-    """
-
-  @abstractmethod
-  def info(self, membership, callback=None):
-    """
-      Given a membership, return the blob associated with that member or
-      Membership.error() if no membership exists.  If callback is provided,
-      this operation is done asynchronously.
-    """
-
-  @abstractmethod
-  def cancel(self, membership, callback=None):
-    """
-      Cancel a given membership.  Returns true if/when the membership does not
-      exist.  Returns false if the membership exists and we failed to cancel
-      it.  If callback is provided, this operation is done asynchronously.
-    """
-
-  @abstractmethod
-  def monitor(self, membership_set=frozenset(), callback=None):
-    """
-      Given a membership set, return once the underlying group membership is
-      different.  If callback is provided, this operation is done
-      asynchronously.
-    """
-
-  @abstractmethod
-  def list(self):
-    """
-      Synchronously return the list of underlying members.  Should only be
-      used in place of monitor if you cannot afford to block indefinitely.
-    """
-
-
-class Promise(object):
-  def __init__(self, callback=None):
-    self._value = None
-    self._event = threading.Event()
-    self._callback = callback
-
-  def set(self, value=None):
-    self._value = value
-    self._event.set()
-    if self._callback:
-      if value is not None:
-        self._callback(value)
-      else:
-        self._callback()
-      self._callback = None
-
-  def get(self):
-    self._event.wait()
-    return self._value
-
-  def __call__(self):
-    if self._callback:
-      return None
-    return self.get()
-
-
-def set_different(promise, current_members, actual_members):
-  current_members = set(current_members)
-  actual_members = set(actual_members)
-  if current_members != actual_members:
-    promise.set(actual_members)
-    return True
-
-
-class Group(GroupInterface):
-  """
-    An implementation of GroupInterface against Zookeeper.
-  """
-
-  class GroupError(Exception): pass
-  class InvalidMemberError(GroupError): pass
-
-  MEMBER_PREFIX = 'member_'
-
-  @classmethod
-  def znode_owned(cls, znode):
-    return posixpath.basename(znode).startswith(cls.MEMBER_PREFIX)
-
-  @classmethod
-  def znode_to_id(cls, znode):
-    znode_name = posixpath.basename(znode)
-    assert znode_name.startswith(cls.MEMBER_PREFIX)
-    return int(znode_name[len(cls.MEMBER_PREFIX):])
-
-  @classmethod
-  def id_to_znode(cls, _id):
-    return '%s%010d' % (cls.MEMBER_PREFIX, _id)
 
   def __init__(self, zk, path, acl=None):
     self._zk = zk
@@ -166,6 +37,7 @@ class Group(GroupInterface):
 
   def _prepare_path(self, success):
     class Background(ExceptionalThread):
+      BACKOFF = Amount(5, Time.SECONDS)
       def run(_):
         child = '/'
         for component in self._path.split('/')[1:]:
@@ -183,23 +55,18 @@ class Group(GroupInterface):
                 success.set(False)
                 return
             except zookeeper.OperationTimeoutException:
-              pass # retry
+              time.sleep(Background.BACKOFF.as_(Time.SECONDS))
+              continue
         success.set(True)
     background = Background()
     background.daemon = True
     background.start()
 
-  def __iter__(self):
-    return iter(self._members)
-
-  def __getitem__(self, member):
-    return self.info(member)
-
   def info(self, member, callback=None):
     if member == Membership.error():
       raise self.InvalidMemberError('Cannot get info on error member!')
 
-    promise = Promise(callback)
+    capture = Capture(callback)
 
     def do_info():
       self._zk.aget(path, None, info_completion)
@@ -209,7 +76,7 @@ class Group(GroupInterface):
         self._members[member] = Future()
       member_future = self._members[member]
 
-    member_future.add_done_callback(lambda future: promise.set(future.result()))
+    member_future.add_done_callback(lambda future: capture.set(future.result()))
 
     dispatch = False
     with self._member_lock:
@@ -235,19 +102,19 @@ class Group(GroupInterface):
       path = posixpath.join(self._path, self.id_to_znode(member.id))
       do_info()
 
-    return promise()
+    return capture()
 
   def join(self, blob, callback=None, expire_callback=None):
-    membership_promise = Promise(callback)
-    exists_promise = Promise(expire_callback)
+    membership_capture = Capture(callback)
+    exists_capture = Capture(expire_callback)
 
     def on_prepared(success):
       if success:
         do_join()
       else:
-        membership_promise.set(Membership.error())
+        membership_capture.set(Membership.error())
 
-    prepare_promise = Promise(on_prepared)
+    prepare_capture = Capture(on_prepared)
 
     def do_join():
       self._zk.acreate(posixpath.join(self._path, self.MEMBER_PREFIX),
@@ -256,14 +123,14 @@ class Group(GroupInterface):
     def exists_watch(_, event, state, path):
       if (event == zookeeper.SESSION_EVENT and state == zookeeper.EXPIRED_SESSION_STATE) or (
           event == zookeeper.DELETED_EVENT):
-        exists_promise.set()
+        exists_capture.set()
 
     def exists_completion(path, _, rc, stat):
       if rc in self._zk.COMPLETION_RETRY:
         self._zk.aexists(path, exists_watch, functools.partial(exists_completion, path))
         return
       if rc == zookeeper.NONODE:
-        exists_promise.set()
+        exists_capture.set()
 
     def acreate_completion(_, rc, path):
       if rc in self._zk.COMPLETION_RETRY:
@@ -280,13 +147,13 @@ class Group(GroupInterface):
           self._zk.aexists(path, exists_watch, functools.partial(exists_completion, path))
       else:
         membership = Membership.error()
-      membership_promise.set(membership)
+      membership_capture.set(membership)
 
-    self._prepare_path(prepare_promise)
-    return membership_promise()
+    self._prepare_path(prepare_capture)
+    return membership_capture()
 
   def cancel(self, member, callback=None):
-    promise = Promise(callback)
+    capture = Capture(callback)
 
     def do_cancel():
       self._zk.adelete(posixpath.join(self._path, self.id_to_znode(member.id)),
@@ -304,15 +171,15 @@ class Group(GroupInterface):
       if rc == zookeeper.OK or rc == zookeeper.NONODE:
         future = self._members.pop(member.id, Future())
         future.set_result(Membership.error())
-        promise.set(True)
+        capture.set(True)
       else:
-        promise.set(False)
+        capture.set(False)
 
     do_cancel()
-    return promise()
+    return capture()
 
   def monitor(self, membership=frozenset(), callback=None):
-    promise = Promise(callback)
+    capture = Capture(callback)
 
     def wait_exists():
       self._zk.aexists(self._path, exists_watch, exists_completion)
@@ -344,7 +211,7 @@ class Group(GroupInterface):
         return
       if event != zookeeper.CHILD_EVENT:
         return
-      if set_different(promise, membership, self._members):
+      if set_different(capture, membership, self._members):
         return
       do_monitor()
 
@@ -357,13 +224,13 @@ class Group(GroupInterface):
         return
       if rc != zookeeper.OK:
         log.warning('Unexpected get_completion return code: %s' % ReturnCode(rc))
-        promise.set(set([Membership.error()]))
+        capture.set(set([Membership.error()]))
         return
       self._update_children(children)
-      set_different(promise, membership, self._members)
+      set_different(capture, membership, self._members)
 
     do_monitor()
-    return promise()
+    return capture()
 
   def list(self):
     try:
@@ -372,30 +239,10 @@ class Group(GroupInterface):
     except zookeeper.NoNodeException:
       return []
 
-  # ---- protected api
-
-  def _update_children(self, children):
-    """
-      Given a new child list [znode strings], return a tuple of sets of Memberships:
-        left: the children that left the set
-        new: the children that joined the set
-    """
-    cached_children = set(self._members)
-    current_children = set(Membership(self.znode_to_id(znode))
-        for znode in filter(self.znode_owned, children))
-    new = current_children - cached_children
-    left = cached_children - current_children
-    for child in left:
-      future = self._members.pop(child, Future())
-      future.set_result(Membership.error())
-    for child in new:
-      self._members[child] = Future()
-    return left, new
-
 
 class ActiveGroup(Group):
   """
-    An implementation of GroupInterface against Zookeeper when iter() and
+    An implementation of GroupInterface against CZookeeper when iter() and
     monitor() are expected to be called frequently.  Constantly monitors
     group membership and the contents of group blobs.
   """
@@ -406,10 +253,10 @@ class ActiveGroup(Group):
     self._monitor_members()
 
   def monitor(self, membership=frozenset(), callback=None):
-    promise = Promise(callback)
-    if not set_different(promise, membership, self._members):
-      self._monitor_queue.append((membership, promise))
-    return promise()
+    capture = Capture(callback)
+    if not set_different(capture, membership, self._members):
+      self._monitor_queue.append((membership, capture))
+    return capture()
 
   # ---- private api
 
@@ -462,10 +309,10 @@ class ActiveGroup(Group):
       monitor_queue = self._monitor_queue[:]
       self._monitor_queue = []
       members = set(Membership(self.znode_to_id(child)) for child in children)
-      for membership, promise in monitor_queue:
+      for membership, capture in monitor_queue:
         if set(membership) != members:
-          promise.set(members)
+          capture.set(members)
         else:
-          self._monitor_queue.append((membership, promise))
+          self._monitor_queue.append((membership, capture))
 
     do_monitor()

@@ -76,6 +76,3 @@ class Lock(object):
       return True
     else:
       return False
-
-
-

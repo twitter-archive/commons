@@ -33,8 +33,14 @@ class Endpoint(object):
     self._host = host
     self._port = port
 
+  def __key(self):
+    return (self.host, self.port)
+
   def __eq__(self, other):
-    return self.host == other.host and self.port == other.port
+    return isinstance(other, self.__class__) and self.__key() == other.__key()
+
+  def __hash__(self):
+    return hash(self.__key())
 
   @property
   def host(self):
@@ -82,6 +88,9 @@ class Status(object):
 
   def __eq__(self, other):
     return self._id == other._id
+
+  def __hash__(self):
+    return hash(self._id)
 
   def __str__(self):
     return self.name()
@@ -190,16 +199,26 @@ class ServiceInstance(object):
   def shard(self):
     return self._shard
 
+  def __additional_endpoints_string(self):
+    return ['%s=>%s' % (key, val) for key, val in self.additional_endpoints.items()]
+
+  def __key(self):
+    return (
+        self.service_endpoint,
+        frozenset(sorted(self.__additional_endpoints_string())),
+        self.status,
+        self._shard)
+
   def __eq__(self, other):
-    return isinstance(other, self.__class__) and (
-        self.service_endpoint == other.service_endpoint and
-        self.additional_endpoints == other.additional_endpoints and
-        self.status == other.status and
-        self.shard == other.shard)
+    return isinstance(other, self.__class__) and self.__key() == other.__key()
+
+  def __hash__(self):
+    return hash(self.__key())
+
 
   def __str__(self):
     return 'ServiceInstance(%s, %saddl: %s, status: %s)' % (
       self.service_endpoint,
       ('shard: %s, ' % self._shard) if self._shard is not None else '',
-      ' : '.join('%s=>%s' % (key, val) for key, val in self.additional_endpoints.items()),
+      ' : '.join(self.__additional_endpoints_string()),
       self.status)

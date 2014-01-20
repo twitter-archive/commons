@@ -18,5 +18,6 @@ python_tests(name = 'app',
   sources = globs('*.py'),
   dependencies = [
     pants('src/python/twitter/common/app'),
+    pants('src/python/twitter/common/exceptions'),
   ]
 )

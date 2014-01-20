@@ -16,6 +16,7 @@
 
 import os
 import pytest
+import socket
 import threading
 import time
 import zookeeper
@@ -25,6 +26,8 @@ from twitter.common.log.options import LogOptions
 
 from twitter.common.zookeeper.client import ZooKeeper, ZooDefs
 from twitter.common.zookeeper.test_server import ZookeeperServer
+
+import mox
 
 MAX_EVENT_WAIT_SECS = 30.0
 MAX_EXPIRE_WAIT_SECS = 60.0
@@ -95,7 +98,7 @@ def test_client_connect_with_auth():
     finish_event.wait()
 
     # run after session loss
-    session_id = zk.session_id()
+    session_id = zk.session_id
     assert server.shutdown()
     finish_event.clear()
     BackgroundTester().start()
@@ -105,7 +108,6 @@ def test_client_connect_with_auth():
 
 
 def test_client_connect_times_out():
-  import socket
   sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
   sock.bind(('localhost', 0))
   _, port = sock.getsockname()
@@ -135,7 +137,38 @@ def test_client_reconnect():
 
 
 def test_expand_ensemble():
-  assert ZooKeeper.expand_ensemble('localhost:1234') == '127.0.0.1:1234'
+  m = mox.Mox()
+  m.StubOutWithMock(socket, 'gethostbyname_ex')
+  socket.gethostbyname_ex('localhost').AndReturn(('localhost', [], ['foo']))
+  socket.gethostbyname_ex('localhost').AndReturn(('localhost', [], ['bar']))
+  socket.gethostbyname_ex('localhost').AndReturn(('localhost', [], ['baz', 'bak']))
+  m.ReplayAll()
+
+  assert ZooKeeper.expand_ensemble('localhost:1234') == 'foo:1234'
+  assert ZooKeeper.expand_ensemble('localhost:1234,localhost') == 'bar:1234,baz:2181,bak:2181'
+
+  m.UnsetStubs()
+  m.VerifyAll()
+
+
+def test_bad_ensemble():
+  with pytest.raises(ZooKeeper.InvalidEnsemble):
+     ZooKeeper.expand_ensemble('localhost:')
+
+  with pytest.raises(ZooKeeper.InvalidEnsemble):
+     ZooKeeper.expand_ensemble('localhost:sheeps')
+
+  m = mox.Mox()
+  m.StubOutWithMock(socket, 'gethostbyname_ex')
+  socket.gethostbyname_ex('zookeeper.twitter.com').AndRaise(
+      socket.gaierror(8, 'nodename nor servname provided, or not known'))
+  m.ReplayAll()
+
+  with pytest.raises(ZooKeeper.InvalidEnsemble):
+    ZooKeeper.expand_ensemble('zookeeper.twitter.com:2181')
+
+  m.UnsetStubs()
+  m.VerifyAll()
 
 
 def test_async_while_headless():
@@ -209,7 +242,7 @@ def test_session_event():
         disconnected.set()
 
     zk = ZooKeeper(server.ensemble, watch=on_event)
-    session_id = zk.session_id()
+    session_id = zk.session_id
 
     children = []
     completion_event = threading.Event()
@@ -236,7 +269,7 @@ def test_safe_operations():
   with ZookeeperServer() as server:
     zk = ZooKeeper(server.ensemble)
     assert zk.safe_create('/a/b/c/d') == '/a/b/c/d'
-    session_id = zk.session_id()
+    session_id = zk.session_id
 
     finish_event = threading.Event()
     class CreateThread(threading.Thread):
@@ -255,7 +288,7 @@ def test_safe_operations():
     assert zk.exists('/a/b/c/d')
     assert zk.exists('/foo/bar/baz/bak')
 
-    session_id = zk.session_id()
+    session_id = zk.session_id
 
     assert zk.safe_delete('/a')
 
@@ -277,6 +310,7 @@ def test_safe_operations():
     assert not zk.exists('/a')
     assert not zk.exists('/foo')
 
+
 def test_safe_create():
   with ZookeeperServer() as server:
     zk_auth = ZooKeeper(server.ensemble, authentication=('digest', 'jack:jill'))
@@ -294,3 +328,29 @@ def test_safe_create():
 
     zk_noauth.safe_create('/a/b/c')
     assert zk_noauth.exists('/a/b/c')
+
+
+def test_metrics():
+  with ZookeeperServer() as server:
+    event = threading.Event()
+    def watch_set(*args):
+      event.set()
+    zk = ZooKeeper(server.ensemble, watch=watch_set)
+    zk._live.wait(timeout=MAX_EVENT_WAIT_SECS)
+    sample = zk.metrics.sample()
+    assert sample['live'] == 1
+    assert sample['session_id'] == zk.session_id
+    assert sample['session_expirations'] == 0
+    assert sample['connection_losses'] == 0
+    old_session_id = zk.session_id
+
+    event.clear()
+    server.expire(zk.session_id)
+    event.wait(timeout=MAX_EXPIRE_WAIT_SECS)
+    zk._live.wait(timeout=MAX_EVENT_WAIT_SECS)
+
+    sample = zk.metrics.sample()
+    assert sample['live'] == 1
+    assert sample['session_id'] == zk.session_id
+    assert old_session_id != zk.session_id
+    assert sample['session_expirations'] == 1

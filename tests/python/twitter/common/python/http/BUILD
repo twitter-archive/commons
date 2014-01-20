@@ -40,10 +40,11 @@ python_tests(name = 'test_crawler',
 python_tests(name = 'test_http',
   sources = ['test_http.py'],
   dependencies = [
+    pants('src/python/twitter/common/contextutil'),
     pants('src/python/twitter/common/python'),
     pants('src/python/twitter/common/quantity'),
     pants('src/python/twitter/common/testing'),
-    python_requirement('mox')
+    pants('3rdparty/python:mox')
   ]
 )
 

@@ -17,7 +17,21 @@
 python_library(
   name = 'contextutil',
   sources = globs('*.py'),
-  dependencies=[
-    pants('src/python/twitter/common/dirutil')
-  ]
+  dependencies = [
+    pants('src/python/twitter/common/dirutil'),
+  ],
+  provides = setup_py(
+    name = 'twitter.common.contextutil',
+    version = '0.1.0',
+    description = 'twitter.common standard context managers.',
+    url = 'https://github.com/twitter/commons',
+    license = 'Apache License, Version 2.0',
+    zip_safe = True,
+    classifiers = [
+      'Intended Audience :: Developers',
+      'License :: OSI Approved :: Apache Software License',
+      'Operating System :: OS Independent',
+      'Programming Language :: Python',
+    ]
+  )
 )

@@ -1,10 +1,12 @@
+from twitter.common.lang import Compatibility
+
 class Address(object):
   class InvalidFormat(Exception):
     pass
 
   @staticmethod
   def sanity_check(host, port):
-    if not isinstance(host, str):
+    if not isinstance(host, Compatibility.string):
       raise Address.InvalidFormat('Host must be a string, got %s' % host)
     if not isinstance(port, (int, long)):
       raise Address.InvalidFormat('Port must be an integer, got %s' % port)
@@ -13,7 +15,8 @@ class Address(object):
 
   @staticmethod
   def from_string(*args, **kw):
-    if kw or len(args) != 1 or not isinstance(args[0], str) or not len(args[0].split(':')) == 2:
+    if (kw or len(args) != 1 or not isinstance(args[0], Compatibility.string)
+        or not len(args[0].split(':')) == 2):
       raise Address.InvalidFormat('from_string expects "host:port" string.')
     host, port = args[0].split(':')
     try:
@@ -25,7 +28,8 @@ class Address(object):
 
   @staticmethod
   def from_pair(*args, **kw):
-    if kw or len(args) != 2 or not isinstance(args[0], str) or not isinstance(args[1], (int, long)):
+    if (kw or len(args) != 2 or not isinstance(args[0], Compatibility.string)
+        or not isinstance(args[1], (int, long))):
       raise Address.InvalidFormat('from_pair expects host, port as input!')
     Address.sanity_check(args[0], args[1])
     return Address(args[0], args[1])

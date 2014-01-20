@@ -14,6 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
+from functools import reduce
 import fnmatch
 import glob
 import os
@@ -96,7 +97,7 @@ class Fileset(object):
   @classmethod
   def globs(cls, *globspecs, **kw):
     """Returns a Fileset that combines the lists of files returned by
-       glob.glob for each globspec.  rcfiles starting with '.' are not
+       glob.glob for each globspec.  File names starting with '.' are not
        returned unless explicitly globbed.  For example, ".*" matches
        ".bashrc" but "*" does not, mirroring the semantics of 'ls' without
        '-a'.
@@ -120,32 +121,48 @@ class Fileset(object):
 
   @classmethod
   def rglobs(cls, *globspecs, **kw):
-    """Returns a Fileset that containing the union of all files matched by the
+    """Returns a Fileset that contains the union of all files matched by the
        globspecs applied at each directory beneath the root.  By default the
        root is the current working directory, but can be overridden with the
-       'root' keyword argument.  Unlike Fileset.globs, rcfiles are matched
-       by '*' (e.g.  ".bashrc"), matching the semantics of 'ls -a'.
+       'root' keyword argument.
+
+       File names starting with '.' are not returned unless explicitly globbed.
+       For example, ".*" matches ".bashrc" but "*" does not, mirroring the
+       semantics of 'ls' without '-a'.
     """
     root = kw.pop('root', os.curdir)
+
     def matcher(path):
       for globspec in globspecs:
-        if fnmatch.fnmatch(path, globspec):
-          return True
+        # Ignore hidden files when globbing wildcards.
+        if not (globspec.startswith('*') and os.path.basename(path).startswith('.')):
+          if fnmatch.fnmatch(path, globspec):
+            return True
+      return False
+
     return cls(lambda: set(cls._do_rglob(matcher, allow_dirs=False, root=root, **kw)))
 
   @classmethod
   def zglobs(cls, *globspecs, **kw):
     """Returns a Fileset that matches zsh-style globs, including '**/' for recursive globbing.
 
-       By default searches from the current working directory.  Can be overridden with the
-       'root' keyword argument.
+       By default searches from the current working directory.  Can be overridden
+       with the 'root' keyword argument.  File names starting with '.' are not
+       returned unless explicitly globbed.  For example, ".*" matches ".bashrc" but
+       "*" does not, mirroring the semantics of 'ls' without '-a'.
     """
     root = kw.pop('root', os.curdir)
-    patterns = [re.compile(fnmatch_translate_extended(spec)) for spec in globspecs]
+    patterns = [(os.path.basename(spec).startswith('*'),
+                 re.compile(fnmatch_translate_extended(spec))) for spec in globspecs]
+
     def matcher(path):
-      for pattern in patterns:
-        if pattern.match(path):
-          return True
+      for no_hidden, pattern in patterns:
+        # Ignore hidden files when globbing wildcards.
+        if not (no_hidden and os.path.basename(path).startswith('.')):
+          if pattern.match(path):
+            return True
+      return False
+
     return cls(lambda: set(cls._do_rglob(matcher, allow_dirs=True, root=root, **kw)))
 
   def __init__(self, callable_):

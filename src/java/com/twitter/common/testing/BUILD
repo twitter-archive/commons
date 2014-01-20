@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==================================================================================================
-from twitter.pants import artifact, globs, pants, java_library, jvm_binary
 
 java_library(name='testing',
   dependencies=[

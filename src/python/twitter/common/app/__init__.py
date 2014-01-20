@@ -31,20 +31,22 @@
   initialization code by app-compatible libraries as many in twitter.common are.
 """
 
-__author__ = 'Brian Wickman'
-
 import sys
 import types
 
-from twitter.common.app.application import Application
-from twitter.common.app.module import AppModule as Module
 from twitter.common.lang import Compatibility
+
+from .application import Application
+from .module import AppModule as Module
+
 
 # Initialize the global application
 reset = Application.reset
 reset()
 
+
 ApplicationError = Application.Error
+
 
 def _make_proxy_function(method_name):
   unbound_method = Application.__dict__[method_name]
@@ -61,12 +63,17 @@ def _make_proxy_function(method_name):
   proxy_function.__name__ = attribute
   return proxy_function
 
+
 __all__ = [
   'reset',
   'ApplicationError',
   'Module',
 ]
 
+
+# TODO(wickman) This is a ghastly pattern that is not even guaranteed to
+# work with all interpreters and should be reworked.
+#
 # create a proxy function for every public method in Application and delegate that
 # to the module namespace, using the active _APP object (which can be reset by
 # reset() for testing.)
