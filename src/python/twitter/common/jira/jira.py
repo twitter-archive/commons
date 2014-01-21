@@ -32,6 +32,11 @@ class Jira(object):
      credentials.
   '''
 
+  RESOLVE_NAMES = (
+    'Resolve',
+    'Resolve Issue',
+  )
+
   def __init__(self, server_url, api_base='/rest/api/2/', user=None, password=None):
     self._base_url = urlparse.urljoin(server_url, api_base)
     self._user = user or getpass.getuser()
@@ -60,7 +65,7 @@ class Jira(object):
       raise JiraError('Transitions list did not have the expected JSON format: %s', e)
 
     for transition in transitions:
-      if transition['name'] == 'Resolve':
+      if transition['name'] in self.RESOLVE_NAMES:
         return transition['id']
 
     raise JiraError(textwrap.dedent('''

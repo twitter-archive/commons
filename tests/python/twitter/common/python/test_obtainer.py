@@ -22,7 +22,7 @@ from pkg_resources import Requirement
 
 def test_link_preference():
   sl = SourceLink('psutil-0.6.1.tar.gz')
-  el = EggLink('psutil-0.6.1.egg')
+  el = EggLink('psutil-0.6.1-py2.6.egg')
   assert Obtainer.link_preference(el) > Obtainer.link_preference(sl)
 
 
@@ -44,7 +44,7 @@ class FakeCrawler(object):
 
 
 def test_iter_ordering():
-  PS, PS_EGG = SourceLink('psutil-0.6.1.tar.gz'), EggLink('psutil-0.6.1-linux-x86_64.egg')
+  PS, PS_EGG = SourceLink('psutil-0.6.1.tar.gz'), EggLink('psutil-0.6.1-py3.3-linux-x86_64.egg')
   PS_REQ = Requirement.parse('psutil')
 
   assert list(FakeObtainer([PS, PS_EGG]).iter(PS_REQ)) == [PS_EGG, PS]
@@ -55,17 +55,17 @@ def test_href_translation():
   VERSIONS = ['0.4.0', '0.4.1', '0.5.0', '0.6.0']
   def fake_link(version):
     return 'http://www.example.com/foo/bar/psutil-%s.tar.gz' % version
-  fc = FakeCrawler(map(fake_link, VERSIONS))
+  fc = FakeCrawler([fake_link(v) for v in VERSIONS])
   ob = Obtainer(fc, [], [])
 
   for v in VERSIONS:
     pkgs = list(ob.iter(Requirement.parse('psutil==%s' % v)))
-    assert len(pkgs) == 1
+    assert len(pkgs) == 1, 'Version: %s' % v
     assert pkgs[0] == SourceLink(fake_link(v))
 
   assert list(ob.iter(Requirement.parse('psutil>=0.5.0'))) == [
     SourceLink(fake_link('0.6.0')),
     SourceLink(fake_link('0.5.0'))]
 
-  assert list(ob.iter(Requirement.parse('psutil'))) == map(SourceLink,
-      map(fake_link, reversed(VERSIONS)))
+  assert list(ob.iter(Requirement.parse('psutil'))) == [
+      SourceLink(fake_link(v)) for v in reversed(VERSIONS)]
