@@ -1,10 +1,4 @@
 <ivysettings>
-  <!-- TODO(John Sirois): remove this setting once http://go/rb/228151 is released as a pex
-       as part of http://go/jira/DPB-71 work. -->
-  <!-- For CI environment, ivy cache is set to workspace name under user home -->
-  <properties environment="env"/>
-  <property name="ivy.cache.dir" value="${env.PANTS_IVY_CACHE_DIR}" override="false"/>
-
   <property name="root.dir" value="${ivy.settings.dir}/../.." override="false"/>
   <properties file="${root.dir}/build.properties" override="false"/>
 
