@@ -124,10 +124,10 @@ public class ConsoleRunner {
     void close() throws IOException {
       if (--useCount <= 0 && !closed) {
         if (outstream != null) {
-          Closeables.closeQuietly(outstream);
+          Closeables.close(outstream, /* swallowIOException */ true);
         }
         if (errstream != null) {
-          Closeables.closeQuietly(errstream);
+          Closeables.close(errstream, /* swallowIOException */ true);
         }
         closed = true;
       }
