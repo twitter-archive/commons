@@ -91,7 +91,7 @@ class ArgsResourceMapper(Task):
     self.resource_index = 0 if main else 1
 
     context.products.require('jars', self.select_targets)
-    context.products.require('classes')
+    context.products.require_data('classes_by_target')
 
     self.classdirs = context.config.getlist('args-resource-mapper', 'classdirs')
     self.include_all = context.options.args_resource_mapper_include_all
@@ -119,13 +119,14 @@ class ArgsResourceMapper(Task):
 
     if lines:
       class Args(object):
-        def __init__(self, context, transitive, class_genmap):
+        def __init__(self, context, transitive, classes_by_target):
           self.context = context
           self.classnames = set()
           def add_clasnames(target):
             if isinstance(target, JavaLibrary) or isinstance(target, ScalaLibrary):
-              if class_genmap.get(target):
-                for base, classes in class_genmap.get(target).items():
+              target_products = classes_by_target.get(target)
+              if target_products:
+                for _, classes in target_products.rel_paths():
                   for cls in classes:
                     self.classnames.add(cls.replace('.class', '').replace('/', '.'))
               else:
@@ -158,7 +159,8 @@ class ArgsResourceMapper(Task):
       self._addargs(lines if self.include_all
                           else filter(Args(self.context,
                                            self.transitive,
-                                           self.context.products.get('classes')).matches, lines),
+                                           self.context.products.get_data('classes_by_target')).matches,
+                                      lines),
                     jar,
                     target)
 
