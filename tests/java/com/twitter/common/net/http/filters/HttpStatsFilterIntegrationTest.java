@@ -81,7 +81,7 @@ public class HttpStatsFilterIntegrationTest {
     @GET
     @Path("/hello")
     @Produces(MediaType.TEXT_PLAIN)
-    @HttpStatsFilter.TrackRequestStats(identifier = "hello")
+    @HttpStatsFilter.TrackRequestStats("hello")
     public Response hello() {
       return Response.ok("hello world").build();
     }
@@ -89,7 +89,7 @@ public class HttpStatsFilterIntegrationTest {
     @GET
     @Path("/hola")
     @Produces(MediaType.TEXT_PLAIN)
-    @HttpStatsFilter.TrackRequestStats(identifier = "hola")
+    @HttpStatsFilter.TrackRequestStats("hola")
     public Response hola() {
       return Response.ok("hola mundo").build();
     }

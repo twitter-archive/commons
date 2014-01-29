@@ -120,18 +120,18 @@ public class HttpStatsFilterTest extends EasyMockTest {
     }
   }
 
-  private void expectIdentifier(String identifier, int times) {
+  private void expectAnnotationValue(String value, int times) {
     AbstractResourceMethod matchedMethod = createMock(AbstractResourceMethod.class);
     expect(extendedUriInfo.getMatchedMethod()).andReturn(matchedMethod).times(times);
 
     TrackRequestStats annotation = createMock(TrackRequestStats.class);
     expect(matchedMethod.getAnnotation(TrackRequestStats.class)).andReturn(annotation).times(times);
 
-    expect(annotation.identifier()).andReturn(identifier).times(times);
+    expect(annotation.value()).andReturn(value).times(times);
   }
 
-  private void expectIdentifier(String identifier) {
-    expectIdentifier(identifier, 1);
+  private void expectAnnotationValue(String value) {
+    expectAnnotationValue(value, 1);
   }
 
   @Test
@@ -141,15 +141,15 @@ public class HttpStatsFilterTest extends EasyMockTest {
     expect(servletRequest.getAttribute(HttpStatsFilter.REQUEST_START_TIME))
         .andReturn(clock.nowNanos());
 
-    String identifier = "some_identifier";
-    expectIdentifier(identifier);
+    String value = "some_value";
+    expectAnnotationValue(value);
 
     control.replay();
 
     clock.advance(REQUEST_TIME);
     assertEquals(containerResponse, filter.filter(containerRequest, containerResponse));
 
-    SlidingStats stat = filter.requestCounters.get(Pair.of(identifier, HttpServletResponse.SC_OK));
+    SlidingStats stat = filter.requestCounters.get(Pair.of(value, HttpServletResponse.SC_OK));
     assertEquals(1, stat.getEventCounter().get());
     assertEquals(REQUEST_TIME.getValue().longValue(), stat.getTotalCounter().get());
     assertEquals(1, filter.statusCounters.get(HttpServletResponse.SC_OK).getEventCounter().get());
@@ -164,8 +164,8 @@ public class HttpStatsFilterTest extends EasyMockTest {
     expect(servletRequest.getAttribute(HttpStatsFilter.REQUEST_START_TIME))
         .andReturn(clock.nowNanos()).times(numCalls);
 
-    String identifier = "some_identifier";
-    expectIdentifier(identifier, numCalls);
+    String value = "some_value";
+    expectAnnotationValue(value, numCalls);
 
     control.replay();
 
@@ -174,7 +174,7 @@ public class HttpStatsFilterTest extends EasyMockTest {
       filter.filter(containerRequest, containerResponse);
     }
 
-    SlidingStats stat = filter.requestCounters.get(Pair.of(identifier, HttpServletResponse.SC_OK));
+    SlidingStats stat = filter.requestCounters.get(Pair.of(value, HttpServletResponse.SC_OK));
     assertEquals(numCalls, stat.getEventCounter().get());
     assertEquals(REQUEST_TIME.getValue() * numCalls, stat.getTotalCounter().get());
     assertEquals(numCalls,

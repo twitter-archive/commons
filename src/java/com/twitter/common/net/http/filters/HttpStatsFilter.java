@@ -44,7 +44,7 @@ public class HttpStatsFilter extends AbstractHttpFilter implements ContainerResp
     /**
      * Indicates the identifier to use when tracking requests with this annotation.
      */
-    String identifier();
+    String value();
   }
 
   private static final Logger LOG = Logger.getLogger(HttpStatsFilter.class.getName());
@@ -109,7 +109,7 @@ public class HttpStatsFilter extends AbstractHttpFilter implements ContainerResp
       return;
     }
 
-    requestCounters.getUnchecked(Pair.of(trackRequestStats.identifier(), status)).accumulate(elapsed);
+    requestCounters.getUnchecked(Pair.of(trackRequestStats.value(), status)).accumulate(elapsed);
   }
 
   @Override
