@@ -44,6 +44,7 @@ from twitter.pants.tasks import Task, TaskError
 from twitter.pants.tasks.console_task import ConsoleTask
 from twitter.pants.tasks.nailgun_task import NailgunTask
 from twitter.pants.goal import Context, GoalError, Phase
+from twitter.pants.validators import validator
 
 
 try:
@@ -442,6 +443,8 @@ class Goal(Command):
       requested_goals=self.requested_goals,
       lock=lock)
 
+    validator.validate(context)
+
     # TODO: Time to get rid of this hack.
     if self.options.recursive_directory:
       context.log.warn(
@@ -712,12 +715,12 @@ def _has_sources(target, extension):
 # TODO: Make chunking only take into account the targets actually acted on? This would require
 # task types to declare formally the targets they act on.
 def _is_java(target):
-  return (target.is_java or 
+  return (target.is_java or
           (isinstance(target, (JvmBinary, junit_tests, Benchmark))
            and _has_sources(target, '.java')))
 
 def _is_scala(target):
-  return (target.is_scala or 
+  return (target.is_scala or
           (isinstance(target, (JvmBinary, junit_tests, Benchmark))
            and _has_sources(target, '.scala')))
 

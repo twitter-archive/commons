@@ -44,5 +44,6 @@ python_test_suite(name = 'all',
     pants('tests/python/twitter/pants/scm'),
     pants('tests/python/twitter/pants/targets'),
     pants('tests/python/twitter/pants/tasks'),
+    pants('tests/python/twitter/pants/validators')
   ]
 )
