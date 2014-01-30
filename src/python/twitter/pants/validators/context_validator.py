@@ -77,3 +77,6 @@ class ContextValidator(Singleton):
         validation_errors.append(verr.msg)
     if validation_errors:
       raise ValidationError("\n".join(validation_errors))
+
+  def clear(self):
+    self.validators.clear()
