@@ -47,7 +47,7 @@ class ContextValidator(Singleton):
 
   def install(self, *validators):
     """ Install validator functions to the ContextValidator instance.
-    A validator function is supposed to take a single argument. 
+    A validator function is supposed to take a single argument.
 
     :raises: ValueError if validator function does not follow the spec.
     """
