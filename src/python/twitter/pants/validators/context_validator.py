@@ -17,9 +17,8 @@
 
 import inspect
 
-from twitter.pants.goal.context import Context
-
 from twitter.common.lang import Singleton
+from twitter.pants.goal.context import Context
 
 
 class ValidationError(Exception):
@@ -48,9 +47,9 @@ class ContextValidator(Singleton):
 
   def install(self, *validators):
     """ Install validator functions to the ContextValidator instance.
+    A validator function is supposed to take a single argument. 
 
-    A validator function is supposed to take a single argument. Raises a ValueError if validator
-    function does not follow the spec.
+    :raises: ValueError if validator function does not follow the spec.
     """
     for validator in validators:
       args, varargs, keywords, defaults = inspect.getargspec(validator)
@@ -64,8 +63,8 @@ class ContextValidator(Singleton):
   def validate(self, ctx):
     """ Validates the context.
 
-    Raises a ValueError if an argument other an pants context object is passed.
-    Raises a ValidationError if pants context fails validation.
+    :raises ValueError: if an argument other an pants context object is passed.
+    :raises ValidationError: if pants context fails validation.
     """
     validation_errors=[]
     if not isinstance(ctx, Context):

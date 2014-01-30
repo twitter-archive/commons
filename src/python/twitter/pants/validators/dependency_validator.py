@@ -26,8 +26,8 @@ def check_invalid_binary_deps(context):
      Only a JvmApp can depend upon a JvmBinary.
      Nothing should depend upon a PythonBinary.
 
-  Raises a ValidationError on failure.
   :param context: pants.goal.context.Context object
+  :raises ValidationError: on failure
   """
 
   def is_not_jvmapp(tgt):
