@@ -1,5 +1,5 @@
 from twitter.pants.base import Config
-from twitter.pants.base_build_root_test import BaseBuildRootTest
+from twitter.pants.build_root_test import BuildRootTest
 from twitter.pants.goal import Context
 from twitter.pants.targets.jvm_binary import JvmBinary
 from twitter.pants.validators import validator, ContextValidator, ValidationError
@@ -95,7 +95,7 @@ def bad_validator(context, arg):
 def bad_validator_kws(context=lambda :None):
     pass
 
-class ContextTest(BaseBuildRootTest):
+class ContextTest(BuildRootTest):
 
   @classmethod
   def setUpClass(cls):
@@ -104,7 +104,7 @@ class ContextTest(BaseBuildRootTest):
     validator.install(binary_dep_validator)
 
   def create_context(self, **kwargs):
-    return Context(ContextTest.config, **kwargs)
+    return Context(ContextTest.config, None, None **kwargs)
 
 
   def test_bad_validator(self):
