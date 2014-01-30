@@ -41,13 +41,14 @@ def maybe_list(value, expected_type=str, raise_type=ValueError):
     return [value]
   elif isinstance(value, Iterable):
     real_values = list(value)
-    if not all(isinstance(v, expected_type) for v in real_values):
-      types = set(str(type(v)) for v in real_values)
-      raise raise_type('Expected elements of list to be %r, got %s' % (
-          expected_type, ' '.join(types)))
+    for v in real_values:
+      if not isinstance(v, expected_type):
+        raise raise_type('Expected elements of list to be %r, got value %s of type %r' %
+                         (expected_type, v, type(v)))
     return real_values
   else:
-    raise raise_type('Value must be a %r or iterable of %r' % (expected_type, expected_type))
+    raise raise_type('Value must be of type %r or iterable of type %r' %
+                     (expected_type, expected_type))
 
 
 __all__ = (
