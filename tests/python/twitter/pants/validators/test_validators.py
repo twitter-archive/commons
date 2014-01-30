@@ -99,9 +99,9 @@ class ContextTest(BuildRootTest):
 
   @classmethod
   def setUpClass(cls):
-    validator.clear()
     super(ContextTest, cls).setUpClass()
     cls.config = Config.load()
+    validator.clear()
     validator.install(binary_dep_validator)
 
   def create_context(self, options,target_roots):
