@@ -14,10 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
-from glob import glob
-
-java_tests(name = 'metrics',
-  dependencies = [
+java_tests(name='metrics',
+  dependencies=[
     '3rdparty:easymock',
     '3rdparty:guava',
     '3rdparty:junit',
@@ -26,5 +24,5 @@ java_tests(name = 'metrics',
     'src/java/com/twitter/common/util:system-mocks',
     'src/java/com/twitter/common/util:testing',
   ],
-  sources = glob('*.java')
+  sources=globs('*.java')
 )

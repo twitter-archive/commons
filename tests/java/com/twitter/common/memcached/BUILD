@@ -14,11 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
-from glob import glob
-
-
-java_tests(name = 'memcached',
-  dependencies = [
+java_tests(name='memcached',
+  dependencies=[
     '3rdparty:guava',
     '3rdparty:junit',
     '3rdparty:thrift',
@@ -26,5 +23,5 @@ java_tests(name = 'memcached',
     'src/java/com/twitter/common/memcached:thrift-transcoder',
     'src/java/com/twitter/common/thrift:testing',
   ],
-  sources = glob('*.java')
+  sources=globs('*.java')
 )

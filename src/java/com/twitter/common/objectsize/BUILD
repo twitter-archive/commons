@@ -14,17 +14,14 @@
 # limitations under the License.
 # ==================================================================================================
 
-from glob import glob
-
-
-java_library(name = 'objectsize',
-  provides = artifact(
-    org = 'com.twitter.common',
-    name = 'objectsize',
-    repo = 'build-support/commons/ivy:public',
+java_library(name='objectsize',
+  provides=artifact(
+    org='com.twitter.common',
+    name='objectsize',
+    repo='build-support/commons/ivy:public',
   ),
-  dependencies = [
+  dependencies=[
     '3rdparty:guava',
   ],
-  sources = glob('*.java')
+  sources=globs('*.java')
 )

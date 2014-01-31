@@ -14,11 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
-from glob import glob
-
-
-java_tests(name = 'caching',
-  dependencies = [
+java_tests(name='caching',
+  dependencies=[
     '3rdparty:easymock',
     '3rdparty:guava',
     '3rdparty:junit',
@@ -26,5 +23,5 @@ java_tests(name = 'caching',
     'src/java/com/twitter/common/collections',
     'src/java/com/twitter/common/util/caching',
   ],
-  sources = glob('*.java')
+  sources=globs('*.java')
 )

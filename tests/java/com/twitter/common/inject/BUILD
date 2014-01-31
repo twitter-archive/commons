@@ -14,11 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
-from glob import glob
-
-
-java_tests(name = 'inject',
-  dependencies = [
+java_tests(name='inject',
+  dependencies=[
     '3rdparty:commons-lang',
     '3rdparty:guava',
     '3rdparty:guice',
@@ -26,5 +23,5 @@ java_tests(name = 'inject',
     '3rdparty:junit',
     'src/java/com/twitter/common/inject',
   ],
-  sources = glob('*.java')
+  sources=globs('*.java')
 )
