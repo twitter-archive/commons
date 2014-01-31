@@ -122,20 +122,21 @@ class ArgsResourceMapper(Task):
         def __init__(self, context, transitive, classes_by_target):
           self.context = context
           self.classnames = set()
-          def add_clasnames(target):
+
+          def add_classnames(target):
             if isinstance(target, JavaLibrary) or isinstance(target, ScalaLibrary):
               target_products = classes_by_target.get(target)
               if target_products:
-                for _, classes in target_products.rel_paths():
+                for _, classes in target_products.items():
                   for cls in classes:
                     self.classnames.add(cls.replace('.class', '').replace('/', '.'))
               else:
                 self.context.log.debug('No mapping for %s' % target)
 
           if transitive:
-            target.walk(add_clasnames, lambda t: t.is_internal)
+            target.walk(add_classnames, lambda t: t.is_internal)
           else:
-            add_clasnames(target)
+            add_classnames(target)
 
         def matches(self, line):
           line = line.strip()
@@ -159,7 +160,7 @@ class ArgsResourceMapper(Task):
       self._addargs(lines if self.include_all
                           else filter(Args(self.context,
                                            self.transitive,
-                                           self.context.products.get_data('classes_by_target')).matches,
+                                           self.context.products.get('classes')).matches,
                                       lines),
                     jar,
                     target)
