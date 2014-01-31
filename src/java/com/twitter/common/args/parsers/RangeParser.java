@@ -3,7 +3,6 @@ package com.twitter.common.args.parsers;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
-import com.google.common.collect.Ranges;
 
 import com.twitter.common.args.ArgParser;
 
@@ -23,9 +22,9 @@ public class RangeParser extends NonParameterizedTypeParser<Range<Integer>> {
         throw new IllegalArgumentException("Failed to parse the range:" + raw);
       }
       if (to < from) {
-        return Ranges.closed(to, from);
+        return Range.closed(to, from);
       } else {
-        return Ranges.closed(from, to);
+        return Range.closed(from, to);
       }
     } catch (NumberFormatException e) {
       throw new IllegalArgumentException("Failed to parse the range:" + raw, e);

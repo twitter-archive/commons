@@ -87,7 +87,7 @@ jar_library(name = 'scalastyle',
 
 jar_library(name = 'scrooge-gen',
             dependencies = [
-              jar(org='com.twitter', name='scrooge-generator', rev='3.12.1')
+              jar(org='com.twitter', name='scrooge-generator_2.9.2', rev='3.12.1')
             ])
 
 jar_library(name = 'scrooge-legacy-gen',

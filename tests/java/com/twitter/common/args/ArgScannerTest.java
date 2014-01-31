@@ -36,8 +36,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Ranges;
-import com.google.common.io.NullOutputStream;
+import com.google.common.io.ByteStreams;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -121,7 +120,7 @@ public class ArgScannerTest {
     static final Arg<Amount<Long, Data>> DATA_AMOUNT = Arg.create(Amount.of(1L, Data.MB));
     @CmdLine(name = "range", help = "help")
     static final Arg<com.google.common.collect.Range<Integer>> RANGE =
-        Arg.create(Ranges.closed(1, 5));
+        Arg.create(com.google.common.collect.Range.closed(1, 5));
     @Positional(help = "help")
     static final Arg<List<Amount<Long, Time>>> POSITIONAL =
         Arg.<List<Amount<Long, Time>>>create(ImmutableList.<Amount<Long, Time>>of());
@@ -218,7 +217,7 @@ public class ArgScannerTest {
     test(StandardArgs.class,
         new Command() {
           @Override public void execute() {
-            assertThat(StandardArgs.RANGE.get(), is(Ranges.closed(1, 5)));
+            assertThat(StandardArgs.RANGE.get(), is(com.google.common.collect.Range.closed(1, 5)));
           }
         },
         "range", "1-5");
@@ -821,7 +820,7 @@ public class ArgScannerTest {
 
   private static boolean parse(Iterable<? extends Class<?>> scopes, String... args) {
     Predicate<Field> filter = Predicates.or(Iterables.transform(scopes, TO_SCOPE_PREDICATE));
-    PrintStream devNull = new PrintStream(new NullOutputStream());
+    PrintStream devNull = new PrintStream(ByteStreams.nullOutputStream());
     return new ArgScanner(devNull).parse(filter, Arrays.asList(args));
   }
 }

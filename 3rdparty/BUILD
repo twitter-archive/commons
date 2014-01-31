@@ -55,8 +55,8 @@ jar_library(name = 'antlr-3.4',
 
 jar_library(name = 'antlr4',
             dependencies = [
-                jar(org = 'org.antlr', name = 'antlr4', rev = '4.0').with_sources(),
-                jar(org = 'org.antlr', name = 'antlr4-runtime', rev = '4.0').with_sources()
+                jar(org = 'org.antlr', name = 'antlr4', rev = '4.1').with_sources(),
+                jar(org = 'org.antlr', name = 'antlr4-runtime', rev = '4.1').with_sources()
              ]
            )
 
@@ -104,32 +104,37 @@ jar_library(name = 'commons-lang',
             ]
            )
 
+
 # common rev for all com.twitter%finagle* artifacts
-FINAGLE_REV = '5.3.23'
+FINAGLE_REV = '6.8.1'
 
 jar_library(name = 'finagle-core',
             dependencies = [
-              jar(org = 'com.twitter', name = 'finagle-core', rev = FINAGLE_REV)
+              jar(org = 'com.twitter', name = 'finagle-core_2.9.2', rev = FINAGLE_REV)
                 .with_sources(),
               pants(':util-core'),
             ])
 
 jar_library(name = 'finagle-http',
-            dependencies = [ jar(org = 'com.twitter', name = 'finagle-http', rev = FINAGLE_REV) ])
+            dependencies = [
+              jar(org = 'com.twitter', name = 'finagle-http_2.9.2', rev = FINAGLE_REV)
+            ])
 
 jar_library(name = 'finagle-thrift',
-            dependencies = [ jar(org = 'com.twitter', name = 'finagle-thrift', rev = FINAGLE_REV) ])
+            dependencies = [
+              jar(org = 'com.twitter', name = 'finagle-thrift_2.9.2', rev = FINAGLE_REV)
+            ])
 
 jar_library(name = 'finagle-serversets',
             dependencies = [
              add_zookeeper_excludes(
-               jar(org = 'com.twitter', name = 'finagle-serversets', rev = FINAGLE_REV)
+               jar(org = 'com.twitter', name = 'finagle-serversets_2.9.2', rev = FINAGLE_REV)
                  .exclude(org='com.twitter.common'))
             ])
 
 jar_library(name = 'finagle-ostrich4',
             dependencies = [
-              jar(org = 'com.twitter', name = 'finagle-ostrich4', rev = FINAGLE_REV)
+              jar(org = 'com.twitter', name = 'finagle-ostrich4_2.9.2', rev = FINAGLE_REV)
             ])
 
 jar_library(name = 'gson',
@@ -137,14 +142,17 @@ jar_library(name = 'gson',
               jar(org = 'com.google.code.gson', name = 'gson', rev = '2.2.2').with_sources()
             ])
 
+# common rev for all com.google.guava%guava* artifacts
+GUAVA_REV = '15.0'
+
 jar_library(name = 'guava',
             dependencies = [
               jar(
-                org = 'com.google.guava', name = 'guava', rev = '14.0.1',
-                apidocs = 'http://docs.guava-libraries.googlecode.com/git-history/v14.0.1/javadoc/'
+                org = 'com.google.guava', name = 'guava', rev = GUAVA_REV,
+                apidocs = 'http://docs.guava-libraries.googlecode.com/git-history/%s/javadoc/' % GUAVA_REV
               ).with_sources(),
 
-              # Defined in provided scope so we provide here.
+              # Defined in provided scope so we provide here
               pants(':jsr305'),
               jar(org = 'javax.inject', name = 'javax.inject', rev = '1').with_sources(),
             ]
@@ -181,8 +189,8 @@ jar_library(name = 'jetty',
 
 jar_library(name = 'joda-time',
             dependencies = [
-              jar(org = 'joda-time', name = 'joda-time', rev = '2.1'),
-              jar(org = 'org.joda', name = 'joda-convert', rev = '1.2')
+              jar(org = 'joda-time', name = 'joda-time', rev = '2.3'),
+              jar(org = 'org.joda', name = 'joda-convert', rev = '1.5')
             ]
            )
 
@@ -249,10 +257,10 @@ jar_library(name = 'scala-library',
             ]
            )
 
-jar_library(name = 'scrooge-runtime',
+jar_library(name = 'scrooge-core',
             dependencies = [
               # used by scrooge-generator in BUILD.tools:scrooge-gen
-              jar(org='com.twitter', name='scrooge-runtime', rev='3.0.9').with_sources()
+              jar(org='com.twitter', name='scrooge-core_2.9.2', rev='3.12.1').with_sources()
             ]
           )
 
@@ -312,14 +320,14 @@ jar_library(name = 'twitter-text',
             dependencies = [ jar(org = 'com.twitter', name = 'twitter-text', rev = '1.5.0') ])
 
 # common rev for all com.twitter%util* artifacts
-UTIL_REV = '5.3.15'
+UTIL_REV = '6.8.1'
 
 jar_library(name = 'util-core',
             dependencies = [
-		    jar(org = 'com.twitter', name = 'util-core', rev = UTIL_REV).with_sources() ])
+		    jar(org = 'com.twitter', name = 'util-core_2.9.2', rev = UTIL_REV).with_sources() ])
 
 jar_library(name = 'util-jvm',
-            dependencies = [ jar(org = 'com.twitter', name = 'util-jvm', rev = UTIL_REV) ])
+            dependencies = [ jar(org = 'com.twitter', name = 'util-jvm_2.9.2', rev = UTIL_REV) ])
 
 jar_library(name = 'zookeeper',
             dependencies = [
@@ -334,7 +342,10 @@ jar_library(name = 'zookeeper',
 
 jar_library(name = 'easymock',
             dependencies = [
-              jar(org = 'org.easymock', name = 'easymock', rev = '3.1').with_sources()
+              jar(org = 'org.easymock', name = 'easymock', rev = '3.2').with_sources(),
+              # Class extension is needed to support the old version of easymockclassextension that
+              # is not dependend on by the easymock dependency
+              jar(org = 'org.easymock', name = 'easymockclassextension', rev = '3.2').with_sources(),
             ]
            )
 
