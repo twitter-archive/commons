@@ -33,7 +33,7 @@ class JavaThriftLibrary(ExportableJvmLibrary):
 
 
   _COMPILERS = frozenset(['thrift', 'scrooge', 'scrooge-legacy'])
-  _COMPILER_DEFAULT = 'scrooge'
+  _COMPILER_DEFAULT = 'thrift'
 
   _LANGUAGES = frozenset(['java', 'scala'])
   _LANGUAGE_DEFAULT = 'java'
