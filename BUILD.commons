@@ -160,7 +160,7 @@ class ArgsResourceMapper(Task):
       self._addargs(lines if self.include_all
                           else filter(Args(self.context,
                                            self.transitive,
-                                           self.context.products.get('classes')).matches,
+                                           self.context.products.get_data('classes_by_target')).matches,
                                       lines),
                     jar,
                     target)
