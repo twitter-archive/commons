@@ -13,20 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==================================================================================================
+
 from __future__ import print_function
 
-from collections import namedtuple, defaultdict
-from contextlib import contextmanager
 import os
 import xml
 import pkgutil
 import re
 import threading
+import errno
+
+from collections import namedtuple, defaultdict
+from contextlib import contextmanager
 
 from twitter.common.collections import OrderedSet
-from twitter.common.dirutil import safe_mkdir, safe_open, safe_delete
+from twitter.common.dirutil import safe_mkdir, safe_open
 
-from twitter.pants import get_buildroot
+from twitter.pants.base.build_environment import get_buildroot
 from twitter.pants.base.generator import Generator, TemplateData
 from twitter.pants.base.revision import Revision
 from twitter.pants.base.target import Target
@@ -44,7 +47,8 @@ IvyModule = namedtuple('IvyModule', ['ref', 'artifacts', 'callers'])
 class IvyInfo(object):
   def __init__(self):
     self.modules_by_ref = {}  # Map from ref to referenced module.
-    self.deps_by_caller = defaultdict(OrderedSet)  # Map from ref of caller to refs of modules required by that caller.
+    # Map from ref of caller to refs of modules required by that caller.
+    self.deps_by_caller = defaultdict(OrderedSet)
 
   def add_module(self, module):
     self.modules_by_ref[module.ref] = module
@@ -121,24 +125,37 @@ class IvyUtils(object):
         yield (path.strip() for path in cp.read().split(os.pathsep) if path.strip())
 
   @staticmethod
-  def symlink_cachepath(inpath, symlink_dir, outpath):
-    """Symlinks all paths listed in inpath into symlink_dir.
+  def symlink_cachepath(ivy_home, inpath, symlink_dir, outpath):
+    """Symlinks all paths listed in inpath that are under ivy_home into symlink_dir.
 
-    Writes the resulting paths to outpath.
+    Preserves all other paths. Writes the resulting paths to outpath.
     Returns a map of path -> symlink to that path.
     """
     safe_mkdir(symlink_dir)
     with safe_open(inpath, 'r') as infile:
       paths = filter(None, infile.read().strip().split(os.pathsep))
-    symlinks = []
+    new_paths = []
     for path in paths:
-      symlink = os.path.join(symlink_dir, os.path.basename(path))
-      safe_delete(symlink)
-      os.symlink(path, symlink)
-      symlinks.append(symlink)
+      if not path.startswith(ivy_home):
+        new_paths.append(path)
+        continue
+      symlink = os.path.join(symlink_dir, os.path.relpath(path, ivy_home))
+      try:
+        os.makedirs(os.path.dirname(symlink))
+      except OSError as e:
+        if e.errno != errno.EEXIST:
+          raise
+      # Note: The try blocks cannot be combined. It may be that the dir exists but the link doesn't.
+      try:
+        os.symlink(path, symlink)
+      except OSError as e:
+        # We don't delete and recreate the symlink, as this may break concurrently executing code.
+        if e.errno != errno.EEXIST:
+          raise
+      new_paths.append(symlink)
     with safe_open(outpath, 'w') as outfile:
-      outfile.write(':'.join(symlinks))
-    symlink_map = dict(zip(paths, symlinks))
+      outfile.write(':'.join(new_paths))
+    symlink_map = dict(zip(paths, new_paths))
     return symlink_map
 
   def identify(self, targets):

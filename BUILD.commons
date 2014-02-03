@@ -127,7 +127,7 @@ class ArgsResourceMapper(Task):
             if isinstance(target, JavaLibrary) or isinstance(target, ScalaLibrary):
               target_products = classes_by_target.get(target)
               if target_products:
-                for _, classes in target_products.items():
+                for _, classes in target_products.rel_paths():
                   for cls in classes:
                     self.classnames.add(cls.replace('.class', '').replace('/', '.'))
               else:
@@ -160,7 +160,7 @@ class ArgsResourceMapper(Task):
       self._addargs(lines if self.include_all
                           else filter(Args(self.context,
                                            self.transitive,
-                                           self.context.products.get('classes')).matches,
+                                           self.context.products.get_data('classes_by_target')).matches,
                                       lines),
                     jar,
                     target)

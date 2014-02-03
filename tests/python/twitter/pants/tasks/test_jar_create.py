@@ -17,16 +17,18 @@
 import os
 import tempfile
 
+from collections import defaultdict
 from contextlib import contextmanager, closing
 from textwrap import dedent
 
 from twitter.common.contextutil import temporary_dir
 from twitter.common.dirutil import safe_open, safe_rmtree
 
-from twitter.pants.targets.sources import SourceRoot
 from twitter.pants.base.context_utils import create_context
 from twitter.pants.base_build_root_test import BaseBuildRootTest
+from twitter.pants.goal.products import MultipleRootedProducts
 from twitter.pants.java.jar import open_jar
+from twitter.pants.targets.sources import SourceRoot
 from twitter.pants.targets import (
     JavaLibrary,
     JavaThriftLibrary,
@@ -169,6 +171,19 @@ class JarCreateExecuteTest(JarCreateTestBase):
       product_mapping.add(target, outdir, map(create_product, products))
       yield temporary_dir
 
+  @contextmanager
+  def add_data(self, context, data_type, target, *products):
+    make_products = lambda: defaultdict(MultipleRootedProducts)
+    data_by_target = context.products.get_data(data_type, make_products)
+    with temporary_dir() as outdir:
+      def create_product(product):
+        abspath = os.path.join(outdir, product)
+        with safe_open(abspath, mode='w') as fp:
+          fp.write(product)
+        return abspath
+      data_by_target[target].add_abs_paths(outdir, map(create_product, products))
+      yield temporary_dir
+
   def assert_jar_contents(self, context, product_type, target, *contents):
     jar_mapping = context.products.get(product_type).get(target)
     self.assertEqual(1, len(jar_mapping))
@@ -182,9 +197,9 @@ class JarCreateExecuteTest(JarCreateTestBase):
               self.assertEqual(os.path.basename(content), fp.read())
 
   def assert_classfile_jar_contents(self, context, empty=False):
-    with self.add_products(context, 'classes', self.jl, 'a.class', 'b.class'):
-      with self.add_products(context, 'classes', self.sl, 'c.class'):
-        with self.add_products(context, 'resources', self.res, 'r.txt.transformed'):
+    with self.add_data(context, 'classes_by_target', self.jl, 'a.class', 'b.class'):
+      with self.add_data(context, 'classes_by_target', self.sl, 'c.class'):
+        with self.add_data(context, 'resources_by_target', self.res, 'r.txt.transformed'):
           JarCreate(context).execute(context.targets())
           if empty:
             self.assertTrue(context.products.get('jars').empty())
@@ -193,11 +208,13 @@ class JarCreateExecuteTest(JarCreateTestBase):
                                      'a.class', 'b.class', 'r.txt.transformed')
             self.assert_jar_contents(context, 'jars', self.sl, 'c.class')
 
+  # TODO(John Sirois): XXX
   def test_classfile_jar_required(self):
     context = self.context()
     context.products.require('jars')
     self.assert_classfile_jar_contents(context)
 
+  # TODO(John Sirois): XXX
   def test_classfile_jar_flagged(self):
     self.assert_classfile_jar_contents(self.context(jar_create_classes=True))
 

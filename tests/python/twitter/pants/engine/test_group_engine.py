@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==================================================================================================
+import os
 
 import pytest
 import unittest
@@ -27,6 +28,7 @@ from twitter.pants.tasks import Task
 from ..base.context_utils import create_context
 from ..base_build_root_test import BaseBuildRootTest
 from .base_engine_test import EngineTestBase
+from twitter.pants.tasks.check_exclusives import ExclusivesMapping
 
 
 class GroupMemberTest(unittest.TestCase):
@@ -141,6 +143,14 @@ class GroupEngineTest(EngineTestBase, JvmTargetTest):
 
     self.context = create_context(options=dict(explain=False),
                                   target_roots=self.targets('src/java:e'))
+
+    # TODO(John Sirois): disentangle GroupEngine from relying upon the CheckExclusives task being
+    # run.  It should either arrange this directly or else the requirement should be in a different
+    # layer.
+    exclusives_mapping = ExclusivesMapping(self.context)
+    exclusives_mapping._populate_target_maps(self.context.targets())
+    self.context.products.set_data('exclusives_groups', exclusives_mapping)
+
     self.engine = GroupEngine(print_timing=False)
     self.recorded_actions = []
 
