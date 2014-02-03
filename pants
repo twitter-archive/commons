@@ -32,22 +32,80 @@ The following pants.ini configuration options are used from the DEFAULT section.
 * ivysvnresolver_url - URL of the ivysvnresolver bin release to use.
 """
 
-# NB: gyrations are made to support python2.4 bootstrapping into python newer so some constructs
-# are non-idiomatic for more modern pythons
+# NB: gyrations are made to support bootstrapping into python2.6 or python2.7
+# from interpreters ranging from python2.4 to python3.x
 
-import errno
-import hashlib
 import logging
 import os
 import sys
+
+
+logger = logging.getLogger()
+formatter = logging.Formatter("%(asctime)s %(filename)s:%(lineno)d - %(message)s")
+stream_handler = logging.StreamHandler(sys.stderr)
+stream_handler.setFormatter(formatter)
+logger.addHandler(stream_handler)
+
+if os.getenv('PANTS_DEV'):
+  logger.setLevel(logging.DEBUG)
+else:
+  logger.setLevel(logging.INFO)
+
+major, minor = sys.version_info[0:2]
+
+
+def error(msg, code=1):
+  logger.error(msg)
+  sys.exit(code)
+
+
+def get_python(ver):
+  for path in os.environ['PATH'].split(os.pathsep):
+    exe = os.path.join(path, ver)
+    if os.path.isfile(exe) and os.access(exe, os.X_OK):
+      return exe
+  return None
+
+
+def restart(exe):
+  logger.debug('selected %s in bootstrapping from python%d.%d' % (exe, major, minor))
+  os.execv(exe, [exe] + sys.argv)
+
+
+# Check to see if user exported python version manually
+exported_py_ver = os.environ.get('PY')
+if exported_py_ver:
+  try:
+    exported_major, exported_minor = map(int, exported_py_ver.split('.'))
+  except ValueError:
+    error('Exported PY variable is not of the form #.# (e.g. 2.7)')
+  if not (exported_major, exported_minor) == (major, minor):
+    exe = get_python('python%d.%d' % (exported_major, exported_minor))
+    if not exe:
+      error('Cannot execute the python you specified via PY=%s' % exported_py_ver)
+    restart(exe)
+elif major == 2 or major == 3:
+  if get_python('python2.6') is not None:
+    if minor != 6:
+      restart(get_python('python2.6'))
+  elif get_python('python2.7') is not None:
+    if minor != 7:
+      restart(get_python('python2.7'))
+
+if (major, minor) != (2, 6) and (major, minor) != (2, 7):
+  error("Pants requires a valid python2.6 or python2.7. Found python%s.%s" % (major, minor))
+
+
+# At this point, it's ensured that script will be executed by python2.6 or python2.7
+
+import errno
 import tarfile
 import tempfile
 import time
+import hashlib
 import urllib2
 
 from ConfigParser import SafeConfigParser as ConfigParser
-
-major, minor = sys.version_info[0:2]
 
 CONFIG_FILE = 'pants.ini'
 
@@ -93,70 +151,6 @@ if not LOCAL_PEX:
   PANTS_PEX_FILENAME = PANTS_PEX_FILENAME_PATTERN % (PANTS_VERSION, major, minor)
   PANTS_PEX_VERIFY_MD5 = config.getboolean('DEFAULT', 'pants_pex_verify_md5')
 
-logger = logging.getLogger()
-formatter = logging.Formatter("%(asctime)s %(filename)s:%(lineno)d - %(message)s")
-stream_handler = logging.StreamHandler(sys.stderr)
-stream_handler.setFormatter(formatter)
-logger.addHandler(stream_handler)
-
-DEBUG = 'PANTS_DEV' in os.environ
-
-if DEBUG:
-  logger.setLevel(logging.DEBUG)
-else:
-  logger.setLevel(logging.INFO)
-
-def error(msg, code=1):
-  logger.error(msg)
-  sys.exit(code)
-
-# TODO(John Sirois): publish pants.pex for python3 and remove these gymnastics
-def is_exe(path):
-  return os.path.isfile(path) and os.access(path, os.X_OK)
-
-
-def get_python(ver):
-    for path in os.environ['PATH'].split(os.pathsep):
-      exe = os.path.join(path, ver)
-      if is_exe(exe):
-        return exe
-    return None
-
-
-def has_python(ver):
-  return get_python(ver) is not None
-
-
-start = time.time()
-def restart(exe):
-  logger.debug('selected %s in %fs bootstrapping from python%d.%d' % (
-    exe, time.time() - start, major, minor))
-  os.execv(exe, [exe] + sys.argv)
-
-
-# Check to see if user exported python version manually
-exported_py_ver = os.environ.get('PY')
-if exported_py_ver:
-  try:
-    exported_major, exported_minor = map(int, exported_py_ver.split('.'))
-  except ValueError:
-    error('Exported PY variable is not of the form #.# (e.g. 2.7)')
-  if not (exported_major, exported_minor) == (major, minor):
-    exe = get_python('python%d.%d' % (exported_major, exported_minor))
-    if not exe:
-      error('Cannot execute the python you specified via PY=%s' % exported_py_ver)
-    restart(exe)
-elif major == 2:
-  if has_python('python2.6'):
-    if minor != 6:
-      restart(get_python('python2.6'))
-  elif has_python('python2.7'):
-    if minor != 7:
-      restart(get_python('python2.7'))
-
-
-if (major, minor) != (2, 6) and (major, minor) != (2, 7):
-  error("Pants requires a valid python2.6 or python2.7. Found python%s.%s" % (major, minor))
 
 def get_md5sum(path):
   """Calculate the md5sum of the path"""
@@ -183,10 +177,16 @@ def get_published_md5sum():
   for line in filter(None, contents.splitlines()):
     pex_name, md5_hash = map(lambda value: value.strip(), line.split())
     content_dict[pex_name] = md5_hash
-  return content_dict[PANTS_PEX_FILENAME]
+
+  try:
+    return content_dict[PANTS_PEX_FILENAME]
+  except KeyError:
+    error("MD5SUM entry for %s not found." % PANTS_PEX_FILENAME)
+
 
 def verify_md5sum(local_path):
   return get_md5sum(local_path) == get_published_md5sum()
+
 
 def fetch(url, dest, mode=None):
   """returns true if url was fetched, false if already cached"""
@@ -248,6 +248,7 @@ def fetch(url, dest, mode=None):
   logger.debug('deposited %s at %s' % (url, dest))
   return True
 
+
 # TODO(travis, jsirois): remove when pants does this itself
 def fetch_ivy():
   dest = os.path.join(PANTS_CACHE, 'ivysvnresolver', os.path.basename(IVYSVNRESOLVER_URL))
@@ -259,6 +260,7 @@ def fetch_ivy():
     tar.extractall(path=os.path.dirname(dest))
   finally:
     tar.close()
+
 
 def fetch_pants():
   if LOCAL_PEX:
