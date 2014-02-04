@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<!--
+=================================================================================================
+Copyright 2014 Twitter, Inc.
+_________________________________________________________________________________________________
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this work except in compliance with the License.
+You may obtain a copy of the License in the LICENSE file, or at:
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+=================================================================================================
+-->
+
+<ivysettings>
+  <property name="ivy.cache.dir" value="${user.home}/.ivy2/twitter-commons" override="false"/>
+
+  <macrodef name="_remote_resolvers">
+    <chain returnFirst="true">
+      <ibiblio name="maven2"
+               m2compatible="true"
+               usepoms="true"
+               root="http://maven.travis-ci.org/"/>
+
+      <ibiblio name="maven.twttr.com-maven"
+               m2compatible="true"
+               usepoms="true"
+               root="http://maven.twttr.com/"/>
+
+      <ibiblio name="apache"
+               m2compatible="true"
+               usepoms="true"
+               root="https://repository.apache.org/content/groups/public/"/>
+
+      <ibiblio name="google-releases"
+               m2compatible="true"
+               usepoms="true"
+               root="https://oss.sonatype.org/content/repositories/google-releases/"/>
+
+      <ibiblio name="jboss-public"
+               m2compatible="true"
+               usepoms="true"
+               root="http://repository.jboss.org/nexus/content/groups/public/"/>
+
+      <ibiblio name="maven2-repository.dev.java.net"
+               m2compatible="true"
+               usepoms="true"
+               root="http://download.java.net/maven/2/"/>
+
+      <ibiblio name="gson"
+               m2compatible="true"
+               usepoms="true"
+               root="http://google-gson.googlecode.com/svn/mavenrepo"/>
+
+      <ibiblio name="couchbase"
+               m2compatible="true"
+               usepoms="true"
+               root="http://files.couchbase.com/maven2"/>
+    </chain>
+  </macrodef>
+</ivysettings>
