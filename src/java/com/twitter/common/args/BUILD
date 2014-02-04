@@ -14,6 +14,21 @@
 # limitations under the License.
 # ==================================================================================================
 
+
+jvm_binary(
+  name = 'bin',
+  main = 'com.twitter.common.args.Arg',
+  dependencies = [
+    ':args',
+  ]
+)
+
+jvm_app(
+  name="app",
+  binary=":bin",
+  bundles=[]
+)
+
 APT_SOURCES = globs('apt/*.java')
 CORE_SOURCES = [
  'Arg.java',
