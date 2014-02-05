@@ -123,7 +123,7 @@ public class HeapProfileHandler extends HttpServlet {
     try {
       responseBody.write(profileBytes);
     } finally {
-      Closeables.closeQuietly(responseBody);
+      Closeables.close(responseBody, /* swallowIOException */ true);
     }
   }
 }

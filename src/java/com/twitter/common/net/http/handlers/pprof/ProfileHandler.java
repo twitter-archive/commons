@@ -68,7 +68,7 @@ abstract class ProfileHandler extends HttpServlet {
     try {
       profile.writeGoogleProfile(responseBody);
     } finally {
-      Closeables.closeQuietly(responseBody);
+      Closeables.close(responseBody, /* swallowIOException */ true);
     }
   }
 }

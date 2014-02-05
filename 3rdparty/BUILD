@@ -302,7 +302,7 @@ jar_library(name = 'guava',
             dependencies = [
               jar(
                 org = 'com.google.guava', name = 'guava', rev = GUAVA_REV,
-                apidocs = 'http://docs.guava-libraries.googlecode.com/git-history/v14.0.1/javadoc/'
+                apidocs = 'http://docs.guava-libraries.googlecode.com/git-history/v%s/javadoc/' % GUAVA_REV
               ).with_sources(),
 
               # Defined in provided scope so we provide here
