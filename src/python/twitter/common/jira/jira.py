@@ -120,7 +120,7 @@ class Jira(object):
     except urllib2.URLError as e:
       raise JiraError(cause=e)
 
-  def api_call(self, endpoint, post_json=None, authorization=None):
+  def api_call(self, endpoint, post_json=None, authorization=None, send_delete=False):
     url = urlparse.urljoin(self._base_url, endpoint)
     headers = {'User-Agent': 'twitter.common.jira'}
     base64string = authorization or base64.b64encode('%s:%s' % (self._user, self._getpass()))
@@ -129,4 +129,7 @@ class Jira(object):
     data = json.dumps(post_json) if post_json else None
     if data:
       headers['Content-Type'] = 'application/json'
-    return urllib2.urlopen(urllib2.Request(url, data, headers)).read()
+    request = urllib2.Request(url, data, headers)
+    if send_delete:
+      request.get_method = lambda: 'DELETE'
+    return urllib2.urlopen(request).read()
