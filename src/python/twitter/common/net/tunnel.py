@@ -49,7 +49,9 @@ class TunnelHelper(object):
   TUNNELS = {}
   PROXIES = {}
   MIN_RETRY = Amount(5, Time.MILLISECONDS)
-  DEFAULT_TIMEOUT = Amount(10, Time.SECONDS)
+  MAX_INTERVAL = Amount(1, Time.SECONDS)
+  WARN_THRESHOLD = Amount(10, Time.SECONDS)
+  DEFAULT_TIMEOUT = Amount(5, Time.MINUTES)
 
   class TunnelError(Exception): pass
 
@@ -75,6 +77,8 @@ class TunnelHelper(object):
   def wait_for_accept(cls, port, tunnel_popen, timeout):
     total_time = Amount(0, Time.SECONDS)
     sleep = cls.MIN_RETRY
+    warned = False  # Did we log a warning that shows we're waiting for the tunnel?
+
     while total_time < timeout and tunnel_popen.returncode is None:
       try:
         accepted_socket = socket.create_connection(('localhost', port), timeout=5.0)
@@ -83,7 +87,15 @@ class TunnelHelper(object):
       except socket.error:
         total_time += sleep
         time.sleep(sleep.as_(Time.SECONDS))
-        sleep *= 2
+
+        # Increase sleep exponentially until MAX_INTERVAL is reached
+        sleep = min(sleep * 2, cls.MAX_INTERVAL)
+
+        if total_time > cls.WARN_THRESHOLD and not warned:
+          log.warn('Still waiting for tunnel to be established after %s (timeout is %s)' % (
+              total_time, cls.DEFAULT_TIMEOUT))
+          warned = True
+
         tunnel_popen.poll()  # needed to update tunnel_popen.returncode
     if tunnel_popen.returncode is not None:
       cls.log('SSH returned prematurely with code %s' % str(tunnel_popen.returncode))
