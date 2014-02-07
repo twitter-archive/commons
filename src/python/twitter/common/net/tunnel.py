@@ -122,8 +122,8 @@ class TunnelHelper(object):
     tunnel_host, tunnel_port = cls.acquire_host_pair(tunnel_host, tunnel_port)
     cls.log('opening connection to %s:%s via %s:%s' %
         (remote_host, remote_port, tunnel_host, tunnel_port))
-    ssh_cmd_args = ('ssh', '-N', '-T', '-L', '%d:%s:%s' % (tunnel_port, remote_host, remote_port),
-                    tunnel_host)
+    ssh_cmd_args = ('ssh', '-q', '-N', '-T', '-L',
+        '%d:%s:%s' % (tunnel_port, remote_host, remote_port), tunnel_host)
     ssh_popen = subprocess.Popen(ssh_cmd_args, stdin=subprocess.PIPE)
     cls.TUNNELS[tunnel_key] = tunnel_port, ssh_popen
     if not cls.wait_for_accept(tunnel_port, ssh_popen, timeout):
@@ -140,7 +140,7 @@ class TunnelHelper(object):
       return 'localhost', cls.PROXIES[proxy_host][0]
     proxy_host, proxy_port = cls.acquire_host_pair(proxy_host, proxy_port)
     cls.log('opening SOCKS proxy connection through %s:%s' % (proxy_host, proxy_port))
-    ssh_cmd_args = ('ssh', '-N', '-T', '-D', str(proxy_port), proxy_host)
+    ssh_cmd_args = ('ssh', '-q', '-N', '-T', '-D', str(proxy_port), proxy_host)
     ssh_popen = subprocess.Popen(ssh_cmd_args, stdin=subprocess.PIPE)
     cls.PROXIES[proxy_host] = (proxy_port, ssh_popen)
     if not cls.wait_for_accept(proxy_port, ssh_popen, timeout):
