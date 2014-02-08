@@ -14,17 +14,17 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name='handlers',
-  dependencies=[
-    '3rdparty:easymock',
-    '3rdparty:gson',
-    '3rdparty:guava',
-    '3rdparty:junit',
-    'src/java/com/twitter/common/collections',
-    'src/java/com/twitter/common/net/http/handlers',
-    'src/java/com/twitter/common/net/http/handlers:time-series',
-    'src/java/com/twitter/common/stats:time-series',
-    'src/java/com/twitter/common/testing/easymock',
+java_tests(name = 'handlers',
+  dependencies = [
+    pants('3rdparty:easymock'),
+    pants('3rdparty:gson'),
+    pants('3rdparty:guava'),
+    pants('3rdparty:junit'),
+    pants('src/java/com/twitter/common/collections'),
+    pants('src/java/com/twitter/common/net/http/handlers'),
+    pants('src/java/com/twitter/common/net/http/handlers:time-series'),
+    pants('src/java/com/twitter/common/stats:time-series'),
+    pants('src/java/com/twitter/common/testing/easymock'),
   ],
-  sources=globs('*.java')
+  sources = globs('*.java')
 )

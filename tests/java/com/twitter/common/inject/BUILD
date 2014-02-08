@@ -14,14 +14,14 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name='inject',
-  dependencies=[
-    '3rdparty:commons-lang',
-    '3rdparty:guava',
-    '3rdparty:guice',
-    '3rdparty:guice-multibindings',
-    '3rdparty:junit',
-    'src/java/com/twitter/common/inject',
+java_tests(name = 'inject',
+  dependencies = [
+    pants('3rdparty:commons-lang'),
+    pants('3rdparty:guava'),
+    pants('3rdparty:guice'),
+    pants('3rdparty:guice-multibindings'),
+    pants('3rdparty:junit'),
+    pants("src/java/com/twitter/common/inject"),
   ],
-  sources=globs('*.java')
+  sources = globs('*.java')
 )

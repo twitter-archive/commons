@@ -14,10 +14,10 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name='objectsize',
-  dependencies=[
-    '3rdparty:junit',
-    'src/java/com/twitter/common/objectsize',
+java_tests(name = 'objectsize',
+  dependencies = [
+    pants('3rdparty:junit'),
+    pants('src/java/com/twitter/common/objectsize'),
   ],
-  sources=globs('*.java')
+  sources = globs('*.java')
 )

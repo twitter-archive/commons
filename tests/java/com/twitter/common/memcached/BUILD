@@ -14,14 +14,14 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name='memcached',
-  dependencies=[
-    '3rdparty:guava',
-    '3rdparty:junit',
-    '3rdparty:thrift',
-    'src/java/com/twitter/common/io:thrift',
-    'src/java/com/twitter/common/memcached:thrift-transcoder',
-    'src/java/com/twitter/common/thrift:testing',
+java_tests(name = 'memcached',
+  dependencies = [
+    pants('3rdparty:guava'),
+    pants('3rdparty:junit'),
+    pants('3rdparty:thrift'),
+    pants('src/java/com/twitter/common/io:thrift'),
+    pants('src/java/com/twitter/common/memcached:thrift-transcoder'),
+    pants('src/java/com/twitter/common/thrift:testing'),
   ],
-  sources=globs('*.java')
+  sources = globs('*.java')
 )
