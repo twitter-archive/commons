@@ -32,35 +32,11 @@ limitations under the License.
                usepoms="true"
                root="http://maven.twttr.com/"/>
 
-      <ibiblio name="apache"
-               m2compatible="true"
-               usepoms="true"
-               root="https://repository.apache.org/content/groups/public/"/>
-
-      <ibiblio name="google-releases"
-               m2compatible="true"
-               usepoms="true"
-               root="https://oss.sonatype.org/content/repositories/google-releases/"/>
-
+      <!--  This is just for spy#spymemcached;2.8.1 -->
       <ibiblio name="jboss-public"
                m2compatible="true"
                usepoms="true"
                root="http://repository.jboss.org/nexus/content/groups/public/"/>
-
-      <ibiblio name="maven2-repository.dev.java.net"
-               m2compatible="true"
-               usepoms="true"
-               root="http://download.java.net/maven/2/"/>
-
-      <ibiblio name="gson"
-               m2compatible="true"
-               usepoms="true"
-               root="http://google-gson.googlecode.com/svn/mavenrepo"/>
-
-      <ibiblio name="couchbase"
-               m2compatible="true"
-               usepoms="true"
-               root="http://files.couchbase.com/maven2"/>
     </chain>
   </macrodef>
 </ivysettings>
