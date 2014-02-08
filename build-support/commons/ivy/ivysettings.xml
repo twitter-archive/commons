@@ -25,7 +25,7 @@ limitations under the License.
       <ibiblio name="maven2"
                m2compatible="true"
                usepoms="true"
-               root="http://repo1.maven.org/maven/"/>
+               root="http://repo1.maven.org/maven2/"/>
 
       <ibiblio name="maven.twttr.com-maven"
                m2compatible="true"
