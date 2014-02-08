@@ -22,17 +22,10 @@ limitations under the License.
 
   <macrodef name="_remote_resolvers">
     <chain returnFirst="true">
-      <ibiblio name="nexus.prod.foursquare.com"
-               m2compatible="true"
-               usepoms="true"
-               root="http://nexus.prod.foursquare.com/nexus/content/groups/public/"
-               pattern="[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
-               />
-
       <ibiblio name="maven2"
                m2compatible="true"
                usepoms="true"
-               root="http://mirrors.ibiblio.org/pub/mirrors/maven2/"/>
+               root="http://repo1.maven.org/maven/"/>
 
       <ibiblio name="maven.twttr.com-maven"
                m2compatible="true"
