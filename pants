@@ -29,7 +29,6 @@ The following pants.ini configuration options are used from the DEFAULT section.
                                default value. This option is not typically used.
 * pants_pex_verify_md5: A boolean flag which instructs to md5sum
                         verification after fetching the pex.
-* ivysvnresolver_url - URL of the ivysvnresolver bin release to use.
 """
 
 # NB: gyrations are made to support bootstrapping into python2.6 or python2.7
@@ -118,7 +117,6 @@ if not os.path.exists(CONFIG_FILE):
 
 config = ConfigParser({
   'pants_pex_filename_pattern': 'pants-%s-py%s%s.pex',
-  'ivysvnresolver_url': 'https://ivysvn.googlecode.com/files/ivysvnresolver-2.2.0-bin.tgz',
   'pants_pex_verify_md5': False
 })
 
@@ -140,7 +138,6 @@ def get_required(config, key, raw=False):
 
 
 # Use pants.pex if in the repo - primarily for development
-IVYSVNRESOLVER_URL = get_required(config, 'ivysvnresolver_url')
 LOCAL_PEX = os.path.exists('pants.pex')
 PANTS_CACHE = os.path.expanduser('~/.pants.d')
 
@@ -247,19 +244,6 @@ def fetch(url, dest, mode=None):
     os.chmod(dest, mode)
   logger.debug('deposited %s at %s' % (url, dest))
   return True
-
-
-# TODO(travis, jsirois): remove when pants does this itself
-def fetch_ivy():
-  dest = os.path.join(PANTS_CACHE, 'ivysvnresolver', os.path.basename(IVYSVNRESOLVER_URL))
-  if not fetch(IVYSVNRESOLVER_URL, dest):
-    return  # no need to extract/symlink
-
-  tar = tarfile.open(dest)
-  try:
-    tar.extractall(path=os.path.dirname(dest))
-  finally:
-    tar.close()
 
 
 def fetch_pants():
