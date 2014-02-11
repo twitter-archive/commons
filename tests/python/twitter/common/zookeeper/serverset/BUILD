@@ -1,9 +1,9 @@
 python_test_suite(
   name = 'all',
   dependencies = [
+    pants(':endpoint'),
     pants(':test_kazoo_serverset'),
     pants(':test_serverset_unit'),
-    pants(':endpoint'),
   ],
 )
 
