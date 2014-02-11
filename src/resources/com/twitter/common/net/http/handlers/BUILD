@@ -1,5 +1,5 @@
 # ==================================================================================================
-# Copyright 2011 Twitter, Inc.
+# Copyright 2014 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -14,22 +14,15 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_library(
-  name='http',
-  provides=artifact(
-    org='com.twitter.common',
-    name='application-http',
-    repo=pants('build-support/commons/ivy:public'),
-  ),
-  dependencies=[
-    pants('3rdparty:guava'),
-    pants('3rdparty:guice'),
-    pants('3rdparty:guice-multibindings'),
-    pants('src/java/com/twitter/common/application:action'),
-    pants('src/java/com/twitter/common/base'),
-    pants('src/java/com/twitter/common/net/http'),
-    pants('src/java/com/twitter/common/net/http/handlers'),
-  ],
-  sources=globs('*.java'),
-  resources=pants('src/resources/com/twitter/common/application/http')
+resources(
+  name='log',
+  sources=[
+    'logconfig.st',
+    'logprinter.st',
+  ]
+)
+
+resources(
+  name='thrift',
+  sources=['thrift.st']
 )
