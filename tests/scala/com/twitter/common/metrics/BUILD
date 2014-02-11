@@ -17,9 +17,9 @@
 junit_tests(name='metrics',
   dependencies=[
     pants('3rdparty:finagle-stats'),
+    pants('3rdparty:junit'),
     pants('3rdparty:mockito'),
     pants('3rdparty:scalatest'),
-    pants('3rdparty:junit'),
   ],
   sources=globs('*.scala')
 )

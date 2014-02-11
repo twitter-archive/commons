@@ -19,6 +19,6 @@ java_library(name = 'angrybird-lib',
 jvm_binary(name = 'angrybird',
   main = 'com.twitter.common.zookeeper.testing.angrybird.AngryBirdZooKeeperMain',
   dependencies = [
-    ':angrybird-lib',
+    pants(':angrybird-lib'),
   ]
 )

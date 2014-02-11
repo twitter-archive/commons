@@ -103,9 +103,9 @@ java_tests(name = 'large',
 
 jar_library(name = 'all',
   dependencies = [
-    pants(':small'),
-    pants(':medium'),
     pants(':large'),
+    pants(':medium'),
+    pants(':small'),
   ]
 )
 
