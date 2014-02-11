@@ -1,7 +1,7 @@
 python_test_suite(
   name = 'all',
   dependencies = [
-    pants(':checkstyle')
+    pants(':checkstyle'),
   ]
 )
 
