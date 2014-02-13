@@ -52,18 +52,22 @@ def gen_base_reference(rst_filename, dirname):
   with open(rst_filename, 'w') as fh:
     fh.write('\n'.join(lines))
 
+def copy_builddict(docs_dir):
+  for filename in ['build_dictionary.rst', 'goals_reference.rst']:
+    filepath = os.path.abspath(os.path.join(docs_dir,
+        '../../../../../dist/builddict', filename))
+    try:
+      shutil.copy(filepath, docs_dir)
+    except IOError as e:
+      raise IOError("Forgot to `./pants goal builddict` first? \n\n%s" % e)
+
 def main():
   docs_dir = os.path.dirname(os.path.abspath(__file__))
   pants_src_dir = os.path.dirname(docs_dir)
   tasks_dir = os.path.join(pants_src_dir, 'tasks')
 
-  for filename in ['build_dictionary.rst', 'goals_reference.rst']:
-    filepath = os.path.abspath(os.path.join(pants_src_dir,
-        '../../../../dist/builddict', filename))
-    try:
-      shutil.copy(filepath, docs_dir)
-    except IOError as e:
-      raise IOError("Forgot to `./pants goal builddict` first? \n\n%s" % e)
+  # TODO: Re-enable when the BUILD dictionary templates have been updated.
+  #copy_builddict(docs_dir)
 
   with open(os.path.join(docs_dir, 'tasks.rst'), 'w') as tasks_rst:
     tasks_rst.write('\n'.join([
