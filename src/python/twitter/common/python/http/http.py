@@ -10,14 +10,14 @@ from ..compatibility import PY2, PY3
 from .tracer import TRACER
 
 if PY3:
-  from http.client import parse_headers
+  from http.client import parse_headers, HTTPException
   from queue import Queue, Empty
   import urllib.error as urllib_error
   import urllib.parse as urlparse
   import urllib.request as urllib_request
   from urllib.request import addinfourl
 else:
-  from httplib import HTTPMessage
+  from httplib import HTTPMessage, HTTPException
   from Queue import Queue, Empty
   from urllib import addinfourl
   import urllib2 as urllib_request
@@ -27,6 +27,15 @@ else:
 
 class Timeout(Exception):
   pass
+
+
+class FetchError(Exception):
+  """
+    Error occurred while fetching via HTTP
+
+    We raise this when we catch urllib or httplib errors because we don't want
+    to leak those implementation details to callers.
+  """
 
 
 def deadline(fn, *args, **kw):
@@ -204,7 +213,9 @@ class CachedWeb(object):
       if expired:
         try:
           self.cache(url, conn_timeout=conn_timeout)
-        except urllib_error.URLError:
+        except (urllib_error.URLError, HTTPException) as exc:
           if not self._failsoft or url not in self:
-            raise
+            # We raise our own exception so that we don't leak the exceptions
+            # of libraries that we use, which are implementation details.
+            raise FetchError(exc)
       return self.decode_url(url)
