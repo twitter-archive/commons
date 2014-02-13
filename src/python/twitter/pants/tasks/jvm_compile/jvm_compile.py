@@ -78,6 +78,13 @@ class JvmCompile(NailgunTask):
                                  'generated code will often legitimately have BUILD dependencies that '
                                  'are unused in practice.')
 
+    option_group.add_option(mkflag('delete-scratch'), mkflag('delete-scratch', negate=True),
+                            dest=subcls._language+'_delete_scratch',
+                            default=True,
+                            action='callback',
+                            callback=mkflag.set_bool,
+                            help='[%default] Leave intermediate scratch files around, '
+                                 'for debugging build problems.')
 
   # Subclasses must implement.
   # --------------------------
@@ -154,6 +161,8 @@ class JvmCompile(NailgunTask):
     self._resources_dir = os.path.join(workdir, 'resources')
     self._analysis_dir = os.path.join(workdir, 'analysis')
 
+    self._delete_scratch = get_lang_specific_option('delete_scratch')
+
     safe_mkdir(self._classes_dir)
     safe_mkdir(self._analysis_dir)
 
@@ -216,6 +225,12 @@ class JvmCompile(NailgunTask):
 
   def can_dry_run(self):
     return True
+
+  def move(self, src, dst):
+    if self._delete_scratch:
+      shutil.move(src, dst)
+    else:
+      shutil.copy(src, dst)
 
   # TODO(benjy): Break this monstrosity up? Previous attempts to do so
   #              turned out to be more trouble than it was worth.
@@ -282,8 +297,8 @@ class JvmCompile(NailgunTask):
               invalid_analysis_tmp = newly_invalid_analysis_tmp
 
             # Now it's OK to overwrite the main analysis files with the new state.
-            shutil.move(valid_analysis_tmp, self._analysis_file)
-            shutil.move(invalid_analysis_tmp, self._invalid_analysis_file)
+            self.move(valid_analysis_tmp, self._analysis_file)
+            self.move(invalid_analysis_tmp, self._invalid_analysis_file)
 
         # Register products for all the valid targets.
         # We register as we go, so dependency checking code can use this data.
@@ -324,7 +339,7 @@ class JvmCompile(NailgunTask):
             # Move the merged valid analysis to its proper location.
             # We do this before checking for missing dependencies, so that we can still
             # enjoy an incremental compile after fixing missing deps.
-            shutil.move(new_valid_analysis, self._analysis_file)
+            self.move(new_valid_analysis, self._analysis_file)
 
             # Update the products with the latest classes. Must happen before the
             # missing dependencies check.
@@ -347,7 +362,7 @@ class JvmCompile(NailgunTask):
               discarded_invalid_analysis = analysis_file + '.invalid.discard'
               self._analysis_tools.split_to_paths(self._invalid_analysis_file,
                 [(sources, discarded_invalid_analysis)], new_invalid_analysis)
-              shutil.move(new_invalid_analysis, self._invalid_analysis_file)
+              self.move(new_invalid_analysis, self._invalid_analysis_file)
 
           # Now that all the analysis accounting is complete, and we have no missing deps,
           # we can safely mark the targets as valid.
@@ -414,7 +429,7 @@ class JvmCompile(NailgunTask):
         with contextutil.temporary_dir() as tmpdir:
           tmp_analysis = os.path.join(tmpdir, 'analysis')
           self._analysis_tools.merge_from_paths(analyses_to_merge, tmp_analysis)
-          shutil.move(tmp_analysis, self._analysis_file)
+          self.move(tmp_analysis, self._analysis_file)
 
     self._ensure_analysis_tmpdir()
     return Task.do_check_artifact_cache(self, vts, post_process_cached_vts=post_process_cached_vts)
@@ -567,7 +582,8 @@ class JvmCompile(NailgunTask):
     # Do this lazily, so we don't trigger creation of a worker pool unless we need it.
     if not os.path.exists(self._analysis_tmpdir):
       os.makedirs(self._analysis_tmpdir)
-      self.context.background_worker_pool().add_shutdown_hook(lambda: safe_rmtree(self._analysis_tmpdir))
+      if self._delete_scratch:
+        self.context.background_worker_pool().add_shutdown_hook(lambda: safe_rmtree(self._analysis_tmpdir))
 
   def _register_products(self, targets, sources_by_target, analysis_file):
     # If no products actually needed, return quickly.
