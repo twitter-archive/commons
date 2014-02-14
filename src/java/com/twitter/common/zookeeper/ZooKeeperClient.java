@@ -18,8 +18,9 @@ package com.twitter.common.zookeeper;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -196,7 +197,7 @@ public class ZooKeeperClient {
   private volatile ZooKeeper zooKeeper;
   private SessionState sessionState;
 
-  private final Set<Watcher> watchers = new CopyOnWriteArraySet<Watcher>();
+  private final Set<Watcher> watchers = Collections.synchronizedSet(new HashSet<Watcher>());
 
   private static Iterable<InetSocketAddress> combine(InetSocketAddress address,
       InetSocketAddress... addresses) {
@@ -352,8 +353,10 @@ public class ZooKeeperClient {
               }
           }
 
-          for (Watcher watcher : watchers) {
-            watcher.process(event);
+          synchronized (watchers) {
+            for (Watcher watcher : watchers) {
+              watcher.process(event);
+            }
           }
         }
       };
