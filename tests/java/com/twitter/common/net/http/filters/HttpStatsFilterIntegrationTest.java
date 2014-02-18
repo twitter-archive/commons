@@ -14,6 +14,7 @@ import com.google.inject.Singleton;
 import com.google.inject.servlet.GuiceFilter;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.guice.JerseyServletModule;
@@ -29,8 +30,9 @@ import com.twitter.common.util.Clock;
 import com.twitter.common.util.testing.FakeClock;
 
 import static com.sun.jersey.api.core.ResourceConfig.PROPERTY_CONTAINER_RESPONSE_FILTERS;
-import static junit.framework.Assert.assertNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class HttpStatsFilterIntegrationTest {
   private Client client;
@@ -136,5 +138,15 @@ public class HttpStatsFilterIntegrationTest {
     getResource("/goodbye");
 
     assertNull(Stats.getVariable("http_goodbye_200_responses_events"));
+  }
+
+  @Test
+  public void testNoMatchedMethod() throws Exception {
+    try {
+      getResource("/what");
+      fail("Should have thrown a 404.");
+    } catch (UniformInterfaceException e) {
+      assertStatValue("http_404_responses_events", 1);
+    }
   }
 }

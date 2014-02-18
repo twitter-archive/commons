@@ -194,4 +194,21 @@ public class HttpStatsFilterTest extends EasyMockTest {
 
     assertEquals(0, filter.statusCounters.asMap().keySet().size());
   }
+
+  @Test
+  public void testNoMatchedMethod() throws Exception {
+    expect(containerResponse.getStatus()).andReturn(HttpServletResponse.SC_NOT_FOUND);
+
+    expect(servletRequest.getAttribute(HttpStatsFilter.REQUEST_START_TIME))
+        .andReturn(clock.nowNanos());
+
+    expect(extendedUriInfo.getMatchedMethod()).andReturn(null);
+
+    control.replay();
+
+    clock.advance(REQUEST_TIME);
+    assertEquals(containerResponse, filter.filter(containerRequest, containerResponse));
+    assertEquals(1,
+        filter.statusCounters.get(HttpServletResponse.SC_NOT_FOUND).getEventCounter().get());
+  }
 }

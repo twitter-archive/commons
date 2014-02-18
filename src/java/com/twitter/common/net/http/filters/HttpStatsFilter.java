@@ -99,6 +99,12 @@ public class HttpStatsFilter extends AbstractHttpFilter implements ContainerResp
     statusCounters.getUnchecked(status).accumulate(elapsed);
 
     AbstractResourceMethod matchedMethod =  extendedUriInfo.getMatchedMethod();
+    // It's possible for no method to have matched, e.g. in the case of a 404, don't let those
+    // cases lead to an exception and a 500 response.
+    if (matchedMethod == null) {
+      return;
+    }
+
     TrackRequestStats trackRequestStats = matchedMethod.getAnnotation(TrackRequestStats.class);
 
     if (trackRequestStats == null) {
