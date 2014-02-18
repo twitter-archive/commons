@@ -1,5 +1,5 @@
 # ==================================================================================================
-# Copyright 2011 Twitter, Inc.
+# Copyright 2014 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -15,25 +15,29 @@
 # ==================================================================================================
 
 python_library(
-  name = "http",
-  sources = globs("*.py"),
+  name = 'echo',
+  sources = ['__init__.py', 'echo.py'],
   dependencies = [
-    pants('src/python/twitter/common/lang'),
-    pants('src/python/twitter/common/log'),
-    pants('3rdparty/python:bottle'),
-  ],
-  provides = setup_py(
-    name = 'twitter.common.http',
-    version = '0.1.0',
-    description = 'twitter.common wrappers for bottle and simple diagnostics endpoints.',
-    url = 'https://github.com/twitter/commons',
-    license = 'Apache License, Version 2.0',
-    zip_safe = True,
-    classifiers = [
-      'Intended Audience :: Developers',
-      'License :: OSI Approved :: Apache Software License',
-      'Operating System :: OS Independent',
-      'Programming Language :: Python',
-    ]
-  )
+    pants('src/python/twitter/common/http')
+  ]
+)
+
+python_library(
+  name = 'kerberos',
+  sources = ['__init__.py', 'kerberos.py'],
+  dependencies = [
+    pants('src/python/twitter/common/contextutil'),
+    pants('src/python/twitter/common/http'),
+    pants('3rdparty/python:kerberos')
+  ]
+)
+
+python_library(
+  name = 'plugins',
+  sources = globs('*.py'),
+  dependencies = [
+    pants('src/python/twitter/common/contextutil'),
+    pants('src/python/twitter/common/http'),
+    pants('3rdparty/python:kerberos')
+  ]
 )
