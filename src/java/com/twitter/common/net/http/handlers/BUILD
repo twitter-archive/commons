@@ -93,13 +93,15 @@ java_library(
     repo='build-support/commons/ivy:public',
   ),
   dependencies=[
-    # TODO(John Sirois): the only need is for the non-existent thrift:monitoring
     '3rdparty:guava',
     '3rdparty:guice',
     '3rdparty:servlet-api',
     '3rdparty:stringtemplate',
     'src/java/com/twitter/common/base',
+
+    # TODO(John Sirois): the only need is for the non-existent thrift:monitoring
     'src/java/com/twitter/common/thrift',
+
     ':string-template',
   ],
   sources=THRIFT_SOURCES,
