@@ -59,7 +59,7 @@ public final class Parsers implements ParserOracle {
   @VisibleForTesting
   static final Function<ParserInfo, Parser<?>> INFO_TO_PARSER =
       new Function<ParserInfo, Parser<?>>() {
-        @Override public Parser apply(ParserInfo parserInfo) {
+        @Override public Parser<?> apply(ParserInfo parserInfo) {
           try {
             Class<?> parserClass = Class.forName(parserInfo.parserClass);
             Constructor<?> constructor = parserClass.getDeclaredConstructor();
@@ -93,7 +93,7 @@ public final class Parsers implements ParserOracle {
 
   @Override
   public <T> Parser<T> get(TypeToken<T> type) throws IllegalArgumentException {
-    Parser parser;
+    Parser<?> parser;
     Class<?> explicitClass = type.getRawType();
     while (((parser = registry.get(explicitClass)) == null) && (explicitClass != null)) {
       explicitClass = explicitClass.getSuperclass();
@@ -102,7 +102,7 @@ public final class Parsers implements ParserOracle {
 
     // We control loading of the registry which ensures a proper mapping of class -> parser
     @SuppressWarnings("unchecked")
-    Parser<T> parserT = parser;
+    Parser<T> parserT = (Parser<T>) parser;
 
     return parserT;
   }

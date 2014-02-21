@@ -38,7 +38,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  * @author William Farner
  */
 @ArgParser
-public class MapParser extends TypeParameterizedParser<Map> {
+public class MapParser extends TypeParameterizedParser<Map<?, ?>> {
 
   private static final Splitter KEY_VALUE_SPLITTER =
       Splitter.on("=").trimResults().omitEmptyStrings();
@@ -49,14 +49,14 @@ public class MapParser extends TypeParameterizedParser<Map> {
 
   @SuppressWarnings("unchecked")
   @Override
-  Map doParse(ParserOracle parserOracle, String raw, List<Type> typeParams) {
+  Map<?, ?> doParse(ParserOracle parserOracle, String raw, List<Type> typeParams) {
     Type keyType = typeParams.get(0);
-    Parser keyParser = parserOracle.get(TypeToken.of(keyType));
+    Parser<?> keyParser = parserOracle.get(TypeToken.of(keyType));
 
     Type valueType = typeParams.get(1);
-    Parser valueParser = parserOracle.get(TypeToken.of(valueType));
+    Parser<?> valueParser = parserOracle.get(TypeToken.of(valueType));
 
-    ImmutableMap.Builder map = ImmutableMap.builder();
+    ImmutableMap.Builder<Object, Object> map = ImmutableMap.builder();
     for (String keyAndValue : Parsers.MULTI_VALUE_SPLITTER.split(raw)) {
       List<String> fields = ImmutableList.copyOf(KEY_VALUE_SPLITTER.split(keyAndValue));
       checkArgument(fields.size() == 2,
