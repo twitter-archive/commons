@@ -21,7 +21,10 @@ import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
@@ -197,7 +200,8 @@ public class ZooKeeperClient {
   private volatile ZooKeeper zooKeeper;
   private SessionState sessionState;
 
-  private final Set<Watcher> watchers = Collections.synchronizedSet(new HashSet<Watcher>());
+  private final Set<Watcher> watchers = new CopyOnWriteArraySet<Watcher>();
+  private final BlockingQueue<WatchedEvent> eventQueue = new LinkedBlockingQueue<WatchedEvent>();
 
   private static Iterable<InetSocketAddress> combine(InetSocketAddress address,
       InetSocketAddress... addresses) {
@@ -281,6 +285,22 @@ public class ZooKeeperClient {
     Preconditions.checkArgument(!Iterables.isEmpty(zooKeeperServers),
         "Must present at least 1 ZK server");
 
+    Thread watcherProcessor = new Thread("ZookeeperClient-watcherProcessor") {
+      @Override
+      public void run() {
+        while (true) {
+          try {
+            WatchedEvent event = eventQueue.take();
+            for (Watcher watcher : watchers) {
+              watcher.process(event);
+            }
+          } catch (InterruptedException e) { /* ignore */ }
+        }
+      }
+    };
+    watcherProcessor.setDaemon(true);
+    watcherProcessor.start();
+
     Iterable<String> servers =
         Iterables.transform(ImmutableSet.copyOf(zooKeeperServers),
             InetSocketAddressHelper.INET_TO_STR);
@@ -353,11 +373,7 @@ public class ZooKeeperClient {
               }
           }
 
-          synchronized (watchers) {
-            for (Watcher watcher : watchers) {
-              watcher.process(event);
-            }
-          }
+          eventQueue.offer(event);
         }
       };
 
