@@ -166,6 +166,8 @@ class AnsiColorDiagnosticListener<T extends FileObject> extends FilteredDiagnost
       return content.subSequence(startPosition, endPosition);
     } catch (IOException e) {
       return null;
+    } catch (IndexOutOfBoundsException e) {
+      return null;
     }
   }
 
