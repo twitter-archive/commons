@@ -6,22 +6,22 @@ HERE=$(cd $(dirname $(readlink $0 || echo $0)) && pwd)
 cd $HERE
 
 OUT=index.html
-DIST_ROOT=/pants/third_party/python/dist
+SDIST_ROOT=/pants/third_party/python
 
 cat > $OUT << HEADER
 <html>
   <head>
-    <title>Index of $DIST_ROOT</title>
+    <title>Index of $SDIST_ROOT</title>
   </head>
   <body>
-    <h1>Index of $DIST_ROOT</h1>
+    <h1>Index of $SDIST_ROOT</h1>
 HEADER
 
-for egg in *.egg
+for sdist in *.tar.gz *.zip *.tgz
 do
-  if [ -r "$egg" ]
+  if [ -r "$sdist" ]
   then
-    echo "    <a href=\"$egg\">$egg</a>" >> $OUT
+    echo "    <a href=\"$sdist\">$sdist</a>" >> $OUT
   fi
 done
 
