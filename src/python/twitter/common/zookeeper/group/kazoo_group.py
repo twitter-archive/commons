@@ -177,11 +177,7 @@ class KazooGroup(GroupBase, GroupInterface):
 
     def acreate_completion(result):
       try:
-        # TODO(wickman) Kazoo has a bug:
-        #    https://github.com/python-zk/kazoo/issues/106
-        #    https://github.com/python-zk/kazoo/pull/107
-        # Remove this one 1.3 is cut.
-        path = self._zk.unchroot(result.get())
+        path = result.get()
       except self.DISCONNECT_EXCEPTIONS:
         self._once(KazooState.CONNECTED, do_join)
         return
