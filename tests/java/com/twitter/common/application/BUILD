@@ -14,8 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name = 'application',
-  dependencies = [
+java_tests(name='application',
+  dependencies=[
     '3rdparty:easymock',
     '3rdparty:guava',
     '3rdparty:guice',
@@ -27,5 +27,5 @@ java_tests(name = 'application',
     'src/java/com/twitter/common/net:util',
     'src/java/com/twitter/common/testing',
   ],
-  sources = rglobs('*.java')
+  sources=rglobs('*.java') - ['modules/LifecycleModuleTest.java']
 )

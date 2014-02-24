@@ -14,13 +14,10 @@
 # limitations under the License.
 # ==================================================================================================
 
-from glob import glob
-
-
-java_tests(name = 'objectsize',
-  dependencies = [
+java_tests(name='objectsize',
+  dependencies=[
     '3rdparty:junit',
     'src/java/com/twitter/common/objectsize',
   ],
-  sources = glob('*.java')
+  sources=globs('*.java')
 )

@@ -98,7 +98,7 @@ public class TimeSeriesDataSource extends HttpServlet {
 
     ResponseStruct response = new ResponseStruct(
         ImmutableList.<String>builder().add(TIME_METRIC).addAll(names).build(),
-        FluentIterable.from(Iterables2.zip(tsData, 0)).filter(sinceFilter).toImmutableList());
+        FluentIterable.from(Iterables2.zip(tsData, 0)).filter(sinceFilter).toList());
     return gson.toJson(response);
   }
 

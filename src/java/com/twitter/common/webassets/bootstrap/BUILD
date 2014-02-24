@@ -14,17 +14,18 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_library(name = 'bootstrap',
-  provides = artifact(
-    org = 'com.twitter.common-webassets',
-    name = 'bootstrap',
-    repo = pants('build-support/commons/ivy:public'),
+java_library(
+  name='bootstrap',
+  provides=artifact(
+    org='com.twitter.common-webassets',
+    name='bootstrap',
+    repo=pants('build-support/commons/ivy:public'),
   ),
-  dependencies = [
+  dependencies=[
     pants('3rdparty:guava'),
     pants('3rdparty:guice'),
     pants('src/java/com/twitter/common/application/http'),
   ],
-  sources = globs('*.java'),
-  resources = globs('css/*.css') + globs('js/*.js') + rglobs('img/*.png'),
+  sources=globs('*.java'),
+  resources=pants('src/resources/com/twitter/common/webassets/bootstrap'),
 )

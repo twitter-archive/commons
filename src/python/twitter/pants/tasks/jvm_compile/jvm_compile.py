@@ -1,18 +1,18 @@
-from collections import defaultdict
-import os
 import itertools
+import os
 import shutil
 import uuid
+
+from collections import defaultdict
 
 from twitter.common import contextutil
 from twitter.common.contextutil import open_zip
 from twitter.common.dirutil import safe_rmtree, safe_mkdir
 from twitter.pants import get_buildroot, Task
-from twitter.pants.base import Target
+from twitter.pants.base.target import Target
 from twitter.pants.base.worker_pool import Work
-from twitter.pants.goal.products import RootedProducts, MultipleRootedProducts
+from twitter.pants.goal.products import MultipleRootedProducts
 from twitter.pants.reporting.reporting_utils import items_to_report_element
-from twitter.pants.targets import resolve_target_sources
 from twitter.pants.tasks.jvm_compile.jvm_dependency_analyzer import JvmDependencyAnalyzer
 from twitter.pants.tasks.nailgun_task import NailgunTask
 
@@ -40,9 +40,9 @@ class JvmCompile(NailgunTask):
                             action='store',
                             type='int',
                             default=-1,
-                            help='Roughly how many source files to attempt to compile together. Set to a large number '
-                                 'to compile all sources together. Set this to 0 to compile target-by-target. '
-                                 'Default is set in pants.ini.')
+                            help='Roughly how many source files to attempt to compile together. '
+                                 'Set to a large number to compile all sources together. Set this '
+                                 'to 0 to compile target-by-target. Default is set in pants.ini.')
 
     option_group.add_option(mkflag('missing-deps'),
                             dest=subcls._language+'_missing_deps',
@@ -59,24 +59,25 @@ class JvmCompile(NailgunTask):
                             choices=['off', 'warn', 'fatal'],
                             default='off',
                             help='[%default] One of off, warn, fatal. '
-                                 'Check for missing direct dependencies in ' + subcls._language + ' code. '
-                                 'Reports actual dependencies A -> B where there is no direct '
-                                 'BUILD file dependency path from A to B. '
-                                 'This is a very strict check, as in practice it is common to rely on '
-                                 'transitive, non-direct dependencies, e.g., due to type inference or when '
-                                 'the main target in a BUILD file is modified to depend on other targets in '
-                                 'the same BUILD file as an implementation detail. It may still be useful '
-                                 'to set it to fatal temorarily, to detect these.')
+                                 'Check for missing direct dependencies in ' + subcls._language +
+                                 ' code. Reports actual dependencies A -> B where there is no '
+                                 'direct BUILD file dependency path from A to B. This is a very '
+                                 'strict check, as in practice it is common to rely on transitive, '
+                                 'non-direct dependencies, e.g., due to type inference or when the '
+                                 'main target in a BUILD file is modified to depend on other '
+                                 'targets in the same BUILD file as an implementation detail. It '
+                                 'may still be useful to set it to fatal temorarily, to detect '
+                                 'these.')
 
     option_group.add_option(mkflag('unnecessary-deps'),
                             dest=subcls._language+'_unnecessary_deps',
                             choices=['off', 'warn', 'fatal'],
                             default='off',
-                            help='[%default] One of off, warn, fatal. '
-                                 'Check for declared dependencies in ' +  subcls._language + ' code '
-                                 'that are not needed. This is a very strict check. For example, '
-                                 'generated code will often legitimately have BUILD dependencies that '
-                                 'are unused in practice.')
+                            help='[%default] One of off, warn, fatal. Check for declared '
+                                 'dependencies in ' +  subcls._language + ' code that are not '
+                                 'needed. This is a very strict check. For example, generated code '
+                                 'will often legitimately have BUILD dependencies that are unused '
+                                 'in practice.')
 
     option_group.add_option(mkflag('delete-scratch'), mkflag('delete-scratch', negate=True),
                             dest=subcls._language+'_delete_scratch',
@@ -143,8 +144,9 @@ class JvmCompile(NailgunTask):
   def _portable_analysis_for_target(analysis_dir, target):
     return JvmCompile._analysis_for_target(analysis_dir, target) + '.portable'
 
-  def __init__(self, context, workdir):
-    NailgunTask.__init__(self, context, workdir=workdir)
+  def __init__(self, context, minimum_version=None, jdk=False):
+    # TODO(John Sirois): XXX plumb minimum_version via config or flags
+    super(JvmCompile, self).__init__(context, minimum_version=minimum_version, jdk=jdk)
     concrete_class = type(self)
     config_section = concrete_class._config_section
 
@@ -169,8 +171,9 @@ class JvmCompile(NailgunTask):
     self._analysis_file = os.path.join(self._analysis_dir, 'global_analysis.valid')
     self._invalid_analysis_file = os.path.join(self._analysis_dir, 'global_analysis.invalid')
 
-    # A temporary, but well-known, dir in which to munge analysis/dependency files in before caching.
-    # It must be well-known so we know where to find the files when we retrieve them from the cache.
+    # A temporary, but well-known, dir in which to munge analysis/dependency files in before
+    # caching. It must be well-known so we know where to find the files when we retrieve them from
+    # the cache.
     self._analysis_tmpdir = os.path.join(self._analysis_dir, 'artifact_cache_tmpdir')
 
     # We can't create analysis tools until after construction.
@@ -186,14 +189,14 @@ class JvmCompile(NailgunTask):
     # The rough number of source files to build in each compiler pass.
     self._partition_size_hint = get_lang_specific_option('partition_size_hint')
     if self._partition_size_hint == -1:
-      self._partition_size_hint = \
-        context.config.getint(config_section, 'partition_size_hint', default=1000)
+      self._partition_size_hint = context.config.getint(config_section, 'partition_size_hint',
+                                                        default=1000)
 
     # JVM options for running the compiler.
     self._jvm_options = context.config.getlist(config_section, 'jvm_args')
 
     # The ivy confs for which we're building.
-    self._confs = context.config.getlist(config_section, 'confs')
+    self._confs = context.config.getlist(config_section, 'confs', default=['default'])
 
     # Set up dep checking if needed.
     def munge_flag(flag):
@@ -237,6 +240,9 @@ class JvmCompile(NailgunTask):
   def execute(self, targets):
     # TODO(benjy): Add a pre-execute phase for injecting deps into targets, so e.g.,
     # we can inject a dep on the scala runtime library and still have it ivy-resolve.
+
+    # In case we have no relevant targets and return early.
+    self._create_empty_products()
 
     relevant_targets = [t for t in targets if t.has_sources(self._file_suffix)]
 
@@ -332,7 +338,8 @@ class JvmCompile(NailgunTask):
             new_valid_analysis = analysis_file + '.valid.new'
             if self._analysis_parser.is_nonempty_analysis(self._analysis_file):
               with self.context.new_workunit(name='update-upstream-analysis'):
-                self._analysis_tools.merge_from_paths([self._analysis_file, analysis_file], new_valid_analysis)
+                self._analysis_tools.merge_from_paths([self._analysis_file, analysis_file],
+                                                      new_valid_analysis)
             else:  # We need to keep analysis_file around. Background tasks may need it.
               shutil.copy(analysis_file, new_valid_analysis)
 
@@ -391,8 +398,8 @@ class JvmCompile(NailgunTask):
     (vts, sources, analysis_file) = partition
 
     if not sources:
-      self.context.log.warn('Skipping %s compile for targets with no sources:\n  %s' % \
-                            (self._language, vts.targets))
+      self.context.log.warn('Skipping %s compile for targets with no sources:\n  %s'
+                            % (self._language, vts.targets))
     else:
       # Do some reporting.
       self.context.log.info(
@@ -417,7 +424,8 @@ class JvmCompile(NailgunTask):
       for vt in cached_vts:
         for target in vt.targets:
           analysis_file = JvmCompile._analysis_for_target(self._analysis_tmpdir, target)
-          portable_analysis_file = JvmCompile._portable_analysis_for_target(self._analysis_tmpdir, target)
+          portable_analysis_file = JvmCompile._portable_analysis_for_target(self._analysis_tmpdir,
+                                                                            target)
           if os.path.exists(portable_analysis_file):
             self._analysis_tools.localize(portable_analysis_file, analysis_file)
           if os.path.exists(analysis_file):
@@ -437,10 +445,10 @@ class JvmCompile(NailgunTask):
   def _write_to_artifact_cache(self, analysis_file, vts, sources_by_target):
     vt_by_target = dict([(vt.target, vt) for vt in vts.versioned_targets])
 
-    split_analysis_files = \
-      [JvmCompile._analysis_for_target(self._analysis_tmpdir, t) for t in vts.targets]
-    portable_split_analysis_files = \
-      [JvmCompile._portable_analysis_for_target(self._analysis_tmpdir, t) for t in vts.targets]
+    split_analysis_files = [
+        JvmCompile._analysis_for_target(self._analysis_tmpdir, t) for t in vts.targets]
+    portable_split_analysis_files = [
+        JvmCompile._portable_analysis_for_target(self._analysis_tmpdir, t) for t in vts.targets]
 
     # Set up args for splitting the analysis into per-target files.
     splits = zip([sources_by_target.get(t, []) for t in vts.targets], split_analysis_files)
@@ -460,10 +468,10 @@ class JvmCompile(NailgunTask):
       if vt is not None:
         # NOTE: analysis_file doesn't exist yet.
         vts_artifactfiles_pairs.append(
-          (vt, artifacts + [JvmCompile._portable_analysis_for_target(self._analysis_tmpdir, target)]))
+            (vt,
+             artifacts + [JvmCompile._portable_analysis_for_target(self._analysis_tmpdir, target)]))
 
-    update_artifact_cache_work = \
-      self.get_update_artifact_cache_work(vts_artifactfiles_pairs)
+    update_artifact_cache_work = self.get_update_artifact_cache_work(vts_artifactfiles_pairs)
     if update_artifact_cache_work:
       work_chain = [
         Work(self._analysis_tools.split_to_paths, splits_args_tuples, 'split'),
@@ -503,8 +511,8 @@ class JvmCompile(NailgunTask):
           products = self._analysis_parser.parse_products_from_path(self._analysis_file)
           buildroot = get_buildroot()
           old_sources = products.keys()  # Absolute paths.
-          self._lazy_deleted_sources = \
-            [os.path.relpath(src, buildroot) for src in old_sources if not os.path.exists(src)]
+          self._lazy_deleted_sources = [os.path.relpath(src, buildroot) for src in old_sources
+                                        if not os.path.exists(src)]
         else:
           self._lazy_deleted_sources = []
     return self._lazy_deleted_sources
@@ -515,9 +523,24 @@ class JvmCompile(NailgunTask):
       sources = [s for s in target.sources_relative_to_buildroot() if s.endswith(self._file_suffix)]
       # TODO: Make this less hacky. Ideally target.java_sources will point to sources, not targets.
       if hasattr(target, 'java_sources') and target.java_sources:
-        sources.extend(resolve_target_sources(target.java_sources, '.java'))
+        sources.extend(self._resolve_target_sources(target.java_sources, '.java'))
       return sources
     return dict([(t, calculate_sources(t)) for t in targets])
+
+  def _resolve_target_sources(self, target_sources, extension=None, relative_to_target_base=False):
+    """Given a list of pants targets, extract their sources as a list.
+
+    Filters against the extension if given and optionally returns the paths relative to the target
+    base.
+    """
+    resolved_sources = []
+    for resolved in Target.resolve_all(target_sources):
+      if hasattr(resolved, 'sources'):
+        resolved_sources.extend(
+          source if relative_to_target_base else os.path.join(resolved.target_base, source)
+          for source in resolved.sources if not extension or source.endswith(extension)
+        )
+    return resolved_sources
 
   def _compute_classpath_elements_by_class(self, classpath):
     # Don't consider loose classes dirs in our classpath. Those will be considered
@@ -583,28 +606,36 @@ class JvmCompile(NailgunTask):
     if not os.path.exists(self._analysis_tmpdir):
       os.makedirs(self._analysis_tmpdir)
       if self._delete_scratch:
-        self.context.background_worker_pool().add_shutdown_hook(lambda: safe_rmtree(self._analysis_tmpdir))
+        self.context.background_worker_pool().add_shutdown_hook(
+            lambda: safe_rmtree(self._analysis_tmpdir))
+
+  def _create_empty_products(self):
+    make_products = lambda: defaultdict(MultipleRootedProducts)
+    if self.context.products.is_required_data('classes_by_source'):
+      self.context.products.safe_create_data('classes_by_source', make_products)
+    if self.context.products.is_required_data('classes_by_target'):
+      self.context.products.safe_create_data('classes_by_target', make_products)
+    if self.context.products.is_required_data('resources_by_target'):
+      self.context.products.safe_create_data('resources_by_target', make_products)
 
   def _register_products(self, targets, sources_by_target, analysis_file):
-    # If no products actually needed, return quickly.
-    required_data = ['classes_by_source', 'classes_by_target', 'resources_by_target']
-    if not any(self.context.products.is_required_data(x) for x in required_data):
-      return
+    classes_by_source = self.context.products.get_data('classes_by_source')
+    classes_by_target = self.context.products.get_data('classes_by_target')
+    resources_by_target = self.context.products.get_data('resources_by_target')
 
-    # TODO: Only compute what is actually needed?
-    make_products = lambda: defaultdict(MultipleRootedProducts)
-    computed_classes_by_source = self._compute_classes_by_source(analysis_file)
-    classes_by_source = self.context.products.get_data('classes_by_source', make_products)
-    classes_by_target = self.context.products.get_data('classes_by_target', make_products)
-    resources_by_target = self.context.products.get_data('resources_by_target', make_products)
+    if classes_by_source is not None or classes_by_target is not None:
+      computed_classes_by_source = self._compute_classes_by_source(analysis_file)
+      for target in targets:
+        target_products = classes_by_target[target] if classes_by_target is not None else None
+        for source in sources_by_target[target]:  # Source is relative to buildroot.
+          classes = computed_classes_by_source.get(source, [])  # Classes are absolute paths.
+          if classes_by_target is not None:
+            target_products.add_abs_paths(self._classes_dir, classes)
+          if classes_by_source is not None:
+            classes_by_source[source].add_abs_paths(self._classes_dir, classes)
 
-    for target in targets:
-      target_products = classes_by_target[target]
-      for source in sources_by_target[target]:  # Source is relative to buildroot.
-        classes = computed_classes_by_source.get(source, [])  # Classes are absolute paths.
-        target_products.add_abs_paths(self._classes_dir, classes)
-        classes_by_source[source].add_abs_paths(self._classes_dir, classes)
-      if self.context.products.is_required_data('resources_by_target'):
+    if resources_by_target is not None:
+      for target in targets:
         target_resources = resources_by_target[target]
         for root, abs_paths in self.extra_products(target):
           target_resources.add_abs_paths(root, abs_paths)

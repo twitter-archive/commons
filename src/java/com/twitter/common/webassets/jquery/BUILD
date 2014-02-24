@@ -14,17 +14,18 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_library(name = 'jquery',
-  provides = artifact(
-    org = 'com.twitter.common-webassets',
-    name = 'jquery',
-    repo = pants('build-support/commons/ivy:public'),
+java_library(
+  name='jquery',
+  provides=artifact(
+    org='com.twitter.common-webassets',
+    name='jquery',
+    repo=pants('build-support/commons/ivy:public'),
   ),
-  dependencies = [
+  dependencies=[
     pants('3rdparty:guava'),
     pants('3rdparty:guice'),
     pants('src/java/com/twitter/common/application/http'),
   ],
-  sources = globs('*.java'),
-  resources = globs('js/*.js'),
+  sources=globs('*.java'),
+  resources=pants('src/resources/com/twitter/common/webassets/jquery'),
 )
