@@ -141,6 +141,9 @@ limitations under the License.
       <module name="ClassTypeParameterName">
         <property name="format" value="^[A-Z][A-Z0-9]?$"/>
       </module>
+      <module name="MethodTypeParameterName">
+        <property name="format" value="^[A-Z][A-Z0-9]?$"/>
+      </module>
       <module name="ConstantName"/>
       <module name="LocalFinalVariableName">
         <!-- allow VAR_NAME and varName in local final variables,
@@ -155,7 +158,6 @@ limitations under the License.
       <module name="com.twitter.common.checkstyle.NonOverriddenMethodName">
         <property name="format" value="^(([a-z][a-zA-Z0-9]*)|(\$tag))$" />
       </module>
-      <module name="MethodTypeParameterName"/>
       <module name="PackageName"/>
       <module name="ParameterName"/>
       <module name="StaticVariableName"/>
