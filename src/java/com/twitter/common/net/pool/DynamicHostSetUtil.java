@@ -33,7 +33,7 @@ public final class DynamicHostSetUtil {
    * the underlying actual endpoints.
    *
    * @param hostSet The hostSet to snapshot.
-   * @throws MonitorException if there way a problem obtaining the snapshot.
+   * @throws MonitorException if there was a problem obtaining the snapshot.
    */
   public static <T> ImmutableSet<T> getSnapshot(DynamicHostSet<T> hostSet) throws MonitorException {
     final ImmutableSet.Builder<T> snapshot = ImmutableSet.builder();
