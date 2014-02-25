@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -118,6 +119,9 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
   private final BackoffHelper backoffHelper;
 
   private final Listener<V> mapListener;
+
+  private AtomicBoolean shutdown = new AtomicBoolean();
+  private Watcher expirationHandler;
 
   // Whether it's safe to re-establish watches if our zookeeper session has expired.
   private final Object safeToRewatchLock;
@@ -233,7 +237,7 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
    */
   @VisibleForTesting
   void init() throws InterruptedException, KeeperException, ZooKeeperConnectionException {
-    Watcher watcher = zkClient.registerExpirationHandler(new Command() {
+    expirationHandler = zkClient.registerExpirationHandler(new Command() {
       @Override public void execute() {
         /*
          * First rewatch all of our locally cached children.  Some of them may not exist anymore,
@@ -264,14 +268,21 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
         safeToRewatch = true;
       }
     } catch (InterruptedException e) {
-      zkClient.unregister(watcher);
+      close();
       throw e;
     } catch (KeeperException e) {
-      zkClient.unregister(watcher);
+      close();
       throw e;
     } catch (ZooKeeperConnectionException e) {
-      zkClient.unregister(watcher);
+      close();
       throw e;
+    }
+  }
+
+  public void close() {
+    if (shutdown.compareAndSet(false, true)) {
+      zkClient.unregister(expirationHandler);
+      expirationHandler = null;
     }
   }
 
@@ -297,6 +308,11 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
 
   private synchronized void watchChildren()
       throws InterruptedException, KeeperException, ZooKeeperConnectionException {
+
+    // If close() has been called, don't continue adding ZK watches
+    if (shutdown.get()) {
+      return;
+    }
 
     /*
      * Add a watch on the parent node itself, and attempt to rewatch if it
@@ -353,6 +369,11 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
   private void addChild(final String child)
       throws InterruptedException, KeeperException, ZooKeeperConnectionException {
 
+    // If close() has been called, don't continue adding ZK watches
+    if (shutdown.get()) {
+      return;
+    }
+
     final Watcher nodeWatcher = new Watcher() {
       @Override
       public void process(WatchedEvent event) {
@@ -380,12 +401,20 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
 
   @VisibleForTesting
   void removeEntry(String key) {
+    // Don't mutate the map / invoke the listener after the map has been closed
+    if (shutdown.get()) {
+      return;
+    }
     localMap.remove(key);
     mapListener.nodeRemoved(key);
   }
 
   @VisibleForTesting
   void putEntry(String key, V value) {
+    // Don't mutate the map / invoke the listener after the map has been closed
+    if (shutdown.get()) {
+      return;
+    }
     localMap.put(key, value);
     mapListener.nodeChanged(key, value);
   }

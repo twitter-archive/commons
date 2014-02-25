@@ -16,11 +16,13 @@
 
 package com.twitter.common.zookeeper;
 
+import java.lang.reflect.Field;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -42,6 +44,7 @@ import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -61,6 +64,10 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
 
     public Pair<String, String> waitForUpdate() throws InterruptedException {
       return queue.take();
+    }
+
+    public Pair<String, String> pollForUpdate() {
+      return queue.poll();
     }
 
     @Override
@@ -385,6 +392,37 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
     assertEquals(data, zkMap.get(node));
   }
 
+  @Test
+  public void testCloseRemovesExpirationHandler() throws Exception {
+    final String parentPath = "/twitter/path";
+    ZooKeeperUtils.ensurePath(zkClient, ACL, parentPath);
+    final Field watchersField = ZooKeeperClient.class.getDeclaredField("watchers");
+    watchersField.setAccessible(true);
+    final Set<?> watchers = (Set<?>) watchersField.get(zkClient);
+    final int prevSize = watchers.size();
+    ZooKeeperMap<String> zkMap = makeMap(parentPath);
+    assertEquals(watchers.size(), prevSize + 1);
+    zkMap.close();
+    assertEquals(watchers.size(), prevSize);
+  }
+
+  @Test
+  public void testCloseNoListenerCalls() throws Exception {
+    final String parentPath = "/twitter/path";
+    ZooKeeperUtils.ensurePath(zkClient, ACL, parentPath);
+    final String node = "node1";
+    final String nodePath = parentPath + "/" + node;
+    final String data1 = "abc";
+    zkClient.get().create(nodePath, data1.getBytes(), ACL, CreateMode.PERSISTENT);
+    final TestListener listener = new TestListener();
+    ZooKeeperMap<String> zkMap = makeMap(parentPath, listener);
+    assertEquals(Pair.of(node, data1), listener.waitForUpdate());
+    zkMap.close();
+    zkClient.get().delete(nodePath, ZooKeeperUtils.ANY_VERSION);
+    // After closing, existing watches should no longer call back on the listener
+    assertNull(listener.pollForUpdate());
+  }
+
   private void waitForEntryChange(String key, String value) throws Exception {
     Pair<String, String> expectedEntry = Pair.of(key, value);
     while (true) {
@@ -395,11 +433,11 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
     }
   }
 
-  private Map<String, String> makeMap(String path) throws Exception {
+  private ZooKeeperMap<String> makeMap(String path) throws Exception {
     return makeMap(path, ZooKeeperMap.<String>noopListener());
   }
 
-  private Map<String, String> makeMap(String path, ZooKeeperMap.Listener<String> listener)
+  private ZooKeeperMap<String> makeMap(String path, ZooKeeperMap.Listener<String> listener)
       throws Exception {
 
     ZooKeeperMap<String> zkMap = makeUninitializedMap(path, listener);
