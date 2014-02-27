@@ -20,7 +20,7 @@ Running pingpong tests:
 
 Running the pingpong example, pinging itself:
 
-./pants goal run src/java/com/twitter/common/examples/pingpong \
+./pants goal run src/java/com/twitter/common/examples/pingpong/main \
     --jvm-run-args="-http_port=8888 -ping_target=localhost:8888"
 
 Initiate the pingpong sequence:

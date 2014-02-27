@@ -14,7 +14,11 @@
 # limitations under the License.
 # ==================================================================================================
 
-dependencies(name='pingpong',
+jvm_binary(name='main',
+  basename='pingpong',
+  source='Main.java',
+  main='com.twitter.common.examples.pingpong.main.Main',
   dependencies=[
-    pants('tests/java/com/twitter/common/examples/pingpong/handler'),
-  ])
+    pants('src/java/com/twitter/common/examples/pingpong/handler')
+  ]
+)
