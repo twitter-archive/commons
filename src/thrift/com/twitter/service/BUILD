@@ -4,11 +4,10 @@ import atexit
 import os
 import sys
 import re
-import shutil
-import tempfile
 import urllib2
 
-from twitter.common.dirutil import Fileset, safe_rmtree
+from twitter.common.dirutil import Fileset, safe_delete
+
 
 class RemotePythonThrift(object):
   # TODO(wickman) Use the antlr thrift parser to just walk the thrift AST
@@ -18,7 +17,8 @@ class RemotePythonThrift(object):
 
   def __init__(self, http_base):
     self._base = http_base
-    self._staging_dir = tempfile.mkdtemp(dir=os.path.dirname(__file__))
+    self._staging_dir = os.path.dirname(__file__)
+    self._fetched = []
 
   def _fetch(self, sources):
     for source in sources:
@@ -33,14 +33,16 @@ class RemotePythonThrift(object):
       url = urllib2.urlopen(fetch_path)
       with open(target_file, 'wb') as fp:
         fp.write(self.prefilter(url.read(), namespace=namespace))
-      yield target_file
+      self._fetched.append(target_file)
+      yield source_file
 
   def prefilter(self, content, namespace=None):
     return ''.join(['namespace py %s\n' % namespace if namespace else '',
       re.sub(RemotePythonThrift.FROM_RE, RemotePythonThrift.FROM_REPLACEMENT, content)])
 
   def cleanup(self):
-    safe_rmtree(self._staging_dir)
+    for fetched in self._fetched:
+      safe_delete(fetched)
 
   def python_thrift_library(self, name, sources=None, **kw):
     def fetch():
