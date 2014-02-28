@@ -22,12 +22,12 @@ python_library(
 python_library(
   name = "all",
   dependencies = [
-    pants(":modules"),
     pants(":exceptions"),
+    pants(":http"),
+    pants(":modules"),
     pants(":scribe_exceptions"),
     pants(":serverset"),
-    pants(":http"),
-    pants(":vars")
+    pants(":vars"),
   ]
 )
 

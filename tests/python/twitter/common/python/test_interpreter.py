@@ -1,5 +1,5 @@
 # ==================================================================================================
-# Copyright 2011 Twitter, Inc.
+# Copyright 2013 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -14,28 +14,17 @@
 # limitations under the License.
 # ==================================================================================================
 
-python_test_suite(name = 'all',
-  dependencies = [
-    pants(':recordio'),
-    pants(':recordio-thrift'),
-  ]
-)
+import os
 
-python_tests(name = 'recordio',
-  sources = ['recordio_test.py'],
-  dependencies = [
-    pants('src/python/twitter/common/recordio'),
-    pants('src/thrift/com/twitter/test:py-thrift'),
-    pants('3rdparty/python:mox')
-  ],
-  coverage = 'twitter.common.recordio'
-)
+from twitter.common.python import interpreter
 
-python_tests(name = 'recordio-thrift',
-  sources = ['thrift_recordio_test.py'],
-  dependencies = [
-    pants('src/python/twitter/common/recordio:recordio-thrift'),
-    pants('src/thrift/com/twitter/test:py-thrift')
-  ],
-  coverage = 'twitter.common.recordio'
-)
+from mock import patch
+
+
+class TestPythonInterpreter(object):
+
+  def test_all_does_not_raise_with_empty_path_envvar(self):
+    """ additionally, tests that the module does not raise at import """
+    with patch.dict(os.environ, clear=True):
+      reload(interpreter)
+      interpreter.PythonInterpreter.all()

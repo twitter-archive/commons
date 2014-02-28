@@ -1,14 +1,14 @@
 python_test_suite(
   name = 'all',
   dependencies = [
-    pants(':examples')
+    pants(':examples'),
   ]
 )
 
 python_test_suite(
   name = 'examples',
   dependencies = [
-    pants(':test_pingpong_server')
+    pants(':test_pingpong_server'),
   ]
 )
 

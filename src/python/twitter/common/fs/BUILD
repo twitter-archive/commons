@@ -18,9 +18,10 @@ python_library(
   name = 'fs',
   sources = globs('*.py'),
   dependencies = [
-        pants('src/python/twitter/common'),
-        pants("src/python/twitter/common/string"),
-        pants('src/python/twitter/common/util'),
+      pants("src/python/twitter/common/contextutil"),
+      pants("src/python/twitter/common/quantity"),
+      pants("src/python/twitter/common/string"),
+      pants('src/python/twitter/common/util'),
   ],
   provides = setup_py(
     name = 'twitter.common.fs',

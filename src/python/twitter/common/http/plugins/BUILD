@@ -1,5 +1,5 @@
 # ==================================================================================================
-# Copyright 2011 Twitter, Inc.
+# Copyright 2014 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -14,28 +14,30 @@
 # limitations under the License.
 # ==================================================================================================
 
-python_test_suite(name = 'all',
+python_library(
+  name = 'echo',
+  sources = ['__init__.py', 'echo.py'],
   dependencies = [
-    pants(':recordio'),
-    pants(':recordio-thrift'),
+    pants('src/python/twitter/common/http')
   ]
 )
 
-python_tests(name = 'recordio',
-  sources = ['recordio_test.py'],
+python_library(
+  name = 'kerberos',
+  sources = ['__init__.py', 'kerberos.py'],
   dependencies = [
-    pants('src/python/twitter/common/recordio'),
-    pants('src/thrift/com/twitter/test:py-thrift'),
-    pants('3rdparty/python:mox')
-  ],
-  coverage = 'twitter.common.recordio'
+    pants('src/python/twitter/common/contextutil'),
+    pants('src/python/twitter/common/http'),
+    pants('3rdparty/python:kerberos')
+  ]
 )
 
-python_tests(name = 'recordio-thrift',
-  sources = ['thrift_recordio_test.py'],
+python_library(
+  name = 'plugins',
+  sources = globs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/recordio:recordio-thrift'),
-    pants('src/thrift/com/twitter/test:py-thrift')
-  ],
-  coverage = 'twitter.common.recordio'
+    pants('src/python/twitter/common/contextutil'),
+    pants('src/python/twitter/common/http'),
+    pants('3rdparty/python:kerberos')
+  ]
 )
