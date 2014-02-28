@@ -93,7 +93,8 @@ public final class JvmStats {
           "mx bean method " + methodName + " can't be stored as Long metric");
     }
     AbstractGauge<Long> gauge = new AbstractGauge<Long>(gaugeName) {
-      @Override public Long read() {
+      @Override
+      public Long read() {
         try {
           return (Long) method.invoke(arg);
         } catch (IllegalAccessException ex) {
@@ -106,21 +107,25 @@ public final class JvmStats {
     return gauge;
   }
 
-  private static void registerMemoryStats(final MetricRegistry stats, final MemoryUsage usage) {
-    if (usage != null) {
+  private interface MemoryReporter {
+    MemoryUsage getUsage();
+  }
+
+  private static void registerMemoryStats(final MetricRegistry stats, final MemoryReporter mem) {
+    if (mem.getUsage() != null) {
       stats.register(new AbstractGauge<Long>("committed") {
         @Override public Long read() {
-          return usage.getCommitted();
+          return mem.getUsage().getCommitted();
         }
       });
       stats.register(new AbstractGauge<Long>("max") {
         @Override public Long read() {
-          return usage.getMax();
+          return mem.getUsage().getMax();
         }
       });
       stats.register(new AbstractGauge<Long>("used") {
         @Override public Long read() {
-          return usage.getUsed();
+          return mem.getUsage().getUsed();
         }
       });
     }
@@ -134,12 +139,18 @@ public final class JvmStats {
     final MemoryMXBean mem = ManagementFactory.getMemoryMXBean();
 
     // memory stats
-    final MemoryUsage heap = mem.getHeapMemoryUsage();
     final MetricRegistry heapRegistry = stats.scope("heap");
-    registerMemoryStats(heapRegistry, heap);
-    final MemoryUsage nonHeap = mem.getNonHeapMemoryUsage();
+    registerMemoryStats(heapRegistry, new MemoryReporter() {
+      @Override public MemoryUsage getUsage() {
+        return mem.getHeapMemoryUsage();
+      }
+    });
     final MetricRegistry nonHeapRegistry = stats.scope("nonheap");
-    registerMemoryStats(nonHeapRegistry, nonHeap);
+    registerMemoryStats(nonHeapRegistry, new MemoryReporter() {
+      @Override public MemoryUsage getUsage() {
+        return mem.getNonHeapMemoryUsage();
+      }
+    });
 
     // threads
     final ThreadMXBean threads = ManagementFactory.getThreadMXBean();
@@ -195,8 +206,7 @@ public final class JvmStats {
     // os
     final OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
     stats.register(new AbstractGauge<Integer>("num_cpus") {
-      @Override
-      public Integer read() {
+      @Override public Integer read() {
         return os.getAvailableProcessors();
       }
     });
@@ -206,20 +216,17 @@ public final class JvmStats {
 
       // if this is indeed an operating system
       stats.register(new AbstractGauge<Long>("free_physical_memory") {
-        @Override
-        public Long read() {
+        @Override public Long read() {
           return sunOsMbean.getFreePhysicalMemorySize();
         }
       });
       stats.register(new AbstractGauge<Long>("free_swap") {
-        @Override
-        public Long read() {
+        @Override public Long read() {
           return sunOsMbean.getFreeSwapSpaceSize();
         }
       });
       stats.register(new AbstractGauge<Long>("process_cpu_time") {
-        @Override
-        public Long read() {
+        @Override public Long read() {
           return sunOsMbean.getProcessCpuTime();
         }
       });
@@ -228,14 +235,12 @@ public final class JvmStats {
       // it's a unix system... I know this!
       final UnixOperatingSystemMXBean unix = (UnixOperatingSystemMXBean) os;
       stats.register(new AbstractGauge<Long>("fd_count") {
-        @Override
-        public Long read() {
+        @Override public Long read() {
           return unix.getOpenFileDescriptorCount();
         }
       });
       stats.register(new AbstractGauge<Long>("fd_limit") {
-        @Override
-        public Long read() {
+        @Override public Long read() {
           return unix.getMaxFileDescriptorCount();
         }
       });
@@ -246,11 +251,18 @@ public final class JvmStats {
     final MetricRegistry memRegistry = stats.scope("mem");
     final MetricRegistry currentMem = memRegistry.scope("current");
     final MetricRegistry postGCRegistry = memRegistry.scope("postGC");
-    for (MemoryPoolMXBean pool : memPool) {
+    for (final MemoryPoolMXBean pool : memPool) {
       String name = normalizeName(pool.getName());
-      registerMemoryStats(currentMem.scope(name), pool.getUsage());
-      MemoryUsage postGCUsage = pool.getCollectionUsage();
-      registerMemoryStats(postGCRegistry.scope(name), postGCUsage);
+      registerMemoryStats(currentMem.scope(name), new MemoryReporter() {
+        @Override public MemoryUsage getUsage() {
+          return pool.getUsage();
+        }
+      });
+      registerMemoryStats(postGCRegistry.scope(name), new MemoryReporter() {
+        @Override public MemoryUsage getUsage() {
+          return pool.getCollectionUsage();
+        }
+      });
     }
     currentMem.register(new AbstractGauge<Long>("used") {
       @Override
@@ -299,14 +311,12 @@ public final class JvmStats {
       String name = normalizeName(gc.getName());
       MetricRegistry scoped = memRegistry.scope(name);
       scoped.register(new AbstractGauge<Long>("cycles") {
-        @Override
-        public Long read() {
+        @Override public Long read() {
           return gc.getCollectionCount();
         }
       });
       scoped.register(new AbstractGauge<Long>("msec") {
-        @Override
-        public Long read() {
+        @Override public Long read() {
           return gc.getCollectionTime();
         }
       });
