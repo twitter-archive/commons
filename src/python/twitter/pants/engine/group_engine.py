@@ -142,6 +142,14 @@ class GroupEngine(Engine):
     def attempt(self, timer, explain):
       """Executes the named phase against the current context tracking goal executions in executed.
       """
+      def acquire_lock_if_needed(goal):
+        """If the goal about to be executed requires the lock, then acquire it. If not,
+        then make sure it's released.
+        """
+        if goal.serialize:
+          self._context.acquire_lock()
+        else:
+          self._context.release_lock()
 
       def execute_task(goal, task, targets):
         """Execute and time a single goal that has had all of its dependencies satisfied."""
@@ -178,6 +186,7 @@ class GroupEngine(Engine):
         for group_name, goals in run_queue:
           if not group_name:
             goal = goals[0]
+            acquire_lock_if_needed(goal)
             execution_phases[self._phase].add(goal.name)
             with self._context.new_workunit(name=goal.name, labels=[WorkUnit.GOAL]):
               execute_task(goal, self._tasks_by_goal[goal], self._context.targets())
@@ -215,6 +224,7 @@ class GroupEngine(Engine):
 
               for group_member, goal_chunk in goal_chunks:
                 goal = goals_by_group_member[group_member]
+                acquire_lock_if_needed(goal)
                 execution_phases[self._phase].add((group_name, goal.name))
                 with self._context.new_workunit(name=goal.name, labels=[WorkUnit.GOAL]):
                   execute_task(goal, self._tasks_by_goal[goal], goal_chunk)
