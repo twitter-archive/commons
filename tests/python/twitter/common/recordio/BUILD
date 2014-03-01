@@ -17,7 +17,7 @@
 python_test_suite(name = 'all',
   dependencies = [
     pants(':recordio'),
-    pants(':recordio-thrift')
+    pants(':recordio-thrift'),
   ]
 )
 

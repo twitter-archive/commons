@@ -16,7 +16,7 @@
 
 python_library(
   name = "http",
-  sources = rglobs("*.py"),
+  sources = globs("*.py"),
   dependencies = [
     pants('src/python/twitter/common/lang'),
     pants('src/python/twitter/common/log'),

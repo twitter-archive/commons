@@ -13,12 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==================================================================================================
+
 __author__ = 'tdesai'
 
 import os
 import subprocess
 import sys
-import tempfile
 
 from twitter.common.contextutil import environment_as, temporary_file
 from twitter.common.quantity import Amount, Data
@@ -164,16 +164,15 @@ class HDFSHelper(object):
 
   def read(self, filename):
     """
-      Read will return the contents of the file in a
-      variable
+      Return the contents of filename, or None if an error occurred.
     """
-    tmp_file = tempfile.mktemp()
-    if self._call("-copyToLocal", filename, tmp_file) == 0:
-      with open(tmp_file, "r") as f:
-        text = f.read()
-    else:
-      text = None
-    return text
+    with temporary_file() as fp:
+      os.unlink(fp.name)
+      if self._call("-copyToLocal", filename, fp.name) == 0:
+        with open(fp.name) as f:
+          return f.read()
+      else:
+        return None
 
   def write(self, filename, text):
     """
@@ -196,7 +195,7 @@ class HDFSHelper(object):
     """
     Creates a directory if it does not exists
     """
-    if (not self.exists(path)):
+    if not self.exists(path):
       return self.mkdir(path)
 
   def rm(self, filename):
