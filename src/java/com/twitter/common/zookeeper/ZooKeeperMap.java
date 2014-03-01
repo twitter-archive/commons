@@ -279,6 +279,16 @@ public class ZooKeeperMap<V> extends ForwardingMap<String, V> {
     }
   }
 
+  /**
+   * Unregisters all ZooKeeper watchers using
+   * {@link com.twitter.common.zookeeper.ZooKeeperClient#unregister(org.apache.zookeeper.Watcher)} and prevents any
+   * future mutations to the map or callbacks on the {@link com.twitter.common.zookeeper.ZooKeeperMap.Listener}, if
+   * provided.
+   *
+   * The current (frozen) state of the map is still available to callers via the standard {@link java.util.Map} methods.
+   *
+   * Existing watches currently set on ZooKeeper could still fire once more, however watches will not be re-established.   *
+   */
   public void close() {
     if (shutdown.compareAndSet(false, true)) {
       zkClient.unregister(expirationHandler);
