@@ -146,11 +146,10 @@ class PythonChroot(object):
   def resolve(self, targets):
     children = defaultdict(OrderedSet)
     def add_dep(trg):
-      if trg.is_concrete:
-        for target_type, target_key in self._VALID_DEPENDENCIES.items():
-          if isinstance(trg, target_type):
-            children[target_key].add(trg)
-            return
+      for target_type, target_key in self._VALID_DEPENDENCIES.items():
+        if isinstance(trg, target_type):
+          children[target_key].add(trg)
+          return
       raise self.InvalidDependencyException(trg)
     for target in targets:
       target.walk(add_dep)
