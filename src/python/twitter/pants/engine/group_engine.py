@@ -15,6 +15,7 @@
 # ==================================================================================================
 
 from collections import defaultdict, namedtuple
+from contextlib import contextmanager
 
 from twitter.common.collections import  maybe_list, OrderedDict, OrderedSet
 
@@ -142,12 +143,18 @@ class GroupEngine(Engine):
     def attempt(self, timer, explain):
       """Executes the named phase against the current context tracking goal executions in executed.
       """
-      def acquire_lock_if_needed(goal):
+
+      @contextmanager
+      def lock(goal):
         """If the goal about to be executed requires the lock, then acquire it. If not,
         then make sure it's released.
         """
         if goal.serialize:
           self._context.acquire_lock()
+          try:
+            yield
+          finally:
+            self._context.release_lock()
         else:
           self._context.release_lock()
 
@@ -186,10 +193,10 @@ class GroupEngine(Engine):
         for group_name, goals in run_queue:
           if not group_name:
             goal = goals[0]
-            acquire_lock_if_needed(goal)
-            execution_phases[self._phase].add(goal.name)
-            with self._context.new_workunit(name=goal.name, labels=[WorkUnit.GOAL]):
-              execute_task(goal, self._tasks_by_goal[goal], self._context.targets())
+            with lock(goal):
+              execution_phases[self._phase].add(goal.name)
+              with self._context.new_workunit(name=goal.name, labels=[WorkUnit.GOAL]):
+                execute_task(goal, self._tasks_by_goal[goal], self._context.targets())
           else:
             with self._context.new_workunit(name=group_name, labels=[WorkUnit.GROUP]):
               goals_by_group_member = OrderedDict((GroupMember.from_goal(g), g) for g in goals)
@@ -226,10 +233,10 @@ class GroupEngine(Engine):
 
               for group_member, goal_chunk in goal_chunks:
                 goal = goals_by_group_member[group_member]
-                acquire_lock_if_needed(goal)
-                execution_phases[self._phase].add((group_name, goal.name))
-                with self._context.new_workunit(name=goal.name, labels=[WorkUnit.GOAL]):
-                  execute_task(goal, self._tasks_by_goal[goal], goal_chunk)
+                with lock(goal):
+                  execution_phases[self._phase].add((group_name, goal.name))
+                  with self._context.new_workunit(name=goal.name, labels=[WorkUnit.GOAL]):
+                    execute_task(goal, self._tasks_by_goal[goal], goal_chunk)
 
         if explain:
           tasks_by_goalname = dict((goal.name, task.__class__.__name__)
