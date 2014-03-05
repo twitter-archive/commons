@@ -12,6 +12,21 @@ import com.twitter.common.util.Clock;
  * @see Windowed class for more details about how the window is parametrized.
  * As Statistics cannot be summed easily, this class keep n Statistics instances responsible
  * for multiple window over time.
+ *
+ * <pre>
+ * AAAAAAAAAAAAAAA
+ *      BBBBBBBBBBBBBBB
+ *           CCCCCCCCCCCCCCC
+ *                DDDDDDDDDDDDDDD
+ *                     AAAAAAAAAAAAAAA
+ *                |    |
+ * --------------------------------> t
+ *                t=0  t=1
+ *
+ * At t=0, we insert values in {B,C,D} and query {A}
+ * At t=1, we insert values in {C,D, A} and query {B} (note {A} is reused here)
+ * and so on...
+ * </pre>
  */
 public class WindowedStatistics extends Windowed<Statistics> implements StatisticsInterface {
   public WindowedStatistics(Amount<Long, Time> window, int slices, Clock clock) {
@@ -26,6 +41,7 @@ public class WindowedStatistics extends Windowed<Statistics> implements Statisti
   }
 
   public void accumulate(long value) {
+    sync(getCurrentIndex());
     for (int i=0; i<buffers.length - 1; i++) {
       int j = (buffers.length + getCurrentIndex() - i) % buffers.length;
       buffers[j].accumulate(value);
@@ -33,6 +49,7 @@ public class WindowedStatistics extends Windowed<Statistics> implements Statisti
   }
 
   private Statistics getPrevious() {
+    sync(getCurrentIndex());
     int i = (getCurrentIndex() + 1) % buffers.length;
     return buffers[i];
   }
