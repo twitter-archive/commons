@@ -227,7 +227,7 @@ class JarCreateExecuteTest(JarCreateTestBase):
 
   def test_source_jar_not_required(self):
     self.assert_source_jar_contents(self.context(), empty=True)
- 
+
   def assert_javadoc_jar_contents(self, context, empty=False, **kwargs):
     with self.add_products(context, 'javadoc', self.jl, 'a.html', 'b.html'):
       with self.add_products(context, 'scaladoc', self.sl, 'c.html'):
