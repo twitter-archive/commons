@@ -151,6 +151,7 @@ python_tests(
   name = 'dependees',
   sources = ['test_dependees.py'],
   dependencies = [
+    #TODO tdesai: Get off mox
     pants('3rdparty/python:mox'),
     pants(':base-test'),
     pants('src/python/twitter/pants/base:build_environment'),
@@ -235,6 +236,7 @@ python_tests(
   name = 'jar_publish',
   sources = ['test_jar_publish.py'],
   dependencies = [
+    pants('3rdparty/python:mock'),
     pants(':base-test'),
     pants('src/python/twitter/common/contextutil'),
     pants('src/python/twitter/common/dirutil'),

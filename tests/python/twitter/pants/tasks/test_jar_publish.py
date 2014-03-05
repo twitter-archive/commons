@@ -24,7 +24,8 @@ from twitter.common.dirutil import safe_rmtree
 from twitter.pants.base.context_utils import create_context
 from twitter.pants.base_build_root_test import BaseBuildRootTest
 from twitter.pants.targets.sources import SourceRoot
-from twitter.pants.targets import JavaLibrary, ScalaLibrary
+from twitter.pants.targets.java_library import JavaLibrary
+from twitter.pants.targets.scala_library import ScalaLibrary
 from twitter.pants.tasks import TaskError
 from twitter.pants.tasks.jar_publish import JarPublish
 
@@ -51,20 +52,22 @@ class JarPublishTest(BaseBuildRootTest):
     super(JarPublishTest, cls).setUpClass()
 
     def get_source_root_fs_path(path):
-      return os.path.realpath(os.path.join(cls.build_root, path))
+      return os.path.realpath(os.path.join(cls.BUILD_ROOT, path))
 
     SourceRoot.register(get_source_root_fs_path('src/java'), JavaLibrary)
     SourceRoot.register(get_source_root_fs_path('src/scala'), ScalaLibrary)
 
-    (cls.scala_lib_valid, cls.java_lib_without_publish) = cls.scala_lib_with_java_sources(
-      'src/scala/com/twitter/valid',
-      'scala_foo',
-      ['scala_foo.scala'],
-      'src/java/com/twitter/valid',
-      'java_foo',
-      ['java_foo.java'])
+    cls.jl = cls.create_library('src/java/com/twitter/valid',
+                                'java_library',
+                                'java_foo', ['java_foo.java'])
+    cls.scala_lib_valid = cls.create_library(
+                            'src/scala/com/twitter/valid',
+                            'scala_library',
+                            'scala_foo',
+                            ['scala_foo.scala'],
+                            java_sources=['src/java/com/twitter/valid:java_foo'])
 
-    cls.sl = cls.library('src/scala/com/twitter', 'scala_library', 'bar', ['c.scala'])
+    cls.sl = cls.create_library('src/scala/com/twitter', 'scala_library', 'bar', ['c.scala'])
 
   def setUp(self):
     super(JarPublishTest, self).setUp()
@@ -101,11 +104,11 @@ class JarPublishTest(BaseBuildRootTest):
     self.assertTrue(jar_publish.transitive)
 
   def test_jar_publish_smoke_without_provides(self):
+    jar_publish = JarPublish(self.context())
+    jar_publish.check_clean_master = MagicMock()
+    jar_publish.scm = MagicMock()
+    jar_publish.exported_targets = MagicMock(return_value=[self.sl])
     with pytest.raises(TaskError):
-      jar_publish = JarPublish(self.context())
-      jar_publish.check_clean_master = MagicMock()
-      jar_publish.scm = MagicMock()
-      jar_publish.exported_targets = MagicMock(return_value=[self.sl])
       jar_publish.execute(self.context().targets())
 
   @patch('twitter.pants.tasks.jar_publish.PushDb')
