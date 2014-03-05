@@ -180,8 +180,8 @@ class JarCreate(Task):
       target_classes = classes_by_target.get(target)
       if isinstance(target, ScalaLibrary):
         target_classes = [target_classes]
-        for java_target in target.java_sources:
-          target_classes.append(classes_by_target.get(java_target))
+        for java_source in target.java_sources:
+          target_classes.append(classes_by_target.get(java_source))
 
       target_resources = []
       if target.has_resources:
@@ -214,9 +214,9 @@ class JarCreate(Task):
           jar.write(os.path.join(get_buildroot(), target.target_base, source), source)
 
         if isinstance(target, ScalaLibrary):
-          for java_target in target.java_sources:
-            for java_source in java_target.sources:
-              jar.write(os.path.join(get_buildroot(), java_target.target_base, java_source),
+          for java_source in target.java_sources:
+            for java_source in java_source.sources:
+              jar.write(os.path.join(get_buildroot(), java_source.target_base, java_source),
                         java_source)
 
         if target.has_resources:

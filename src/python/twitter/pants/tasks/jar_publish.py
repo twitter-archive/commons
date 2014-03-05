@@ -735,10 +735,10 @@ class JarPublish(ScmPublish, Task):
     # Todo(Tejal Desai): Add tests for handling java sources changes.
     if isinstance(target, ScalaLibrary):
       for java_target in target.java_sources:
-        for java_target in java_target.sources:
-          path = os.path.join(java_target.target_base, java_target)
+        for java_source in java_target.sources:
+          path = os.path.join(java_source.target_base, java_source)
           with open(path) as fd:
-            sha.update(java_target)
+            sha.update(java_source)
             sha.update(fd.read())
 
     # TODO(John Sirois): handle resources
