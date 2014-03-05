@@ -57,7 +57,7 @@ class BaseBuildRootTest(unittest.TestCase):
     contents: A string containing the contents of the file - '' by default..
     mode:     The mode to write to the file in - over-write by default.
     """
-    with safe_open(os.path.join(cls.build_root, relpath), mode=mode) as fp:
+    with safe_open(os.path.join(cls.BUILD_ROOT, relpath), mode=mode) as fp:
       fp.write(contents)
 
   @classmethod
