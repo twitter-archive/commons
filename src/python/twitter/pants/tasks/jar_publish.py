@@ -36,10 +36,14 @@ from twitter.pants.base.build_environment import get_buildroot, get_scm
 from twitter.pants.base.address import Address
 from twitter.pants.base.target import Target
 from twitter.pants.base.generator import Generator, TemplateData
+
 from twitter.pants.ivy.bootstrapper import Bootstrapper
 from twitter.pants.ivy.ivy import Ivy
+
 from twitter.pants.targets.internal import InternalTarget
 from twitter.pants.targets.resources import Resources
+from twitter.pants.targets.scala_library import ScalaLibrary
+
 from twitter.pants.tasks.scm_publish import ScmPublish, Semver
 
 from . import Task, TaskError
@@ -728,7 +732,16 @@ class JarPublish(ScmPublish, Task):
         sha.update(source)
         sha.update(fd.read())
 
-    # TODO(John Sirois): handle resources and circular dep scala_library java_sources
+    # Todo(Tejal Desai): Add tests for handling java sources changes.
+    if isinstance(target, ScalaLibrary):
+      for java_target in target.java_sources:
+        for java_target in java_target.sources:
+          path = os.path.join(java_target.target_base, java_target)
+          with open(path) as fd:
+            sha.update(java_target)
+            sha.update(fd.read())
+
+    # TODO(John Sirois): handle resources
 
     for jarsig in sorted([jar_coordinate(j) for j in target.jar_dependencies if j.rev]):
       sha.update(jarsig)

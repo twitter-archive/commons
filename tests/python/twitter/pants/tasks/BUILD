@@ -47,6 +47,7 @@ python_test_suite(
     pants(':filemap'),
     pants(':filter'),
     pants(':jar_create'),
+    pants(':jar_publish'),
     pants(':jar_library_with_empty_dependencies'),
     pants(':listtargets'),
     pants(':minimal_cover'),
@@ -225,6 +226,24 @@ python_tests(
     pants('src/python/twitter/pants/targets:scala'),
     pants('src/python/twitter/pants/goal:products'),
     pants('src/python/twitter/pants/tasks:jar_create'),
+    pants('tests/python/twitter/pants/base:base-test'),
+    pants('tests/python/twitter/pants:base-test'),
+  ],
+)
+
+python_tests(
+  name = 'jar_publish',
+  sources = ['test_jar_publish.py'],
+  dependencies = [
+    pants(':base-test'),
+    pants('src/python/twitter/common/contextutil'),
+    pants('src/python/twitter/common/dirutil'),
+    pants('src/python/twitter/pants/java:jar'),
+    pants('src/python/twitter/pants/targets:common'),
+    pants('src/python/twitter/pants/targets:java'),
+    pants('src/python/twitter/pants/targets:scala'),
+    pants('src/python/twitter/pants/goal:products'),
+    pants('src/python/twitter/pants/tasks:jar_publish'),
     pants('tests/python/twitter/pants/base:base-test'),
     pants('tests/python/twitter/pants:base-test'),
   ],
