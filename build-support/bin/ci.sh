@@ -82,7 +82,8 @@ if [[ "${skip_python:-false}" == "false" ]]; then
   banner "Running python tests"
   (
     PANTS_PYTHON_TEST_FAILSOFT=1 ./pants build --timeout=5 tests/python/twitter/common:all && \
-    PANTS_PYTHON_TEST_FAILSOFT=1 ./pants build --timeout=5 tests/python/twitter/pants:all
+    PANTS_PYTHON_TEST_FAILSOFT=1 ./pants build --timeout=5 tests/python/twitter/pants:all && \
+    ./pants setup_py --recursive src/python/twitter/pants:pants-packaged
   ) || die "Python test failure"
 fi
 
