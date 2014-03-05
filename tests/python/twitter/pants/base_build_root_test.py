@@ -18,8 +18,9 @@ import os
 import unittest
 
 from tempfile import mkdtemp
+from textwrap import dedent
 
-from twitter.common.dirutil import safe_open, safe_rmtree, safe_mkdir
+from twitter.common.dirutil import safe_mkdir, safe_open, safe_rmtree
 
 from twitter.pants.base.build_root import BuildRoot
 from twitter.pants.base.address import Address
@@ -30,7 +31,7 @@ from twitter.pants.targets.sources import SourceRoot
 class BaseBuildRootTest(unittest.TestCase):
   """A baseclass useful for tests requiring a temporary buildroot."""
 
-  build_root = None
+  BUILD_ROOT = None
 
   @classmethod
   def build_path(cls, relpath):
@@ -46,7 +47,7 @@ class BaseBuildRootTest(unittest.TestCase):
 
     relpath: The relative path to the directory from the build root.
     """
-    safe_mkdir(os.path.join(cls.build_root, relpath))
+    safe_mkdir(os.path.join(cls.BUILD_ROOT, relpath))
 
   @classmethod
   def create_file(cls, relpath, contents='', mode='w'):
@@ -70,8 +71,8 @@ class BaseBuildRootTest(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
-    cls.build_root = mkdtemp(suffix='_BUILD_ROOT')
-    BuildRoot().path = cls.build_root
+    cls.BUILD_ROOT = mkdtemp(suffix='_BUILD_ROOT')
+    BuildRoot().path = cls.BUILD_ROOT
     cls.create_file('pants.ini')
     Target._clear_all_addresses()
 
@@ -79,7 +80,7 @@ class BaseBuildRootTest(unittest.TestCase):
   def tearDownClass(cls):
     BuildRoot().reset()
     SourceRoot.reset()
-    safe_rmtree(cls.build_root)
+    safe_rmtree(cls.BUILD_ROOT)
 
   @classmethod
   def target(cls, address):
@@ -89,4 +90,67 @@ class BaseBuildRootTest(unittest.TestCase):
 
     Returns the corresponding Target or else None if the address does not point to a defined Target.
     """
-    return Target.get(Address.parse(cls.build_root, address, is_relative=False))
+    return Target.get(Address.parse(cls.BUILD_ROOT, address, is_relative=False))
+
+  @classmethod
+  def create_files(cls, path, files):
+    for f in files:
+      cls.create_file(os.path.join(path, f), contents=f)
+
+  @classmethod
+  def library(cls, path, target_type, name, sources):
+    cls.create_files(path, sources)
+
+    cls.create_target(path, dedent('''
+        %(target_type)s(name='%(name)s',
+          sources=[%(sources)s],
+        )
+      ''' % dict(target_type=target_type, name=name, sources=repr(sources or []))))
+    return cls.target('%s:%s' % (path, name))
+
+  @classmethod
+  def scala_lib_with_java_sources(cls, path, name, sources, java_path, java_name, java_sources,
+                                  java_provides=False):
+    cls.create_target('build/ivy',
+                      dedent('''
+                        repo(name = 'ivy',
+                             url = 'https://art.twitter.biz/',
+                             push_db = 'dummy.pushdb')
+                      '''))
+    cls.create_files(path, sources)
+    cls.create_files(java_path, java_sources)
+
+    if java_provides:
+      cls.create_target(java_path, dedent('''
+        java_library(name='%(name)s',
+          sources=[%(sources)s],
+          provides= artifact(
+                            org = 'com.twitter',
+                            name = 'java_lib',
+                            repo = pants('build/ivy:ivy')),
+        )
+        ''' % dict(name=java_name, sources=repr(java_sources or []))))
+    else:
+      cls.create_target(java_path, dedent('''
+        java_library(name='%(name)s',
+          sources=[%(sources)s],
+        )
+        ''' % dict(name=java_name, sources=repr(java_sources or []))))
+
+    cls.create_target(path, dedent('''
+        scala_library(name='%(name)s',
+          sources=[%(sources)s],
+          java_sources=[pants('%(java_path)s:%(java_name)s')],
+          provides= artifact(
+                      org = 'com.twitter',
+                      name = 'scala_lib',
+                      repo = pants('build/ivy:ivy')),
+        )
+      ''' % dict(name=name, sources=repr(sources or []),
+                 java_path=java_path, java_name=java_name)))
+
+    return (cls.target('%s:%s' % (path, name)), cls.target('%s:%s' % (java_path, java_name)))
+
+  @classmethod
+  def resources(cls, path, name, *sources):
+    return cls.library(path, 'resources', name, sources)

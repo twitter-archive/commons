@@ -18,14 +18,19 @@ import functools
 import os
 
 from contextlib import contextmanager
-from zipfile import ZIP_STORED, ZIP_DEFLATED
+from zipfile import ZIP_DEFLATED, ZIP_STORED
 
+from twitter.common.collections import maybe_list
 from twitter.common.dirutil import safe_mkdir
 
 from twitter.pants.base.build_environment import get_buildroot
+from twitter.pants.goal.products import MultipleRootedProducts
 from twitter.pants.fs import safe_filename
-from twitter.pants.java.jar import open_jar, Manifest
+
+from twitter.pants.java.jar import Manifest, open_jar
 from twitter.pants.targets.jvm_binary import JvmBinary
+from twitter.pants.targets.scala_library import ScalaLibrary
+
 
 from .javadoc_gen import javadoc
 from .scaladoc_gen import scaladoc
@@ -116,7 +121,7 @@ class JarCreate(Task):
     if definitely_create_javadoc and definitely_dont_create_javadoc:
       self.context.log.warn('javadoc jars are required but you have requested they not be created, '
                             'creating anyway')
-    self.jar_javadoc = (True  if definitely_create_javadoc      else
+    self.jar_javadoc = (True if definitely_create_javadoc else
                         False if definitely_dont_create_javadoc else
                         create_javadoc)
     if self.jar_javadoc:
@@ -168,6 +173,10 @@ class JarCreate(Task):
 
     for target in jvm_targets:
       target_classes = classes_by_target.get(target)
+      if isinstance(target, ScalaLibrary):
+        target_classes = [target_classes]
+        for java_target in target.java_sources:
+          target_classes.append(classes_by_target.get(java_target))
 
       target_resources = []
       if target.has_resources:
@@ -180,9 +189,10 @@ class JarCreate(Task):
         with self.create_jar(target, jar_path) as jarfile:
           def add_to_jar(target_products):
             if target_products:
-              for root, products in target_products.rel_paths():
-                for prod in products:
-                  jarfile.write(os.path.join(root, prod), prod)
+              for tgt_product in maybe_list(target_products, MultipleRootedProducts):
+                for (root, products) in tgt_product.rel_paths():
+                  for prod in products:
+                    jarfile.write(os.path.join(root, prod), prod)
           add_to_jar(target_classes)
           for resources_target in target_resources:
             add_to_jar(resources_target)
@@ -197,6 +207,12 @@ class JarCreate(Task):
       with self.create_jar(target, jar_path) as jar:
         for source in target.sources:
           jar.write(os.path.join(get_buildroot(), target.target_base, source), source)
+
+        if isinstance(target, ScalaLibrary):
+          for java_target in target.java_sources:
+            for java_source in java_target.sources:
+              jar.write(os.path.join(get_buildroot(), java_target.target_base, java_source),
+                        java_source)
 
         if target.has_resources:
           for resources in target.resources:
