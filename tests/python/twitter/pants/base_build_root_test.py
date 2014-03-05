@@ -74,6 +74,12 @@ class BaseBuildRootTest(unittest.TestCase):
     cls.BUILD_ROOT = mkdtemp(suffix='_BUILD_ROOT')
     BuildRoot().path = cls.BUILD_ROOT
     cls.create_file('pants.ini')
+    cls.create_target('build-support/ivy',
+                      dedent('''
+                         repo(name = 'ivy',
+                              url = 'https://art.twitter.biz/',
+                              push_db = 'dummy.pushdb')
+                       '''))
     Target._clear_all_addresses()
 
   @classmethod
@@ -94,63 +100,51 @@ class BaseBuildRootTest(unittest.TestCase):
 
   @classmethod
   def create_files(cls, path, files):
+    """Writes to a file under the buildroot with contents same as file name.
+
+    path:  The relative path to the file from the build root.
+    files: List of file names.
+    """
     for f in files:
       cls.create_file(os.path.join(path, f), contents=f)
 
   @classmethod
-  def library(cls, path, target_type, name, sources):
-    cls.create_files(path, sources)
+  def create_library(cls, path, target_type, name, sources, **kwargs):
+    """Creates a library target of given type at the BUILD file at path with sources
 
+     path: The relative path to the BUILD file from the build root.
+     target_type: valid pants target type.
+     name: Name of the library target.
+     sources: List of source file at the path relative to path.
+     **kwargs: Optional attributes that can be set for any library target.
+       Currently it includes support for provides, resources, java_sources
+    """
+    cls.create_files(path, sources)
     cls.create_target(path, dedent('''
-        %(target_type)s(name='%(name)s',
-          sources=[%(sources)s],
-        )
-      ''' % dict(target_type=target_type, name=name, sources=repr(sources or []))))
+          %(target_type)s(name='%(name)s',
+            sources=[%(sources)s],
+            %(resources)s
+            %(provides)s
+            %(java_sources)s
+          )
+        ''' % dict(target_type=target_type,
+                   name=name,
+                   sources=repr(sources or []),
+                   resources=('resources=pants("%s"),' % kwargs.get('resources')
+                              if kwargs.has_key('resources') else ''),
+                   provides=(dedent('''provides=artifact(
+                                                  org = 'com.twitter',
+                                                  name = '%s',
+                                                  repo = pants('build-support/ivy:ivy')
+                                                ),
+                                     '''% name if kwargs.has_key('provides') else '')),
+                   java_sources=('java_sources=[%s]'
+                                 % ','.join(map(lambda str_target: 'pants("%s")' % str_target,
+                                              kwargs.get('java_sources')))
+                                 if kwargs.has_key('java_sources') else ''),
+                   )))
     return cls.target('%s:%s' % (path, name))
 
   @classmethod
-  def scala_lib_with_java_sources(cls, path, name, sources, java_path, java_name, java_sources,
-                                  java_provides=False):
-    cls.create_target('build/ivy',
-                      dedent('''
-                        repo(name = 'ivy',
-                             url = 'https://art.twitter.biz/',
-                             push_db = 'dummy.pushdb')
-                      '''))
-    cls.create_files(path, sources)
-    cls.create_files(java_path, java_sources)
-
-    if java_provides:
-      cls.create_target(java_path, dedent('''
-        java_library(name='%(name)s',
-          sources=[%(sources)s],
-          provides= artifact(
-                            org = 'com.twitter',
-                            name = 'java_lib',
-                            repo = pants('build/ivy:ivy')),
-        )
-        ''' % dict(name=java_name, sources=repr(java_sources or []))))
-    else:
-      cls.create_target(java_path, dedent('''
-        java_library(name='%(name)s',
-          sources=[%(sources)s],
-        )
-        ''' % dict(name=java_name, sources=repr(java_sources or []))))
-
-    cls.create_target(path, dedent('''
-        scala_library(name='%(name)s',
-          sources=[%(sources)s],
-          java_sources=[pants('%(java_path)s:%(java_name)s')],
-          provides= artifact(
-                      org = 'com.twitter',
-                      name = 'scala_lib',
-                      repo = pants('build/ivy:ivy')),
-        )
-      ''' % dict(name=name, sources=repr(sources or []),
-                 java_path=java_path, java_name=java_name)))
-
-    return (cls.target('%s:%s' % (path, name)), cls.target('%s:%s' % (java_path, java_name)))
-
-  @classmethod
-  def resources(cls, path, name, *sources):
-    return cls.library(path, 'resources', name, sources)
+  def create_resources(cls, path, name, *sources):
+    return cls.create_library(path, 'resources', name, sources)
