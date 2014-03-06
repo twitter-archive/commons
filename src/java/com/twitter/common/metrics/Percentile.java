@@ -32,11 +32,17 @@ public class Percentile {
     this.value = value;
   }
 
-  double getQuantile() {
+  /**
+   * Returns the percentile (or quantile) for this value.
+   */
+  public double getQuantile() {
     return quantile;
   }
 
-  long getValue() {
+  /**
+   * Returns the value for this percentile (or quantile).
+   */
+  public long getValue() {
     return value;
   }
 }
