@@ -74,12 +74,6 @@ class BaseBuildRootTest(unittest.TestCase):
     cls.BUILD_ROOT = mkdtemp(suffix='_BUILD_ROOT')
     BuildRoot().path = cls.BUILD_ROOT
     cls.create_file('pants.ini')
-    cls.create_target('build-support/ivy',
-                      dedent('''
-                         repo(name = 'ivy',
-                              url = 'https://art.twitter.biz/',
-                              push_db = 'dummy.pushdb')
-                       '''))
     Target._clear_all_addresses()
 
   @classmethod
