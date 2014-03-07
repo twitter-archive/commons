@@ -20,13 +20,10 @@ import os
 from contextlib import contextmanager
 from zipfile import ZIP_DEFLATED, ZIP_STORED
 
-from twitter.common.collections import maybe_list
 from twitter.common.dirutil import safe_mkdir
 
 from twitter.pants.base.build_environment import get_buildroot
-from twitter.pants.goal.products import MultipleRootedProducts
 from twitter.pants.fs import safe_filename
-
 from twitter.pants.java.jar import Manifest, open_jar
 from twitter.pants.targets.jvm_binary import JvmBinary
 from twitter.pants.targets.scala_library import ScalaLibrary
@@ -185,10 +182,9 @@ class JarCreate(Task):
         with self.create_jar(target, jar_path) as jarfile:
           def add_to_jar(target_products):
             if target_products:
-              for tgt_product in maybe_list(target_products, MultipleRootedProducts):
-                for (root, products) in tgt_product.rel_paths():
-                  for prod in products:
-                    jarfile.write(os.path.join(root, prod), prod)
+              for root, products in target_products.rel_paths():
+                for prod in products:
+                  jarfile.write(os.path.join(root, prod), prod)
           add_to_jar(target_classes)
           for resources_target in target_resources:
             add_to_jar(resources_target)
