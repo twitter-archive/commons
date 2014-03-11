@@ -205,9 +205,9 @@ jar_library(name = 'dnsjava',
 # Common revs for finagle/util/twitter-server artifacts: these need to be bumped in sync
 # Please keep the science netty version in sync with the version used by finagle.
 NETTY_REV = '3.8.0.Final'
-FINAGLE_REV = '6.8.1'
-UTIL_REV = '6.8.1'
-SERVER_REV = '1.3.1'
+FINAGLE_REV = '6.12.2'
+UTIL_REV = '6.12.1'
+SERVER_REV = '1.5.2'
 
 jar_library(name = 'netty',
             dependencies = [ jar(org = 'io.netty', name = 'netty', rev = NETTY_REV) ])
@@ -456,7 +456,7 @@ jar_library(name = 'scalacheck',
 # NOTE(rschonberger): Note that this library needs to be updated every scal compiler update.
 jar_library(name = 'scalatest',
             dependencies = [
-              jar(org='org.scalatest', name='scalatest_2.9.2', rev='1.8').with_sources()
+              jar(org='org.scalatest', name='scalatest_2.9.2', rev='1.9.1').with_sources()
             ]
            )
 
