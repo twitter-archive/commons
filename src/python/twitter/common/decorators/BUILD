@@ -19,7 +19,7 @@ python_library(
   sources = globs('*.py'),
   provides = setup_py(
     name = 'twitter.common.decorators',
-    version = '0.1.0',
+    version = '0.1.1',
     description = 'twitter.common standard decorators.',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',

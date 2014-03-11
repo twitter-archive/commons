@@ -24,7 +24,7 @@ python_library(
   ],
   provides = setup_py(
     name = 'twitter.common.http',
-    version = '0.1.0',
+    version = '0.1.1',
     description = 'twitter.common wrappers for bottle and simple diagnostics endpoints.',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',

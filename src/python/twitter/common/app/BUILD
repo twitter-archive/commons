@@ -28,7 +28,7 @@ python_library(
   ],
   provides = setup_py(
     name = 'twitter.common.app',
-    version = '0.1.0',
+    version = '0.1.1',
     description = "Twitter's Python application lifecycle framework.",
     url = 'https://github.com/twitter/commons/tree/master/src/python/twitter/common/app',
     license = 'Apache License, Version 2.0',

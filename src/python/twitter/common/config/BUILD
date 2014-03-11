@@ -23,7 +23,7 @@ python_library(
   ],
   provides = setup_py(
     name = 'twitter.common.config',
-    version = '0.1.0',
+    version = '0.1.1',
     description = 'twitter.common config parsing library.',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',
