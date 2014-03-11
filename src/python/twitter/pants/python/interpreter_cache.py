@@ -17,6 +17,7 @@
 from __future__ import print_function
 
 import os
+import shutil
 
 from twitter.common.dirutil import safe_mkdir
 from twitter.common.python.http.link import SourceLink
@@ -29,6 +30,7 @@ from twitter.common.python.interpreter import (
 )
 from twitter.common.python.obtainer import Obtainer
 
+from .python_setup import PythonSetup
 from .resolver import crawler_from_config, fetchers_from_config
 
 from pkg_resources import Requirement
@@ -47,7 +49,7 @@ def resolve_interpreter(config, interpreter, requirement, logger=print):
   """Given a :class:`PythonInterpreter` and :class:`Config`, and a requirement,
      return an interpreter with the capability of resolving that requirement or
      None if it's not possible to install a suitable requirement."""
-  interpreter_cache = config.get('python-setup', 'interpreter_cache')
+  interpreter_cache = PythonInterpreterCache.cache_dir(config)
   interpreter_dir = os.path.join(interpreter_cache, str(interpreter.identity))
   if interpreter.satisfies(PythonCapability([requirement])):
     return interpreter
@@ -82,7 +84,7 @@ def resolve_and_link(config, requirement, target_link, installer_provider, logge
     installer = installer_provider(sdist)
     dist_location = installer.bdist()
     target_location = os.path.join(os.path.dirname(target_link), os.path.basename(dist_location))
-    os.rename(dist_location, target_location)
+    shutil.move(dist_location, target_location)
     safe_link(target_location, target_link)
     logger('    installed %s' % target_location)
     return EggLink(target_location)
@@ -115,8 +117,12 @@ def resolve(config, interpreter, logger=print):
 
 
 class PythonInterpreterCache(object):
+  @staticmethod
+  def cache_dir(config):
+    return PythonSetup(config).scratch_dir('interpreter_cache', default_name='interpreters')
+
   def __init__(self, config, logger=None):
-    self._path = config.get('python-setup', 'interpreter_cache')
+    self._path = self.cache_dir(config)
     self._config = config
     safe_mkdir(self._path)
     self._interpreters = set()
@@ -140,7 +146,7 @@ class PythonInterpreterCache(object):
     interpreter_dir = os.path.join(self._path, str(interpreter.identity))
     safe_mkdir(interpreter_dir)
     safe_link(interpreter.binary, os.path.join(interpreter_dir, 'python'))
-    return resolve(self._config, interpreter)
+    return resolve(self._config, interpreter, logger=self._logger)
 
   def setup_cached(self):
     for interpreter_dir in os.listdir(self._path):
