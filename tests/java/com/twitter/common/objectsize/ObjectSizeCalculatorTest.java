@@ -21,7 +21,7 @@ import org.junit.Test;
 
 import com.twitter.common.objectsize.ObjectSizeCalculator.MemoryLayoutSpecification;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 public class ObjectSizeCalculatorTest {
 
