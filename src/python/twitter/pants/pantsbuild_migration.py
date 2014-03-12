@@ -178,7 +178,7 @@ def handle_path(path):
     srcfile.process()
   else:
     for p in os.listdir(path):
-      handle_path(p)
+      handle_path(os.path.join(path, p))
 
 if __name__ == '__main__':
   path = sys.argv[1]
