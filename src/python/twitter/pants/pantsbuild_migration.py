@@ -172,7 +172,7 @@ class PantsSourceFile(object):
 
 
 def handle_path(path):
-  if os.path.isfile(path):
+  if os.path.isfile(path) and path.endswith('.py'):
     print('PROCESSING: %s' % path)
     srcfile = PantsSourceFile(path)
     srcfile.process()
