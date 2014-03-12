@@ -51,6 +51,8 @@ FUTURE_IMPORTS = [
 class Import(object):
   def __init__(self, symbol):
     self._symbol = symbol.strip()
+    if self._symbol.startswith(PANTS_PACKAGE):
+      self._symbol = self._symbol[8:]
 
   def package(self):
     return self._symbol
@@ -65,6 +67,8 @@ class Import(object):
 class FromImport(object):
   def __init__(self, frm, symbols):
     self._from = frm.strip()
+    if self._from.startswith(PANTS_PACKAGE):
+      self._from = self._from[8:]
     self._symbols = [s.strip() for s in symbols]
 
   def package(self):
