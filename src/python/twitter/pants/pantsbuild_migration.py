@@ -177,8 +177,8 @@ def handle_path(path):
     srcfile = PantsSourceFile(path)
     srcfile.process()
   else:
-    for path in os.listdir(path):
-      handle_path(path)
+    for p in os.listdir(path):
+      handle_path(p)
 
 if __name__ == '__main__':
   path = sys.argv[1]
