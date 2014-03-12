@@ -171,8 +171,15 @@ class PantsSourceFile(object):
           outfile.write('\n')
 
 
+def handle_path(path):
+  if os.path.isfile(path):
+    print('PROCESSING: %s' % path)
+    srcfile = PantsSourceFile(path)
+    srcfile.process()
+  else:
+    for path in os.listdir(path):
+      handle_path(path)
+
 if __name__ == '__main__':
   path = sys.argv[1]
-  print('PROCESSING: %s' % path)
-  srcfile = PantsSourceFile(path)
-  srcfile.process()
+  handle_path(path)
