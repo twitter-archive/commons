@@ -31,10 +31,13 @@ KNOWN_STD_LIBS = set(["abc", "anydbm", "argparse", "array", "asynchat", "asyncor
                       "usercustomize", "uuid", "warnings", "weakref", "webbrowser", "whichdb", "xml",
                       "xmlrpclib", "zipfile", "zipimport", "zlib", 'builtins', '__builtin__'])
 
-PANTS_PACKAGE = 'twitter.pants'
+OLD_PANTS_PACKAGE = 'twitter.pants'
+NEW_PANTS_PACKAGE = 'pants'
 
 IMPORT_RE = re.compile(r'import\s+(.*)')
 FROM_IMPORT_RE = re.compile(r'from\s+(.*)\s+import\s+(.*)')
+
+AUTHOR_RE = re.compile(r'__author__\s*=\s*.+')
 
 def has_continuation(line):
   return line.endswith('\\')
@@ -51,7 +54,7 @@ FUTURE_IMPORTS = [
 class Import(object):
   def __init__(self, symbol):
     self._symbol = symbol.strip()
-    if self._symbol.startswith(PANTS_PACKAGE):
+    if self._symbol.startswith(OLD_PANTS_PACKAGE):
       self._symbol = self._symbol[8:]
 
   def package(self):
@@ -67,8 +70,8 @@ class Import(object):
 class FromImport(object):
   def __init__(self, frm, symbols):
     self._from = frm.strip()
-    if self._from.startswith(PANTS_PACKAGE):
-      self._from = self._from[8:]
+    if self._from.startswith(OLD_PANTS_PACKAGE):
+      self._from = NEW_PANTS_PACKAGE + self._from[len(OLD_PANTS_PACKAGE):]
     self._symbols = [s.strip() for s in symbols]
 
   def package(self):
@@ -101,15 +104,18 @@ class PantsSourceFile(object):
       self._old_lines = [line.rstrip() for line in infile.read().splitlines()]
 
   def parse_header(self):
+    # Strip __author__.
+    lines = filter(lambda x: not AUTHOR_RE.match(x), self._old_lines)
+
     # Find first non-header-comment line.
-    p = next(i for i, line in enumerate(self._old_lines) if line and not line.startswith('#'))
-    content_lines = self._old_lines[p:]
+    p = next(i for i, line in enumerate(lines) if line and not line.startswith('#'))
+    content_lines = lines[p:]
 
     def add_import(imp):
       s = imp.package()
       if s.split('.', 1)[0] in KNOWN_STD_LIBS:
         self._stdlib_imports.append(imp)
-      elif s.startswith(PANTS_PACKAGE):
+      elif s.startswith(NEW_PANTS_PACKAGE):
         self._pants_imports.append(imp)
       else:
         self._thirdparty_imports.append(imp)
