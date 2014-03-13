@@ -22,7 +22,7 @@ python_library(
   ],
   provides = setup_py(
     name = 'twitter.common.contextutil',
-    version = '0.1.1',
+    version = '0.1.3',
     description = 'twitter.common standard context managers.',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',

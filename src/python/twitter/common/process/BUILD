@@ -23,7 +23,7 @@ python_library(
   ],
   provides = setup_py(
     name = 'twitter.common.process',
-    version = '0.1.1',
+    version = '0.1.3',
     description = 'twitter.common process management wrapper.',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',

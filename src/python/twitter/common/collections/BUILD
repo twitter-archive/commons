@@ -19,7 +19,7 @@ python_library(
   sources = rglobs('*.py'),
   provides = setup_py(
     name = 'twitter.common.collections',
-    version = '0.1.1',
+    version = '0.1.3',
     description = 'twitter.common collections library.',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',
