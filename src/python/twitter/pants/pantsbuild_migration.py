@@ -43,7 +43,8 @@ def has_continuation(line):
   return line.endswith('\\')
 
 HEADER_COMMENT = [
-  '# Copyright Pants, Inc. See LICENSE file for license details.'
+  '// Copyright 2014 Pants project contributors (see CONTRIBUTORS.md).',
+  '// Licensed under the Apache License, Version 2.0 (see LICENSE).'
 ]
 
 FUTURE_IMPORTS = [
