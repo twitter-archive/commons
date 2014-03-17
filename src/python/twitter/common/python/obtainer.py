@@ -56,6 +56,10 @@ class Obtainer(object):
       self._translator = translators
     self._precedence = precedence
 
+  @property
+  def translator(self):
+    return self._translator
+
   def translate_href(self, href):
     return Package.from_href(href, opener=self._crawler.opener)
 
@@ -65,16 +69,21 @@ class Obtainer(object):
       if package.satisfies(req):
         yield package
 
+  def sort(self, package_list):
+    key = lambda package: self.package_precedence(package, self._precedence)
+    return sorted(package_list, key=key, reverse=True)
+
   def iter(self, req):
     """Given a req, return a list of packages that satisfy the requirement in best match order."""
-    key = lambda package: self.package_precedence(package, self._precedence)
-    for package in sorted(self.iter_unordered(req), key=key, reverse=True):
+    for package in self.sort(self.iter_unordered(req)):
       yield package
+
+  def translate_from(self, obtain_set):
+    for package in obtain_set:
+      dist = self._translator.translate(package)
+      if dist:
+        return dist
 
   def obtain(self, req):
     with TRACER.timed('Obtaining %s' % req):
-      packages = list(self.iter(req))
-      for package in packages:
-        dist = self._translator.translate(package)
-        if dist:
-          return dist
+      return self.translate_from(list(self.iter(req)))
