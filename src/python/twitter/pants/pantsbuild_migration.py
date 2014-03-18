@@ -43,8 +43,8 @@ def has_continuation(line):
   return line.endswith('\\')
 
 HEADER_COMMENT = [
-  '// Copyright 2014 Pants project contributors (see CONTRIBUTORS.md).',
-  '// Licensed under the Apache License, Version 2.0 (see LICENSE).'
+  '# Copyright 2014 Pants project contributors (see CONTRIBUTORS.md).',
+  '# Licensed under the Apache License, Version 2.0 (see LICENSE).'
 ]
 
 FUTURE_IMPORTS = [
@@ -100,6 +100,9 @@ class PantsSourceFile(object):
     self.parse_header()
     self.save()
 
+  def is_empty(self):
+    return not (self._stdlib_imports or self._thirdparty_imports or self._pants_imports or self._body)
+
   def load(self):
     with open(self._path, 'r') as infile:
       self._old_lines = [line.rstrip() for line in infile.read().splitlines()]
@@ -109,7 +112,11 @@ class PantsSourceFile(object):
     lines = filter(lambda x: not AUTHOR_RE.match(x), self._old_lines)
 
     # Find first non-header-comment line.
-    p = next(i for i, line in enumerate(lines) if line and not line.startswith('#'))
+    try:
+      p = next(i for i, line in enumerate(lines) if line and not line.startswith('#'))
+    except StopIteration:
+      return  # File is empty (possibly except for a comment).
+
     content_lines = lines[p:]
 
     def add_import(imp):
@@ -169,13 +176,14 @@ class PantsSourceFile(object):
     sorted_thirdparty_imports = map(str, sorted(self._thirdparty_imports, key=lambda x: x.sort_key()))
     sorted_pants_imports = map(str, sorted(self._pants_imports, key=lambda x: x.sort_key()))
     with open(self._path, 'w') as outfile:
-      for lines in [HEADER_COMMENT, FUTURE_IMPORTS, sorted_stdlib_imports,
-                    sorted_thirdparty_imports, sorted_pants_imports, self._body]:
-        for line in lines:
-          outfile.write(line)
-          outfile.write('\n')
-        if lines:
-          outfile.write('\n')
+      if not self.is_empty():
+        for lines in [HEADER_COMMENT, FUTURE_IMPORTS, sorted_stdlib_imports,
+                      sorted_thirdparty_imports, sorted_pants_imports, self._body]:
+          for line in lines:
+            outfile.write(line)
+            outfile.write('\n')
+          if lines:
+            outfile.write('\n')
 
 
 def handle_path(path):
