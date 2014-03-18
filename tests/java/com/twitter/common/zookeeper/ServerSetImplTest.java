@@ -18,6 +18,7 @@ package com.twitter.common.zookeeper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.Override;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -39,8 +40,10 @@ import com.google.common.testing.TearDown;
 import com.google.gson.GsonBuilder;
 
 import org.apache.thrift.protocol.TProtocol;
+import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
+import org.easymock.IMocksControl;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -52,13 +55,19 @@ import com.twitter.common.thrift.TResourceExhaustedException;
 import com.twitter.common.thrift.Thrift;
 import com.twitter.common.thrift.ThriftFactory;
 import com.twitter.common.thrift.ThriftFactory.ThriftFactoryException;
+import com.twitter.common.zookeeper.Group;
 import com.twitter.common.zookeeper.Group.JoinException;
+import com.twitter.common.zookeeper.Group.WatchException;
 import com.twitter.common.zookeeper.ServerSet.EndpointStatus;
 import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
+import com.twitter.common.zookeeper.ZooKeeperClient;
 import com.twitter.thrift.Endpoint;
 import com.twitter.thrift.ServiceInstance;
 import com.twitter.thrift.Status;
 
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.createControl;
+import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -321,6 +330,35 @@ public class ServerSetImplTest extends BaseZooKeeperTest {
       connected.await();
       server.close();
     }
+  }
+
+  @Test
+  public void testUnwatchOnException() throws Exception {
+    IMocksControl control = createControl();
+
+    ZooKeeperClient zkClient = control.createMock(ZooKeeperClient.class);
+    Watcher onExpirationWatcher = control.createMock(Watcher.class);
+
+    expect(zkClient.registerExpirationHandler(anyObject(Command.class)))
+        .andReturn(onExpirationWatcher);
+
+    expect(zkClient.get()).andThrow(new InterruptedException());
+    expect(zkClient.unregister(onExpirationWatcher)).andReturn(true);
+    control.replay();
+
+    Group group = new Group(zkClient, ZooDefs.Ids.OPEN_ACL_UNSAFE, "/blabla");
+    ServerSetImpl serverset = new ServerSetImpl(zkClient, group);
+
+    try {
+      serverset.watch(new DynamicHostSet.HostChangeMonitor<ServiceInstance>() {
+        @Override
+        public void onChange(ImmutableSet<ServiceInstance> hostSet) {}
+      });
+      fail("Expected MonitorException");
+    } catch (DynamicHostSet.MonitorException e) {
+      // expected
+    }
+    control.verify();
   }
 
   private Service.Iface createThriftClient(DynamicHostSet<ServiceInstance> serverSet)

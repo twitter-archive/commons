@@ -54,6 +54,7 @@ import com.google.gson.Gson;
 
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.KeeperException.NoNodeException;
+import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 
@@ -301,7 +302,7 @@ public class ServerSetImpl implements ServerSet {
     }
 
     public Command watch() throws WatchException, InterruptedException {
-      zkClient.registerExpirationHandler(new Command() {
+      Watcher onExpirationWatcher = zkClient.registerExpirationHandler(new Command() {
         @Override public void execute() {
           // Servers may have changed Status while we were disconnected from ZooKeeper, check and
           // re-register our node watches.
@@ -309,11 +310,19 @@ public class ServerSetImpl implements ServerSet {
         }
       });
 
-      return group.watch(new GroupChangeListener() {
-        @Override public void onGroupChange(Iterable<String> memberIds) {
-          notifyGroupChange(memberIds);
-        }
-      });
+      try {
+        return group.watch(new GroupChangeListener() {
+          @Override public void onGroupChange(Iterable<String> memberIds) {
+            notifyGroupChange(memberIds);
+          }
+        });
+      } catch (WatchException e) {
+        zkClient.unregister(onExpirationWatcher);
+        throw e;
+      } catch (InterruptedException e) {
+        zkClient.unregister(onExpirationWatcher);
+        throw e;
+      }
     }
 
     private ServiceInstance getServiceInstance(final String nodePath) {
