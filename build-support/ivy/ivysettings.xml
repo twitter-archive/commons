@@ -28,32 +28,50 @@ limitations under the License.
   -->
   <include file="${ivysettings.file}"/>
 
+  <property name="sbt.repo.relpath" value="[organization]/[module]/[revision]"/>
+  <property name="sbt.repo.artifact" value="${sbt.repo.relpath}/[type]s/[module].[ext]"/>
+  <property name="sbt.repo.pom" value="${sbt.repo.relpath}/poms/[module].pom"/>
+  <property name="m2.repo.relpath" value="[organisation]/[module]/[revision]"/>
+  <property name="m2.repo.pom" value="${m2.repo.relpath}/[module]-[revision].pom"/>
+  <property name="m2.repo.artifact"
+            value="${m2.repo.relpath}/[artifact]-[revision](-[classifier]).[ext]"/>
+
+  <property name="sbt.repo.dir" value="${user.home}/.ivy2/local" override="false"/>
+  <property name="m2.repo.dir" value="${user.home}/.m2/repository" override="false"/>
+
   <resolvers>
     <chain name="chain-repos" returnFirst="true">
       <_remote_resolvers name="remote-repos"/>
 
-      <!-- Fall back to local repositories-->
+      <!-- Fall back to local repositories
+
+           NB: there is deep ivy magic working here and many stars must align to get -SNAPSHOTs
+           picked up as they change:
+           1.) A filesystem resolver must be used (as opposed to an ibiblio resolver with a file
+               url).
+           2.) The filesystem resolver ivy pattern must be a pom pattern and [module] must be used
+               as the name (<artifactId>) component in the pom basename (as opposed to [artifact]).
+               Its this bit that correctly gets transitive resolution working.
+           3.) A custom cache with useOrigin="true" must be rigged - the default cache and the cache
+               create via the ivy CLI with -cache do not useOrigin.  Its this bit combined with 1
+               that provides a direct link to the local repo pom and jar.
+      -->
+
       <!-- sbt standard -->
-      <ibiblio name="local.sbt"
-               m2compatible="true"
-               usepoms="true"
-               checkmodified="true"
-               root="file://${user.home}/.ivy2/local"/>
+      <filesystem name="local.sbt" m2compatible="false" local="true" checkmodified="true">
+        <ivy pattern="${sbt.repo.dir}/${sbt.repo.pom}"/>
+        <artifact pattern="${sbt.repo.dir}/${sbt.repo.artifact}"/>
+      </filesystem>
 
       <!-- mvn standard -->
-      <ibiblio name="local.m2"
-               m2compatible="true"
-               usepoms="true"
-               checkmodified="true"
-               root="file://${user.home}/.m2/repository"/>
+      <filesystem name="local.m2" m2compatible="true" local="true" checkmodified="true">
+        <ivy pattern="${m2.repo.dir}/${m2.repo.pom}"/>
+        <artifact pattern="${m2.repo.dir}/${m2.repo.artifact}"/>
+      </filesystem>
     </chain>
   </resolvers>
 
-  <!-- don't use the default shared cache with other projects because it gets polluted,
-       but do share it for this project so that deploys that re-clone each time share it -->
   <caches default="default" lockStrategy="no-lock" useOrigin="true">
-    <cache name="default" basedir="${ivy.cache.dir}" useOrigin="true" defaultTTL="8h">
-      <ttl revision="latest.integration" duration="0ms" />
-    </cache>
+    <cache name="default" basedir="${ivy.cache.dir}"/>
   </caches>
 </ivysettings>

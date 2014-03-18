@@ -14,7 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
-from twitter.pants.targets import JavaLibrary, JvmBinary
+from twitter.pants.targets.java_library import JavaLibrary
+from twitter.pants.targets.jvm_binary import JvmBinary
 from twitter.pants.tasks.args_resource_mapper import ArgsResourceMapper
 
 

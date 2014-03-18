@@ -8,13 +8,14 @@ from collections import defaultdict
 from twitter.common import contextutil
 from twitter.common.contextutil import open_zip
 from twitter.common.dirutil import safe_rmtree, safe_mkdir
-from twitter.pants import get_buildroot, Task
+from twitter.pants.base.build_environment import get_buildroot
 from twitter.pants.base.target import Target
 from twitter.pants.base.worker_pool import Work
 from twitter.pants.goal.products import MultipleRootedProducts
 from twitter.pants.reporting.reporting_utils import items_to_report_element
 from twitter.pants.tasks.jvm_compile.jvm_dependency_analyzer import JvmDependencyAnalyzer
 from twitter.pants.tasks.nailgun_task import NailgunTask
+from twitter.pants.tasks import Task
 
 
 class JvmCompile(NailgunTask):
@@ -440,7 +441,8 @@ class JvmCompile(NailgunTask):
           analyses_to_merge.append(self._analysis_file)
         with contextutil.temporary_dir() as tmpdir:
           tmp_analysis = os.path.join(tmpdir, 'analysis')
-          self._analysis_tools.merge_from_paths(analyses_to_merge, tmp_analysis)
+          with self.context.new_workunit(name='merge_analysis'):
+            self._analysis_tools.merge_from_paths(analyses_to_merge, tmp_analysis)
           self.move(tmp_analysis, self._analysis_file)
 
     self._ensure_analysis_tmpdir()

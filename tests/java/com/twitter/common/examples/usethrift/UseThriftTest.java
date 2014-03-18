@@ -14,6 +14,8 @@
 // limitations under the License.
 // =================================================================================================
 
+// Illustrate using Thrift-generated code from Java.
+
 package com.twitter.common.examples.usethrift;
 
 import org.junit.Test;

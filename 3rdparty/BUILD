@@ -358,11 +358,11 @@ jar_library(name='mockito',
            )
 
 jar_library(name='hamcrest-core',
-            dependencies=[ jar(org='org.hamcrest', name='hamcrest-core', rev='1.2') ])
+            dependencies=[ jar(org='org.hamcrest', name='hamcrest-core', rev='1.3') ])
 
 jar_library(name='junit',
             dependencies=[
-              jar(org='junit', name='junit-dep', rev='4.10').with_sources(),
+              jar(org='junit', name='junit-dep', rev='4.11').with_sources(),
               pants(':hamcrest-core')
             ]
            )

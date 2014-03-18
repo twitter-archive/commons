@@ -19,9 +19,10 @@ from __future__ import print_function
 import os
 
 from twitter.pants.java.jar import open_jar
-from twitter.pants.targets import JavaLibrary, ScalaLibrary
+from twitter.pants.targets.java_library import JavaLibrary
+from twitter.pants.targets.scala_library import ScalaLibrary
 
-from . import Task
+from .task import Task
 
 
 RESOURCE_RELDIR = 'com/twitter/common/args/apt'
@@ -40,12 +41,13 @@ class ArgsResourceMapper(Task):
 
   def __init__(self, context, select_targets, transitive, main):
     """
-      :select_targets A predicate that selects the targets to create a trimmed cmdline args resource
-                      file for.
-      :transitive     If True, splits cmdline args resource info for all classes in the transitive
-                      closure of classes depended on by the selected targets; otherwise, just
-                      selects cmdline info for the classes owned by the selected targets directly.
-      :main           True if the split cmdline arg resource info is for a main; False otherwise.
+    :param context: The pants context.
+    :param select_targets: A predicate that selects the targets to create a trimmed cmdline args
+      resource file for.
+    :param transitive: If True, splits cmdline args resource info for all classes in the
+      transitive closure of classes depended on by the selected targets; otherwise, just
+      selects cmdline info for the classes owned by the selected targets directly.
+    :param main: True if the split cmdline arg resource info is for a main; False otherwise.
     """
     Task.__init__(self, context)
 

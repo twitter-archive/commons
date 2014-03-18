@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # Usage:
-#   sh publish_via_git.sh https://github.com/pantsbuild/pantsbuild.github.io.git
+#   sh publish_via_git.sh git@github.com:pantsbuild/pantsbuild.github.io.git
 #
 #   or, to publish to a subdir under there:
 #
-#   sh publish_via_git.sh https://github.com/pantsbuild/pantsbuild.github.io.git subdir
+#   sh publish_via_git.sh git@github.com:pantsbuild/pantsbuild.github.io.git subdir
 #
 # Assuming you've already generated web content in _build/html/ ,
 # "publish" that content to a git repo. This is meant to work with
@@ -31,7 +31,7 @@ mkdir -p $out
 cd $out
 git clone $repo_url
 cd `ls`
-cp -R $root/_build/html/ ./$path_within_url
+cp -R $root/_build/html/* ./$path_within_url
 git add .
 git commit -am"publish by $USER"
 git push origin master

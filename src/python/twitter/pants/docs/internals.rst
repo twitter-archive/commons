@@ -7,7 +7,7 @@ concentrating on how to tailor Pants to your needs, such as integrating it with
 other tools.
 
 If you want to run Pants or to write BUILD files, you probably want
-the :doc:`README` instead.  But if you want to support a new tool or a
+the :doc:`first_concepts` instead.  But if you want to support a new tool or a
 new language, read on.
 
 *********************************
@@ -166,7 +166,12 @@ Code Layout
   **`*.md`** Docs too important for `docs/`.
 
 `base <https://github.com/twitter/commons/tree/master/src/python/twitter/pants/base/>`_
-  Defines `Target` and TODO
+  Defines `Target` and other fundamental pieces/base classes.
+  As a rule of thumb, code in ``base`` shouldn't ``import`` anything in
+  non-base Pants; but many things in non-base Pants ``import`` from ``base``.
+  If you're editing code in ``base`` and find yourself referring to
+  the JVM (or other target-language-specific things), you're probably editing
+  the wrong thing and want to look further up the inheritance tree.
 
 `bin <https://github.com/twitter/commons/tree/master/src/python/twitter/pants/bin/>`_
   The "main" of Pants itself lives here.
@@ -199,6 +204,12 @@ Code Layout
 `tasks <https://github.com/twitter/commons/tree/master/src/python/twitter/pants/tasks/>`_
   Source of the Task classes. E.g., `junit_run`, the code that
   invokes JUnit if someone tests a `java_tests` target.
+
+`tests/.../pants <https://github.com/twitter/commons/tree/master/tests/python/twitter/pants/>`_
+  Tests for Pants. These tend to be ``python_tests`` exercising Pants functions.
+  ``twitter.pants.base_build_root_test.BaseBuildRootTest`` is a very handy
+  class; it has methods to set up and tear down little source trees with
+  ``BUILD`` files.
 
 .. *********
    .pants.d/

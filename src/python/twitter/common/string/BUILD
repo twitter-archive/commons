@@ -22,7 +22,7 @@ python_library(
   ],
   provides = setup_py(
     name = 'twitter.common.string',
-    version = '0.1.0',
+    version = '0.1.3',
     description = 'twitter.common string parsing utilities.',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',

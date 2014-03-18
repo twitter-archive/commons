@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 import httplib
 import json
 import os
@@ -7,15 +8,14 @@ import time
 import urllib
 from urlparse import urlparse
 
-from contextlib import contextmanager
-from twitter.pants import Config
-from twitter.pants.base.worker_pool import WorkerPool
-
-from twitter.pants.goal.artifact_cache_stats import ArtifactCacheStats
+from twitter.pants.base.config import Config
 from twitter.pants.base.run_info import RunInfo
-from twitter.pants.goal.aggregated_timings import AggregatedTimings
+from twitter.pants.base.worker_pool import WorkerPool
 from twitter.pants.base.workunit import WorkUnit
 from twitter.pants.reporting.report import Report
+
+from .aggregated_timings import AggregatedTimings
+from .artifact_cache_stats import ArtifactCacheStats
 
 
 class RunTracker(object):
@@ -47,7 +47,7 @@ class RunTracker(object):
   def from_config(cls, config):
     if not isinstance(config, Config):
       raise ValueError('Expected a Config object, given %s of type %s' % (config, type(config)))
-    info_dir = config.getdefault('info_dir')
+    info_dir = RunInfo.dir(config)
     stats_upload_url = config.getdefault('stats_upload_url', default=None)
     num_foreground_workers = config.getdefault('num_foreground_workers', default=8)
     num_background_workers = config.getdefault('num_background_workers', default=8)

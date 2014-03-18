@@ -18,7 +18,8 @@ python_library(
   name = 'python-source',
   sources = globs('*.py') + globs('http/*.py'),
   dependencies = [
-    pants('3rdparty/python:setuptools'),
+    # Use any setuptools post-distribute merge.
+    python_requirement('setuptools>=1'),
   ],
 )
 
@@ -29,12 +30,12 @@ python_library(
   ],
   provides = setup_py(
     name = 'twitter.common.python',
-    version = '0.3.0',
+    version = '0.4.3',
     description = "Twitter's Python packaging toolchain.",
     long_description = """
-Twitter's Python packaging toolchain.  Includes support for package
-fetching, building, installing, "distillation" into eggs and
-Twitter's "PEX" standalone Python virtual environment.
+Twitter's Python packaging libraries and toolchain for fetching,
+building and packaging dependencies into .pex ("Python EXecutable")
+virtualized environments.
 """,
     url = 'https://github.com/twitter/commons/tree/master/src/python/twitter/common/python',
     license = 'Apache License, Version 2.0',

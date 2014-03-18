@@ -22,7 +22,7 @@ import com.twitter.common.tools.DiagnosticFilters.Treatment;
 
 import static org.easymock.EasyMock.expect;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 public class DiagnosticFiltersTest extends EasyMockTest {
 
