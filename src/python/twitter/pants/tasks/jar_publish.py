@@ -619,7 +619,7 @@ class JarPublish(ScmPublish, Task):
             try:
               ivy = Bootstrapper.default_ivy()
               ivy.execute(jvm_options=jvm_args, args=args,
-                          workunit_factory=self.context.new_workunit, workunit_name = 'jar-publish')
+                          workunit_factory=self.context.new_workunit, workunit_name='jar-publish')
             except (Bootstrapper.Error, Ivy.Error) as e:
               raise TaskError('Failed to push %s! %s' % (jar_coordinate(jar, newver.version()), e))
 
@@ -696,7 +696,7 @@ class JarPublish(ScmPublish, Task):
       def get_synthetic(lang, target):
         mappings = self.context.products.get(lang).get(target)
         if mappings:
-          for generated in mappings.itervalues():
+          for key, generated in mappings.iter():
             for synthetic in generated:
               yield synthetic
 
