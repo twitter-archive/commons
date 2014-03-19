@@ -10,11 +10,12 @@ from twitter.common.python.obtainer import Obtainer
 from twitter.common.python.interpreter import PythonInterpreter
 from twitter.common.python.package import distribution_compatible
 from twitter.common.python.platforms import Platform
-from twitter.common.python.resolver import requirement_is_exact
+from twitter.common.python.resolver import really_resolve, requirement_is_exact
 from twitter.common.python.translator import (
     ChainedTranslator,
     EggTranslator,
     SourceTranslator,
+    Translator
 )
 
 from .python_setup import PythonSetup
@@ -123,6 +124,12 @@ def resolve_multi(config,
           pass
       return dist
 
-    distributions[platform] = working_set.resolve(requirements, env=env, installer=installer)
+    obtainer = Obtainer(Crawler(),
+                        [PyPIFetcher()],
+                        [Translator.default(interpreter=interpreter, platform=platform)])
+    distributions[platform] = really_resolve(requirements=requirements,
+                   obtainer=obtainer,
+                   interpreter=interpreter,
+                   platform=platform)
 
   return distributions
