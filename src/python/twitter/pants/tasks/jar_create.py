@@ -30,7 +30,6 @@ from twitter.pants.java.jar import Manifest, open_jar
 from twitter.pants.targets.jvm_binary import JvmBinary
 from twitter.pants.targets.scala_library import ScalaLibrary
 
-
 from .javadoc_gen import javadoc
 from .scaladoc_gen import scaladoc
 
