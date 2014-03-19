@@ -17,7 +17,7 @@
 scala_library(name = 'jvm-run-example-lib',
   dependencies = [ ],
   sources = [ 'JvmRunExample.scala' ],
-  java_sources=[pants('src/java/com/twitter/common/examples/helloworld:lib')],  
+  java_sources=[pants('src/java/com/twitter/common/examples/helloworld:lib')], 
   provides=artifact(org='com.twitter.common.example',
                     name='scala_lib',
                     repo = 'build-support/commons/ivy:public',),
