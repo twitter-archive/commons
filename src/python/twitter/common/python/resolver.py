@@ -2,6 +2,8 @@ from __future__ import print_function
 
 from collections import defaultdict
 
+from twitter.pants.targets.python_requirement import PythonRequirement
+
 from .base import maybe_requirement_list
 from .fetcher import Fetcher, PyPIFetcher
 from .http import Crawler
@@ -12,7 +14,7 @@ from .package import distribution_compatible
 from .platforms import Platform
 from .translator import EggTranslator, Translator
 
-from pkg_resources import Environment, WorkingSet
+from pkg_resources import Environment, Requirement, WorkingSet
 
 
 class Untranslateable(Exception):
@@ -39,9 +41,21 @@ def really_resolve(requirements, obtainer, interpreter, platform):
   requirement_set = defaultdict(list)
   processed_requirements = set()
 
+
+
   def packages(requirement, obtainer, interpreter, platform, existing=None):
+    if not isinstance(requirement, (Requirement, PythonRequirement)):
+      raise ValueError('Unexpected type: %s' % requirement.__class__.__name__)
+
     if existing is None:
-      existing = list(obtainer.iter(requirement))
+      if hasattr(requirement, 'repository') and requirement.repository:
+        req_obtainer = Obtainer(crawler=Crawler(),
+                                fetchers=[Fetcher([requirement.repository])],
+                                translators=Translator.default(
+                                  interpreter=interpreter, platform=platform))
+        existing = req_obtainer.iter(requirement)
+      else:
+        existing = list(obtainer.iter(requirement))
     return [package for package in existing
             if package.satisfies(requirement)
             and package.compatible(interpreter.identity, platform)]
