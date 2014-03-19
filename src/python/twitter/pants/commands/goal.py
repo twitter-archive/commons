@@ -523,6 +523,7 @@ from twitter.pants.tasks.nailgun_task import NailgunTask
 from twitter.pants.tasks.pathdeps import PathDeps
 from twitter.pants.tasks.prepare_resources import PrepareResources
 from twitter.pants.tasks.protobuf_gen import ProtobufGen
+from twitter.pants.tasks.jar_publish import JarPublish
 from twitter.pants.tasks.scala_repl import ScalaRepl
 from twitter.pants.tasks.scaladoc_gen import ScaladocGen
 from twitter.pants.tasks.scrooge_gen import ScroogeGen
@@ -809,22 +810,24 @@ class JavadocJarShim(JavadocGen):
                                          active=False)
 
 
-class JarCreateGoal(JarCreate):
-  def __init__(self, context):
-    super(JarCreateGoal, self).__init__(context, False)
-
 goal(name='javadoc_publish',
-     action=JavadocJarShim).install('jar')
+     action=JavadocJarShim).install('publish')
 goal(name='scaladoc_publish',
-     action=ScaladocJarShim).install('jar')
+     action=ScaladocJarShim).install('publish')
 goal(name='jar',
-     action=JarCreateGoal,
+     action=JarCreate,
      dependencies=['compile', 'resources', 'bootstrap']).install('jar').with_description('Create one or more jars.')
 goal(name='check_published_deps',
      action=CheckPublishedDeps
 ).install('check_published_deps').with_description(
   'Find references to outdated artifacts published from this BUILD tree.')
 
+goal(name='jar_create_publish',
+     action=JarCreate,
+     dependencies=['compile', 'resources']).install('publish')
+
+goal(name='publish',
+     action=JarPublish).install('publish').with_description('Publish one or more artifacts.')
 
 goal(name='junit',
      action=JUnitRun,
