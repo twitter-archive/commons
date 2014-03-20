@@ -1,5 +1,8 @@
 import itertools
 
+from twitter.common.collections import maybe_list
+
+from .fetcher import FetcherBase
 from .package import (
      EggPackage,
      Package,
@@ -48,7 +51,7 @@ class Obtainer(object):
 
   def __init__(self, crawler, fetchers, translators, precedence=DEFAULT_PACKAGE_PRECEDENCE):
     self._crawler = crawler
-    self._fetchers = fetchers
+    self._fetchers = maybe_list(fetchers, expected_type=FetcherBase)
     # use maybe_list?
     if isinstance(translators, (list, tuple)):
       self._translator = ChainedTranslator(*translators)

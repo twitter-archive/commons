@@ -2,8 +2,6 @@ from __future__ import print_function
 
 from collections import defaultdict
 
-from twitter.pants.targets.python_requirement import PythonRequirement
-
 from .base import maybe_requirement_list
 from .fetcher import Fetcher, PyPIFetcher
 from .http import Crawler
@@ -14,7 +12,7 @@ from .package import distribution_compatible
 from .platforms import Platform
 from .translator import EggTranslator, Translator
 
-from pkg_resources import Environment, Requirement, WorkingSet
+from pkg_resources import Environment, WorkingSet
 
 
 class Untranslateable(Exception):
@@ -25,7 +23,7 @@ class Unsatisfiable(Exception):
   pass
 
 
-def really_resolve(requirements, obtainer, interpreter, platform):
+def really_resolve(requirements, obtainer_factory, interpreter, platform):
   """List all distributions needed to (recursively) meet `requirements`
 
   When resolving dependencies, multiple (potentially incompatible) requirements may be encountered.
@@ -41,27 +39,15 @@ def really_resolve(requirements, obtainer, interpreter, platform):
   requirement_set = defaultdict(list)
   processed_requirements = set()
 
-
-
   def packages(requirement, obtainer, interpreter, platform, existing=None):
-    if not isinstance(requirement, (Requirement, PythonRequirement)):
-      raise ValueError('Unexpected type: %s' % requirement.__class__.__name__)
-
     if existing is None:
-      if hasattr(requirement, 'repository') and requirement.repository:
-        req_obtainer = Obtainer(crawler=Crawler(),
-                                fetchers=[Fetcher([requirement.repository])],
-                                translators=Translator.default(
-                                  interpreter=interpreter, platform=platform))
-        existing = req_obtainer.iter(requirement)
-      else:
-        existing = list(obtainer.iter(requirement))
+      existing = obtainer.iter(requirement)
     return [package for package in existing
             if package.satisfies(requirement)
             and package.compatible(interpreter.identity, platform)]
 
-  def requires(package, obtainer, requirement):
-    dist = obtainer.translator.translate(package)
+  def requires(package, translator, requirement):
+    dist = translator.translate(package)
     if dist is None:
       raise Untranslateable('Package %s is not translateable.' % package)
     return dist.requires(extras=requirement.extras)
@@ -70,6 +56,7 @@ def really_resolve(requirements, obtainer, interpreter, platform):
     while requirements:
       requirement = requirements.pop(0)
       requirement_set[requirement.key].append(requirement)
+      obtainer = obtainer_factory.get(requirement)
       distribution_list = distribution_set[requirement.key] = packages(
           requirement,
           obtainer,
@@ -86,7 +73,7 @@ def really_resolve(requirements, obtainer, interpreter, platform):
       for requirement in requirement_list:
         if requirement in processed_requirements:
           continue
-        new_requirements.update(requires(latest_package, obtainer, requirement))
+        new_requirements.update(requires(latest_package, obtainer.translator, requirement))
         processed_requirements.add(requirement)
       requirements.extend(list(new_requirements))
 

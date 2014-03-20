@@ -124,12 +124,28 @@ def resolve_multi(config,
           pass
       return dist
 
-    obtainer = Obtainer(Crawler(),
-                        [PyPIFetcher()],
-                        [Translator.default(interpreter=interpreter, platform=platform)])
+
+    class ObtainerFactory(object):
+      def __init__(self, platform, interpreter):
+        self.translator = Translator.default(interpreter=interpreter, platform=platform)
+        self._crawler = Crawler()
+        self._pypi_obtainer = Obtainer(self._crawler, PyPIFetcher(), self.translator)
+
+      def get(self, requirement):
+        if hasattr(requirement, 'repository') and requirement.repository:
+          obtainer = Obtainer(crawler=self._crawler,
+                              fetchers=Fetcher([requirement.repository]),
+                              translators=self.translator)
+        else:
+          obtainer = self._pypi_obtainer
+        return obtainer
+
+
     distributions[platform] = really_resolve(requirements=requirements,
-                   obtainer=obtainer,
-                   interpreter=interpreter,
-                   platform=platform)
+                                             obtainer_factory=ObtainerFactory(
+                                               platform=platform,
+                                               interpreter=interpreter),
+                                             interpreter=interpreter,
+                                             platform=platform)
 
   return distributions
