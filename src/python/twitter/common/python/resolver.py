@@ -15,15 +15,11 @@ from .translator import EggTranslator, Translator
 from pkg_resources import Environment, WorkingSet
 
 
-class Untranslateable(Exception):
-  pass
+class Untranslateable(Exception): pass
 
+class Unsatisfiable(Exception): pass
 
-class Unsatisfiable(Exception):
-  pass
-
-
-def really_resolve(requirements, obtainer_factory, interpreter, platform):
+def resolve(requirements, obtainer_factory, interpreter, platform):
   """List all distributions needed to (recursively) meet `requirements`
 
   When resolving dependencies, multiple (potentially incompatible) requirements may be encountered.
@@ -100,7 +96,7 @@ def requirement_is_exact(req):
   return req.specs and len(req.specs) == 1 and req.specs[0][0] == '=='
 
 
-def resolve(requirements,
+def resolve_old(requirements,
             cache=None,
             crawler=None,
             fetchers=None,

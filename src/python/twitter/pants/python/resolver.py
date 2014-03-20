@@ -10,7 +10,7 @@ from twitter.common.python.obtainer import Obtainer
 from twitter.common.python.interpreter import PythonInterpreter
 from twitter.common.python.package import distribution_compatible
 from twitter.common.python.platforms import Platform
-from twitter.common.python.resolver import really_resolve, requirement_is_exact
+from twitter.common.python.resolver import resolve, requirement_is_exact
 from twitter.common.python.translator import (
     ChainedTranslator,
     EggTranslator,
@@ -141,11 +141,11 @@ def resolve_multi(config,
         return obtainer
 
 
-    distributions[platform] = really_resolve(requirements=requirements,
-                                             obtainer_factory=ObtainerFactory(
-                                               platform=platform,
-                                               interpreter=interpreter),
-                                             interpreter=interpreter,
-                                             platform=platform)
+    distributions[platform] = resolve(requirements=requirements,
+                                      obtainer_factory=ObtainerFactory(
+                                        platform=platform,
+                                        interpreter=interpreter),
+                                      interpreter=interpreter,
+                                      platform=platform)
 
   return distributions
