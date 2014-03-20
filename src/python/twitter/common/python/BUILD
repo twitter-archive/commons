@@ -18,6 +18,7 @@ python_library(
   name = 'python-source',
   sources = globs('*.py') + globs('http/*.py'),
   dependencies = [
+    pants('src/python/twitter/common/collections'),
     # Use any setuptools post-distribute merge.
     python_requirement('setuptools>=1'),
   ],
