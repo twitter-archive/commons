@@ -5,18 +5,43 @@ from collections import defaultdict
 from .interpreter import PythonInterpreter
 from .obtainer import DefaultObtainerFactory
 from .orderedset import OrderedSet
-from .package import distribution_compatible
+from .package import Package
 from .platforms import Platform
 
-from pkg_resources import Environment
+from pkg_resources import Distribution
 
 
 class Untranslateable(Exception):
-    pass
+  pass
 
 
 class Unsatisfiable(Exception):
-    pass
+  pass
+
+
+class _DistributionCache(object):
+  _ERROR_MSG = 'Expected %s but got %s'
+  _TRANSLATED_PACKAGES = dict()
+
+  @classmethod
+  def has(cls, package):
+    if not isinstance(package, Package):
+      raise ValueError(cls._ERROR_MSG % (Package, package))
+    return package in cls._TRANSLATED_PACKAGES
+
+  @classmethod
+  def put(cls, package, distribution):
+    if not isinstance(package, Package):
+      raise ValueError(cls._ERROR_MSG % (Package, package))
+    if not isinstance(package, Package):
+      raise ValueError(cls._ERROR_MSG % (Distribution, distribution))
+    cls._TRANSLATED_PACKAGES[package] = distribution
+
+  @classmethod
+  def get(cls, package):
+    if not isinstance(package, Package):
+      raise ValueError(cls._ERROR_MSG % (Package, package))
+    return cls._TRANSLATED_PACKAGES[package]
 
 
 def resolve(requirements, obtainer_factory=None, interpreter=None, platform=None):
@@ -29,6 +54,8 @@ def resolve(requirements, obtainer_factory=None, interpreter=None, platform=None
 
   Note: should `pkg_resources.WorkingSet.resolve` correctly handle multiple requirements in the
   future this should go away in favor of using what setuptools provides.
+
+  :returns: List of :class:`pkg_resources.Distribution` instances meeting `requirements`.
   """
   obtainer_factory = obtainer_factory or DefaultObtainerFactory
   interpreter = interpreter or PythonInterpreter.get()
@@ -47,7 +74,10 @@ def resolve(requirements, obtainer_factory=None, interpreter=None, platform=None
             and package.compatible(interpreter.identity, platform)]
 
   def requires(package, translator, requirement):
-    dist = translator.translate(package)
+    assert(isinstance(package, Package))
+    if not _DistributionCache.has(package):
+      _DistributionCache.put(package, translator.translate(package))
+    dist = _DistributionCache.get(package)
     if dist is None:
       raise Untranslateable('Package %s is not translateable.' % package)
     return dist.requires(extras=requirement.extras)
@@ -83,19 +113,8 @@ def resolve(requirements, obtainer_factory=None, interpreter=None, platform=None
 
   to_activate = set()
   for distributions in distribution_set.values():
-    to_activate.add(obtainer.translate_from([distributions[0]]))
+    to_activate.add(_DistributionCache.get(distributions[0]))
   return to_activate
-
-
-class ResolverEnvironment(Environment):
-  def __init__(self, interpreter, *args, **kw):
-    kw['python'] = interpreter.python
-    self.__interpreter = interpreter
-    super(ResolverEnvironment, self).__init__(*args, **kw)
-
-  def can_add(self, dist):
-    return distribution_compatible(dist, self.__interpreter, platform=self.platform)
-
 
 def requirement_is_exact(req):
   return req.specs and len(req.specs) == 1 and req.specs[0][0] == '=='

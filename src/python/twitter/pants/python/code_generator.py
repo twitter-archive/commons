@@ -64,7 +64,7 @@ class CodeGenerator(object):
 
   @property
   def install_requires(self):
-    return '[]'
+    return []
 
   def generate(self):
     """Generate code for this target, updating the sets .created_packages and
