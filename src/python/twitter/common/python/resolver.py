@@ -69,12 +69,12 @@ def resolve(requirements, obtainer_factory=None, interpreter=None, platform=None
     # get their dependencies
     for requirement_key, requirement_list in requirement_set.items():
       new_requirements = OrderedSet()
-      latest_package = distribution_set[requirement_key][0]
+      highest_package = distribution_set[requirement_key][0]
       for requirement in requirement_list:
         if requirement in processed_requirements:
           continue
         new_requirements.update(
-          requires(latest_package, obtainer_factory(requirement).translator, requirement))
+          requires(highest_package, obtainer_factory(requirement).translator, requirement))
         processed_requirements.add(requirement)
       requirements.extend(list(new_requirements))
 
