@@ -25,7 +25,7 @@ python_library(
   ],
   provides = setup_py(
     name = 'twitter.common.concurrent',
-    version = '0.1.0',
+    version = '0.1.1',
     description = 'twitter.common basic concurrency utilities such as deadline() and defer().',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',

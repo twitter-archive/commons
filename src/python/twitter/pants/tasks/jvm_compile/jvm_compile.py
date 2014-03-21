@@ -4,8 +4,10 @@ import shutil
 import uuid
 
 from collections import defaultdict
+from itertools import groupby
 
 from twitter.common import contextutil
+from twitter.common.collections import OrderedSet
 from twitter.common.contextutil import open_zip
 from twitter.common.dirutil import safe_rmtree, safe_mkdir
 from twitter.pants.base.build_environment import get_buildroot
@@ -318,14 +320,24 @@ class JvmCompile(NailgunTask):
           partition_tmpdir = os.path.join(tmpdir, Target.maybe_readable_identify(vts.targets))
           os.mkdir(partition_tmpdir)
           sources = list(itertools.chain.from_iterable(
-            [invalid_sources_by_target.get(t, []) for t in vts.targets]))
+              [invalid_sources_by_target.get(t, []) for t in vts.targets]))
+          de_duped_sources = list(OrderedSet(sources))
+          if len(sources) != len(de_duped_sources):
+            counts = [(src, len(list(srcs))) for src, srcs in groupby(sorted(sources))]
+            self.context.log.warn(
+                'De-duped the following sources:\n\t%s' %
+                '\n\t'.join(sorted('%d %s' % (cnt, src) for src, cnt in counts if cnt > 1)))
           analysis_file = os.path.join(partition_tmpdir, 'analysis')
-          partitions.append((vts, sources, analysis_file))
+          partitions.append((vts, de_duped_sources, analysis_file))
 
         # Split per-partition files out of the global invalid analysis.
         if self._analysis_parser.is_nonempty_analysis(self._invalid_analysis_file) and partitions:
           with self.context.new_workunit(name='partition-analysis'):
             splits = [(x[1], x[2]) for x in partitions]
+            # We have to pass the analysis for any deleted files through zinc, to give it
+            # a chance to delete the relevant class files.
+            if splits:
+              splits[0] = (splits[0][0] + deleted_sources, splits[0][1])
             self._analysis_tools.split_to_paths(self._invalid_analysis_file, splits)
 
         # Now compile partitions one by one.
@@ -437,7 +449,8 @@ class JvmCompile(NailgunTask):
           analyses_to_merge.append(self._analysis_file)
         with contextutil.temporary_dir() as tmpdir:
           tmp_analysis = os.path.join(tmpdir, 'analysis')
-          self._analysis_tools.merge_from_paths(analyses_to_merge, tmp_analysis)
+          with self.context.new_workunit(name='merge_analysis'):
+            self._analysis_tools.merge_from_paths(analyses_to_merge, tmp_analysis)
           self.move(tmp_analysis, self._analysis_file)
 
     self._ensure_analysis_tmpdir()

@@ -16,8 +16,6 @@
 
 from twitter.pants.base.build_manual import manual
 
-from .python_target import PythonTarget
-
 
 @manual.builddict(tags=["python"])
 class PythonArtifact(object):
@@ -33,6 +31,7 @@ class PythonArtifact(object):
   ])
 
   def __init__(self, **kwargs):
+    """Passes params to `setuptools.setup <https://pythonhosted.org/setuptools/setuptools.html>`_."""
     self._kw = kwargs
     self._binaries = {}
 

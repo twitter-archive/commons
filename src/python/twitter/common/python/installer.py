@@ -122,9 +122,11 @@ class Installer(InstallerBase):
     Install an unpacked distribution with a setup.py.
 
     Simple example:
-      >>> from twitter.common.python.http import Web, SourceLink
-      >>> tornado_tgz = SourceLink('http://pypi.python.org/packages/source/t/tornado/tornado-2.3.tar.gz',
-      ...                          opener=Web())
+      >>> from twitter.common.python.package import SourcePackage
+      >>> from twitter.common.python.http import Web
+      >>> tornado_tgz = SourcePackage(
+      ...    'http://pypi.python.org/packages/source/t/tornado/tornado-2.3.tar.gz',
+      ...    opener=Web())
       >>> tornado_installer = Installer(tornado_tgz.fetch())
       >>> tornado_installer.distribution()
       tornado 2.3 (/private/var/folders/Uh/UhXpeRIeFfGF7HoogOKC+++++TI/-Tmp-/tmpLLe_Ph/lib/python2.6/site-packages)
@@ -201,6 +203,11 @@ class Installer(InstallerBase):
 
 
 class DistributionPackager(InstallerBase):
+  def mixins(self):
+    mixins = super(DistributionPackager, self).mixins().copy()
+    mixins.update(setuptools='setuptools>=1')
+    return mixins
+
   def find_distribution(self):
     dists = os.listdir(self.install_tmp)
     if len(dists) == 0:
@@ -227,15 +234,6 @@ class EggInstaller(DistributionPackager):
   """
     Create a source distribution from an unpacked setup.py-based project.
   """
-  MIXINS = {
-      'setuptools': 'setuptools>=1',
-  }
-
-  def mixins(self):
-    mixins = super(EggInstaller, self).mixins().copy()
-    mixins.update(self.MIXINS)
-    return mixins
-
   def _setup_command(self):
     return ['bdist_egg', '--dist-dir=%s' % self._install_tmp]
 

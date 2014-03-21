@@ -8,6 +8,12 @@ folks elsewhere can fetch and import. In the JVM world, these are jars
 on a server that Maven (or Ivy) looks for. (In the Python world, these are
 eggs; but as of late 2013, Pants doesn't help publish these.)
 
+.. WARNING::
+   This page describes ``pants goal publish``. Alas, this goal is not, in fact,
+   built into Pants *yet*. If you work in an organization with a Pants guru,
+   you might have a ``publish`` goal. Otherwise, please consider this a sneak
+   preview of an upcoming feature.
+
 This page talks about publishing artifacts. We assume you already know enough
 about Pants to *build* the library that underlies an artifact.
 To *use* an artifact that has already been published from some other
@@ -221,4 +227,37 @@ Remember, to publish a target, the target's dependencies must also be published.
 If any of those dependencies have changed since their last publish, Pants
 tries to publish them before publishing the target you specify. Thus, you
 might need to add a ``provides`` to one or more of these.
+
+**********************************************
+Want to Publish Something? Publish Many Things
+**********************************************
+
+If you publish a library that depends on others, you want to
+publish them together.
+Conversely, if you publish a low-level library that other libraries depend upon,
+you want to publish those together, too.
+Thus, if you want to publish one thing, you may find you should publish
+many things.
+Pants eases *part* of this: if you publish a library, it automatically
+prompts you to also publish depended-upon libraries whose source code changed.
+However, Pants does *not*
+automatically publish dependees of a depended-upon library.
+If you know you're about to publish a low-level library
+(perhaps via a "dry run" publish),
+you can use Pants' ``goal dependees`` to find other things to publish.
+
+For example, suppose your new library ``high-level`` depends on another
+library, ``util``.
+If you tested ``high-level`` with ``util`` version 1.2, you want ``util``
+1.2 published and available to ``high-level`` consumers.
+Once you publish ``util`` version 1.2, people might use it.
+If you previously published your ``another-high-level`` library
+library depending on ``util`` version 1.1, ``another-high-level`` consumers
+(who might also consume ``high-level``) might pick up version 1.2 and be sad
+to find out that ``other-high-level`` doesn't work with the new ``util``.
+
+In this example, when you publish ``high-level``, Pants knows to also publish
+``util``.
+If Pants publishes ``util``, it does *not* automatically try to publish
+``high-level`` or ``other-high-level``.
 
