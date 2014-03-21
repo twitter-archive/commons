@@ -1,7 +1,5 @@
-`metrics`
-=========
-
-.. py:module:: twitter.common.metrics
+`twitter.common.metrics`
+========================
 
 A python implementation of the Java/Scala metrics library that we use for exporting metrics of live servers.
 
@@ -18,7 +16,12 @@ These will be scraped in a background thread by the `/vars` handler.  There's al
 mix-in as an easier way to export metrics from entire classes.
 
 
+.. manually putting in Rate signature here due to funky display of time module in output
+   
+.. automodule:: twitter.common.metrics
+   :members: Gauge, NamedGauge, Label, MutableGauge, MutatorGauge, AtomicGauge, CompoundMetrics, Observable, RootMetrics
 
+   .. autoclass:: twitter.common.metrics.Rate(name, gauge, window=Amount(1, secs), clock=time)
 
 
 

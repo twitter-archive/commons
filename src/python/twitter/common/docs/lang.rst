@@ -1,10 +1,9 @@
-`lang`
-======
-
-.. py:module:: twitter.common.lang
+`twitter.common.lang`
+=====================
 
 This is our 2.x / 3.x compatibility swiss-army knife.  it also contains a lot of the idiomatic
-boilerplate for writing code in science.  it is briefly covered in the ref:`stylguide`.
+boilerplate for writing code in science.  it is briefly covered in the ref:`stylguide`. You might
+like:
 
 * Singleton::
 
@@ -33,5 +32,8 @@ boilerplate for writing code in science.  it is briefly covered in the ref:`styl
 
 * Compatibility
 
-  Python 2.x/3.x friendly versions of base types (`StringIO`, `BytesIO`, `str`, `bytes`, as well as
-  a 2.x/3.x compatible `exec_function`
+  A class that holds Python 2.x/3.x friendly versions of base types (`StringIO`, `BytesIO`, `str`, `bytes`, as well as
+  a 2.x/3.x compatible `exec_function` and a backported `total_ordering` decorator.
+
+
+.. py:module:: twitter.common.lang

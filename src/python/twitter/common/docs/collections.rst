@@ -1,5 +1,5 @@
-`collections`
-=============
+`twitter.common.collections`
+============================
 
 .. py:module:: twitter.common.collections
                

@@ -1,12 +1,7 @@
-`git`
-=====
+`twitter.common.git`
+====================
 
-.. py:module:: twitter.common.git
-               
-Git `checkout(...)` and `branch(...)` context managers::
+Context managers for git `branch` and `checkout` operations.
 
-    import subprocess
-    from twitter.common.git import branch
-    with branch('master@{yesterday}'):
-      subprocess.check_call('./pants tests/python/twitter/common:all') 
-
+.. automodule:: twitter.common.git
+   :members:                

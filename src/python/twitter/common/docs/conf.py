@@ -14,6 +14,11 @@
 
 import sys
 import os
+from os.path import dirname
+parent = dirname(os.path.abspath(__file__))
+for num in xrange(3):
+  parent = dirname(parent)
+sys.path.insert(0,parent)
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -47,7 +52,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'twitter.commons.py'
+project = u'twitter.commons (python)'
 copyright = u'Twitter'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -181,3 +186,32 @@ html_static_path = ['_static']
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/': None}
+
+# Mocking external deps
+# The following config variable will work in sphinx 1.3
+autodoc_mock_imports = ['git']
+               
+# but until then the following is shamelessly stolen from rtd
+class Mock(object):
+    __all__ = []
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def __call__(self, *args, **kwargs):
+        return Mock()
+
+    @classmethod
+    def __getattr__(cls, name):
+        if name in ('__file__', '__path__'):
+            return '/dev/null'
+        elif name[0] == name[0].upper():
+            mockType = type(name, (), {})
+            mockType.__module__ = __name__
+            return mockType
+        else:
+            return Mock()
+
+
+for mod_name in ['git', 'socks', 'thrift', 'thrift.transport', 'thrift.protocol',
+                 'thrift.TSerialization', 'zookeeper']:
+    sys.modules[mod_name] = Mock()

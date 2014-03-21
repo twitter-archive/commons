@@ -29,6 +29,8 @@ Be sure to import `app` and call the `register_module` method::
   app.register_module(MyModule())
 
 
+.. _twitter.common.app.modules : 
+
 `twitter.common.modules`
 ========================
 

@@ -1,11 +1,16 @@
-`quantity`
-==========
+`twitter.common.quantity`
+=========================
 
 .. py:module:: twitter.common.quantity
 
-An implementation of the Java Quantity API::
+An implementation of the Java Quantity API - a class that is instantiated with pre-defined units of measure:
 
-    twitter.common.quantity import Amount, Time, Data
+
+.. autoclass:: twitter.common.quantity.Amount
+               
+The predefined units are `Time` and `Data`. Sample usage looks like::
+
+    from twitter.common.quantity import Amount, Time, Data
 
     TIMEOUT = Amount(5, Time.MINUTES)
     SLEEP = Amount(100, Time.MILLISECONDS)
@@ -13,6 +18,12 @@ An implementation of the Java Quantity API::
     while now < TIMEOUT:
       time.sleep(SLEEP.as_(Time.SECONDS))
       now += SLEEP
+
       
-Same for `Data.BYTES`, `Data.MB`, `Data.GB`, etc. There are also basic parsers for '5h23m15s' and '512mb'
-in `twitter.common.quantity.parse_simple`.
+See also `Data.BYTES`, `Data.MB`, `Data.GB`, etc. There are also basic
+parsers for times like '5h23m15s' and sizes like '512mb' in
+`twitter.common.quantity.parse_simple`.
+
+
+.. automodule:: twitter.common.quantity.parse_simple
+  :members:                

@@ -1,7 +1,5 @@
-`string`
-========
-
-.. py:module:: twitter.common.string
+`twitter.common.string`
+=======================
 
 The most useful thing here is the `ScanfParser` for extracting
 structured information from e.g. log lines or git tags.  a few
@@ -16,3 +14,9 @@ and `mesos`. ::
     'foo'
     >>> value.number
     123
+
+See also:
+
+.. automodule:: twitter.common.string
+   :members:
+
