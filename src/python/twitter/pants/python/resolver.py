@@ -78,74 +78,37 @@ def resolve_multi(config,
                  "flask>=0.2" if a matching distribution is available on disk.  Defaults
                  to 3600.
   """
-  now = time.time()
-  distributions = {}
+  class PantsObtainerFactory(ObtainerFactory):
+    def __init__(self, platform, interpreter):
+      self.translator = Translator.default(install_cache=install_cache,
+                                           interpreter=interpreter,
+                                           platform=platform)
+      self._crawler = crawler_from_config(config, conn_timeout=conn_timeout)
+      self._default_obtainer = Obtainer(self._crawler,
+                                        fetchers_from_config(config) or [PyPIFetcher()],
+                                        self.translator)
 
+    def __call__(self, requirement):
+      if hasattr(requirement, 'repository') and requirement.repository:
+        obtainer = Obtainer(crawler=self._crawler,
+                            fetchers=[Fetcher([requirement.repository])],
+                            translators=self.translator)
+      else:
+        obtainer = self._default_obtainer
+      return obtainer
+
+  distributions = dict()
   interpreter = interpreter or PythonInterpreter.get()
   if not isinstance(interpreter, PythonInterpreter):
     raise TypeError('Expected interpreter to be a PythonInterpreter, got %s' % type(interpreter))
 
   install_cache = PythonSetup(config).scratch_dir('install_cache', default_name='eggs')
   platforms = get_platforms(platforms or config.getlist('python-setup', 'platforms', ['current']))
-  crawler = crawler_from_config(config, conn_timeout=conn_timeout)
-  fetchers = fetchers_from_config(config)
-
   for platform in platforms:
-    env = PantsEnvironment(interpreter, platform=platform)
-    working_set = WorkingSet(entries=[])
-
-    shared_options = dict(install_cache=install_cache, platform=platform)
-    egg_translator = EggTranslator(interpreter=interpreter, **shared_options)
-    egg_obtainer = Obtainer(crawler, [Fetcher([install_cache])], egg_translator)
-
-    def installer(req):
-      # Attempt to obtain the egg from the local cache.  If it's an exact match, we can use it.
-      # If it's not an exact match, then if it's been resolved sufficiently recently, we still
-      # use it.
-      dist = egg_obtainer.obtain(req)
-      if dist and (requirement_is_exact(req) or now - os.path.getmtime(dist.location) < ttl):
-        return dist
-
-      # Failed, so follow through to "remote" resolution
-      source_translator = SourceTranslator(
-           interpreter=interpreter,
-           use_2to3=getattr(req, 'use_2to3', False),
-           **shared_options)
-      translator = ChainedTranslator(egg_translator, source_translator)
-      obtainer = Obtainer(
-          crawler,
-          [Fetcher([req.repository])] if getattr(req, 'repository', None) else fetchers,
-          translator)
-      dist = obtainer.obtain(req)
-      if dist:
-        try:
-          touch(dist.location)
-        except OSError:
-          pass
-      return dist
-
-
-    class PantsObtainerFactory(ObtainerFactory):
-      def __init__(self, platform, interpreter):
-        self.translator = Translator.default(interpreter=interpreter, platform=platform)
-        self._crawler = Crawler()
-        self._pypi_obtainer = Obtainer(self._crawler, [PyPIFetcher()], self.translator)
-
-      def __call__(self, requirement):
-        if hasattr(requirement, 'repository') and requirement.repository:
-          obtainer = Obtainer(crawler=self._crawler,
-                              fetchers=[Fetcher([requirement.repository])],
-                              translators=self.translator)
-        else:
-          obtainer = self._pypi_obtainer
-        return obtainer
-
-
     distributions[platform] = resolve(requirements=requirements,
                                       obtainer_factory=PantsObtainerFactory(
                                         platform=platform,
                                         interpreter=interpreter),
                                       interpreter=interpreter,
                                       platform=platform)
-
   return distributions

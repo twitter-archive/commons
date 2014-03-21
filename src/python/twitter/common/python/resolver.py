@@ -74,7 +74,6 @@ def resolve(requirements, obtainer_factory=None, interpreter=None, platform=None
             and package.compatible(interpreter.identity, platform)]
 
   def requires(package, translator, requirement):
-    assert(isinstance(package, Package))
     if not _DistributionCache.has(package):
       _DistributionCache.put(package, translator.translate(package))
     dist = _DistributionCache.get(package)
