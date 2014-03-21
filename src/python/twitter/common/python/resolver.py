@@ -33,7 +33,7 @@ class _DistributionCache(object):
   def put(cls, package, distribution):
     if not isinstance(package, Package):
       raise ValueError(cls._ERROR_MSG % (Package, package))
-    if not isinstance(package, Package):
+    if not isinstance(distribution, Distribution):
       raise ValueError(cls._ERROR_MSG % (Distribution, distribution))
     cls._TRANSLATED_PACKAGES[package] = distribution
 

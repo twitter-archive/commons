@@ -79,23 +79,32 @@ def resolve_multi(config,
                  to 3600.
   """
   class PantsObtainerFactory(ObtainerFactory):
-    def __init__(self, platform, interpreter):
+    def __init__(self, platform, interpreter, install_cache):
       self.translator = Translator.default(install_cache=install_cache,
                                            interpreter=interpreter,
-                                           platform=platform)
+                                           platform=platform,
+                                           conn_timeout=conn_timeout)
       self._crawler = crawler_from_config(config, conn_timeout=conn_timeout)
       self._default_obtainer = Obtainer(self._crawler,
                                         fetchers_from_config(config) or [PyPIFetcher()],
                                         self.translator)
+      self._egg_cache_obtainer = Obtainer(crawler=Crawler(cache=install_cache),
+                                          fetchers=[Fetcher([install_cache])],
+                                          translators=EggTranslator(
+                                            install_cache=install_cache,
+                                            interpreter=interpreter,
+                                            platform=platform,
+                                            conn_timeout=conn_timeout))
 
     def __call__(self, requirement):
-      if hasattr(requirement, 'repository') and requirement.repository:
-        obtainer = Obtainer(crawler=self._crawler,
-                            fetchers=[Fetcher([requirement.repository])],
-                            translators=self.translator)
+      if requirement_is_exact(requirement) and self._egg_cache_obtainer.obtain(requirement):
+          return self._egg_cache_obtainer
+      elif hasattr(requirement, 'repository') and requirement.repository:
+        return Obtainer(crawler=self._crawler,
+                        fetchers=[Fetcher([requirement.repository])],
+                        translators=self.translator)
       else:
-        obtainer = self._default_obtainer
-      return obtainer
+        return self._default_obtainer
 
   distributions = dict()
   interpreter = interpreter or PythonInterpreter.get()
@@ -108,7 +117,8 @@ def resolve_multi(config,
     distributions[platform] = resolve(requirements=requirements,
                                       obtainer_factory=PantsObtainerFactory(
                                         platform=platform,
-                                        interpreter=interpreter),
+                                        interpreter=interpreter,
+                                        install_cache=install_cache),
                                       interpreter=interpreter,
                                       platform=platform)
   return distributions
