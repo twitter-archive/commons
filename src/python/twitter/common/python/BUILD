@@ -17,8 +17,8 @@
 python_library(
   name = 'python-source',
   sources = globs('*.py') + globs('http/*.py'),
+  # Do not add dependencies as these are embedded in every pex.
   dependencies = [
-    pants('src/python/twitter/common/collections'),
     # Use any setuptools post-distribute merge.
     python_requirement('setuptools>=1'),
   ],

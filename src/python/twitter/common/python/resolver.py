@@ -2,17 +2,24 @@ from __future__ import print_function
 
 from collections import defaultdict
 
+from .interpreter import PythonInterpreter
+from .obtainer import DefaultObtainerFactory
 from .orderedset import OrderedSet
 from .package import distribution_compatible
+from .platforms import Platform
 
 from pkg_resources import Environment
 
 
-class Untranslateable(Exception): pass
+class Untranslateable(Exception):
+    pass
 
-class Unsatisfiable(Exception): pass
 
-def resolve(requirements, obtainer_factory, interpreter, platform):
+class Unsatisfiable(Exception):
+    pass
+
+
+def resolve(requirements, obtainer_factory=None, interpreter=None, platform=None):
   """List all distributions needed to (recursively) meet `requirements`
 
   When resolving dependencies, multiple (potentially incompatible) requirements may be encountered.
@@ -23,6 +30,10 @@ def resolve(requirements, obtainer_factory, interpreter, platform):
   Note: should `pkg_resources.WorkingSet.resolve` correctly handle multiple requirements in the
   future this should go away in favor of using what setuptools provides.
   """
+  obtainer_factory = obtainer_factory or DefaultObtainerFactory
+  interpreter = interpreter or PythonInterpreter.get()
+  platform = platform or Platform.current()
+
   requirements = list(requirements)
   distribution_set = defaultdict(list)
   requirement_set = defaultdict(list)
@@ -45,7 +56,7 @@ def resolve(requirements, obtainer_factory, interpreter, platform):
     while requirements:
       requirement = requirements.pop(0)
       requirement_set[requirement.key].append(requirement)
-      obtainer = obtainer_factory.get(requirement)
+      obtainer = obtainer_factory(requirement)
       distribution_list = distribution_set[requirement.key] = packages(
           requirement,
           obtainer,
@@ -62,7 +73,8 @@ def resolve(requirements, obtainer_factory, interpreter, platform):
       for requirement in requirement_list:
         if requirement in processed_requirements:
           continue
-        new_requirements.update(requires(latest_package, obtainer.translator, requirement))
+        new_requirements.update(
+          requires(latest_package, obtainer_factory(requirement).translator, requirement))
         processed_requirements.add(requirement)
       requirements.extend(list(new_requirements))
 
@@ -70,8 +82,8 @@ def resolve(requirements, obtainer_factory, interpreter, platform):
       break
 
   to_activate = set()
-  [to_activate.add(obtainer.translate_from([distributions[0]]))
-   for distributions in distribution_set.values()]
+  for distributions in distribution_set.values():
+    to_activate.add(obtainer.translate_from([distributions[0]]))
   return to_activate
 
 

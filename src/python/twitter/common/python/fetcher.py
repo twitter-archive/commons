@@ -3,8 +3,6 @@ from __future__ import absolute_import
 from abc import abstractmethod
 import random
 
-from twitter.common.collections import maybe_list
-
 from .base import maybe_requirement
 from .compatibility import AbstractClass
 
@@ -20,7 +18,7 @@ class FetcherBase(AbstractClass):
 
 class Fetcher(FetcherBase):
   def __init__(self, urls):
-    self._urls = maybe_list(urls)
+    self._urls = urls
 
   def urls(self, _):
     return self._urls

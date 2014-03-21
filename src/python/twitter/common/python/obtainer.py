@@ -1,15 +1,14 @@
 import itertools
 
-from twitter.common.collections import maybe_list
-
-from .fetcher import FetcherBase
+from .fetcher import PyPIFetcher
+from .http import Crawler
 from .package import (
      EggPackage,
      Package,
      SourcePackage,
 )
 from .tracer import TRACER
-from .translator import ChainedTranslator
+from .translator import ChainedTranslator, Translator
 
 
 class Obtainer(object):
@@ -38,6 +37,10 @@ class Obtainer(object):
   )
 
   @classmethod
+  def default(cls):
+    return cls(Crawler(), fetchers=[PyPIFetcher()], translators=Translator.default())
+
+  @classmethod
   def package_type_precedence(cls, package, precedence=DEFAULT_PACKAGE_PRECEDENCE):
     for rank, package_type in enumerate(reversed(precedence)):
       if isinstance(package, package_type):
@@ -51,8 +54,7 @@ class Obtainer(object):
 
   def __init__(self, crawler, fetchers, translators, precedence=DEFAULT_PACKAGE_PRECEDENCE):
     self._crawler = crawler
-    self._fetchers = maybe_list(fetchers, expected_type=FetcherBase)
-    # use maybe_list?
+    self._fetchers = fetchers
     if isinstance(translators, (list, tuple)):
       self._translator = ChainedTranslator(*translators)
     else:
@@ -90,3 +92,17 @@ class Obtainer(object):
   def obtain(self, req):
     with TRACER.timed('Obtaining %s' % req):
       return self.translate_from(list(self.iter(req)))
+
+
+class ObtainerFactory(object):
+  """Returns an `Obtainer` for the given `Requirement`."""
+  def __call__(self, requirement):
+    raise NotImplementedError()
+
+
+class DefaultObtainerFactory(ObtainerFactory):
+  """Always return `Obtainer.default()` for the given requirement. """
+  _OBTAINER = Obtainer.default()
+
+  def __call__(self, _):
+    return self._OBTAINER

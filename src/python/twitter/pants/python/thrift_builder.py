@@ -44,7 +44,7 @@ class PythonThriftBuilder(CodeGenerator):
 
   @property
   def install_requires(self):
-    return '[\'thrift\']'
+    return ['thrift']
 
   def run_thrifts(self):
     """

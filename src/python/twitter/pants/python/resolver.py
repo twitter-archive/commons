@@ -6,7 +6,7 @@ import time
 from twitter.common.dirutil import touch
 from twitter.common.python.fetcher import Fetcher, PyPIFetcher
 from twitter.common.python.http import Crawler
-from twitter.common.python.obtainer import Obtainer
+from twitter.common.python.obtainer import Obtainer, ObtainerFactory
 from twitter.common.python.interpreter import PythonInterpreter
 from twitter.common.python.package import distribution_compatible
 from twitter.common.python.platforms import Platform
@@ -125,16 +125,16 @@ def resolve_multi(config,
       return dist
 
 
-    class ObtainerFactory(object):
+    class PantsObtainerFactory(ObtainerFactory):
       def __init__(self, platform, interpreter):
         self.translator = Translator.default(interpreter=interpreter, platform=platform)
         self._crawler = Crawler()
-        self._pypi_obtainer = Obtainer(self._crawler, PyPIFetcher(), self.translator)
+        self._pypi_obtainer = Obtainer(self._crawler, [PyPIFetcher()], self.translator)
 
-      def get(self, requirement):
+      def __call__(self, requirement):
         if hasattr(requirement, 'repository') and requirement.repository:
           obtainer = Obtainer(crawler=self._crawler,
-                              fetchers=Fetcher([requirement.repository]),
+                              fetchers=[Fetcher([requirement.repository])],
                               translators=self.translator)
         else:
           obtainer = self._pypi_obtainer
@@ -142,7 +142,7 @@ def resolve_multi(config,
 
 
     distributions[platform] = resolve(requirements=requirements,
-                                      obtainer_factory=ObtainerFactory(
+                                      obtainer_factory=PantsObtainerFactory(
                                         platform=platform,
                                         interpreter=interpreter),
                                       interpreter=interpreter,
