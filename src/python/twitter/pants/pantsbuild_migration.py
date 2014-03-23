@@ -85,6 +85,43 @@ class FromImport(object):
     return 'from %s import %s' % (self._from, ', '.join(sorted(self._symbols)))
 
 
+class BuildFile(object):
+  def __init__(self, path):
+    self._path = path
+    self._body = []
+
+  def process(self):
+    self.load()
+    self.parse_header()
+    self.save()
+
+  def load(self):
+    with open(self._path, 'r') as infile:
+      self._old_lines = [line.rstrip() for line in infile.read().splitlines()]
+
+  def parse_header(self):
+    # Find first non-header-comment line.
+    try:
+      p = next(i for i, line in enumerate(self._old_lines) if line and not line.startswith('#'))
+    except StopIteration:
+      return  # File is empty (possibly except for a comment).
+    self._body = self._old_lines[p:]
+    # Remove any trailing empty lines.
+    while not self._body[-1]:
+      self._body = self._body[0:-1]
+
+  def save(self):
+    with open(self._path, 'w') as outfile:
+      if self._body:
+        for line in HEADER_COMMENT:
+          outfile.write(line)
+          outfile.write('\n')
+        outfile.write('\n')
+        for line in self._body:
+          outfile.write(line)
+          outfile.write('\n')
+
+
 class PantsSourceFile(object):
   def __init__(self, path):
     self._path = path
@@ -162,6 +199,10 @@ class PantsSourceFile(object):
 
     self._body = [''] + line_parts + list(lines_iter)
 
+    # Remove any trailing empty lines.
+    while not self._body[-1]:
+      self._body = self._body[0:-1]
+
   def process_imports(self, imports):
     def absify_import(imp):
       if imp.startswith('from .'):
@@ -178,12 +219,15 @@ class PantsSourceFile(object):
     with open(self._path, 'w') as outfile:
       if not self.is_empty():
         for lines in [HEADER_COMMENT, FUTURE_IMPORTS, sorted_stdlib_imports,
-                      sorted_thirdparty_imports, sorted_pants_imports, self._body]:
+                      sorted_thirdparty_imports, sorted_pants_imports]:
           for line in lines:
             outfile.write(line)
             outfile.write('\n')
           if lines:
             outfile.write('\n')
+        for line in self._body:
+          outfile.write(line)
+          outfile.write('\n')
 
 
 def handle_path(path):
@@ -191,6 +235,10 @@ def handle_path(path):
     if path.endswith('.py'):
       print('PROCESSING: %s' % path)
       srcfile = PantsSourceFile(path)
+      srcfile.process()
+    elif os.path.basename(path).startswith('BUILD'):
+      print('PROCESSING: %s' % path)
+      srcfile = BuildFile(path)
       srcfile.process()
   elif os.path.isdir(path):
     for p in os.listdir(path):
