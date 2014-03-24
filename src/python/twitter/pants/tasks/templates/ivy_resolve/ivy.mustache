@@ -30,10 +30,6 @@ limitations under the License.
     {{/lib.version}}
    />
 
-  {{#lib.is_idl?}}
-    <configurations defaultconfmapping="idl->runtime()">
-  {{/lib.is_idl?}}
-
   {{#lib.configurations?}}
     <configurations defaultconfmapping="default->default(compile),runtime();sources->sources;">
       <conf name="default" description="normal build"/>
