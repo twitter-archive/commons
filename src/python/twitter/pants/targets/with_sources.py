@@ -47,7 +47,7 @@ class TargetWithSources(Target):
     files = []
 
     def _expand(target):
-      files.extend([os.path.abspath(os.path.join(target.target_base, s))
+      files.extend([os.path.join(get_buildroot(), os.path.join(target.target_base, s))
           for s in (target.sources or [])])
       if include_buildfile:
         files.append(target.address.buildfile.full_path)
