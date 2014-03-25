@@ -1,5 +1,5 @@
 # ==================================================================================================
-# Copyright 2012 Twitter, Inc.
+# Copyright 2014 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -14,19 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-scala_library(name = 'jvm-run-example-lib',
-  dependencies = [ ],
-  sources = [ 'JvmRunExample.scala' ],
-  java_sources=[pants('src/java/com/twitter/common/examples/helloworld:lib')], 
-  provides=artifact(org='com.twitter.common.example',
-                    name='scala_lib',
-                    repo = 'build-support/commons/ivy:public',),
-  resources=['']
-)
-
-jvm_binary(name = 'jvm-run-example',
-  main = 'com.twitter.common.example.JvmRunExample',
-  dependencies = [
-    ':jvm-run-example-lib',
-  ]
+resources(
+  name='resources',
+  sources=globs('examples.txt'),
 )
