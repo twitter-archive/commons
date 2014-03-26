@@ -45,7 +45,7 @@ class Netrc(object):
         raise TaskError('A ~/.netrc file is required to authenticate')
       try:
         db = NetrcDb(db)
-        for host, value in db.hosts.iter():
+        for host, value in db.hosts.items():
           auth = db.authenticators(host)
           if auth:
             login, _, password = auth
