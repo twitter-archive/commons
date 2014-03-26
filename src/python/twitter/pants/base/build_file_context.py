@@ -14,7 +14,10 @@
 # limitations under the License.
 # =================================================================================================
 
-from twitter.pants.goal import Context, Goal, Group, Phase
+from twitter.pants.goal.context import Context
+from twitter.pants.goal.goal import Goal
+from twitter.pants.goal.group import Group
+from twitter.pants.goal.phase import Phase
 from twitter.pants.targets.pants_target import Pants
 from twitter.pants.tasks import Task, TaskError
 

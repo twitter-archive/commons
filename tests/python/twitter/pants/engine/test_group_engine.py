@@ -20,7 +20,8 @@ import unittest
 from textwrap import dedent
 
 from twitter.pants.engine.group_engine import GroupEngine, GroupIterator, GroupMember
-from twitter.pants.goal import Goal, Group
+from twitter.pants.goal.goal import Goal
+from twitter.pants.goal.group import Group
 from twitter.pants.tasks import Task
 from twitter.pants.tasks.check_exclusives import ExclusivesMapping
 

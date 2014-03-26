@@ -24,7 +24,8 @@ from contextlib import contextmanager
 from twitter.common.collections.ordereddict import OrderedDict
 from twitter.common.lang import AbstractClass
 
-from twitter.pants.goal import GoalError, Phase
+from twitter.pants.goal.error import GoalError
+from twitter.pants.goal.phase import Phase
 from twitter.pants.tasks.task_error import TaskError
 
 

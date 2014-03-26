@@ -22,11 +22,12 @@ from StringIO import StringIO
 
 from twitter.common.collections import maybe_list
 
-from twitter.pants.base.context_utils import create_context, create_config, create_run_tracker
+from twitter.pants.base.context_utils import create_config, create_run_tracker
 from twitter.pants.base.target import Target
 from twitter.pants.base_build_root_test import BaseBuildRootTest
 from twitter.pants.commands.goal import SpecParser
-from twitter.pants.goal import Mkflag, Context
+from twitter.pants.goal.goal import Mkflag
+from twitter.pants.goal.context import Context
 from twitter.pants.tasks import Task
 from twitter.pants.tasks.console_task import ConsoleTask
 

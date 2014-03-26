@@ -14,7 +14,7 @@
 # limitations under the License.
 # =============================================================================
 
-from twitter.pants.goal import Phase
+from twitter.pants.goal.phase import Phase
 
 from .console_task import ConsoleTask
 

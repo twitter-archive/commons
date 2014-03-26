@@ -22,7 +22,8 @@ from twitter.common.lang import Compatibility
 
 from twitter.pants.base.config import Config
 from twitter.pants.base.target import Target
-from twitter.pants.goal import Context, RunTracker
+from twitter.pants.goal.context import Context
+from twitter.pants.goal.run_tracker import RunTracker
 from twitter.pants.reporting.report import Report
 
 

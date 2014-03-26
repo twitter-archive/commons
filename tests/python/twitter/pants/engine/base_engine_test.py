@@ -16,7 +16,8 @@
 
 import unittest
 
-from twitter.pants.goal import Goal, Phase
+from twitter.pants.goal.goal import Goal
+from twitter.pants.goal.phase import Phase
 
 
 class EngineTestBase(unittest.TestCase):

@@ -15,7 +15,7 @@
 # ==================================================================================================
 
 from twitter.pants.base.config import Config
-from twitter.pants.goal import Context
+from twitter.pants.goal.context import Context
 from twitter.pants.testutils import MockTarget
 from twitter.pants.testutils.base_mock_target_test import BaseMockTargetTest
 

@@ -48,8 +48,11 @@ from twitter.pants.base.workunit import WorkUnit
 from twitter.pants.commands.command import Command
 from twitter.pants.engine.engine import Engine
 from twitter.pants.engine.group_engine import GroupEngine
-from twitter.pants.goal import Context, GoalError, Phase
-from twitter.pants.goal import Goal as goal, Group as group
+from twitter.pants.goal.context import Context
+from twitter.pants.goal.error import GoalError
+from twitter.pants.goal.phase import Phase
+from twitter.pants.goal.goal import Goal as goal
+from twitter.pants.goal.group import Group as group
 from twitter.pants.goal.initialize_reporting import update_reporting
 from twitter.pants.reporting.reporting_server import ReportingServer, ReportingServerManager
 from twitter.pants.tasks import Task, TaskError

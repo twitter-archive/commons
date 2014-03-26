@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-from twitter.pants.goal import Goal
+from twitter.pants.goal.goal import Goal
 from twitter.pants.goal.phase import Phase
 from twitter.pants.tasks import Task
 from twitter.pants.tasks.list_goals import ListGoals

@@ -19,7 +19,7 @@ from collections import defaultdict, namedtuple
 from twitter.common.collections import  maybe_list, OrderedDict, OrderedSet
 
 from twitter.pants.base.workunit import WorkUnit
-from twitter.pants.goal import Goal
+from twitter.pants.goal.goal import Goal
 from twitter.pants.targets.internal import InternalTarget
 from twitter.pants.tasks import TaskError
 from twitter.pants.tasks.check_exclusives import ExclusivesMapping

@@ -1,5 +1,5 @@
 from twitter.pants.base.config import Config
-from twitter.pants.goal import Context
+from twitter.pants.goal.context import Context
 from twitter.pants.testutils import MockTarget
 from twitter.pants.tasks import TaskError
 from twitter.pants.tasks.check_exclusives import CheckExclusives
