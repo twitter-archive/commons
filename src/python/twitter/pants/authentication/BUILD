@@ -1,4 +1,4 @@
-from .netrc import Netrc
+from twitter.pants.authentication.netrc import Netrc
 
 netrc = Netrc()
 
