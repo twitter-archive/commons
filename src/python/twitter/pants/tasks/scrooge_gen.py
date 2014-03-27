@@ -16,17 +16,20 @@
 
 from __future__ import print_function
 
+import errno
 import hashlib
 import os
 import re
-import tempfile
 
 from collections import defaultdict, namedtuple
 
 from twitter.common.collections import OrderedSet
+from twitter.common.contextutil import temporary_dir
 from twitter.common.dirutil import safe_mkdir, safe_open
 
 from twitter.pants.base.build_environment import get_buildroot
+from twitter.pants.base.hash_utils import hash_file
+from twitter.pants.fs import safe_filename
 from twitter.pants.targets.internal import InternalTarget
 from twitter.pants.targets.java_library import JavaLibrary
 from twitter.pants.targets.java_thrift_library import JavaThriftLibrary
@@ -54,13 +57,10 @@ class Compiler(namedtuple('CompilerConfigWithContext', ('context',) + CompilerCo
 
   @property
   def outdir(self):
-    pants_workdir_fallback = os.path.join(get_buildroot(), '.pants.d')
-    workdir_fallback = os.path.join(self.context.config.getdefault('pants_workdir',
-                                                                   default=pants_workdir_fallback),
-                                    self.name)
+    workdir_fallback = os.path.join(self.context.config.getdefault('pants_workdir'), self.name)
     outdir = (self.context.options.scrooge_gen_create_outdir
               or self.context.config.get(self.config_section, 'workdir', default=workdir_fallback))
-    return os.path.relpath(outdir)
+    return outdir
 
   @property
   def verbose(self):
@@ -128,19 +128,12 @@ class ScroogeGen(NailgunTask):
                                                default=[':%s' % compiler.profile])
       self._jvm_tool_bootstrapper.register_jvm_tool(compiler.name, bootstrap_tools)
 
-  def _tempname(self):
-    # don't assume the user's cwd is buildroot
-    pants_workdir = self.context.config.getdefault('pants_workdir')
-    tmp_dir = os.path.join(pants_workdir, 'tmp')
-    safe_mkdir(tmp_dir)
-    fd, path = tempfile.mkstemp(dir=tmp_dir, prefix='')
-    os.close(fd)
-    return path
-
   def execute(self, targets):
+    self._validate(targets)
+
     gentargets_by_dependee = self.context.dependents(
-        on_predicate=self.is_gentarget,
-        from_predicate=lambda t: not self.is_gentarget(t))
+        on_predicate=self._is_gentarget,
+        from_predicate=lambda t: not self._is_gentarget(t))
 
     dependees_by_gentarget = defaultdict(set)
     for dependee, tgts in gentargets_by_dependee.items():
@@ -148,7 +141,7 @@ class ScroogeGen(NailgunTask):
         dependees_by_gentarget[gentarget].add(dependee)
 
     partial_cmds = defaultdict(set)
-    gentargets = filter(self.is_gentarget, targets)
+    gentargets = filter(self._is_gentarget, targets)
 
     for target in gentargets:
       partial_cmd = self.PartialCmd(
@@ -159,85 +152,84 @@ class ScroogeGen(NailgunTask):
       partial_cmds[partial_cmd].add(target)
 
     for partial_cmd, tgts in partial_cmds.items():
-      gen_files_for_source = self.gen(partial_cmd, tgts)
+      gen_files_for_source = self._gen(partial_cmd, tgts)
 
       outdir = partial_cmd.outdir
       langtarget_by_gentarget = {}
       for target in tgts:
         dependees = dependees_by_gentarget.get(target, [])
-        langtarget_by_gentarget[target] = self.createtarget(target, dependees, outdir,
-                                                            gen_files_for_source)
+        langtarget_by_gentarget[target] = self._create_target(target, dependees, outdir,
+                                                              gen_files_for_source)
 
       genmap = self.context.products.get(partial_cmd.language)
       for gentarget, langtarget in langtarget_by_gentarget.items():
         genmap.add(gentarget, get_buildroot(), [langtarget])
         for dep in gentarget.internal_dependencies:
-          if self.is_gentarget(dep):
+          if self._is_gentarget(dep):
             langtarget.update_dependencies([langtarget_by_gentarget[dep]])
 
-  def gen(self, partial_cmd, targets):
+  def _gen(self, partial_cmd, targets):
     with self.invalidated(targets, invalidate_dependents=True) as invalidation_check:
       invalid_targets = []
       for vt in invalidation_check.invalid_vts:
         invalid_targets.extend(vt.targets)
 
       compiler = partial_cmd.compiler
-      import_paths, changed_srcs = compiler.calc_srcs(invalid_targets, self.is_gentarget)
+      import_paths, changed_srcs = compiler.calc_srcs(invalid_targets, self._is_gentarget)
       outdir = partial_cmd.outdir
       if changed_srcs:
-        args = []
+        with temporary_dir() as out:
+          args = []
 
-        for import_path in import_paths:
-          args.extend(['--import-path', import_path])
+          for import_path in import_paths:
+            args.extend(['--import-path', import_path])
 
-        args.extend(['--language', partial_cmd.language])
+          args.extend(['--language', partial_cmd.language])
 
-        for lhs, rhs in partial_cmd.namespace_map:
-          args.extend(['--namespace-map', '%s=%s' % (lhs, rhs)])
+          for lhs, rhs in partial_cmd.namespace_map:
+            args.extend(['--namespace-map', '%s=%s' % (lhs, rhs)])
 
-        if partial_cmd.rpc_style == 'ostrich':
-          args.append('--finagle')
-          args.append('--ostrich')
-        elif partial_cmd.rpc_style == 'finagle':
-          args.append('--finagle')
+          if partial_cmd.rpc_style == 'ostrich':
+            args.append('--finagle')
+            args.append('--ostrich')
+          elif partial_cmd.rpc_style == 'finagle':
+            args.append('--finagle')
 
-        args.extend(['--dest', outdir])
-        safe_mkdir(outdir)
+          gen_dir = os.path.join(out, 'gen')
+          args.extend(['--dest', gen_dir])
+          safe_mkdir(gen_dir)
 
-        if not compiler.strict:
-          args.append('--disable-strict')
+          if not compiler.strict:
+            args.append('--disable-strict')
 
-        if compiler.verbose:
-          args.append('--verbose')
+          if compiler.verbose:
+            args.append('--verbose')
 
-        gen_file_map_path = os.path.relpath(self._tempname())
-        args.extend(['--gen-file-map', gen_file_map_path])
+          gen_file_map_path = os.path.join(out, 'gen-file-map')
+          args.extend(['--gen-file-map', gen_file_map_path])
 
-        args.extend(changed_srcs)
+          args.extend(changed_srcs)
 
-        classpath = self._jvm_tool_bootstrapper.get_jvm_tool_classpath(compiler.name)
-        returncode = self.runjava(classpath=classpath,
-                                  main=compiler.main,
-                                  jvm_options=compiler.jvm_args,
-                                  args=args,
-                                  workunit_name=compiler.name)
-        try:
-          if 0 == returncode:
-            gen_files_for_source = self.parse_gen_file_map(gen_file_map_path, outdir)
-        finally:
-          os.remove(gen_file_map_path)
+          classpath = self._jvm_tool_bootstrapper.get_jvm_tool_classpath(compiler.name)
+          returncode = self.runjava(classpath=classpath,
+                                    main=compiler.main,
+                                    jvm_options=compiler.jvm_args,
+                                    args=args,
+                                    workunit_name=compiler.name)
 
-        if 0 != returncode:
-          raise TaskError('java %s ... exited non-zero (%i)' % (compiler.main, returncode))
-        self.write_gen_file_map(gen_files_for_source, invalid_targets, outdir)
+          if 0 != returncode:
+            raise TaskError('java %s ... exited non-zero (%i)' % (compiler.main, returncode))
 
-    return self.gen_file_map(targets, outdir)
+          gen_files_for_source = self._parse_gen_file_map(gen_file_map_path, gen_dir)
+          self._write_gen_file_map(gen_dir, gen_files_for_source, invalid_targets, outdir)
 
-  def createtarget(self, gentarget, dependees, outdir, gen_files_for_source):
-    assert self.is_gentarget(gentarget)
+    return self._gen_file_map(targets, outdir)
+
+  def _create_target(self, gentarget, dependees, outdir, gen_files_for_source):
+    assert self._is_gentarget(gentarget)
 
     def create_target(files, deps, target_type):
-      return self.context.add_new_target(outdir,
+      return self.context.add_new_target(self._gen_dir_for_target(gentarget, outdir),
                                          target_type,
                                          name=gentarget.id,
                                          sources=files,
@@ -268,7 +260,7 @@ class ScroogeGen(NailgunTask):
     files = []
     has_service = False
     for source in target.sources_relative_to_buildroot():
-      services = calculate_services(source)
+      services = _calculate_services(source)
       genfiles = gen_files_for_source[source]
       has_service = has_service or services
       files.extend(genfiles)
@@ -287,45 +279,88 @@ class ScroogeGen(NailgunTask):
         dependee.dependencies.add(tgt)
     return tgt
 
-  def parse_gen_file_map(self, gen_file_map_path, outdir):
+  @staticmethod
+  def _parse_gen_file_map(gen_file_map_path, outdir):
     d = defaultdict(set)
     with open(gen_file_map_path, 'r') as deps:
       for dep in deps:
         src, cls = dep.strip().split('->')
-        src = os.path.relpath(src.strip())
+        src = src.strip()
         cls = os.path.relpath(cls.strip(), outdir)
         d[src].add(cls)
     return d
 
-  def gen_file_map_path_for_target(self, target, outdir):
-    return os.path.join(outdir, 'gen-file-map-by-target', target.id)
+  @staticmethod
+  def _gen_dir_for_target(target, outdir):
+    return os.path.join(outdir, safe_filename(target.id))
 
-  def gen_file_map_for_target(self, target, outdir):
-    gen_file_map = self.gen_file_map_path_for_target(target, outdir)
-    return self.parse_gen_file_map(gen_file_map, outdir)
+  @classmethod
+  def _gen_file_map_path_for_target(cls, target, outdir):
+    return os.path.join(cls._gen_dir_for_target(target, outdir), 'gen-file-map')
 
-  def gen_file_map(self, targets, outdir):
+  @classmethod
+  def _gen_file_map_for_target(cls, target, outdir):
+    gen_dir = cls._gen_dir_for_target(target, outdir)
+    gen_file_map = cls._gen_file_map_path_for_target(target, outdir)
+    return cls._parse_gen_file_map(gen_file_map, gen_dir)
+
+  @classmethod
+  def _gen_file_map(cls, targets, outdir):
     gen_file_map = defaultdict(set)
     for target in targets:
-      target_gen_file_map = self.gen_file_map_for_target(target, outdir)
+      target_gen_file_map = cls._gen_file_map_for_target(target, outdir)
       gen_file_map.update(target_gen_file_map)
     return gen_file_map
 
-  def write_gen_file_map_for_target(self, gen_file_map, target, outdir):
-    def calc_srcs(target):
-      _, srcs = calculate_compile_sources([target], self.is_gentarget)
-      return srcs
-    with safe_open(self.gen_file_map_path_for_target(target, outdir), 'w') as f:
-      for src in sorted(calc_srcs(target)):
-        clss = gen_file_map[src]
-        for cls in sorted(clss):
-          print('%s -> %s' % (src, os.path.join(outdir, cls)), file=f)
+  def _write_gen_file_map_for_target(self, gen_dir, gen_file_map, target, outdir):
+    # Re-locate generated sources for the given target to a target-specific dir and create a \
+    # mapping file reflecting this final resting place.
 
-  def write_gen_file_map(self, gen_file_map, targets, outdir):
+    def calc_thrifts(tgt):
+      _, thrifts = calculate_compile_sources([tgt], self._is_gentarget)
+      return thrifts
+
+    def safe_link(src, dst):
+      safe_mkdir(os.path.dirname(dst))
+      os.link(src, dst)
+
+    target_gen_dir = self._gen_dir_for_target(target, outdir)
+    safe_mkdir(target_gen_dir, clean=True)
+    gen_sources = defaultdict(list)
+    linked = {}
+    for thrift in calc_thrifts(target):
+      sources = gen_file_map[thrift]
+      for source in sources:
+        gen_source = os.path.join(gen_dir, source)
+        gen_tgt_source = os.path.join(target_gen_dir, source)
+        try:
+          safe_link(gen_source, gen_tgt_source)
+          linked[gen_tgt_source] = thrift
+        except OSError as e:
+          if e.errno == errno.EEXIST:
+            existing_hash = hash_file(gen_tgt_source)
+            replacement_hash = hash_file(gen_source)
+            if existing_hash != replacement_hash:
+              # TODO(John Sirois): Revisit this and prefer raising, for now this helps debug.
+              self.context.log.warn(
+                  'Processing target %s and %s generated from %s already exists with hash %s, '
+                  'skipping file generated from %s with hash %s' % (
+                      target, gen_tgt_source, linked.get(gen_tgt_source), existing_hash, thrift,
+                      replacement_hash))
+        gen_sources[thrift].append(gen_tgt_source)
+
+    gen_file_map_path = self._gen_file_map_path_for_target(target, outdir)
+    with safe_open(gen_file_map_path, 'w') as f:
+      for thrift in sorted(gen_sources.keys()):
+        sources = gen_sources[thrift]
+        for source in sorted(sources):
+          print('%s -> %s' % (thrift, source), file=f)
+
+  def _write_gen_file_map(self, gen_dir, gen_file_map, targets, outdir):
     for target in targets:
-      self.write_gen_file_map_for_target(gen_file_map, target, outdir)
+      self._write_gen_file_map_for_target(gen_dir, gen_file_map, target, outdir)
 
-  def is_gentarget(self, target):
+  def _is_gentarget(self, target):
     result = (isinstance(target, JavaThriftLibrary)
               and target.compiler in self.compiler_for_name.keys())
 
@@ -369,7 +404,7 @@ TYPE_PARSER = re.compile(r'^\s*(const|enum|exception|service|struct|union)\s+([^
 
 
 # TODO(John Sirois): consolidate thrift parsing to 1 pass instead of 2
-def calculate_services(source):
+def _calculate_services(source):
   """Calculates the services generated for the given thrift IDL source.
   Returns an interable of services
   """
