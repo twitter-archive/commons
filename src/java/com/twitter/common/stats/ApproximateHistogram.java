@@ -87,9 +87,10 @@ public final class ApproximateHistogram implements Histogram {
     bufferPool = new long[2][bufferSize];
     indices = new int[depth + 1];
     buffer = new long[depth + 1][bufferSize];
-    for (int i = 0; i < depth; i++) {
-      buffer[i] = new long[bufferSize];
-    }
+    // only allocate the first 2 buffers, lazily allocate the others.
+    allocate(0);
+    allocate(1);
+    Arrays.fill(buffer, 2, buffer.length, null);
     clear();
   }
 
@@ -431,6 +432,16 @@ public final class ApproximateHistogram implements Histogram {
     }
   }
 
+  private void allocate(int i) {
+    if (buffer[i] == null) {
+      buffer[i] = new long[bufferSize];
+    }
+  }
+
+  /**
+   * Recursively collapse the buffers of the tree.
+   * Upper buffers will be allocated on first access in this method.
+   */
   private void recCollapse(long[] buf, int level) {
     // if we reach the root, we can't add more buffer
     if (level == maxDepth) {
@@ -445,6 +456,7 @@ public final class ApproximateHistogram implements Histogram {
       bufferPool[idx] = tmp;
       rootWeight += mergeWeight;
     } else {
+      allocate(level + 1); // lazy allocation (if needed)
       if (level == currentTop) {
         // if we reach the top, add a new buffer
         collapse1(buf, buffer[level], buffer[level + 1]);

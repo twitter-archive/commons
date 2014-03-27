@@ -94,7 +94,7 @@ public class ApproximateHistogramTest {
         ApproximateHistogram hist = new ApproximateHistogram(b, h);
         long actualSize = ObjectSizeCalculator.getObjectSize(hist);
         long estimatedSize = ApproximateHistogram.memoryUsage(b, h);
-        assertEquals(actualSize, estimatedSize);
+        assertTrue("Consume less memory than the constraint", actualSize < estimatedSize);
       }
     }
   }
@@ -116,6 +116,7 @@ public class ApproximateHistogramTest {
 
     for (Amount<Long, Data> maxSize: sizes) {
       ApproximateHistogram hist = new ApproximateHistogram(maxSize);
+      for (long i = 0; i < 1000 * 1000; i++) { hist.add(i); }
       long size = ObjectSizeCalculator.getObjectSize(hist);
       assertTrue(size < maxSize.as(Data.BYTES));
     }
