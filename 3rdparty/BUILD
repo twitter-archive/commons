@@ -296,7 +296,7 @@ jar_library(name = 'gson',
             ])
 
 # common rev for all com.google.guava%guava* artifacts
-GUAVA_REV = '15.0'
+GUAVA_REV = '16.0'
 
 jar_library(name = 'guava',
             dependencies = [
@@ -307,7 +307,6 @@ jar_library(name = 'guava',
 
               # Defined in provided scope so we provide here
               pants(':jsr305'),
-              jar(org = 'javax.inject', name = 'javax.inject', rev = '1').with_sources(),
             ]
            )
 
