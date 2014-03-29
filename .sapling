@@ -1,0 +1,25 @@
+pants = {
+  'name': 'pants',
+  'paths': [
+    'BUILD.tools',
+    'pants',
+    'pants.bootstrap',
+    'pants.ini',
+    'rbt',
+    '3rdparty/python',
+    'build-support/bin',
+    'build-support/pylint',
+    'build-support/python',
+    'build-support/virtualenv',
+    'src/python/twitter/pants',
+    'src/java/com/twitter/common/examples',
+    'src/scala/com/twitter/common/example',
+    'tests/python/twitter/pants',
+    'tests/java/com/twitter/common/examples',
+  ],
+}
+
+splits = [
+  pants
+]
+
