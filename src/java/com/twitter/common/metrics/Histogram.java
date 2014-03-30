@@ -161,6 +161,7 @@ public class Histogram implements HistogramInterface {
 
   @Override
   public synchronized Snapshot snapshot() {
+    stats.refresh();
     final long count = stats.populationSize();
     final long sum = stats.sum();
     final double avg = stats.mean();

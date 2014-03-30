@@ -22,6 +22,7 @@ import com.twitter.common.metrics.Counter;
 import com.twitter.common.metrics.HistogramInterface;
 import com.twitter.common.metrics.Metrics;
 import com.twitter.common.stats.WindowedApproxHistogram;
+import com.twitter.common.stats.WindowedStatistics;
 
 /**
  * Bench different sorts of insertion in Metrics
@@ -33,6 +34,7 @@ public class MetricsInsertionBench extends SimpleBenchmark {
   private Counter counter;
   private HistogramInterface h;
   private WindowedApproxHistogram wh;
+  private WindowedStatistics ws;
 
   @Override
   protected void setUp() {
@@ -40,6 +42,7 @@ public class MetricsInsertionBench extends SimpleBenchmark {
     counter = metrics.createCounter("counter");
     h = metrics.createHistogram("histogram");
     wh = new WindowedApproxHistogram();
+    ws = new WindowedStatistics();
   }
 
   public void timeIncrementCounter(int n) {
@@ -66,4 +69,11 @@ public class MetricsInsertionBench extends SimpleBenchmark {
     }
   }
 
+  public void timeAddValueInWinStats(int n) {
+    int i = n;
+    while (i != 0) {
+      ws.accumulate(1);
+      i--;
+    }
+  }
 }

@@ -16,15 +16,20 @@
 
 package com.twitter.common.metrics.bench;
 
-import java.util.Random;
+import java.util.Map;
 
 import com.google.caliper.SimpleBenchmark;
 
+import com.twitter.common.metrics.Histogram;
 import com.twitter.common.metrics.HistogramInterface;
 import com.twitter.common.metrics.Metrics;
+import com.twitter.common.metrics.Snapshot;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Data;
+import com.twitter.common.quantity.Time;
 import com.twitter.common.stats.WindowedApproxHistogram;
+import com.twitter.common.stats.WindowedStatistics;
+import com.twitter.common.util.testing.FakeClock;
 
 /**
  * This bench tests different sorts of queries.
@@ -35,28 +40,38 @@ public class MetricsQueryBench extends SimpleBenchmark {
   private static final int RANGE = 15 * 1000;
   private static final double[] QUANTILES = {0.5, 0.9, 0.95, 0.99};
   private Metrics metrics;
-  private Random rnd;
-  private WindowedApproxHistogram bigHist;
-  private WindowedApproxHistogram smallHist;
+  private HistogramInterface hist;
+  private WindowedApproxHistogram approxHist;
+  private WindowedStatistics winStats;
 
   @Override
   protected void setUp() {
     metrics = Metrics.createDetached();
-    rnd = new Random(1);
+    FakeClock clock = new FakeClock();
+    Amount<Long, Time> window = WindowedApproxHistogram.DEFAULT_WINDOW;
+    int slices = WindowedApproxHistogram.DEFAULT_SLICES;
+    Amount<Long, Time> delta = Amount.of(window.as(Time.MILLISECONDS) / N, Time.MILLISECONDS);
+    Amount<Long, Data> maxMem = WindowedApproxHistogram.DEFAULT_MAX_MEMORY;
 
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 10; i++) {
       metrics.createCounter("counter-" + i).increment();
-      HistogramInterface h = metrics.createHistogram("hist-" + i);
+      HistogramInterface h = new Histogram("hist-" + i, window, slices, maxMem, null,
+        Histogram.DEFAULT_QUANTILES, clock, metrics);
       for (int j = 0; j < N; j++) {
-        h.add(rnd.nextInt(RANGE));
+        h.add(j);
+        clock.advance(delta);
       }
     }
 
-    smallHist = new WindowedApproxHistogram();
-    bigHist = new WindowedApproxHistogram(Amount.of(1L, Data.MB));
+    // Initialize Histograms and fill them with values (in every buckets for windowed ones)
+    hist = new Histogram("hist", window, slices, maxMem, null, Histogram.DEFAULT_QUANTILES, clock);
+    approxHist = new WindowedApproxHistogram(window, slices, maxMem, clock);
+    winStats = new WindowedStatistics(window, slices, clock);
     for (int j = 0; j < N; j++) {
-      smallHist.add(rnd.nextInt(RANGE));
-      bigHist.add(rnd.nextInt(RANGE));
+      hist.add(j);
+      approxHist.add(j);
+      winStats.accumulate(j);
+      clock.advance(delta);
     }
   }
 
@@ -64,28 +79,45 @@ public class MetricsQueryBench extends SimpleBenchmark {
    * Realistic bench of a querying 1000 counters and 1000 histograms
    */
   public void timeQueryMetrics(int n) {
+    Map<String, Number> res;
+    int i = n;
+    while (i != 0) {
+      res = metrics.sample();
+      i--;
+    }
+  }
+
+  public void timeSnapshotHistogram(int n) {
+    Snapshot res;
+    int i = n;
+    while (i != 0) {
+      res = hist.snapshot();
+      i--;
+    }
+  }
+
+  public void timeQueryWindowedApproxHistogram(int n) {
+    long[] res;
+    int i = n;
+    while (i != 0) {
+      res = approxHist.getQuantiles(QUANTILES);
+      i--;
+    }
+  }
+
+  public void timeQueryWindowedStatistics(int n) {
     long x;
+    double y;
     int i = n;
     while (i != 0) {
-      metrics.sample();
-      i--;
-    }
-  }
-
-  public void timeQueryHistograms(int n) {
-    long[] res;
-    int i = n;
-    while (i != 0) {
-      res = smallHist.getQuantiles(QUANTILES);
-      i--;
-    }
-  }
-
-  public void timeQueryBigHistograms(int n) {
-    long[] res;
-    int i = n;
-    while (i != 0) {
-      res = bigHist.getQuantiles(QUANTILES);
+      winStats.refresh();
+      x = winStats.max();
+      x = winStats.min();
+      x = winStats.populationSize();
+      x = winStats.range();
+      x = winStats.sum();
+      y = winStats.mean();
+      y = winStats.standardDeviation();
       i--;
     }
   }
