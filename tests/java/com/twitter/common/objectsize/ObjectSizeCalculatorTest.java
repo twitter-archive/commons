@@ -157,6 +157,7 @@ public class ObjectSizeCalculatorTest {
     Circular c;
   }
 
+  @Ignore("Flaky test, see https://jira.twitter.biz/browse/PLATTOOLS-644")
   @Test
   public void testCircular() {
     Circular c1 = new Circular();

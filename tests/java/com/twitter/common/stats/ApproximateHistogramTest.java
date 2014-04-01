@@ -87,6 +87,7 @@ public class ApproximateHistogramTest {
     assertEquals(3, hist.currentTop);
   }
 
+  @Ignore("Flaky test, see https://jira.twitter.biz/browse/PLATTOOLS-644")
   @Test
   public void testMem() {
     for (int b = 10; b < 100; b += 10) {
@@ -99,6 +100,7 @@ public class ApproximateHistogramTest {
     }
   }
 
+  @Ignore("Flaky test, see https://jira.twitter.biz/browse/PLATTOOLS-644")
   @Test
   public void testMemConstraint() {
     ImmutableList.Builder<Amount<Long, Data>> builder = ImmutableList.builder();
