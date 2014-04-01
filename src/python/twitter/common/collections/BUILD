@@ -17,6 +17,7 @@
 python_library(
   name = "collections",
   sources = rglobs('*.py'),
+  dependencies = [ pants('src/python/twitter/common/lang') ],
   provides = setup_py(
     name = 'twitter.common.collections',
     version = '0.1.3',

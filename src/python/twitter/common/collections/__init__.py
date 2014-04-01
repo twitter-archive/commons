@@ -16,6 +16,8 @@
 
 from sys import version_info
 
+from twitter.common.lang import Compatibility
+
 if version_info[0] == 2:
   from .ordereddict import OrderedDict
 else:
@@ -24,7 +26,7 @@ from .orderedset import OrderedSet
 from .ringbuffer import RingBuffer
 
 
-def maybe_list(value, expected_type=basestring, raise_type=ValueError):
+def maybe_list(value, expected_type=Compatibility.string, raise_type=ValueError):
   """Given a value that could be a single value or iterable of a particular type, always return a
   list of that type.
 
