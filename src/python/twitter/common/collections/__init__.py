@@ -24,11 +24,11 @@ from .orderedset import OrderedSet
 from .ringbuffer import RingBuffer
 
 
-def maybe_list(value, expected_type=str, raise_type=ValueError):
+def maybe_list(value, expected_type=basestring, raise_type=ValueError):
   """Given a value that could be a single value or iterable of a particular type, always return a
   list of that type.
 
-  By default the expected type is a string, but can be specified with the 'expected_type' kwarg,
+  By default the expected type is a string/unicode, but can be specified with the 'expected_type' kwarg,
   which can be a type or tuple of types.
 
   By default raises ValueError on 'expected_type' mismatch, but can be specified with the
