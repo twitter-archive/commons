@@ -17,6 +17,7 @@
 package com.twitter.common.objectsize;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.twitter.common.objectsize.ObjectSizeCalculator.MemoryLayoutSpecification;

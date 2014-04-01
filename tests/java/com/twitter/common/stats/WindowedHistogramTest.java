@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.twitter.common.objectsize.ObjectSizeCalculator;

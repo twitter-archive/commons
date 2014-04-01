@@ -7,6 +7,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.twitter.common.junit.annotations.TestParallel;
