@@ -48,7 +48,7 @@ public class StartupRegistry implements ExceptionalCommand<Exception> {
       LOG.warning("Startup actions cannot be executed more than once, ignoring.");
     }
 
-    for (ExceptionalCommand startupAction : startupActions) {
+    for (ExceptionalCommand<?> startupAction : startupActions) {
       startupAction.execute();
     }
   }
