@@ -377,6 +377,8 @@ class JarPublish(ScmPublish, Task):
       self.snapshot = context.options.jar_publish_local_snapshot
     else:
       self.repos = context.config.getdict(JarPublish._CONFIG_SECTION, 'repos')
+      if not self.repos:
+        raise TaskError("This repo is not yet set for publishing to the world! Please re-run with --publish-local")
       for repo, data in self.repos.items():
         auth = data.get('auth')
         if auth:
@@ -696,7 +698,7 @@ class JarPublish(ScmPublish, Task):
       def get_synthetic(lang, target):
         mappings = self.context.products.get(lang).get(target)
         if mappings:
-          for key, generated in mappings.iter():
+          for key, generated in mappings.items():
             for synthetic in generated:
               yield synthetic
 
