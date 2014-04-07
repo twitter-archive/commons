@@ -89,15 +89,29 @@ public class MetricsTest {
     assertNull(Metrics.root().sample().get(name));
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void testOverwrite() {
     Counter foo = metrics.createCounter("foo");
-    foo.add(10);
-
     Counter foo2 = metrics.createCounter("foo");
-    foo2.add(100);
+  }
 
-    checkSamples(ImmutableMap.<String, Number>of("foo", 100L));
+  @Test(expected = IllegalArgumentException.class)
+  public void testOverwrite2() {
+    try {
+      Counter foo = metrics.createCounter("foo");
+      // nb. we check for collisions on base-name of the histogram but perhaps we want
+      // to check the expanded quantile/etc names in the future.
+      HistogramInterface foo2 = metrics.createHistogram("foo");
+    } catch (IllegalArgumentException expected) {
+      Gauge foo = new AbstractGauge("foo") {
+        @Override
+        public Number read() {
+          return 12;
+        }
+      };
+      metrics.register(foo);
+      Counter foo2 = metrics.createCounter("foo");
+    }
   }
 
   private void checkSamples(Map<String, Number> expected) {

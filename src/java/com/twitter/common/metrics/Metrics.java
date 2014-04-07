@@ -16,9 +16,7 @@
 
 package com.twitter.common.metrics;
 
-import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -30,14 +28,19 @@ import com.twitter.jsr166e.LongAdder;
  */
 public final class Metrics implements MetricRegistry, MetricProvider {
   private static final Metrics ROOT = new Metrics();
+  private static final Object NAME_LOCK = new Object();
 
   private final Map<String, Gauge<?>> gauges = Maps.newConcurrentMap();
   private final Map<String, LongAdder> counters = Maps.newConcurrentMap();
-  private final Set<HistogramInterface> histograms;
+  private final Map<String, HistogramInterface> histograms = Maps.newConcurrentMap();
 
-  private Metrics() {
-    Map<HistogramInterface, Boolean> underlying = Maps.newConcurrentMap();
-    histograms = Collections.newSetFromMap(underlying);
+  private Metrics() { }
+
+  private void checkNameCollision(String key) {
+    if (gauges.containsKey(key) || counters.containsKey(key) || counters.containsKey(key)) {
+      throw new MetricCollisionException(
+          "A metric with the name " + key + " has already been defined");
+    }
   }
 
   /**
@@ -65,8 +68,11 @@ public final class Metrics implements MetricRegistry, MetricProvider {
 
   @Override
   public <T extends Number> void register(Gauge<T> gauge) {
-    // TODO(wfarner): Define a policy for handling collisions.
-    gauges.put(gauge.getName(), gauge);
+    String key = gauge.getName();
+    synchronized (NAME_LOCK) {
+      checkNameCollision(key);
+      gauges.put(key, gauge);
+    }
   }
 
   @Override
@@ -77,7 +83,10 @@ public final class Metrics implements MetricRegistry, MetricProvider {
   @Override
   public Counter createCounter(String name) {
     final LongAdder adder = new LongAdder();
-    counters.put(name, adder);
+    synchronized (NAME_LOCK) {
+      checkNameCollision(name);
+      counters.put(name, adder);
+    }
     return new Counter() {
       public void increment() {
         adder.increment();
@@ -95,7 +104,11 @@ public final class Metrics implements MetricRegistry, MetricProvider {
 
   @Override
   public HistogramInterface registerHistogram(HistogramInterface histogram) {
-    histograms.add(histogram);
+    String key = histogram.getName();
+    synchronized (NAME_LOCK) {
+      checkNameCollision(key);
+      histograms.put(key, histogram);
+    }
     return histogram;
   }
 
@@ -105,18 +118,14 @@ public final class Metrics implements MetricRegistry, MetricProvider {
     // Collect all gauges
     for (Map.Entry<String, Gauge<?>> metric : gauges.entrySet()) {
       Gauge<?> gauge = metric.getValue();
-      if (gauge == null) {
-        gauges.remove(metric.getKey());
-      } else {
-        samples.put(metric.getKey(), gauge.read());
-      }
+      samples.put(metric.getKey(), gauge.read());
     }
     // Collect all counters
     for (Map.Entry<String, LongAdder> metric : counters.entrySet()) {
       samples.put(metric.getKey(), metric.getValue().sum());
     }
     // Collect all statistics of histograms
-    for (HistogramInterface h: histograms) {
+    for (HistogramInterface h : histograms.values()) {
       Snapshot snapshot = h.snapshot();
       samples.put(named(h.getName(), "count"), snapshot.count());
       samples.put(named(h.getName(), "sum"), snapshot.sum());
@@ -124,7 +133,7 @@ public final class Metrics implements MetricRegistry, MetricProvider {
       samples.put(named(h.getName(), "min"), snapshot.min());
       samples.put(named(h.getName(), "max"), snapshot.max());
       samples.put(named(h.getName(), "stddev"), snapshot.stddev());
-      for (Percentile p: snapshot.percentiles()) {
+      for (Percentile p : snapshot.percentiles()) {
         String percentileName = named(h.getName(), gaugeName(p.getQuantile()));
         samples.put(percentileName, p.getValue());
       }
