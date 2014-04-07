@@ -113,28 +113,50 @@ public final class Metrics implements MetricRegistry, MetricProvider {
   }
 
   @Override
-  public Map<String, Number> sample() {
+  public Map<String, Number> sampleGauges() {
     ImmutableMap.Builder<String, Number> samples = ImmutableMap.builder();
-    // Collect all gauges
     for (Map.Entry<String, Gauge<?>> metric : gauges.entrySet()) {
       Gauge<?> gauge = metric.getValue();
       samples.put(metric.getKey(), gauge.read());
     }
-    // Collect all counters
+    return samples.build();
+  }
+
+  @Override
+    public Map<String, Number> sampleCounters() {
+    ImmutableMap.Builder<String, Number> samples = ImmutableMap.builder();
     for (Map.Entry<String, LongAdder> metric : counters.entrySet()) {
       samples.put(metric.getKey(), metric.getValue().sum());
     }
-    // Collect all statistics of histograms
-    for (HistogramInterface h : histograms.values()) {
+    return samples.build();
+  }
+
+  @Override
+  public Map<String, Snapshot> sampleHistograms() {
+    ImmutableMap.Builder<String, Snapshot> samples = ImmutableMap.builder();
+    for (HistogramInterface h: histograms.values()) {
       Snapshot snapshot = h.snapshot();
-      samples.put(named(h.getName(), "count"), snapshot.count());
-      samples.put(named(h.getName(), "sum"), snapshot.sum());
-      samples.put(named(h.getName(), "avg"), snapshot.avg());
-      samples.put(named(h.getName(), "min"), snapshot.min());
-      samples.put(named(h.getName(), "max"), snapshot.max());
-      samples.put(named(h.getName(), "stddev"), snapshot.stddev());
-      for (Percentile p : snapshot.percentiles()) {
-        String percentileName = named(h.getName(), gaugeName(p.getQuantile()));
+      samples.put(h.getName(), snapshot);
+    }
+    return samples.build();
+  }
+
+  @Override
+  public Map<String, Number> sample() {
+    ImmutableMap.Builder<String, Number> samples = ImmutableMap.builder();
+    samples.putAll(sampleGauges());
+    samples.putAll(sampleCounters());
+    for (Map.Entry<String, Snapshot> entry : sampleHistograms().entrySet()) {
+      String name = entry.getKey();
+      Snapshot snapshot = entry.getValue();
+      samples.put(named(name, "count"), snapshot.count());
+      samples.put(named(name, "sum"), snapshot.sum());
+      samples.put(named(name, "avg"), snapshot.avg());
+      samples.put(named(name, "min"), snapshot.min());
+      samples.put(named(name, "max"), snapshot.max());
+      samples.put(named(name, "stddev"), snapshot.stddev());
+      for (Percentile p: snapshot.percentiles()) {
+        String percentileName = named(name, gaugeName(p.getQuantile()));
         samples.put(percentileName, p.getValue());
       }
     }
