@@ -140,7 +140,8 @@ class DependencyWriter(object):
         dependencies[(jar.org, jar.name)] = self.jardep(jar)
         configurations |= set(jar._configurations)
 
-    target_jar = self.internaldep(as_jar(target), configurations=list(configurations)).extend(dependencies=dependencies.values())
+    target_jar = self.internaldep(as_jar(target), configurations=list(configurations)\
+                   .extend(dependencies=dependencies.values()))
 
     template_kwargs = self.templateargs(target_jar, confs)
     with safe_open(path, 'w') as output:
@@ -194,13 +195,11 @@ class IvyWriter(DependencyWriter):
         os.path.join('templates', 'ivy_resolve', 'ivy.mustache'))
 
   def templateargs(self, target_jar, confs=None):
-    print("\n test jar %s" %target_jar)
     return dict(lib=target_jar.extend(
         publications=set(confs) if confs else set(),
         overrides=None))
 
   def _jardep(self, jar, transitive=True, configurations='defaultere'):
-    print("\n\n\n\n #### jar %s - %s" %(jar, configurations))
     return TemplateData(
         org=jar.org,
         module=jar.name,
@@ -213,7 +212,6 @@ class IvyWriter(DependencyWriter):
         configurations=configurations)
 
   def jardep(self, jar):
-    print("\n\n\n\n #### %s" %jar._configurations)
     return self._jardep(jar,
         transitive=jar.transitive,
         configurations=';'.join(jar._configurations))
