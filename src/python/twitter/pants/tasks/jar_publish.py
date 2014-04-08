@@ -199,7 +199,7 @@ class IvyWriter(DependencyWriter):
         publications=set(confs) if confs else set(),
         overrides=None))
 
-  def _jardep(self, jar, transitive=True, configurations='defaultere'):
+  def _jardep(self, jar, transitive=True, configurations='default'):
     return TemplateData(
         org=jar.org,
         module=jar.name,
@@ -214,7 +214,7 @@ class IvyWriter(DependencyWriter):
   def jardep(self, jar):
     return self._jardep(jar,
         transitive=jar.transitive,
-        configurations=';'.join(jar._configurations))
+        configurations=jar._configurations)
 
   def internaldep(self, jar_dependency, dep=None, configurations=None):
     return self._jardep(jar_dependency, configurations=configurations)
