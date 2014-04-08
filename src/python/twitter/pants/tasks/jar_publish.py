@@ -129,6 +129,7 @@ class DependencyWriter(object):
     # the graph
     dependencies = OrderedDict()
     internal_codegen = {}
+    configurations = set()
     for dep in target_internal_dependencies(target):
       jar = as_jar(dep)
       dependencies[(jar.org, jar.name)] = self.internaldep(jar, dep)
@@ -137,7 +138,9 @@ class DependencyWriter(object):
     for jar in target.jar_dependencies:
       if jar.rev:
         dependencies[(jar.org, jar.name)] = self.jardep(jar)
-    target_jar = self.internaldep(as_jar(target)).extend(dependencies=dependencies.values())
+        configurations |= set(jar._configurations)
+
+    target_jar = self.internaldep(as_jar(target), configurations=list(configurations)).extend(dependencies=dependencies.values())
 
     template_kwargs = self.templateargs(target_jar, confs)
     with safe_open(path, 'w') as output:
@@ -151,7 +154,7 @@ class DependencyWriter(object):
     """
     raise NotImplementedError()
 
-  def internaldep(self, jar_dependency, dep=None):
+  def internaldep(self, jar_dependency, dep=None, configurations=None):
     """
       Subclasses must return a template data for the given internal target (provided in jar
       dependency form).
@@ -180,7 +183,7 @@ class PomWriter(DependencyWriter):
         scope='compile',
         excludes=[self.create_exclude(exclude) for exclude in jar.excludes if exclude.name])
 
-  def internaldep(self, jar_dependency, dep=None):
+  def internaldep(self, jar_dependency, dep=None, configurations=None):
     return self.jardep(jar_dependency)
 
 
@@ -191,11 +194,13 @@ class IvyWriter(DependencyWriter):
         os.path.join('templates', 'ivy_resolve', 'ivy.mustache'))
 
   def templateargs(self, target_jar, confs=None):
+    print("\n test jar %s" %target_jar)
     return dict(lib=target_jar.extend(
         publications=set(confs) if confs else set(),
         overrides=None))
 
-  def _jardep(self, jar, transitive=True, configurations='default'):
+  def _jardep(self, jar, transitive=True, configurations='defaultere'):
+    print("\n\n\n\n #### jar %s - %s" %(jar, configurations))
     return TemplateData(
         org=jar.org,
         module=jar.name,
@@ -208,12 +213,13 @@ class IvyWriter(DependencyWriter):
         configurations=configurations)
 
   def jardep(self, jar):
+    print("\n\n\n\n #### %s" %jar._configurations)
     return self._jardep(jar,
         transitive=jar.transitive,
         configurations=';'.join(jar._configurations))
 
-  def internaldep(self, jar_dependency, dep=None):
-    return self._jardep(jar_dependency)
+  def internaldep(self, jar_dependency, dep=None, configurations=None):
+    return self._jardep(jar_dependency, configurations=configurations)
 
 
 def coordinate(org, name, rev=None):

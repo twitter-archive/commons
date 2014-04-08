@@ -31,9 +31,10 @@ limitations under the License.
    />
 
   {{#lib.configurations?}}
-    <configurations defaultconfmapping="default->default(compile),runtime();sources->sources;">
-      <conf name="default" description="normal build"/>
-      <conf name="sources" description="java sources"/>
+    <configurations>
+      {{#lib.configurations}}
+      <conf name="{{.}}"/>
+      {{/lib.configurations}}
      </configurations>
   {{/lib.configurations?}}
 
