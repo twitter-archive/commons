@@ -20,7 +20,6 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.twitter.common.objectsize.ObjectSizeCalculator;
@@ -166,7 +165,6 @@ public class WindowedHistogramTest {
     assertEquals(0L, wh.getQuantile(0.5), 1.0);
   }
 
-  @Ignore("Flaky test, see https://jira.twitter.biz/browse/PLATTOOLS-644")
   @Test
   public void testWinHistogramMemory() {
     ImmutableList.Builder<Amount<Long, Data>> builder = ImmutableList.builder();

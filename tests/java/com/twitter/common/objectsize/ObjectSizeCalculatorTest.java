@@ -17,7 +17,6 @@
 package com.twitter.common.objectsize;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.twitter.common.objectsize.ObjectSizeCalculator.MemoryLayoutSpecification;
@@ -158,7 +157,6 @@ public class ObjectSizeCalculatorTest {
     Circular c;
   }
 
-  @Ignore("Flaky test, see https://jira.twitter.biz/browse/PLATTOOLS-644")
   @Test
   public void testCircular() {
     Circular c1 = new Circular();

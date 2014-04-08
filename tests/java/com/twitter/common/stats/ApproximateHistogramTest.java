@@ -7,7 +7,6 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.twitter.common.junit.annotations.TestParallel;
@@ -88,7 +87,6 @@ public class ApproximateHistogramTest {
     assertEquals(3, hist.currentTop);
   }
 
-  @Ignore("Flaky test, see https://jira.twitter.biz/browse/PLATTOOLS-644")
   @Test
   public void testMem() {
     for (int b = 10; b < 100; b += 10) {
@@ -101,7 +99,6 @@ public class ApproximateHistogramTest {
     }
   }
 
-  @Ignore("Flaky test, see https://jira.twitter.biz/browse/PLATTOOLS-644")
   @Test
   public void testMemConstraint() {
     ImmutableList.Builder<Amount<Long, Data>> builder = ImmutableList.builder();
