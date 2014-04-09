@@ -140,8 +140,9 @@ class DependencyWriter(object):
         dependencies[(jar.org, jar.name)] = self.jardep(jar)
         configurations |= set(jar._configurations)
 
-    target_jar = self.internaldep(as_jar(target), configurations=list(configurations)) \
-                   .extend(dependencies=dependencies.values())
+    target_jar = self.internaldep(
+                     as_jar(target),
+                     configurations=list(configurations)).extend(dependencies=dependencies.values())
 
     template_kwargs = self.templateargs(target_jar, confs)
     with safe_open(path, 'w') as output:
