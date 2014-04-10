@@ -3,16 +3,16 @@
 set -e
 VIRTUALENV_VERSION=1.11.4
 
-if which python2.7 >/dev/null; then
-  PY=`which python2.7`
-elif which python2.6 >/dev/null; then
-  PY=`which python2.6`
-else
+if [ -z $PY ]; then
+  PY=$(which python)
+fi
+
+if [ ! -f $PY ]; then
   echo 'No python interpreter found on the path.  Python will not work!' 1>&2
   exit 1
 fi
 
-echo "Using $PY" >&2
+echo "Using python <${PY}>" >&2
 
 HERE=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
 if ! [ -f "$HERE/virtualenv-$VIRTUALENV_VERSION/BOOTSTRAPPED" ]; then
