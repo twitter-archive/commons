@@ -31,11 +31,11 @@ limitations under the License.
    />
 
   {{#lib.configurations?}}
-  <configurations>
-    {{#lib.configurations}}
-    <conf name="{{.}}"/>
-    {{/lib.configurations}}
-  </configurations>
+    <configurations>
+      {{#lib.configurations}}
+      <conf name="{{.}}"/>
+      {{/lib.configurations}}
+     </configurations>
   {{/lib.configurations?}}
 
   {{#lib.publications?}}
@@ -65,7 +65,7 @@ limitations under the License.
                 {{#mutable}}changing="true"{{/mutable}}
     >
       {{#configurations}}
-      <conf name="{{.}}" mapped="{{.}}"/>
+      <conf name="{{.}}"/>
       {{/configurations}}
       {{#artifacts}}
       <artifact
