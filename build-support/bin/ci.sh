@@ -19,7 +19,6 @@ function usage() {
   echo "Usage: $0 (-h|-bsdjp)"
   echo " -h           print out this help message"
   echo " -b           skip bootstraping pants from local sources"
-  echo " -s           skip self-distribution tests"
   echo " -d           if running jvm tests, don't use nailgun daemons"
   echo " -j           skip jvm tests"
   echo " -p           skip python tests"
@@ -33,11 +32,10 @@ function usage() {
 
 daemons="--ng-daemons"
 
-while getopts "hbsdjp" opt; do
+while getopts "hbdjp" opt; do
   case ${opt} in
     h) usage ;;
     b) skip_bootstrap="true" ;;
-    s) skip_distribution="true" ;;
     d) daemons="--no-ng-daemons" ;;
     j) skip_java="true" ;;
     p) skip_python="true" ;;
@@ -57,8 +55,6 @@ if [[ "${skip_bootstrap:-false}" == "false" ]]; then
   ) || die "Failed to bootstrap pants."
 fi
 
-./pants goal clean-all || die "Failed to clean-all."
-
 if [[ "${skip_java:-false}" == "false" ]]; then
   banner "Running jvm tests"
   (
@@ -72,7 +68,7 @@ if [[ "${skip_python:-false}" == "false" ]]; then
   (
     ./pants goal clean-all && \
     PEX_VERBOSE=5 PYTHON_VERBOSE=1 PANTS_PYTHON_TEST_FAILSOFT=1 \
-      ./pants build --timeout=5 tests/python/twitter/common:all
+      ./pants build -v --timeout=5 tests/python/twitter/common:all
   ) || die "Python test failure"
 fi
 
