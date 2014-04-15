@@ -26,9 +26,11 @@ import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests metric registry scoping.
@@ -113,6 +115,99 @@ public class MetricsTest {
       Counter foo2 = metrics.createCounter("foo");
     }
   }
+
+  @Test
+  public void testUnregisterByRef() {
+    // Counter
+    Counter counter = metrics.createCounter("counter");
+    assertTrue("Metrics contains counter", metrics.sample().containsKey(counter.getName()));
+    metrics.unregister(counter);
+    assertFalse("Metrics doesn't contains counter",
+        metrics.sample().containsKey(counter.getName()));
+
+    // Gauge
+    final long x = 1L;
+    Gauge<Number> gauge = new AbstractGauge<Number>("gauge") {
+      @Override public Number read() { return x; }
+    };
+    metrics.register(gauge);
+    assertTrue("Metrics contains gauge", metrics.sample().containsKey(gauge.getName()));
+    metrics.unregister(gauge);
+    assertFalse("Metrics doesn't contains gauge", metrics.sample().containsKey(gauge.getName()));
+
+    // Histogram
+    HistogramInterface histo = metrics.createHistogram("histo");
+    assertTrue("Metrics contains histo", metrics.sample().containsKey(
+        histo.getName() + ".count"));
+    metrics.unregister(histo);
+    assertFalse("Metrics doesn't contains histo", metrics.sample().containsKey(
+        histo.getName() + ".count"));
+  }
+
+  @Test
+  public void testUnregisterByName() {
+    // Counter
+    Counter counter = metrics.createCounter("counter");
+    assertTrue("Metrics contains counter", metrics.sample().containsKey(counter.getName()));
+    metrics.unregister("counter");
+    assertFalse("Metrics doesn't contains counter",
+                   metrics.sample().containsKey(counter.getName()));
+
+    // Gauge
+    final long x = 1L;
+    Gauge<Number> gauge = new AbstractGauge<Number>("gauge") {
+      @Override public Number read() { return x; }
+    };
+    metrics.register(gauge);
+    assertTrue("Metrics contains gauge", metrics.sample().containsKey(gauge.getName()));
+    metrics.unregister(gauge.getName());
+    assertFalse("Metrics doesn't contains gauge", metrics.sample().containsKey(gauge.getName()));
+
+    // Histogram
+    HistogramInterface histo = metrics.createHistogram("histo");
+    assertTrue("Metrics contains histo", metrics.sample().containsKey(
+        histo.getName() + ".count"));
+    metrics.unregister(histo.getName());
+    assertFalse("Metrics doesn't contains histo", metrics.sample().containsKey(
+        histo.getName() + ".count"));
+  }
+
+  @Test
+  public void testUnregistrationOnScopedRegistry() {
+    String scope = "scope";
+    MetricRegistry registry = metrics.scope(scope);
+
+    // Counter
+    Counter counter = registry.createCounter("counter");
+    assertTrue("Metrics contains counter", metrics.sample().containsKey(counter.getName()));
+    registry.unregister(counter);
+    assertFalse("Metrics doesn't contains counter",
+        metrics.sample().containsKey(counter.getName()));
+
+    // Gauge
+    final long x = 1L;
+    Gauge<Number> gauge = registry.registerGauge(new AbstractGauge<Number>("gauge") {
+      @Override public Number read() { return x; }
+    });
+    assertTrue("Metrics contains gauge", metrics.sample().containsKey(gauge.getName()));
+    registry.unregister(gauge);
+    assertFalse("Metrics doesn't contains gauge", metrics.sample().containsKey(gauge.getName()));
+
+    // Histogram
+    HistogramInterface histo = registry.createHistogram("histo");
+    assertTrue("Metrics contains histo", metrics.sample().containsKey(
+        histo.getName() + ".count"));
+    registry.unregister(histo);
+    assertFalse("Metrics doesn't contains histo", metrics.sample().containsKey(
+        histo.getName() + ".count"));
+
+    Counter counterZ = registry.createCounter("counter_zzz");
+    assertTrue("Metrics contains counter", metrics.sample().containsKey(counterZ.getName()));
+    registry.unregister("counter_zzz");
+    assertFalse("Metrics doesn't contains counter",
+        metrics.sample().containsKey(counterZ.getName()));
+  }
+
 
   private void checkSamples(Map<String, Number> expected) {
     Map<String, Number> samples = Maps.newHashMap(metrics.sample());

@@ -28,7 +28,6 @@ import com.twitter.jsr166e.LongAdder;
  */
 public final class Metrics implements MetricRegistry, MetricProvider {
   private static final Metrics ROOT = new Metrics();
-  private static final Object NAME_LOCK = new Object();
 
   private final Map<String, Gauge<?>> gauges = Maps.newConcurrentMap();
   private final Map<String, LongAdder> counters = Maps.newConcurrentMap();
@@ -68,11 +67,21 @@ public final class Metrics implements MetricRegistry, MetricProvider {
 
   @Override
   public <T extends Number> void register(Gauge<T> gauge) {
+    registerGauge(gauge);
+  }
+
+  @Override
+  public synchronized <T extends Number> Gauge<T> registerGauge(Gauge<T> gauge) {
     String key = gauge.getName();
-    synchronized (NAME_LOCK) {
-      checkNameCollision(key);
-      gauges.put(key, gauge);
-    }
+    checkNameCollision(key);
+    gauges.put(key, gauge);
+    return gauge;
+  }
+
+  @Override
+  public synchronized boolean unregister(Gauge<?> gauge) {
+    String key = gauge.getName();
+    return gauges.remove(key) != null;
   }
 
   @Override
@@ -81,13 +90,12 @@ public final class Metrics implements MetricRegistry, MetricProvider {
   }
 
   @Override
-  public Counter createCounter(String name) {
+  public synchronized Counter createCounter(final String name) {
     final LongAdder adder = new LongAdder();
-    synchronized (NAME_LOCK) {
-      checkNameCollision(name);
-      counters.put(name, adder);
-    }
+    checkNameCollision(name);
+    counters.put(name, adder);
     return new Counter() {
+      public String getName() { return name; }
       public void increment() {
         adder.increment();
       }
@@ -98,19 +106,37 @@ public final class Metrics implements MetricRegistry, MetricProvider {
   }
 
   @Override
+  public synchronized boolean unregister(Counter counter) {
+    String key = counter.getName();
+    return counters.remove(key) != null;
+  }
+
+  @Override
   public HistogramInterface createHistogram(String name) {
     return registerHistogram(new Histogram(name));
   }
 
   @Override
-  public HistogramInterface registerHistogram(HistogramInterface histogram) {
+  public synchronized HistogramInterface registerHistogram(HistogramInterface histogram) {
     String key = histogram.getName();
-    synchronized (NAME_LOCK) {
-      checkNameCollision(key);
-      histograms.put(key, histogram);
-    }
+    checkNameCollision(key);
+    histograms.put(key, histogram);
     return histogram;
   }
+
+  @Override
+  public synchronized boolean unregister(HistogramInterface histogram) {
+    String key = histogram.getName();
+    return histograms.remove(key) != null;
+  }
+
+  @Override
+  public synchronized boolean unregister(String metricName) {
+    return gauges.remove(metricName) != null
+        || counters.remove(metricName) != null
+        || histograms.remove(metricName) != null;
+  }
+
 
   @Override
   public Map<String, Number> sampleGauges() {

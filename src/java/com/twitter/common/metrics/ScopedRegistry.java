@@ -56,27 +56,41 @@ class ScopedRegistry implements MetricRegistry {
 
   @Override
   public <T extends Number> void register(final Gauge<T> gauge) {
+    registerGauge(gauge);
+  }
+
+  @Override
+  public <T extends Number> Gauge<T> registerGauge(final Gauge<T> gauge) {
     final String scopedName = scopeName(gauge.getName());
-    parent.register(new AbstractGauge<T>(scopedName) {
-      @Override public T read() {
-        return gauge.read();
-      }
+    return parent.registerGauge(new AbstractGauge<T>(scopedName) {
+      @Override public T read() { return gauge.read(); }
     });
   }
 
   @Override
-  public Counter createCounter(String gaugeName) {
-    return parent.createCounter(scopeName(gaugeName));
+  public boolean unregister(Gauge gauge) {
+    return parent.unregister(gauge);
   }
 
   @Override
-  public Counter registerCounter(String gaugeName) {
-    return createCounter(gaugeName);
+  public Counter createCounter(String counterName) {
+    return parent.createCounter(scopeName(counterName));
   }
 
   @Override
-  public HistogramInterface createHistogram(String gaugeName) {
-    return parent.createHistogram(scopeName(gaugeName));
+  public Counter registerCounter(String counterName) {
+    return createCounter(counterName);
+  }
+
+  @Override
+  public boolean unregister(Counter counter) {
+    return parent.unregister(counter);
+  }
+
+
+  @Override
+  public HistogramInterface createHistogram(String histogramName) {
+    return parent.createHistogram(scopeName(histogramName));
   }
 
   @Override
@@ -89,5 +103,15 @@ class ScopedRegistry implements MetricRegistry {
     };
     parent.registerHistogram(h);
     return h;
+  }
+
+  @Override
+  public boolean unregister(HistogramInterface histogram) {
+    return parent.unregister(histogram);
+  }
+
+  @Override
+  public boolean unregister(String metricName) {
+    return parent.unregister(scopeName(metricName));
   }
 }
