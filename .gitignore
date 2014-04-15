@@ -23,8 +23,8 @@
 .python
 .pydevproject
 .twkeys
+/bin/
 dot.twkeys
-bin/
 build/
 build-support/*.pex
 build-support/*.venv
