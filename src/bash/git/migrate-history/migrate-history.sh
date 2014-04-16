@@ -1,12 +1,14 @@
-#/bin/bash
+#!/usr/bin/env bash
 
 # This is a script to migrate a git repository to a subdirectory of
 # another, while preserving history.  This is way more complicated
 # than it should be, for a couple reasons.
 
 # We would like to use git subtree, but git subtree doesn't rewrite
-# imported history, so files appear to move.  That means you have to
-# do wacky options on git blame and git log, so that's no good.
+# imported history, so files appear to move.  That means that git log
+# on the subdirectory won't work.  You have to do git log --follow to
+# see the history of a file, and you can only do that on an individual
+# file basis.
 
 # Also, I'm not sure what git subtree does with non-linear history.
 # Git rebase barfs on fake conflicts as it attempts cross the streams
@@ -18,6 +20,8 @@
 # original commit's tree within its tree object.  So, it's basically a
 # multibranch, cross-repo rebase.
 
+# This stuff is for bash 3 compatibility; bash 4 has associative
+# arrays.
 map_insert () {
     local map_name=$1 key=$2 val=$3
     eval __map_${map_name}_${key}=$val
@@ -48,21 +52,25 @@ make_subtreed_tree () {
 
 usage() {
     cat <<EOF
-Usage: migrate-history.sh [-b branch] [-s subdir] <path-to-project>"
+Usage: migrate-history.sh [-b branch] [-s subdir] <path-to-immigrant>"
 
-Migrate the project at <path-to-project> into this repository at
+Migrate the repository at <path-to-repo> into this repository at
 subdir.  If -s is omitted, it will be the basename of
-<path-to-project>.
+<path-to-repo>.
 
-You can use -b to get a branch other than master from the project.
-This project master will always be used.
+You can use -b to get a branch other than master from the immigrant.
+This repository's master will always be used.
 
-Run this script from inside your project, at the root directory.  The
+Run this script from inside your repository, at the root directory.  The
 result will be a branch named migrated-\$subdir
 
 EOF
 
     exit 1
+}
+
+log() {
+    echo "$@" 1>&2
 }
 
 #check for clean index
@@ -87,35 +95,35 @@ test "$#" = 1 || usage
 path_to_project="$*"
 
 #get real path to project
-where_we_were=$(pwd)
-cd $path_to_project
-path_to_project=$(pwd)
-cd $where_we_were
+path_to_project=$(
+  cd $path_to_project
+  pwd
+)
 
-test -n "$subdir" || subdir=$(basename "$path_to_project")
-test -n "$branch" || branch=master
+[[ -n $subdir ]] || subdir=$(basename "$path_to_project")
+[[ -n $branch ]] || branch=master
 
-echo "Creating a remote for the imported project so we can easily get commits from it."
+log "Creating a remote for the imported project so we can easily get commits from it."
 
 timestamp=$(date +"%Y%m%d%H%M%S")
-subtree_remote_name="remote-$timestamp-$subdir"
+subtree_remote_name="remote-$timestamp-$$-$subdir"
 
 git remote add "$subtree_remote_name" "$path_to_project" || die "Can't add remote $subtree_remote_name for $path_to_project"
 
-echo "Fetching from imported project"
+log "Fetching from imported project"
 git fetch "$subtree_remote_name"
 
-localbranch="migrate-$timestamp"
+localbranch="migrate-$timestamp-$$"
 
-echo "Creating a branch for the migration"
-git checkout -b "$localbranch" "$subtree_remote_name/$branch"
+log "Creating a branch for the migration"
+git checkout -q -b "$localbranch" "$subtree_remote_name/$branch" || die "Can't branch"
 
 commits=$(git rev-list --reverse --topo-order "$localbranch")
 
 count=0
 total=$(echo "$commits" | wc -l)
 
-echo "Migrating commits"
+log "Migrating commits"
 for commit in $commits
 do
     parents=$(git log --pretty="%P" $commit -n 1) || die "Expected $commit to exist"
@@ -124,12 +132,12 @@ do
     for orig_parent in $parents
     do
 	rebased_parent_commit=$(map_find commit_map $orig_parent)
-        test -n $rebased_parent_commit || die "We lost track of $orig_parent"
+	[[ -n $rebased_parent_commit ]] || die "We lost track of $orig_parent"
         rebased_parents="$rebased_parents -p $rebased_parent_commit"
     done
     #if there are no parents, this is the first commit; assume the parent
     #is this repo's master
-    test -n "$rebased_parents" || rebased_parents="-p master"
+    [[ -n $rebased_parents ]] || rebased_parents="-p master"
 
     #we want to create a new tree that represents the contents of
     #this commit as-rebased.
@@ -149,11 +157,13 @@ do
     map_insert commit_map $commit $committed
     last_commit=$committed
     count=$(expr $count + 1)
-    echo "committed new revision $committed ($count/$total)"
+    log "committed new revision $committed ($count/$total)"
 done
 
-echo "Switching to new commit history"
-git reset --hard $committed
+log "Switching to new commit history"
+git reset -q --hard $committed
 
-echo "Cleaning up remote"
+log "Cleaning up remote"
 git remote rm "$subtree_remote_name"
+
+echo $committed
