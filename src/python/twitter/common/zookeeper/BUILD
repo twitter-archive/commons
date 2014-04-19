@@ -38,7 +38,7 @@ python_library(
   ],
   provides = setup_py(
     name = 'twitter.common.zookeeper',
-    version = '0.1.1',
+    version = '0.1.2',
     description = "Implementations of Twitter's service discovery libraries on top of Kazoo."
   )
 )

@@ -183,6 +183,34 @@ class Jira(object):
     with self._api_call_guard():
       return self.api_call(endpoint, send_delete=True)
 
+  def transition(self, issue, transition_name, comment=None, **kw):
+    '''Transition an issue from one state to another
+
+    issue -- The issue key to appy the transition to (e.g. SEARCH-1000)
+    transition_name -- The name of the transition state in the JIRA web UI (e.g. "Start Progress")
+    comment -- Adds a comment during the transition
+    **kw -- Allows for optional fields to be passed during the transition
+    '''
+    transitions_json = self.get_transitions(issue)
+
+    transitions = json.loads(transitions_json)
+    for transition in transitions['transitions']:
+      if transition['name'] == transition_name:
+        endpoint = 'issue/%s/transitions' % (issue)
+        data = {'transition': {'id': transition['id']}}
+
+        if comment:
+          data['update'] = {'comment': [{'add': {'body': 'Deploy completed'}}]}
+
+        if kw:
+          data['fields'] = kw
+
+        with self._api_call_guard():
+          return self.api_call(endpoint, data)
+
+    raise JiraError(message="Transition '%s' not currently available for this issue" %
+                      (transition_name))
+
   @contextmanager
   def _api_call_guard(self, http_error_msg=None, url_error_msg=None):
     try:

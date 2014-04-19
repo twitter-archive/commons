@@ -9,15 +9,34 @@ from twitter.common.metrics import (
 
 from kazoo.client import KazooClient
 from kazoo.protocol.states import KazooState, KeeperState
+from kazoo.retry import KazooRetry
+
+
+DEFAULT_RETRY_MAX_DELAY_SECS = 600
+
+
+DEFAULT_RETRY_DICT = dict(
+    max_tries=None,
+    ignore_expire=True,
+)
 
 
 class TwitterKazooClient(KazooClient, Observable):
   @classmethod
   def make(cls, *args, **kw):
+    # TODO(jcohen): Consider removing verbose option entirely in favor of just using loglevel.
     verbose = kw.pop('verbose', False)
     async = kw.pop('async', True)
-    if verbose is False:
-      kw['logger'] = logging.Logger('kazoo.devnull', level=sys.maxsize)
+
+    if verbose:
+      loglevel = kw.pop('loglevel', logging.INFO)
+    else:
+      loglevel = kw.pop('loglevel', sys.maxsize)
+
+    logger = logging.getLogger('kazoo.devnull')
+    logger.setLevel(loglevel)
+    kw['logger'] = logger
+
     zk = cls(*args, **kw)
     if async:
       zk.start_async()
@@ -28,6 +47,13 @@ class TwitterKazooClient(KazooClient, Observable):
     return zk
 
   def __init__(self, *args, **kw):
+    if 'connection_retry' not in kw:
+      # The default backoff delay limit in kazoo is 3600 seconds, which is generally
+      # too conservative for our use cases.  If not supplied by the caller, provide
+      # a backoff that will truncate earlier.
+      kw['connection_retry'] = KazooRetry(
+          max_delay=DEFAULT_RETRY_MAX_DELAY_SECS, **DEFAULT_RETRY_DICT)
+
     super(TwitterKazooClient, self).__init__(*args, **kw)
     self.connecting = threading.Event()
     self.__session_expirations = AtomicGauge('session_expirations')
