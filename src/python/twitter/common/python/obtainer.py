@@ -112,25 +112,25 @@ class Obtainer(object):
 
 class CachingObtainer(Obtainer):
   def __init__(self, *args, **kw):
-    self.__ttl = kw.pop('ttl', 3600)
-    self.__install_cache = kw.pop('install_cache', None) or safe_mkdtemp()
+    self._ttl = kw.pop('ttl', 3600)
+    self._install_cache = kw.pop('install_cache', None) or safe_mkdtemp()
     super(CachingObtainer, self).__init__(*args, **kw)
     self.__cache_obtainer = Obtainer(
         crawler=self._crawler,
-        fetchers=[Fetcher([self.__install_cache])],
+        fetchers=[Fetcher([self._install_cache])],
         translators=self._translator,
         precedence=self._precedence,
     )
 
   def _has_expired_ttl(self, dist):
     now = time.time()
-    return now - os.path.getmtime(dist.location) >= self.__ttl
+    return now - os.path.getmtime(dist.location) >= self._ttl
 
   def _dist_can_be_used(self, dist, requirement):
     return requirement_is_exact(requirement) or not self._has_expired_ttl(dist)
 
   def _set_cached_dist(self, dist):
-    target_location = os.path.join(self.__install_cache, os.path.basename(dist.location))
+    target_location = os.path.join(self._install_cache, os.path.basename(dist.location))
     if os.path.exists(target_location):
       return
     target_tmp = target_location + uuid.uuid4().get_hex()
