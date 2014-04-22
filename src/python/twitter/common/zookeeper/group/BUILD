@@ -15,7 +15,7 @@ python_library(
     pants('src/python/twitter/common/concurrent'),
     pants('src/python/twitter/common/exceptions'),
     pants('src/python/twitter/common/quantity'),
-    pants('src/python/twitter/common/zookeeper'),
+    pants('src/python/twitter/common/zookeeper:zookeeper-old'),
   ]
 )
 

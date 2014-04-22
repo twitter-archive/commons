@@ -5,6 +5,7 @@ python_library(
     pants('src/python/twitter/common/lang'),
     pants('src/python/twitter/common/zookeeper/group:group_base'),
     pants('src/thrift/com/twitter/thrift:py-thrift'),
+    pants('3rdparty/python:thrift'),
   ]
 )
 
@@ -13,7 +14,6 @@ python_library(
   dependencies = [
     pants(':serverset_base'),
     pants('src/python/twitter/common/zookeeper/group'),
-    pants('src/python/twitter/common/zookeeper'),
   ]
 )
 

@@ -14,6 +14,9 @@
 # limitations under the License.
 # ==================================================================================================
 
+with open(os.path.join(os.path.dirname(__file__), '..', 'VERSION')) as fp:
+  VERSION = fp.read().strip()
+
 python_library(
   name = 'tunnel',
   sources = ('tunnel.py',),
@@ -32,7 +35,7 @@ python_library(
   ],
   provides = setup_py(
     name = 'twitter.common.net',
-    version = '0.1.1',
+    version = VERSION,
     description = 'twitter.common tunneling and network utilities.',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',

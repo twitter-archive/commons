@@ -14,6 +14,9 @@
 # limitations under the License.
 # ==================================================================================================
 
+with open(os.path.join(os.path.dirname(__file__), '..', 'VERSION')) as fp:
+  VERSION = fp.read().strip()
+
 python_library(
   name = 'process',
   sources = rglobs('*.py'),
@@ -23,7 +26,7 @@ python_library(
   ],
   provides = setup_py(
     name = 'twitter.common.process',
-    version = '0.1.3',
+    version = VERSION,
     description = 'twitter.common process management wrapper.',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',

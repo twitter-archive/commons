@@ -14,10 +14,27 @@
 # limitations under the License.
 # ==================================================================================================
 
+with open(os.path.join(os.path.dirname(__file__), '..', 'VERSION')) as fp:
+  VERSION = fp.read().strip()
+
 python_library(
   name = 'git',
   sources = ['__init__.py'],
   dependencies = [
-    pants('3rdparty/python:git-python')
-  ]
+    pants('3rdparty/python:git-python'),
+  ],
+  provides = setup_py(
+    name = 'twitter.common.git',
+    version = VERSION,
+    description = 'twitter.common library for interacting with Git.',
+    url = 'https://github.com/twitter/commons',
+    license = 'Apache License, Version 2.0',
+    zip_safe = True,
+    classifiers = [
+      'Intended Audience :: Developers',
+      'License :: OSI Approved :: Apache Software License',
+      'Operating System :: OS Independent',
+      'Programming Language :: Python',
+    ]
+  )
 )

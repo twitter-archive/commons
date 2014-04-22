@@ -14,6 +14,9 @@
 # limitations under the License.
 # ==================================================================================================
 
+with open(os.path.join(os.path.dirname(__file__), '..', 'VERSION')) as fp:
+  VERSION = fp.read().strip()
+
 python_library(
   name = 'testing',
   sources = globs('*.py'),
@@ -22,7 +25,7 @@ python_library(
   ],
   provides = setup_py(
     name = 'twitter.common.testing',
-    version = '0.1.1',
+    version = VERSION,
     description = 'twitter.common testing libraries.',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',

@@ -14,13 +14,16 @@
 # limitations under the License.
 # ==================================================================================================
 
+with open(os.path.join(os.path.dirname(__file__), '..', 'VERSION')) as fp:
+  VERSION = fp.read().strip()
+
 python_library(
   name = "collections",
   sources = rglobs('*.py'),
   dependencies = [ pants('src/python/twitter/common/lang') ],
   provides = setup_py(
     name = 'twitter.common.collections',
-    version = '0.1.3',
+    version = VERSION,
     description = 'twitter.common collections library.',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',

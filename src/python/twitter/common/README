@@ -1,0 +1,7 @@
+These are the Twitter Python commons: implementations of common libraries in
+use throughout Twitter's codebase.
+
+With the exception of twitter.common.python, all should be released in
+lockstep.  This entails incrementing the VERSION file within this directory,
+then running build-support/commons/scripts/build_py_commons.sh and uploading
+the resulting source distributions to PyPI.
