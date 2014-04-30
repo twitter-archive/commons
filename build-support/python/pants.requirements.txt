@@ -9,7 +9,7 @@ twitter.common.dirutil==0.3.0
 twitter.common.lang==0.3.0
 twitter.common.log==0.3.0
 twitter.common.process==0.3.0
-twitter.common.python==0.5.4
+twitter.common.python==0.3.1
 twitter.common.quantity==0.3.0
 twitter.common.util==0.3.0
 ansicolors==1.0.2
