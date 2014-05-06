@@ -22,10 +22,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 
 public class HashtagExtractorTest {
-  private TokenStream stream;
+  private TwitterTokenStream stream;
 
   @Before
   public void setup() {

@@ -25,16 +25,16 @@ import com.google.common.collect.ImmutableList;
 import org.apache.lucene.util.Attribute;
 
 /**
- * Aggregates the outputs of multiple {@code TokenStreams} into a single {@code TokenStream}.
+ * Aggregates the outputs of multiple {@code TokenStreams} into a single {@code TwitterTokenStream}.
  */
-public class TokenStreamAggregator extends TokenStream {
-  private final List<TokenStream> aggregatedStreams;
+public class TokenStreamAggregator extends TwitterTokenStream {
+  private final List<TwitterTokenStream> aggregatedStreams;
 
-  protected TokenStreamAggregator(TokenStream... streams) {
+  protected TokenStreamAggregator(TwitterTokenStream... streams) {
     aggregatedStreams = ImmutableList.copyOf(streams);
 
     // register all attributes of every stream
-    for (TokenStream stream : streams) {
+    for (TwitterTokenStream stream : streams) {
       Iterator<Class<? extends Attribute>> it = stream.getAttributeClassesIterator();
       while (it.hasNext()) {
         addAttribute(it.next());
@@ -43,19 +43,19 @@ public class TokenStreamAggregator extends TokenStream {
   }
 
   /**
-   * Creates a {@code TokenStream} that aggregates the outputs of a given set of
+   * Creates a {@code TwitterTokenStream} that aggregates the outputs of a given set of
    * {@code TokenStreams}.
    *
    * @param streams TokenStreams to aggregate
-   * @return an aggregated TokenStream
+   * @return an aggregated TwitterTokenStream
    */
-  public static final TokenStream of(TokenStream... streams) {
+  public static final TwitterTokenStream of(TwitterTokenStream... streams) {
     return new TokenStreamAggregator(streams);
   }
 
   @Override
-  public boolean incrementToken() {
-    for (TokenStream stream : aggregatedStreams) {
+  public final boolean incrementToken() {
+    for (TwitterTokenStream stream : aggregatedStreams) {
       if (!stream.incrementToken()) {
         continue;
       }
@@ -68,9 +68,10 @@ public class TokenStreamAggregator extends TokenStream {
   }
 
   @Override
-  public void reset(CharSequence input) {
+  public void reset() {
+    CharSequence input = inputCharSequence();
     Preconditions.checkNotNull(input);
-    for (TokenStream stream : aggregatedStreams) {
+    for (TwitterTokenStream stream : aggregatedStreams) {
       stream.reset(input);
     }
   }

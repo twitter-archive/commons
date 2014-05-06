@@ -16,14 +16,14 @@
 
 package com.twitter.common.text.filter;
 
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 import com.twitter.common.text.token.attribute.TokenType;
 
 /**
  * Filters out tokens whose {@code TokenTypeAttribute} is {@code TokenType.PUNCTUATION}.
  */
 public class PunctuationFilter extends TokenTypeFilter {
-  public PunctuationFilter(TokenStream inputStream) {
+  public PunctuationFilter(TwitterTokenStream inputStream) {
     super(inputStream);
     setTypesToFilter(TokenType.PUNCTUATION);
     setMode(TokenTypeFilter.Mode.REJECT);

@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 import com.twitter.Regex;
 import com.twitter.common.text.extractor.RegexExtractor;
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 import com.twitter.common.text.token.attribute.TokenType;
 
 /**
@@ -33,7 +33,7 @@ public class StockTokenCombiner extends ExtractorBasedTokenCombiner {
     Pattern.compile(Regex.VALID_CASHTAG.toString().replace(")\\$(", ")(\\$)("),
                     Pattern.CASE_INSENSITIVE);
 
-  public StockTokenCombiner(TokenStream inputStream) {
+  public StockTokenCombiner(TwitterTokenStream inputStream) {
     super(inputStream);
     setExtractor(new RegexExtractor.Builder()
                                    .setRegexPattern(STOCK_SYMBOL_PATTERN, 1, 2)

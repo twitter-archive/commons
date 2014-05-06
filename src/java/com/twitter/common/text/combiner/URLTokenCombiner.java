@@ -17,14 +17,14 @@
 package com.twitter.common.text.combiner;
 
 import com.twitter.common.text.extractor.URLExtractor;
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 import com.twitter.common.text.token.attribute.TokenType;
 
 /**
  * Combines multiple tokens denoting a URL back into a single token.
  */
 public class URLTokenCombiner extends ExtractorBasedTokenCombiner {
-  public URLTokenCombiner(TokenStream inputStream) {
+  public URLTokenCombiner(TwitterTokenStream inputStream) {
     super(inputStream);
     setExtractor(new URLExtractor());
     setType(TokenType.URL);

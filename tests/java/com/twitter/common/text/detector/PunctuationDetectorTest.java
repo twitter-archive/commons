@@ -26,7 +26,7 @@ import com.google.common.collect.ImmutableSet;
 
 import org.junit.Test;
 
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;
 import com.twitter.common.text.token.attribute.TokenType;
 import com.twitter.common.text.token.attribute.TokenTypeAttribute;
@@ -37,7 +37,7 @@ public class PunctuationDetectorTest {
   public void testNoPunctuationDetector() {
     // This test case shows that, without a punctuation detector, the punctuation characters do not
     // have the correct token type.
-    TokenStream stream =
+    TwitterTokenStream stream =
         new RegexTokenizer.Builder().setDelimiterPattern(Pattern.compile(" ")).build();
     stream.reset("When I was young , I liked insects .");
 
@@ -56,7 +56,7 @@ public class PunctuationDetectorTest {
   public void testPunctuationDetector() {
     // Compare with testNoPunctuationDetector(): now we add a punctuation detector, and the
     // punctuation characters have the correct types.
-    TokenStream mockStream =
+    TwitterTokenStream mockStream =
       new RegexTokenizer.Builder().setDelimiterPattern(Pattern.compile(" ")).build();
     mockStream.reset("When I was young , I liked insects .");
 
@@ -93,7 +93,7 @@ public class PunctuationDetectorTest {
 
   @Test
   public void testAllPunctuation() {
-    TokenStream mockStream =
+    TwitterTokenStream mockStream =
         new RegexTokenizer.Builder().setDelimiterPattern(Pattern.compile(" ")).build();
     mockStream.reset("When I was young , I liked insects .");
 
@@ -112,7 +112,7 @@ public class PunctuationDetectorTest {
 
   @Test
   public void testNewlineIsPunctuation() {
-    TokenStream mockStream =
+    TwitterTokenStream mockStream =
         new RegexTokenizer.Builder().setDelimiterPattern(Pattern.compile(" ")).build();
     mockStream.reset("Newline \n as punctuation");
     PunctuationDetector stream = new PunctuationDetector(mockStream);

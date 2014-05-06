@@ -29,11 +29,11 @@ public class TokenStreamAggregatorTest {
   @Test
   public void testAggregation() {
     // tokenize by space
-    TokenStream stream1 = new RegexTokenizer.Builder().setDelimiterPattern(Pattern.compile(" ")).build();
+    TwitterTokenStream stream1 = new RegexTokenizer.Builder().setDelimiterPattern(Pattern.compile(" ")).build();
     // tokenize by underbar _
-    TokenStream stream2 = new RegexTokenizer.Builder().setDelimiterPattern(Pattern.compile("_")).build();
+    TwitterTokenStream stream2 = new RegexTokenizer.Builder().setDelimiterPattern(Pattern.compile("_")).build();
 
-    TokenStream aggregator = TokenStreamAggregator.of(stream1, stream2);
+    TwitterTokenStream aggregator = TokenStreamAggregator.of(stream1, stream2);
     aggregator.reset("aa bb_cc dd ee_ff_gg");
 
     assertEquals(ImmutableList.of("aa", "bb_cc", "dd", "ee_ff_gg", "aa bb", "cc dd ee", "ff", "gg"), aggregator.toStringList());

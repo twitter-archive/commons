@@ -21,6 +21,7 @@ import java.util.List;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
+import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.util.AttributeSource;
 
 import com.twitter.common.text.example.TokenizerUsageExample;
@@ -42,33 +43,33 @@ import com.twitter.common.text.token.attribute.TokenTypeAttribute;
  * For an annotated example of how this class is used in practice, refer to
  * {@link TokenizerUsageExample}.
  */
-public abstract class TokenStream extends AttributeSource {
+public abstract class TwitterTokenStream extends TokenStream {
   private final CharSequenceTermAttribute termAttribute = addAttribute(CharSequenceTermAttribute.class);
   private final TokenTypeAttribute typeAttribute = addAttribute(TokenTypeAttribute.class);
 
   /**
-   * Constructs a {@code TokenStream} using the default attribute factory.
+   * Constructs a {@code TwitterTokenStream} using the default attribute factory.
    */
-  public TokenStream() {
+  public TwitterTokenStream() {
     super();
   }
 
   /**
-   * Constructs a {@code TokenStream} using the supplied {@code AttributeFactory} for creating new
+   * Constructs a {@code TwitterTokenStream} using the supplied {@code AttributeFactory} for creating new
    * {@code Attribute} instances.
    *
    * @param factory attribute factory
    */
-  protected TokenStream(AttributeSource.AttributeFactory factory) {
+  protected TwitterTokenStream(AttributeSource.AttributeFactory factory) {
     super(factory);
   }
 
   /**
-   * Constructs a {@code TokenStream} that uses the same attributes as the supplied one.
+   * Constructs a {@code TwitterTokenStream} that uses the same attributes as the supplied one.
    *
    * @param input attribute source
    */
-  protected TokenStream(AttributeSource input) {
+  protected TwitterTokenStream(AttributeSource input) {
     super(input);
   }
 
@@ -80,12 +81,20 @@ public abstract class TokenStream extends AttributeSource {
   public abstract boolean incrementToken();
 
   /**
-   * Resets this {@code TokenStream} (and also downstream tokens if they exist) to parse a new
+   * Resets this {@code TwitterTokenStream} (and also downstream tokens if they exist) to parse a new
    * input.
-   *
-   * @param input new text to parse.
    */
-  public abstract void reset(CharSequence input);
+  public void reset(CharSequence input) {
+    updateInputCharSequence(input);
+    reset();
+  };
+
+
+  /**
+   * Subclasses should implement reset() to reinitiate the processing.
+   * Input CharSequence is available as inputCharSequence().
+   */
+  public abstract void reset();
 
   /**
    * Converts this token stream into a list of {@code Strings}.
@@ -103,12 +112,12 @@ public abstract class TokenStream extends AttributeSource {
   }
 
   /**
-   * Searches and returns an instance of a specified class in this TokenStream chain.
+   * Searches and returns an instance of a specified class in this TwitterTokenStream chain.
    *
    * @param cls class to search for
    * @return instance of the class {@code cls} if found or {@code null} if not found
    */
-  public <T extends TokenStream> T getInstanceOf(Class<T> cls) {
+  public <T extends TwitterTokenStream> T getInstanceOf(Class<T> cls) {
     Preconditions.checkNotNull(cls);
     if (cls.isInstance(this)) {
       return cls.cast(this);
@@ -165,7 +174,7 @@ public abstract class TokenStream extends AttributeSource {
    * Sets the input {@code CharSequence}.
    *
    * @param inputCharSequence {@code CharSequence} analyzed by this
-   *     {@code TokenStream}
+   *     {@code TwitterTokenStream}
    */
   protected void updateInputCharSequence(CharSequence inputCharSequence) {
     termAttribute.setCharSequence(inputCharSequence);

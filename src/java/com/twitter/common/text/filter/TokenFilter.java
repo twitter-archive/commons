@@ -17,18 +17,18 @@
 package com.twitter.common.text.filter;
 
 import com.twitter.common.text.token.TokenProcessor;
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 
 /**
- * Filters out tokens from a given {@code TokenStream}.
+ * Filters out tokens from a given {@code TwitterTokenStream}.
  */
 public abstract class TokenFilter extends TokenProcessor {
-  public TokenFilter(TokenStream inputStream) {
+  public TokenFilter(TwitterTokenStream inputStream) {
     super(inputStream);
   }
 
   @Override
-  public boolean incrementToken() {
+  public final boolean incrementToken() {
     while (incrementInputStream()) {
       if (acceptToken()) {
         return true;

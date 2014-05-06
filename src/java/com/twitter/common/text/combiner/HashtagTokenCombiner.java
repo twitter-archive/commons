@@ -17,14 +17,14 @@
 package com.twitter.common.text.combiner;
 
 import com.twitter.common.text.extractor.HashtagExtractor;
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 import com.twitter.common.text.token.attribute.TokenType;
 
 /**
  * Combines multiple tokens denoting a hashtag back into a single token.
  */
 public class HashtagTokenCombiner extends ExtractorBasedTokenCombiner {
-  public HashtagTokenCombiner(TokenStream inputStream) {
+  public HashtagTokenCombiner(TwitterTokenStream inputStream) {
     super(inputStream);
     setExtractor(new HashtagExtractor());
     setType(TokenType.HASHTAG);

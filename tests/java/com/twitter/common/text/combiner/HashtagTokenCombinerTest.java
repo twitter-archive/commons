@@ -29,13 +29,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.twitter.common.text.extractor.RegexExtractor;
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;
 import com.twitter.common.text.token.attribute.TokenType;
 import com.twitter.common.text.token.attribute.TokenTypeAttribute;
 
 public class HashtagTokenCombinerTest {
-  private TokenStream stream;
+  private TwitterTokenStream stream;
   private CharSequenceTermAttribute termAttr;
   private TokenTypeAttribute typeAttr;
 

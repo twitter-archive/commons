@@ -25,9 +25,9 @@ import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 
 /**
- * Converts a Lucene {@link Tokenizer} instance into {@link TokenStream} instance.
+ * Converts a Lucene {@link Tokenizer} instance into {@link TwitterTokenStream} instance.
  */
-public class LuceneTokenizer2TokenStreamWrapper extends TokenStream {
+public class LuceneTokenizer2TokenStreamWrapper extends TwitterTokenStream {
   private final Tokenizer tokenizer;
   private final OffsetAttribute inputOffsetAttr;
 
@@ -38,7 +38,7 @@ public class LuceneTokenizer2TokenStreamWrapper extends TokenStream {
   }
 
   @Override
-  public boolean incrementToken() {
+  public final boolean incrementToken() {
     clearAttributes();
 
     try {
@@ -58,7 +58,8 @@ public class LuceneTokenizer2TokenStreamWrapper extends TokenStream {
   }
 
   @Override
-  public void reset(CharSequence input) {
+  public void reset() {
+    CharSequence input = inputCharSequence();
     Preconditions.checkNotNull(input);
     try {
       tokenizer.setReader(new StringReader(input.toString()));

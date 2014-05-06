@@ -20,7 +20,7 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 import com.twitter.common.text.token.attribute.TokenType;
 
 /**
@@ -36,7 +36,7 @@ public class DotContractedTokenCombiner extends LookAheadTokenCombiner {
       "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec" // months
       );
 
-  public DotContractedTokenCombiner(TokenStream inputStream) {
+  public DotContractedTokenCombiner(TwitterTokenStream inputStream) {
     super(inputStream);
     setType(TokenType.TOKEN);
   }

@@ -18,14 +18,13 @@ package com.twitter.common.text.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Random;
 
 import org.junit.Test;
 
 import com.twitter.common.text.DefaultTextTokenizer;
 import com.twitter.common.text.TextTokenizer;
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -41,7 +40,7 @@ public class TokenStreamSerializerTest {
         .setKeepPunctuation(false)
         .build();
 
-    TokenStream stream = tokenizer.getDefaultTokenStream();
+    TwitterTokenStream stream = tokenizer.getDefaultTokenStream();
     stream.reset(text);
 
     TokenStreamSerializer serializer = TokenStreamSerializer.builder()
@@ -52,7 +51,7 @@ public class TokenStreamSerializerTest {
 
     byte[] data  = serializer.serialize(stream);
 
-    TokenStream deserialized = serializer.deserialize(data, text);
+    TwitterTokenStream deserialized = serializer.deserialize(data, text);
 
     for (int i = 0; i < 2; ++i) {
       // run this twice so that we see that resetting we still get the same tokens.
@@ -128,7 +127,7 @@ public class TokenStreamSerializerTest {
         .setKeepPunctuation(false)
         .build();
 
-    TokenStream stream = tokenizer.getDefaultTokenStream();
+    TwitterTokenStream stream = tokenizer.getDefaultTokenStream();
     stream.reset(text);
 
     TokenStreamSerializer serializer = TokenStreamSerializer.builder()

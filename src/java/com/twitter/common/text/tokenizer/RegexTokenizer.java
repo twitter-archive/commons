@@ -28,13 +28,13 @@ import com.google.common.collect.Lists;
 
 import org.apache.lucene.util.AttributeSource;
 
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 import com.twitter.common.text.token.attribute.TokenType;
 
 /**
  * Tokenizes text based on regular expressions of word delimiters and punctuation characters.
  */
-public class RegexTokenizer extends TokenStream {
+public class RegexTokenizer extends TwitterTokenStream {
   private Pattern delimiterPattern;
   private int punctuationGroup = 0;
   private boolean keepPunctuation = false;
@@ -64,7 +64,7 @@ public class RegexTokenizer extends TokenStream {
   }
 
   @Override
-  public boolean incrementToken() {
+  public final boolean incrementToken() {
     if (tokenIndex >= tokens.size()) {
       return false;
     }
@@ -80,9 +80,10 @@ public class RegexTokenizer extends TokenStream {
   }
 
   @Override
-  public void reset(CharSequence input) {
+  public void reset() {
+    CharSequence input = inputCharSequence();
+
     // reset termAttr
-    updateInputCharSequence(input);
     clearAttributes();
 
     // reset tokens

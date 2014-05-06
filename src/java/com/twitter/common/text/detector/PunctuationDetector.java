@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 import com.google.common.base.Preconditions;
 
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 import com.twitter.common.text.token.attribute.TokenType;
 
 /**
@@ -37,14 +37,14 @@ public class PunctuationDetector extends RegexDetector {
   public static final String PUNCTUATION_REGEX = "[" + PUNCTUATION_CHAR_CLASS + "]";
   private static final Pattern DEFAULT_PUNCTUATION_PATTERN = Pattern.compile(PUNCTUATION_REGEX);
 
-  protected PunctuationDetector(TokenStream inputStream) {
+  protected PunctuationDetector(TwitterTokenStream inputStream) {
     super(inputStream);
     setRegexPattern(DEFAULT_PUNCTUATION_PATTERN);
     setType(TokenType.PUNCTUATION);
   }
 
   public static class Builder extends AbstractBuilder<PunctuationDetector, Builder> {
-    public Builder(TokenStream inputStream) {
+    public Builder(TwitterTokenStream inputStream) {
       super(new PunctuationDetector(inputStream));
     }
   }

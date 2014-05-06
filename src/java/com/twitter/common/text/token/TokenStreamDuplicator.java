@@ -23,13 +23,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 /**
- * Creates a duplicate a {@code TokenStream}.
+ * Creates a duplicate a {@code TwitterTokenStream}.
  *
- * A {@code TokenStream} returned by {@code duplicate} method provides the same output as
- * the original {@code TokenStream}, but without analyzing the input {@code CharSequence} again.
+ * A {@code TwitterTokenStream} returned by {@code duplicate} method provides the same output as
+ * the original {@code TwitterTokenStream}, but without analyzing the input {@code CharSequence} again.
  */
 public class TokenStreamDuplicator extends TokenProcessor {
-  private final TokenStream inputStream;
+  private final TwitterTokenStream inputStream;
   private final List<State> states = Lists.newArrayList();
   private final List<DuplicatedTokenStream> duplicatedStreams = Lists.newArrayList();
 
@@ -38,9 +38,9 @@ public class TokenStreamDuplicator extends TokenProcessor {
   /**
    * Constructs a new TokenStreamDuplicator.
    *
-   * @param inputStream TokenStream to duplicate.
+   * @param inputStream TwitterTokenStream to duplicate.
    */
-  public TokenStreamDuplicator(TokenStream inputStream) {
+  public TokenStreamDuplicator(TwitterTokenStream inputStream) {
     super(inputStream);
     this.inputStream = inputStream;
   }
@@ -63,7 +63,7 @@ public class TokenStreamDuplicator extends TokenProcessor {
   }
 
   @Override
-  public boolean incrementToken() {
+  public final boolean incrementToken() {
     if (stateIt == null || !stateIt.hasNext()) {
       return false;
     }
@@ -72,12 +72,12 @@ public class TokenStreamDuplicator extends TokenProcessor {
   }
 
   /**
-   * Returns a new TokenStream which provides the same
-   * output as the original TokenStream.
+   * Returns a new TwitterTokenStream which provides the same
+   * output as the original TwitterTokenStream.
    *
-   * @return a duplicated TokenStream
+   * @return a duplicated TwitterTokenStream
    */
-  public TokenStream duplicate() {
+  public TwitterTokenStream duplicate() {
     DuplicatedTokenStream duplicate = new DuplicatedTokenStream(inputStream);
     duplicatedStreams.add(duplicate);
 
@@ -87,12 +87,12 @@ public class TokenStreamDuplicator extends TokenProcessor {
   protected static final class DuplicatedTokenStream extends TokenProcessor {
     private Iterator<State> stateIt = null;
 
-    protected DuplicatedTokenStream(TokenStream inputStream) {
+    protected DuplicatedTokenStream(TwitterTokenStream inputStream) {
       super(inputStream);
     }
 
     @Override
-    public boolean incrementToken() {
+    public final boolean incrementToken() {
       if (stateIt == null || !stateIt.hasNext()) {
         return false;
       }

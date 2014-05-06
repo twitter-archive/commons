@@ -22,9 +22,9 @@ import org.apache.lucene.util.Attribute;
 import org.apache.lucene.util.AttributeSource;
 
 /**
- * A {@code TokenStream} used to access the member of a token group created by {@code TokenGrouper}.
+ * A {@code TwitterTokenStream} used to access the member of a token group created by {@code TokenGrouper}.
  */
-public class TokenGroupStream extends TokenStream {
+public class TokenGroupStream extends TwitterTokenStream {
   private List<AttributeSource.State> states;
   private int currentIndex;
 
@@ -41,7 +41,7 @@ public class TokenGroupStream extends TokenStream {
   }
 
   @Override
-  public boolean incrementToken() {
+  public final boolean incrementToken() {
     if (currentIndex >= states.size()) {
       return false;
     }
@@ -56,7 +56,7 @@ public class TokenGroupStream extends TokenStream {
    * Resets this token group stream. input is discarded.
    */
   @Override
-  public void reset(CharSequence input) {
+  public void reset() {
     currentIndex = 0;
   }
 

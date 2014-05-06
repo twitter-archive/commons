@@ -19,7 +19,7 @@ package com.twitter.common.text;
 import com.twitter.common.text.combiner.*;
 import com.twitter.common.text.example.TokenizerUsageExample;
 import com.twitter.common.text.filter.PunctuationFilter;
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 
 /**
  * Default implementation of a tokenizer for processing tweets. For sample usage, please consult
@@ -29,7 +29,7 @@ public class DefaultTextTokenizer extends TextTokenizer {
   // use Builder.
   private DefaultTextTokenizer() { }
 
-  public TokenStream applyDefaultChain(TokenStream tokenizer) {
+  public TwitterTokenStream applyDefaultChain(TwitterTokenStream tokenizer) {
     return
       // combine stock symbol
       new StockTokenCombiner(

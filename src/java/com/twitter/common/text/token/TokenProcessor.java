@@ -19,11 +19,11 @@ package com.twitter.common.text.token;
 import com.google.common.base.Preconditions;
 
 /**
- * A {@code TokenStream} whose input is another {@code TokenStream}.
+ * A {@code TwitterTokenStream} whose input is another {@code TwitterTokenStream}.
  * In other words, this class corresponds to TokenFilter in Lucene.
  */
-public abstract class TokenProcessor extends TokenStream {
-  private final TokenStream inputStream;
+public abstract class TokenProcessor extends TwitterTokenStream {
+  private final TwitterTokenStream inputStream;
 
   private final TokenProcessor inputProcessor;
 
@@ -32,9 +32,9 @@ public abstract class TokenProcessor extends TokenStream {
   /**
    * Constructs a new {@code TokenProcessor}.
    *
-   * @param inputStream input {@code TokenStream}
+   * @param inputStream input {@code TwitterTokenStream}
    */
-  public TokenProcessor(TokenStream inputStream) {
+  public TokenProcessor(TwitterTokenStream inputStream) {
     super(Preconditions.checkNotNull(inputStream));
     this.inputStream = inputStream;
 
@@ -44,8 +44,8 @@ public abstract class TokenProcessor extends TokenStream {
   }
 
   @Override
-  public void reset(CharSequence input) {
-    getNextEnabledInputStream().reset(input);
+  public void reset() {
+    getNextEnabledInputStream().reset(inputCharSequence());
   }
 
   /**
@@ -86,7 +86,7 @@ public abstract class TokenProcessor extends TokenStream {
     this.enabled = enabled;
   }
 
-  protected TokenStream getNextEnabledInputStream() {
+  protected TwitterTokenStream getNextEnabledInputStream() {
     if (inputProcessor == null) {
       return inputStream;
     } else if (inputProcessor.isEnabled()) {
@@ -97,7 +97,7 @@ public abstract class TokenProcessor extends TokenStream {
   }
 
   @Override
-  public <T extends TokenStream> T getInstanceOf(Class<T> cls) {
+  public <T extends TwitterTokenStream> T getInstanceOf(Class<T> cls) {
     if (cls.isInstance(this)) {
       return cls.cast(this);
     }
