@@ -217,7 +217,8 @@ public class TokenStreamSerializer {
       Version version;
       int numTokens;
 
-      @Override public boolean incrementToken() {
+      @Override
+      public final boolean incrementToken() {
         if (token < numTokens) {
           token++;
           try {

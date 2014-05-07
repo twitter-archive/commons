@@ -69,7 +69,7 @@ public class TokenizedCharSequenceStream extends TokenProcessor {
   public TokenizedCharSequenceStream() {
     super(new TwitterTokenStream() {
       @Override
-      public boolean incrementToken() {
+      public final boolean incrementToken() {
         return false;
       }
 
