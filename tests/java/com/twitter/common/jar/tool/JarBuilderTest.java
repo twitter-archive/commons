@@ -21,14 +21,14 @@ import com.google.common.collect.Iterables;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closer;
 import com.google.common.io.InputSupplier;
+import com.google.common.testing.TearDown;
+import com.google.common.testing.junit4.TearDownTestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.easymock.Capture;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -172,7 +172,8 @@ public class JarBuilderTest {
     }
   }
 
-  public static class WriteTestBase {
+  public static class WriteTestBase extends TearDownTestCase {
+
     protected static InputSupplier<? extends InputStream> content(String content) {
       return ByteStreams.newInputStreamSupplier(content.getBytes(Charsets.UTF_8));
     }
@@ -183,12 +184,12 @@ public class JarBuilderTest {
       return new String(ByteStreams.toByteArray(content), Charsets.UTF_8);
     }
 
-    @Rule public TemporaryFolder folder = new TemporaryFolder();
-
+    private com.twitter.common.io.FileUtils.Temporary temporary;
     private Closer tearDownCloser;
 
     @Before
     public void setUpCloser() {
+      temporary = com.twitter.common.io.FileUtils.SYSTEM_TMP;
       tearDownCloser = Closer.create();
     }
 
@@ -197,8 +198,39 @@ public class JarBuilderTest {
       tearDownCloser.close();
     }
 
+    protected File newFile() throws IOException {
+      final File file = temporary.createFile();
+      addTearDown(new TearDown() {
+        @Override public void tearDown() {
+          file.delete();
+        }
+      });
+      org.apache.commons.io.FileUtils.touch(file);
+      return file;
+    }
+
+    protected File newFile(String name) throws IOException {
+      File file = new File(newFolder(), name);
+      org.apache.commons.io.FileUtils.touch(file);
+      return file;
+    }
+
+    protected File newFolder(String path) {
+      return new File(newFolder(), path);
+    }
+
+    protected File newFolder() {
+      final File dir = temporary.createDir();
+      addTearDown(new TearDown() {
+        @Override public void tearDown() {
+          FileUtils.deleteQuietly(dir);
+        }
+      });
+      return dir;
+    }
+
     protected JarBuilder jarBuilder() throws IOException {
-      return jarBuilder(folder.newFile());
+      return jarBuilder(newFile());
     }
 
     protected JarBuilder jarBuilder(File destinationJar) {
@@ -313,7 +345,7 @@ public class JarBuilderTest {
       });
     }
 
-      @Test
+    @Test
     public void testCustomManifestCreate() throws IOException {
       final Manifest customManifest = new Manifest();
       customManifest.getMainAttributes().put(Name.MANIFEST_VERSION, "1.0");
@@ -374,7 +406,7 @@ public class JarBuilderTest {
 
     @Test
     public void testAddDirectory() throws IOException {
-      File dir = folder.newFolder("life/of/brian");
+      File dir = newFolder("life/of/brian");
       FileUtils.write(new File(dir, "is"), "42");
       FileUtils.write(new File(dir, "used/to/be"), "1/137");
 
@@ -432,7 +464,7 @@ public class JarBuilderTest {
 
     @Test
     public void testSkip() throws IOException {
-      File dir = folder.newFolder("life/of/brian");
+      File dir = newFolder("life/of/brian");
       FileUtils.write(new File(dir, "is"), "42");
       FileUtils.write(new File(dir, "used/to/be"), "4");
 
@@ -485,7 +517,7 @@ public class JarBuilderTest {
 
       File jar = jarBuilder().add(content("more\n"), "meaning/of/life").write();
 
-      File dir = folder.newFolder("life/of");
+      File dir = newFolder("life/of");
       FileUtils.write(new File(dir, "life"), "jane");
 
       jarBuilder(destinationJar)
@@ -620,7 +652,7 @@ public class JarBuilderTest {
       listener.onSkip(eq(Optional.<Entry>absent()), capture(skipped));
       replay(listener);
 
-      jarBuilder(folder.newFile(), listener)
+      jarBuilder(newFile(), listener)
           .add(content("skipped write"), "skipped/write")
           .write(
               false /* compress */,
@@ -637,7 +669,7 @@ public class JarBuilderTest {
       listener.onWrite(capture(written));
       replay(listener);
 
-      jarBuilder(folder.newFile(), listener)
+      jarBuilder(newFile(), listener)
           .add(content("simple write"), "simple/write")
           .write();
 
@@ -652,11 +684,11 @@ public class JarBuilderTest {
       listener.onSkip(capture(retained), capture(skipped));
       replay(listener);
 
-      File one = folder.newFile("one");
-      File two = folder.newFile("two");
-      File three = folder.newFile("three");
+      File one = newFile("one");
+      File two = newFile("two");
+      File three = newFile("three");
 
-      jarBuilder(folder.newFile(), listener)
+      jarBuilder(newFile(), listener)
           .addFile(one, "skipped/write")
           .addFile(two, "skipped/write")
           .addFile(three, "skipped/write")
@@ -675,11 +707,11 @@ public class JarBuilderTest {
       listener.onConcat(eq("concatenated/write"), capture(concatenated));
       replay(listener);
 
-      File one = folder.newFile("one");
-      File two = folder.newFile("two");
-      File three = folder.newFile("three");
+      File one = newFile("one");
+      File two = newFile("two");
+      File three = newFile("three");
 
-      jarBuilder(folder.newFile(), listener)
+      jarBuilder(newFile(), listener)
           .addFile(one, "concatenated/write")
           .addFile(two, "concatenated/write")
           .addFile(three, "concatenated/write")
@@ -697,11 +729,11 @@ public class JarBuilderTest {
       listener.onReplace(capture(originals), capture(replacement));
       replay(listener);
 
-      File one = folder.newFile("one");
-      File two = folder.newFile("two");
-      File three = folder.newFile("three");
+      File one = newFile("one");
+      File two = newFile("two");
+      File three = newFile("three");
 
-      jarBuilder(folder.newFile(), listener)
+      jarBuilder(newFile(), listener)
           .addFile(one, "replaced/write")
           .addFile(two, "replaced/write")
           .addFile(three, "replaced/write")

@@ -23,9 +23,9 @@ java_library(name='runner',
   dependencies=[
     pants('src/java/com/twitter/common/junit/annotations'),
     pants('src/java/com/twitter/common/junit/runner/withretry'),
-    pants('3rdparty:args4j'),
-    pants('3rdparty:guava'),
-    pants('3rdparty:junit'),
+    pants('3rdparty/jvm/args4j'),
+    pants('3rdparty/jvm/com/google/guava'),
+    pants('3rdparty/jvm/junit'),
   ],
   sources=globs('*.java')
 )

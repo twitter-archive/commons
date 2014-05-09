@@ -16,8 +16,8 @@
 
 java_library(name='action',
   dependencies=[
-    pants('3rdparty:guava'),
-    pants('3rdparty:tl4j'),
+    pants('3rdparty/jvm/com/google/guava'),
+    pants('3rdparty/jvm/com/google/testing:tl4j'),
     pants('src/java/com/twitter/common/application:action'),
     pants('src/java/com/twitter/common/base'),
   ],

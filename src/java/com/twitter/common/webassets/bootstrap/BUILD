@@ -22,8 +22,8 @@ java_library(
     repo=pants('build-support/commons/ivy:public'),
   ),
   dependencies=[
-    pants('3rdparty:guava'),
-    pants('3rdparty:guice'),
+    pants('3rdparty/jvm/com/google/guava'),
+    pants('3rdparty/jvm/com/google/inject:guice'),
     pants('src/java/com/twitter/common/application/http'),
   ],
   sources=globs('*.java'),

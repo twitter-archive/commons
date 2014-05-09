@@ -30,13 +30,6 @@ java_thrift_library(name = 'scribe_client-0.1.2-scala',
   sources = globs('0.1.2/*.thrift')
 )
 
-java_thrift_library(name = 'scribe_client-0.1.2-scala',
-  language='scala',
-  rpc_style='finagle',
-  compiler='scrooge',
-  sources = globs('0.1.2/*.thrift')
-)
-
 python_thrift_library(
   name = 'py-scribe',
   sources = globs('0.1.2/*.thrift'),

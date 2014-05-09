@@ -16,9 +16,9 @@
 
 java_tests(name = 'julbridge',
   dependencies = [
-    pants('3rdparty:hamcrest-core'),
-    pants('3rdparty:junit'),
-    pants('3rdparty:log4j'),
+    pants('3rdparty/jvm/org/hamcrest:hamcrest-core'),
+    pants('3rdparty/jvm/junit'),
+    pants('3rdparty/jvm/log4j'),
     pants('src/java/com/twitter/common/logging/julbridge:julbridge'),
   ],
   sources = globs('*.java')

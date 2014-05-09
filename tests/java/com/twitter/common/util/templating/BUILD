@@ -1,8 +1,8 @@
 java_tests(name='templating',
   dependencies=[
-    pants('3rdparty:guava'),
-    pants('3rdparty:junit'),
-    pants('3rdparty:stringtemplate'),
+    pants('3rdparty/jvm/com/google/guava'),
+    pants('3rdparty/jvm/junit'),
+    pants('3rdparty/jvm/org/antlr:stringtemplate'),
     pants('src/java/com/twitter/common/util/templating'),
   ],
   sources=globs('*.java'),

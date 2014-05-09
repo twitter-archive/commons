@@ -17,7 +17,7 @@
 jar_library(name = 'small',
   dependencies = [
     pants('tests/java/com/twitter/common/application'),
-    pants('tests/java/com/twitter/common/application/modules:all'),
+    pants('tests/java/com/twitter/common/application/modules:lifecycle'),
     pants('tests/java/com/twitter/common/args:small'),
     pants('tests/java/com/twitter/common/base'),
     pants('tests/java/com/twitter/common/collections'),
@@ -45,9 +45,6 @@ jar_library(name = 'small',
     pants('tests/java/com/twitter/common/util/concurrent'),
     pants('tests/java/com/twitter/common/util/templating'),
     pants('tests/java/com/twitter/common/zookeeper:small'),
-
-    # TODO(jsirois): conflict with spiderduck -> finagle -> new ostrich here - upgrade dep.
-    #pants('tests/scala/com/twitter/common/stats'),
 
     # No tests for these, adding deps to support a single target for --ide builds with comprehensive
     # deps

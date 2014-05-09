@@ -75,6 +75,8 @@ public class ConsoleRunnerTest {
     try {
       ConsoleRunner.main(asArgsArray("FlakyTest -num-retries 2"));
       Assert.fail("Should have failed with RuntimeException due to FlakyTest.methodAlwaysFails");
+    // FlakyTest.methodAlwaysFails fails this way - though perhaps that should be fixed to be an RTE subclass.
+	  // SUPPRESS CHECKSTYLE RegexpSinglelineJava
     } catch (RuntimeException ex) {
       // Expected due to FlakyTest.methodAlwaysFails()
     } finally {

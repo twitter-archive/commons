@@ -16,10 +16,11 @@
 
 junit_tests(name='tool',
   dependencies=[
-    pants('3rdparty:commons-io'),
-    pants('3rdparty:guava'),
-    pants('3rdparty:junit'),
-    pants('3rdparty:tl4j'),
+    pants('3rdparty/jvm/commons-io'),
+    pants('3rdparty/jvm/com/google/guava'),
+    pants('3rdparty/jvm/junit'),
+    pants('3rdparty/jvm/com/google/testing:tl4j'),
+    pants('src/java/com/twitter/common/io'),
     pants('src/java/com/twitter/common/jar/tool'),
     pants('src/java/com/twitter/common/testing/easymock'),
     pants('src/java/com/twitter/common/util:testing'),

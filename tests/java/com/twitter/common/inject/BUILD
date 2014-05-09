@@ -16,11 +16,11 @@
 
 java_tests(name = 'inject',
   dependencies = [
-    pants('3rdparty:commons-lang'),
-    pants('3rdparty:guava'),
-    pants('3rdparty:guice'),
-    pants('3rdparty:guice-multibindings'),
-    pants('3rdparty:junit'),
+    pants('3rdparty/jvm/commons-lang'),
+    pants('3rdparty/jvm/com/google/guava'),
+    pants('3rdparty/jvm/com/google/inject:guice'),
+    pants('3rdparty/jvm/com/google/inject/extensions:guice-multibindings'),
+    pants('3rdparty/jvm/junit'),
     pants("src/java/com/twitter/common/inject"),
   ],
   sources = globs('*.java')

@@ -306,8 +306,8 @@ public class ConsoleRunner {
       @Override public void run() {
         try {
           abortableListener.abort(new UnknownError("Abnormal VM exit - test crashed."));
-	// We want to trap and log no matter why abort failed for a better end user message.
-	// SUPPRESS CHECKSTYLE RegexpSinglelineJava
+	      // We want to trap and log no matter why abort failed for a better end user message.
+	      // SUPPRESS CHECKSTYLE RegexpSinglelineJava
         } catch (Exception e) {
           out.println(e);
           e.printStackTrace(out);

@@ -21,7 +21,7 @@ java_library(name='unittest',
     repo=pants('build-support/commons/ivy:public'),
   ),
   dependencies=[
-    pants('3rdparty:guava'),
+    pants('3rdparty/jvm/com/google/guava'),
   ],
   sources=globs('*.java')
 )

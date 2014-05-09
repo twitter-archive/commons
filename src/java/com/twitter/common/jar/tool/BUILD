@@ -23,9 +23,9 @@ java_library(name='tool',
   dependencies=[
     # Note both commons-io & twitter/common/io have a FileUtils class we use - 1 imported, 1 fully
     # qualified.
-    pants('3rdparty:commons-io'),
-    pants('3rdparty:guava'),
-    pants('3rdparty:jsr305'),
+    pants('3rdparty/jvm/commons-io'),
+    pants('3rdparty/jvm/com/google/guava'),
+    pants('3rdparty/jvm/com/google/code/findbugs:jsr305'),
     pants('src/java/com/twitter/common/args'),
     pants('src/java/com/twitter/common/io'),
     pants('src/java/com/twitter/common/logging'),

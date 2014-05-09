@@ -16,10 +16,10 @@
 
 java_tests(name = 'application',
   dependencies = [
-    pants('3rdparty:easymock'),
-    pants('3rdparty:guava'),
-    pants('3rdparty:guice'),
-    pants('3rdparty:junit'),
+    pants('3rdparty/jvm/org/easymock'),
+    pants('3rdparty/jvm/com/google/guava'),
+    pants('3rdparty/jvm/com/google/inject:guice'),
+    pants('3rdparty/jvm/junit'),
     pants('src/java/com/twitter/common/application'),
     pants('src/java/com/twitter/common/application:action'),
     pants('src/java/com/twitter/common/application/modules:stats'),

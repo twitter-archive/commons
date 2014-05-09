@@ -21,7 +21,7 @@ java_library(name='withretry',
     repo=pants('build-support/commons/ivy:public'),
   ),
   dependencies=[
-    pants('3rdparty:junit'),
+    pants('3rdparty/jvm/junit'),
   ],
   sources=globs('*.java')
 )

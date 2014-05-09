@@ -16,7 +16,7 @@
 
 java_tests(name = 'unittest',
   dependencies = [
-    pants('3rdparty:junit'),
+    pants('3rdparty/jvm/junit'),
 
     pants("src/java/com/twitter/common/security/unittest"),
   ],

@@ -21,8 +21,8 @@ java_library(name='mockito',
     repo = pants('build-support/commons/ivy:public'),
   ),
   dependencies = [
-    pants('3rdparty:junit'),
-    pants('3rdparty:mockito'),
+    pants('3rdparty/jvm/junit'),
+    pants('3rdparty/jvm/org/mockito'),
   ],
   sources = globs('*.java'),
 )

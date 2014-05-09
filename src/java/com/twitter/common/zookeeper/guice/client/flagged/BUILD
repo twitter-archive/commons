@@ -21,7 +21,7 @@ java_library(name = 'flagged',
     repo = pants('build-support/commons/ivy:public'),
   ),
   dependencies = [
-    pants('3rdparty:guava'),
+    pants('3rdparty/jvm/com/google/guava'),
     pants('src/java/com/twitter/common/args'),
     pants('src/java/com/twitter/common/quantity'),
     pants('src/java/com/twitter/common/zookeeper'),

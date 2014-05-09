@@ -5,8 +5,8 @@ java_library(name = 'templating',
     repo = pants('build-support/commons/ivy:public'),
   ),
   dependencies = [
-    pants('3rdparty:guava'),
-    pants('3rdparty:stringtemplate'),
+    pants('3rdparty/jvm/com/google/guava'),
+    pants('3rdparty/jvm/org/antlr:stringtemplate'),
     pants('src/java/com/twitter/common/base'),
   ],
   sources = globs('*.java')

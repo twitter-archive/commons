@@ -7,7 +7,7 @@ scalac_plugin(name='dependency-emitter',
     repo = pants('build-support/commons/ivy:public'),
   ),
   dependencies=[
-    '3rdparty:scala-compiler',
+    '3rdparty/jvm/org/scala-lang:scala-compiler',
   ],
   sources=['plugins/DependencyEmitter.scala']
 )

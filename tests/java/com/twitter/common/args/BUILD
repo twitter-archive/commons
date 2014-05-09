@@ -18,7 +18,7 @@ MEDIUM_TESTS = ['ArgScannerTest.java']
 
 java_tests(name='small',
   dependencies=[
-    pants('3rdparty:junit'),
+    pants('3rdparty/jvm/junit'),
     pants('src/java/com/twitter/common/args'),
     pants('src/java/com/twitter/common/args:apt'),
     pants('src/java/com/twitter/common/args:duration_parser'),
@@ -28,7 +28,7 @@ java_tests(name='small',
 
 java_tests(name='medium',
   dependencies=[
-    pants('3rdparty:junit'),
+    pants('3rdparty/jvm/junit'),
     pants('src/java/com/twitter/common/args'),
     pants('src/java/com/twitter/common/base'),
     pants('src/java/com/twitter/common/net:util'),

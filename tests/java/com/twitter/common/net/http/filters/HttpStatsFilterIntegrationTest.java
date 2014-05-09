@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.twitter.common.net.http.HttpServerDispatch;
+import com.twitter.common.net.http.JettyHttpServerDispatch;
 import com.twitter.common.stats.Stat;
 import com.twitter.common.stats.Stats;
 import com.twitter.common.util.Clock;
@@ -37,15 +38,15 @@ import static org.junit.Assert.fail;
 public class HttpStatsFilterIntegrationTest {
   private Client client;
   private FakeClock clock;
-  private HttpServerDispatch server;
+  private JettyHttpServerDispatch server;
 
   @Before
   public void setUp() {
     Stats.flush();
 
-    server = new HttpServerDispatch();
+    server = new JettyHttpServerDispatch();
     server.listen(0);
-    server.registerFilter(GuiceFilter.class, "/*", HttpServerDispatch.Dispatch.REQUEST);
+    server.registerFilter(GuiceFilter.class, "/*");
 
     clock = new FakeClock();
 

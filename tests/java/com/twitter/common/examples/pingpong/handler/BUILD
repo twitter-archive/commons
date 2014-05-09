@@ -16,9 +16,9 @@
 
 java_tests(name='handler',
   dependencies=[
-    pants('3rdparty:easymock'),
-    pants('3rdparty:guava'),
-    pants('3rdparty:junit'),
+    pants('3rdparty/jvm/org/easymock'),
+    pants('3rdparty/jvm/com/google/guava'),
+    pants('3rdparty/jvm/junit'),
     pants('src/java/com/twitter/common/examples/pingpong/handler'),
     pants('src/java/com/twitter/common/testing/easymock'),
   ],

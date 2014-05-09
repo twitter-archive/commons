@@ -16,9 +16,9 @@
 
 java_tests(name = 'memcached',
   dependencies = [
-    pants('3rdparty:guava'),
-    pants('3rdparty:junit'),
-    pants('3rdparty:thrift'),
+    pants('3rdparty/jvm/com/google/guava'),
+    pants('3rdparty/jvm/junit'),
+    pants('3rdparty/jvm/org/apache/thrift'),
     pants('src/java/com/twitter/common/io:thrift'),
     pants('src/java/com/twitter/common/memcached:thrift-transcoder'),
     pants('src/java/com/twitter/common/thrift:testing'),

@@ -100,6 +100,7 @@ public class BuildInfo {
     TIMESTAMP("build.timestamp"),
     GIT_TAG("build.git.tag"),
     GIT_REVISION("build.git.revision"),
+    GIT_REVISION_NUMBER("build.git.revision.number"),
     GIT_BRANCHNAME("build.git.branchname");
 
     public final String value;

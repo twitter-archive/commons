@@ -16,8 +16,8 @@
 
 java_tests(name = 'metrics',
   dependencies = [
-    pants('3rdparty:guava'),
-    pants('3rdparty:junit'),
+    pants('3rdparty/jvm/com/google/guava'),
+    pants('3rdparty/jvm/junit'),
     pants('src/java/com/twitter/common/junit/annotations'),
     pants('src/java/com/twitter/common/metrics'),
     pants('src/java/com/twitter/common/objectsize'),
@@ -42,10 +42,3 @@ jvm_binary(name = 'metrics-precision',
 ).with_description('''Demo code to show precision/memory performance based on constructor
 parameters (used to find default values)''')
 
-# useful for testing everything
-dependencies(name='all',
-  dependencies=[
-    pants(':metrics'),
-    pants('tests/scala/com/twitter/common/metrics')
-  ]
-)

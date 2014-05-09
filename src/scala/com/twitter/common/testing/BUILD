@@ -21,7 +21,7 @@ scala_library(name = 'explicit-specs-runner',
     repo = pants('build-support/commons/ivy:public'),
   ),
   dependencies = [
-    pants('3rdparty:specs'),
+    pants('3rdparty/jvm/org/scala-tools/testing:specs'),
   ],
   sources = [ 'ExplicitSpecsRunnerMain.scala' ],
 )

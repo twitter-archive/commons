@@ -16,15 +16,6 @@
 
 package com.twitter.common.net.http.handlers;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-import com.twitter.common.base.Closure;
-import org.antlr.stringtemplate.StringTemplate;
-import org.apache.commons.lang.StringUtils;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Handler;
@@ -32,6 +23,19 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import java.util.logging.LoggingMXBean;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
+import com.google.inject.Inject;
+
+import org.antlr.stringtemplate.StringTemplate;
+import org.apache.commons.lang.StringUtils;
+
+import com.twitter.common.base.Closure;
 
 /**
  * Servlet that allows for dynamic adjustment of the logging configuration.
@@ -90,7 +94,7 @@ public class LogConfig extends StringTemplateServlet {
         }
 
         List<LoggerConfig> loggerConfigs = Lists.newArrayList();
-        for (String logger : logBean.getLoggerNames()) {
+        for (String logger : Ordering.natural().immutableSortedCopy(logBean.getLoggerNames())) {
           loggerConfigs.add(new LoggerConfig(logger, logBean.getLoggerLevel(logger)));
         }
 

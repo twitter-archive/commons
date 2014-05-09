@@ -94,4 +94,4 @@ public class LowResClock implements Clock, Closeable {
     }
     underlying.waitFor(millis);
   }
-};
+}
