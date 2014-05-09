@@ -1,8 +1,21 @@
 import itertools
+import os
+import shutil
+import time
+import uuid
 
-from .http import EggLink, SourceLink
+from .base import requirement_is_exact
+from .common import safe_mkdtemp
+from .fetcher import PyPIFetcher, Fetcher
+from .http import Crawler
+from .package import (
+     EggPackage,
+     Package,
+     SourcePackage,
+)
+from .platforms import Platform
 from .tracer import TRACER
-from .translator import ChainedTranslator
+from .translator import ChainedTranslator, Translator
 
 
 class Obtainer(object):
@@ -11,7 +24,7 @@ class Obtainer(object):
 
     An Obtainer takes a Crawler, a list of Fetchers (which take requirements
     and tells us where to look for them) and a list of Translators (which
-    translate egg or source links into usable distributions) and turns them
+    translate egg or source packages into usable distributions) and turns them
     into a cohesive requirement pipeline.
 
     >>> from twitter.common.python.http import Crawler
@@ -25,43 +38,109 @@ class Obtainer(object):
     ...                                   'pygments', 'pylint', 'pytest'])
     >>> for d in distributions: d.activate()
   """
-  def __init__(self, crawler, fetchers, translators):
-    self._crawler = crawler
-    self._fetchers = fetchers
-    # use maybe_list?
+  DEFAULT_PACKAGE_PRECEDENCE = (
+      EggPackage,
+      SourcePackage,
+  )
+
+  @classmethod
+  def default(cls, platform=Platform.current(), interpreter=None):
+    translator = Translator.default(platform=platform, interpreter=interpreter)
+    return cls(translators=translator)
+
+  @classmethod
+  def package_type_precedence(cls, package, precedence=DEFAULT_PACKAGE_PRECEDENCE):
+    for rank, package_type in enumerate(reversed(precedence)):
+      if isinstance(package, package_type):
+        return rank
+    # If we do not recognize the package, it gets lowest precedence
+    return -1
+
+  @classmethod
+  def package_precedence(cls, package, precedence=DEFAULT_PACKAGE_PRECEDENCE):
+    return (package.version, cls.package_type_precedence(package, precedence=precedence))
+
+  def __init__(self, crawler=None,
+                     fetchers=None,
+                     translators=None,
+                     precedence=DEFAULT_PACKAGE_PRECEDENCE):
+    self._crawler = crawler or Crawler()
+    self._fetchers = fetchers or [PyPIFetcher()]
     if isinstance(translators, (list, tuple)):
       self._translator = ChainedTranslator(*translators)
     else:
-      self._translator = translators
+      self._translator = translators or Translator.default()
+    self._precedence = precedence
 
-  def translate_href(self, href):
-    for link_class in (EggLink, SourceLink):
-      try:
-        return link_class(href, opener=self._crawler.opener)
-      except link_class.InvalidLink:
-        pass
+  def _translate_href(self, href):
+    return Package.from_href(href, opener=self._crawler.opener)
 
-  @classmethod
-  def link_preference(cls, link):
-    return (link.version, isinstance(link, EggLink))
+  def _iter_unordered(self, req):
+    url_iterator = itertools.chain.from_iterable(fetcher.urls(req) for fetcher in self._fetchers)
+    for package in filter(None, map(self._translate_href, self._crawler.crawl(url_iterator))):
+      if package.satisfies(req):
+        yield package
 
-  def iter_unordered(self, req):
-    urls = list(itertools.chain(*[fetcher.urls(req) for fetcher in self._fetchers]))
-    for link in filter(None, map(self.translate_href, self._crawler.crawl(*urls))):
-      if link.satisfies(req):
-        yield link
+  def _sort(self, package_list):
+    key = lambda package: self.package_precedence(package, self._precedence)
+    return sorted(package_list, key=key, reverse=True)
+
+  def _translate_from(self, obtain_set):
+    for package in obtain_set:
+      dist = self._translator.translate(package)
+      if dist:
+        return dist
 
   def iter(self, req):
-    """Given a req, return a list of links that satisfy the requirement in best match order."""
-    for link in sorted(self.iter_unordered(req), key=self.link_preference, reverse=True):
-      yield link
+    """Return a list of packages that satisfy the requirement in best match order."""
+    for package in self._sort(self._iter_unordered(req)):
+      yield package
 
-  def obtain(self, req):
-    with TRACER.timed('Obtaining %s' % req):
-      links = list(self.iter(req))
-      TRACER.log('Got ordered links:\n\t%s' % '\n\t'.join(map(str, links)), V=2)
-      for link in links:
-        dist = self._translator.translate(link)
-        if dist:
-          TRACER.log('Picked %s -> %s' % (link, dist), V=2)
-          return dist
+  def obtain(self, req_or_package):
+    """Given a requirement or package, return a distribution satisfying that requirement."""
+    if isinstance(req_or_package, Package):
+      return self._translate_from([req_or_package])
+    with TRACER.timed('Obtaining %s' % req_or_package):
+      return self._translate_from(self.iter(req_or_package))
+
+
+class CachingObtainer(Obtainer):
+  def __init__(self, *args, **kw):
+    self.__ttl = kw.pop('ttl', 3600)
+    self.__install_cache = kw.pop('install_cache', None) or safe_mkdtemp()
+    super(CachingObtainer, self).__init__(*args, **kw)
+    self.__cache_obtainer = Obtainer(
+        crawler=self._crawler,
+        fetchers=[Fetcher([self.__install_cache])],
+        translators=self._translator,
+    )
+
+  def _has_expired_ttl(self, dist):
+    now = time.time()
+    return now - os.path.getmtime(dist.location) >= self.__ttl
+
+  def _dist_can_be_used(self, dist, requirement):
+    return requirement_is_exact(requirement) or not self._has_expired_ttl(dist)
+
+  def _set_cached_dist(self, dist):
+    target_location = os.path.join(self.__install_cache, os.path.basename(dist.location))
+    if os.path.exists(target_location):
+      return
+    target_tmp = target_location + uuid.uuid4().get_hex()
+    shutil.copyfile(dist.location, target_tmp)
+    os.rename(target_tmp, target_location)
+
+  def iter(self, req):
+    cached_dist = self._translate_from(self.__cache_obtainer.iter(req))
+    if cached_dist and self._dist_can_be_used(cached_dist, req):
+      for package in self.__cache_obtainer.iter(req):
+        yield package
+      return
+    for package in super(CachingObtainer, self).iter(req):
+      yield package
+
+  def obtain(self, req_or_package):
+    dist = super(CachingObtainer, self).obtain(req_or_package)
+    if dist:
+      self._set_cached_dist(dist)
+    return dist

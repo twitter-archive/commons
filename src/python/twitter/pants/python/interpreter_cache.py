@@ -20,8 +20,7 @@ import os
 import shutil
 
 from twitter.common.dirutil import safe_mkdir
-from twitter.common.python.http.link import SourceLink
-from twitter.common.python.http.link import EggLink
+from twitter.common.python.package import EggPackage, SourcePackage
 from twitter.common.python.installer import EggInstaller
 from twitter.common.python.interpreter import (
     PythonCapability,
@@ -69,14 +68,14 @@ def resolve_interpreter(config, interpreter, requirement, logger=print):
 
 def resolve_and_link(config, requirement, target_link, installer_provider, logger=print):
   if os.path.exists(target_link) and os.path.exists(os.path.realpath(target_link)):
-    egg = EggLink(os.path.realpath(target_link))
+    egg = EggPackage(os.path.realpath(target_link))
     if egg.satisfies(requirement):
       return egg
   fetchers = fetchers_from_config(config)
   crawler = crawler_from_config(config)
   obtainer = Obtainer(crawler, fetchers, [])
   obtainer_iterator = obtainer.iter(requirement)
-  links = [link for link in obtainer_iterator if isinstance(link, SourceLink)]
+  links = [link for link in obtainer_iterator if isinstance(link, SourcePackage)]
   for link in links:
     logger('    fetching %s' % link.url)
     sdist = link.fetch()
@@ -87,7 +86,7 @@ def resolve_and_link(config, requirement, target_link, installer_provider, logge
     shutil.move(dist_location, target_location)
     safe_link(target_location, target_link)
     logger('    installed %s' % target_location)
-    return EggLink(target_location)
+    return EggPackage(target_location)
 
 
 # This is a setuptools <1 and >1 compatible version of Requirement.parse.
@@ -107,9 +106,9 @@ def resolve(config, interpreter, logger=print):
   """Resolve and cache an interpreter with a setuptools and wheel capability."""
 
   setuptools_requirement = failsafe_parse(
-      'setuptools==%s' % config.getdefault('python-setup', 'setuptools_version', '2.2'))
+      'setuptools==%s' % config.get('python-setup', 'setuptools_version', default='2.2'))
   wheel_requirement = failsafe_parse(
-      'wheel==%s' % config.getdefault('python-setup', 'wheel_version', '0.22.0'))
+      'wheel==%s' % config.get('python-setup', 'wheel_version', default='0.22.0'))
 
   interpreter = resolve_interpreter(config, interpreter, setuptools_requirement, logger=logger)
   if interpreter:

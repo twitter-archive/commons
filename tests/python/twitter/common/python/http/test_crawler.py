@@ -3,8 +3,7 @@ import os
 
 from twitter.common.contextutil import temporary_dir
 from twitter.common.python.http.crawler import Crawler, PageParser
-
-from base import create_layout
+from twitter.common.python.testing import create_layout
 
 
 def lpp(page):
@@ -85,7 +84,7 @@ def test_crawler_local():
     # recursive crawling, single vs multi-threaded
     for caching in (False, True):
       for threads in (1, 2, 3):
-        links = Crawler(enable_cache=caching, threads=threads).crawl(td)
+        links = Crawler(enable_cache=caching, threads=threads).crawl([td])
         expect_links = (set(os.path.join(td, fn) for fn in FL) |
                         set(os.path.join(td, 'dir1', fn) for fn in FL) |
                         set(os.path.join(td, 'dir2', fn) for fn in FL))

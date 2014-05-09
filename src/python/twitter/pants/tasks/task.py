@@ -31,9 +31,9 @@ from twitter.pants.base.config import Config
 from twitter.pants.base.hash_utils import hash_file
 from twitter.pants.base.worker_pool import Work
 from twitter.pants.base.workunit import WorkUnit
-from twitter.pants.cache import create_artifact_cache
+from twitter.pants.cache.cache_setup import create_artifact_cache
 from twitter.pants.cache.read_write_artifact_cache import ReadWriteArtifactCache
-from twitter.pants.ivy import Bootstrapper  # XXX
+from twitter.pants.ivy.bootstrapper import Bootstrapper  # XXX
 from twitter.pants.java.executor import Executor  # XXX
 from twitter.pants.reporting.reporting_utils import items_to_report_element
 
@@ -284,7 +284,7 @@ class Task(object):
     with self.context.new_workunit(name='check', labels=[WorkUnit.MULTITOOL]) as parent:
       res = self.context.submit_foreground_work_and_wait(
         Work(lambda vt: bool(self.get_artifact_cache().use_cached_files(vt.cache_key)),
-             [(vt, ) for vt in vts], 'check'), workunit_parent=parent)
+             [(vt, ) for vt in vts], 'fetch'), workunit_parent=parent)
     for vt, was_in_cache in zip(vts, res):
       if was_in_cache:
         cached_vts.append(vt)

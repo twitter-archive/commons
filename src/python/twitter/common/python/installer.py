@@ -106,8 +106,9 @@ exec(compile(open(__file__).read().replace('\\r\\n', '\\n'), __file__, 'exec'))
       self._installed = po.returncode == 0
 
     if not self._installed:
-      print('Failed to install stdout:\n%s' % so.decode('utf-8'), file=sys.stderr)
-      print('Failed to install stderr:\n%s' % se.decode('utf-8'), file=sys.stderr)
+      name = os.path.basename(self._source_dir)
+      print('**** Failed to install %s. stdout:\n%s' % (name, so.decode('utf-8')), file=sys.stderr)
+      print('**** Failed to install %s. stderr:\n%s' % (name, se.decode('utf-8')), file=sys.stderr)
       return self._installed
 
     self._postprocess()
@@ -122,9 +123,11 @@ class Installer(InstallerBase):
     Install an unpacked distribution with a setup.py.
 
     Simple example:
-      >>> from twitter.common.python.http import Web, SourceLink
-      >>> tornado_tgz = SourceLink('http://pypi.python.org/packages/source/t/tornado/tornado-2.3.tar.gz',
-      ...                          opener=Web())
+      >>> from twitter.common.python.package import SourcePackage
+      >>> from twitter.common.python.http import Web
+      >>> tornado_tgz = SourcePackage(
+      ...    'http://pypi.python.org/packages/source/t/tornado/tornado-2.3.tar.gz',
+      ...    opener=Web())
       >>> tornado_installer = Installer(tornado_tgz.fetch())
       >>> tornado_installer.distribution()
       tornado 2.3 (/private/var/folders/Uh/UhXpeRIeFfGF7HoogOKC+++++TI/-Tmp-/tmpLLe_Ph/lib/python2.6/site-packages)

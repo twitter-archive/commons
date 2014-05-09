@@ -36,7 +36,8 @@ from twitter.pants.base.build_environment import get_buildroot, get_scm
 from twitter.pants.base.address import Address
 from twitter.pants.base.target import Target
 from twitter.pants.base.generator import Generator, TemplateData
-from twitter.pants.ivy import Bootstrapper, Ivy
+from twitter.pants.ivy.bootstrapper import Bootstrapper
+from twitter.pants.ivy.ivy import Ivy
 from twitter.pants.targets.internal import InternalTarget
 from twitter.pants.targets.resources import Resources
 from twitter.pants.tasks.scm_publish import ScmPublish, Semver
@@ -128,6 +129,7 @@ class DependencyWriter(object):
     # the graph
     dependencies = OrderedDict()
     internal_codegen = {}
+    configurations = set()
     for dep in target_internal_dependencies(target):
       jar = as_jar(dep)
       dependencies[(jar.org, jar.name)] = self.internaldep(jar, dep)
@@ -136,7 +138,11 @@ class DependencyWriter(object):
     for jar in target.jar_dependencies:
       if jar.rev:
         dependencies[(jar.org, jar.name)] = self.jardep(jar)
-    target_jar = self.internaldep(as_jar(target)).extend(dependencies=dependencies.values())
+        configurations |= set(jar._configurations)
+
+    target_jar = self.internaldep(
+                     as_jar(target),
+                     configurations=list(configurations)).extend(dependencies=dependencies.values())
 
     template_kwargs = self.templateargs(target_jar, confs)
     with safe_open(path, 'w') as output:
@@ -150,7 +156,7 @@ class DependencyWriter(object):
     """
     raise NotImplementedError()
 
-  def internaldep(self, jar_dependency, dep=None):
+  def internaldep(self, jar_dependency, dep=None, configurations=None):
     """
       Subclasses must return a template data for the given internal target (provided in jar
       dependency form).
@@ -179,7 +185,7 @@ class PomWriter(DependencyWriter):
         scope='compile',
         excludes=[self.create_exclude(exclude) for exclude in jar.excludes if exclude.name])
 
-  def internaldep(self, jar_dependency, dep=None):
+  def internaldep(self, jar_dependency, dep=None, configurations=None):
     return self.jardep(jar_dependency)
 
 
@@ -209,10 +215,10 @@ class IvyWriter(DependencyWriter):
   def jardep(self, jar):
     return self._jardep(jar,
         transitive=jar.transitive,
-        configurations=';'.join(jar._configurations))
+        configurations=jar._configurations)
 
-  def internaldep(self, jar_dependency, dep=None):
-    return self._jardep(jar_dependency)
+  def internaldep(self, jar_dependency, dep=None, configurations=None):
+    return self._jardep(jar_dependency, configurations=configurations)
 
 
 def coordinate(org, name, rev=None):
@@ -376,6 +382,8 @@ class JarPublish(ScmPublish, Task):
       self.snapshot = context.options.jar_publish_local_snapshot
     else:
       self.repos = context.config.getdict(JarPublish._CONFIG_SECTION, 'repos')
+      if not self.repos:
+        raise TaskError("This repo is not yet set for publishing to the world! Please re-run with --publish-local")
       for repo, data in self.repos.items():
         auth = data.get('auth')
         if auth:
@@ -618,7 +626,7 @@ class JarPublish(ScmPublish, Task):
             try:
               ivy = Bootstrapper.default_ivy()
               ivy.execute(jvm_options=jvm_args, args=args,
-                          workunit_factory=self.context.new_workunit, workunit_name = 'jar-publish')
+                          workunit_factory=self.context.new_workunit, workunit_name='jar-publish')
             except (Bootstrapper.Error, Ivy.Error) as e:
               raise TaskError('Failed to push %s! %s' % (jar_coordinate(jar, newver.version()), e))
 
@@ -695,7 +703,7 @@ class JarPublish(ScmPublish, Task):
       def get_synthetic(lang, target):
         mappings = self.context.products.get(lang).get(target)
         if mappings:
-          for generated in mappings.itervalues():
+          for key, generated in mappings.items():
             for synthetic in generated:
               yield synthetic
 

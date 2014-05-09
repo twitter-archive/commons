@@ -10,11 +10,9 @@ from .tracer import TRACER
 
 if PY3:
   from queue import Empty, Queue
-  import urllib.error as urllib_error
   from urllib.parse import urlparse, urljoin
 else:
   from Queue import Empty, Queue
-  import urllib2 as urllib_error
   from urlparse import urlparse, urljoin
 
 
@@ -28,7 +26,7 @@ class CrawlerBase(object):
   def opener(self):
     return self._opener
 
-  def crawl(self, *urls):
+  def crawl(self, urls):
     links, seen = set(), set()
     queue = Queue()
     converged = threading.Event()
