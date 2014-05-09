@@ -1,22 +1,21 @@
 #!/usr/bin/env bash
 
 # This is a script to migrate a git repository to a subdirectory of
-# another, while preserving history.  This is way more complicated
-# than it should be, for a couple reasons.
+# another, while preserving history.
 
-# We would like to use git subtree, but git subtree doesn't rewrite
+# I would like to use git subtree, but git subtree doesn't rewrite
 # imported history, so files appear to move.  That means that git log
 # on the subdirectory won't work.  You have to do git log --follow to
 # see the history of a file, and you can only do that on an individual
 # file basis.
 
 # Also, I'm not sure what git subtree does with non-linear history.
-# Git rebase barfs on fake conflicts as it attempts cross the streams
+# Git rebase fails on fake conflicts as it attempts cross the streams
 # (that is, rewrite history as if it were all one branch).  And many
 # projects have non-linear history on master.
 
-# So instead we use the git plumbing commands to build a new commit
-# for every commit on the imported tree.  The new commit contains the
+# So instead I use the git plumbing commands to build a new commit for
+# every commit on the imported tree.  The new commit contains the
 # original commit's tree within its tree object.  So, it's basically a
 # multibranch, cross-repo rebase.
 
@@ -103,7 +102,7 @@ path_to_project=$(
 [[ -n $subdir ]] || subdir=$(basename "$path_to_project")
 [[ -n $branch ]] || branch=master
 
-log "Creating a remote for the imported project so we can easily get commits from it."
+log "Creating a remote for the imported project so I can easily get commits from it."
 
 timestamp=$(date +"%Y%m%d%H%M%S")
 subtree_remote_name="remote-$timestamp-$$-$subdir"
@@ -132,7 +131,7 @@ do
     for orig_parent in $parents
     do
 	rebased_parent_commit=$(map_find commit_map $orig_parent)
-	[[ -n $rebased_parent_commit ]] || die "We lost track of $orig_parent"
+	[[ -n $rebased_parent_commit ]] || die "I lost track of $orig_parent"
         rebased_parents="$rebased_parents -p $rebased_parent_commit"
     done
     #if there are no parents, this is the first commit; assume the parent

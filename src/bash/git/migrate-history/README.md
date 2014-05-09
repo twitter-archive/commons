@@ -1,3 +1,5 @@
+#Motivation
+
 A monorepo is one of the popular ways to manage complexity at scale.
 The problem with large software projects is that the dependency graph
 becomes very complicated.  When these dependencies cross repository
@@ -20,9 +22,9 @@ immigrant/foo/bar.txt was previously foo/bar.txt and now it's been
 moved.  This means that git log doesn't work across the move boundary.
 You can use various tricks to get the old history, but it's a hassle.
 
-The solution is a little shell script that I banged together called
-migrate.sh.  The idea are trying to import immigrant into mono as
-a subtree.
+The solution is a shell script that I put together called
+migrate-history.sh.  The idea is trying to import immigrant into mono
+as a subtree.
 
 The simple solution would be to rewrite history using eg
 filter-branch, and then rebase on top of master.  But this only works
@@ -34,9 +36,9 @@ at the appropriate place.  In order to preserve ancestry, we also need
 to change the parent pointer on each migrated commit such that it
 points to the migrated version of its parent.
 
-And voila -- we have a history-preserving migration.
+#Usage
 
-    Usage: migrate-history.sh [-b branch] [-s subdir] <path-to-immigrant>"
+	migrate-history.sh [-b branch] [-s subdir] <path-to-immigrant>"
 
 Migrate the repository at <path-to-repo> into this repository at
 subdir.  If -s is omitted, it will be the basename of
@@ -47,4 +49,3 @@ This repository's master will always be used.
 
 Run this script from inside your repository, at the root directory.  The
 result will be a branch named migrated-\$subdir
- 
