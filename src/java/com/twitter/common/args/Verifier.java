@@ -20,16 +20,15 @@ import java.lang.annotation.Annotation;
 
 /**
  * Typedef for a constraint verifier.
- *
- * @author William Farner
  */
 public interface Verifier<T> {
   /**
    * Verifies the value against the annotation.
    *
    * @param value Value that is being applied.
+   * @throws IllegalArgumentException if the value is invalid.
    */
-  void verify(T value, Annotation annotation);
+  void verify(T value, Annotation annotation) throws IllegalArgumentException;
 
   /**
    * Returns a representation of the constraint this verifier checks.

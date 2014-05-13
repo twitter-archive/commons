@@ -21,7 +21,7 @@ import java.util.Set;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 import com.twitter.common.text.token.attribute.TokenType;
 import com.twitter.common.text.token.attribute.TokenTypeAttribute;
 
@@ -37,7 +37,7 @@ public class TokenTypeFilter extends TokenFilter {
   private Set<TokenType> types = Sets.newHashSet();
   private Mode mode = Mode.ACCEPT;
 
-  protected TokenTypeFilter(TokenStream inputStream) {
+  protected TokenTypeFilter(TwitterTokenStream inputStream) {
     super(inputStream);
     typeAttr = inputStream.getAttribute(TokenTypeAttribute.class);
   }
@@ -67,7 +67,7 @@ public class TokenTypeFilter extends TokenFilter {
   public static final class Builder {
     private TokenTypeFilter filter;
 
-    public Builder(TokenStream inputStream) {
+    public Builder(TwitterTokenStream inputStream) {
       filter = new TokenTypeFilter(inputStream);
     }
 

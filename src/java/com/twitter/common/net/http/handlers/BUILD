@@ -32,7 +32,7 @@ java_library(
     repo='build-support/commons/ivy:public',
   ),
   dependencies=[
-    '3rdparty:servlet-api',
+    '3rdparty/jvm/javax/servlet:servlet-api',
   ],
   sources=TEXT_SOURCES
 )
@@ -45,10 +45,10 @@ java_library(
     repo='build-support/commons/ivy:public',
   ),
   dependencies=[
-    pants('3rdparty:guava'),
-    pants('3rdparty:guice'),
-    pants('3rdparty:servlet-api'),
-    pants('3rdparty:stringtemplate'),
+    pants('3rdparty/jvm/com/google/guava'),
+    pants('3rdparty/jvm/com/google/inject:guice'),
+    pants('3rdparty/jvm/javax/servlet:servlet-api'),
+    pants('3rdparty/jvm/org/antlr:stringtemplate'),
     pants('src/java/com/twitter/common/base'),
     pants('src/java/com/twitter/common/util/templating'),
   ],
@@ -63,12 +63,12 @@ java_library(
     repo='build-support/commons/ivy:public',
   ),
   dependencies=[
-    pants('3rdparty:commons-codec'),
-    pants('3rdparty:gson'),
-    pants('3rdparty:guava'),
-    pants('3rdparty:guice'),
-    pants('3rdparty:servlet-api'),
-    pants('3rdparty:stringtemplate'),
+    pants('3rdparty/jvm/commons-codec'),
+    pants('3rdparty/jvm/com/google/code/gson'),
+    pants('3rdparty/jvm/com/google/guava'),
+    pants('3rdparty/jvm/com/google/inject:guice'),
+    pants('3rdparty/jvm/javax/servlet:servlet-api'),
+    pants('3rdparty/jvm/org/antlr:stringtemplate'),
     pants(':params'),
     pants(':string-template'),
     pants(':text'),
@@ -93,13 +93,15 @@ java_library(
     repo='build-support/commons/ivy:public',
   ),
   dependencies=[
-    # TODO(John Sirois): the only need is for the non-existent thrift:monitoring
-    '3rdparty:guava',
-    '3rdparty:guice',
-    '3rdparty:servlet-api',
-    '3rdparty:stringtemplate',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/inject:guice',
+    '3rdparty/jvm/javax/servlet:servlet-api',
+    '3rdparty/jvm/org/antlr:stringtemplate',
     'src/java/com/twitter/common/base',
+
+    # TODO(John Sirois): the only need is for the non-existent thrift:monitoring
     'src/java/com/twitter/common/thrift',
+
     ':string-template',
   ],
   sources=THRIFT_SOURCES,
@@ -114,10 +116,10 @@ java_library(
     repo='build-support/commons/ivy:public',
   ),
   dependencies=[
-    pants('3rdparty:gson'),
-    pants('3rdparty:guava'),
-    pants('3rdparty:guice'),
-    pants('3rdparty:servlet-api'),
+    pants('3rdparty/jvm/com/google/code/gson'),
+    pants('3rdparty/jvm/com/google/guava'),
+    pants('3rdparty/jvm/com/google/inject:guice'),
+    pants('3rdparty/jvm/javax/servlet:servlet-api'),
     pants('src/java/com/twitter/common/collections'),
     pants('src/java/com/twitter/common/stats:time-series'),
   ],
@@ -132,10 +134,10 @@ java_library(
     repo=pants('build-support/commons/ivy:public'),
   ),
   dependencies=[
-    pants('3rdparty:guava'),
-    pants('3rdparty:guice'),
-    pants('3rdparty:jsr305'),
-    pants('3rdparty:servlet-api'),
+    pants('3rdparty/jvm/com/google/guava'),
+    pants('3rdparty/jvm/com/google/inject:guice'),
+    pants('3rdparty/jvm/com/google/code/findbugs:jsr305'),
+    pants('3rdparty/jvm/javax/servlet:servlet-api'),
   ],
   sources=PARAMS_SOURCES
 )

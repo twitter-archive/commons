@@ -18,13 +18,13 @@
 
 java_library(name = 'handler',
   dependencies = [
-    pants('3rdparty:guava'),
-    pants('3rdparty:guice'),
+    pants('3rdparty/jvm/com/google/guava'),
+    pants('3rdparty/jvm/com/google/inject:guice'),
     pants('3rdparty/jvm/com/sun/jersey:jersey-client'),
     pants('3rdparty/jvm/com/sun/jersey:jersey-core'),
-    pants('3rdparty/jvm/com/sun/jersey:jersey-guice'),
     pants('3rdparty/jvm/com/sun/jersey:jersey-server'),
     pants('3rdparty/jvm/com/sun/jersey:jersey-servlet'),
+    pants('3rdparty/jvm/com/sun/jersey/contribs:jersey-guice'),
     pants('src/java/com/twitter/common/application'),
     pants('src/java/com/twitter/common/application/http'),
     pants('src/java/com/twitter/common/application/modules:http'),

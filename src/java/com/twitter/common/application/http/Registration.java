@@ -130,7 +130,7 @@ public final class Registration {
    *
    * @param binder a guice binder to register the filter with.
    * @param filterClass Filter class to register.
-   * @param pathSpec Path spec that the filte should be activated on.
+   * @param pathSpec Path spec that the filter should be activated on.
    */
   public static void registerServletFilter(
       Binder binder,

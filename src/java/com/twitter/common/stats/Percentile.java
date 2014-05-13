@@ -126,7 +126,7 @@ public class Percentile<T extends Number & Comparable<T>> {
    *
    * @return A map from tracked percentile to the Stat corresponding to it
    */
-  public Map<Double, ? extends Stat> getPercentiles() {
+  public Map<Double, ? extends Stat<?>> getPercentiles() {
     return ImmutableMap.copyOf(statsByPercentile);
   }
 

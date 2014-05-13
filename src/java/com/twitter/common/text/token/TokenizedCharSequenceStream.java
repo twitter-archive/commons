@@ -25,7 +25,7 @@ import com.twitter.common.text.token.attribute.TokenGroupAttributeImpl;
 /**
  * Reproduces the result of tokenization if an input text is an instance of
  * TokenizedCharSequence. Otherwise, passes the input text to downstream
- * TokenStream.
+ * TwitterTokenStream.
  */
 public class TokenizedCharSequenceStream extends TokenProcessor {
   private final PartOfSpeechAttribute posAttr;
@@ -42,7 +42,7 @@ public class TokenizedCharSequenceStream extends TokenProcessor {
    *
    * @param inputStream a token stream to tokenize a text if it's not tokenized yet.
    */
-  public TokenizedCharSequenceStream(TokenStream inputStream) {
+  public TokenizedCharSequenceStream(TwitterTokenStream inputStream) {
     super(inputStream);
 
     if (hasAttribute(PartOfSpeechAttribute.class)) {
@@ -67,17 +67,17 @@ public class TokenizedCharSequenceStream extends TokenProcessor {
    * This can only accept an already-tokenized text (TokenzedCharSequence) as input.
    */
   public TokenizedCharSequenceStream() {
-    super(new TokenStream() {
+    super(new TwitterTokenStream() {
       @Override
-      public boolean incrementToken() {
+      public final boolean incrementToken() {
         return false;
       }
 
       @Override
-      public void reset(CharSequence input) {
+      public void reset() {
         // If no inputStream is provided, throw an exception.
         throw new IllegalArgumentException("Input must be an instance of TokenizedCharSequence"
-                + " because there is no TokenStream in the downstream to tokenized a text.");
+                + " because there is no TwitterTokenStream in the downstream to tokenized a text.");
       }
     });
 
@@ -87,9 +87,9 @@ public class TokenizedCharSequenceStream extends TokenProcessor {
   }
 
   @Override
-  public boolean incrementToken() {
-    // If input is already tokenized, reproduce the TokenStream;
-    // otherwise, simply pass it onto the downstream TokenStream.
+  public final boolean incrementToken() {
+    // If input is already tokenized, reproduce the TwitterTokenStream;
+    // otherwise, simply pass it onto the downstream TwitterTokenStream.
 
     if (tokenized == null) {
       // Input is not tokenized; let inputStream tokenize it.

@@ -1,12 +1,12 @@
 java_library(name = 'angrybird-lib',
   dependencies = [
-    pants('3rdparty:thrift'),
-    pants('3rdparty:zookeeper'),
-    pants('3rdparty:finagle-http'),
-    pants('3rdparty:finagle-serversets'),
-    pants('3rdparty:finagle-thrift'),
-    pants('3rdparty:guice'),
-    pants('3rdparty:log4j'),
+    pants('3rdparty/jvm/org/apache/thrift'),
+    pants('3rdparty/jvm/org/apache/zookeeper'),
+    pants('3rdparty/jvm/com/twitter:finagle-http'),
+    pants('3rdparty/jvm/com/twitter:finagle-serversets'),
+    pants('3rdparty/jvm/com/twitter:finagle-thrift'),
+    pants('3rdparty/jvm/com/google/inject:guice'),
+    pants('3rdparty/jvm/log4j'),
     pants('src/java/com/twitter/common/application'),
     pants('src/java/com/twitter/common/application/http'),
     pants('src/java/com/twitter/common/io'),
@@ -19,6 +19,6 @@ java_library(name = 'angrybird-lib',
 jvm_binary(name = 'angrybird',
   main = 'com.twitter.common.zookeeper.testing.angrybird.AngryBirdZooKeeperMain',
   dependencies = [
-    ':angrybird-lib',
+    pants(':angrybird-lib'),
   ]
 )

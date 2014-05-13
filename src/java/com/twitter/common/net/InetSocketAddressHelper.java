@@ -78,7 +78,7 @@ public final class InetSocketAddressHelper {
    * @param value the endpoint spec
    * @return a parsed InetSocketAddress
    * @throws NullPointerException     if {@code value} is {@code null}
-   * @throws IllegalArgumentException if {@value} cannot be parsed
+   * @throws IllegalArgumentException if {@code value} cannot be parsed
    */
   public static InetSocketAddress parse(String value) {
     Preconditions.checkNotNull(value);

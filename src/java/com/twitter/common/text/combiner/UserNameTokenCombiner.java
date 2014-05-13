@@ -17,14 +17,14 @@
 package com.twitter.common.text.combiner;
 
 import com.twitter.common.text.extractor.UserNameExtractor;
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 import com.twitter.common.text.token.attribute.TokenType;
 
 /**
  * Combines multiple tokens denoting a username (e.g., @keita_f) back into a single token.
  */
 public class UserNameTokenCombiner extends ExtractorBasedTokenCombiner {
-  public UserNameTokenCombiner(TokenStream inputStream) {
+  public UserNameTokenCombiner(TwitterTokenStream inputStream) {
     super(inputStream);
     setExtractor(new UserNameExtractor());
     setType(TokenType.USERNAME);

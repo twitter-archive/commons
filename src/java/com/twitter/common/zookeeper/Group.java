@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
@@ -431,7 +430,6 @@ public class Group {
       zkClient.get().exists(nodePath, new Watcher() {
         @Override public void process(WatchedEvent event) {
           if (event.getType() == EventType.NodeDeleted) {
-            LOG.info("Member ID deleted. Rejoining. Event: " + event);
             tryJoin();
           }
         }
@@ -532,10 +530,11 @@ public class Group {
    * All further changes to the group membership will cause notifications on a background thread.
    *
    * @param groupChangeListener the listener to notify of group membership change events
+   * @return A command which, when executed, will stop watching the group.
    * @throws WatchException if there is a problem generating the 1st group membership list
    * @throws InterruptedException if interrupted waiting to gather the 1st group membership list
    */
-  public final void watch(final GroupChangeListener groupChangeListener)
+  public final Command watch(final GroupChangeListener groupChangeListener)
       throws WatchException, InterruptedException {
     Preconditions.checkNotNull(groupChangeListener);
 
@@ -567,6 +566,11 @@ public class Group {
         }
       }
     });
+    return new Command() {
+      @Override public void execute() {
+        groupMonitor.stopWatching();
+      }
+    };
   }
 
   /**
@@ -574,6 +578,7 @@ public class Group {
    */
   private class GroupMonitor {
     private final GroupChangeListener groupChangeListener;
+    private volatile boolean stopped = false;
     private Set<String> members;
 
     GroupMonitor(GroupChangeListener groupChangeListener) {
@@ -609,6 +614,10 @@ public class Group {
         };
 
     private void tryWatchGroup() {
+      if (stopped) {
+        return;
+      }
+
       try {
         backoffHelper.doUntilSuccess(tryWatchGroup);
       } catch (InterruptedException e) {
@@ -621,11 +630,27 @@ public class Group {
     private void watchGroup()
         throws ZooKeeperConnectionException, InterruptedException, KeeperException {
 
+      if (stopped) {
+        return;
+      }
+
       List<String> children = zkClient.get().getChildren(path, groupWatcher);
       setMembers(Iterables.filter(children, nodeNameFilter));
     }
 
+    private void stopWatching() {
+      // TODO(William Farner): Cancel the watch when
+      // https://issues.apache.org/jira/browse/ZOOKEEPER-442 is resolved.
+      LOG.info("Stopping watch on " + this);
+      stopped = true;
+    }
+
     synchronized void setMembers(Iterable<String> members) {
+      if (stopped) {
+        LOG.info("Suppressing membership update, no longer watching " + this);
+        return;
+      }
+
       if (this.members == null) {
         // Reset our watch on the group if session expires - only needs to be registered once.
         zkClient.registerExpirationHandler(new Command() {
@@ -660,7 +685,7 @@ public class Group {
      */
     public DefaultScheme(String namePrefix) {
       this.namePrefix = MorePreconditions.checkNotBlank(namePrefix);
-      namePattern = Pattern.compile("^" + Pattern.quote(namePrefix) + "[0-9]+$");
+      namePattern = Pattern.compile("^" + Pattern.quote(namePrefix) + "-?[0-9]+$");
     }
 
     @Override

@@ -40,6 +40,19 @@ public class LatinTokenizerTest {
     testTokenizer(tokenizer, text, "banana", String.format("%cpple", 0x00010400), "orange");
   }
 
+  @Test
+  public void testSingleCharacter() {
+    testTokenizer(tokenizer, "", new String[0]);
+    testTokenizer(tokenizer, " ", new String[0]);
+    testTokenizer(tokenizer, "a", "a");
+    testTokenizer(tokenizer, "\n", new String[0]);
+    testTokenizer(tokenizerWithPunct, "\n", "\n");
+    testTokenizer(tokenizer, ".", new String[0]);
+    testTokenizer(tokenizerWithPunct, ".", ".");
+    testTokenizer(tokenizer, "#", new String[0]);
+    testTokenizer(tokenizerWithPunct, "#", "#");
+  }
+
   private void testTokenizer(LatinTokenizer tokenizer, String test, String... expected) {
     tokenizer.reset(test);
     List<String> tokens = tokenizer.toStringList();

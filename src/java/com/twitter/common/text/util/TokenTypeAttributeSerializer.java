@@ -24,7 +24,7 @@ import com.twitter.common.text.token.attribute.TokenType;
 import com.twitter.common.text.token.attribute.TokenTypeAttribute;
 
 /**
- * (De)Serializes {@link TokenTypeAttribute)s.
+ * (De)Serializes {@link TokenTypeAttribute}s.
  */
 public class TokenTypeAttributeSerializer implements TokenStreamSerializer.AttributeSerializer {
   private TokenTypeAttribute tokenTypeAttribute;
@@ -44,5 +44,10 @@ public class TokenTypeAttributeSerializer implements TokenStreamSerializer.Attri
   public void deserialize(TokenStreamSerializer.AttributeInputStream input,
                              CharSequence charSequence) throws IOException {
     tokenTypeAttribute.setType(TokenType.values()[input.readByte()]);
+  }
+
+  @Override
+  public TokenStreamSerializer.AttributeSerializer newInstance() {
+    return new TokenTypeAttributeSerializer();
   }
 }

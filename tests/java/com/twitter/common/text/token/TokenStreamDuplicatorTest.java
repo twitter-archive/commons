@@ -30,12 +30,12 @@ import com.twitter.common.text.token.attribute.TokenType;
 
 public class TokenStreamDuplicatorTest {
   DefaultTextTokenizer tokenizer = new DefaultTextTokenizer.Builder().setKeepPunctuation(true).build();
-  TokenStream tokenOnly;
-  TokenStream punctOnly;
+  TwitterTokenStream tokenOnly;
+  TwitterTokenStream punctOnly;
 
   @Before
   public void setUp() {
-    TokenStream stream = tokenizer.getDefaultTokenStream();
+    TwitterTokenStream stream = tokenizer.getDefaultTokenStream();
     TokenStreamDuplicator original = new TokenStreamDuplicator(stream);
 
     tokenOnly = new TokenTypeFilter.Builder(original).setMode(Mode.ACCEPT).setTypesToFilter(TokenType.TOKEN).build();
@@ -52,7 +52,7 @@ public class TokenStreamDuplicatorTest {
 
   @Test
   public void testDuplicateAndAggregate() {
-    TokenStream aggregate = TokenStreamAggregator.of(tokenOnly, punctOnly);
+    TwitterTokenStream aggregate = TokenStreamAggregator.of(tokenOnly, punctOnly);
 
     aggregate.reset("a b, c d e.");
     assertEquals(ImmutableList.of("a", "b", "c", "d", "e", ",", "."), aggregate.toStringList());

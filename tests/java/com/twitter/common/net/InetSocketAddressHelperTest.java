@@ -98,16 +98,16 @@ public class InetSocketAddressHelperTest {
   @Test
   public void testInetSocketAddressToServerString() {
     assertEquals("localhost:8000",
-        InetSocketAddressHelper.toString(new InetSocketAddress("localhost",8000)));
+        InetSocketAddressHelper.toString(InetSocketAddress.createUnresolved("localhost", 8000)));
 
     assertEquals("foo.bar.baz:8000",
-        InetSocketAddressHelper.toString(new InetSocketAddress("foo.bar.baz",8000)));
+        InetSocketAddressHelper.toString(InetSocketAddress.createUnresolved("foo.bar.baz", 8000)));
 
     assertEquals("127.0.0.1:8000",
-        InetSocketAddressHelper.toString(InetSocketAddress.createUnresolved("127.0.0.1",8000)));
+        InetSocketAddressHelper.toString(InetSocketAddress.createUnresolved("127.0.0.1", 8000)));
 
     assertEquals("10.0.0.1:8000",
-        InetSocketAddressHelper.toString(InetSocketAddress.createUnresolved("10.0.0.1",8000)));
+        InetSocketAddressHelper.toString(InetSocketAddress.createUnresolved("10.0.0.1", 8000)));
 
     assertEquals("0.0.0.0:80", InetSocketAddressHelper.toString(new InetSocketAddress(80)));
   }

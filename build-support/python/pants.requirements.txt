@@ -1,0 +1,23 @@
+--allow-external elementtree
+--allow-unverified elementtree
+twitter.common.collections==0.3.0
+twitter.common.config==0.3.0
+twitter.common.confluence==0.3.0
+twitter.common.contextutil==0.3.0
+twitter.common.decorators==0.3.0
+twitter.common.dirutil==0.3.0
+twitter.common.lang==0.3.0
+twitter.common.log==0.3.0
+twitter.common.process==0.3.0
+twitter.common.python==0.3.1
+twitter.common.quantity==0.3.0
+twitter.common.util==0.3.0
+ansicolors==1.0.2
+elementtree==1.2.7-20070827-preview
+mako==0.4.0
+markdown==2.1.1
+psutil==1.1.2
+pygments==1.4
+pytest==2.3.5
+pytest-cov==1.6
+requests==2.0.0

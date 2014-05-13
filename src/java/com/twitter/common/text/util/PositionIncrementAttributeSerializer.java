@@ -22,7 +22,7 @@ import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.util.AttributeSource;
 
 /**
- * (De)Serializes {@link PositionIncrementAttribute)s.
+ * (De)Serializes {@link PositionIncrementAttribute}s.
  */
 public class PositionIncrementAttributeSerializer implements TokenStreamSerializer.AttributeSerializer {
   private PositionIncrementAttribute posIncrAttribute;
@@ -42,5 +42,10 @@ public class PositionIncrementAttributeSerializer implements TokenStreamSerializ
   public void deserialize(TokenStreamSerializer.AttributeInputStream input,
                           CharSequence charSequence) throws IOException {
     posIncrAttribute.setPositionIncrement(input.readVInt());
+  }
+
+  @Override
+  public TokenStreamSerializer.AttributeSerializer newInstance() {
+    return new PositionIncrementAttributeSerializer();
   }
 }

@@ -14,33 +14,25 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name = 'small',
-  dependencies = [
-    '3rdparty:junit',
-    'src/java/com/twitter/common/args',
-    'src/java/com/twitter/common/args:apt',
-    'src/java/com/twitter/common/args:duration_parser',
+MEDIUM_TESTS = ['ArgScannerTest.java']
+
+java_tests(name='small',
+  dependencies=[
+    pants('3rdparty/jvm/junit'),
+    pants('src/java/com/twitter/common/args'),
+    pants('src/java/com/twitter/common/args:apt'),
+    pants('src/java/com/twitter/common/args:duration_parser'),
   ],
-  sources = rglobs('argfilterstest/*.java') + [ 'ArgFiltersTest.java', 'ParsersTest.java' ]
-           + rglobs('parsers/*.java')
+  sources=rglobs('argfilterstest/*.java') + globs('*.java', 'parsers/*.java') - MEDIUM_TESTS
 )
 
-java_tests(name = 'medium',
-  dependencies = [
-    '3rdparty:junit',
-    'src/java/com/twitter/common/args',
-    'src/java/com/twitter/common/base',
-    'src/java/com/twitter/common/net:util',
-    'src/java/com/twitter/common/quantity',
+java_tests(name='medium',
+  dependencies=[
+    pants('3rdparty/jvm/junit'),
+    pants('src/java/com/twitter/common/args'),
+    pants('src/java/com/twitter/common/base'),
+    pants('src/java/com/twitter/common/net:util'),
+    pants('src/java/com/twitter/common/quantity'),
   ],
-  sources = [ 'ArgScannerTest.java' ]
+  sources=MEDIUM_TESTS
 )
-
-jar_library(name = 'all',
-  dependencies = [
-    ':medium',
-    ':small',
-  ]
-)
-
-jar_library(name = 'args', dependencies = [ ':all' ])

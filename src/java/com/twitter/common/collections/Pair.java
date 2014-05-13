@@ -65,7 +65,7 @@ public class Pair<A, B> {
     if (o == this) { return true; }
     if (!(o instanceof Pair)) { return false; }
 
-    Pair that = (Pair) o;
+    Pair<?, ?> that = (Pair<?, ?>) o;
     return new EqualsBuilder()
         .append(this.first, that.first)
         .append(this.second, that.second)

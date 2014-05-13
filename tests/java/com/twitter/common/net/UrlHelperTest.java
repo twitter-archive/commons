@@ -114,10 +114,10 @@ public class UrlHelperTest {
 
   @Test
   public void testGetDomainLevels() {
-    assertEquals(ImmutableList.of("www.fred"), UrlHelper.getDomainLevels("fred"));
-    assertEquals(ImmutableList.of("www.twitter.com", "twitter.com"),
+    assertEquals(ImmutableList.of("www.fred", "fred"), UrlHelper.getDomainLevels("fred"));
+    assertEquals(ImmutableList.of("www.twitter.com", "twitter.com", "com"),
         UrlHelper.getDomainLevels("www.twitter.com"));
-    assertEquals(ImmutableList.of("www.twitter.co.uk", "twitter.co.uk", "co.uk"),
+    assertEquals(ImmutableList.of("www.twitter.co.uk", "twitter.co.uk", "co.uk", "uk"),
         UrlHelper.getDomainLevels("twitter.co.uk"));
   }
 }

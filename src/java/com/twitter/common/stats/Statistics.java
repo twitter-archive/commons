@@ -21,16 +21,22 @@ package com.twitter.common.stats;
  *
  * @author William Farner
  */
-public class Statistics {
-  private long populationSize = 0;
-  private double accumulatedVariance = 0;
-  private double runningMean = 0;
+public class Statistics implements StatisticsInterface {
+  private long populationSize;
+  private long sum;
+  private double accumulatedVariance;
+  private double runningMean;
 
-  private long minValue = Long.MAX_VALUE;
-  private long maxValue = Long.MIN_VALUE;
+  private long minValue;
+  private long maxValue;
+
+  public Statistics() {
+    clear();
+  }
 
   public void accumulate(long value) {
     populationSize++;
+    sum += value;
     double delta = value - runningMean;
     runningMean += delta / populationSize;
     accumulatedVariance += delta * (value - runningMean);
@@ -38,6 +44,15 @@ public class Statistics {
     // Update max/min.
     minValue = value < minValue ? value : minValue;
     maxValue = value > maxValue ? value : maxValue;
+  }
+
+  public void clear() {
+    populationSize = 0;
+    sum = 0;
+    accumulatedVariance = 0;
+    runningMean = 0;
+    minValue = Long.MAX_VALUE;
+    maxValue = Long.MIN_VALUE;
   }
 
   public double variance() {
@@ -64,13 +79,18 @@ public class Statistics {
     return maxValue - minValue;
   }
 
+  public long sum() {
+    return sum;
+  }
+
   public long populationSize() {
     return populationSize;
   }
 
   @Override
   public String toString() {
-    return String.format("Mean: %f, Min: %d, Max: %d, Range: %d, Stddev: %f, Variance: %f",
-        mean(), min(), max(), range(), standardDeviation(), variance());
+    return String.format("Mean: %f, Min: %d, Max: %d, Range: %d, Stddev: %f, Variance: %f, " +
+        "Population: %d, Sum: %d", mean(), min(), max(), range(), standardDeviation(),
+        variance(), populationSize(), sum());
   }
 }

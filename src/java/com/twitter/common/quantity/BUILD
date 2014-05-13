@@ -21,7 +21,7 @@ java_library(name = 'quantity',
     repo = 'build-support/commons/ivy:public',
   ),
   dependencies = [
-    '3rdparty:guava',
+    '3rdparty/jvm/com/google/guava',
     'src/java/com/twitter/common/collections',
   ],
   sources = globs('*.java'),

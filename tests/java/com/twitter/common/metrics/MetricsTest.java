@@ -1,7 +1,22 @@
+// =================================================================================================
+// Copyright 2013 Twitter, Inc.
+// -------------------------------------------------------------------------------------------------
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this work except in compliance with the License.
+// You may obtain a copy of the License in the LICENSE file, or at:
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// =================================================================================================
+
 package com.twitter.common.metrics;
 
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -11,9 +26,11 @@ import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests metric registry scoping.
@@ -26,7 +43,7 @@ public class MetricsTest {
 
   @Before
   public void setUp() {
-    metrics = new Metrics();
+    metrics = Metrics.createDetached();
   }
 
   @Test
@@ -36,20 +53,20 @@ public class MetricsTest {
 
   @Test
   public void testScoping() {
-    AtomicLong foo = metrics.registerLong("foo");
-    foo.getAndSet(10);
+    Counter foo = metrics.createCounter("foo");
+    foo.add(10);
 
     checkSamples(ImmutableMap.<String, Number>of("foo", 10L));
 
     MetricRegistry barScope = metrics.scope("bar");
-    AtomicLong barFoo = barScope.registerLong("foo");
-    barFoo.getAndSet(2);
+    Counter barFoo = barScope.createCounter("foo");
+    barFoo.add(2);
 
     checkSamples(ImmutableMap.<String, Number>of("foo", 10L, "bar.foo", 2L));
 
     MetricRegistry bazScope = barScope.scope("baz");
-    AtomicLong bazFoo = bazScope.registerLong("foo");
-    bazFoo.getAndSet(3);
+    Counter bazFoo = bazScope.createCounter("foo");
+    bazFoo.add(3);
 
     checkSamples(ImmutableMap.<String, Number>of("foo", 10L, "bar.foo", 2L, "bar.baz.foo", 3L));
   }
@@ -57,32 +74,140 @@ public class MetricsTest {
   @Test
   public void testDetachedRoot() {
     String name = "foo";
-    long value  = 10L;
+    Long value = 10L;
     Metrics detached = Metrics.createDetached();
-    AtomicLong foo = detached.registerLong(name);
-    foo.getAndSet(value);
+    Counter foo = detached.createCounter(name);
+    foo.add(value);
 
-    Number readValue = detached.sample().get(name);
+    Long readValue = (Long) detached.sample().get(name);
     assertEquals(readValue, value);
 
-    foo.incrementAndGet();
+    foo.increment();
 
-    Number readValue2 = detached.sample().get(name);
-    assertEquals(readValue2, value + 1);
+    Long readValue2 = (Long) detached.sample().get(name);
+    value += 1;
+    assertEquals(readValue2, value);
 
     assertNull(Metrics.root().sample().get(name));
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void testOverwrite() {
-    AtomicLong foo = metrics.registerLong("foo");
-    foo.getAndSet(10);
-
-    AtomicLong foo2 = metrics.registerLong("foo");
-    foo2.getAndSet(100);
-
-    checkSamples(ImmutableMap.<String, Number>of("foo", 100L));
+    Counter foo = metrics.createCounter("foo");
+    Counter foo2 = metrics.createCounter("foo");
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testOverwrite2() {
+    try {
+      Counter foo = metrics.createCounter("foo");
+      // nb. we check for collisions on base-name of the histogram but perhaps we want
+      // to check the expanded quantile/etc names in the future.
+      HistogramInterface foo2 = metrics.createHistogram("foo");
+    } catch (IllegalArgumentException expected) {
+      Gauge foo = new AbstractGauge("foo") {
+        @Override
+        public Number read() {
+          return 12;
+        }
+      };
+      metrics.register(foo);
+      Counter foo2 = metrics.createCounter("foo");
+    }
+  }
+
+  @Test
+  public void testUnregisterByRef() {
+    // Counter
+    Counter counter = metrics.createCounter("counter");
+    assertTrue("Metrics contains counter", metrics.sample().containsKey(counter.getName()));
+    metrics.unregister(counter);
+    assertFalse("Metrics doesn't contains counter",
+        metrics.sample().containsKey(counter.getName()));
+
+    // Gauge
+    final long x = 1L;
+    Gauge<Number> gauge = new AbstractGauge<Number>("gauge") {
+      @Override public Number read() { return x; }
+    };
+    metrics.register(gauge);
+    assertTrue("Metrics contains gauge", metrics.sample().containsKey(gauge.getName()));
+    metrics.unregister(gauge);
+    assertFalse("Metrics doesn't contains gauge", metrics.sample().containsKey(gauge.getName()));
+
+    // Histogram
+    HistogramInterface histo = metrics.createHistogram("histo");
+    assertTrue("Metrics contains histo", metrics.sample().containsKey(
+        histo.getName() + ".count"));
+    metrics.unregister(histo);
+    assertFalse("Metrics doesn't contains histo", metrics.sample().containsKey(
+        histo.getName() + ".count"));
+  }
+
+  @Test
+  public void testUnregisterByName() {
+    // Counter
+    Counter counter = metrics.createCounter("counter");
+    assertTrue("Metrics contains counter", metrics.sample().containsKey(counter.getName()));
+    metrics.unregister("counter");
+    assertFalse("Metrics doesn't contains counter",
+                   metrics.sample().containsKey(counter.getName()));
+
+    // Gauge
+    final long x = 1L;
+    Gauge<Number> gauge = new AbstractGauge<Number>("gauge") {
+      @Override public Number read() { return x; }
+    };
+    metrics.register(gauge);
+    assertTrue("Metrics contains gauge", metrics.sample().containsKey(gauge.getName()));
+    metrics.unregister(gauge.getName());
+    assertFalse("Metrics doesn't contains gauge", metrics.sample().containsKey(gauge.getName()));
+
+    // Histogram
+    HistogramInterface histo = metrics.createHistogram("histo");
+    assertTrue("Metrics contains histo", metrics.sample().containsKey(
+        histo.getName() + ".count"));
+    metrics.unregister(histo.getName());
+    assertFalse("Metrics doesn't contains histo", metrics.sample().containsKey(
+        histo.getName() + ".count"));
+  }
+
+  @Test
+  public void testUnregistrationOnScopedRegistry() {
+    String scope = "scope";
+    MetricRegistry registry = metrics.scope(scope);
+
+    // Counter
+    Counter counter = registry.createCounter("counter");
+    assertTrue("Metrics contains counter", metrics.sample().containsKey(counter.getName()));
+    registry.unregister(counter);
+    assertFalse("Metrics doesn't contains counter",
+        metrics.sample().containsKey(counter.getName()));
+
+    // Gauge
+    final long x = 1L;
+    Gauge<Number> gauge = registry.registerGauge(new AbstractGauge<Number>("gauge") {
+      @Override public Number read() { return x; }
+    });
+    assertTrue("Metrics contains gauge", metrics.sample().containsKey(gauge.getName()));
+    registry.unregister(gauge);
+    assertFalse("Metrics doesn't contains gauge", metrics.sample().containsKey(gauge.getName()));
+
+    // Histogram
+    HistogramInterface histo = registry.createHistogram("histo");
+    assertTrue("Metrics contains histo", metrics.sample().containsKey(
+        histo.getName() + ".count"));
+    registry.unregister(histo);
+    assertFalse("Metrics doesn't contains histo", metrics.sample().containsKey(
+        histo.getName() + ".count"));
+
+    Counter counterZ = registry.createCounter("counter_zzz");
+    assertTrue("Metrics contains counter", metrics.sample().containsKey(counterZ.getName()));
+    registry.unregister("counter_zzz");
+    assertFalse("Metrics doesn't contains counter",
+        metrics.sample().containsKey(counterZ.getName()));
+  }
+
 
   private void checkSamples(Map<String, Number> expected) {
     Map<String, Number> samples = Maps.newHashMap(metrics.sample());

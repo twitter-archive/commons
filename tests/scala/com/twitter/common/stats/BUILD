@@ -16,10 +16,10 @@
 
 junit_tests(name = 'stats',
   dependencies = [
-    pants('3rdparty:junit'),
-    pants('3rdparty:mockito'),
-    pants('3rdparty:ostrich'),
-    pants('3rdparty:specs'),
+    pants('3rdparty/jvm/org/mockito'),
+    pants('3rdparty/jvm/com/twitter:ostrich'),
+    pants('3rdparty/jvm/org/scala-tools/testing:specs'),
+    pants('3rdparty/jvm/junit'),
     pants('src/java/com/twitter/common/stats:stats-provider'),
     pants('src/scala/com/twitter/common/stats'),
   ],

@@ -73,7 +73,7 @@ public class MetaPool<T, E> implements ObjectPool<Connection<T, E>> {
 
   /**
    * Creates a connection pool with no backends.  Backends may be added post-creation by calling
-   * {@link #setBackends<ImmutableSet>()};
+   * {@link #setBackends(java.util.Map)}
    *
    * @param loadBalancer the load balancer to distribute requests among backends.
    * @param onBackendsChosen a callback to notify whenever the {@code loadBalancer} chooses a new
@@ -304,7 +304,7 @@ public class MetaPool<T, E> implements ObjectPool<Connection<T, E>> {
 
   /**
    * Equivalent to releasing a Connection with isValid() == false.
-   * @see {@link ObjectPool#remove(Object)}
+   * @see ObjectPool#remove(Object)
    */
   @Override
   public void remove(Connection<T, E> connection) {

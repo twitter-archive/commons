@@ -31,7 +31,7 @@ public class Elapsed {
   }
 
   /**
-   * Equivalent to calling {@link Elapsed(String, Time, Ticker)} passing {@code name},
+   * Equivalent to calling {@link #Elapsed(String, Time, Ticker)} passing {@code name},
    * {@code granularity} and {@link com.google.common.base.Ticker#systemTicker()}.
    * <br/>
    * @param name Name of the stat to export.

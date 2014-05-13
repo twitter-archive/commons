@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 import com.google.common.base.Preconditions;
 
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 import com.twitter.common.text.token.attribute.TokenType;
 
 /**
@@ -37,15 +37,43 @@ public class PunctuationDetector extends RegexDetector {
   public static final String PUNCTUATION_REGEX = "[" + PUNCTUATION_CHAR_CLASS + "]";
   private static final Pattern DEFAULT_PUNCTUATION_PATTERN = Pattern.compile(PUNCTUATION_REGEX);
 
-  protected PunctuationDetector(TokenStream inputStream) {
+  public static final String PUNCTUATION_CHAR_CLASS_WITHOUT_COMBINING_MARKS = "\\p{P}\\p{S}" + SPACE_EXCEPTIONS;
+  public static final String PUNCTUATION_REGEX_WITHOUT_COMBINING_MARKS =
+          "[" + PUNCTUATION_CHAR_CLASS_WITHOUT_COMBINING_MARKS + "]";
+  private static final Pattern PUNCTUATION_PATTERN_WITHOUT_COMBINING_MARKS =
+          Pattern.compile(PUNCTUATION_REGEX_WITHOUT_COMBINING_MARKS);
+
+  private PunctuationDetector(TwitterTokenStream inputStream) {
     super(inputStream);
     setRegexPattern(DEFAULT_PUNCTUATION_PATTERN);
     setType(TokenType.PUNCTUATION);
   }
 
+  public void detectCombiningMarksAsPunctuation(boolean useCombiningMarks) {
+    if (useCombiningMarks) {
+      setRegexPattern(DEFAULT_PUNCTUATION_PATTERN);
+    } else {
+      setRegexPattern(PUNCTUATION_PATTERN_WITHOUT_COMBINING_MARKS);
+    }
+  }
+
   public static class Builder extends AbstractBuilder<PunctuationDetector, Builder> {
-    public Builder(TokenStream inputStream) {
+    private boolean useCombiningMarks = true;
+
+    public Builder(TwitterTokenStream inputStream) {
       super(new PunctuationDetector(inputStream));
+    }
+
+    Builder useCombiningMarks(boolean useCombiningMarks) {
+      this.useCombiningMarks = useCombiningMarks;
+      return this;
+    }
+
+    @Override
+    public PunctuationDetector build() {
+      PunctuationDetector detector = detector();
+      detector.detectCombiningMarksAsPunctuation(useCombiningMarks);
+      return detector;
     }
   }
 

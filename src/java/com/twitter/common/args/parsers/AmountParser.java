@@ -37,7 +37,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  * @author William Farner
  */
 @ArgParser
-public class AmountParser extends TypeParameterizedParser<Amount> {
+public class AmountParser extends TypeParameterizedParser<Amount<?, ?>> {
 
   private static final Pattern AMOUNT_PATTERN = Pattern.compile("(\\d+)([A-Za-z]+)");
 
@@ -46,9 +46,9 @@ public class AmountParser extends TypeParameterizedParser<Amount> {
   }
 
   @Override
-  Amount doParse(ParserOracle parserOracle, String raw, List<Type> typeParams) {
+  Amount<?, ?> doParse(ParserOracle parserOracle, String raw, List<Type> typeParams) {
     Type valueType = typeParams.get(0);
-    Parser parser = parserOracle.get(TypeToken.of(valueType));
+    Parser<?> parser = parserOracle.get(TypeToken.of(valueType));
 
     Matcher matcher = AMOUNT_PATTERN.matcher(raw);
     checkArgument(matcher.matches(),
@@ -58,7 +58,9 @@ public class AmountParser extends TypeParameterizedParser<Amount> {
     String unitRaw = matcher.group(2);
 
     Type unitType = typeParams.get(1);
+    @SuppressWarnings("rawtypes")
     Parser<Unit> unitParser = parserOracle.get(TypeToken.of(Unit.class));
+    @SuppressWarnings("rawtypes")
     Unit unit = unitParser.parse(parserOracle, unitType, unitRaw);
     checkArgument(unit.getClass() == unitType, String.format(
         "Unit type (%s) does not match argument type (%s).",
@@ -67,8 +69,8 @@ public class AmountParser extends TypeParameterizedParser<Amount> {
     return create(valueType, number, unit);
   }
 
-  @SuppressWarnings("unchecked")
-  private static Amount create(Type valueType, Number number, Unit unit) {
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private static Amount<?, ?> create(Type valueType, Number number, Unit unit) {
     if (valueType == Integer.class) {
       return Amount.of(number.intValue(), unit);
     } else if (valueType == Double.class) {

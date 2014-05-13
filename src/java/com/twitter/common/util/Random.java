@@ -26,12 +26,12 @@ import com.google.common.base.Preconditions;
 public interface Random {
 
   /**
-   * @see {java.util.Random#nextDouble()}
+   * @see java.util.Random#nextDouble()
    */
   public double nextDouble();
 
   /**
-   * @see {java.util.Random#nextInt(int)}
+   * @see java.util.Random#nextInt(int)
    */
   public int nextInt(int n);
 

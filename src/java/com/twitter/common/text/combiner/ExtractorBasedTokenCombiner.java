@@ -24,15 +24,15 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import com.twitter.common.text.token.TokenProcessor;
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 import com.twitter.common.text.token.attribute.TokenType;
 
 /**
  * Combines multiple tokens into a single one if they define an entity identified
- * by an extractor TokenStream.
+ * by an extractor TwitterTokenStream.
  */
 public class ExtractorBasedTokenCombiner extends TokenProcessor {
-  private TokenStream extractor = null;
+  private TwitterTokenStream extractor = null;
   private TokenType type = null;
   private Queue<State> nextStates = Lists.newLinkedList();
 
@@ -40,11 +40,11 @@ public class ExtractorBasedTokenCombiner extends TokenProcessor {
   // of the tokens detected by extractor.
   private Map<Integer, Integer> offsetMap = Maps.newHashMap();
 
-  public ExtractorBasedTokenCombiner(TokenStream inputStream) {
+  public ExtractorBasedTokenCombiner(TwitterTokenStream inputStream) {
     super(inputStream);
   }
 
-  protected void setExtractor(TokenStream extractor) {
+  protected void setExtractor(TwitterTokenStream extractor) {
     this.extractor = extractor;
   }
 
@@ -66,7 +66,7 @@ public class ExtractorBasedTokenCombiner extends TokenProcessor {
   }
 
   @Override
-  public boolean incrementToken() {
+  public final boolean incrementToken() {
     if (!nextStates.isEmpty()) {
       restoreState(nextStates.poll());
       return true;

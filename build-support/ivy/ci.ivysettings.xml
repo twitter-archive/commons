@@ -1,0 +1,21 @@
+<ivysettings>
+  <property name="root.dir" value="${ivy.settings.dir}/../.." override="false"/>
+  <properties file="${root.dir}/build.properties" override="false"/>
+
+  <settings defaultResolver="chain-repos"/>
+
+  <!--
+    Allow for relocatable ivysettings.xml with a fixed root location for pants jvm backend builder.
+  -->
+  <include file="${ivysettings.file}"/>
+
+  <resolvers>
+    <chain name="chain-repos" returnFirst="true">
+      <_remote_resolvers name="remote-repos"/>
+    </chain>
+  </resolvers>
+
+  <caches default="default" lockStrategy="no-lock" useOrigin="false">
+    <cache name="default" basedir="${ivy.cache.dir}"/>
+  </caches>
+</ivysettings>

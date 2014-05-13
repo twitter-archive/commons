@@ -24,89 +24,93 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
-import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
 
 import com.twitter.common.args.apt.Configuration;
+import com.twitter.common.base.Function;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * Description of a command line option/flag such as -foo=bar.
- *
- * @author Nick Kallen
  */
-public class OptionInfo<T> extends ArgumentInfo<T> {
+public final class OptionInfo<T> extends ArgumentInfo<T> {
   static final String ARG_NAME_RE = "[\\w\\-\\.]+";
-  static final Pattern ARG_NAME_PATTERN = Pattern.compile(ARG_NAME_RE);
-  static final String NEGATE_BOOLEAN = "no_";
+  private static final Pattern ARG_NAME_PATTERN = Pattern.compile(ARG_NAME_RE);
+  private static final String NEGATE_BOOLEAN = "no_";
 
-  private final String name;
-  private final String prefix;
-
-  public OptionInfo(String name, String help, Arg<T> arg, TypeToken<T> type, String prefix,
-      List<Annotation> verifierAnnotations, @Nullable Class<? extends Parser<? extends T>> parser) {
-    super(help, arg, type, verifierAnnotations, parser);
-    this.name = name;
-    this.prefix = Preconditions.checkNotNull(prefix);
+  /**
+   * Factory method to create a OptionInfo from a field.
+   *
+   * @param field The field must contain a {@link Arg}.
+   * @return an OptionInfo describing the field.
+   */
+  static OptionInfo<?> createFromField(Field field) {
+    return createFromField(field, null);
   }
 
-  static OptionInfo createFromField(Field field) {
-    Preconditions.checkNotNull(field);
+  /**
+   * Factory method to create a OptionInfo from a field.
+   *
+   * @param field The field must contain a {@link Arg}.
+   * @param instance The object containing the non-static Arg instance or else null if the Arg
+   *     field is static.
+   * @return an OptionInfo describing the field.
+   */
+  static OptionInfo<?> createFromField(final Field field, @Nullable Object instance) {
     CmdLine cmdLine = field.getAnnotation(CmdLine.class);
     if (cmdLine == null) {
       throw new Configuration.ConfigurationException(
           "No @CmdLine Arg annotation for field " + field);
     }
-    @SuppressWarnings("unchecked")
-    OptionInfo optionInfo = new OptionInfo(
-        checkValidName(cmdLine.name()),
+
+    String name = cmdLine.name();
+    Preconditions.checkNotNull(name);
+    checkArgument(!HELP_ARGS.contains(name),
+        String.format("Argument name '%s' is reserved for builtin argument help", name));
+    checkArgument(ARG_NAME_PATTERN.matcher(name).matches(),
+        String.format("Argument name '%s' does not match required pattern %s",
+            name, ARG_NAME_RE));
+
+    Function<String, String> canonicalizer = new Function<String, String>() {
+      @Override public String apply(String name) {
+        return field.getDeclaringClass().getCanonicalName() + "." + name;
+      }
+    };
+
+    @SuppressWarnings({"unchecked", "rawtypes"}) // we have no way to know the type here
+    OptionInfo<?> optionInfo = new OptionInfo(
+        canonicalizer,
+        name,
         cmdLine.help(),
-        ArgumentInfo.getArgForField(field),
+        ArgumentInfo.getArgForField(field, Optional.fromNullable(instance)),
         TypeUtil.getTypeParamTypeToken(field),
-        field.getDeclaringClass().getCanonicalName(),
         Arrays.asList(field.getAnnotations()),
         cmdLine.parser());
+
     return optionInfo;
   }
 
-  /**
-   * Creates a new optioninfo.
-   *
-   * @param name Name of the option.
-   * @param help Help string.
-   * @param prefix Prefix scope for the option.
-   * @param type Concrete option target type.
-   * @param <T> Option type.
-   * @return A new optioninfo.
-   */
-  public static <T> OptionInfo<T> create(String name, String help, String prefix, Class<T> type) {
-    return new OptionInfo<T>(
-        checkValidName(name),
-        help,
-        Arg.<T>create(),
-        TypeToken.of(type),
-        prefix,
-        ImmutableList.<Annotation>of(),
-        null);
+  private final Function<String, String> canonicalizer;
+
+  private OptionInfo(
+      Function<String, String> canonicalizer,
+      String name,
+      String help,
+      Arg<T> arg,
+      TypeToken<T> type,
+      List<Annotation> verifierAnnotations,
+      @Nullable Class<? extends Parser<T>> parser) {
+
+    super(canonicalizer.apply(name), name, help, arg, type, verifierAnnotations, parser);
+    this.canonicalizer = canonicalizer;
   }
 
   /**
-   * The name of the optional parameter. This is used as a command-line optional argument, as in:
-   * -name=value.
-   */
-  public String getName() {
-    return name;
-  }
-
-  String getNegatedName() {
-    return NEGATE_BOOLEAN + this.name;
-  }
-
-  /**
-   * Parse the value and store result in the Arg contained in this OptionInfo.
+   * Parses the value and store result in the {@link Arg} contained in this {@code OptionInfo}.
    */
   void load(ParserOracle parserOracle, String optionName, String value) {
     Parser<? extends T> parser = getParser(parserOracle);
@@ -128,35 +132,23 @@ public class OptionInfo<T> extends ArgumentInfo<T> {
     setValue(parsed);
   }
 
-  /**
-   * A fully-qualified name of a parameter. This is used as a command-line optional argument, as in:
-   * -prefix.name=value. Prefix is typically a java package and class like
-   * "com.twitter.myapp.MyClass". The difference between a canonical name and a regular name is that
-   * it is in some circumstances for two names to collide; the canonical name, then, disambiguates.
-   */
-  String getCanonicalName() {
-    return this.prefix + "." + name;
-  }
-
   boolean isBoolean() {
     return getType().getRawType() == Boolean.class;
   }
 
   /**
-   * Similar to the canonical name, but with boolean arguments appends "no_", as in:
-   * -com.twitter.common.MyApp.no_fire=false
+   * Similar to the simple name, but with boolean arguments appends "no_", as in:
+   * {@code -no_fire=false}
    */
-  String getCanonicalNegatedName() {
-    return this.prefix + "." + NEGATE_BOOLEAN + this.name;
+  String getNegatedName() {
+    return NEGATE_BOOLEAN + getName();
   }
 
-  private static String checkValidName(String name) {
-    Preconditions.checkNotNull(name);
-    checkArgument(!HELP_ARGS.contains(name),
-      String.format("Argument name '%s' is reserved for builtin argument help", name));
-    checkArgument(ARG_NAME_PATTERN.matcher(name).matches(),
-      String.format("Argument name '%s' does not match required pattern %s",
-        name, ARG_NAME_RE));
-    return name;
+  /**
+   * Similar to the canonical name, but with boolean arguments appends "no_", as in:
+   * {@code -com.twitter.common.MyApp.no_fire=false}
+   */
+  String getCanonicalNegatedName() {
+    return canonicalizer.apply(getNegatedName());
   }
 }

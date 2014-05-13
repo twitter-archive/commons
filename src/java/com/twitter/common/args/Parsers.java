@@ -16,8 +16,11 @@
 
 package com.twitter.common.args;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
@@ -53,16 +56,24 @@ public final class Parsers implements ParserOracle {
         }
       };
 
-  private static final Function<ParserInfo, Parser<?>> INFO_TO_PARSER =
+  @VisibleForTesting
+  static final Function<ParserInfo, Parser<?>> INFO_TO_PARSER =
       new Function<ParserInfo, Parser<?>>() {
-        @Override public Parser apply(ParserInfo parserInfo) {
+        @Override public Parser<?> apply(ParserInfo parserInfo) {
           try {
-            return (Parser<?>) Class.forName(parserInfo.parserClass).newInstance();
+            Class<?> parserClass = Class.forName(parserInfo.parserClass);
+            Constructor<?> constructor = parserClass.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            return (Parser<?>) constructor.newInstance();
           } catch (ClassNotFoundException e) {
             throw new ConfigurationException(e);
           } catch (InstantiationException e) {
             throw new ConfigurationException(e);
           } catch (IllegalAccessException e) {
+            throw new ConfigurationException(e);
+          } catch (NoSuchMethodException e) {
+            throw new ConfigurationException(e);
+          } catch (InvocationTargetException e) {
             throw new ConfigurationException(e);
           }
         }
@@ -82,7 +93,7 @@ public final class Parsers implements ParserOracle {
 
   @Override
   public <T> Parser<T> get(TypeToken<T> type) throws IllegalArgumentException {
-    Parser parser;
+    Parser<?> parser;
     Class<?> explicitClass = type.getRawType();
     while (((parser = registry.get(explicitClass)) == null) && (explicitClass != null)) {
       explicitClass = explicitClass.getSuperclass();
@@ -91,7 +102,7 @@ public final class Parsers implements ParserOracle {
 
     // We control loading of the registry which ensures a proper mapping of class -> parser
     @SuppressWarnings("unchecked")
-    Parser<T> parserT = parser;
+    Parser<T> parserT = (Parser<T>) parser;
 
     return parserT;
   }

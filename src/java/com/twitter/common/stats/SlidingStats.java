@@ -84,7 +84,7 @@ public class SlidingStats {
    *
    * @param value The value to accumulate.
    */
-  public synchronized void accumulate(long value) {
+  public void accumulate(long value) {
     total.addAndGet(value);
     events.incrementAndGet();
   }

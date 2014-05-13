@@ -31,9 +31,13 @@ public class LatinTokenizer extends RegexTokenizer {
   // delimiter = one or more space, or one or more punctuation followed by space.
   private static final String DELIMITER = "(?:" + PunctuationDetector.SPACE_REGEX + "+)|("
       + PunctuationDetector.PUNCTUATION_REGEX + ")" + PunctuationDetector.SPACE_REGEX + "*";
+  private static final String DELIMITER_WITHOUT_COMBINING_MARKS = "(?:" + PunctuationDetector.SPACE_REGEX + "+)|("
+          + PunctuationDetector.PUNCTUATION_REGEX_WITHOUT_COMBINING_MARKS + ")" + PunctuationDetector.SPACE_REGEX + "*";
   private static final int PATTERN_FLAGS =
     Pattern.CASE_INSENSITIVE | Pattern.CANON_EQ | Pattern.DOTALL;
   private static final Pattern SPLIT_PATTERN = Pattern.compile(DELIMITER, PATTERN_FLAGS);
+  private static final Pattern SPLIT_PATTERN_WITHOUT_COMBINING_MARKS =
+          Pattern.compile(DELIMITER_WITHOUT_COMBINING_MARKS, PATTERN_FLAGS);
   private static final int PUNCTUATION_GROUP = 1;
 
   // Please use Builder
@@ -44,11 +48,30 @@ public class LatinTokenizer extends RegexTokenizer {
     super(attributeSource);
   }
 
+  @Override
+  protected boolean isSpace(char c) {
+    // A newline is considered as punctuation.
+    return Character.isSpaceChar(c) && c != '\n' && c != '\r';
+  }
+
+  @Override
+  protected boolean isLetter(char c) {
+    return Character.isLetter(c);
+  }
+
   public static final class Builder extends AbstractBuilder<LatinTokenizer, Builder> {
     public Builder() {
       setDelimiterPattern(SPLIT_PATTERN);
       setPunctuationGroupInDelimiterPattern(PUNCTUATION_GROUP);
       setKeepPunctuation(true);
+    }
+
+    public Builder useCombiningMarksAsDelimiter(boolean useCombiningMarks) {
+      if (useCombiningMarks) {
+        setDelimiterPattern(SPLIT_PATTERN);
+      } else
+        setDelimiterPattern(SPLIT_PATTERN_WITHOUT_COMBINING_MARKS);
+      return this;
     }
 
     @Override

@@ -37,7 +37,7 @@ import com.twitter.common.collections.Iterables2;
 import com.twitter.common.net.http.handlers.TimeSeriesDataSource.ResponseStruct;
 import com.twitter.common.stats.TimeSeries;
 import com.twitter.common.stats.TimeSeriesRepository;
-import com.twitter.common.testing.EasyMockTest;
+import com.twitter.common.testing.easymock.EasyMockTest;
 
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;

@@ -18,6 +18,7 @@ package com.twitter.common.zookeeper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.Override;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -39,11 +40,14 @@ import com.google.common.testing.TearDown;
 import com.google.gson.GsonBuilder;
 
 import org.apache.thrift.protocol.TProtocol;
+import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
+import org.easymock.IMocksControl;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.twitter.common.base.Command;
 import com.twitter.common.io.Codec;
 import com.twitter.common.io.JsonCodec;
 import com.twitter.common.net.pool.DynamicHostSet;
@@ -51,13 +55,19 @@ import com.twitter.common.thrift.TResourceExhaustedException;
 import com.twitter.common.thrift.Thrift;
 import com.twitter.common.thrift.ThriftFactory;
 import com.twitter.common.thrift.ThriftFactory.ThriftFactoryException;
+import com.twitter.common.zookeeper.Group;
 import com.twitter.common.zookeeper.Group.JoinException;
+import com.twitter.common.zookeeper.Group.WatchException;
 import com.twitter.common.zookeeper.ServerSet.EndpointStatus;
 import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
+import com.twitter.common.zookeeper.ZooKeeperClient;
 import com.twitter.thrift.Endpoint;
 import com.twitter.thrift.ServiceInstance;
 import com.twitter.thrift.Status;
 
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.createControl;
+import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -67,8 +77,6 @@ import static org.junit.Assert.fail;
 /**
  *
  * TODO(William Farner): Change this to remove thrift dependency.
- *
- * @author John Sirois
  */
 public class ServerSetImplTest extends BaseZooKeeperTest {
   private static final Logger LOG = Logger.getLogger(ServerSetImpl.class.getName());
@@ -95,7 +103,7 @@ public class ServerSetImplTest extends BaseZooKeeperTest {
   @Test
   public void testLifecycle() throws Exception {
     ServerSetImpl client = createServerSet();
-    client.monitor(serverSetMonitor);
+    client.watch(serverSetMonitor);
     assertChangeFiredEmpty();
 
     ServerSetImpl server = createServerSet();
@@ -118,7 +126,7 @@ public class ServerSetImplTest extends BaseZooKeeperTest {
   @Test
   public void testMembershipChanges() throws Exception {
     ServerSetImpl client = createServerSet();
-    client.monitor(serverSetMonitor);
+    client.watch(serverSetMonitor);
     assertChangeFiredEmpty();
 
     ServerSetImpl server = createServerSet();
@@ -150,9 +158,32 @@ public class ServerSetImplTest extends BaseZooKeeperTest {
   }
 
   @Test
+  public void testStopMonitoring() throws Exception {
+    ServerSetImpl client = createServerSet();
+    Command stopMonitoring = client.watch(serverSetMonitor);
+    assertChangeFiredEmpty();
+
+    ServerSetImpl server = createServerSet();
+
+    EndpointStatus foo = join(server, "foo");
+    assertChangeFired("foo");
+    EndpointStatus bar = join(server, "bar");
+    assertChangeFired("foo", "bar");
+
+    stopMonitoring.execute();
+
+    // No new updates should be received since monitoring has stopped.
+    foo.leave();
+    assertTrue(serverSetBuffer.isEmpty());
+
+    // Expiration event.
+    assertTrue(serverSetBuffer.isEmpty());
+  }
+
+  @Test
   public void testOrdering() throws Exception {
     ServerSetImpl client = createServerSet();
-    client.monitor(serverSetMonitor);
+    client.watch(serverSetMonitor);
     assertChangeFiredEmpty();
 
     Map<String, InetSocketAddress> server1Ports = makePortMap("http-admin1", 8080);
@@ -179,7 +210,7 @@ public class ServerSetImplTest extends BaseZooKeeperTest {
         Status.ALIVE)
         .setShard(2);
 
-    EndpointStatus status1 = server1.join(
+    server1.join(
         InetSocketAddress.createUnresolved("foo", 1000),
         server1Ports,
         0);
@@ -192,7 +223,7 @@ public class ServerSetImplTest extends BaseZooKeeperTest {
     assertEquals(ImmutableList.of(instance1, instance2),
         ImmutableList.copyOf(serverSetBuffer.take()));
 
-    EndpointStatus status3 = server3.join(
+    server3.join(
         InetSocketAddress.createUnresolved("foo", 1002), server3Ports, 2);
     assertEquals(ImmutableList.of(instance1, instance2, instance3),
         ImmutableList.copyOf(serverSetBuffer.take()));
@@ -282,10 +313,10 @@ public class ServerSetImplTest extends BaseZooKeeperTest {
     service.start();
 
     ServerSetImpl serverSetImpl = new ServerSetImpl(createZkClient(), SERVICE);
-    serverSetImpl.monitor(serverSetMonitor);
+    serverSetImpl.watch(serverSetMonitor);
     assertChangeFiredEmpty();
     InetSocketAddress localSocket = new InetSocketAddress(server.getLocalPort());
-    EndpointStatus status = serverSetImpl.join(localSocket, Maps.<String, InetSocketAddress>newHashMap());
+    serverSetImpl.join(localSocket, Maps.<String, InetSocketAddress>newHashMap());
     assertChangeFired(ImmutableMap.<InetSocketAddress, Status>of(localSocket, Status.ALIVE));
 
     Service.Iface svc = createThriftClient(serverSetImpl);
@@ -299,6 +330,35 @@ public class ServerSetImplTest extends BaseZooKeeperTest {
       connected.await();
       server.close();
     }
+  }
+
+  @Test
+  public void testUnwatchOnException() throws Exception {
+    IMocksControl control = createControl();
+
+    ZooKeeperClient zkClient = control.createMock(ZooKeeperClient.class);
+    Watcher onExpirationWatcher = control.createMock(Watcher.class);
+
+    expect(zkClient.registerExpirationHandler(anyObject(Command.class)))
+        .andReturn(onExpirationWatcher);
+
+    expect(zkClient.get()).andThrow(new InterruptedException());
+    expect(zkClient.unregister(onExpirationWatcher)).andReturn(true);
+    control.replay();
+
+    Group group = new Group(zkClient, ZooDefs.Ids.OPEN_ACL_UNSAFE, "/blabla");
+    ServerSetImpl serverset = new ServerSetImpl(zkClient, group);
+
+    try {
+      serverset.watch(new DynamicHostSet.HostChangeMonitor<ServiceInstance>() {
+        @Override
+        public void onChange(ImmutableSet<ServiceInstance> hostSet) {}
+      });
+      fail("Expected MonitorException");
+    } catch (DynamicHostSet.MonitorException e) {
+      // expected
+    }
+    control.verify();
   }
 
   private Service.Iface createThriftClient(DynamicHostSet<ServiceInstance> serverSet)

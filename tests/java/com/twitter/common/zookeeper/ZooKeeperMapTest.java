@@ -17,15 +17,12 @@
 package com.twitter.common.zookeeper;
 
 import java.util.AbstractMap.SimpleEntry;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
@@ -36,6 +33,7 @@ import org.apache.zookeeper.data.ACL;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.twitter.common.base.Command;
 import com.twitter.common.collections.Pair;
 import com.twitter.common.zookeeper.ZooKeeperMap.Listener;
 import com.twitter.common.zookeeper.testing.BaseZooKeeperTest;
@@ -314,20 +312,12 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
     assertEquals(data, zkMap.get(node));
   }
 
-  private interface TestFunction {
-    void apply() throws Exception;
-  }
-
-  private static void assertThrows(TestFunction function, Class<? extends Exception> throwable)
-      throws Exception {
+  private static void checkUnsupported(Command test) {
     try {
-      function.apply();
-      fail("Expected to fail with exception: " + throwable.getName());
-    } catch (Exception e) {
-      if (!throwable.isAssignableFrom(e.getClass())) {
-        // Not our expected exception
-        throw e;
-      }
+      test.execute();
+      fail("Expected UnsupportedOperationException to be thrown.");
+    } catch (UnsupportedOperationException e) {
+      // expected
     }
   }
 
@@ -342,43 +332,41 @@ public class ZooKeeperMapTest extends BaseZooKeeperTest {
     zkClient.get().create(nodePath, data.getBytes(), ACL, CreateMode.PERSISTENT);
 
     final Map<String, String> zkMap = ZooKeeperMap.create(zkClient, parentPath, BYTES_TO_STRING);
-
-    assertThrows(new TestFunction() {
-      public void apply() {
+    checkUnsupported(new Command() {
+      @Override public void execute() {
         zkMap.clear();
       }
-    }, UnsupportedOperationException.class);
-
-    assertThrows(new TestFunction() {
-      public void apply() {
+    });
+    checkUnsupported(new Command() {
+      @Override public void execute() {
         zkMap.remove(node);
       }
-    }, UnsupportedOperationException.class);
-
-    assertThrows(new TestFunction() {
-      public void apply() {
+    });
+    checkUnsupported(new Command() {
+      @Override public void execute() {
         zkMap.put("othernode", "othervalue");
       }
-    }, UnsupportedOperationException.class);
-
-    assertThrows(new TestFunction() {
-      public void apply() {
+    });
+    checkUnsupported(new Command() {
+      @Override public void execute() {
         zkMap.putAll(ImmutableMap.of("othernode", "othervalue"));
       }
-    }, UnsupportedOperationException.class);
-
-    List<Collection<?>> collections =
-            ImmutableList.of(zkMap.entrySet(), zkMap.keySet(), zkMap.values());
-    for (Collection<?> collection : collections) {
-      final Iterator<?> it = collection.iterator();
-      assertTrue(it.hasNext());
-      it.next();
-      assertThrows(new TestFunction() {
-        public void apply() {
-          it.remove();
-        }
-      }, UnsupportedOperationException.class);
-    }
+    });
+    checkUnsupported(new Command() {
+      @Override public void execute() {
+        zkMap.keySet().iterator().remove();
+      }
+    });
+    checkUnsupported(new Command() {
+      @Override public void execute() {
+        zkMap.values().iterator().remove();
+      }
+    });
+    checkUnsupported(new Command() {
+      @Override public void execute() {
+        zkMap.entrySet().iterator().remove();
+      }
+    });
 
     // Ensure contents didn't change
     assertEquals(1, zkMap.size());

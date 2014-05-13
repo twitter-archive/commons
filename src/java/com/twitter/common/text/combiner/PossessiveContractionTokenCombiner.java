@@ -19,7 +19,7 @@ package com.twitter.common.text.combiner;
 import java.util.regex.Pattern;
 
 import com.twitter.common.text.extractor.RegexExtractor;
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 
 /**
  * Combines multiple tokens denoting a possessive form (e.g., Twitter's) or
@@ -28,7 +28,7 @@ import com.twitter.common.text.token.TokenStream;
 public class PossessiveContractionTokenCombiner extends ExtractorBasedTokenCombiner {
   private static final Pattern APOSTROPHE_S = Pattern.compile("([a-zA-Z]+'(?i:t|s|m|re|ve|ll|d))([^a-zA-Z]|$)");
 
-  public PossessiveContractionTokenCombiner(TokenStream inputStream) {
+  public PossessiveContractionTokenCombiner(TwitterTokenStream inputStream) {
     super(inputStream);
     setExtractor(new RegexExtractor.Builder().setRegexPattern(APOSTROPHE_S, 1, 1)
                      .setTriggeringChar('\'').build());

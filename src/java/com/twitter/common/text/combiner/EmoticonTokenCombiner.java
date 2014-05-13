@@ -17,14 +17,14 @@
 package com.twitter.common.text.combiner;
 
 import com.twitter.common.text.extractor.EmoticonExtractor;
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 import com.twitter.common.text.token.attribute.TokenType;
 
 /**
  * Combines an emoticon (e.g., :) :-P ) back to a single token.
  */
 public class EmoticonTokenCombiner extends ExtractorBasedTokenCombiner {
-  public EmoticonTokenCombiner(TokenStream inputStream) {
+  public EmoticonTokenCombiner(TwitterTokenStream inputStream) {
     super(inputStream);
     setExtractor(new EmoticonExtractor());
     setType(TokenType.EMOTICON);

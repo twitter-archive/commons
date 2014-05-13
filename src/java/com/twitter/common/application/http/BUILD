@@ -22,9 +22,9 @@ java_library(
     repo=pants('build-support/commons/ivy:public'),
   ),
   dependencies=[
-    pants('3rdparty:guava'),
-    pants('3rdparty:guice'),
-    pants('3rdparty:guice-multibindings'),
+    pants('3rdparty/jvm/com/google/guava'),
+    pants('3rdparty/jvm/com/google/inject:guice'),
+    pants('3rdparty/jvm/com/google/inject/extensions:guice-multibindings'),
     pants('src/java/com/twitter/common/application:action'),
     pants('src/java/com/twitter/common/base'),
     pants('src/java/com/twitter/common/net/http'),

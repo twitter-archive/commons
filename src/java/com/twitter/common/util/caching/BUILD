@@ -23,7 +23,7 @@ java_library(name = 'caching',
     repo = 'build-support/commons/ivy:public',
   ),
   dependencies = [
-    '3rdparty:guava',
+    '3rdparty/jvm/com/google/guava',
     'src/java/com/twitter/common/base',
     'src/java/com/twitter/common/collections',
     'src/java/com/twitter/common/stats',

@@ -14,15 +14,31 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name='metrics',
-  dependencies=[
-    '3rdparty:easymock',
-    '3rdparty:guava',
-    '3rdparty:junit',
-    'src/java/com/twitter/common/metrics',
-    'src/java/com/twitter/common/testing',
-    'src/java/com/twitter/common/util:system-mocks',
-    'src/java/com/twitter/common/util:testing',
+java_tests(name = 'metrics',
+  dependencies = [
+    pants('3rdparty/jvm/com/google/guava'),
+    pants('3rdparty/jvm/junit'),
+    pants('src/java/com/twitter/common/junit/annotations'),
+    pants('src/java/com/twitter/common/metrics'),
+    pants('src/java/com/twitter/common/objectsize'),
+    pants('src/java/com/twitter/common/stats'),
+    pants('src/java/com/twitter/common/testing/easymock'),
+    pants('src/java/com/twitter/common/util:system-mocks'),
+    pants('src/java/com/twitter/common/util:testing'),
   ],
-  sources=globs('*.java')
+  sources = globs('*.java')
 )
+
+jvm_binary(name = 'metrics-precision',
+  main = 'com.twitter.common.metrics.demo.MetricsPrecisionDemo',
+  source = 'demo/MetricsPrecisionDemo.java',
+  dependencies = [
+    pants('tests/java/com/twitter/common/metrics'),
+    pants('src/java/com/twitter/common/metrics'),
+    pants('src/java/com/twitter/common/objectsize'),
+    pants('src/java/com/twitter/common/stats/testing:histogram'),
+    jar(org = 'com.twitter.common', name = 'metrics-data-sample', rev = '0.0.1'),
+  ]
+).with_description('''Demo code to show precision/memory performance based on constructor
+parameters (used to find default values)''')
+

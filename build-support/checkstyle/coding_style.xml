@@ -136,12 +136,14 @@ limitations under the License.
         <property name="checkFirstSentence" value="false"/>
         <property name="checkEmptyJavadoc" value="true"/>
       </module>
-      <module name="BooleanExpressionComplexity">
-        <property name="max" value="4"/>
-      </module>
 
       <!-- Checks for Naming Conventions.                  -->
-      <module name="ClassTypeParameterName"/>
+      <module name="ClassTypeParameterName">
+        <property name="format" value="^[A-Z][A-Z0-9]?$"/>
+      </module>
+      <module name="MethodTypeParameterName">
+        <property name="format" value="^[A-Z][A-Z0-9]?$"/>
+      </module>
       <module name="ConstantName"/>
       <module name="LocalFinalVariableName">
         <!-- allow VAR_NAME and varName in local final variables,
@@ -156,7 +158,6 @@ limitations under the License.
       <module name="com.twitter.common.checkstyle.NonOverriddenMethodName">
         <property name="format" value="^(([a-z][a-zA-Z0-9]*)|(\$tag))$" />
       </module>
-      <module name="MethodTypeParameterName"/>
       <module name="PackageName"/>
       <module name="ParameterName"/>
       <module name="StaticVariableName"/>
@@ -189,7 +190,8 @@ com.twitter. Each group should be separated by a single blank line." />
       <!-- See http://checkstyle.sf.net/config_sizes.html -->
       <module name="LineLength">
         <property name="max" value="100"/>
-        <property name="ignorePattern" value="^import"/>
+        <!-- Ignore import statements and javadoc comments                 -->
+        <property name="ignorePattern" value="^import.*$|^ *\*( |[^/]) *.*$"/>
       </module>
       <module name="OuterTypeNumber"/>
 

@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+
 <!--
 =================================================================================================
 Copyright 2011 Twitter, Inc.
@@ -18,8 +19,6 @@ limitations under the License.
 -->
 
 <ivysettings>
-  <property name="ivy.cache.dir" value="${user.home}/.ivy2/twitter-commons" override="false"/>
-
   <macrodef name="_remote_resolvers">
     <chain returnFirst="true">
       <ibiblio name="maven2"

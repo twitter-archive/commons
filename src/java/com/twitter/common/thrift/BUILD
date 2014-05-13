@@ -23,9 +23,9 @@ java_library(name = 'thrift',
     repo = 'build-support/commons/ivy:public',
   ),
   dependencies = [
-    '3rdparty:guava',
-    '3rdparty:jsr305',
-    '3rdparty:thrift',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/code/findbugs:jsr305',
+    '3rdparty/jvm/org/apache/thrift',
     'src/java/com/twitter/common/base',
     'src/java/com/twitter/common/net:pool',
     'src/java/com/twitter/common/net:util',
@@ -40,8 +40,8 @@ java_library(name = 'thrift',
 
 java_library(name = 'testing',
   dependencies = [
-    '3rdparty:guava',
-    '3rdparty:thrift',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/org/apache/thrift',
   ],
   sources = globs('testing/*.java')
 )

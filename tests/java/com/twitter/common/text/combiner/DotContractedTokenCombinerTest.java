@@ -23,7 +23,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 import com.twitter.common.text.tokenizer.LatinTokenizer;
 
 /**
@@ -33,7 +33,7 @@ import com.twitter.common.text.tokenizer.LatinTokenizer;
  * @author Cindy Lin
  */
 public class DotContractedTokenCombinerTest {
-  private TokenStream stream;
+  private TwitterTokenStream stream;
 
   @Before
   public void setup() {

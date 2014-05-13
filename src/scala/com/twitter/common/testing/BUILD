@@ -18,10 +18,10 @@ scala_library(name = 'explicit-specs-runner',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'specs-testing',
-    repo = 'build-support/commons/ivy:public',
+    repo = pants('build-support/commons/ivy:public'),
   ),
   dependencies = [
-    '3rdparty:specs',
+    pants('3rdparty/jvm/org/scala-tools/testing:specs'),
   ],
   sources = [ 'ExplicitSpecsRunnerMain.scala' ],
 )
@@ -29,6 +29,6 @@ scala_library(name = 'explicit-specs-runner',
 jvm_binary(name = 'explicit-specs-runner-main',
   main = 'com.twitter.common.testing.ExplicitSpecsRunnerMain',
   dependencies = [
-    ':explicit-specs-runner'
+    pants(':explicit-specs-runner'),
   ]
 )

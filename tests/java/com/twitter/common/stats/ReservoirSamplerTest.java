@@ -8,7 +8,7 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import com.twitter.common.testing.EasyMockTest;
+import com.twitter.common.testing.easymock.EasyMockTest;
 import com.twitter.common.util.Random;
 
 import static org.easymock.EasyMock.expect;

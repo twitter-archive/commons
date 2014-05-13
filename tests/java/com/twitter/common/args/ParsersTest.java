@@ -22,17 +22,16 @@ import com.google.common.reflect.TypeToken;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.twitter.common.args.apt.Configuration.ParserInfo;
+import com.twitter.common.args.parsers.NonParameterizedTypeParser;
 import com.twitter.common.args.parsers.PairParser;
-import com.twitter.common.args.parsers.StringParser;
 import com.twitter.common.collections.Pair;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
-/**
- * @author John Sirois
- */
 public class ParsersTest {
 
   private Parsers defaultParsers;
@@ -63,5 +62,23 @@ public class ParsersTest {
   public void testNoParser() {
     class NoParserForMe { }
     assertNull(defaultParsers.get(TypeToken.of(NoParserForMe.class)));
+  }
+
+  static class StringParser extends NonParameterizedTypeParser<Integer> {
+    @Override public Integer doParse(String raw) throws IllegalArgumentException {
+      return raw.length();
+    }
+  }
+
+  @Test
+  public void testNonPublicParsers() {
+    @SuppressWarnings("unchecked")
+    Parser<Integer> parser = (Parser<Integer>)
+        Parsers.INFO_TO_PARSER.apply(
+            new ParserInfo(Integer.class.getName(), StringParser.class.getName()));
+
+    assertEquals(
+        Integer.valueOf(42),
+        parser.parse(null, null, "themeaningoflifeisfortytwointhebookbyadams"));
   }
 }

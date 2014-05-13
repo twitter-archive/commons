@@ -13,21 +13,17 @@ import org.easymock.IAnswer;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.twitter.common.base.Command;
 import com.twitter.common.net.pool.DynamicHostSet.HostChangeMonitor;
 import com.twitter.common.net.pool.DynamicHostSet.MonitorException;
-import com.twitter.common.testing.EasyMockTest;
+import com.twitter.common.testing.easymock.EasyMockTest;
 import com.twitter.thrift.ServiceInstance;
-import com.twitter.thrift.Status;
 
 import static org.easymock.EasyMock.createControl;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.getCurrentArguments;
 
-/**
- * Tests CompoundServerSet (Tests the composite logic). ServerSetImplTest takes care of testing
- * the actual serverset logic.
- */
 public class CompoundServerSetTest extends EasyMockTest {
   private static final Map<String, InetSocketAddress> AUX_PORTS = ImmutableMap.of();
   private static final InetSocketAddress END_POINT =
@@ -41,6 +37,9 @@ public class CompoundServerSetTest extends EasyMockTest {
   private ServerSet serverSet1;
   private ServerSet serverSet2;
   private ServerSet serverSet3;
+  private Command stop1;
+  private Command stop2;
+  private Command stop3;
   private CompoundServerSet compoundServerSet;
 
   private ServiceInstance instance1;
@@ -71,6 +70,10 @@ public class CompoundServerSetTest extends EasyMockTest {
     serverSet2 = createMock(ServerSet.class);
     serverSet3 = createMock(ServerSet.class);
 
+    stop1 = createMock(Command.class);
+    stop2 = createMock(Command.class);
+    stop3 = createMock(Command.class);
+
     instance1 = createMock(ServiceInstance.class);
     instance2 = createMock(ServiceInstance.class);
     instance3 = createMock(ServiceInstance.class);
@@ -84,41 +87,39 @@ public class CompoundServerSetTest extends EasyMockTest {
     expect(serverSet2.join(END_POINT, AUX_PORTS, 0)).andReturn(mockStatus2);
     expect(serverSet3.join(END_POINT, AUX_PORTS, 0)).andReturn(mockStatus3);
 
-    mockStatus1.update(Status.DEAD);
-    mockStatus2.update(Status.DEAD);
-    mockStatus3.update(Status.DEAD);
+    mockStatus1.leave();
+    mockStatus2.leave();
+    mockStatus3.leave();
 
     control.replay();
 
-    ServerSet.EndpointStatus status = compoundServerSet.join(END_POINT, AUX_PORTS, 0);
-    status.update(Status.DEAD);
+    compoundServerSet.join(END_POINT, AUX_PORTS, 0).leave();
   }
 
   @Test(expected = Group.JoinException.class)
   public void testJoinFailure() throws Exception {
     // Throw exception for the first serverSet join.
-    expect(serverSet1.join(END_POINT, AUX_PORTS, Status.ALIVE))
+    expect(serverSet1.join(END_POINT, AUX_PORTS))
         .andThrow(new Group.JoinException("Group join exception", null));
 
     control.replay();
-    compoundServerSet.join(END_POINT, AUX_PORTS, Status.ALIVE);
+    compoundServerSet.join(END_POINT, AUX_PORTS);
   }
 
   @Test(expected = ServerSet.UpdateException.class)
   public void testStatusUpdateFailure() throws Exception {
-    expect(serverSet1.join(END_POINT, AUX_PORTS, Status.ALIVE)).andReturn(mockStatus1);
-    expect(serverSet2.join(END_POINT, AUX_PORTS, Status.ALIVE)).andReturn(mockStatus2);
-    expect(serverSet3.join(END_POINT, AUX_PORTS, Status.ALIVE)).andReturn(mockStatus3);
+    expect(serverSet1.join(END_POINT, AUX_PORTS)).andReturn(mockStatus1);
+    expect(serverSet2.join(END_POINT, AUX_PORTS)).andReturn(mockStatus2);
+    expect(serverSet3.join(END_POINT, AUX_PORTS)).andReturn(mockStatus3);
 
-    mockStatus1.update(Status.DEAD);
-    mockStatus2.update(Status.DEAD);
+    mockStatus1.leave();
+    mockStatus2.leave();
     expectLastCall().andThrow(new ServerSet.UpdateException("Update exception"));
-    mockStatus3.update(Status.DEAD);
+    mockStatus3.leave();
 
     control.replay();
 
-    ServerSet.EndpointStatus status = compoundServerSet.join(END_POINT, AUX_PORTS, Status.ALIVE);
-    status.update(Status.DEAD);
+    compoundServerSet.join(END_POINT, AUX_PORTS).leave();
   }
 
   @Test
@@ -127,9 +128,15 @@ public class CompoundServerSetTest extends EasyMockTest {
     Capture<HostChangeMonitor<ServiceInstance>> set2Capture = createCapture();
     Capture<HostChangeMonitor<ServiceInstance>> set3Capture = createCapture();
 
-    serverSet1.monitor(EasyMock.<HostChangeMonitor<ServiceInstance>>capture(set1Capture));
-    serverSet2.monitor(EasyMock.<HostChangeMonitor<ServiceInstance>>capture(set2Capture));
-    serverSet3.monitor(EasyMock.<HostChangeMonitor<ServiceInstance>>capture(set3Capture));
+    expect(serverSet1.watch(
+        EasyMock.<HostChangeMonitor<ServiceInstance>>capture(set1Capture)))
+        .andReturn(stop1);
+    expect(serverSet2.watch(
+        EasyMock.<HostChangeMonitor<ServiceInstance>>capture(set2Capture)))
+        .andReturn(stop2);
+    expect(serverSet3.watch(
+        EasyMock.<HostChangeMonitor<ServiceInstance>>capture(set3Capture)))
+        .andReturn(stop3);
 
     triggerChange(instance1);
     triggerChange(instance1, instance2);
@@ -140,7 +147,7 @@ public class CompoundServerSetTest extends EasyMockTest {
     triggerChange();
 
     control.replay();
-    compoundServerSet.monitor(compoundMonitor);
+    compoundServerSet.watch(compoundMonitor);
 
     // No new instances.
     triggerChange(set1Capture);
@@ -162,33 +169,52 @@ public class CompoundServerSetTest extends EasyMockTest {
 
   @Test(expected = MonitorException.class)
   public void testMonitorFailure() throws Exception {
-    serverSet1.monitor(EasyMock.<HostChangeMonitor<ServiceInstance>>anyObject());
+    serverSet1.watch(EasyMock.<HostChangeMonitor<ServiceInstance>>anyObject());
     expectLastCall().andThrow(new MonitorException("Monitor exception", null));
 
     control.replay();
-    compoundServerSet.monitor(compoundMonitor);
+    compoundServerSet.watch(compoundMonitor);
   }
 
   @Test
   public void testInitialChange() throws Exception {
     // Ensures that a synchronous change notification during the call to monitor() is properly
     // reported.
-    serverSet1.monitor(EasyMock.<HostChangeMonitor<ServiceInstance>>anyObject());
-    expectLastCall().andAnswer(new IAnswer<Void>() {
-      @Override public Void answer() {
+    serverSet1.watch(EasyMock.<HostChangeMonitor<ServiceInstance>>anyObject());
+    expectLastCall().andAnswer(new IAnswer<Command>() {
+      @Override public Command answer() {
         @SuppressWarnings("unchecked")
         HostChangeMonitor<ServiceInstance> monitor =
             (HostChangeMonitor<ServiceInstance>) getCurrentArguments()[0];
         monitor.onChange(ImmutableSet.of(instance1, instance2));
-        return null;
+        return stop1;
       }
     });
     compoundMonitor.onChange(ImmutableSet.of(instance1, instance2));
-    serverSet2.monitor(EasyMock.<HostChangeMonitor<ServiceInstance>>anyObject());
-    serverSet3.monitor(EasyMock.<HostChangeMonitor<ServiceInstance>>anyObject());
+    expect(serverSet2.watch(EasyMock.<HostChangeMonitor<ServiceInstance>>anyObject()))
+        .andReturn(stop2);
+    expect(serverSet3.watch(EasyMock.<HostChangeMonitor<ServiceInstance>>anyObject()))
+        .andReturn(stop3);
 
     control.replay();
 
-    compoundServerSet.monitor(compoundMonitor);
+    compoundServerSet.watch(compoundMonitor);
+  }
+
+  @Test
+  public void testStopMonitoring() throws Exception {
+    expect(serverSet1.watch(EasyMock.<HostChangeMonitor<ServiceInstance>>anyObject()))
+        .andReturn(stop1);
+    expect(serverSet2.watch(EasyMock.<HostChangeMonitor<ServiceInstance>>anyObject()))
+        .andReturn(stop2);
+    expect(serverSet3.watch(EasyMock.<HostChangeMonitor<ServiceInstance>>anyObject()))
+        .andReturn(stop3);
+
+    stop1.execute();
+    stop2.execute();
+    stop3.execute();
+
+    control.replay();
+    compoundServerSet.watch(compoundMonitor).execute();
   }
 }

@@ -17,7 +17,7 @@ import com.twitter.common.application.modules.LifecycleModule.LaunchException;
 import com.twitter.common.application.modules.LifecycleModule.ServiceRunner;
 import com.twitter.common.application.modules.LocalServiceRegistry.LocalService;
 import com.twitter.common.base.Command;
-import com.twitter.common.testing.EasyMockTest;
+import com.twitter.common.testing.easymock.EasyMockTest;
 
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;

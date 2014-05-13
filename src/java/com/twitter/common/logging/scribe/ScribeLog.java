@@ -55,16 +55,26 @@ public class ScribeLog implements Log<LogEntry, ResultCode> {
   private final scribe.Iface client;
 
   /**
-   * Creats a new scribe client, connecting to the given hosts on the given port.
-   *
-   * @param hosts Thrift servers to connect to.
-   * @throws ThriftFactory.ThriftFactoryException If the client could not be created.
+   * Equivalent to {@link #ScribeLog(List, int)}
+   * with a {@code maxConnections} of 5.
    */
   public ScribeLog(List<InetSocketAddress> hosts) throws ThriftFactory.ThriftFactoryException {
+    this(hosts, MAX_CONNECTIONS_PER_HOST);
+  }
+
+  /**
+   * Creates a new scribe client, connecting to the given hosts on the given port.
+   *
+   * @param hosts Thrift servers to connect to.
+   * @param maxConnections Max connections allowed for the log client.
+   * @throws ThriftFactory.ThriftFactoryException If the client could not be created.
+   */
+  public ScribeLog(List<InetSocketAddress> hosts, int maxConnections)
+      throws ThriftFactory.ThriftFactoryException {
     Preconditions.checkNotNull(hosts);
 
     Thrift<scribe.Iface> thrift = ThriftFactory.create(scribe.Iface.class)
-        .withMaxConnectionsPerEndpoint(MAX_CONNECTIONS_PER_HOST)
+        .withMaxConnectionsPerEndpoint(maxConnections)
         .useFramedTransport(true)
         .build(Sets.newHashSet(hosts));
 
@@ -84,7 +94,7 @@ public class ScribeLog implements Log<LogEntry, ResultCode> {
     try {
       return client.Log(entries);
     } catch (TException e) {
-      LOG.log(Level.WARNING, "Failed to submit log request!.");
+      LOG.log(Level.WARNING, "Failed to submit log request!.", e);
       return ResultCode.TRY_LATER;
     }
   }

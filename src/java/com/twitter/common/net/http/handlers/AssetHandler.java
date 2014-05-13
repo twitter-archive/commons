@@ -154,7 +154,7 @@ public class AssetHandler extends HttpServlet {
       ByteStreams.copy(in, responseBody);
     }
 
-    Closeables.closeQuietly(responseBody);
+    Closeables.close(responseBody, /* swallowIOException */ true);
   }
 
   private void setPayloadHeaders(HttpServletResponse resp) throws IOException {

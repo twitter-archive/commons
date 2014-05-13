@@ -17,7 +17,7 @@
 package com.twitter.common.text.combiner;
 
 import com.twitter.common.text.token.TokenProcessor;
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 import com.twitter.common.text.token.attribute.TokenType;
 
 /**
@@ -29,12 +29,12 @@ public abstract class LookAheadTokenCombiner extends TokenProcessor {
 
   private State nextState = null;
 
-  public LookAheadTokenCombiner(TokenStream inputStream) {
+  public LookAheadTokenCombiner(TwitterTokenStream inputStream) {
     super(inputStream);
   }
 
   @Override
-  public boolean incrementToken() {
+  public final boolean incrementToken() {
     if (nextState != null) {
       restoreState(nextState);
       nextState = null;

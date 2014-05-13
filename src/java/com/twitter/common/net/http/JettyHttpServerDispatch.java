@@ -258,7 +258,7 @@ public class JettyHttpServerDispatch implements HttpServerDispatch {
     getRootContext().addEventListener(eventListener);
   }
 
-  private synchronized Context getRootContext() {
+  public synchronized Context getRootContext() {
     Preconditions.checkState(context != null, "Context is not yet available. " +
         "Ensure that listen(...) is called prior to calling this method.");
     return context;

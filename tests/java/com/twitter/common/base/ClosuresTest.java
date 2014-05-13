@@ -24,7 +24,7 @@ import com.google.common.base.Predicate;
 import org.easymock.EasyMock;
 import org.junit.Test;
 
-import com.twitter.common.testing.EasyMockTest;
+import com.twitter.common.testing.easymock.EasyMockTest;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;

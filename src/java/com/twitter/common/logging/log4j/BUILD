@@ -21,8 +21,8 @@ java_library(name='log4j',
     repo=pants('build-support/commons/ivy:public'),
   ),
   dependencies=[
-    pants('3rdparty:guava'),
-    pants('3rdparty:log4j'),
+    pants('3rdparty/jvm/com/google/guava'),
+    pants('3rdparty/jvm/log4j'),
     pants('src/java/com/twitter/common/logging'),
   ],
   sources=globs('*.java')

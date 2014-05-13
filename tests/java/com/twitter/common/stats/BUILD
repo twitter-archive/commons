@@ -14,19 +14,23 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name='stats',
-  dependencies=[
-    '3rdparty:easymock',
-    '3rdparty:guava',
-    '3rdparty:junit',
-    '3rdparty:mockito',
-    'src/java/com/twitter/common/quantity',
-    'src/java/com/twitter/common/stats',
-    'src/java/com/twitter/common/stats:time-series',
-    'src/java/com/twitter/common/stats:util',
-    'src/java/com/twitter/common/testing',
-    'src/java/com/twitter/common/util:system-mocks',
-    'src/java/com/twitter/common/util:testing',
+java_tests(name = 'stats',
+  dependencies = [
+    pants('3rdparty/jvm/org/easymock'),
+    pants('3rdparty/jvm/com/google/guava'),
+    pants('3rdparty/jvm/junit'),
+    pants('3rdparty/jvm/org/mockito'),
+    pants('src/java/com/twitter/common/junit/annotations'),
+    pants('src/java/com/twitter/common/quantity'),
+    pants('src/java/com/twitter/common/objectsize'),
+    pants('src/java/com/twitter/common/stats'),
+    pants('src/java/com/twitter/common/stats:time-series'),
+    pants('src/java/com/twitter/common/stats:util'),
+    pants('src/java/com/twitter/common/stats/testing:histogram'),
+    pants('src/java/com/twitter/common/testing/easymock'),
+    pants('src/java/com/twitter/common/testing/mockito'),
+    pants('src/java/com/twitter/common/util:system-mocks'),
+    pants('src/java/com/twitter/common/util:testing'),
   ],
-  sources=globs('*.java')
+  sources = globs('*.java')
 )

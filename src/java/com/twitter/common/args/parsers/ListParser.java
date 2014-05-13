@@ -35,16 +35,16 @@ import com.twitter.common.args.Parsers;
  * @author William Farner
  */
 @ArgParser
-public class ListParser extends TypeParameterizedParser<List> {
+public class ListParser extends TypeParameterizedParser<List<?>> {
 
   public ListParser() {
     super(1);
   }
 
   @Override
-  List doParse(final ParserOracle parserOracle, String raw, final List<Type> typeParams) {
+  List<?> doParse(final ParserOracle parserOracle, String raw, final List<Type> typeParams) {
     final Type listType = typeParams.get(0);
-    final Parser parser = parserOracle.get(TypeToken.of(listType));
+    final Parser<?> parser = parserOracle.get(TypeToken.of(listType));
     return ImmutableList.copyOf(Iterables.transform(Parsers.MULTI_VALUE_SPLITTER.split(raw),
         new Function<String, Object>() {
           @Override public Object apply(String raw) {

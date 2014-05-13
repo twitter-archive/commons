@@ -19,7 +19,7 @@ package com.twitter.common.stats;
 import com.google.common.collect.ImmutableList;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
-import com.twitter.common.testing.EasyMockTest;
+import com.twitter.common.testing.easymock.EasyMockTest;
 import com.twitter.common.util.testing.FakeClock;
 import org.junit.After;
 import org.junit.Before;

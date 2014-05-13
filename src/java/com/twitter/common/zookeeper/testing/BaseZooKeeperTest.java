@@ -24,7 +24,6 @@ import com.google.common.testing.junit4.TearDownTestCase;
 
 import org.junit.Before;
 
-import com.twitter.common.application.ShutdownRegistry;
 import com.twitter.common.application.ShutdownRegistry.ShutdownRegistryImpl;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
@@ -146,5 +145,13 @@ public abstract class BaseZooKeeperTest extends TearDownTestCase {
   protected final ZooKeeperClient createZkClient(Amount<Integer, Time> sessionTimeout,
       Credentials credentials) {
     return zkTestServer.createClient(sessionTimeout, credentials);
+  }
+
+  /**
+   * Returns a new authenticated zookeeper client connected to the in-process zookeeper server with
+   * the default session timeout and the custom chroot path.
+   */
+  protected final ZooKeeperClient createZkClient(String chrootPath) {
+    return zkTestServer.createClient(chrootPath);
   }
 }

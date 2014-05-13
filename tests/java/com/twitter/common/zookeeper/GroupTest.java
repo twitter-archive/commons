@@ -19,6 +19,8 @@ package com.twitter.common.zookeeper;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
 import org.apache.zookeeper.ZooDefs.Ids;
@@ -29,7 +31,7 @@ import com.twitter.common.base.Command;
 import com.twitter.common.base.Supplier;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
-import com.twitter.common.testing.EasyMockTest;
+import com.twitter.common.testing.easymock.EasyMockTest;
 import com.twitter.common.zookeeper.Group.GroupChangeListener;
 import com.twitter.common.zookeeper.Group.JoinException;
 import com.twitter.common.zookeeper.Group.Membership;
@@ -45,13 +47,14 @@ import static org.easymock.EasyMock.reset;
 import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class GroupTest extends BaseZooKeeperTest {
 
   private ZooKeeperClient zkClient;
-  private Group group;
+  private Group joinGroup;
+  private Group watchGroup;
+  private Command stopWatching;
   private com.twitter.common.base.Command onLoseMembership;
 
   private RecordingListener listener;
@@ -65,10 +68,11 @@ public class GroupTest extends BaseZooKeeperTest {
     onLoseMembership = createMock(Command.class);
 
     zkClient = createZkClient("group", "test");
-    group = new Group(zkClient, ZooKeeperUtils.EVERYONE_READ_CREATOR_ALL, "/a/group");
+    joinGroup = new Group(zkClient, ZooKeeperUtils.EVERYONE_READ_CREATOR_ALL, "/a/group");
+    watchGroup = new Group(zkClient, ZooKeeperUtils.EVERYONE_READ_CREATOR_ALL, "/a/group");
 
     listener = new RecordingListener();
-    group.watch(listener);
+    stopWatching = watchGroup.watch(listener);
   }
 
   private static class RecordingListener implements GroupChangeListener {
@@ -84,8 +88,8 @@ public class GroupTest extends BaseZooKeeperTest {
       return membershipChanges.take();
     }
 
-    public boolean isEmpty() {
-      return membershipChanges.isEmpty();
+    public void assertEmpty() {
+      assertEquals(ImmutableList.<Iterable<String>>of(), ImmutableList.copyOf(membershipChanges));
     }
 
     @Override
@@ -123,7 +127,7 @@ public class GroupTest extends BaseZooKeeperTest {
     };
     assertEmptyMembershipObserved();
 
-    Membership membership = group.join(onLoseMembership);
+    Membership membership = joinGroup.join(onLoseMembership);
     assertMembershipObserved(membership.getMemberId());
     expireSession(zkClient);
 
@@ -140,7 +144,7 @@ public class GroupTest extends BaseZooKeeperTest {
     };
     assertEmptyMembershipObserved();
 
-    Membership membership = group.join(onLoseMembership);
+    Membership membership = joinGroup.join(onLoseMembership);
     assertMembershipObserved(membership.getMemberId());
     membership.cancel();
 
@@ -153,7 +157,7 @@ public class GroupTest extends BaseZooKeeperTest {
 
     assertEmptyMembershipObserved();
 
-    Membership membership = group.join();
+    Membership membership = joinGroup.join();
     String originalMemberId = membership.getMemberId();
     assertMembershipObserved(originalMemberId);
 
@@ -162,7 +166,7 @@ public class GroupTest extends BaseZooKeeperTest {
 
     // The member should still be present under existing ephemeral node since session did not
     // expire.
-    group.watch(listener);
+    watchGroup.watch(listener);
     assertMembershipObserved(originalMemberId);
 
     membership.cancel();
@@ -170,7 +174,7 @@ public class GroupTest extends BaseZooKeeperTest {
     assertEmptyMembershipObserved();
     assertEmptyMembershipObserved(); // and again for 2nd listener
 
-    assertTrue(listener.isEmpty());
+    listener.assertEmpty();
 
     verify(onLoseMembership);
     reset(onLoseMembership); // Turn off expectations during ZK server shutdown.
@@ -183,7 +187,7 @@ public class GroupTest extends BaseZooKeeperTest {
 
     assertEmptyMembershipObserved();
 
-    Membership membership = group.join(onLoseMembership);
+    Membership membership = joinGroup.join(onLoseMembership);
     String originalMemberId = membership.getMemberId();
     assertMembershipObserved(originalMemberId);
 
@@ -199,7 +203,7 @@ public class GroupTest extends BaseZooKeeperTest {
     assertNotEqual(originalMemberId, Iterables.getOnlyElement(members));
     assertNotEqual(originalMemberId, membership.getMemberId());
 
-    assertTrue(listener.isEmpty());
+    listener.assertEmpty();
 
     verify(onLoseMembership);
     reset(onLoseMembership); // Turn off expectations during ZK server shutdown.
@@ -207,7 +211,7 @@ public class GroupTest extends BaseZooKeeperTest {
 
   @Test
   public void testJoinCustomNamingScheme() throws Exception {
-    group = new Group(zkClient, ZooKeeperUtils.EVERYONE_READ_CREATOR_ALL, "/a/group",
+    Group group = new Group(zkClient, ZooKeeperUtils.EVERYONE_READ_CREATOR_ALL, "/a/group",
         new CustomScheme());
 
     listener = new RecordingListener();
@@ -235,7 +239,7 @@ public class GroupTest extends BaseZooKeeperTest {
 
     replay(dataSupplier);
 
-    Membership membership = group.join(dataSupplier, onLoseMembership);
+    Membership membership = joinGroup.join(dataSupplier, onLoseMembership);
     assertArrayEquals("Initial setting is incorrect.", initial, zkClient.get()
         .getData(membership.getMemberPath(), false, null));
 
@@ -290,21 +294,41 @@ public class GroupTest extends BaseZooKeeperTest {
     }
   }
 
+  @Test
+  public void testStopWatching() throws Exception {
+    replay(onLoseMembership);
+
+    assertEmptyMembershipObserved();
+
+    Membership member1 = joinGroup.join();
+    String memberId1 = member1.getMemberId();
+    assertMembershipObserved(memberId1);
+
+    Membership member2 = joinGroup.join();
+    String memberId2 = member2.getMemberId();
+    assertMembershipObserved(memberId1, memberId2);
+
+    stopWatching.execute();
+
+    member1.cancel();
+    Membership member3 = joinGroup.join();
+    member2.cancel();
+    member3.cancel();
+
+    listener.assertEmpty();
+  }
+
   private void assertEmptyMembershipObserved() throws InterruptedException {
-    Iterable<String> membershipChange = listener.take();
-    assertTrue("Expected an empty membershipChange, got: " + membershipChange + " queued: " +
-               listener,
-        Iterables.isEmpty(membershipChange));
+    assertMembershipObserved();
   }
 
-  private void assertMembershipObserved(String expectedMemberId) throws InterruptedException {
-    assertMembershipObserved(listener, expectedMemberId);
+  private void assertMembershipObserved(String... expectedMemberIds) throws InterruptedException {
+    assertMembershipObserved(listener, expectedMemberIds);
   }
 
-  private void assertMembershipObserved(RecordingListener listener, String expectedMemberId)
+  private void assertMembershipObserved(RecordingListener listener, String... expectedMemberIds)
       throws InterruptedException {
-    Iterable<String> members = listener.take();
-    assertEquals(1, Iterables.size(members));
-    assertEquals(expectedMemberId, Iterables.getOnlyElement(members));
+
+    assertEquals(ImmutableSet.copyOf(expectedMemberIds), ImmutableSet.copyOf(listener.take()));
   }
 }

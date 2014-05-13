@@ -95,4 +95,25 @@ public class StatisticsTest extends TestCase {
     stats = createAndLoad(TEST_SET_A);
     checkWithinThreshold(1.0435888145066835E7, stats.standardDeviation());
   }
+
+  public void testPopulationSize() {
+    Statistics stats = createAndLoad(EMPTY_SET);
+    assertEquals(0L, stats.populationSize());
+
+    stats = createAndLoad(TEST_SET_A);
+    assertEquals(TEST_SET_A.size(), stats.populationSize());
+  }
+
+  public void testSum() {
+    Statistics stats = createAndLoad(EMPTY_SET);
+    assertEquals(0L, stats.sum());
+
+    stats = createAndLoad(TEST_SET_A);
+    long expectedSum = 0;
+    for (long x: TEST_SET_A) {
+      expectedSum += x;
+    }
+    assertEquals(expectedSum, stats.sum());
+  }
+
 }

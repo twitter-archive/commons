@@ -41,8 +41,6 @@ import java.text.NumberFormat;
  * then the sum, mean, std dev, min and max can be gathered at the
  * end. To reuse this object, a clear method can be called to reset
  * the statistics.
- *
- * @author Abdur Chowdhury
  */
 public class Stat implements Serializable {
 
@@ -50,8 +48,7 @@ public class Stat implements Serializable {
    * Add a number to the statistics collector.
    * doubles are used for all collections.
    *
-   * @param int - number added to the statistics.
-   * @return void
+   * @param x number added to the statistics.
    */
   public void addNumber(int x) {
     addNumber((double) x);
@@ -61,8 +58,7 @@ public class Stat implements Serializable {
    * Add a number to the statistics collector.
    * doubles are used for all collections.
    *
-   * @param float - number added to the statistics.
-   * @return void
+   * @param x number added to the statistics.
    */
   public void addNumber(float x) {
     addNumber((double) x);
@@ -72,8 +68,7 @@ public class Stat implements Serializable {
    * Add a number to the statistics collector.
    * doubles are used for all collections.
    *
-   * @param double - number added to the statistics.
-   * @return void
+   * @param x number added to the statistics.
    */
   public synchronized void addNumber(double x) {
     if (_max < x) {
@@ -93,11 +88,7 @@ public class Stat implements Serializable {
 
   /**
    * Clear the statistics counters...
-   *
-   * @param void
-   * @return void
    */
-
   public void clear() {
     _max = 0;
     _min = Double.MAX_VALUE;
@@ -112,14 +103,12 @@ public class Stat implements Serializable {
   /**
    * Create a string representation of the
    * statistics collected so far. NOTE this
-   * is formated and may not suit all needs
+   * is formatted and may not suit all needs
    * and thus the user should just call the
    * needed methods to get mean, std dev, etc.
    * and format the data as needed.
    *
-   * @param void
-   * @return String - Java string formated out put
-   *         of results.
+   * @return String Java string formatted output of results.
    */
   public String toString() {
     return toString(false);
@@ -129,17 +118,16 @@ public class Stat implements Serializable {
   /**
    * Create a string representation of the
    * statistics collected so far. The results
-   * are formated in percentage format if
+   * are formatted in percentage format if
    * passed in true, otherwise the results
    * are the same as the toString call. NOTE this
-   * is formated and may not suit all needs
+   * is formatted and may not suit all needs
    * and thus the user should just call the
    * needed methods to get mean, std dev, etc.
    * and format the data as needed.
    *
-   * @param boolean - Format as percentages if set to true.
-   * @return String - Java string formated out put
-   *         of results.
+   * @param percent Format as percentages if set to true.
+   * @return String Java string formatted output of results.
    */
   public String toString(boolean percent) {
     calculate();
@@ -197,7 +185,6 @@ public class Stat implements Serializable {
    * Get the max data element added to the statistics
    * object so far.
    *
-   * @param void
    * @return double - Maximum entry added so far.
    */
   public double getMax() {
@@ -209,7 +196,6 @@ public class Stat implements Serializable {
    * Get the min data element added to the statistics
    * object so far.
    *
-   * @param void
    * @return double - Min entry added so far.
    */
   public double getMin() {
@@ -221,7 +207,6 @@ public class Stat implements Serializable {
    * Get the number of data elements added to the statistics
    * object so far.
    *
-   * @param void
    * @return double - Number of entries added so far.
    */
   public long getNumberOfElements() {
@@ -233,7 +218,6 @@ public class Stat implements Serializable {
    * Get the average or mean of data elements added to the
    * statistics object so far.
    *
-   * @param void
    * @return double - Mean of entries added so far.
    */
   public double getMean() {
@@ -247,7 +231,6 @@ public class Stat implements Serializable {
    * Get the ratio of the sum of elements divided by the number
    * of elements added * 100
    *
-   * @param void
    * @return double - Percent of entries added so far.
    */
   public double getPercent() {
@@ -263,7 +246,6 @@ public class Stat implements Serializable {
    * Get the sum or mean of data elements added to the
    * statistics object so far.
    *
-   * @param void
    * @return double - Sum of entries added so far.
    */
   public double getSum() {
@@ -275,7 +257,6 @@ public class Stat implements Serializable {
    * Get the sum of the squares of the data elements added
    * to the statistics object so far.
    *
-   * @param void
    * @return double - Sum of the squares of the entries added so far.
    */
   public double getSumOfSq() {
@@ -287,7 +268,6 @@ public class Stat implements Serializable {
    * Get the standard deviation of the data elements added
    * to the statistics object so far.
    *
-   * @param void
    * @return double - Sum of the standard deviation of the entries added so far.
    */
   public double getStandardDev() {
@@ -299,11 +279,10 @@ public class Stat implements Serializable {
 
 
   /**
-   * Read the data from the inputstream so it can be used to populate
+   * Read the data from the InputStream so it can be used to populate
    * the current objects state.
    *
-   * @param InputStream - java.io.InputStream to write to.
-   * @return void
+   * @param in java.io.InputStream to write to.
    * @throws IOException
    */
   public void readFromDataInput(InputStream in) throws IOException {
@@ -314,11 +293,10 @@ public class Stat implements Serializable {
 
 
   /**
-   * Read the data from the datainput so it can be used to populate
+   * Read the data from the DataInput so it can be used to populate
    * the current objects state.
    *
-   * @param InputStream - java.io.InputStream to write to.
-   * @return void
+   * @param in java.io.InputStream to write to.
    * @throws IOException
    */
   public void readFromDataInput(DataInput in) throws IOException {
@@ -338,8 +316,7 @@ public class Stat implements Serializable {
    * other process, wire or storage median in a format that another Stats
    * object can read.
    *
-   * @param OutputStream - java.io.OutputStream to write to.
-   * @return void
+   * @param out java.io.OutputStream to write to.
    * @throws IOException
    */
   public void writeToDataOutput(OutputStream out) throws IOException {
@@ -355,8 +332,7 @@ public class Stat implements Serializable {
    * other process, wire or storage median in a format that another Stats
    * object can read.
    *
-   * @param InputStream - java.io.InputStream to write to.
-   * @return void
+   * @param out java.io.DataOutput to write to.
    * @throws IOException
    */
   public void writeToDataOutput(DataOutput out) throws IOException {

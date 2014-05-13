@@ -19,7 +19,9 @@ package com.twitter.common.zookeeper.testing;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
 import org.apache.zookeeper.server.NIOServerCnxn;
@@ -159,11 +161,19 @@ public class ZooKeeperTestServer {
   }
 
   /**
+   * Returns a new unauthenticated zookeeper client connected to the in-process zookeeper server
+   * with the default session timeout and a custom {@code chrootPath}.
+   */
+  public final ZooKeeperClient createClient(String chrootPath) {
+    return createClient(defaultSessionTimeout, Credentials.NONE, Optional.of(chrootPath));
+  }
+
+  /**
    * Returns a new authenticated zookeeper client connected to the in-process zookeeper server with
    * the default session timeout.
    */
   public final ZooKeeperClient createClient(Credentials credentials) {
-    return createClient(defaultSessionTimeout, credentials);
+    return createClient(defaultSessionTimeout, credentials, Optional.<String>absent());
   }
 
   /**
@@ -171,7 +181,7 @@ public class ZooKeeperTestServer {
    * with a custom {@code sessionTimeout}.
    */
   public final ZooKeeperClient createClient(Amount<Integer, Time> sessionTimeout) {
-    return createClient(sessionTimeout, Credentials.NONE);
+    return createClient(sessionTimeout, Credentials.NONE, Optional.<String>absent());
   }
 
   /**
@@ -180,8 +190,17 @@ public class ZooKeeperTestServer {
    */
   public final ZooKeeperClient createClient(Amount<Integer, Time> sessionTimeout,
       Credentials credentials) {
+        return createClient(sessionTimeout, credentials, Optional.<String>absent());
+      }
+
+  /**
+   * Returns a new authenticated zookeeper client connected to the in-process zookeeper server with
+   * a custom {@code sessionTimeout} and a custom {@code chrootPath}.
+   */
+  public final ZooKeeperClient createClient(Amount<Integer, Time> sessionTimeout,
+      Credentials credentials, Optional<String> chrootPath) {
     final ZooKeeperClient client = new ZooKeeperClient(sessionTimeout, credentials,
-        InetSocketAddress.createUnresolved("127.0.0.1", port));
+        chrootPath, Arrays.asList(InetSocketAddress.createUnresolved("127.0.0.1", port)));
     shutdownRegistry.addAction(new ExceptionalCommand<InterruptedException>() {
       @Override public void execute() {
         client.close();

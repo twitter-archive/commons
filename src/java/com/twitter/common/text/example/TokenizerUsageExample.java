@@ -21,7 +21,7 @@ import java.util.Iterator;
 import org.apache.lucene.util.Attribute;
 
 import com.twitter.common.text.DefaultTextTokenizer;
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 import com.twitter.common.text.token.TokenizedCharSequence;
 import com.twitter.common.text.token.TokenizedCharSequence.Token;
 import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;
@@ -48,7 +48,7 @@ public class TokenizerUsageExample {
     // This is the canonical way to create a token stream.
     DefaultTextTokenizer tokenizer =
         new DefaultTextTokenizer.Builder().setKeepPunctuation(true).build();
-    TokenStream stream = tokenizer.getDefaultTokenStream();
+    TwitterTokenStream stream = tokenizer.getDefaultTokenStream();
 
     // We're going to ask the token stream what type of attributes it makes available. "Attributes"
     // can be understood as "annotations" on the original text.

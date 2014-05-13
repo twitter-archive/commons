@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.twitter.common.net.pool.DynamicHostSet.HostChangeMonitor;
-import com.twitter.common.testing.EasyMockTest;
+import com.twitter.common.testing.easymock.EasyMockTest;
 import com.twitter.common.zookeeper.ServerSet.EndpointStatus;
 import com.twitter.thrift.Endpoint;
 import com.twitter.thrift.ServiceInstance;

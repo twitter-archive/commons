@@ -13,6 +13,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 
+import com.twitter.common.base.Command;
+import com.twitter.common.base.Commands;
 import com.twitter.common.zookeeper.Group.JoinException;
 import com.twitter.thrift.Endpoint;
 import com.twitter.thrift.ServiceInstance;
@@ -118,7 +120,13 @@ public class StaticServerSet implements ServerSet {
   }
 
   @Override
-  public void monitor(HostChangeMonitor<ServiceInstance> monitor) {
+  public Command watch(HostChangeMonitor<ServiceInstance> monitor) {
     monitor.onChange(hosts);
+    return Commands.NOOP;
+  }
+
+  @Override
+  public void monitor(HostChangeMonitor<ServiceInstance> monitor) throws MonitorException {
+    watch(monitor);
   }
 }

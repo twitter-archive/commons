@@ -18,7 +18,7 @@ package com.twitter.common.util;
 
 import com.twitter.common.base.ExceptionalSupplier;
 import com.twitter.common.base.Supplier;
-import com.twitter.common.testing.EasyMockTest;
+import com.twitter.common.testing.easymock.EasyMockTest;
 
 import org.easymock.IMocksControl;
 import org.junit.Before;

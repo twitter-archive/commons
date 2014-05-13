@@ -27,7 +27,7 @@ import org.junit.Test;
 import com.twitter.common.base.Command;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
-import com.twitter.common.testing.EasyMockTest;
+import com.twitter.common.testing.easymock.EasyMockTest;
 
 import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.expect;
@@ -46,14 +46,14 @@ public class RateLimitedCommandExecutorTest extends EasyMockTest {
   private Amount<Long, Time> intervalBetweenRequests;
   private RateLimitedCommandExecutor rateLimiter;
   private Command command;
-  private BlockingQueue<RetryingRunnable> queue;
+  private BlockingQueue<RetryingRunnable<?>> queue;
   private Runnable queueDrainer;
 
   @Before
   public void setUp() throws Exception {
     command = createMock(Command.class);
     taskExecutor = createMock(ScheduledExecutorService.class);
-    queue = createMock(new Clazz<BlockingQueue<RetryingRunnable>>() {});
+    queue = createMock(new Clazz<BlockingQueue<RetryingRunnable<?>>>() {});
     queueDrainer = createMock(Runnable.class);
     intervalBetweenRequests = Amount.of(100L, Time.MILLISECONDS);
   }
