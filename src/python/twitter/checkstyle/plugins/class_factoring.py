@@ -13,8 +13,7 @@ class ClassFactoring(CheckstylePlugin):
          return os.path.join(Distiller.CONSTANT, value)
 
   recommend using self.CONSTANT instead of Distiller.CONSTANT as otherwise
-  it makes subclassing impossible.
-  """
+  it makes subclassing impossible."""
 
   def iter_class_accessors(self, class_node):
     for node in ast.walk(class_node):

@@ -24,8 +24,7 @@ from ..common import CheckstylePlugin
 
 
 class FutureCompatibility(CheckstylePlugin):
-  """Warns about behavior that will likely break when moving to Python 3.x
-  """
+  """Warns about behavior that will likely break when moving to Python 3.x"""
   BAD_ITERS = frozenset(('iteritems', 'iterkeys', 'itervalues'))
   BAD_FUNCTIONS = frozenset(('xrange',))
   BAD_NAMES = frozenset(('basestring', 'unicode'))

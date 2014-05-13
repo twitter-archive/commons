@@ -6,7 +6,7 @@ from ..common import CheckstylePlugin
 
 
 class TrailingWhitespace(CheckstylePlugin):
-  # TODO(wickman): This class needs a test
+  """Warn on invalid trailing whitespace."""
 
   @classmethod
   def build_exception_map(cls, tokens):

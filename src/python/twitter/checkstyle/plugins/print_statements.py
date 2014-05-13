@@ -5,6 +5,8 @@ from ..common import CheckstylePlugin
 
 
 class PrintStatements(CheckstylePlugin):
+  """Enforce the use of print as a function and not a statement."""
+
   FUNCTIONY_EXPRESSION = re.compile(r'^\s*\(.*\)\s*$')
 
   def nits(self):

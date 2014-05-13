@@ -34,6 +34,8 @@ class FlakeError(Nit):
 
 
 class PyflakesChecker(CheckstylePlugin):
+  """Detect common coding errors via the pyflakes package."""
+
   def nits(self):
     checker = FlakesChecker(self.python_file.tree, self.python_file.filename)
     for message in sorted(checker.messages, key=lambda msg: msg.lineno):

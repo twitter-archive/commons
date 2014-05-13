@@ -11,8 +11,7 @@ python_test_suite(
     pants(':test_common'),
     pants(':test_git_iterators'),
     pants(':test_iterators'),
-    pants(':test_pep8'),
-    pants(':test_pyflakes'),
+    pants(':test_noqa'),
     pants('tests/python/twitter/checkstyle/plugins:all'),
   ]
 )
@@ -43,17 +42,10 @@ python_tests(
 )
 
 python_tests(
-  name = 'test_pep8',
-  sources = ['test_pep8.py'],
+  name = 'test_noqa',
+  sources = ['test_noqa.py'],
   dependencies = [
-    pants('src/python/twitter/checkstyle/plugins:pep8'),
-  ]
-)
-
-python_tests(
-  name = 'test_pyflakes',
-  sources = ['test_pyflakes.py'],
-  dependencies = [
-    pants('src/python/twitter/checkstyle/plugins:pyflakes'),
+    pants('src/python/twitter/checkstyle:checker'),
+    pants('src/python/twitter/checkstyle:common'),
   ]
 )

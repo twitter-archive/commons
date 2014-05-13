@@ -64,6 +64,8 @@ IGNORE_CODES = (
 
 
 class PEP8Checker(CheckstylePlugin):
+  """Enforce PEP8 checks from the pep8 tool."""
+
   STYLE_GUIDE = pep8.StyleGuide(
       max_line_length=100,
       verbose=False,

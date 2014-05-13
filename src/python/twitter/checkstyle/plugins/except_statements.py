@@ -4,9 +4,7 @@ from ..common import CheckstylePlugin
 
 
 class ExceptStatements(CheckstylePlugin):
-  """
-  Do not allow non-3.x-compatible and/or dangerous except statements.
-  """
+  """Do not allow non-3.x-compatible and/or dangerous except statements."""
 
   @classmethod
   def blanket_excepts(cls, node):

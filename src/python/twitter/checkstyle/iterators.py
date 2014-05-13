@@ -50,6 +50,19 @@ def diff_lines(old, new):
         yield lineno + 1
 
 
+def line_filter_from_blobs(a_blob, b_blob):
+  lines = frozenset(diff_lines(a_blob, b_blob))
+
+  def line_filter(python_file, line_number):
+    return line_number not in lines
+
+  return line_filter
+
+
+def permissive_line_filter(python_file, line_number):
+  return False
+
+
 def tuple_from_diff(diff):
   """
     From GitPython:
@@ -74,13 +87,13 @@ def tuple_from_diff(diff):
   """
   # New file => check all
   if diff.b_blob and not diff.a_blob and diff.b_blob.path.endswith('.py'):
-    return diff.b_blob.path, None
+    return diff.b_blob.path, permissive_line_filter
 
   # Check diff lines between two
   if diff.a_blob and diff.b_blob and diff.b_blob.path.endswith('.py'):
     paths = diff.b_blob.path.split('\t')  # Handle rename, which are "old.py\tnew.py"
     paths = paths[1] if len(paths) != 1 else paths[0]
-    return paths, partial(diff_lines, diff.a_blob, diff.b_blob)
+    return paths, line_filter_from_blobs(diff.a_blob, diff.b_blob)
 
 
 def git_iterator(args, options):

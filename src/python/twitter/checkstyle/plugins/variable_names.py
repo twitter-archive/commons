@@ -79,15 +79,6 @@ class PEP8VariableNames(CheckstylePlugin):
      lower_snake expression variable names
      CLASS_LEVEL_CONSTANTS = {}
      GLOBAL_LEVEL_CONSTANTS = {}
-
-  Also within classes, if you see:
-    class Distiller(object):
-      CONSTANT = "Foo"
-      def foo(self, value):
-         return os.path.join(Distiller.CONSTANT, value)
-
-  recommend using self.CONSTANT instead of Distiller.CONSTANT as otherwise
-  it makes subclassing impossible.
   """
 
   CLASS_GLOBAL_BUILTINS = frozenset((
@@ -124,12 +115,22 @@ class PEP8VariableNames(CheckstylePlugin):
       for class_global in self.iter_class_globals(class_def):
         if not is_constant(class_global.id) and class_global.id not in self.CLASS_GLOBAL_BUILTINS:
           yield self.error('T001', 'Class globals must be UPPER_SNAKE_CASED', class_global)
-      class_methods.update(self.iter_class_methods(class_def))
+      if not class_def.bases or all(isinstance(base, ast.Name) and base.id == 'object'
+          for base in class_def.bases):
+        class_methods.update(self.iter_class_methods(class_def))
+      else:
+        # If the class is inheriting from anything that is potentially a bad actor, rely
+        # upon checking that bad actor out of band.  Fixes PANTS-172.
+        for method in self.iter_class_methods(class_def):
+          all_methods.discard(method)
 
     for function_def in all_methods - class_methods:
       if is_reserved_name(function_def.name):
         yield self.error('T801', 'Method name overrides a builtin.', function_def)
 
+    # TODO(wickman) Only enforce this for classes that derive from object.  If they
+    # don't derive object, it's possible that the superclass naming is out of its
+    # control.
     for function_def in all_methods:
       if not any((is_lower_snake(function_def.name),
                   is_builtin_name(function_def.name),

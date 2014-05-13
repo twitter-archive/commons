@@ -162,6 +162,9 @@ class PythonFile(object):
     """The parsed AST of this file."""
     return self._tree
 
+  def __str__(self):
+    return 'PythonFile(%s)' % self._filename
+
 
 class Nit(object):
   """Encapsulate a Style faux pas.
@@ -248,11 +251,10 @@ class Nit(object):
 class CheckstylePlugin(Interface):
   """Interface for checkstyle plugins."""
 
-  def __init__(self, python_file, line_filter=None):
+  def __init__(self, python_file):
     if not isinstance(python_file, PythonFile):
       raise TypeError('CheckstylePlugin takes PythonFile objects.')
     self.python_file = python_file
-    self._affected_lines = None if line_filter is None else list(line_filter())
 
   def iter_ast_types(self, ast_type):
     for node in ast.walk(self.python_file.tree):
@@ -265,12 +267,7 @@ class CheckstylePlugin(Interface):
 
   def __iter__(self):
     for nit in self.nits():
-      if nit._line_number is None or self._affected_lines is None:
-        yield nit
-        continue
-      nit_slice = self.python_file.line_range(nit._line_number)
-      if any(line in self._affected_lines for line in range(nit_slice.start, nit_slice.stop)):
-        yield nit
+      yield nit
 
   def errors(self):
     for nit in self:

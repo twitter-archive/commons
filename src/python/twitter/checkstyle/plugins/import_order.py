@@ -5,6 +5,18 @@ from ..common import CheckstylePlugin
 
 
 class ImportType(object):
+  """Enforce a consistent import order.
+
+  Imports are currently grouped into five separate groups:
+    stdlib
+    twitter
+    gen
+    package-local
+    third-party
+
+  Imports should be in this order and separated by a single space.
+  """
+
   STDLIB = 1
   TWITTER = 2
   GEN = 3

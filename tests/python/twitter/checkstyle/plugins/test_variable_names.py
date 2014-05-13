@@ -144,6 +144,26 @@ def test_lower_snake_method_names():
   assert nits[0].severity == Nit.ERROR
 
   p8 = PEP8VariableNames(PythonFile.from_statement("""
+    class DhisRight:
+      def clearlyNotThinking(self):
+        print("In a class body")
+  """))
+  nits = list(p8.nits())
+  assert len(nits) == 1
+  assert nits[0].code == 'T002'
+  assert nits[0]._line_number == 2
+  assert nits[0].severity == Nit.ERROR
+
+  # Allow derivations from other modules to be ok.
+  p8 = PEP8VariableNames(PythonFile.from_statement("""
+    class TestCase(unittest.TestCase):
+      def setUp(self):
+        pass
+  """))
+  nits = list(p8.nits())
+  assert len(list(p8.nits())) == 0
+
+  p8 = PEP8VariableNames(PythonFile.from_statement("""
     def clearlyNotThinking():
       print("Not in a class body")
     
