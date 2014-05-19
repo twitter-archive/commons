@@ -1,3 +1,22 @@
+#Usage
+
+	migrate-history.sh [-b branch] [-s subdir] <path-to-immigrant>
+
+Migrate the repository at <path-to-repo> into this repository at
+subdir.  If -s is omitted, it will be the basename of
+<path-to-repo>.
+
+You can use -b to get a branch other than master from the immigrant.
+This repository's master will always be used.
+
+Run this script from inside your repository, at the root directory.  The
+result will be a branch named migrated-\$subdir
+
+If you run this command a second time on the same repo/subdir, you'll
+get a second copy of the history on top of the first set.  So don't do
+that.  This would be relatively straightforward to fix, but I haven't
+gotten to it yet.  Make the changes in the new repo instead.
+
 #Motivation
 
 A monorepo is one of the popular ways to manage complexity at scale.
@@ -35,17 +54,3 @@ immigrant such that its tree appears inside of the root tree of mono
 at the appropriate place.  In order to preserve ancestry, we also need
 to change the parent pointer on each migrated commit such that it
 points to the migrated version of its parent.
-
-#Usage
-
-	migrate-history.sh [-b branch] [-s subdir] <path-to-immigrant>"
-
-Migrate the repository at <path-to-repo> into this repository at
-subdir.  If -s is omitted, it will be the basename of
-<path-to-repo>.
-
-You can use -b to get a branch other than master from the immigrant.
-This repository's master will always be used.
-
-Run this script from inside your repository, at the root directory.  The
-result will be a branch named migrated-\$subdir

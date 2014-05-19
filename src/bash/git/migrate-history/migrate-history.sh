@@ -51,7 +51,7 @@ make_subtreed_tree () {
 
 usage() {
     cat <<EOF
-Usage: migrate-history.sh [-b branch] [-s subdir] <path-to-immigrant>"
+Usage: migrate-history.sh [-b branch] [-s subdir] <path-to-immigrant>
 
 Migrate the repository at <path-to-repo> into this repository at
 subdir.  If -s is omitted, it will be the basename of
