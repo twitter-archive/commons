@@ -1,5 +1,5 @@
 # ==================================================================================================
-# Copyright 2013 Twitter, Inc.
+# Copyright 2014 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -14,19 +14,6 @@
 # limitations under the License.
 # ==================================================================================================
 
-junit_tests(name='tool',
-  dependencies=[
-    pants('3rdparty/jvm/commons-io'),
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/junit'),
-    pants('3rdparty/jvm/com/google/testing:tl4j'),
-    pants('src/java/com/twitter/common/io'),
-    pants('src/java/com/twitter/common/jar/tool'),
-    pants('src/java/com/twitter/common/testing/easymock'),
-    pants('src/java/com/twitter/common/util:testing'),
-  ],
-  resources=[
-    pants('tests/resources/com/twitter/common/jar/tool'),
-  ],
-  sources=globs('*.java'),
+resources(name='tool',
+  sources=['a.jar', 'b.jar', 'c.jar'],
 )

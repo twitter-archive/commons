@@ -1,5 +1,6 @@
 package com.twitter.common.jar.tool;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -24,6 +25,7 @@ import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 import java.util.zip.CRC32;
 
+import java.util.zip.ZipException;
 import javax.annotation.Nullable;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -35,6 +37,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.base.Splitter;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
@@ -87,7 +90,7 @@ public class JarBuilder implements Closeable {
    */
   public static class IndexingException extends JarBuilderException {
     public IndexingException(File jarPath, Throwable t) {
-      super("Problem indexing jar at " + jarPath, t);
+      super("Problem indexing jar at " + jarPath + ": " + t.getMessage(), t);
     }
   }
 
@@ -254,6 +257,7 @@ public class JarBuilder implements Closeable {
    * Identifies a source for jar entries.
    */
   public interface Source {
+
     /**
      * Returns a name for this source.
      */
@@ -277,13 +281,21 @@ public class JarBuilder implements Closeable {
     }
   }
 
+  private abstract static class JarSource extends FileSource {
+
+    protected JarSource(File source) {
+      super(source);
+    }
+  }
+
   private static Source jarSource(File jar) {
-    return new FileSource(jar) {
+    return new JarSource(jar) {
       @Override public String identify(String name) {
         return String.format("%s!%s", source.getPath(), name);
       }
+
       @Override public String toString() {
-        return String.format("FileSource{jar=%s}", source.getPath());
+        return String.format("JarSource{jar=%s}", source.getPath());
       }
     };
   }
@@ -297,6 +309,7 @@ public class JarBuilder implements Closeable {
         }
         return file.getPath();
       }
+
       @Override public String toString() {
         return String.format("FileSource{file=%s}", file.getPath());
       }
@@ -308,6 +321,7 @@ public class JarBuilder implements Closeable {
       @Override public String identify(String name) {
         return new File(source, name).getPath();
       }
+
       @Override public String toString() {
         return String.format("FileSource{directory=%s}", source.getPath());
       }
@@ -322,6 +336,7 @@ public class JarBuilder implements Closeable {
       @Override public String identify(String name) {
         return "<memory>!" + name;
       }
+
       @Override public String toString() {
         return String.format("MemorySource{@%s}", Integer.toHexString(hashCode()));
       }
@@ -403,6 +418,16 @@ public class JarBuilder implements Closeable {
     public String getJarPath() {
       return path;
     }
+  }
+
+  private static  class ReadableJarEntry extends ReadableEntry {
+    private final JarEntry jarEntry;
+
+    public ReadableJarEntry(NamedInputSupplier<? extends InputStream> contents, JarEntry jarEntry) {
+      super(contents, jarEntry.getName());
+      this.jarEntry = jarEntry;
+    }
+    public JarEntry getJarEntry() { return jarEntry; }
   }
 
   /**
@@ -501,7 +526,16 @@ public class JarBuilder implements Closeable {
       closer = Closer.create();
       supplier = new InputSupplier<JarFile>() {
         @Override public JarFile getInput() throws IOException {
-          return closer.register(new JarFile(file));
+          try {
+            // Do not verify signed.
+            return closer.register(new JarFile(file, false));
+          } catch (ZipException zex) {
+            // JarFile is not very verbose and doesn't tell the user which file it was
+            // so we will create a new Exception instead
+            ZipException e = new ZipException("error in opening zip file " + file);
+            e.initCause(zex);
+            throw e;
+          }
         }
       };
     }
@@ -694,7 +728,7 @@ public class JarBuilder implements Closeable {
                         jarSource,
                         entry.getName(),
                         entrySupplier(jarSupplier, entry));
-                add(entries, contents, entry.getName());
+                add(entries, contents, entry);
               }
             }
           });
@@ -712,6 +746,14 @@ public class JarBuilder implements Closeable {
       final String jarPath) {
 
     entries.put(jarPath, new ReadableEntry(contents, jarPath));
+  }
+
+  private static void add(
+      Multimap<String, ReadableEntry> entries,
+      final NamedInputSupplier<? extends InputStream> contents,
+      final JarEntry jarEntry) {
+
+    entries.put(jarEntry.getName(), new ReadableJarEntry(contents, jarEntry));
   }
 
   /**
@@ -879,9 +921,16 @@ public class JarBuilder implements Closeable {
         try {
           JarWriter writer = jarWriter(tmp, compress);
           writer.write(JarFile.MANIFEST_NAME, manifest == null ? DEFAULT_MANIFEST : manifest);
+          List<ReadableJarEntry> jarEntries = Lists.newArrayList();
           for (ReadableEntry entry : entries) {
-            writer.write(entry.getJarPath(), entry.contents);
+            if (entry instanceof ReadableJarEntry) {
+              jarEntries.add((ReadableJarEntry) entry);
+            } else {
+              writer.write(entry.getJarPath(), entry.contents);
+            }
           }
+          copyJarFiles(writer, jarEntries);
+
         } catch (IOException e) {
           throw closer.rethrow(e);
         } finally {
@@ -894,6 +943,42 @@ public class JarBuilder implements Closeable {
       }
     });
     return target;
+  }
+
+  /**
+   * As an optimization, use {@link com.twitter.common.jar.tool.SuperShady} to copy one jar file to
+   * another without decompressing and recompressing.
+   *
+   * @param writer target to copy JAR file entries to.
+   * @param entries entries that came from a jar file
+   */
+  private void copyJarFiles(JarWriter writer, Iterable<ReadableJarEntry> entries)
+      throws IOException {
+    // Walk the entries to bucketize by input jar file names
+    Multimap<JarSource, ReadableJarEntry> jarEntries = HashMultimap.create();
+    for (ReadableJarEntry entry : entries) {
+      Preconditions.checkState(entry.getSource() instanceof JarSource);
+      jarEntries.put((JarSource) entry.getSource(), entry);
+    }
+
+    // Copy the data from each jar input file to the output
+    for (JarSource source : jarEntries.keySet()) {
+      Closer jarFileCloser = Closer.create();
+      try {
+        final InputSupplier<JarFile> jarSupplier = jarFileCloser.register(
+            new JarSupplier(new File(source.name())));
+        JarFile jarFile = jarSupplier.getInput();
+        for (ReadableJarEntry readableJarEntry : jarEntries.get(source)) {
+          JarEntry jarEntry = readableJarEntry.getJarEntry();
+          String resource = jarEntry.getName();
+          writer.copy(resource, jarFile, jarEntry);
+        }
+      } catch (IOException ex) {
+        throw jarFileCloser.rethrow(ex);
+      } finally {
+        jarFileCloser.close();
+      }
+    }
   }
 
   private Iterable<ReadableEntry> getEntries(
@@ -978,9 +1063,9 @@ public class JarBuilder implements Closeable {
             } else if (!jarEntry.isDirectory()) {
               entries.put(
                   entryPath,
-                  new ReadableEntry(
+                  new ReadableJarEntry(
                       NamedInputSupplier.create(jarSource(target), entryPath, contents),
-                      entryPath));
+                      jarEntry));
             }
           }
         });
@@ -1069,6 +1154,11 @@ public class JarBuilder implements Closeable {
       ensureParentDir(path);
       out.putNextEntry(entryFactory.createEntry(path, contents));
       ByteStreams.copy(contents, out);
+    }
+
+    public void copy(String path, JarFile jarIn, JarEntry srcJarEntry) throws IOException {
+      ensureParentDir(path);
+      SuperShady.shadyCopy(out, path, jarIn, srcJarEntry);
     }
 
     private void ensureParentDir(String path) throws IOException {

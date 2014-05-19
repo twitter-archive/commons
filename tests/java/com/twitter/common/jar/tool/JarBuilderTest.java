@@ -322,7 +322,12 @@ public class JarBuilderTest {
 
       Closer closer = Closer.create();
       JarEntry jarEntry = jar.getJarEntry(path);
-      assertEquals(compressed ? JarEntry.DEFLATED : JarEntry.STORED, jarEntry.getMethod());
+      int method = jarEntry.getMethod();
+      if (!compressed) {
+        assertEquals(JarEntry.STORED, method);
+      } else {
+        assertTrue(method == JarEntry.STORED || method == JarEntry.DEFLATED);
+      }
       InputStream entryIn = closer.register(jar.getInputStream(jarEntry));
       try {
         assertEquals(expectedContent, new String(ByteStreams.toByteArray(entryIn), Charsets.UTF_8));
