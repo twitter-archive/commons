@@ -1,5 +1,6 @@
 package com.twitter.common.jar.tool;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -12,8 +13,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +37,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.base.Splitter;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
@@ -532,7 +532,9 @@ public class JarBuilder implements Closeable {
           } catch (ZipException zex) {
             // JarFile is not very verbose and doesn't tell the user which file it was
             // so we will create a new Exception instead
-            throw new ZipException("error in opening zip file " + file);
+            ZipException e = new ZipException("error in opening zip file " + file);
+            e.initCause(zex);
+            throw e;
           }
         }
       };
@@ -953,31 +955,20 @@ public class JarBuilder implements Closeable {
   private void copyJarFiles(JarWriter writer, Iterable<ReadableJarEntry> entries)
       throws IOException {
     // Walk the entries to bucketize by input jar file names
-    Map<JarSource, Set<ReadableJarEntry>> jarEntries =
-        new LinkedHashMap<JarSource, Set<ReadableJarEntry>>();
-    Iterator<ReadableJarEntry> it = entries.iterator();
-    while (it.hasNext()) {
-      ReadableJarEntry entry = it.next();
+    Multimap<JarSource, ReadableJarEntry> jarEntries = HashMultimap.create();
+    for (ReadableJarEntry entry : entries) {
       Preconditions.checkState(entry.getSource() instanceof JarSource);
-      JarSource source = (JarSource) entry.getSource();
-      Set<ReadableJarEntry> entrySet = jarEntries.get(entry.getSource());
-      if (entrySet == null) {
-        entrySet = new LinkedHashSet<ReadableJarEntry>();
-        jarEntries.put(source, entrySet);
-      }
-      entrySet.add(entry);
+      jarEntries.put((JarSource) entry.getSource(), entry);
     }
 
     // Copy the data from each jar input file to the output
-    for (Map.Entry<JarSource, Set<ReadableJarEntry>> e : jarEntries.entrySet()) {
-      FileSource jarSource = e.getKey();
-      Set<ReadableJarEntry> resourcesToCopy = e.getValue();
+    for (JarSource source : jarEntries.keySet()) {
       Closer jarFileCloser = Closer.create();
       try {
         final InputSupplier<JarFile> jarSupplier = jarFileCloser.register(
-            new JarSupplier(new File(jarSource.name())));
+            new JarSupplier(new File(source.name())));
         JarFile jarFile = jarSupplier.getInput();
-        for (ReadableJarEntry readableJarEntry : resourcesToCopy) {
+        for (ReadableJarEntry readableJarEntry : jarEntries.get(source)) {
           JarEntry jarEntry = readableJarEntry.getJarEntry();
           String resource = jarEntry.getName();
           writer.copy(resource, jarFile, jarEntry);

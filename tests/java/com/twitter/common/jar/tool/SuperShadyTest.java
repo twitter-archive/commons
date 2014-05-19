@@ -13,6 +13,7 @@ import java.util.jar.JarOutputStream;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.io.Closer;
 import com.google.common.io.Files;
@@ -21,7 +22,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class SuperShadyTest {
 
@@ -52,9 +52,9 @@ public class SuperShadyTest {
    * <PRE>
    *      0 META-INF/
    *      0 META-INF/MANIFEST.MF
-   *      0  dir/
-   *   2000  dir/jar-with-a-dir-100.txt
-   *     20  dir/jar-with-a-dir.txt
+   *      0 dir/
+   *   2000 dir/jar-with-a-dir-100.txt
+   *     20 dir/jar-with-a-dir.txt
    * </PRE>
    */
   public static final String C_JAR = "tests/resources/com/twitter/common/jar/tool/c.jar";
@@ -67,15 +67,14 @@ public class SuperShadyTest {
     Closer closer = Closer.create();
     try {
       JarOutputStream jos = closer.register(new JarOutputStream(new FileOutputStream(jarOut)));
-
       copyJarToJar(aJar, jos, true);
+      jos.close();
+      assertJarContents(Lists.newArrayList(aJar), jarOut);
     } finally {
       closer.close();
+      jarOut.delete();
     }
-    assertJarContents(Lists.newArrayList(aJar), jarOut);
   }
-
-
 
   @Test public void testSuperShadyTwoJars() throws Exception {
     File aJar = copyResourceToTempFile(A_JAR);
@@ -88,10 +87,12 @@ public class SuperShadyTest {
       JarOutputStream jos = closer.register(new JarOutputStream(new FileOutputStream(jarOut)));
       copyJarToJar(aJar, jos, true);
       copyJarToJar(bJar, jos, false);
+      jos.close();
+      assertJarContents(Lists.newArrayList(aJar, bJar), jarOut);
     } finally {
       closer.close();
+      jarOut.delete();
     }
-    assertJarContents(Lists.newArrayList(aJar, bJar), jarOut);
   }
 
   @Test public void testSuperShadyThreeJars() throws Exception {
@@ -107,15 +108,17 @@ public class SuperShadyTest {
       copyJarToJar(aJar, jos, true);
       copyJarToJar(bJar, jos, false);
       copyJarToJar(cJar, jos, false);
+      jos.close();
+      assertJarContents(Lists.newArrayList(aJar, bJar, cJar), jarOut);
     } finally {
       closer.close();
+      jarOut.delete();
     }
-    assertJarContents(Lists.newArrayList(aJar, bJar, cJar), jarOut);
   }
 
   private static final class ChecksumEntry {
-    private JarEntry entry;
-    private long checksumValue;
+    private final JarEntry entry;
+    private final long checksumValue;
 
     public ChecksumEntry(JarEntry entry, long checksumValue) {
       this.entry = entry;
@@ -124,6 +127,7 @@ public class SuperShadyTest {
 
     @Override
     public boolean equals(Object o) {
+
       if (this == o) {
         return true;
       }
@@ -133,21 +137,13 @@ public class SuperShadyTest {
 
       ChecksumEntry that = (ChecksumEntry) o;
 
-      if (checksumValue != that.checksumValue) {
-        return false;
-      }
-      if (!entry.getName().equals(that.entry.getName())) {
-        return false;
-      }
-
-      return true;
+      return Objects.equal(checksumValue, that.checksumValue)
+          && Objects.equal(entry.getName(), that.entry.getName());
     }
 
     @Override
     public int hashCode() {
-      int result = entry.getName().hashCode();
-      result = 31 * result + (int) (checksumValue ^ (checksumValue >>> 32));
-      return result;
+      return Objects.hashCode(entry.getName(), checksumValue);
     }
 
     @Override
@@ -186,14 +182,7 @@ public class SuperShadyTest {
 
   private void assertJarContents(Set<ChecksumEntry> inputEntries,
       Set<ChecksumEntry> outputEntries) {
-   for (ChecksumEntry ce : inputEntries) {
-      assertTrue("JarEntry " + ce + " was not found in " + outputEntries,
-          outputEntries.contains(ce));
-    }
-    for (ChecksumEntry ce : outputEntries) {
-      assertTrue("JarEntry " + ce + " was not found in " + inputEntries,
-          inputEntries.contains(ce));
-    }
+    assertEquals(inputEntries, outputEntries);
   }
 
   private Set<ChecksumEntry> getChecksummedEntries(File file) throws Exception {
