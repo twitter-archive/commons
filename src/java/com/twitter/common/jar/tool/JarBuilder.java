@@ -24,8 +24,8 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 import java.util.zip.CRC32;
-
 import java.util.zip.ZipException;
+
 import javax.annotation.Nullable;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -282,7 +282,6 @@ public class JarBuilder implements Closeable {
   }
 
   private abstract static class JarSource extends FileSource {
-
     protected JarSource(File source) {
       super(source);
     }
@@ -528,7 +527,7 @@ public class JarBuilder implements Closeable {
         @Override public JarFile getInput() throws IOException {
           try {
             // Do not verify signed.
-            return closer.register(new JarFile(file, false));
+            return JarFileUtil.openJarFile(closer, file, false);
           } catch (ZipException zex) {
             // JarFile is not very verbose and doesn't tell the user which file it was
             // so we will create a new Exception instead
@@ -561,7 +560,7 @@ public class JarBuilder implements Closeable {
       extends ExceptionalClosure<Multimap<String, ReadableEntry>, JarBuilderException> {
 
     // typedef
-  };
+  }
 
   private final File target;
   private final Listener listener;
@@ -946,7 +945,7 @@ public class JarBuilder implements Closeable {
   }
 
   /**
-   * As an optimization, use {@link com.twitter.common.jar.tool.SuperShady} to copy one jar file to
+   * As an optimization, use {@link JarEntryCopier} to copy one jar file to
    * another without decompressing and recompressing.
    *
    * @param writer target to copy JAR file entries to.
@@ -1084,7 +1083,7 @@ public class JarBuilder implements Closeable {
       throws IOException {
 
     Closer jarFileCloser = Closer.create();
-    JarFile jar = jarFileCloser.register(new JarFile(jarFile));
+    JarFile jar = JarFileUtil.openJarFile(jarFileCloser, jarFile);
     try {
       for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements();) {
         work.execute(entries.nextElement());
@@ -1158,7 +1157,7 @@ public class JarBuilder implements Closeable {
 
     public void copy(String path, JarFile jarIn, JarEntry srcJarEntry) throws IOException {
       ensureParentDir(path);
-      SuperShady.shadyCopy(out, path, jarIn, srcJarEntry);
+      JarEntryCopier.copyEntry(out, path, jarIn, srcJarEntry);
     }
 
     private void ensureParentDir(String path) throws IOException {

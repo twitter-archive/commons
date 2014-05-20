@@ -285,7 +285,7 @@ public class JarBuilderTest {
         throws IOException {
 
       Closer closer = Closer.create();
-      JarFile jar = closer.register(new JarFile(path));
+      JarFile jar = JarFileUtil.openJarFile(closer, path);
       try {
         return work.apply(jar);
       } catch (IOException e) {

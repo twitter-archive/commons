@@ -15,6 +15,7 @@ import java.util.zip.CheckedInputStream;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
+import com.google.common.io.ByteStreams;
 import com.google.common.io.Closer;
 import com.google.common.io.Files;
 
@@ -23,7 +24,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-public class SuperShadyTest {
+public class JarEntryCopierTest {
 
   /**
    * Contains:
@@ -34,7 +35,7 @@ public class SuperShadyTest {
    *     13 hello-world.txt      # Hello World! 1 time  (STORED)
    * </PRE>
    */
-  public static final String A_JAR = "tests/resources/com/twitter/common/jar/tool/a.jar";
+  static final String A_JAR = "tests/resources/com/twitter/common/jar/tool/a.jar";
 
   /**
    * Contains:
@@ -45,7 +46,7 @@ public class SuperShadyTest {
    *     15 goodbye-world.txt      # Hello World! 1 time (STORED)
    * </PRE>
    */
-  public static final String B_JAR = "tests/resources/com/twitter/common/jar/tool/b.jar";
+  static final String B_JAR = "tests/resources/com/twitter/common/jar/tool/b.jar";
 
   /**
    * Contains:
@@ -57,9 +58,10 @@ public class SuperShadyTest {
    *     20 dir/jar-with-a-dir.txt
    * </PRE>
    */
-  public static final String C_JAR = "tests/resources/com/twitter/common/jar/tool/c.jar";
+  static final String C_JAR = "tests/resources/com/twitter/common/jar/tool/c.jar";
 
-  @Test public void testSuperShadySimple() throws Exception {
+  @Test
+  public void testSuperShadySimple() throws Exception {
     File aJar = copyResourceToTempFile(A_JAR);
 
     // Copy the input file to an output file
@@ -76,7 +78,8 @@ public class SuperShadyTest {
     }
   }
 
-  @Test public void testSuperShadyTwoJars() throws Exception {
+  @Test
+  public void testSuperShadyTwoJars() throws Exception {
     File aJar = copyResourceToTempFile(A_JAR);
     File bJar = copyResourceToTempFile(B_JAR);
 
@@ -95,7 +98,8 @@ public class SuperShadyTest {
     }
   }
 
-  @Test public void testSuperShadyThreeJars() throws Exception {
+  @Test
+  public void testSuperShadyThreeJars() throws Exception {
     File aJar = copyResourceToTempFile(A_JAR);
     File bJar = copyResourceToTempFile(B_JAR);
     File cJar = copyResourceToTempFile(C_JAR);
@@ -156,15 +160,16 @@ public class SuperShadyTest {
       throws IOException {
     Closer closer = Closer.create();
     try {
-      JarFile jarIn = closer.register(new JarFile(jarFileIn));
+      JarFile jarIn = JarFileUtil.openJarFile(closer, jarFileIn);
       Enumeration<JarEntry> en = jarIn.entries();
       while (en.hasMoreElements()) {
         JarEntry entry = en.nextElement();
-        if (!copyManifest && ("META-INF/".equals(entry.getName()) || "META-INF/MANIFEST.MF".equals(
-            entry.getName()))) {
+        if (!copyManifest
+            && ("META-INF/".equals(entry.getName())
+                || "META-INF/MANIFEST.MF".equals(entry.getName()))) {
           continue;
         }
-        SuperShady.shadyCopy(jos, entry.getName(), jarIn, entry);
+        JarEntryCopier.copyEntry(jos, entry.getName(), jarIn, entry);
       }
     } finally {
       closer.close();
@@ -189,7 +194,7 @@ public class SuperShadyTest {
     Set<ChecksumEntry> result = new LinkedHashSet<ChecksumEntry>();
     Closer closer = Closer.create();
     try {
-      JarFile jarFile = closer.register(new JarFile(file));
+      JarFile jarFile = JarFileUtil.openJarFile(closer, file);
       Enumeration<JarEntry> en = jarFile.entries();
       while (en.hasMoreElements()) {
         JarEntry entry = en.nextElement();
@@ -201,9 +206,9 @@ public class SuperShadyTest {
             new CheckedInputStream(jarFile.getInputStream(entry),
                 new CRC32())
         );
-        while (is.read() != -1) {
-          // consume the input
-        }
+        // Fully consume the input.
+        ByteStreams.copy(is, ByteStreams.nullOutputStream());
+
         assertEquals(jarFileCrc, is.getChecksum().getValue());
 
         ChecksumEntry csEntry = new ChecksumEntry(entry, jarFileCrc);
