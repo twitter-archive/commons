@@ -450,8 +450,16 @@ class ReviewBoardServer:
         return self.die('Error getting review request %s: %s (code %s)' %
                         (rid, rsp['err']['msg'], rsp['err']['code']))
       else:
-        return self.die('Error creating review request: %s (code %s)' %
-                        (rsp['err']['msg'], rsp['err']['code']))
+        error_message = 'Error creating review request: %s (code %s)\n' % (rsp['err']['msg'],
+                                                                           rsp['err']['code'])
+        if rsp['err']['code'] == 105:
+          bad_keys = rsp['fields']
+          if bad_keys:
+            error_message = 'Invalid key-value pairs:\n'
+            for key, issues in bad_keys.items():
+              error_message += '%s: %s\n' % (key, ', '.join(issues))
+
+        return self.die(error_message)
 
     if not self.info.supports_changesets:
       try:
