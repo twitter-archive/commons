@@ -281,15 +281,19 @@ public final class Main {
     }
 
     final Closer closer = Closer.create();
-    Runtime.getRuntime().addShutdownHook(new Thread() {
-      @Override public void run() {
-        try {
-          closer.close();
-        } catch (IOException e) {
-          LOG.warning("Failed to close one or more resources: " + e);
-        }
+    try {
+      doRun(closer, targetJar);
+    } finally {
+      try {
+        closer.close();
+      } catch (IOException e) {
+        LOG.warning("Failed to close one or more resources: " + e);
       }
-    });
+    }
+  }
+
+  private void doRun(Closer closer, final File targetJar) throws ExitException {
+
     JarBuilder jarBuilder =
         closer.register(new JarBuilder(targetJar, new LoggingListener(targetJar)));
 
