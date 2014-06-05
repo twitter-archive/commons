@@ -573,7 +573,8 @@ public class JarBuilder implements Closeable {
    * Creates a JarBuilder that will write scheduled jar additions to {@code target} upon
    * {@link #write}.
    * <p>
-   * If the {@code target} does not exist a new jar will be created at its path.
+   * If the {@code target} exists an attempt will be made to over-write it and if it does not
+   * exist a then a new jar will be created at its path.
    *
    * @param target The target jar file to write.
    */
