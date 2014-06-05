@@ -930,15 +930,15 @@ public class JarBuilder implements Closeable {
           }
           copyJarFiles(writer, jarEntries);
 
+          // Rename the file (or copy if it can't be renamed)
+          target.delete();
+          org.apache.commons.io.FileUtils.moveFile(tmp, target);
         } catch (IOException e) {
           throw closer.rethrow(e);
         } finally {
           closer.close();
         }
-        if (!tmp.renameTo(target)) {
-          throw new JarCreationException(
-              String.format("Problem moving created jar from %s to %s", tmp, target));
-        }
+
       }
     });
     return target;
