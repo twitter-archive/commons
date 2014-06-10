@@ -21,6 +21,7 @@
 from functools import wraps
 import os
 import sys
+import re
 import time
 
 from twitter.common import app, options
@@ -37,6 +38,7 @@ from twitter.common.metrics import (
 from twitter.common.quantity import Amount, Time
 
 from .http import RootServer
+from bottle import request
 
 
 try:
@@ -76,7 +78,14 @@ class VarsSubsystem(app.Module):
       options.Option('--trace-namespace',
           default='http',
           dest='twitter_common_app_modules_varz_trace_namespace',
-          help='The prefix for http request metrics.')
+          help='The prefix for http request metrics.'),
+
+    'stats_filter':
+      options.Option('--vars-stats-filter',
+          default='',
+          dest='twitter_common_app_modules_varz_stats_filter',
+          help='Comma-separated list of full-match regexes for the on-demand \
+                metrics filtering with `filtered=1`. Comma is a reserved character.')
   }
 
   def __init__(self):
@@ -88,7 +97,9 @@ class VarsSubsystem(app.Module):
     rs = RootServer()
     if rs:
       varz = VarsEndpoint(period = Amount(
-        options.twitter_common_metrics_vars_sampling_delay_ms, Time.MILLISECONDS))
+        options.twitter_common_metrics_vars_sampling_delay_ms, Time.MILLISECONDS),
+        stats_filter = self.parse_stats_filters(options.twitter_common_app_modules_varz_stats_filter)
+      )
       rs.mount_routes(varz)
       register_diagnostics()
       register_build_properties()
@@ -99,6 +110,14 @@ class VarsSubsystem(app.Module):
             options.twitter_common_app_modules_varz_trace_namespace,
             plugin)
 
+  def parse_stats_filters(self, regexes_list_str):
+    if len(regexes_list_str) > 0:
+      # safeguard against partial matches
+      full_regexes = ['^' + regex + '$' for regex in regexes_list_str.split(",")]
+      return re.compile('(' + ")|(".join(full_regexes) + ')')
+    else:
+      return None
+
 
 class VarsEndpoint(object):
   """
@@ -106,8 +125,9 @@ class VarsEndpoint(object):
     exported variables.
   """
 
-  def __init__(self, period=None):
+  def __init__(self, period=None, stats_filter=None):
     self._metrics = RootMetrics()
+    self._stats_filter = stats_filter
     if period is not None:
       self._monitor = MetricSampler(self._metrics, period)
     else:
@@ -118,11 +138,13 @@ class VarsEndpoint(object):
   @HttpServer.route("/vars/:var")
   def handle_vars(self, var=None):
     HttpServer.set_content_type('text/plain; charset=iso-8859-1')
+    filtered = self._parse_filtered_arg()
     samples = self._monitor.sample()
 
     if var is None:
       return '\n'.join(
-        '%s %s' % (key, val) for key, val in sorted(samples.items()))
+        '%s %s' % (key, val) for key, val in sorted(samples.items())
+                  if not (filtered and self._stats_filter and self._stats_filter.match(key)))
     else:
       if var in samples:
         return samples[var]
@@ -131,11 +153,19 @@ class VarsEndpoint(object):
 
   @HttpServer.route("/vars.json")
   def handle_vars_json(self, var=None, value=None):
-    return self._monitor.sample()
+    filtered = self._parse_filtered_arg()
+    sample = self._monitor.sample()
+    if filtered and self._stats_filter:
+      return dict((key, val) for key, val in sample.items() if not self._stats_filter.match(key))
+    else:
+      return sample
 
   def shutdown(self):
     self._monitor.shutdown()
     self._monitor.join()
+
+  def _parse_filtered_arg(self):
+    return request.GET.get('filtered', '') in ['true', '1']
 
 
 class StatusStats(Observable):
