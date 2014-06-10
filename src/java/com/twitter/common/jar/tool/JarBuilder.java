@@ -931,6 +931,9 @@ public class JarBuilder implements Closeable {
           }
           copyJarFiles(writer, jarEntries);
 
+          // Close all open files, the moveFile below might need to copy instead of just rename.
+          closer.close();
+
           // Rename the file (or copy if it can't be renamed)
           target.delete();
           org.apache.commons.io.FileUtils.moveFile(tmp, target);
