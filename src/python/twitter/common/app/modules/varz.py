@@ -20,8 +20,8 @@
 
 from functools import wraps
 import os
-import sys
 import re
+import sys
 import time
 
 from twitter.common import app, options
@@ -141,10 +141,13 @@ class VarsEndpoint(object):
     filtered = self._parse_filtered_arg()
     samples = self._monitor.sample()
 
-    if var is None:
+    if var is None and filtered and self._stats_filter:
       return '\n'.join(
         '%s %s' % (key, val) for key, val in sorted(samples.items())
-                  if not (filtered and self._stats_filter and self._stats_filter.match(key)))
+                  if not self._stats_filter.match(key))
+    elif var is None:
+      return '\n'.join(
+        '%s %s' % (key, val) for key, val in sorted(samples.items()))
     else:
       if var in samples:
         return samples[var]
@@ -165,7 +168,7 @@ class VarsEndpoint(object):
     self._monitor.join()
 
   def _parse_filtered_arg(self):
-    return request.GET.get('filtered', '') in ['true', '1']
+    return request.GET.get('filtered', '') in ('true', '1')
 
 
 class StatusStats(Observable):
