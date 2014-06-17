@@ -26,6 +26,7 @@ import time
 
 from twitter.common import app, options
 from twitter.common.http import HttpServer, Plugin
+from twitter.common.http.server import request
 from twitter.common.metrics import (
   AtomicGauge,
   Label,
@@ -38,7 +39,6 @@ from twitter.common.metrics import (
 from twitter.common.quantity import Amount, Time
 
 from .http import RootServer
-from bottle import request
 
 
 try:
@@ -82,10 +82,11 @@ class VarsSubsystem(app.Module):
 
     'stats_filter':
       options.Option('--vars-stats-filter',
-          default='',
+          default=[],
+          action='append',
           dest='twitter_common_app_modules_varz_stats_filter',
-          help='Comma-separated list of full-match regexes for the on-demand \
-                metrics filtering with `filtered=1`. Comma is a reserved character.')
+          help='Comma-separated list of full-match regexes for the on-demand'
+               'metrics filtering with `filtered=1`. Comma is a reserved character.')
   }
 
   def __init__(self):
@@ -98,7 +99,7 @@ class VarsSubsystem(app.Module):
     if rs:
       varz = VarsEndpoint(period = Amount(
         options.twitter_common_metrics_vars_sampling_delay_ms, Time.MILLISECONDS),
-        stats_filter = self.parse_stats_filters(options.twitter_common_app_modules_varz_stats_filter)
+        stats_filter = self.compile_stats_filters(options.twitter_common_app_modules_varz_stats_filter)
       )
       rs.mount_routes(varz)
       register_diagnostics()
@@ -110,10 +111,10 @@ class VarsSubsystem(app.Module):
             options.twitter_common_app_modules_varz_trace_namespace,
             plugin)
 
-  def parse_stats_filters(self, regexes_list_str):
-    if len(regexes_list_str) > 0:
+  def compile_stats_filters(self, regexes_list):
+    if len(regexes_list) > 0:
       # safeguard against partial matches
-      full_regexes = ['^' + regex + '$' for regex in regexes_list_str.split(",")]
+      full_regexes = ['^' + regex + '$' for regex in regexes_list]
       return re.compile('(' + ")|(".join(full_regexes) + ')')
     else:
       return None
