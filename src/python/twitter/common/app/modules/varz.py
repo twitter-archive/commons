@@ -85,8 +85,8 @@ class VarsSubsystem(app.Module):
           default=[],
           action='append',
           dest='twitter_common_app_modules_varz_stats_filter',
-          help='Comma-separated list of full-match regexes for the on-demand'
-               'metrics filtering with `filtered=1`. Comma is a reserved character.')
+          help='Full-match regexes to filter metrics on-demand when requested '
+               'with `filtered=1`.')
   }
 
   def __init__(self):
