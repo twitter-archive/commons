@@ -749,7 +749,7 @@ class Application(object):
     except Exception as e:
       return_code = 1
       self._debug_log('%s excepted with %s' % (method_name, type(e)))
-      print(traceback.format_exc(), file=sys.stderr)
+      sys.excepthook(*sys.exc_info())
     return return_code
 
   @post_initialization

@@ -127,7 +127,6 @@ class PythonTestBuilder(object):
         cls.TESTING_TARGETS = [
           PythonRequirement('pytest'),
           PythonRequirement('pytest-cov'),
-          PythonRequirement('coverage==3.6b1'),
           PythonRequirement('unittest2', version_filter=lambda py, pl: py.startswith('2')),
           PythonRequirement('unittest2py3k', version_filter=lambda py, pl: py.startswith('3'))
         ]
