@@ -15,7 +15,7 @@
 # ==================================================================================================
 
 jar_library(name='jetty',
-  dependencies=[
+  jars=[
     jar(org='org.mortbay.jetty', name='jetty', rev='6.1.25').with_sources()
   ]
 )

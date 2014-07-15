@@ -18,7 +18,7 @@ REV = '3.0'
 
 def make_lib(name):
   jar_library(name=name,
-    dependencies=[
+    jars=[
       jar(org='com.google.inject.extensions', name=name, rev=REV).with_sources()
     ]
   )

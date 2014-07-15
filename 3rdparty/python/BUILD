@@ -25,7 +25,12 @@ def make_dep(name, version, dependency_name=None):
   """
   dependency_name = dependency_name or name
   versioned_name = "%s==%s" % (dependency_name, version)
-  python_requirement(requirement=versioned_name, name=name)
+  python_requirement_library(
+    name=name,
+    requirements=[
+      python_requirement(requirement=versioned_name)
+    ]
+  )
 
 
 make_dep('ansicolors', '1.0.2')

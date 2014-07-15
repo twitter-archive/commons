@@ -15,7 +15,7 @@
 # ==================================================================================================
 
 jar_library(name='args4j',
-  dependencies=[
+  jars=[
     jar(org='args4j', name='args4j', rev='2.0.16').with_sources()
   ]
 )

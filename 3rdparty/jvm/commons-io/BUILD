@@ -15,7 +15,7 @@
 # ==================================================================================================
 
 jar_library(name='commons-io',
-  dependencies=[
+  jars=[
     jar(org='commons-io', name='commons-io', rev='2.1').with_sources()
   ]
 )

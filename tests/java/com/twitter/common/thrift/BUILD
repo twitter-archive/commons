@@ -14,8 +14,6 @@
 # limitations under the License.
 # ==================================================================================================
 
-
-
 java_tests(name='thrift',
   dependencies=[
     '3rdparty/jvm/org/easymock',
@@ -43,6 +41,12 @@ java_tests(name='thrift',
     'src/thrift/com/twitter/common/thrift/text',
     'src/thrift/com/twitter/thrift',
   ],
-  sources = globs('*.java', 'callers/*.java', 'loadbalancing/*.java', 'monitoring/*.java', 'text/*.java'),
-  resources = pants('tests/resources/com/twitter/common/thrift/text')
+  sources = globs('*.java',
+                  'callers/*.java',
+                  'loadbalancing/*.java',
+                  'monitoring/*.java',
+                  'text/*.java'),
+  resources = [
+    pants('tests/resources/com/twitter/common/thrift/text')
+  ]
 )

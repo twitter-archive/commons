@@ -14,12 +14,12 @@
 # limitations under the License.
 # ==================================================================================================
 
-def make_lib(org, name, rev, lib_name=None, excludes=None, intransitive=False, deps=None):
+def make_lib(org, name, rev, lib_name=None, excludes=None, intransitive=False, jars=None, deps=None):
   lib_name = lib_name or name
   jar_dep = jar(org=org, name=name, rev=rev)
   if intransitive:
     jar_dep.intransitive()
-  jar_library(name=lib_name, dependencies=[jar_dep] + (deps or []))
+  jar_library(name=lib_name, jars=[jar_dep] + (jars or []), dependencies=deps or [])
 
 
 make_lib('com.martiansoftware', 'nailgun-server', '0.9.1')
@@ -52,11 +52,16 @@ jar_library(name='scala-compile-2.9.3',
     pants('3rdparty/jvm/org/scala-lang:scala-compiler')
   ]
 )
+jar_library(name='scala-library-2.9.3',
+  dependencies=[
+    pants('3rdparty/jvm/org/scala-lang:scala-library')
+  ]
+)
 
 
 # Checkstyle
 make_lib('com.puppycrawl.tools', 'checkstyle', '5.7', lib_name='twitter-checkstyle',
-  deps=[
+  jars=[
     jar(org='com.twitter.common', name='checkstyle', rev='0.0.7')
       .exclude(jar(org='com.google.guava', name='guava'))
   ]
@@ -97,8 +102,12 @@ make_lib('com.google.code.java-allocation-instrumenter', 'java-allocation-instru
 
 # ScalaRepl
 make_lib('org.scala-lang', 'scala-compiler', '2.9.3', lib_name='scala-repl-2.9.3',
-  deps=[
+  jars=[
     jar(org='org.scala-lang', name='jline', rev='2.9.3'),
   ]
 )
+
+
+# JarTask
+make_lib('com.twitter.common', 'jar-tool', '0.1.7')
 

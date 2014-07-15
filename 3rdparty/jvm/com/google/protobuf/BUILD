@@ -15,9 +15,9 @@
 # ==================================================================================================
 
 jar_library(name='protobuf-2.4.1',
-  dependencies=[
+  jars=[
     jar(org='com.google.protobuf', name='protobuf-java', rev='2.4.1').with_sources()
   ]
 )
 
-jar_library(name='protobuf-java', dependencies=[pants(':protobuf-2.4.1')])
+dependencies(name='protobuf-java', dependencies=[pants(':protobuf-2.4.1')])

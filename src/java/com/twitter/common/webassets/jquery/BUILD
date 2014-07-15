@@ -27,5 +27,7 @@ java_library(
     pants('src/java/com/twitter/common/application/http'),
   ],
   sources=globs('*.java'),
-  resources=pants('src/resources/com/twitter/common/webassets/jquery'),
+  resources=[
+    pants('src/resources/com/twitter/common/webassets/jquery'),
+  ]
 )

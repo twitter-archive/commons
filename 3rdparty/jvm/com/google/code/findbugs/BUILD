@@ -15,7 +15,7 @@
 # ==================================================================================================
 
 jar_library(name='jsr305',
-  dependencies=[
+  jars=[
     jar(org='com.google.code.findbugs', name='jsr305', rev='2.0.3').with_sources()
   ]
 )

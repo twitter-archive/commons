@@ -15,7 +15,7 @@
 # ==================================================================================================
 
 jar_library(name='stringtemplate',
-  dependencies=[
+  jars=[
     jar(org='org.antlr', name='stringtemplate', rev='3.2.1').with_sources()
   ]
 )

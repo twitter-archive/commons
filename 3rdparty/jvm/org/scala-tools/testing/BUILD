@@ -15,14 +15,16 @@
 # ==================================================================================================
 
 jar_library(name='specs_2.9',
-  dependencies=[
+  jars=[
     # This arrangement gets our version of scalatest playing well with specs; without this,
     # a scala-library inconsistency - _despite_ matching 2.9.3 monikers at the dep roots - creeps
     # in.
     jar(org='org.scala-tools.testing', name='specs_2.9.3', rev='1.6.9')
       .exclude(org='org.scalatest', name='scalatest'),
+  ],
+  dependencies=[
     pants('3rdparty/jvm/org/scalatest')
   ]
 )
 
-jar_library(name='specs', dependencies=[pants(':specs_2.9')])
+dependencies(name='specs', dependencies=[pants(':specs_2.9')])

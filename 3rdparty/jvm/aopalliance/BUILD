@@ -15,7 +15,7 @@
 # ==================================================================================================
 
 jar_library(name='aopalliance',
-  dependencies=[
+  jars=[
     jar(org='aopalliance', name='aopalliance', rev='1.0').with_sources()
   ]
 )

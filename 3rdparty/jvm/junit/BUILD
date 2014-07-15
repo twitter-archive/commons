@@ -15,8 +15,10 @@
 # ==================================================================================================
 
 jar_library(name='junit',
-  dependencies=[
+  jars=[
     jar(org='junit', name='junit-dep', rev='4.11').with_sources(),
+  ],
+  dependencies=[
     pants('3rdparty/jvm/org/hamcrest:hamcrest-core'),
   ]
 )

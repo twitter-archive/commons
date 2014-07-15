@@ -23,7 +23,7 @@ def make_lib(name, rev, scala_rev=None, excludes=None, deps=None):
   if excludes:
     for exclude in excludes:
       jar_dep.exclude(exclude.org, exclude.name)
-  jar_library(name=name, dependencies=[jar_dep] + (deps or []))
+  jar_library(name=name, jars=[jar_dep], dependencies=deps or [])
 
 
 make_lib('scrooge-core', '3.12.1', scala_rev=SCALA_REV)

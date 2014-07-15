@@ -31,13 +31,28 @@ python_library(
   ]
 )
 
+
+python_requirement_library(
+  name='pep8_module',
+  requirements=[
+    python_requirement(requirement='pep8==1.4.5'),
+  ]
+)
+
 python_library(
   name = 'pep8',
   sources = ['pep8.py'],
   dependencies = [
+    pants(':pep8_module'),
     pants(':plugin'),
     pants('src/python/twitter/checkstyle:common'),
-    python_requirement('pep8==1.4.5', name='pep8_module'),
+  ]
+)
+
+python_requirement_library(
+  name='pyflakes_module',
+  requirements=[
+    python_requirement(requirement='pyflakes==0.7.2'),
   ]
 )
 
@@ -46,8 +61,8 @@ python_library(
   sources = ['pyflakes.py'],
   dependencies = [
     pants(':plugin'),
+    pants(':pyflakes_module'),
     pants('src/python/twitter/checkstyle:common'),
-    python_requirement('pyflakes==0.7.2', name='pyflakes_module'),
   ]
 )
 

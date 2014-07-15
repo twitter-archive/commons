@@ -15,7 +15,7 @@
 # ==================================================================================================
 
 jar_library(name='joda-time',
-  dependencies=[
+  jars=[
     jar(org='joda-time', name='joda-time', rev='2.3'),
     jar(org='org.joda', name='joda-convert', rev='1.5')
   ]

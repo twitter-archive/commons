@@ -14,21 +14,27 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_library(name = 'compiler',
-  provides = artifact(
-    org = 'com.twitter.common.tools',
-    name = 'java-compiler',
-    repo = 'build-support/commons/ivy:public',
-  ),
-  sources = globs('*.java'),
-  dependencies = [
-    jar(org = 'org.fusesource.jansi', name='jansi', rev='1.8').with_sources()
+jar_library(name='jansi',
+  jars=[
+    jar(org='org.fusesource.jansi', name='jansi', rev='1.8').with_sources()
   ]
 )
 
-jvm_binary(name = 'compiler-main',
-  main = 'com.twitter.common.tools.Compiler',
-  dependencies = [
+java_library(name='compiler',
+  provides=artifact(
+    org='com.twitter.common.tools',
+    name='java-compiler',
+    repo='build-support/commons/ivy:public',
+  ),
+  sources=globs('*.java'),
+  dependencies=[
+    ':jansi'
+  ]
+)
+
+jvm_binary(name='compiler-main',
+  main='com.twitter.common.tools.Compiler',
+  dependencies=[
     ':compiler'
   ]
 )

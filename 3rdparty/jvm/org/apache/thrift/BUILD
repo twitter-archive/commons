@@ -15,12 +15,12 @@
 # ==================================================================================================
 
 jar_library(name='libthrift-0.5.0',
-  dependencies=[
+  jars=[
     jar(org='org.apache.thrift', name='libthrift', rev='0.5.0-1').with_sources(),
   ]
 )
 
-jar_library(name='thrift-0.5.0',
+dependencies(name='thrift-0.5.0',
   dependencies=[
     pants('3rdparty/jvm/commons-lang'),
     pants(':libthrift-0.5.0'),
@@ -28,7 +28,7 @@ jar_library(name='thrift-0.5.0',
   ]
 )
 
-jar_library(name='thrift-0.5.0-finagle',
+dependencies(name='thrift-0.5.0-finagle',
   dependencies=[
     pants(':thrift-0.5.0'),
 
@@ -39,4 +39,4 @@ jar_library(name='thrift-0.5.0-finagle',
   ]
 )
 
-jar_library(name='thrift', dependencies=[pants(':thrift-0.5.0')])
+dependencies(name='thrift', dependencies=[pants(':thrift-0.5.0')])

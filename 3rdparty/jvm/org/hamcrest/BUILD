@@ -15,7 +15,7 @@
 # ==================================================================================================
 
 jar_library(name='hamcrest-core',
-  dependencies=[
+  jars=[
     jar(org='org.hamcrest', name='hamcrest-core', rev='1.3')
   ]
 )
