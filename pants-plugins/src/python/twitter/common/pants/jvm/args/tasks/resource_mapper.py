@@ -171,7 +171,8 @@ class ResourceMapper(JvmBinaryTask):
       # names for each as a result.
       target_name = '{0}.transitive'.format(target.id) if transitive else target.id
 
-      address = SyntheticAddress(spec_path=resource_root, target_name=target_name)
+      spec_path = os.path.relpath(resource_root, get_buildroot())
+      address = SyntheticAddress(spec_path=spec_path, target_name=target_name)
       args_apt_resources = self.context.add_new_target(address,
                                                        Resources,
                                                        derived_from=target,
