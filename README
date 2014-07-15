@@ -11,13 +11,11 @@ The build tool is custom and hosted in the repository itself.
 == Usage ==
 
 To build all jvm code and run all tests:
-$ ./pants goal test tests/{java,scala}/com/twitter/common::
+$ ./pants goal test {src,tests}/java/com/twitter/common::
+$ ./pants goal test {src,tests}/scala/com/twitter/common::
 
 Likewise for python commons:
 $ ./pants tests/python/twitter/common/:all
-
-And for the pants build tool itself:
-$ ./pants tests/python/twitter/pants:all
 
 To get help on pants:
 $ ./pants help
