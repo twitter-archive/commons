@@ -17,11 +17,12 @@
 REV='16.0'
 
 jar_library(name='guava',
-  dependencies=[
+  jars=[
     jar(org='com.google.guava', name='guava', rev=REV,
       apidocs='http://docs.guava-libraries.googlecode.com/git-history/v%s/javadoc/' % REV
     ).with_sources(),
-
+  ],
+  dependencies=[
     # Defined in provided scope so we provide here
     pants('3rdparty/jvm/com/google/code/findbugs:jsr305'),
   ]

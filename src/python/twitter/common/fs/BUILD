@@ -14,9 +14,6 @@
 # limitations under the License.
 # ==================================================================================================
 
-with open(os.path.join(os.path.dirname(__file__), '..', 'VERSION')) as fp:
-  VERSION = fp.read().strip()
-
 python_library(
   name = 'fs',
   sources = globs('*.py'),
@@ -28,7 +25,7 @@ python_library(
   ],
   provides = setup_py(
     name = 'twitter.common.fs',
-    version = VERSION,
+    version = commons_version(),
     description = 'Filesystem utilities for twitter.',
     url = 'https://github.com/twitter/commons/tree/master/src/python/twitter/common/fs',
     license = 'Apache License, Version 2.0',

@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-jar_library(name = 'small',
+dependencies(name = 'small',
   dependencies = [
     pants('tests/java/com/twitter/common/application'),
     pants('tests/java/com/twitter/common/application/modules:lifecycle'),
@@ -54,20 +54,20 @@ jar_library(name = 'small',
   ],
 )
 
-jar_library(name = 'medium',
+dependencies(name = 'medium',
   dependencies = [
     pants('tests/java/com/twitter/common/args:medium'),
     pants('tests/java/com/twitter/common/zookeeper:medium'),
   ]
 )
 
-jar_library(name = 'large',
+dependencies(name = 'large',
   dependencies = [
     pants('tests/java/com/twitter/common/zookeeper:large'),
   ]
 )
 
-jar_library(name = 'all',
+dependencies(name = 'all',
   dependencies = [
     pants(':large'),
     pants(':medium'),
@@ -76,4 +76,4 @@ jar_library(name = 'all',
 )
 
 # TODO(John Sirois): kill this legacy alias with a deprecation cycle
-jar_library(name = 'all-tests', dependencies = [ pants(':all') ])
+dependencies(name = 'all-tests', dependencies = [ pants(':all') ])

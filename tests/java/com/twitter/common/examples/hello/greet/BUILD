@@ -17,7 +17,7 @@
 # Test the Hello World example's "greet" library
 
 junit_tests(name='greet',
-  sources=[globs('*.java')],
+  sources=globs('*.java'),
   dependencies=[
     pants('3rdparty/jvm/junit'),
     pants('src/java/com/twitter/common/examples/hello/greet'),

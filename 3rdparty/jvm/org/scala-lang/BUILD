@@ -18,7 +18,7 @@ REV = '2.9.3'
 
 def make_lib(name):
   jar_library(name=name,
-    dependencies=[
+    jars=[
       jar(org='org.scala-lang', name=name, rev=REV).with_sources()
     ]
   )

@@ -14,8 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
-jar_library(name='caliper',
+dependencies(name='caliper',
   dependencies=[
-    pants('BUILD.tools:benchmark-caliper-0.5')
+    pants('//:benchmark-caliper-0.5')
   ]
 )

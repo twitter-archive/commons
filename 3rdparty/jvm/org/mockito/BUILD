@@ -15,7 +15,7 @@
 # ==================================================================================================
 
 jar_library(name='mockito',
-  dependencies=[
+  jars=[
     jar(org='org.mockito', name='mockito-core', rev='1.9.0').with_sources()
   ]
 )

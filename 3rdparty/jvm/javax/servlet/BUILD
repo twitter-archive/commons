@@ -15,7 +15,7 @@
 # ==================================================================================================
 
 jar_library(name='servlet-api',
-  dependencies=[
+  jars=[
     jar(org='javax.servlet', name='servlet-api', rev='2.5').with_sources()
   ]
 )

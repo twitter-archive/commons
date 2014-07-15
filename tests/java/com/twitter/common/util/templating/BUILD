@@ -6,5 +6,7 @@ java_tests(name='templating',
     pants('src/java/com/twitter/common/util/templating'),
   ],
   sources=globs('*.java'),
-  resources=pants('tests/resources/com/twitter/common/util/templating')
+  resources=[
+    pants('tests/resources/com/twitter/common/util/templating'),
+  ]
 )

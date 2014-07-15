@@ -31,5 +31,7 @@ java_library(
     pants('src/java/com/twitter/common/net/http/handlers'),
   ],
   sources=globs('*.java'),
-  resources=pants('src/resources/com/twitter/common/application/http')
+  resources=[
+    pants('src/resources/com/twitter/common/application/http'),
+  ]
 )

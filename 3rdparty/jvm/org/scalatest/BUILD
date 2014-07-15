@@ -15,7 +15,7 @@
 # ==================================================================================================
 
 jar_library(name='scalatest',
-  dependencies=[
+  jars=[
     jar(org='org.scalatest', name='scalatest_2.9.3', rev='1.9.2').with_sources()
   ]
 )

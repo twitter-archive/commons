@@ -45,6 +45,20 @@ while getopts "hbsdjp" opt; do
   esac
 done
 
+# Pants does not work with 3.0-3.2 due to the unicode
+# flip-flop that settled out at 3.3.  Make sure travis-ci
+# for example does not attempt to setup a 3.2 interpreter.
+INTERPRETER_CONSTRAINTS=(
+  "CPython>=2.6,<3"
+  "CPython>=3.3"
+)
+for constraint in ${INTERPRETER_CONSTRAINTS[@]}; do
+  INTERPRETER_ARGS=(
+    ${INTERPRETER_ARGS[@]}
+    --interpreter="${constraint}"
+  )
+done
+
 banner "CI BEGINS"
 
 if [[ "${skip_bootstrap:-false}" == "false" ]]; then
@@ -67,15 +81,15 @@ fi
 if [[ "${skip_java:-false}" == "false" ]]; then
   banner "Running jvm tests"
   (
-    ./pants goal test {src,tests}/java/com/twitter/common:: $daemons -x && \
-    ./pants goal test {src,tests}/scala/com/twitter/common:: $daemons -x
+    ./pants goal test {src,tests}/java/com/twitter/common:: $daemons -x ${INTERPRETER_ARGS[@]} && \
+    ./pants goal test {src,tests}/scala/com/twitter/common:: $daemons -x ${INTERPRETER_ARGS[@]}
   ) || die "Jvm test failure."
 fi
 
 if [[ "${skip_python:-false}" == "false" ]]; then
   banner "Running python tests"
   (
-    PANTS_PYTHON_TEST_FAILSOFT=1 ./pants build --timeout=5 tests/python/twitter/common:all
+    PANTS_PYTHON_TEST_FAILSOFT=1 ./pants build --timeout=5 ${INTERPRETER_ARGS[@]} tests/python/twitter/common:all
   ) || die "Python test failure"
 fi
 

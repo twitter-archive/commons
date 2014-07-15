@@ -14,9 +14,6 @@
 # limitations under the License.
 # ==================================================================================================
 
-with open(os.path.join(os.path.dirname(__file__), '..', 'VERSION')) as fp:
-  VERSION = fp.read().strip()
-
 python_library(
   name = 'git',
   sources = ['__init__.py'],
@@ -25,7 +22,7 @@ python_library(
   ],
   provides = setup_py(
     name = 'twitter.common.git',
-    version = VERSION,
+    version = commons_version(),
     description = 'twitter.common library for interacting with Git.',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',

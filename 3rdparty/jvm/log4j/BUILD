@@ -15,7 +15,7 @@
 # ==================================================================================================
 
 jar_library(name='log4j',
-  dependencies=[
+  jars=[
     jar(org='log4j', name='log4j', rev='1.2.15').with_sources()
       .exclude(org='javax.jms', name='jms')
       .exclude(org='com.sun.jdmk', name='jmxtools')

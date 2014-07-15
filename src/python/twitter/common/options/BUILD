@@ -14,15 +14,12 @@
 # limitations under the License.
 # ==================================================================================================
 
-with open(os.path.join(os.path.dirname(__file__), '..', 'VERSION')) as fp:
-  VERSION = fp.read().strip()
-
 python_library(
   name = "options",
   sources = rglobs('*.py'),
   provides = setup_py(
     name = 'twitter.common.options',
-    version = VERSION,
+    version = commons_version(),
     description = 'twitter.common optparse wrapper.',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',

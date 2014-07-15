@@ -15,7 +15,7 @@
 # ==================================================================================================
 
 jar_library(name='tl4j',
-  dependencies=[
+  jars=[
     jar(org='com.google.testing', name='test-libraries-for-java', rev='1.1.1')
       # tl4j by default pulls in junit-4.6, which conflicts with 4.10 needed by our
       # testing code (e.g. ConcurrentJunitRunner). So exclude it here so that the junit

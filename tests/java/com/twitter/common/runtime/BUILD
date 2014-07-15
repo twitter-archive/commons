@@ -19,8 +19,10 @@ java_tests(name='runtime',
     pants('3rdparty/jvm/com/google/guava'),
     pants('3rdparty/jvm/junit'),
     pants('src/java/com/twitter/common/io'),
-    pants('src/java/com/twitter/common/runtime:native')
+    pants('src/java/com/twitter/common/runtime:native'),
   ],
   sources=globs('*.java'),
-  resources=pants('tests/resources/com/twitter/common/runtime')
+  resources=[
+    pants('tests/resources/com/twitter/common/runtime'),
+  ]
 )

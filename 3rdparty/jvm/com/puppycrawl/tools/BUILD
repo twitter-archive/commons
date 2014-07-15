@@ -15,10 +15,12 @@
 # ==================================================================================================
 
 jar_library(name='checkstyle',
-  dependencies=[
+  jars=[
     jar(org='com.puppycrawl.tools', name='checkstyle', rev='5.7')
       .exclude(org='com.google.collections', name='google-collections')
       .with_sources(),
+  ],
+  dependencies=[
     # Needs this as the replacement for the excluded google-collections.
     pants('3rdparty/jvm/com/google/guava'),
   ]
