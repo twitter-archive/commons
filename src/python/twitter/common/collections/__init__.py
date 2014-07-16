@@ -24,6 +24,7 @@ else:
   from collections import OrderedDict
 from .orderedset import OrderedSet
 from .ringbuffer import RingBuffer
+from .defaultordereddict import DefaultOrderedDict
 
 
 def maybe_list(value, expected_type=Compatibility.string, raise_type=ValueError):
@@ -55,6 +56,7 @@ def maybe_list(value, expected_type=Compatibility.string, raise_type=ValueError)
 
 __all__ = (
   maybe_list,
+  DefaultOrderedDict,
   OrderedSet,
   OrderedDict,
   RingBuffer,
