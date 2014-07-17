@@ -68,8 +68,10 @@ class ServerSetTestBase(object):
     p = {'announced_by': 'foo'}
     ss1.join(self.INSTANCE1, shard=0)
     ss2.join(self.INSTANCE2, shard=1, properties=p)
-    assert list(ss1) == [ServiceInstance(self.INSTANCE1, shard=0), ServiceInstance(self.INSTANCE2, shard=1, properties=p)]
-    assert list(ss2) == [ServiceInstance(self.INSTANCE1, shard=0), ServiceInstance(self.INSTANCE2, shard=1, properties=p)]
+    assert list(ss1) == [ServiceInstance(self.INSTANCE1, shard=0),
+                         ServiceInstance(self.INSTANCE2, shard=1, properties=p)]
+    assert list(ss2) == [ServiceInstance(self.INSTANCE1, shard=0),
+                         ServiceInstance(self.INSTANCE2, shard=1, properties=p)]
 
   def test_canceled_join_long_time(self):
     zk = self.make_zk(self._server.ensemble)

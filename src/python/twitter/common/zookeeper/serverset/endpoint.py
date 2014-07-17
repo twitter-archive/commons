@@ -1,16 +1,14 @@
 import json
 from thrift.TSerialization import deserialize as thrift_deserialize
 
-from gen.twitter.thrift.endpoint.ttypes import (
-  Endpoint as ThriftEndpoint,
-  ServiceInstance as ThriftServiceInstance)
-
 try:
   from twitter.common import log
 except ImportError:
   import logging as log
 
 from twitter.common.lang import Compatibility
+
+from gen.twitter.thrift.endpoint.ttypes import (ServiceInstance as ThriftServiceInstance)
 
 
 class Endpoint(object):
@@ -163,7 +161,8 @@ class ServiceInstance(object):
   def pack(cls, service_instance):
     return json.dumps(cls.to_dict(service_instance))
 
-  def __init__(self, service_endpoint, additional_endpoints=None, status='ALIVE', shard=None, properties=None):
+  def __init__(self, service_endpoint, additional_endpoints=None, status='ALIVE', shard=None,
+               properties=None):
     if not isinstance(service_endpoint, Endpoint):
       raise ValueError('Expected service_endpoint to be an Endpoint, got %r' % service_endpoint)
     self._shard = shard
