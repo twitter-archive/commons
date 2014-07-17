@@ -82,11 +82,12 @@ class ServerSet(object):
     if on_join or on_leave:
       self._internal_monitor(set(self._members))
 
-  def join(self, endpoint, additional=None, shard=None, callback=None, expire_callback=None):
+  def join(self, endpoint, additional=None, shard=None, properties=None, callback=None, expire_callback=None):
     """
       Given 'endpoint' (twitter.common.zookeeper.serverset.Endpoint) and an
-      optional map 'additional' of string => endpoint (also Endpoint), and an
-      optional shard id, create a ServiceInstance and join it into this ServerSet.
+      optional map 'additional' of string => endpoint (also Endpoint), an
+      optional shard id, and an optional properties dictionary, create a
+      ServiceInstance and join it into this ServerSet.
 
       If 'callback' is provided, the join will be done asynchronously and
       'callback' will be called with the Membership object associated with
@@ -97,7 +98,7 @@ class ServerSet(object):
       If 'expire_callback' is provided, it will be called if the membership
       is severed for any reason such as session expiration or malice.
     """
-    service_instance = ServiceInstance.pack(ServiceInstance(endpoint, additional, shard=shard))
+    service_instance = ServiceInstance.pack(ServiceInstance(endpoint, additional, shard=shard, properties=properties))
     return self._group.join(service_instance, callback=callback, expire_callback=expire_callback)
 
   def cancel(self, membership, callback=None):

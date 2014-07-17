@@ -131,7 +131,8 @@ class ServiceInstance(object):
       service_endpoint=Endpoint(blob['serviceEndpoint']['host'], blob['serviceEndpoint']['port']),
       additional_endpoints=additional_endpoints,
       status=Status.from_string(blob['status']),
-      shard=shard)
+      shard=shard,
+      properties=blob.get('properties'))
 
   @classmethod
   def unpack_thrift(cls, blob):
@@ -151,7 +152,8 @@ class ServiceInstance(object):
       serviceEndpoint=Endpoint.to_dict(service_instance.service_endpoint),
       additionalEndpoints=dict((name, Endpoint.to_dict(endpoint))
           for name, endpoint in service_instance.additional_endpoints.items()),
-      status=service_instance.status.name()
+      status=service_instance.status.name(),
+      properties=service_instance.properties
     )
     if service_instance.shard is not None:
       instance.update(shard=service_instance.shard)
@@ -161,7 +163,7 @@ class ServiceInstance(object):
   def pack(cls, service_instance):
     return json.dumps(cls.to_dict(service_instance))
 
-  def __init__(self, service_endpoint, additional_endpoints=None, status='ALIVE', shard=None):
+  def __init__(self, service_endpoint, additional_endpoints=None, status='ALIVE', shard=None, properties=None):
     if not isinstance(service_endpoint, Endpoint):
       raise ValueError('Expected service_endpoint to be an Endpoint, got %r' % service_endpoint)
     self._shard = shard
@@ -182,6 +184,7 @@ class ServiceInstance(object):
       self._status = status
     else:
       raise ValueError('Status must be of type ServiceInstance.Status or string.')
+    self._properties = properties or {}
 
   @property
   def service_endpoint(self):
@@ -199,6 +202,10 @@ class ServiceInstance(object):
   def shard(self):
     return self._shard
 
+  @property
+  def properties(self):
+    return self._properties
+
   def __additional_endpoints_string(self):
     return ['%s=>%s' % (key, val) for key, val in self.additional_endpoints.items()]
 
@@ -207,7 +214,8 @@ class ServiceInstance(object):
         self.service_endpoint,
         frozenset(sorted(self.__additional_endpoints_string())),
         self.status,
-        self._shard)
+        self._shard,
+        frozenset(self.properties.items()))
 
   def __eq__(self, other):
     return isinstance(other, self.__class__) and self.__key() == other.__key()
@@ -215,10 +223,10 @@ class ServiceInstance(object):
   def __hash__(self):
     return hash(self.__key())
 
-
   def __str__(self):
-    return 'ServiceInstance(%s, %saddl: %s, status: %s)' % (
+    return 'ServiceInstance(%s, %saddl: %s, status: %s, properties: %s)' % (
       self.service_endpoint,
       ('shard: %s, ' % self._shard) if self._shard is not None else '',
       ' : '.join(self.__additional_endpoints_string()),
-      self.status)
+      self.status,
+      self.properties)

@@ -65,10 +65,11 @@ class ServerSetTestBase(object):
   def test_shard_id_registers(self):
     ss1 = ServerSet(self.make_zk(self._server.ensemble), self.SERVICE_PATH)
     ss2 = ServerSet(self.make_zk(self._server.ensemble), self.SERVICE_PATH)
+    p = {'announced_by': 'foo'}
     ss1.join(self.INSTANCE1, shard=0)
-    ss2.join(self.INSTANCE2, shard=1)
-    assert list(ss1) == [ServiceInstance(self.INSTANCE1, shard=0), ServiceInstance(self.INSTANCE2, shard=1)]
-    assert list(ss2) == [ServiceInstance(self.INSTANCE1, shard=0), ServiceInstance(self.INSTANCE2, shard=1)]
+    ss2.join(self.INSTANCE2, shard=1, properties=p)
+    assert list(ss1) == [ServiceInstance(self.INSTANCE1, shard=0), ServiceInstance(self.INSTANCE2, shard=1, properties=p)]
+    assert list(ss2) == [ServiceInstance(self.INSTANCE1, shard=0), ServiceInstance(self.INSTANCE2, shard=1, properties=p)]
 
   def test_canceled_join_long_time(self):
     zk = self.make_zk(self._server.ensemble)
