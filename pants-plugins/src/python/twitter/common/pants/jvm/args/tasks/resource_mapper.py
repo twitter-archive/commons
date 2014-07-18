@@ -127,7 +127,7 @@ class ResourceMapper(JvmBinaryTask):
 
     if lines:
       args = Args.for_target(target, transitive, classes_by_target)
-      lines = filter(args.matches, lines)
+      lines = set(filter(args.matches, lines))
 
     if transitive:
       # Add args from any of our transitive external deps that have them.
