@@ -1,13 +1,18 @@
 #Usage
 
-	migrate-history.sh [-b branch] [-s subdir] <path-to-immigrant>
+	migrate-history.sh [-b branch] [-s subdir] [-o origin-subdir] <path-to-immigrant>
 
-Migrate the repository at <path-to-repo> into this repository at
+Migrate the repository at <path-to-immigrant> into this repository at
 subdir.  If -s is omitted, it will be the basename of
-<path-to-repo>.
+<path-to-immigrant>.
 
 You can use -b to get a branch other than master from the immigrant.
 This repository's master will always be used.
+
+You can use -o to migrate only a subdirectory of immigrant.  Commits
+that don't affect this subdirectory will be skipped.  Note that unless
+you also pass -s, the basename of <path-to-immigrant> will still
+be used as the subdirectory name in this repository.
 
 Run this script from inside your repository, at the root directory.  The
 result will be a branch named migrated-\$subdir

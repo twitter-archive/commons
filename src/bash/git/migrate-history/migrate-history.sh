@@ -46,16 +46,17 @@ make_subtreed_tree () {
     new_tree_line=$(echo -e "\n040000 tree $subtree_tree\t$subtree_dir")
     tree_contents+="$new_tree_line"
     tree_contents=$(echo "$tree_contents" | sort -k 4) || die "sort"
-    echo "$tree_contents" | git mktree || die "mktree"
+    echo "$tree_contents" | git mktree || die "Failed to make subtreed tree"
 }
 
 usage() {
     cat <<EOF
-Usage: migrate-history.sh [-b branch] [-s subdir] <path-to-immigrant>
+Usage: migrate-history.sh [-b branch] [-s subdir] [-o origin-subdir] <path-to-immigrant>
 
-Migrate the repository at <path-to-repo> into this repository at
+Migrate the repository at <path-to-immigrant> into this repository at
 subdir.  If -s is omitted, it will be the basename of
-<path-to-repo>.
+<path-to-immigrant>.  If origin-subdir is supplied, only the subtree
+at <path-to-immigrant>/origin-subdir will be migrated.
 
 You can use -b to get a branch other than master from the immigrant.
 This repository's master will always be used.
@@ -77,15 +78,18 @@ git diff-index --quiet --cached HEAD || die "This command should be run on a cle
 #and clean working tree
 git diff-files --quiet || die "This command should be run on a clean working tree"
 
-while getopts ":s:b:" OPTION
+while getopts ":s:b:o:" OPTION
 do
     case "$OPTION" in
 	b) branch="$OPTARG" ;;
 	s) subdir="$OPTARG" ;;
+	o) origin_subdir="$OPTARG" ;;
 	--) shift ; break ;;
 	*) usage
     esac
 done
+
+origin_subdir=$(echo -n $origin_subdir|sed 's,/$,,')
 
 shift $(($OPTIND - 1))
 
@@ -142,7 +146,26 @@ do
     #this commit as-rebased.
 
     commit_tree=$(git rev-parse $commit^{tree})
+    if [[ -n "$origin_subdir" ]]
+    then
+	#get only the tree for $orig_subdir
+	commit_tree=$(git ls-tree $commit^{tree} "$origin_subdir" | grep $origin_subdir | awk '{print $3}')
+    fi
     new_tree=$(make_subtreed_tree $commit_tree master $subdir)
+    if [[ "$new_tree" == "$prev_tree" ]]
+    then
+	#this commit doesn't affect $origin_subdir
+	parent1=$(git rev-parse $commit^)
+	if [[ "$parent1" == "$commit^" ]]
+	then
+	    map_insert commit_map $commit master
+	else
+	    map_insert commit_map $commit $(map_find commit_map "$parent1")
+	fi
+	continue
+    fi
+    prev_tree="$new_tree"
+
     merge_commit_message=$(git log --format=%B -n 1 $commit)
     committed=$(echo "$merge_commit_message" | \
 	GIT_AUTHOR_NAME=$(git log --format=%an -n 1 $commit) \
@@ -152,7 +175,7 @@ do
 	GIT_COMMITTER_EMAIL=$(git log --format=%ce -n 1 $commit) \
 	GIT_COMMITTER_DATE=$(git log --format=%aD -n 1 $commit) \
 	EMAIL=$GIT_COMMITTER_EMAIL \
-	git commit-tree $new_tree $rebased_parents)
+	git commit-tree $new_tree $rebased_parents) || die "Failed to commit tree $new_tree $rebased_parents"
     map_insert commit_map $commit $committed
     last_commit=$committed
     count=$(expr $count + 1)
