@@ -7,8 +7,8 @@ RELEASE HISTORY
 API Changes
 ~~~~~~~~~~~
 
-* Update to ``pantsbuild.pants`` 0.0.20 api changes
-  `RB #XXX <https://rbcommons.com/s/twitter/r/XXX/>`_
+* Update to ``pantsbuild.pants`` 0.0.21 api changes
+  `RB #763 <https://rbcommons.com/s/twitter/r/763/>`_
 
 0.3.3 (7/21/2014)
 -----------------
