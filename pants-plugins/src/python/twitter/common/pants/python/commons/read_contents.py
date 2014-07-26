@@ -14,13 +14,17 @@
 # limitations under the License.
 # ==================================================================================================
 
-from pants.goal.goal import Goal
-from pants.goal.phase import Phase
-
-from twitter.common.pants.jvm.args.tasks.resource_mapper import ResourceMapper
+import os
 
 
-def register_goals():
-  resources = Phase('resources')
-  resources.install(Goal(name='args-apt', action=ResourceMapper,
-                         dependencies=['compile']))
+def read_contents_factory(parse_context):
+  def read_contents(*paths):
+    """Returns the concatenated contents of the files at the given paths releative to this BUILD
+    file.
+    """
+    contents = ''
+    for path in paths:
+      with open(os.path.join(parse_context.rel_path, path)) as fp:
+        contents += fp.read()
+    return contents
+  return read_contents

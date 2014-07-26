@@ -17,8 +17,10 @@
 from pants.base.build_file_aliases import BuildFileAliases
 
 from twitter.common.pants.python.commons.version import Version
+from twitter.common.pants.python.commons.read_contents import read_contents_factory
 
 
 def build_file_aliases():
   return BuildFileAliases.create(
-      objects=dict(commons_version=Version('src/python/twitter/common/VERSION').version))
+      objects=dict(commons_version=Version('src/python/twitter/common/VERSION').version),
+      context_aware_object_factories=dict(read_contents=read_contents_factory))

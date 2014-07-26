@@ -16,7 +16,8 @@
 
 from pants.backend.core.tasks.what_changed import ScmWhatChanged
 from pants.backend.jvm.tasks.checkstyle import Checkstyle
-from pants.goal import Goal, Phase
+from pants.goal.goal import Goal
+from pants.goal.phase import Phase
 
 
 def register_goals():
