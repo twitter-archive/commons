@@ -19,7 +19,7 @@ import os
 
 def read_contents_factory(parse_context):
   def read_contents(*paths):
-    """Returns the concatenated contents of the files at the given paths releative to this BUILD
+    """Returns the concatenated contents of the files at the given paths relative to this BUILD
     file.
     """
     contents = ''
