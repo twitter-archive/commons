@@ -21,8 +21,9 @@ python_library(
   ],
   provides = setup_py(
     name = 'twitter.common.pants',
-    version = '0.3.3',
+    version = '0.4.0',
     description = 'twitter.common plugins for the pants build system.',
+    long_description = read_contents('CHANGELOG.rst'),
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',
     zip_safe = True,

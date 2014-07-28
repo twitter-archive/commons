@@ -14,7 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
-from pants.goal import Goal, Phase
+from pants.goal.goal import Goal
+from pants.goal.phase import Phase
 
 from twitter.common.pants.jvm.args.tasks.resource_mapper import ResourceMapper
 

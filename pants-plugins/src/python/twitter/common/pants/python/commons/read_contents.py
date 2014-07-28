@@ -14,13 +14,17 @@
 # limitations under the License.
 # ==================================================================================================
 
-from pants.base.build_file_aliases import BuildFileAliases
-
-from twitter.common.pants.python.commons.read_contents import read_contents_factory
-from twitter.common.pants.python.commons.version import Version
+import os
 
 
-def build_file_aliases():
-  return BuildFileAliases.create(
-      objects=dict(commons_version=Version('src/python/twitter/common/VERSION').version),
-      context_aware_object_factories=dict(read_contents=read_contents_factory))
+def read_contents_factory(parse_context):
+  def read_contents(*paths):
+    """Returns the concatenated contents of the files at the given paths relative to this BUILD
+    file.
+    """
+    contents = ''
+    for path in paths:
+      with open(os.path.join(parse_context.rel_path, path)) as fp:
+        contents += fp.read()
+    return contents
+  return read_contents
