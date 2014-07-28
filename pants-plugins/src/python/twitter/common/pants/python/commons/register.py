@@ -16,8 +16,8 @@
 
 from pants.base.build_file_aliases import BuildFileAliases
 
-from twitter.common.pants.python.commons.version import Version
 from twitter.common.pants.python.commons.read_contents import read_contents_factory
+from twitter.common.pants.python.commons.version import Version
 
 
 def build_file_aliases():
