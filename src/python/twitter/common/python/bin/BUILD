@@ -15,18 +15,17 @@
 # ==================================================================================================
 
 python_requirement_library(
-  name='wheel',
+  name='pex_library',
   requirements=[
     python_requirement(requirement='wheel'),
+    python_requirement(requirement='pex'),
   ]
 )
 
 python_binary(
   name = 'pex',
-  entry_point = 'twitter.common.python.bin.pex:main',
-  source = 'pex.py',
+  entry_point = 'pex.bin.pex:main',
   dependencies = [
-    pants(':wheel'),
-    pants('src/python/twitter/common/python:python-source'),
+    pants(':pex_library'),
   ],
 )
