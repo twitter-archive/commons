@@ -18,6 +18,7 @@ package com.twitter.common.args.apt;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.util.HashSet;
@@ -49,6 +50,7 @@ import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 
 import com.google.common.base.Function;
+import com.google.common.base.Functions;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
 import com.google.common.base.Supplier;
@@ -130,6 +132,7 @@ public class CmdLineProcessor extends AbstractProcessor {
       });
 
   private final Configuration.Builder configBuilder = new Configuration.Builder();
+  private final ImmutableSet.Builder<String> contributingClassNamesBuilder = ImmutableSet.builder();
 
   private Types typeUtils;
   private Elements elementUtils;
@@ -183,10 +186,13 @@ public class CmdLineProcessor extends AbstractProcessor {
       @Nullable Configuration classpathConfiguration = configSupplier.get();
 
       Set<? extends Element> parsers = getAnnotatedElements(roundEnv, ArgParser.class);
+      contributingClassNamesBuilder.addAll(extractClassNames(parsers));
       @Nullable Set<String> parsedTypes = getParsedTypes(classpathConfiguration, parsers);
 
       Set<? extends Element> cmdlineArgs = getAnnotatedElements(roundEnv, CmdLine.class);
+      contributingClassNamesBuilder.addAll(extractEnclosingClassNames(cmdlineArgs));
       Set<? extends Element> positionalArgs = getAnnotatedElements(roundEnv, Positional.class);
+      contributingClassNamesBuilder.addAll(extractEnclosingClassNames(positionalArgs));
 
       ImmutableSet<? extends Element> invalidArgs =
           Sets.intersection(cmdlineArgs, positionalArgs).immutableCopy();
@@ -207,21 +213,28 @@ public class CmdLineProcessor extends AbstractProcessor {
       checkPositionalArgsAreLists(roundEnv);
 
       processParsers(parsers);
-      processVerifiers(roundEnv.getElementsAnnotatedWith(typeElement(VerifierFor.class)));
+
+      Set<? extends Element> verifiers = getAnnotatedElements(roundEnv, VerifierFor.class);
+      contributingClassNamesBuilder.addAll(extractClassNames(verifiers));
+      processVerifiers(verifiers);
 
       if (roundEnv.processingOver()) {
         if (classpathConfiguration != null
             && (!classpathConfiguration.isEmpty() || !configBuilder.isEmpty())) {
 
-          @Nullable Writer cmdLinePropertiesResource =
+          @Nullable Resource cmdLinePropertiesResource =
               openCmdLinePropertiesResource(classpathConfiguration);
           if (cmdLinePropertiesResource != null) {
+            Writer writer = cmdLinePropertiesResource.getWriter();
             try {
-              configBuilder.build(classpathConfiguration).store(cmdLinePropertiesResource,
+              configBuilder.build(classpathConfiguration).store(writer,
                   "Generated via apt by " + getClass().getName());
             } finally {
-              closeQuietly(cmdLinePropertiesResource);
+              closeQuietly(writer);
             }
+
+            writeResourceMapping(contributingClassNamesBuilder.build(),
+                cmdLinePropertiesResource.getResource());
           }
         }
       }
@@ -235,6 +248,55 @@ public class CmdLineProcessor extends AbstractProcessor {
           Throwables.getStackTraceAsString(e));
     }
     return true;
+  }
+
+  private void writeResourceMapping(
+      Set<String> contributingClassNames,
+      FileObject cmdLinePropertiesResourcePath) {
+
+    // TODO(John Sirois): Lift the compiler resource-mappings writer to its own class/artifact to be
+    // re-used by other apt processors: https://github.com/twitter/commons/issues/319
+
+    // NB: javac rejects a package name with illegal package name characters like '-' so we just
+    // pass the empty package and the fully qualified resource file name.
+    @Nullable Resource resource = openResource("",
+        "META-INF/compiler/resource-mappings/" + getClass().getName());
+    if (resource != null) {
+      PrintWriter writer = new PrintWriter(resource.getWriter());
+      writer.printf("resources by class name:\n");
+      writer.printf("%d items\n", contributingClassNames.size());
+      try {
+        for (String className : contributingClassNames) {
+          writer.printf("%s -> %s\n", className, cmdLinePropertiesResourcePath.getName());
+        }
+      } finally {
+        closeQuietly(writer);
+      }
+    }
+  }
+
+  private static final Function<Element, Element> EXTRACT_ENCLOSING_CLASS =
+      new Function<Element, Element>() {
+        @Override public Element apply(Element element) {
+          return element.getEnclosingElement();
+        }
+      };
+
+  private final Function<Element, String> extractClassName = new Function<Element, String>() {
+    @Override public String apply(Element element) {
+      return getBinaryName((TypeElement) element);
+    }
+  };
+
+  private final Function<Element, String> extractEnclosingClassName =
+      Functions.compose(extractClassName, EXTRACT_ENCLOSING_CLASS);
+
+  private Iterable<String> extractEnclosingClassNames(Iterable<? extends Element> elements) {
+    return Iterables.transform(elements, extractEnclosingClassName);
+  }
+
+  private Iterable<String> extractClassNames(Iterable<? extends Element> elements) {
+    return Iterables.transform(elements, extractClassName);
   }
 
   private void closeQuietly(Closeable closeable) {
@@ -520,25 +582,59 @@ public class CmdLineProcessor extends AbstractProcessor {
   @Nullable
   private FileObject createCommandLineDb(Configuration configuration) {
     String name = isMain ? Configuration.mainResourceName() : configuration.nextResourceName();
+    return createResource(Configuration.DEFAULT_RESOURCE_PACKAGE, name);
+  }
+
+  @Nullable
+  private FileObject createResource(String packageName, String name) {
     try {
       return processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT,
-          Configuration.DEFAULT_RESOURCE_PACKAGE, name);
+          packageName, name);
     } catch (IOException e) {
       error("Failed to create resource file to store %s/%s: %s",
-          Configuration.DEFAULT_RESOURCE_PACKAGE, name, Throwables.getStackTraceAsString(e));
+          packageName, name, Throwables.getStackTraceAsString(e));
       return null;
     }
   }
 
+  private static final class Resource {
+    private final FileObject resource;
+    private final Writer writer;
+
+    Resource(FileObject resource, Writer writer) {
+      this.resource = resource;
+      this.writer = writer;
+    }
+
+    FileObject getResource() {
+      return resource;
+    }
+
+    Writer getWriter() {
+      return writer;
+    }
+  }
+
   @Nullable
-  private Writer openCmdLinePropertiesResource(Configuration configuration) {
-    FileObject resource = createCommandLineDb(configuration);
+  private Resource openCmdLinePropertiesResource(Configuration configuration) {
+    @Nullable FileObject resource = createCommandLineDb(configuration);
+    return openResource(resource);
+  }
+
+  @Nullable
+  private Resource openResource(String packageName, String name) {
+    @Nullable FileObject resource = createResource(packageName, name);
+    return openResource(resource);
+  }
+
+  @Nullable
+  private Resource openResource(@Nullable FileObject resource) {
     if (resource == null) {
       return null;
     }
     try {
       log(Kind.NOTE, "Writing %s", resource.toUri());
-      return resource.openWriter();
+      return new Resource(resource, resource.openWriter());
     } catch (IOException e) {
       if (!resource.delete()) {
         log(Kind.WARNING, "Failed to clean up %s after a failing to open it for writing",
