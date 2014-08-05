@@ -25,7 +25,6 @@ python_library(
 python_tests(
   name = 'test_kazoo_group',
   sources = ['test_active_kazoo_group.py', 'test_kazoo_group.py'],
-  timeout = Amount(20, Time.MINUTES),
   dependencies = [
     pants('3rdparty/python:kazoo'),
     pants('3rdparty/python:mock'),
