@@ -29,17 +29,11 @@ java_tests(name = 'metrics',
   sources = globs('*.java')
 )
 
-jar_library(name='metrics-data-sample',
-  jars=[
-    jar(org = 'com.twitter.common', name = 'metrics-data-sample', rev = '0.0.1'),
-  ]
-)
-
 jvm_binary(name = 'metrics-precision',
   main = 'com.twitter.common.metrics.demo.MetricsPrecisionDemo',
   source = 'demo/MetricsPrecisionDemo.java',
   dependencies = [
-    pants(':metrics-data-sample'),
+    pants('3rdparty/jvm/com/twitter/common:metrics-data-sample'),
     pants('tests/java/com/twitter/common/metrics'),
     pants('src/java/com/twitter/common/metrics'),
     pants('src/java/com/twitter/common/objectsize'),

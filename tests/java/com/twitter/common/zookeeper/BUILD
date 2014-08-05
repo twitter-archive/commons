@@ -68,7 +68,7 @@ java_tests(name = 'medium-main',
   sources = MEDIUM
 )
 
-jar_library(name = 'medium',
+dependencies(name = 'medium',
   dependencies = [
     pants(':medium-main'),
     pants('tests/java/com/twitter/common/zookeeper/testing/angrybird')
@@ -101,7 +101,7 @@ java_tests(name = 'large',
   sources = LARGE
 )
 
-jar_library(name = 'all',
+dependencies(name = 'all',
   dependencies = [
     pants(':large'),
     pants(':medium'),
@@ -109,4 +109,4 @@ jar_library(name = 'all',
   ]
 )
 
-jar_library(name = 'zookeeper', dependencies = [ pants(':all') ])
+dependencies(name = 'zookeeper', dependencies = [ pants(':all') ])
