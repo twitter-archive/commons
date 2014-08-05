@@ -254,6 +254,9 @@ public class CmdLineProcessor extends AbstractProcessor {
       Set<String> contributingClassNames,
       FileObject cmdLinePropertiesResourcePath) {
 
+    // TODO(John Sirois): Lift the compiler resource-mappings writer to its own class/artifact to be
+    // re-used by other apt processors: https://github.com/twitter/commons/issues/319
+
     // NB: javac rejects a package name with illegal package name characters like '-' so we just
     // pass the empty package and the fully qualified resource file name.
     @Nullable Resource resource = openResource("",
