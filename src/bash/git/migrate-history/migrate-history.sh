@@ -33,20 +33,21 @@ map_find () {
 }
 
 die () {
-    test -n $subtree_remote_name && git remote rm "$subtree_remote_name"
+    test -n "$subtree_remote_name" && git remote rm "$subtree_remote_name"
     echo "$*"
     exit 1
 }
 
 make_subtreed_tree () {
     subtree_tree="$1"
+    test -n "$subtree_tree" || die "Empty subtree_tree parameter"
     parent_tree="$2"
     subtree_dir="$3" || die "missing subtree directory"
-    tree_contents=$(git ls-tree "$parent_tree") || die "ls-tree"
+    tree_contents=$(git ls-tree "$parent_tree") || die "Failed to ls-tree $parent_tree"
     new_tree_line=$(echo -e "\n040000 tree $subtree_tree\t$subtree_dir")
     tree_contents+="$new_tree_line"
     tree_contents=$(echo "$tree_contents" | sort -k 4) || die "sort"
-    echo "$tree_contents" | git mktree || die "Failed to make subtreed tree"
+    echo "$tree_contents" | git mktree || die "Failed to mktree subtreed tree"
 }
 
 usage() {
@@ -95,13 +96,13 @@ shift $(($OPTIND - 1))
 
 test "$#" = 1 || usage
 
-path_to_project="$*"
+orig_path_to_project="$*"
 
 #get real path to project
 path_to_project=$(
-  cd $path_to_project
+  cd $orig_path_to_project &&
   pwd
-)
+) || die "Can't find $orig_path_to_project"
 
 [[ -n $subdir ]] || subdir=$(basename "$path_to_project")
 [[ -n $branch ]] || branch=master
@@ -114,59 +115,107 @@ subtree_remote_name="remote-$timestamp-$$-$subdir"
 git remote add "$subtree_remote_name" "$path_to_project" || die "Can't add remote $subtree_remote_name for $path_to_project"
 
 log "Fetching from imported project"
-git fetch "$subtree_remote_name"
+git fetch "$subtree_remote_name" || die "Can't fetch $subtree_remote_name"
 
 localbranch="migrate-$timestamp-$$"
 
 log "Creating a branch for the migration"
 git checkout -q -b "$localbranch" "$subtree_remote_name/$branch" || die "Can't branch"
 
-commits=$(git rev-list --reverse --topo-order "$localbranch")
+if [[ -n "$origin_subdir" ]]
+then
+    #Find the first commit which introduces this subdir.
+    first=$(git log --reverse --format="%H" "$origin_subdir/" | head -1) || die "Can't find first commit for $origin_subdir/"
+    if git rev-parse --verify --quiet "$first^"
+    then
+	parents=$(git log --pretty="%P" "$first" -n 1) || die "Expected $first to exist"
+	for parent in $parents
+	do
+	    map_insert commit_map "$parent" master
+	done
+	#in git rev-list, ^some_commit *excludes* some_commit; we want
+	#to *include it so we add a trailing ^.
+	first_commit="^$first^"
+    fi
+fi
+
+commits=$(git rev-list --reverse --topo-order "$localbranch" $first_commit) || die "can't rev-list"
 
 count=0
 total=$(echo "$commits" | wc -l)
 
 log "Migrating commits"
+changed="assumedTrue"
 for commit in $commits
 do
-    parents=$(git log --pretty="%P" $commit -n 1) || die "Expected $commit to exist"
+    count=$(expr $count + 1)
+    log "Examining $commit ($count/$total)"
+    parents=$(git log --pretty="%P" "$commit" -n 1) || die "Expected $commit to exist"
 
     rebased_parents=""
     for orig_parent in $parents
     do
 	rebased_parent_commit=$(map_find commit_map $orig_parent)
-	[[ -n $rebased_parent_commit ]] || die "I lost track of $orig_parent"
+	if [[ -z "$rebased_parent_commit" ]]
+	then
+	    log "Unknown parent $orig_parent"
+	    continue
+	fi
         rebased_parents="$rebased_parents -p $rebased_parent_commit"
     done
-    #if there are no parents, this is the first commit; assume the parent
+    #if there are no parents, this is the first (relevant) commit; assume the parent
     #is this repo's master
     [[ -n $rebased_parents ]] || rebased_parents="-p master"
 
     #we want to create a new tree that represents the contents of
     #this commit as-rebased.
 
-    commit_tree=$(git rev-parse $commit^{tree})
+    commit_tree=$(git rev-parse "$commit^{tree}") || die "Can't get tree for $commit"
     if [[ -n "$origin_subdir" ]]
     then
-	#get only the tree for $orig_subdir
-	commit_tree=$(git ls-tree $commit^{tree} "$origin_subdir" | grep $origin_subdir | awk '{print $3}')
+	changed=$(git diff-tree --root -m -s "$commit" "$origin_subdir")
+	if [[ -n "$changed" ]]
+	then
+	    #get only the tree for $origin_subdir
+	    obj=$(git ls-tree "$commit^{tree}" "$origin_subdir" | grep "$origin_subdir")
+	    obj_type=$(echo "$obj" | awk '{print $2}')
+	    if [[ "$obj_type" == "tree" ]]
+	    then
+		commit_tree=$(echo "$obj" | awk '{print $3}')
+	    else
+		log "Warning: in commit $commit, $orig_subdir was $obj_type instead of tree"
+		commit_tree=""
+	    fi
+	fi
     fi
-    new_tree=$(make_subtreed_tree $commit_tree master $subdir)
-    if [[ "$new_tree" == "$prev_tree" ]]
+    if [[ -n "$commit_tree" ]]
+    then
+	new_tree=$(make_subtreed_tree "$commit_tree" master "$subdir") || die "Failed to make subtreed tree: $new_tree"
+    fi
+
+    if [[ -z "$commit_tree" ]] || [[ -z "$changed" ]]
     then
 	#this commit doesn't affect $origin_subdir
-	parent1=$(git rev-parse $commit^)
-	if [[ "$parent1" == "$commit^" ]]
+	parents=$(git log --pretty="%P" "$commit" -n 1) || die "Expected $commit to exist"
+	if [[ -z "$parents" ]]
 	then
-	    map_insert commit_map $commit master
+	    map_insert commit_map "$commit" master
 	else
-	    map_insert commit_map $commit $(map_find commit_map "$parent1")
+	    for parent in $parents
+	    do
+		rebased_parent=$(map_find commit_map "$parent")
+		if [[ -n "$rebased_parent" ]] && [[ "$rebased_parent" != "master" ]]
+		then
+		    map_insert commit_map "$commit" "$rebased_parent"
+		    break
+		fi
+	    done
+	    test -n "$(map_find commit_map "$commit")" || log "Failed to find appropriate parents for $commit"
 	fi
 	continue
     fi
-    prev_tree="$new_tree"
 
-    merge_commit_message=$(git log --format=%B -n 1 $commit)
+    merge_commit_message=$(git log --format=%B -n 1 "$commit") || die "can't get merge commit message for $commit"
     committed=$(echo "$merge_commit_message" | \
 	GIT_AUTHOR_NAME=$(git log --format=%an -n 1 $commit) \
 	GIT_AUTHOR_EMAIL=$(git log --format=%ae -n 1 $commit) \
@@ -177,9 +226,7 @@ do
 	EMAIL=$GIT_COMMITTER_EMAIL \
 	git commit-tree $new_tree $rebased_parents) || die "Failed to commit tree $new_tree $rebased_parents"
     map_insert commit_map $commit $committed
-    last_commit=$committed
-    count=$(expr $count + 1)
-    log "committed new revision $committed ($count/$total)"
+    log "Committed new revision $committed"
 done
 
 log "Switching to new commit history"
