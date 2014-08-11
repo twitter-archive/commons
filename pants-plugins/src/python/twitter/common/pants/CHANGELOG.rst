@@ -8,7 +8,7 @@ API Changes
 ~~~~~~~~~~~
 
 * Update to ``pantsbuild.pants`` 0.0.23 api changes
-  `RB #XXX <https://rbcommons.com/s/twitter/r/XXX/>`_
+  `RB #864 <https://rbcommons.com/s/twitter/r/864/>`_
 
 
 0.4.0 (7/28/2014)
