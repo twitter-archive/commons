@@ -9,7 +9,6 @@ python_test_suite(
 
 python_tests(
   name = 'kazoo_client',
-  timeout = Amount(5, Time.MINUTES),
   dependencies = [
     pants('src/python/twitter/common/log'),
     pants('src/python/twitter/common/zookeeper:kazoo_client'),

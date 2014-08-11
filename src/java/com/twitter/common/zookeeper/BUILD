@@ -147,7 +147,7 @@ java_library(name = 'singleton-service',
 )
 
 # TODO(John Sirois): A legacy convenience target - adjust users and remove
-jar_library(name = 'zookeeper',
+dependencies(name = 'zookeeper',
   dependencies = [
     pants(':candidate'),
     pants(':client'),

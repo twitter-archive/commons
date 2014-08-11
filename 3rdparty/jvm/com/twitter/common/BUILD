@@ -1,6 +1,5 @@
-#!/usr/bin/env bash
 # ==================================================================================================
-# Copyright 2011 Twitter, Inc.
+# Copyright 2014 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -15,14 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
-source build-support/python/libvirtualenv.sh
-
-PIP_OPTIONS=(
-  --allow-external elementtree
-  --allow-unverified elementtree
+jar_library(name='metrics-data-sample',
+  jars=[
+    jar(org = 'com.twitter.common', name = 'metrics-data-sample', rev = '0.0.1'),
+  ]
 )
-setup_virtualenv pants pantsbuild.pants==0.0.22 ${PIP_OPTIONS[@]}
-
-# Enable local plugins
-export PYTHONPATH=pants-plugins/src/python
-exec pants "$@"
