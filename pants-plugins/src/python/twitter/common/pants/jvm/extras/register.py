@@ -14,17 +14,15 @@
 # limitations under the License.
 # ==================================================================================================
 
-from pants.backend.core.tasks.what_changed import ScmWhatChanged
+from pants.backend.core.tasks.what_changed import WhatChanged
 from pants.backend.jvm.tasks.checkstyle import Checkstyle
-from pants.goal.goal import Goal
-from pants.goal.phase import Phase
+from pants.goal.task_registrar import TaskRegistrar as task
 
 
 def register_goals():
-  changed = Phase('changed').with_description('Print the targets changed since some prior commit.')
-  changed.install(Goal(name='changed', action=ScmWhatChanged))
+  task(name='changed', action=WhatChanged
+  ).install().with_description('Print the targets changed since some prior commit.')
 
   # We always want compile to finish with a checkstyle
-  compile = Phase('compile')
-  compile.install(Goal(name='checkstyle', action=Checkstyle,
-                       dependencies=['gen', 'resolve']))
+  task(name='checkstyle', action=Checkstyle,
+       dependencies=['gen', 'resolve']).install('compile')

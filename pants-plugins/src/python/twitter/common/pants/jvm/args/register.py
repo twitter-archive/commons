@@ -14,13 +14,11 @@
 # limitations under the License.
 # ==================================================================================================
 
-from pants.goal.goal import Goal
-from pants.goal.phase import Phase
+from pants.goal.task_registrar import TaskRegistrar as task
 
 from twitter.common.pants.jvm.args.tasks.resource_mapper import ResourceMapper
 
 
 def register_goals():
-  resources = Phase('resources')
-  resources.install(Goal(name='args-apt', action=ResourceMapper,
-                         dependencies=['compile']))
+  task(name='args-apt', action=ResourceMapper,
+       dependencies=['compile']).install('resources')
