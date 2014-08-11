@@ -14,11 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
-python_requirement_library(
-  name='pants',
-  requirements=[
-    # TODO(John Sirois): centralize this requirement for use by the wrapper script and the plugins
-    # themselves.
-    python_requirement('pantsbuild.pants>=0.0.23,<0.1.0')
+jar_library(name='metrics-data-sample',
+  jars=[
+    jar(org = 'com.twitter.common', name = 'metrics-data-sample', rev = '0.0.1'),
   ]
 )

@@ -18,7 +18,6 @@ python_library(
 python_tests(
   name = 'test_kazoo_serverset',
   sources = ['test_kazoo_serverset.py'],
-  timeout = Amount(5, Time.MINUTES),
   dependencies = [
     pants(':test_base'),
     pants('src/python/twitter/common/zookeeper/serverset:kazoo_serverset'),

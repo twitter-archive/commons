@@ -14,11 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
-python_requirement_library(
-  name='pants',
-  requirements=[
-    # TODO(John Sirois): centralize this requirement for use by the wrapper script and the plugins
-    # themselves.
-    python_requirement('pantsbuild.pants>=0.0.23,<0.1.0')
+jar_library(name='jansi',
+  jars=[
+    jar(org='org.fusesource.jansi', name='jansi', rev='1.8').with_sources()
   ]
 )
