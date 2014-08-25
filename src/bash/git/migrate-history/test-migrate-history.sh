@@ -20,6 +20,8 @@ die () {
 mkdir immigrant
 cd immigrant
 git init
+git remote add origin https://example.com/immigrant.git
+git remote add aremote https://example.org/immigrant.git
 echo "This is the immigrant repo" > README
 git add README
 
@@ -33,7 +35,7 @@ git add subdir
 git commit  -m 'commit 1'
 
 #Now let's create some branching history
-git checkout -b branch-b
+git checkout -b my/branch-b
 git checkout master
 echo "Branch the first" > README
 git add README
@@ -41,7 +43,7 @@ git commit -m 'branch a'
 git checkout master
 
 #Contents of branch b
-git checkout branch-b
+git checkout my/branch-b
 echo "Branch the second" > README
 git add README
 echo "subdir/dir readme bis" > subdir/dir/README
@@ -49,7 +51,7 @@ git add subdir/dir/README
 git commit -m 'branch b'
 git checkout master
 
-git merge branch-b #there are conflicts
+git merge my/branch-b #there are conflicts
 echo "Merged" > README
 git add README
 git commit -m 'merged'
@@ -66,7 +68,7 @@ immigrant_subdir_revisions=$(
 
 branch_b_revisions=$(
     cd immigrant
-    git rev-list branch-b|wc -l
+    git rev-list my/branch-b|wc -l
 )
 
 #Create the recipient repository
@@ -129,7 +131,7 @@ echo "$last_immigrant_commit" | egrep '[a-f0-9]{40} [a-f0-9]{40} merged' > /dev/
 git reset --hard "$clean_recipient"
 
 echo "Testing migrate-history.sh with -b"
-../migrate-history.sh -b branch-b ../immigrant || die "Failed to migrate"
+../migrate-history.sh -b my/branch-b ../immigrant || die "Failed to migrate"
 [[ "I am a recipient repo" == $(cat README) ]] || die "We overwrote README in recipient"
 [[ -e dir/README ]] || die "We deleted dir in recipient"
 [[ -e post/README ]] || die "We deleted post in recipient"
@@ -157,6 +159,18 @@ migrated_revisions=$(git log --format=oneline imported | wc -l)
 [[ $migrated_revisions == $immigrant_subdir_revisions ]] || die "Wrong number of revisions for immigrant"
 last_immigrant_commit=$(git log --format=oneline --parents -n 1 imported)
 echo "$last_immigrant_commit" | egrep 'branch b' > /dev/null || die "commit graph not imported (bad last commit)"
+
+#Prepare for next test
+git reset --hard "$clean_recipient"
+
+#Tests
+echo "Testing migrate-history.sh with a remote branch"
+../migrate-history.sh  -s imported -b origin/fleem ../immigrant 2>&1 | grep -q "Use a local branch" ||
+die "Should have failed with remote branch origin/fleem"
+
+echo "Testing migrate-history.sh with a different remote branch"
+../migrate-history.sh  -s imported -b aremote/fleem ../immigrant 2>&1 | grep -q "Use a local branch" ||
+die "Should have failed with remote branch aremote/fleem"
 
 #Cleanup
 cd ..

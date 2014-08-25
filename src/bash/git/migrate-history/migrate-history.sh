@@ -82,7 +82,7 @@ git diff-files --quiet || die "This command should be run on a clean working tre
 while getopts ":s:b:o:" OPTION
 do
     case "$OPTION" in
-	b) branch="$OPTARG" ;;
+	b) branch="$OPTARG"  ;;
 	s) subdir="$OPTARG" ;;
 	o) origin_subdir="$OPTARG" ;;
 	--) shift ; break ;;
@@ -105,7 +105,24 @@ path_to_project=$(
 ) || die "Can't find $orig_path_to_project"
 
 [[ -n $subdir ]] || subdir=$(basename "$path_to_project")
-[[ -n $branch ]] || branch=master
+
+if [[ -n $branch ]]
+then
+    if echo "$branch" | grep -q /
+    then
+	remote_regex=$(
+	    cd $orig_path_to_project &&
+	    git remote | xargs echo | sed 's/ /\\|/g'
+	) || die "can't get remotes to check if branch is remote."
+	if [[ -n "$remote_regex" ]]
+	then
+	    expr "$branch" : "^\($remote_regex\)/" > /dev/null &&
+	    die "Use a local branch for -b (try git checkout branchname)"
+	fi
+    fi
+else
+    branch=master
+fi
 
 log "Creating a remote for the imported project so I can easily get commits from it."
 
