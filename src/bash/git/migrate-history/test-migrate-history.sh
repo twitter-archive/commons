@@ -22,7 +22,9 @@ test_done() {
     git reset --hard "$clean_recipient"
 }
 
-#Test script for test.sh
+#Test script for migrate-history.sh
+
+cd $(dirname $0)
 
 [[ -e immigrant ]] && die "Directory named immigrant already exists.  Please remove it."
 [[ -e recpient ]] && die "Directory named recipient already exists. Please remove it."
