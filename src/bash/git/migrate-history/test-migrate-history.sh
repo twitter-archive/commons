@@ -9,6 +9,18 @@ die () {
     exit 1
 }
 
+test_start() {
+    echo
+    echo "$1"
+    echo "================"
+}
+
+test_done() {
+     # Prepare for next test
+     # git fsck doesn't have a sensible exit stauts
+    git fsck --no-progress 2>&1 | grep error && die "git fsck reported errors"
+    git reset --hard "$clean_recipient"
+}
 
 #Test script for test.sh
 
@@ -90,9 +102,9 @@ clean_recipient=$(git rev-parse HEAD)
 #migrate in the repo
 
 #Tests
-echo "Testing migrate-history.sh with no options"
+test_start "Testing migrate-history.sh with no options"
 
-output=$(../migrate-history.sh ../immigrant) || die "Failed to migrate"
+output=$(../migrate-history.sh ../immigrant) || die "Failed to migrate $output"
 [[ $output == $(git rev-parse HEAD) ]] || die "Output consists of something other than sha of new HEAD $output"
 
 revisions=$(git rev-list HEAD|wc -l)
@@ -110,10 +122,9 @@ echo "$last_immigrant_commit" | egrep '[a-f0-9]{40} [a-f0-9]{40} merged' > /dev/
 first_immigrant_commit=$(git log --format=oneline --parents immigrant | tail -1)
 echo "$first_immigrant_commit" | egrep '[a-f0-9]{40} commit 1' > /dev/null || die "commit graph not imported (bad first commit)"
 
-#Prepare for next test
-git reset --hard "$clean_recipient"
+test_done || exit 1
 
-echo "Testing migrate-history.sh with -s"
+test_start "Testing migrate-history.sh with -s"
 ../migrate-history.sh -s the_subdir ../immigrant || die "Failed to migrate"
 [[ "I am a recipient repo" == $(cat README) ]] || die "We overwrote README in recipient"
 [[ -e dir/README ]] || die "We deleted dir in recipient"
@@ -127,10 +138,9 @@ migrated_revisions=$(git log --format=oneline the_subdir | wc -l)
 last_immigrant_commit=$(git log --format=oneline --parents -n 1 the_subdir)
 echo "$last_immigrant_commit" | egrep '[a-f0-9]{40} [a-f0-9]{40} merged' > /dev/null || die "commit graph not imported (bad last commit)"
 
-#Prepare for next test
-git reset --hard "$clean_recipient"
+test_done || exit 1
 
-echo "Testing migrate-history.sh with -b"
+test_start "Testing migrate-history.sh with -b"
 ../migrate-history.sh -b my/branch-b ../immigrant || die "Failed to migrate"
 [[ "I am a recipient repo" == $(cat README) ]] || die "We overwrote README in recipient"
 [[ -e dir/README ]] || die "We deleted dir in recipient"
@@ -142,10 +152,9 @@ migrated_revisions=$(git log --format=oneline immigrant | wc -l)
 last_immigrant_commit=$(git log --format=oneline --parents -n 1 immigrant)
 echo "$last_immigrant_commit" | egrep '[a-f0-9]{40} branch b' > /dev/null || die "commit graph not imported (bad last commit)"
 
-#Prepare for next test
-git reset --hard "$clean_recipient"
+test_done || exit 1
 
-echo "Testing migrate-history.sh with -o"
+test_start "Testing migrate-history.sh with -o"
 ../migrate-history.sh -o subdir -s imported ../immigrant || die "Failed to migrate"
 [[ "I am a recipient repo" == $(cat README) ]] || die "We overwrote README in recipient"
 [[ -e dir/README ]] || die "We deleted dir in recipient"
@@ -160,17 +169,38 @@ migrated_revisions=$(git log --format=oneline imported | wc -l)
 last_immigrant_commit=$(git log --format=oneline --parents -n 1 imported)
 echo "$last_immigrant_commit" | egrep 'branch b' > /dev/null || die "commit graph not imported (bad last commit)"
 
-#Prepare for next test
-git reset --hard "$clean_recipient"
+test_done || exit 1
 
 #Tests
-echo "Testing migrate-history.sh with a remote branch"
+test_start "Testing migrate-history.sh with a remote branch"
 ../migrate-history.sh  -s imported -b origin/fleem ../immigrant 2>&1 | grep -q "Use a local branch" ||
 die "Should have failed with remote branch origin/fleem"
 
-echo "Testing migrate-history.sh with a different remote branch"
+test_start "Testing migrate-history.sh with a different remote branch"
 ../migrate-history.sh  -s imported -b aremote/fleem ../immigrant 2>&1 | grep -q "Use a local branch" ||
 die "Should have failed with remote branch aremote/fleem"
+
+test_done || exit 1
+
+test_start "Testing migrate-history.sh with failed merge"
+../migrate-history.sh -s dir ../immigrant 2>&1 | grep -q "^Conflict:" ||
+die "Should have failed with confict for README"
+
+test_done || exit 1
+
+test_start "Testing migrate-history.sh with -c existing"
+../migrate-history.sh -c existing -s dir ../immigrant 2>&1 ||
+die "Should have resolved confict for README"
+[[ "I am in a subdir" == $(cat dir/README) ]] || die "We chose the wrong README"
+
+test_done || exit 1
+
+test_start "Testing migrate-history.sh with -c incoming"
+../migrate-history.sh -c incoming -s dir ../immigrant 2>&1 ||
+die "Should have resolved confict for README"
+[[ "Merged" == $(cat dir/README) ]] || die "We chose the wrong README"
+
+test_done || exit 1
 
 #Cleanup
 cd ..

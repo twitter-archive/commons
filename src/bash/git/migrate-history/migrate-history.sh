@@ -32,10 +32,122 @@ map_find () {
     echo ${!var}
 }
 
-die () {
+function finish {
+    log "Cleaning up remote"
     test -n "$subtree_remote_name" && git remote rm "$subtree_remote_name"
-    echo "$*"
+}
+
+trap finish EXIT
+
+die () {
+    echo "$*" >&2
     exit 1
+}
+
+get_sha_from_tree () {
+    awk -F $'\t' -F ' ' '{print $3}'
+}
+
+get_line_number_for () {
+    filename="$1"
+    filenames="$2"
+
+    echo "$filenames" | awk -v filename="$filename" '{ if ($1 == filename) print NR }'
+}
+
+get_line_by_number () {
+    lineno="$1"
+    lines="$2"
+    echo "$lines" | awk -v n="$lineno" '{if (NR == n) print $1}'
+}
+
+make_union_tree () {
+# Create a new tree that contains the contents of both arguments, recursively
+(
+    tree1_sha="$1"
+    tree2_sha="$2"
+    path="$3"
+    if [[ "$tree1_sha" == "$tree2_sha" ]]
+    then
+        echo "$tree1_sha"
+        return
+    fi
+
+    # It is possible that one or both of these shas are not trees.  If
+    # so, there is no way to preserve both, so either one side will win,
+    # or we'll report a conflict and fail, depending on the conflict
+    # rule.
+    tree1_type=$(git cat-file -t "$tree1_sha") || die "No such sha $tree1_sha"
+    tree2_type=$(git cat-file -t "$tree2_sha") || die "No such sha $tree2_sha"
+    if [[ "$tree1_type" != "$tree2_type" ]]
+    then
+        case "$conflict_rule" in
+            fail)
+                die "Conflict: $tree1_sha ($tree1_type) vs $tree2_sha ($tree2_type) at $path" ;;
+            incoming)
+                echo "$tree1_sha"
+                return ;;
+            existing)
+                echo "$tree2_sha"
+                return ;;
+        esac
+    elif [[ "$tree1_type" != "tree" ]]
+    then
+        case "$conflict_rule" in
+            fail)
+                die "Conflict: $tree1_sha ($tree1_type) vs $tree2_sha at $path" ;;
+            incoming)
+                echo "$tree1_sha"
+                return ;;
+            existing)
+                echo "$tree2_sha"
+                return ;;
+        esac
+    fi
+
+    tree1=$(git ls-tree "$tree1_sha")
+    tree2=$(git ls-tree "$tree2_sha")
+    tree1_filenames=$(echo "$tree1" | cut -f 2)
+    tree2_filenames=$(echo "$tree2" | cut -f 2)
+    tree2_shas=$(echo "$tree2" | get_sha_from_tree)
+    new_tree_file=$(mktemp)
+
+    echo "$tree1" | while read child
+    do
+        filename=$(echo "$child" | cut -f 2)
+        tree2_lineno=$(get_line_number_for "$filename" "$tree2_filenames")
+        if [[ -n "$tree2_lineno" ]]
+        then
+            #find the object in tree2 that has the same filename
+            conflicting_sha=$(get_line_by_number "$tree2_lineno" "$tree2_shas")
+            child_sha=$(echo "$child" | get_sha_from_tree)
+            new_child_sha=$(make_union_tree "$child_sha" "$conflicting_sha" "$path/$filename") || exit 1
+
+            mode_and_type=$(echo "$child"|cut -d ' ' -f 1-2)
+            echo "$mode_and_type $new_child_sha"$'\t'"$filename" >> "$new_tree_file"
+        else
+            echo "$child" >> "$new_tree_file"
+        fi
+    done || exit 1
+
+    echo "$tree2" | while read child
+    do
+        filename=$(echo "$child" | cut -f 2)
+        #If this filename exists in tree1, then we have already handled
+        #it above; else we output the tree2 entry here.
+        echo "$tree1_filenames" | grep -Fx "$filename" > /dev/null ||
+          echo "$child" >> "$new_tree_file"
+    done || exit 1
+
+    new_tree=$(cat $new_tree_file | sort -k 4)
+    rm "$new_tree_file"
+    echo "$new_tree" | git mktree || die "Failed to mktree union tree from $tree1_sha $tree2_sha"
+) || exit 1
+}
+
+exclude_tree_entry() {
+    #This will fail for filenames containing tabs.  Don't be a menace.
+    awk -F $'\t' -v filename="$1" '{ if ($2 != filename) print $_ }'
 }
 
 make_subtreed_tree () {
@@ -44,6 +156,13 @@ make_subtreed_tree () {
     parent_tree="$2"
     subtree_dir="$3" || die "missing subtree directory"
     tree_contents=$(git ls-tree "$parent_tree") || die "Failed to ls-tree $parent_tree"
+    tree_contents=$(echo "$tree_contents" | exclude_tree_entry "$subtree_dir")
+
+    existing_tree=$(git ls-tree "$parent_tree" "$subtree_dir" | get_sha_from_tree)
+    if [[ -n "$existing_tree" ]]
+    then
+        subtree_tree=$(make_union_tree "$subtree_tree" "$existing_tree" "$subtree_dir") || exit 1
+    fi
     new_tree_line=$(echo -e "\n040000 tree $subtree_tree\t$subtree_dir")
     tree_contents+="$new_tree_line"
     tree_contents=$(echo "$tree_contents" | sort -k 4) || die "sort"
@@ -52,7 +171,11 @@ make_subtreed_tree () {
 
 usage() {
     cat <<EOF
-Usage: migrate-history.sh [-b branch] [-s subdir] [-o origin-subdir] <path-to-immigrant>
+Usage: migrate-history.sh [-b branch]
+                          [-s subdir]
+                          [-o origin-subdir]
+                          [-c conflict_rule]
+                          <path-to-immigrant>
 
 Migrate the repository at <path-to-immigrant> into this repository at
 subdir.  If -s is omitted, it will be the basename of
@@ -61,6 +184,16 @@ at <path-to-immigrant>/origin-subdir will be migrated.
 
 You can use -b to get a branch other than master from the immigrant.
 This repository's master will always be used.
+
+If this repository already contains a directory called subdir, a
+recursive tree merge will be attempted.  If one side contains a file
+where the other contains a directory, or if both sides contain the
+same file with different contents, then there is a conflict. The
+conflict rule determines what happens in this case.  The options are:
+
+  fail: The import will fail (this is the default)
+  incoming: The version from the incoming tree will be used
+  existing: The version from the existing tree will be used
 
 Run this script from inside your repository, at the root directory.  The
 result will be a branch named migrated-\$subdir
@@ -79,16 +212,26 @@ git diff-index --quiet --cached HEAD || die "This command should be run on a cle
 #and clean working tree
 git diff-files --quiet || die "This command should be run on a clean working tree"
 
-while getopts ":s:b:o:" OPTION
+conflict_rule="fail"
+
+while getopts ":s:b:c:o:" OPTION
 do
     case "$OPTION" in
 	b) branch="$OPTARG"  ;;
 	s) subdir="$OPTARG" ;;
-	o) origin_subdir="$OPTARG" ;;
+        o) origin_subdir="$OPTARG" ;;
+        c) conflict_rule="$OPTARG" ;;
 	--) shift ; break ;;
 	*) usage
     esac
 done
+
+if [[ "$conflict_rule" != "fail" &&
+      "$conflict_rule" != "incoming" &&
+      "$conflict_rule" != "existing" ]]
+then
+    die "Bad conflict rule $conflict_rule -- expected fail, incoming, or existing"
+fi
 
 origin_subdir=$(echo -n $origin_subdir|sed 's,/$,,')
 
@@ -248,8 +391,5 @@ done
 
 log "Switching to new commit history"
 git reset -q --hard $committed
-
-log "Cleaning up remote"
-git remote rm "$subtree_remote_name"
 
 echo $committed
