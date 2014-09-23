@@ -17,8 +17,8 @@
 python_library(
   name = 'plugins',
   dependencies = [
-    pants(':echo'),
-    pants(':kerberos'),
+    ':echo',
+    ':kerberos',
   ],
 )
 
@@ -26,7 +26,7 @@ python_library(
   name = 'echo',
   sources = ['echo.py'],
   dependencies = [
-    pants('src/python/twitter/common/http')
+    'src/python/twitter/common/http'
   ],
 )
 
@@ -34,8 +34,8 @@ python_library(
   name = 'kerberos',
   sources = ['kerberos.py'],
   dependencies = [
-    pants('src/python/twitter/common/contextutil'),
-    pants('src/python/twitter/common/http'),
-    pants('3rdparty/python:kerberos')
+    'src/python/twitter/common/contextutil',
+    'src/python/twitter/common/http',
+    '3rdparty/python:kerberos'
   ],
 )

@@ -41,8 +41,8 @@ pex instead.
 python_library(
   name = 'python',
   dependencies = [
-    pants(':python-source'),
-    pants(':pex'),
+    ':python-source',
+    ':pex',
   ],
   provides = setup_py(
     name = 'twitter.common.python',

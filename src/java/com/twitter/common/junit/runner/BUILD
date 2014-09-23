@@ -18,14 +18,14 @@ java_library(name='runner',
   provides=artifact(
     org='com.twitter.common',
     name='junit-runner',
-    repo=pants('build-support/commons/ivy:public'),
+    repo='build-support/commons/ivy:public',
   ),
   dependencies=[
-    pants('src/java/com/twitter/common/junit/annotations'),
-    pants('src/java/com/twitter/common/junit/runner/withretry'),
-    pants('3rdparty/jvm/args4j'),
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/junit'),
+    'src/java/com/twitter/common/junit/annotations',
+    'src/java/com/twitter/common/junit/runner/withretry',
+    '3rdparty/jvm/args4j',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/junit',
   ],
   sources=globs('*.java')
 )
@@ -33,7 +33,7 @@ java_library(name='runner',
 jvm_binary(name='main',
   main='com.twitter.common.junit.runner.ConsoleRunner',
   dependencies=[
-    pants(":runner"),
+    ":runner",
   ]
 ).with_description("""
   A replacement for org.junit.runner.JUnitCore.main that adds:

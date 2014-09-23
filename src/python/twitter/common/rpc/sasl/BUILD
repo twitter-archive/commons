@@ -18,16 +18,16 @@ python_library(
   name = 'sourceonly',
   sources = globs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/lang'),
+    'src/python/twitter/common/lang',
   ],
 )
 
 python_library(
   name = 'sasl',
   dependencies = [
-    pants(':sourceonly'),
-    pants('3rdparty/python:kerberos'),
-    pants('3rdparty/python:pure-sasl'),
-    pants('3rdparty/python:thrift'),
+    ':sourceonly',
+    '3rdparty/python:kerberos',
+    '3rdparty/python:pure-sasl',
+    '3rdparty/python:thrift',
   ],
 )

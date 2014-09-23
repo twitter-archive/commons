@@ -17,9 +17,9 @@
 python_library(
   name = 'all',
   dependencies = [
-    pants(':pep8'),
-    pants(':pyflakes'),
-    pants(':twitter'),
+    ':pep8',
+    ':pyflakes',
+    ':twitter',
   ]
 )
 
@@ -27,7 +27,7 @@ python_library(
   name = 'plugin',
   sources = ['__init__.py'],
   dependencies = [
-    pants('src/python/twitter/checkstyle:common'),
+    'src/python/twitter/checkstyle:common',
   ]
 )
 
@@ -43,9 +43,9 @@ python_library(
   name = 'pep8',
   sources = ['pep8.py'],
   dependencies = [
-    pants(':pep8_module'),
-    pants(':plugin'),
-    pants('src/python/twitter/checkstyle:common'),
+    ':pep8_module',
+    ':plugin',
+    'src/python/twitter/checkstyle:common',
   ]
 )
 
@@ -60,9 +60,9 @@ python_library(
   name = 'pyflakes',
   sources = ['pyflakes.py'],
   dependencies = [
-    pants(':plugin'),
-    pants(':pyflakes_module'),
-    pants('src/python/twitter/checkstyle:common'),
+    ':plugin',
+    ':pyflakes_module',
+    'src/python/twitter/checkstyle:common',
   ]
 )
 
@@ -70,7 +70,7 @@ python_library(
   name = 'twitter',
   sources = globs('*.py') - ['pep8.py', 'pyflakes.py'],
   dependencies = [
-    pants(':plugin'),
-    pants('src/python/twitter/checkstyle:common'),
+    ':plugin',
+    'src/python/twitter/checkstyle:common',
   ]
 )

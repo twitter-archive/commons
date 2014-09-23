@@ -16,15 +16,15 @@
 
 java_tests(name = 'metrics',
   dependencies = [
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/junit'),
-    pants('src/java/com/twitter/common/junit/annotations'),
-    pants('src/java/com/twitter/common/metrics'),
-    pants('src/java/com/twitter/common/objectsize'),
-    pants('src/java/com/twitter/common/stats'),
-    pants('src/java/com/twitter/common/testing/easymock'),
-    pants('src/java/com/twitter/common/util:system-mocks'),
-    pants('src/java/com/twitter/common/util:testing'),
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/junit',
+    'src/java/com/twitter/common/junit/annotations',
+    'src/java/com/twitter/common/metrics',
+    'src/java/com/twitter/common/objectsize',
+    'src/java/com/twitter/common/stats',
+    'src/java/com/twitter/common/testing/easymock',
+    'src/java/com/twitter/common/util:system-mocks',
+    'src/java/com/twitter/common/util:testing',
   ],
   sources = globs('*.java')
 )
@@ -33,11 +33,11 @@ jvm_binary(name = 'metrics-precision',
   main = 'com.twitter.common.metrics.demo.MetricsPrecisionDemo',
   source = 'demo/MetricsPrecisionDemo.java',
   dependencies = [
-    pants('3rdparty/jvm/com/twitter/common:metrics-data-sample'),
-    pants('tests/java/com/twitter/common/metrics'),
-    pants('src/java/com/twitter/common/metrics'),
-    pants('src/java/com/twitter/common/objectsize'),
-    pants('src/java/com/twitter/common/stats/testing:histogram'),
+    '3rdparty/jvm/com/twitter/common:metrics-data-sample',
+    'tests/java/com/twitter/common/metrics',
+    'src/java/com/twitter/common/metrics',
+    'src/java/com/twitter/common/objectsize',
+    'src/java/com/twitter/common/stats/testing:histogram',
   ]
 ).with_description('''Demo code to show precision/memory performance based on constructor
 parameters (used to find default values)''')

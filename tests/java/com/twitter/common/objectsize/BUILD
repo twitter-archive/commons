@@ -16,8 +16,8 @@
 
 java_tests(name = 'objectsize',
   dependencies = [
-    pants('3rdparty/jvm/junit'),
-    pants('src/java/com/twitter/common/objectsize'),
+    '3rdparty/jvm/junit',
+    'src/java/com/twitter/common/objectsize',
   ],
   sources = globs('*.java')
 )

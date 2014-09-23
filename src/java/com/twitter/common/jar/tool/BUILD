@@ -18,17 +18,17 @@ java_library(name='tool',
   provides=artifact(
     org='com.twitter.common',
     name='jar-tool',
-    repo=pants('build-support/commons/ivy:public'),
+    repo='build-support/commons/ivy:public',
   ),
   dependencies=[
     # Note both commons-io & twitter/common/io have a FileUtils class we use - 1 imported, 1 fully
     # qualified.
-    pants('3rdparty/jvm/commons-io'),
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/com/google/code/findbugs:jsr305'),
-    pants('src/java/com/twitter/common/args'),
-    pants('src/java/com/twitter/common/io'),
-    pants('src/java/com/twitter/common/logging'),
+    '3rdparty/jvm/commons-io',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/code/findbugs:jsr305',
+    'src/java/com/twitter/common/args',
+    'src/java/com/twitter/common/io',
+    'src/java/com/twitter/common/logging',
   ],
   sources=globs('*.java')
 )
@@ -37,7 +37,7 @@ jvm_binary(name='main',
   basename='jar-tool',
   main='com.twitter.common.jar.tool.Main',
   dependencies=[
-    pants(":tool"),
+    ":tool",
   ]
 ).with_description('A jar tool that supports adding duplicate entries.')
 

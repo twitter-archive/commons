@@ -18,7 +18,7 @@ python_library(
   name = 'common',
   sources = ['common.py'],
   dependencies = [
-    pants('src/python/twitter/common/lang'),
+    'src/python/twitter/common/lang',
   ]
 )
 
@@ -26,8 +26,8 @@ python_library(
   name = 'iterators',
   sources = ['iterators.py'],
   dependencies = [
-    pants('3rdparty/python:git-python'),
-    pants('src/python/twitter/common/dirutil'),
+    '3rdparty/python:git-python',
+    'src/python/twitter/common/dirutil',
   ]
 )
 
@@ -35,10 +35,10 @@ python_library(
   name = 'checker',
   sources = ['checker.py'],
   dependencies = [
-    pants(':common'),
-    pants(':iterators'),
-    pants('src/python/twitter/checkstyle/plugins:plugin'),
-    pants('src/python/twitter/common/app'),
+    ':common',
+    ':iterators',
+    'src/python/twitter/checkstyle/plugins:plugin',
+    'src/python/twitter/common/app',
   ]
 )
 
@@ -46,8 +46,8 @@ def make_checker(name, *plugins):
   python_binary(
     name = name,
     entry_point = 'twitter.checkstyle.checker:proxy_main',
-    dependencies = [pants(':checker')] + [
-        pants('src/python/twitter/checkstyle/plugins:%s' % plugin) for plugin in plugins
+    dependencies = [':checker'] + [
+        'src/python/twitter/checkstyle/plugins:%s' % plugin for plugin in plugins
     ]
   )
 
@@ -60,7 +60,7 @@ make_checker('check', 'all')
 python_library(
   name = 'checkstyle',
   dependencies = [
-    pants(':checker'),
+    ':checker',
   ],
   provides = setup_py(
     name = 'twitter.checkstyle',
@@ -70,6 +70,6 @@ python_library(
     license = 'Apache License, Version 2.0',
     zip_safe = True,
   ).with_binaries(
-    twitterstyle = pants(':check'),
+    twitterstyle = ':check',
   )
 )

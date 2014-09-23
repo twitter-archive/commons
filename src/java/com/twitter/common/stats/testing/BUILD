@@ -16,7 +16,7 @@
 
 java_library(name = 'histogram',
   dependencies = [
-    pants('src/java/com/twitter/common/stats:util'),
+    'src/java/com/twitter/common/stats:util',
   ],
   sources = globs('*.java'),
 )

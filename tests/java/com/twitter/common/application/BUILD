@@ -16,17 +16,17 @@
 
 java_tests(name = 'application',
   dependencies = [
-    pants('3rdparty/jvm/org/easymock'),
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/com/google/inject:guice'),
-    pants('3rdparty/jvm/junit'),
-    pants('src/java/com/twitter/common/application'),
-    pants('src/java/com/twitter/common/application:action'),
-    pants('src/java/com/twitter/common/application/modules:stats'),
-    pants('src/java/com/twitter/common/args'),
-    pants('src/java/com/twitter/common/base'),
-    pants('src/java/com/twitter/common/net:util'),
-    pants('src/java/com/twitter/common/testing/easymock'),
+    '3rdparty/jvm/org/easymock',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/inject:guice',
+    '3rdparty/jvm/junit',
+    'src/java/com/twitter/common/application',
+    'src/java/com/twitter/common/application:action',
+    'src/java/com/twitter/common/application/modules:stats',
+    'src/java/com/twitter/common/args',
+    'src/java/com/twitter/common/base',
+    'src/java/com/twitter/common/net:util',
+    'src/java/com/twitter/common/testing/easymock',
   ],
   sources = rglobs('*.java') - ['modules/LifecycleModuleTest.java']
 )

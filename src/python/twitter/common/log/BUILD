@@ -18,8 +18,8 @@ python_library(
   name = "log",
   sources = rglobs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/dirutil'),
-    pants('src/python/twitter/common/options'),
+    'src/python/twitter/common/dirutil',
+    'src/python/twitter/common/options',
   ],
   provides = setup_py(
     name = 'twitter.common.log',
@@ -40,7 +40,7 @@ python_library(
 python_library(
   name = "log-scribe",
   dependencies = [
-    pants(':log'),
-    pants('src/thrift/org/apache/scribe:py-scribe'),
+    ':log',
+    'src/thrift/org/apache/scribe:py-scribe',
   ]
 )

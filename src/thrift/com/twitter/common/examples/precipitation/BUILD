@@ -19,6 +19,6 @@
 java_thrift_library(name='precipitation-java',
   sources=['precipitation.thrift'],
   dependencies=[
-    pants('src/thrift/com/twitter/common/examples/distance:distance-java'),
+    'src/thrift/com/twitter/common/examples/distance:distance-java',
   ],
 )

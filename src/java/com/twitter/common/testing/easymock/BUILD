@@ -18,13 +18,13 @@ java_library(name='easymock',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'testing-easymock',
-    repo = pants('build-support/commons/ivy:public'),
+    repo = 'build-support/commons/ivy:public',
   ),
   dependencies = [
-    pants('3rdparty/jvm/org/easymock'),
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/junit'),
-    pants('3rdparty/jvm/com/google/testing:tl4j'),
+    '3rdparty/jvm/org/easymock',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/junit',
+    '3rdparty/jvm/com/google/testing:tl4j',
   ],
   sources = globs('*.java'),
 )

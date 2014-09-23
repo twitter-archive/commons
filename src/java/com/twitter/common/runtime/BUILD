@@ -18,12 +18,12 @@ java_library(name='native',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'native-loader',
-    repo = pants('build-support/commons/ivy:public'),
+    repo = 'build-support/commons/ivy:public',
   ),
   dependencies=[
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('src/java/com/twitter/common/base'),
-    pants('src/java/com/twitter/common/io')
+    '3rdparty/jvm/com/google/guava',
+    'src/java/com/twitter/common/base',
+    'src/java/com/twitter/common/io'
   ],
   sources=['NativeLoader.java']
 )

@@ -14,8 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
-dependencies(name='caliper',
+target(name='caliper',
   dependencies=[
-    pants('//:benchmark-caliper-0.5')
+    '//:benchmark-caliper-0.5'
   ]
 )

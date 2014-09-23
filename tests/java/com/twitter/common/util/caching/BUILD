@@ -16,12 +16,12 @@
 
 java_tests(name = 'caching',
   dependencies = [
-    pants('3rdparty/jvm/org/easymock'),
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/junit'),
-    pants('src/java/com/twitter/common/base'),
-    pants('src/java/com/twitter/common/collections'),
-    pants('src/java/com/twitter/common/util/caching'),
+    '3rdparty/jvm/org/easymock',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/junit',
+    'src/java/com/twitter/common/base',
+    'src/java/com/twitter/common/collections',
+    'src/java/com/twitter/common/util/caching',
   ],
   sources = globs('*.java')
 )

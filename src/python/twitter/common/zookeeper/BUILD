@@ -19,15 +19,15 @@ TEST_SERVER = ['test_server.py']
 python_library(
   name = 'zookeeper',
   dependencies = [
-    pants(':kazoo_client'),
-    pants('src/python/twitter/common/zookeeper/group:kazoo_group'),
-    pants('src/python/twitter/common/zookeeper/serverset:kazoo_serverset'),
+    ':kazoo_client',
+    'src/python/twitter/common/zookeeper/group:kazoo_group',
+    'src/python/twitter/common/zookeeper/serverset:kazoo_serverset',
 
     # keep around zookeeper-old code until we can purge it forever.  do not use
     # these implementations!  use the kazoo implementations!
-    pants(':zookeeper-old'),
-    pants('src/python/twitter/common/zookeeper/group'),
-    pants('src/python/twitter/common/zookeeper/serverset'),
+    ':zookeeper-old',
+    'src/python/twitter/common/zookeeper/group',
+    'src/python/twitter/common/zookeeper/serverset',
   ],
   provides = setup_py(
     name = 'twitter.common.zookeeper',
@@ -47,8 +47,8 @@ python_library(
   name = 'zookeeper-old',
   sources = ['client.py', 'constants.py', 'named_value.py'],
   dependencies = [
-    pants('src/python/twitter/common/log'),
-    pants('src/python/twitter/common/metrics'),
+    'src/python/twitter/common/log',
+    'src/python/twitter/common/metrics',
   ],
 )
 
@@ -56,8 +56,8 @@ python_library(
   name = 'kazoo_client',
   sources = ['kazoo_client.py'],
   dependencies = [
-    pants('3rdparty/python:kazoo'),
-    pants('src/python/twitter/common/metrics'),
+    '3rdparty/python:kazoo',
+    'src/python/twitter/common/metrics',
   ]
 )
 
@@ -65,9 +65,9 @@ python_library(
   name = 'testing',
   sources = TEST_SERVER,
   dependencies = [
-    pants('src/python/twitter/common/contextutil'),
-    pants('src/python/twitter/common/dirutil'),
-    pants('src/python/twitter/common/rpc/finagle'),
-    pants('src/thrift/com/twitter/common/zookeeper/testing/angrybird:py-thrift')
+    'src/python/twitter/common/contextutil',
+    'src/python/twitter/common/dirutil',
+    'src/python/twitter/common/rpc/finagle',
+    'src/thrift/com/twitter/common/zookeeper/testing/angrybird:py-thrift'
   ]
 )

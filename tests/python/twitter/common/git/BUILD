@@ -17,7 +17,7 @@
 python_test_suite(
   name = 'all',
   dependencies = [
-    pants(':git'),
+    ':git',
   ]
 )
 
@@ -25,6 +25,6 @@ python_tests(
   name = 'git',
   sources = ['test_git.py'],
   dependencies = [
-    pants('src/python/twitter/common/git:git'),
+    'src/python/twitter/common/git:git',
   ],
 )

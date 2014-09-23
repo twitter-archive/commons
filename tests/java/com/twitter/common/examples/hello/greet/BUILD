@@ -19,7 +19,7 @@
 junit_tests(name='greet',
   sources=globs('*.java'),
   dependencies=[
-    pants('3rdparty/jvm/junit'),
-    pants('src/java/com/twitter/common/examples/hello/greet'),
+    '3rdparty/jvm/junit',
+    'src/java/com/twitter/common/examples/hello/greet',
   ],
 )

@@ -26,6 +26,6 @@ python_binary(
   name = 'pex',
   entry_point = 'pex.bin.pex:main',
   dependencies = [
-    pants(':pex_library'),
+    ':pex_library',
   ],
 )

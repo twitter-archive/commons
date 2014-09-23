@@ -18,7 +18,7 @@ java_library(name='annotations',
   provides=artifact(
     org='com.twitter.common',
     name='junit-runner-annotations',
-    repo=pants('build-support/commons/ivy:public'),
+    repo='build-support/commons/ivy:public',
   ),
   sources=globs('*.java')
 )

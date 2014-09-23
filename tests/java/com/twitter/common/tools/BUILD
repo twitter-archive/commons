@@ -17,10 +17,10 @@
 java_tests(name = 'compiler',
   sources = globs('*.java'),
   dependencies = [
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/junit'),
-    pants('3rdparty/jvm/com/google/testing:tl4j'),
-    pants('src/java/com/twitter/common/testing/easymock'),
-    pants('src/java/com/twitter/common/tools:compiler')
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/junit',
+    '3rdparty/jvm/com/google/testing:tl4j',
+    'src/java/com/twitter/common/testing/easymock',
+    'src/java/com/twitter/common/tools:compiler'
   ]
 )

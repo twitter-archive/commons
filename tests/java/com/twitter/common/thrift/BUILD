@@ -47,6 +47,6 @@ java_tests(name='thrift',
                   'monitoring/*.java',
                   'text/*.java'),
   resources = [
-    pants('tests/resources/com/twitter/common/thrift/text')
+    'tests/resources/com/twitter/common/thrift/text'
   ]
 )

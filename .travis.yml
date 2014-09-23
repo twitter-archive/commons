@@ -9,9 +9,10 @@ jdk:
   - openjdk7
 
 script: |
-  java -version; ./build-support/bin/ci.sh -d
+  java -version
+  ./build-support/bin/ci.sh -d
 
 notifications:
   email:
-      - john.sirois@gmail.com
+    - john.sirois@gmail.com
 

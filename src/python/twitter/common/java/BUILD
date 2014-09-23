@@ -18,7 +18,7 @@ python_library(
   name = 'java',
   sources = globs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/java/perfdata'),
+    'src/python/twitter/common/java/perfdata',
   ],
   provides = setup_py(
     name = 'twitter.common.java',

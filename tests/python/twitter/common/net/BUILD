@@ -17,7 +17,7 @@
 python_test_suite(
   name = 'all',
   dependencies = [
-    pants(':socks'),
+    ':socks',
   ]
 )
 
@@ -25,7 +25,7 @@ python_tests(
   name = 'socks',
   sources = ['test_socks.py'],
   dependencies = [
-    pants('src/python/twitter/common/net:socks'),
-    pants('3rdparty/python:mox')
+    'src/python/twitter/common/net:socks',
+    '3rdparty/python:mox'
   ],
 )

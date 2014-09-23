@@ -16,10 +16,10 @@
 
 java_tests(name='easymock',
   dependencies = [
-    pants('3rdparty/jvm/org/easymock'),
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/junit'),
-    pants('src/java/com/twitter/common/testing/easymock'),
+    '3rdparty/jvm/org/easymock',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/junit',
+    'src/java/com/twitter/common/testing/easymock',
   ],
   sources = globs('*.java'),
 )

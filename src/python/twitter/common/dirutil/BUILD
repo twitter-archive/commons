@@ -18,7 +18,7 @@ python_library(
   name = 'dirutil',
   sources = rglobs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/lang'),
+    'src/python/twitter/common/lang',
   ],
   provides = setup_py(
     name = 'twitter.common.dirutil',

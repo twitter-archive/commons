@@ -18,11 +18,11 @@ java_library(name='julbridge',
   provides=artifact(
     org='com.twitter.common.logging',
     name='julbridge',
-    repo=pants('build-support/commons/ivy:public'),
+    repo='build-support/commons/ivy:public',
   ),
   dependencies=[
-    pants('3rdparty/jvm/log4j'),
-    pants('3rdparty/jvm/com/google/guava'),
+    '3rdparty/jvm/log4j',
+    '3rdparty/jvm/com/google/guava',
   ],
   sources=globs('*.java')
 )

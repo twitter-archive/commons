@@ -1,12 +1,12 @@
 java_tests(name='templating',
   dependencies=[
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/junit'),
-    pants('3rdparty/jvm/org/antlr:stringtemplate'),
-    pants('src/java/com/twitter/common/util/templating'),
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/junit',
+    '3rdparty/jvm/org/antlr:stringtemplate',
+    'src/java/com/twitter/common/util/templating',
   ],
   sources=globs('*.java'),
   resources=[
-    pants('tests/resources/com/twitter/common/util/templating'),
+    'tests/resources/com/twitter/common/util/templating',
   ]
 )

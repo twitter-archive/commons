@@ -16,10 +16,10 @@
 
 java_library(name='action',
   dependencies=[
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/com/google/testing:tl4j'),
-    pants('src/java/com/twitter/common/application:action'),
-    pants('src/java/com/twitter/common/base'),
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/testing:tl4j',
+    'src/java/com/twitter/common/application:action',
+    'src/java/com/twitter/common/base',
   ],
   sources=['TearDownRegistry.java']
 )

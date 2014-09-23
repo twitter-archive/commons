@@ -23,8 +23,8 @@ jar_library(name='specs_2.9',
       .exclude(org='org.scalatest', name='scalatest'),
   ],
   dependencies=[
-    pants('3rdparty/jvm/org/scalatest')
+    '3rdparty/jvm/org/scalatest'
   ]
 )
 
-dependencies(name='specs', dependencies=[pants(':specs_2.9')])
+target(name='specs', dependencies=[':specs_2.9'])
