@@ -109,9 +109,10 @@ test_start "Testing migrate-history.sh with no options"
 output=$(../migrate-history.sh ../immigrant) || die "Failed to migrate $output"
 [[ $output == $(git rev-parse HEAD) ]] || die "Output consists of something other than sha of new HEAD $output"
 
-revisions=$(git rev-list HEAD|wc -l)
-expected_revisions=$(expr "$master_revisions" + "$immigrant_revisions")
-[[ $revisions == $expected_revisions ]] || die "Wrong number of revisions"
+#these strange echos are because OS X echo outputs some whitespace before the number of lines.
+revisions=$(echo $(git rev-list HEAD|wc -l))
+expected_revisions=$(echo $(expr $master_revisions + $immigrant_revisions))
+[[ $revisions == $expected_revisions ]] || die "Wrong number of revisions (got $revisions expected $expected_revisions)"
 [[ "I am a recipient repo" == $(cat README) ]] || die "We overwrote README in recipient"
 [[ -e dir/README ]] || die "We deleted dir in recipient"
 [[ -e post/README ]] || die "We deleted post in recipient"

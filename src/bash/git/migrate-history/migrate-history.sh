@@ -110,7 +110,7 @@ make_union_tree () {
     tree1_filenames=$(echo "$tree1" | cut -f 2)
     tree2_filenames=$(echo "$tree2" | cut -f 2)
     tree2_shas=$(echo "$tree2" | get_sha_from_tree)
-    new_tree_file=$(mktemp)
+    new_tree_file=$(mktemp temp_tree.XXXXXXXXX)
 
     echo "$tree1" | while read child
     do
@@ -147,7 +147,7 @@ make_union_tree () {
 
 exclude_tree_entry() {
     #This will fail for filenames containing tabs.  Don't be a menace.
-    awk -F $'\t' -v filename="$1" '{ if ($2 != filename) print $_ }'
+    awk -F $'\t' -v filename="$1" '{ if ($2 != filename) print $0 }' || die "exclude tree entry failed"
 }
 
 make_subtreed_tree () {
@@ -259,7 +259,7 @@ then
 	) || die "can't get remotes to check if branch is remote."
 	if [[ -n "$remote_regex" ]]
 	then
-	    expr "$branch" : "^\($remote_regex\)/" > /dev/null &&
+	    echo "$branch" | grep "^\($remote_regex\)/" > /dev/null &&
 	    die "Use a local branch for -b (try git checkout branchname)"
 	fi
     fi
@@ -280,7 +280,7 @@ git fetch "$subtree_remote_name" || die "Can't fetch $subtree_remote_name"
 localbranch="migrate-$timestamp-$$"
 
 log "Creating a branch for the migration"
-git checkout -q -b "$localbranch" "$subtree_remote_name/$branch" || die "Can't branch"
+git checkout -q -b "$localbranch" "$subtree_remote_name/$branch" || die "Can't branch.  Make sure your immigrant branch is pushed to origin."
 
 if [[ -n "$origin_subdir" ]]
 then
