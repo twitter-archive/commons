@@ -17,6 +17,6 @@
 python_tests(name = 'contextutil',
   sources = globs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/contextutil'),
+    'src/python/twitter/common/contextutil',
   ]
 )

@@ -18,12 +18,12 @@ import os
 
 java_tests(name = 'testing',
   dependencies = [
-    pants('3rdparty/jvm/org/easymock'),
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/junit'),
-    pants('3rdparty/jvm/com/google/testing:tl4j'),
-    pants('src/java/com/twitter/common/testing/easymock'),
-    pants('src/java/com/twitter/common/testing:action'),
+    '3rdparty/jvm/org/easymock',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/junit',
+    '3rdparty/jvm/com/google/testing:tl4j',
+    'src/java/com/twitter/common/testing/easymock',
+    'src/java/com/twitter/common/testing:action',
   ],
   sources = [ 'EasyMockTestTest.java', 'TearDownRegistryTest.java' ],
 )

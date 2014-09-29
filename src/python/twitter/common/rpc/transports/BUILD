@@ -17,7 +17,7 @@
 python_library(
   name = 'all',
   dependencies = [
-    pants(':tsslsocket'),
+    ':tsslsocket',
   ]
 )
 
@@ -25,6 +25,6 @@ python_library(
   name = 'tsslsocket',
   sources = ['tsslsocket.py'],
   dependencies = [
-    pants('3rdparty/python:thrift'),
+    '3rdparty/python:thrift',
   ]
 )

@@ -1,7 +1,7 @@
 python_test_suite(
   name = 'all',
   dependencies = [
-    pants(':plugins'),
+    ':plugins',
   ]
 )
 
@@ -9,6 +9,6 @@ python_tests(
   name = 'plugins',
   sources = globs('*.py'),
   dependencies = [
-    pants('src/python/twitter/checkstyle/plugins:twitter'),
+    'src/python/twitter/checkstyle/plugins:twitter',
   ]
 )

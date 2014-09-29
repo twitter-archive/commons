@@ -16,12 +16,12 @@
 
 java_tests(name = 'inject',
   dependencies = [
-    pants('3rdparty/jvm/commons-lang'),
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/com/google/inject:guice'),
-    pants('3rdparty/jvm/com/google/inject/extensions:guice-multibindings'),
-    pants('3rdparty/jvm/junit'),
-    pants("src/java/com/twitter/common/inject"),
+    '3rdparty/jvm/commons-lang',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/inject:guice',
+    '3rdparty/jvm/com/google/inject/extensions:guice-multibindings',
+    '3rdparty/jvm/junit',
+    "src/java/com/twitter/common/inject",
   ],
   sources = globs('*.java')
 )

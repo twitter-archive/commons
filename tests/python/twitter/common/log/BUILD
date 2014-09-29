@@ -16,18 +16,18 @@
 
 python_test_suite(name = 'log',
   dependencies = [
-    pants(':test_log'),
-    pants(':test_log_with_scribe'),
+    ':test_log',
+    ':test_log_with_scribe',
   ]
 )
 
 python_tests(name = 'test_log',
   sources = globs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/lang'),
-    pants('src/python/twitter/common/log'),
-    pants('src/python/twitter/common/testing'),
-    pants('3rdparty/python:mox')
+    'src/python/twitter/common/lang',
+    'src/python/twitter/common/log',
+    'src/python/twitter/common/testing',
+    '3rdparty/python:mox'
   ],
   coverage = 'twitter.common.log'
 )
@@ -35,11 +35,11 @@ python_tests(name = 'test_log',
 python_tests(name = 'test_log_with_scribe',
   sources = globs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/lang'),
-    pants('src/python/twitter/common/log'),
-    pants('src/python/twitter/common/testing'),
-    pants('src/thrift/org/apache/scribe:py-scribe'),
-    pants('3rdparty/python:mox')
+    'src/python/twitter/common/lang',
+    'src/python/twitter/common/log',
+    'src/python/twitter/common/testing',
+    'src/thrift/org/apache/scribe:py-scribe',
+    '3rdparty/python:mox'
   ],
   coverage = 'twitter.common.log'
 )

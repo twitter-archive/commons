@@ -18,8 +18,8 @@ python_library(
   name = 'tunnel',
   sources = ('tunnel.py',),
   dependencies = [
-    pants('src/python/twitter/common/log'),
-    pants('src/python/twitter/common/quantity')
+    'src/python/twitter/common/log',
+    'src/python/twitter/common/quantity'
   ]
 )
 
@@ -28,7 +28,7 @@ python_library(
 python_library(
   name = 'net',
   dependencies = [
-    pants(':tunnel'),
+    ':tunnel',
   ],
   provides = setup_py(
     name = 'twitter.common.net',
@@ -49,7 +49,7 @@ python_library(
 python_library(
   name = 'ssh',
   dependencies = [
-    pants(':tunnel'),
+    ':tunnel',
   ]
 )
 
@@ -57,6 +57,6 @@ python_library(
   name = 'socks',
   sources = ('socks.py',),
   dependencies = [
-    pants('3rdparty/python:socksipy-branch')
+    '3rdparty/python:socksipy-branch'
   ]
 )

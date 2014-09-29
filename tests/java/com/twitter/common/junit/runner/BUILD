@@ -16,7 +16,7 @@
 
 java_tests(name = 'runner',
   dependencies = [
-    pants("src/java/com/twitter/common/junit/runner"),
+    "src/java/com/twitter/common/junit/runner",
   ],
   sources = globs('*.java')
 )

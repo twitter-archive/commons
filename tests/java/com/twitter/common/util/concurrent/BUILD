@@ -1,8 +1,8 @@
 java_tests(name = 'concurrent',
   dependencies = [
-    pants('3rdparty/jvm/junit'),
-    pants('src/java/com/twitter/common/testing/easymock'),
-    pants('src/java/com/twitter/common/util'),
+    '3rdparty/jvm/junit',
+    'src/java/com/twitter/common/testing/easymock',
+    'src/java/com/twitter/common/util',
   ],
   sources = globs('*Test.java')
 )

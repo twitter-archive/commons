@@ -18,8 +18,8 @@ python_library(
   name = 'config',
   sources = rglobs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/collections'),
-    pants('src/python/twitter/common/lang'),
+    'src/python/twitter/common/collections',
+    'src/python/twitter/common/lang',
   ],
   provides = setup_py(
     name = 'twitter.common.config',

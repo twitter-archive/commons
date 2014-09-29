@@ -21,9 +21,9 @@ scala_library(name = 'stats',
     repo = 'build-support/commons/ivy:public',
   ),
   dependencies = [
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/com/twitter:ostrich'),
-    pants('src/java/com/twitter/common/stats:stats-provider'),
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/twitter:ostrich',
+    'src/java/com/twitter/common/stats:stats-provider',
   ],
   sources = globs('*.scala'),
 )

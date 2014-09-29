@@ -19,15 +19,15 @@ java_library(
   provides=artifact(
     org='com.twitter.common.webassets',
     name='bootstrap',
-    repo=pants('build-support/commons/ivy:public'),
+    repo='build-support/commons/ivy:public',
   ),
   dependencies=[
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/com/google/inject:guice'),
-    pants('src/java/com/twitter/common/application/http'),
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/inject:guice',
+    'src/java/com/twitter/common/application/http',
   ],
   sources=globs('*.java'),
   resources=[
-    pants('src/resources/com/twitter/common/webassets/bootstrap'),
+    'src/resources/com/twitter/common/webassets/bootstrap',
   ]
 )

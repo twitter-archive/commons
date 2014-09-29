@@ -22,6 +22,6 @@ jar_library(name='checkstyle',
   ],
   dependencies=[
     # Needs this as the replacement for the excluded google-collections.
-    pants('3rdparty/jvm/com/google/guava'),
+    '3rdparty/jvm/com/google/guava',
   ]
 )

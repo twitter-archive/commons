@@ -18,10 +18,10 @@ java_library(name='unittest',
   provides=artifact(
     org='com.twitter.common',
     name='security-unittest',
-    repo=pants('build-support/commons/ivy:public'),
+    repo='build-support/commons/ivy:public',
   ),
   dependencies=[
-    pants('3rdparty/jvm/com/google/guava'),
+    '3rdparty/jvm/com/google/guava',
   ],
   sources=globs('*.java')
 )

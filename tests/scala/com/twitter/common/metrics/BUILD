@@ -16,10 +16,10 @@
 
 junit_tests(name='metrics',
   dependencies=[
-    pants('3rdparty/jvm/com/twitter:finagle-stats'),
-    pants('3rdparty/jvm/junit'),
-    pants('3rdparty/jvm/org/mockito'),
-    pants('3rdparty/jvm/org/scalatest'),
+    '3rdparty/jvm/com/twitter:finagle-stats',
+    '3rdparty/jvm/junit',
+    '3rdparty/jvm/org/mockito',
+    '3rdparty/jvm/org/scalatest',
   ],
   sources=globs('*.scala')
 )

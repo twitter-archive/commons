@@ -19,6 +19,6 @@ jvm_binary(name='main',
   source='Main.java',
   main='com.twitter.common.examples.pingpong.main.Main',
   dependencies=[
-    pants('src/java/com/twitter/common/examples/pingpong/handler')
+    'src/java/com/twitter/common/examples/pingpong/handler'
   ]
 )

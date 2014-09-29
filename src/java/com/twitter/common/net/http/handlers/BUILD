@@ -45,12 +45,12 @@ java_library(
     repo='build-support/commons/ivy:public',
   ),
   dependencies=[
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/com/google/inject:guice'),
-    pants('3rdparty/jvm/javax/servlet:servlet-api'),
-    pants('3rdparty/jvm/org/antlr:stringtemplate'),
-    pants('src/java/com/twitter/common/base'),
-    pants('src/java/com/twitter/common/util/templating'),
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/inject:guice',
+    '3rdparty/jvm/javax/servlet:servlet-api',
+    '3rdparty/jvm/org/antlr:stringtemplate',
+    'src/java/com/twitter/common/base',
+    'src/java/com/twitter/common/util/templating',
   ],
   sources=STRING_TEMPLATE_SOURCES
 )
@@ -63,18 +63,18 @@ java_library(
     repo='build-support/commons/ivy:public',
   ),
   dependencies=[
-    pants('3rdparty/jvm/commons-codec'),
-    pants('3rdparty/jvm/com/google/code/gson'),
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/com/google/inject:guice'),
-    pants('3rdparty/jvm/javax/servlet:servlet-api'),
-    pants('3rdparty/jvm/org/antlr:stringtemplate'),
-    pants(':params'),
-    pants(':string-template'),
-    pants(':text'),
-    pants('src/java/com/twitter/common/base'),
-    pants('src/java/com/twitter/common/quantity'),
-    pants('src/java/com/twitter/common/stats'),
+    '3rdparty/jvm/commons-codec',
+    '3rdparty/jvm/com/google/code/gson',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/inject:guice',
+    '3rdparty/jvm/javax/servlet:servlet-api',
+    '3rdparty/jvm/org/antlr:stringtemplate',
+    ':params',
+    ':string-template',
+    ':text',
+    'src/java/com/twitter/common/base',
+    'src/java/com/twitter/common/quantity',
+    'src/java/com/twitter/common/stats',
   ],
   sources=globs('*.java')
       - TEXT_SOURCES
@@ -83,7 +83,7 @@ java_library(
       - TIME_SERIES_SOURCES
       - PARAMS_SOURCES,
   resources=[
-    pants('src/resources/com/twitter/common/net/http/handlers:log')
+    'src/resources/com/twitter/common/net/http/handlers:log'
   ]
 )
 
@@ -108,7 +108,7 @@ java_library(
   ],
   sources=THRIFT_SOURCES,
   resources=[
-    pants('src/resources/com/twitter/common/net/http/handlers:thrift')
+    'src/resources/com/twitter/common/net/http/handlers:thrift'
   ]
 )
 
@@ -120,12 +120,12 @@ java_library(
     repo='build-support/commons/ivy:public',
   ),
   dependencies=[
-    pants('3rdparty/jvm/com/google/code/gson'),
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/com/google/inject:guice'),
-    pants('3rdparty/jvm/javax/servlet:servlet-api'),
-    pants('src/java/com/twitter/common/collections'),
-    pants('src/java/com/twitter/common/stats:time-series'),
+    '3rdparty/jvm/com/google/code/gson',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/inject:guice',
+    '3rdparty/jvm/javax/servlet:servlet-api',
+    'src/java/com/twitter/common/collections',
+    'src/java/com/twitter/common/stats:time-series',
   ],
   sources=TIME_SERIES_SOURCES
 )
@@ -135,13 +135,13 @@ java_library(
   provides=artifact(
     org='com.twitter.common',
     name='net-http-handlers-params',
-    repo=pants('build-support/commons/ivy:public'),
+    repo='build-support/commons/ivy:public',
   ),
   dependencies=[
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/com/google/inject:guice'),
-    pants('3rdparty/jvm/com/google/code/findbugs:jsr305'),
-    pants('3rdparty/jvm/javax/servlet:servlet-api'),
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/inject:guice',
+    '3rdparty/jvm/com/google/code/findbugs:jsr305',
+    '3rdparty/jvm/javax/servlet:servlet-api',
   ],
   sources=PARAMS_SOURCES
 )

@@ -49,12 +49,12 @@ make_lib('com.twitter.common.tools', 'java-compiler', '0.0.17')
 make_lib('com.typesafe.zinc', 'zinc', '0.3.2-M1')
 jar_library(name='scala-compile-2.9.3',
   dependencies=[
-    pants('3rdparty/jvm/org/scala-lang:scala-compiler')
+    '3rdparty/jvm/org/scala-lang:scala-compiler'
   ]
 )
 jar_library(name='scala-library-2.9.3',
   dependencies=[
-    pants('3rdparty/jvm/org/scala-lang:scala-library')
+    '3rdparty/jvm/org/scala-lang:scala-library'
   ]
 )
 
@@ -75,8 +75,8 @@ make_lib('org.scalastyle', 'scalastyle_2.9.3', '0.3.2', lib_name='scalastyle')
 # JunitRun
 make_lib('com.twitter.common', name='junit-runner', rev='0.0.41', lib_name='junit',
   deps=[
-    pants('3rdparty/jvm/junit'),
-    pants('3rdparty/jvm/org/hamcrest:hamcrest-core'),
+    '3rdparty/jvm/junit',
+    '3rdparty/jvm/org/hamcrest:hamcrest-core',
   ]
 )
 make_lib('emma', 'emma', '2.1.5320')
@@ -85,7 +85,7 @@ make_lib('emma', 'emma', '2.1.5320')
 # SpecsRun
 make_lib('com.twitter.common', 'specs-testing', '0.0.6', lib_name='scala-specs-2.9.3',
   deps=[
-    pants('3rdparty/jvm/org/scala-tools/testing:specs_2.9')
+    '3rdparty/jvm/org/scala-tools/testing:specs_2.9'
   ]
 )
 

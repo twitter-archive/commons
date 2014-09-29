@@ -17,6 +17,6 @@
 python_tests(name = 'options',
   sources = globs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/options'),
+    'src/python/twitter/common/options',
   ]
 )

@@ -16,17 +16,17 @@
 
 java_tests(name = 'io',
   dependencies = [
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/junit'),
-    pants('3rdparty/jvm/org/apache/thrift'),
-    pants('3rdparty/jvm/com/google/testing:tl4j'),
-    pants('src/java/com/twitter/common/base'),
-    pants('src/java/com/twitter/common/io'),
-    pants('src/java/com/twitter/common/io:base64zlibcodec'),
-    pants('src/java/com/twitter/common/io:json'),
-    pants('src/java/com/twitter/common/io:streamer'),
-    pants('src/java/com/twitter/common/io:thrift'),
-    pants('src/java/com/twitter/common/thrift:testing'),
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/junit',
+    '3rdparty/jvm/org/apache/thrift',
+    '3rdparty/jvm/com/google/testing:tl4j',
+    'src/java/com/twitter/common/base',
+    'src/java/com/twitter/common/io',
+    'src/java/com/twitter/common/io:base64zlibcodec',
+    'src/java/com/twitter/common/io:json',
+    'src/java/com/twitter/common/io:streamer',
+    'src/java/com/twitter/common/io:thrift',
+    'src/java/com/twitter/common/thrift:testing',
   ],
   sources = globs('*.java')
 )

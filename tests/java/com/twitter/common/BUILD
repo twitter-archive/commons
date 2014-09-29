@@ -14,66 +14,66 @@
 # limitations under the License.
 # ==================================================================================================
 
-dependencies(name = 'small',
+target(name = 'small',
   dependencies = [
-    pants('tests/java/com/twitter/common/application'),
-    pants('tests/java/com/twitter/common/application/modules:lifecycle'),
-    pants('tests/java/com/twitter/common/args:small'),
-    pants('tests/java/com/twitter/common/base'),
-    pants('tests/java/com/twitter/common/collections'),
-    pants('tests/java/com/twitter/common/inject'),
-    pants('tests/java/com/twitter/common/jar/tool'),
-    pants('tests/java/com/twitter/common/junit/runner'),
-    pants('tests/java/com/twitter/common/io'),
-    pants('tests/java/com/twitter/common/logging'),
-    pants('tests/java/com/twitter/common/logging/julbridge'),
-    pants('tests/java/com/twitter/common/memcached'),
-    pants('tests/java/com/twitter/common/metrics'),
-    pants('tests/java/com/twitter/common/net'),
-    pants('tests/java/com/twitter/common/net/http'),
-    pants('tests/java/com/twitter/common/net/http/handlers'),
-    pants('tests/java/com/twitter/common/objectsize'),
-    pants('tests/java/com/twitter/common/quantity'),
-    pants('tests/java/com/twitter/common/runtime'),
-    pants('tests/java/com/twitter/common/stats'),
-    pants('tests/java/com/twitter/common/testing'),
-    pants('tests/java/com/twitter/common/testing/easymock'),
-    pants('tests/java/com/twitter/common/text'),
-    pants('tests/java/com/twitter/common/thrift'),
-    pants('tests/java/com/twitter/common/util'),
-    pants('tests/java/com/twitter/common/util/caching'),
-    pants('tests/java/com/twitter/common/util/concurrent'),
-    pants('tests/java/com/twitter/common/util/templating'),
-    pants('tests/java/com/twitter/common/zookeeper:small'),
+    'tests/java/com/twitter/common/application',
+    'tests/java/com/twitter/common/application/modules:lifecycle',
+    'tests/java/com/twitter/common/args:small',
+    'tests/java/com/twitter/common/base',
+    'tests/java/com/twitter/common/collections',
+    'tests/java/com/twitter/common/inject',
+    'tests/java/com/twitter/common/jar/tool',
+    'tests/java/com/twitter/common/junit/runner',
+    'tests/java/com/twitter/common/io',
+    'tests/java/com/twitter/common/logging',
+    'tests/java/com/twitter/common/logging/julbridge',
+    'tests/java/com/twitter/common/memcached',
+    'tests/java/com/twitter/common/metrics',
+    'tests/java/com/twitter/common/net',
+    'tests/java/com/twitter/common/net/http',
+    'tests/java/com/twitter/common/net/http/handlers',
+    'tests/java/com/twitter/common/objectsize',
+    'tests/java/com/twitter/common/quantity',
+    'tests/java/com/twitter/common/runtime',
+    'tests/java/com/twitter/common/stats',
+    'tests/java/com/twitter/common/testing',
+    'tests/java/com/twitter/common/testing/easymock',
+    'tests/java/com/twitter/common/text',
+    'tests/java/com/twitter/common/thrift',
+    'tests/java/com/twitter/common/util',
+    'tests/java/com/twitter/common/util/caching',
+    'tests/java/com/twitter/common/util/concurrent',
+    'tests/java/com/twitter/common/util/templating',
+    'tests/java/com/twitter/common/zookeeper:small',
 
     # No tests for these, adding deps to support a single target for --ide builds with comprehensive
     # deps
-    pants('src/java/com/twitter/common/checkstyle'),
-    pants('src/java/com/twitter/common/logging/scribe'),
-    pants('src/java/com/twitter/common/net/http'),
+    'src/java/com/twitter/common/checkstyle',
+    'src/java/com/twitter/common/logging/scribe',
+    'src/java/com/twitter/common/net/http',
   ],
 )
 
-dependencies(name = 'medium',
+target(name = 'medium',
   dependencies = [
-    pants('tests/java/com/twitter/common/args:medium'),
-    pants('tests/java/com/twitter/common/zookeeper:medium'),
+    'tests/java/com/twitter/common/args:medium',
+    'tests/java/com/twitter/common/zookeeper:medium',
   ]
 )
 
-dependencies(name = 'large',
+target(name = 'large',
   dependencies = [
-    pants('tests/java/com/twitter/common/zookeeper:large'),
+    'tests/java/com/twitter/common/zookeeper:large',
   ]
 )
 
-dependencies(name = 'all',
+target(name = 'all',
   dependencies = [
-    pants(':large'),
-    pants(':medium'),
-    pants(':small'),
+    ':large',
+    ':medium',
+    ':small',
   ]
 )
 
 # TODO(John Sirois): kill this legacy alias with a deprecation cycle
-dependencies(name = 'all-tests', dependencies = [ pants(':all') ])
+target(name = 'all-tests', dependencies = [ ':all' ])

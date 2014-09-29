@@ -18,10 +18,10 @@ python_library(
   name = 'concurrent',
   sources = globs('*.py'),
   dependencies = [
-    pants('3rdparty/python:futures'),
-    pants('src/python/twitter/common/exceptions'),
-    pants('src/python/twitter/common/lang'),
-    pants('src/python/twitter/common/quantity')
+    '3rdparty/python:futures',
+    'src/python/twitter/common/exceptions',
+    'src/python/twitter/common/lang',
+    'src/python/twitter/common/quantity'
   ],
   provides = setup_py(
     name = 'twitter.common.concurrent',

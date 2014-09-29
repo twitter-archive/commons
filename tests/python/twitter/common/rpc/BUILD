@@ -17,13 +17,13 @@
 python_tests(name = 'rpc',
   sources = globs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/rpc')
+    'src/python/twitter/common/rpc'
   ]
 )
 
 python_test_suite(name = 'all',
   dependencies = [
-    pants(':rpc'),
-    pants('tests/python/twitter/common/rpc/finagle')
+    ':rpc',
+    'tests/python/twitter/common/rpc/finagle'
   ]
 )

@@ -37,13 +37,13 @@ java_library(name = 'base64zlibcodec',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'io-base64zlibcodec',
-    repo = pants('build-support/commons/ivy:public'),
+    repo = 'build-support/commons/ivy:public',
   ),
   dependencies = [
-    pants('3rdparty/jvm/commons-codec'),
-    pants('3rdparty/jvm/commons-lang'),
-    pants('3rdparty/jvm/com/google/code/gson'),
-    pants('3rdparty/jvm/com/google/guava'),
+    '3rdparty/jvm/commons-codec',
+    '3rdparty/jvm/commons-lang',
+    '3rdparty/jvm/com/google/code/gson',
+    '3rdparty/jvm/com/google/guava',
   ],
   sources = ["Base64ZlibCodec.java"]
 )
@@ -52,7 +52,7 @@ java_library(name = 'streamer',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'io-streamer',
-    repo = pants('build-support/commons/ivy:public'),
+    repo = 'build-support/commons/ivy:public',
   ),
   dependencies = [
     '3rdparty/jvm/com/google/guava',

@@ -18,11 +18,11 @@ java_library(name='mockito',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'testing-mockito',
-    repo = pants('build-support/commons/ivy:public'),
+    repo = 'build-support/commons/ivy:public',
   ),
   dependencies = [
-    pants('3rdparty/jvm/junit'),
-    pants('3rdparty/jvm/org/mockito'),
+    '3rdparty/jvm/junit',
+    '3rdparty/jvm/org/mockito',
   ],
   sources = globs('*.java'),
 )

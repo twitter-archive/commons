@@ -24,6 +24,6 @@ jar_library(name='guava',
   ],
   dependencies=[
     # Defined in provided scope so we provide here
-    pants('3rdparty/jvm/com/google/code/findbugs:jsr305'),
+    '3rdparty/jvm/com/google/code/findbugs:jsr305',
   ]
 )

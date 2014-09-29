@@ -22,8 +22,8 @@ python_library(
 python_test_suite(
   name = 'java',
   dependencies = [
-    pants(':class_file'),
-    pants(':perfdata'),
+    ':class_file',
+    ':perfdata',
   ]
 )
 
@@ -31,8 +31,8 @@ python_tests(
   name = 'class_file',
   sources = ['test_class_file.py'],
   dependencies = [
-    pants('src/python/twitter/common/java'),
-    pants(':resources'),
+    'src/python/twitter/common/java',
+    ':resources',
   ]
 )
 
@@ -40,8 +40,8 @@ python_tests(
   name = 'perfdata',
   sources = ['test_perfdata.py'],
   dependencies = [
-    pants('3rdparty/python:mock'),
-    pants('src/python/twitter/common/java/perfdata'),
-    pants(':resources'),
+    '3rdparty/python:mock',
+    'src/python/twitter/common/java/perfdata',
+    ':resources',
   ]
 )

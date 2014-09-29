@@ -18,7 +18,7 @@ python_library(
   name = 'confluence',
   sources = rglobs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/log')
+    'src/python/twitter/common/log'
   ],
   provides = setup_py(
     name = 'twitter.common.confluence',

@@ -3,15 +3,15 @@
 
 java_library(name='echo',
   dependencies=[
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/org/apache/hadoop:hadoop-core'),
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/org/apache/hadoop:hadoop-core',
   ],
   sources=globs('*.java'),
 )
 
 jvm_binary(name='echo-bin',
   dependencies=[
-    pants(':echo'),
+    ':echo',
   ],
   main='com.twitter.common.examples.echo.EchoMain',
 )

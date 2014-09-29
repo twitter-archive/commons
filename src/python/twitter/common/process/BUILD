@@ -18,8 +18,8 @@ python_library(
   name = 'process',
   sources = rglobs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/lang'),
-    pants('src/python/twitter/common/string'),
+    'src/python/twitter/common/lang',
+    'src/python/twitter/common/string',
   ],
   provides = setup_py(
     name = 'twitter.common.process',

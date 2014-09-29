@@ -22,11 +22,11 @@ python_library(
 python_library(
   name = "all",
   dependencies = [
-    pants(":exceptions"),
-    pants(":http"),
-    pants(":scribe_exceptions"),
-    pants(":serverset"),
-    pants(":vars"),
+    ":exceptions",
+    ":http",
+    ":scribe_exceptions",
+    ":serverset",
+    ":vars",
   ]
 )
 
@@ -34,7 +34,7 @@ python_library(
   name = "exceptions",
   sources = ['exception_handler.py'],
   dependencies = [
-    pants('src/python/twitter/common/exceptions')
+    'src/python/twitter/common/exceptions'
   ],
 )
 
@@ -42,8 +42,8 @@ python_library(
   name = "scribe_exceptions",
   sources = ['scribe_exception_handler.py'],
   dependencies = [
-    pants('src/python/twitter/common/exceptions'),
-    pants('src/thrift/org/apache/scribe:py-scribe'),
+    'src/python/twitter/common/exceptions',
+    'src/thrift/org/apache/scribe:py-scribe',
   ]
 )
 
@@ -51,8 +51,8 @@ python_library(
   name = "http",
   sources = ['http.py'],
   dependencies = [
-    pants('src/python/twitter/common/exceptions'),
-    pants('src/python/twitter/common/http')
+    'src/python/twitter/common/exceptions',
+    'src/python/twitter/common/http'
   ]
 )
 
@@ -60,7 +60,7 @@ python_library(
   name = "serverset",
   sources = ['serverset.py'],
   dependencies = [
-    pants('src/python/twitter/common/zookeeper/serverset')
+    'src/python/twitter/common/zookeeper/serverset'
   ]
 )
 
@@ -68,9 +68,9 @@ python_library(
   name = "vars",
   sources = ['varz.py'],
   dependencies = [
-    pants(':http'),
-    pants('src/python/twitter/common/lang'),
-    pants('src/python/twitter/common/metrics'),
-    pants('src/python/twitter/common/quantity'),
+    ':http',
+    'src/python/twitter/common/lang',
+    'src/python/twitter/common/metrics',
+    'src/python/twitter/common/quantity',
   ]
 )

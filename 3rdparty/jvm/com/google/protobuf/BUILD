@@ -20,4 +20,4 @@ jar_library(name='protobuf-2.4.1',
   ]
 )
 
-dependencies(name='protobuf-java', dependencies=[pants(':protobuf-2.4.1')])
+target(name='protobuf-java', dependencies=[':protobuf-2.4.1'])

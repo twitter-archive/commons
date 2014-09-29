@@ -26,13 +26,13 @@ java_library(name = 'action',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'application-action',
-    repo = pants('build-support/commons/ivy:public'),
+    repo = 'build-support/commons/ivy:public',
   ),
   dependencies = [
-    pants('3rdparty/jvm/commons-lang'),
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/com/google/inject:guice'),
-    pants('src/java/com/twitter/common/base'),
+    '3rdparty/jvm/commons-lang',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/inject:guice',
+    'src/java/com/twitter/common/base',
   ],
   sources = ACTION_SOURCES
 )
@@ -41,16 +41,16 @@ java_library(name = 'application',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'application',
-    repo = pants('build-support/commons/ivy:public'),
+    repo = 'build-support/commons/ivy:public',
   ),
   dependencies = [
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/com/google/inject:guice'),
-    pants('src/java/com/twitter/common/application/modules:applauncher'),
-    pants('src/java/com/twitter/common/application/modules:lifecycle'),
-    pants('src/java/com/twitter/common/args'),
-    pants('src/java/com/twitter/common/base'),
-    pants('src/java/com/twitter/common/net/http/handlers'),
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/inject:guice',
+    'src/java/com/twitter/common/application/modules:applauncher',
+    'src/java/com/twitter/common/application/modules:lifecycle',
+    'src/java/com/twitter/common/args',
+    'src/java/com/twitter/common/base',
+    'src/java/com/twitter/common/net/http/handlers',
   ],
   sources = globs('*.java') - ACTION_SOURCES
 )

@@ -16,12 +16,12 @@
 
 java_tests(name = 'memcached',
   dependencies = [
-    pants('3rdparty/jvm/com/google/guava'),
-    pants('3rdparty/jvm/junit'),
-    pants('3rdparty/jvm/org/apache/thrift'),
-    pants('src/java/com/twitter/common/io:thrift'),
-    pants('src/java/com/twitter/common/memcached:thrift-transcoder'),
-    pants('src/java/com/twitter/common/thrift:testing'),
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/junit',
+    '3rdparty/jvm/org/apache/thrift',
+    'src/java/com/twitter/common/io:thrift',
+    'src/java/com/twitter/common/memcached:thrift-transcoder',
+    'src/java/com/twitter/common/thrift:testing',
   ],
   sources = globs('*.java')
 )

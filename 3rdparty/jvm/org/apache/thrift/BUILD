@@ -20,23 +20,23 @@ jar_library(name='libthrift-0.5.0',
   ]
 )
 
-dependencies(name='thrift-0.5.0',
+target(name='thrift-0.5.0',
   dependencies=[
-    pants('3rdparty/jvm/commons-lang'),
-    pants(':libthrift-0.5.0'),
-    pants('3rdparty/jvm/org/slf4j:slf4j-api'),
+    '3rdparty/jvm/commons-lang',
+    ':libthrift-0.5.0',
+    '3rdparty/jvm/org/slf4j:slf4j-api',
   ]
 )
 
-dependencies(name='thrift-0.5.0-finagle',
+target(name='thrift-0.5.0-finagle',
   dependencies=[
-    pants(':thrift-0.5.0'),
+    ':thrift-0.5.0',
 
     # finagle thrift extra deps
-    pants('3rdparty/jvm/com/twitter:finagle-core'),
-    pants('3rdparty/jvm/com/twitter:finagle-thrift'),
-    pants('3rdparty/jvm/com/twitter:util-core'),
+    '3rdparty/jvm/com/twitter:finagle-core',
+    '3rdparty/jvm/com/twitter:finagle-thrift',
+    '3rdparty/jvm/com/twitter:util-core',
   ]
 )
 
-dependencies(name='thrift', dependencies=[pants(':thrift-0.5.0')])
+target(name='thrift', dependencies=[':thrift-0.5.0'])

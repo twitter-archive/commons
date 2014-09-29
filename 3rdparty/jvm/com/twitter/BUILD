@@ -47,9 +47,9 @@ make_finagle_lib('finagle-serversets',
     exclude('com.twitter.common.zookeeper', 'server-set'),
   ],
   deps=[
-    pants('src/java/com/twitter/common/zookeeper:client'),
-    pants('src/java/com/twitter/common/zookeeper:group'),
-    pants('src/java/com/twitter/common/zookeeper:server-set'),
+    'src/java/com/twitter/common/zookeeper:client',
+    'src/java/com/twitter/common/zookeeper:group',
+    'src/java/com/twitter/common/zookeeper:server-set',
   ]
 )
 
@@ -58,7 +58,7 @@ make_finagle_lib('finagle-stats',
     exclude('com.twitter.common', 'metrics'),
   ],
   deps=[
-    pants('src/java/com/twitter/common/metrics'),
+    'src/java/com/twitter/common/metrics',
   ]
 )
 

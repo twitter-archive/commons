@@ -60,4 +60,4 @@ make_dep('socksipy-branch', '1.01', 'SocksiPy-Branch')
 make_dep('thrift', '0.9.1')
 make_dep('zc-zookeeper-static', '3.4.4')
 
-dependencies(name='antlr-python-runtime', dependencies=[':antlr-3.1.3'])
+target(name='antlr-python-runtime', dependencies=[':antlr-3.1.3'])
