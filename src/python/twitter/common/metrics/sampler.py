@@ -90,7 +90,11 @@ class DiskMetricWriter(SamplerBase):
 
   def iterate(self):
     with open(self._filename, 'w') as fp:
-      json.dump(self._provider.sample(), fp)
+      try:
+        json.dump(self._provider.sample(), fp)
+      except EnvironmentError as e:
+        if log:
+          log.warn('Failed to write sample: %s' % e)
 
 
 class DiskMetricReader(SamplerBase, MetricProvider):
@@ -122,6 +126,6 @@ class DiskMetricReader(SamplerBase, MetricProvider):
       try:
         with open(self._filename, 'r') as fp:
           self._sample = json.load(fp)
-      except (IOError, OSError, ValueError) as e:
+      except (EnvironmentError, ValueError) as e:
         if log:
           log.warn('Failed to collect sample: %s' % e)
