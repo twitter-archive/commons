@@ -20,7 +20,7 @@ import pytest
 from contextlib import contextmanager
 
 from twitter.common.contextutil import temporary_dir
-from twitter.common.dirutil import Fileset as RealFileset
+from twitter.common.dirutil import Fileset as RealFileset, touch
 
 
 class Fileset(RealFileset):
@@ -94,6 +94,7 @@ def test_zglobs():
   ]
 
   with Fileset.over(FILELIST):
+    assert ll(Fileset.zglobs('')) == 0
     assert ll(Fileset.zglobs('*.txt')) == 1
     assert ll(Fileset.zglobs('.*')) == 1
     assert ll(Fileset.zglobs('*/*.txt')) == 1
@@ -134,25 +135,31 @@ def test_zglobs():
 
 
 def test_fnmatch():
-  # We can't test Fileset.globs directly because it uses glob.glob and we
-  # can't override its filelist.
   with Fileset.over(['.txt']):
     assert leq(Fileset.zglobs('*.txt'))
     assert leq(Fileset.zglobs('?.txt'))
     assert leq(Fileset.zglobs('[].txt'))
     assert leq(Fileset.zglobs('.*'), '.txt')
     assert leq(Fileset.zglobs('*.py', '.*'), '.txt')
+    assert leq(Fileset.rglobs(''))
     assert leq(Fileset.rglobs('*.txt'))
     assert leq(Fileset.rglobs('?.txt'))
     assert leq(Fileset.rglobs('[].txt'))
     assert leq(Fileset.rglobs('.*'), '.txt')
     assert leq(Fileset.rglobs('*.py', '.*'), '.txt')
+    assert leq(Fileset.rglobs('.*', '.*'), '.txt')
 
   with Fileset.over(['a.txt']):
     for operation in (Fileset.rglobs, Fileset.zglobs):
       assert leq(operation('*.txt'), 'a.txt')
       assert leq(operation('?.txt'), 'a.txt')
       assert leq(operation('[abcd].txt'), 'a.txt')
+
+  with temporary_dir() as tempdir:
+    touch(os.path.join(tempdir, '.txt'))
+    assert leq(Fileset.globs('.txt', root=tempdir), '.txt')
+    assert leq(Fileset.globs('*.txt', root=tempdir))
+    assert leq(Fileset.globs('', root=tempdir))
 
 
 def test_walk_altdir():
