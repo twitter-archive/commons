@@ -18,6 +18,7 @@ python_test_suite(
   name = 'all',
   dependencies = [
     ':socks',
+    ':tunnel',
   ]
 )
 
@@ -27,5 +28,13 @@ python_tests(
   dependencies = [
     'src/python/twitter/common/net:socks',
     '3rdparty/python:mox'
+  ],
+)
+
+python_tests(
+  name = 'tunnel',
+  sources = ['test_tunnel.py'],
+  dependencies = [
+    'src/python/twitter/common/net:tunnel'
   ],
 )

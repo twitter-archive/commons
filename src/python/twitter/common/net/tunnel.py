@@ -129,6 +129,7 @@ class TunnelHelper(object):
     if not cls.wait_for_accept(tunnel_port, ssh_popen, timeout):
       raise cls.TunnelError('Could not establish tunnel to %s via %s' % (remote_host, tunnel_host))
     cls.log('session established')
+    atexit.register(safe_kill, ssh_popen)
     return 'localhost', tunnel_port
 
   @classmethod
@@ -146,6 +147,7 @@ class TunnelHelper(object):
     if not cls.wait_for_accept(proxy_port, ssh_popen, timeout):
       raise cls.TunnelError('Could not establish proxy via %s' % proxy_host)
     cls.log('session established')
+    atexit.register(safe_kill, ssh_popen)
     return 'localhost', proxy_port
 
   @classmethod
@@ -156,11 +158,3 @@ class TunnelHelper(object):
     _, po = cls.TUNNELS.pop((remote_host, remote_port), (None, None))
     if po:
       safe_kill(po)
-
-
-@atexit.register
-def _cleanup():
-  for _, po in TunnelHelper.TUNNELS.values():
-    safe_kill(po)
-  for _, po in TunnelHelper.PROXIES.values():
-    safe_kill(po)
