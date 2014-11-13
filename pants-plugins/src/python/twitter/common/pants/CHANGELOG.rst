@@ -1,6 +1,14 @@
 RELEASE HISTORY
 ===============
 
+0.6.0 (11/12/2014)
+------------------
+
+API Changes
+~~~~~~~~~~~
+
+* Depend on latest release ``twitter.common.*`` deps.
+
 0.5.0 (8/11/2014)
 ------------------
 
@@ -9,7 +17,6 @@ API Changes
 
 * Update to ``pantsbuild.pants`` 0.0.23 api changes
   `RB #864 <https://rbcommons.com/s/twitter/r/864/>`_
-
 
 0.4.0 (7/28/2014)
 ------------------
