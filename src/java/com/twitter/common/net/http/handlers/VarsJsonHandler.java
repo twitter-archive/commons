@@ -50,7 +50,7 @@ public class VarsJsonHandler extends HttpServlet {
 
   @VisibleForTesting
   String getBody(boolean pretty) {
-    Map<String, Object> vars = Maps.newHashMap();
+    Map<String, Object> vars = Maps.newLinkedHashMap();
     for (Stat<?> var : statSupplier.get()) {
       vars.put(var.getName(), var.read());
     }
