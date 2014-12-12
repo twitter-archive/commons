@@ -5,8 +5,6 @@ VIRTUALENV_VERSION=1.11.4
 
 if which python2.7 >/dev/null; then
   PY=`which python2.7`
-elif which python2.6 >/dev/null; then
-  PY=`which python2.6`
 else
   echo 'No python interpreter found on the path.  Python will not work!' 1>&2
   exit 1

@@ -1,8 +1,4 @@
-language: python
-
-python:
-  - "2.6"
-  - "2.7"
+language: java
 
 jdk:
   - openjdk6
@@ -11,9 +7,4 @@ jdk:
 script: |
   java -version
   ./build-support/bin/ci.sh -d
-
-notifications:
-  email:
-    - john.sirois@gmail.com
-    - yasumoto7@gmail.com
 
