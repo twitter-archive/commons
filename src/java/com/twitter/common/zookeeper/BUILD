@@ -18,7 +18,7 @@ def zkjar(name):
   return artifact(
     org = 'com.twitter.common.zookeeper',
     name = name,
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   )
 
 java_library(name = 'client',
@@ -165,7 +165,7 @@ java_library(name = 'testing',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'zookeeper-testing',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/commons-io',

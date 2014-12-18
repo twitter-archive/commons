@@ -18,7 +18,7 @@ java_library(name = 'client',
   provides = artifact(
     org = 'com.twitter.common.zookeeper.guice',
     name = 'client',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/guava',

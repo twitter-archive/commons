@@ -25,7 +25,7 @@ java_library(name = 'dynamic-host-set',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'dynamic-host-set',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/guava',
@@ -38,7 +38,7 @@ java_library(name = 'util',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'net-util',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/commons-codec',
@@ -69,7 +69,7 @@ java_library(name = 'pool',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'net-pool',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/commons-codec',

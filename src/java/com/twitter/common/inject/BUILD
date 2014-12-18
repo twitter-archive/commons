@@ -22,7 +22,7 @@ java_library(name = 'inject',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'inject',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/commons-lang',
@@ -37,7 +37,7 @@ java_library(name = 'timed',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'inject-timed',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/aopalliance',

@@ -31,7 +31,7 @@ java_library(name = 'logging',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'jdk-logging',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/guava',
@@ -43,7 +43,7 @@ java_library(name = 'executor-service-shutdown',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'util-executor-service-shutdown',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/guava',
@@ -57,7 +57,7 @@ java_library(name = 'util',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'util',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     ':executor-service-shutdown',
@@ -80,7 +80,7 @@ java_library(name = 'system-mocks',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'util-system-mocks',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/guava',
@@ -92,7 +92,7 @@ java_library(name = 'sampler',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'util-sampler',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/guava',
@@ -105,7 +105,7 @@ java_library(name = 'testing',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'util-testing',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/guava',

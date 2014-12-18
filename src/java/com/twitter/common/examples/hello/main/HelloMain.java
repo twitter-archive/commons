@@ -18,7 +18,7 @@ package com.twitter.common.examples.hello.main;
 
 import com.twitter.common.examples.hello.greet.Greeting;
 
-public class HelloMain {
+public final class HelloMain {
   public static void main(String[] args) {
     System.out.println(Greeting.greet("world"));
   }

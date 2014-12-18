@@ -18,7 +18,7 @@ java_library(name='withretry',
   provides=artifact(
     org='com.twitter.common',
     name='junit-runner-withretry',
-    repo='build-support/commons/ivy:public',
+    repo=public,
   ),
   dependencies=[
     '3rdparty/jvm/junit',

@@ -19,7 +19,7 @@ java_library(
   provides=artifact(
     org='com.twitter.common',
     name='application-http',
-    repo='build-support/commons/ivy:public',
+    repo=public,
   ),
   dependencies=[
     '3rdparty/jvm/com/google/guava',
