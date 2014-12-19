@@ -4,6 +4,13 @@ jdk:
   - openjdk6
   - openjdk7
 
+cache:
+  directories:
+    - $HOME/.pants.d
+    - $HOME/.ivy2
+    - build-support/pants.venv
+    - build-support/virtualenv.dist
+
 script: |
   java -version
   ./build-support/bin/ci.sh -d
