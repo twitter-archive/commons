@@ -16,6 +16,7 @@
 
 package com.twitter.common.util;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.SynchronousQueue;
@@ -49,16 +50,18 @@ public class LowResClockTest {
    * by calling the blocking function {@code waitForCompletion}.
    */
   private class Token {
-    public synchronized void waitForCompletion() {
+    private final CountDownLatch completion = new CountDownLatch(1);
+
+    public void waitForCompletion() {
       try {
-        this.wait();
+        completion.await();
       } catch (InterruptedException e) {
         /* ignore */
       }
     }
 
-    public synchronized void notifyCompletion() {
-      this.notify();
+    public void notifyCompletion() {
+      completion.countDown();
     }
   }
 
@@ -73,7 +76,8 @@ public class LowResClockTest {
       this.queue = q;
     }
 
-    public synchronized void advance(Amount<Long, Time> period) {
+    @Override
+    public void advance(Amount<Long, Time> period) {
       super.advance(period);
       Token token = new Token();
       queue.offer(token);
@@ -91,7 +95,7 @@ public class LowResClockTest {
     final Capture<Long> period = new Capture<Long>();
     mockExecutor.scheduleWithFixedDelay(capture(runnable), eq(0L), captureLong(period),
       eq(TimeUnit.MILLISECONDS));
-    expectLastCall().andAnswer(new IAnswer() {
+    expectLastCall().andAnswer(new IAnswer<ScheduledFuture<?>>() {
       public ScheduledFuture<?> answer() {
         final Thread t = new Thread() {
           @Override
