@@ -16,7 +16,9 @@
 
 package com.twitter.common.util;
 
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.SynchronousQueue;
@@ -70,9 +72,9 @@ public class LowResClockTest {
    * its task.
    */
   private class WaitingFakeClock extends FakeClock {
-    final SynchronousQueue<Token> queue;
+    final BlockingQueue<Token> queue;
 
-    public WaitingFakeClock(SynchronousQueue<Token> q) {
+    public WaitingFakeClock(BlockingQueue<Token> q) {
       this.queue = q;
     }
 
@@ -80,14 +82,14 @@ public class LowResClockTest {
     public void advance(Amount<Long, Time> period) {
       super.advance(period);
       Token token = new Token();
-      queue.offer(token);
+      queue.add(token);
       token.waitForCompletion();
     }
   }
 
   @Test
   public void testLowResClock() {
-    final SynchronousQueue<Token> queue = new SynchronousQueue<Token>();
+    final BlockingQueue<Token> queue = new LinkedBlockingQueue<Token>();
     final WaitingFakeClock clock = new WaitingFakeClock(queue);
 
     ScheduledExecutorService mockExecutor = createMock(ScheduledExecutorService.class);
