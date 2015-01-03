@@ -16,13 +16,21 @@
 
 package com.twitter.common.util;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.google.common.base.Strings;
+import com.google.common.testing.TearDown;
+import com.google.common.testing.junit4.TearDownTestCase;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.easymock.Capture;
 import org.easymock.IAnswer;
 import org.junit.Test;
@@ -42,7 +50,7 @@ import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class LowResClockTest {
+public class LowResClockTest extends TearDownTestCase {
 
   /**
    * A FakeClock that overrides the `advance` method to wait for the remote thread to complete
@@ -91,8 +99,51 @@ public class LowResClockTest {
     }
   }
 
-  @Test
+  static class ThreadDumper {
+    private final Collection<Thread> threads =
+        Collections.synchronizedCollection(new LinkedHashSet<Thread>());
+
+    private final ScheduledExecutorService scheduler;
+    private final ScheduledFuture<?> dumpRun;
+
+    ThreadDumper() {
+      scheduler = Executors.newScheduledThreadPool(1,
+          new ThreadFactoryBuilder().setNameFormat("Dumper").setDaemon(true).build());
+      Runnable dumper = new Runnable() {
+        @Override public void run() {
+          for (Thread thread : threads) {
+            String header = "Dumping " + thread.getName();
+            System.err.println(Strings.repeat("=", header.length()));
+            System.err.println(header);
+            for (StackTraceElement element : thread.getStackTrace()) {
+              System.err.println("\t" + element);
+            }
+          }
+        }
+      };
+      dumpRun = scheduler.scheduleAtFixedRate(dumper, 500L, 500L, TimeUnit.MILLISECONDS);
+    }
+
+    public void stop() {
+      dumpRun.cancel(true);
+      scheduler.shutdownNow();
+    }
+
+    public void add(Thread thread) {
+      threads.add(thread);
+    }
+  }
+
+  @Test(timeout = 5000L)
   public void testLowResClock() {
+    final ThreadDumper threadDumper = new ThreadDumper();
+    threadDumper.add(Thread.currentThread());
+    addTearDown(new TearDown() {
+      @Override public void tearDown() throws Exception {
+        threadDumper.stop();
+      }
+    });
+
     final SynchronousQueue<CountDownLatch> queue = new SynchronousQueue<CountDownLatch>();
     final WaitingFakeClock clock = new WaitingFakeClock(queue);
 
@@ -123,6 +174,7 @@ public class LowResClockTest {
         };
         t.setDaemon(true);
         t.start();
+        threadDumper.add(t);
         final ScheduledFuture<?> future = createMock(ScheduledFuture.class);
         final AtomicBoolean stopped = new AtomicBoolean(false);
         expect(future.isCancelled()).andAnswer(new IAnswer<Boolean>() {
