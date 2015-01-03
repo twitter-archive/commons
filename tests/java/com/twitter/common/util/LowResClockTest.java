@@ -45,49 +45,55 @@ import static org.junit.Assert.fail;
 public class LowResClockTest {
 
   /**
-   * Token representing a unit of work the ScheduledExecutorService need to execute.
-   * The caller can wait for the ScheduledExecutorService thread to complete his task
-   * by calling the blocking function {@code waitForCompletion}.
+   * A FakeClock that overrides the `advance` method to wait for the remote thread to complete
+   * its task as well as wrapping a memory barrier around all access to the underlying FakeClock's
+   * current time to ensure liveness of reads.
    */
-  private class Token {
-    private final CountDownLatch completion = new CountDownLatch(1);
+  class WaitingFakeClock extends FakeClock {
+    final SynchronousQueue<CountDownLatch> signalQueue;
 
-    public void waitForCompletion() {
-      try {
-        completion.await();
-      } catch (InterruptedException e) {
-        /* ignore */
-      }
-    }
-
-    public void notifyCompletion() {
-      completion.countDown();
-    }
-  }
-
-  /**
-   * FakeClock that override the `advance` method, it waits for the remote thread to complete
-   * its task.
-   */
-  private class WaitingFakeClock extends FakeClock {
-    final SynchronousQueue<Token> queue;
-
-    public WaitingFakeClock(SynchronousQueue<Token> q) {
-      this.queue = q;
+    public WaitingFakeClock(SynchronousQueue<CountDownLatch> signalQueue) {
+      this.signalQueue = signalQueue;
     }
 
     @Override
     public void advance(Amount<Long, Time> period) {
-      super.advance(period);
-      Token token = new Token();
-      queue.offer(token);
-      token.waitForCompletion();
+      synchronized (this) {
+        super.advance(period);
+      }
+      CountDownLatch signal = new CountDownLatch(1);
+      signalQueue.offer(signal);
+      try {
+        signal.await();
+      } catch (InterruptedException e) {
+        // ignore
+      }
+    }
+
+    @Override
+    public synchronized void setNowMillis(long nowMillis) {
+      super.setNowMillis(nowMillis);
+    }
+
+    @Override
+    public synchronized long nowMillis() {
+      return super.nowMillis();
+    }
+
+    @Override
+    public synchronized long nowNanos() {
+      return super.nowNanos();
+    }
+
+    @Override
+    public synchronized void waitFor(long millis) {
+      super.waitFor(millis);
     }
   }
 
   @Test
   public void testLowResClock() {
-    final SynchronousQueue<Token> queue = new SynchronousQueue<Token>();
+    final SynchronousQueue<CountDownLatch> queue = new SynchronousQueue<CountDownLatch>();
     final WaitingFakeClock clock = new WaitingFakeClock(queue);
 
     ScheduledExecutorService mockExecutor = createMock(ScheduledExecutorService.class);
@@ -103,12 +109,12 @@ public class LowResClockTest {
             long t = clock.nowMillis();
             try {
               while (true) {
-                Token token = queue.take();
+                CountDownLatch signal = queue.take();
                 if (clock.nowMillis() >= t + period.getValue()) {
                   runnable.getValue().run();
                   t = clock.nowMillis();
                 }
-                token.notifyCompletion();
+                signal.countDown();
               }
             } catch (InterruptedException e) {
               /* terminate */
