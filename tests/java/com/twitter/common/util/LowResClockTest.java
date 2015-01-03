@@ -113,10 +113,10 @@ public class LowResClockTest extends TearDownTestCase {
         @Override public void run() {
           for (Thread thread : threads) {
             String header = "Dumping " + thread.getName();
-            System.err.println(Strings.repeat("=", header.length()));
-            System.err.println(header);
+            System.out.println(Strings.repeat("=", header.length()));
+            System.out.println(header);
             for (StackTraceElement element : thread.getStackTrace()) {
-              System.err.println("\t" + element);
+              System.out.println("\t" + element);
             }
           }
         }
