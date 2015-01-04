@@ -70,11 +70,7 @@ public @interface Retry {
       private final int maxRetries;
 
       RetriedAssertionError(int tryNumber, int maxRetries, String message, Throwable cause) {
-        // We do a manual initCause here to be compatible with the Java 1.6 AssertionError
-        // constructors.
-        super(message);
-        initCause(cause);
-
+        super(message, cause);
         this.tryNumber = tryNumber;
         this.maxRetries = maxRetries;
       }
