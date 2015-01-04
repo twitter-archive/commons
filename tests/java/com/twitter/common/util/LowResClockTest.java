@@ -163,7 +163,7 @@ public class LowResClockTest extends TearDownTestCase {
   public Retry.Rule rule = new Retry.Rule();
 
   @Test(timeout = 5000L)
-  @Retry(times = 1000)
+  @Retry(times = 100000)
   public void testLowResClock() {
     final ThreadDumper threadDumper = new ThreadDumper();
     threadDumper.add(Thread.currentThread());
@@ -175,6 +175,7 @@ public class LowResClockTest extends TearDownTestCase {
 
     final SynchronousQueue<CountDownLatch> queue = new SynchronousQueue<CountDownLatch>();
     final WaitingFakeClock clock = new WaitingFakeClock(queue);
+    final long start = clock.nowMillis();
 
     ScheduledExecutorService mockExecutor = createMock(ScheduledExecutorService.class);
     final Capture<Runnable> runnable = new Capture<Runnable>();
@@ -185,7 +186,7 @@ public class LowResClockTest extends TearDownTestCase {
       public ScheduledFuture<?> answer() {
         final Thread t = new Thread("Advancer") {
           @Override public void run() {
-            long t = clock.nowMillis();
+            long t = start;
             try {
               while (true) {
                 CountDownLatch signal = queue.take();
