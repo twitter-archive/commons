@@ -81,10 +81,7 @@ fi
 if [[ "${skip_java:-false}" == "false" ]]; then
   banner "Running jvm tests"
   (
-    ./pants goal test {src,tests}/java/com/twitter/common:: $daemons -x ${INTERPRETER_ARGS[@]} \
-      --test-junit-parallel-threads=1 --test-junit-per-test-timer \
-      --no-test-junit-suppress-output \
-      --test-junit-test=tests/java/com/twitter/common/util/LowResClockTest.java && \
+    ./pants goal test {src,tests}/java/com/twitter/common:: $daemons -x ${INTERPRETER_ARGS[@]} && \
     ./pants goal test {src,tests}/scala/com/twitter/common:: $daemons -x ${INTERPRETER_ARGS[@]}
   ) || die "Jvm test failure."
 fi
