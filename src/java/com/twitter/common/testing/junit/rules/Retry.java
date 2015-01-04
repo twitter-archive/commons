@@ -55,7 +55,10 @@ public @interface Retry {
       Throwable create(String message, Throwable cause);
     }
 
-    private static Throwable annotate(int tryNumber, int maxRetries, Throwable cause, String prefix,
+    private static Throwable annotate(int tryNumber,
+                                      int maxRetries,
+                                      Throwable cause,
+                                      String prefix,
                                       ThrowableFactory throwableFactory) {
       Throwable annotated =
           throwableFactory.create(
