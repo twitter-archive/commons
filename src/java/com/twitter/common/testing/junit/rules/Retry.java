@@ -55,11 +55,13 @@ public @interface Retry {
       Throwable create(String message, Throwable cause);
     }
 
-    private static Throwable annotate(int tryNumber,
-                                      int maxRetries,
-                                      Throwable cause,
-                                      String prefix,
-                                      ThrowableFactory throwableFactory) {
+    private static Throwable annotate(
+        int tryNumber,
+        final int maxRetries,
+        Throwable cause,
+        String prefix,
+        ThrowableFactory throwableFactory) {
+
       Throwable annotated =
           throwableFactory.create(
               String.format("%s on try %d of %d: %s", prefix, tryNumber, maxRetries + 1,
