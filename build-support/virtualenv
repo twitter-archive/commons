@@ -13,13 +13,15 @@ fi
 echo "Using $PY" >&2
 
 HERE=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
-if ! [ -f "$HERE/virtualenv-$VIRTUALENV_VERSION/BOOTSTRAPPED" ]; then
+if ! [ -f "$HERE/virtualenv.dist/BOOTSTRAPPED-$VIRTUALENV_VERSION" ]; then
   pushd "$HERE"
   curl -O https://pypi.python.org/packages/source/v/virtualenv/virtualenv-$VIRTUALENV_VERSION.tar.gz
   tar zxvf virtualenv-$VIRTUALENV_VERSION.tar.gz
   # TODO(ksweeney): Checksum
-  touch virtualenv-$VIRTUALENV_VERSION/BOOTSTRAPPED  # 2PC
+  touch virtualenv-$VIRTUALENV_VERSION/BOOTSTRAPPED-$VIRTUALENV_VERSION  # 2PC
+  rm -rf virtualenv.dist
+  mv virtualenv-$VIRTUALENV_VERSION virtualenv.dist
   popd
 fi
 
-exec "$PY" "$HERE/virtualenv-$VIRTUALENV_VERSION/virtualenv.py" "$@"
+exec "$PY" "$HERE/virtualenv.dist/virtualenv.py" "$@"
