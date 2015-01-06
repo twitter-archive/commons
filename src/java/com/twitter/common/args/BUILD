@@ -47,7 +47,7 @@ annotation_processor(name = 'core',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'args-core',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/guava',
@@ -60,7 +60,7 @@ annotation_processor(name = 'apt',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'args-apt',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/commons-lang',
@@ -76,7 +76,7 @@ java_library(name = 'args',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'args',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/guava',
@@ -93,7 +93,7 @@ java_library(name = 'duration_parser',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'args-duration-parser',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/guava',

@@ -17,6 +17,7 @@
 package com.twitter.common.metrics.demo;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,12 +77,12 @@ final class MetricsPrecisionDemo {
   private List<Long> getRealData(int n) {
     List<Long> data = new ArrayList<Long>();
 
-    try {
-      ClassLoader cl = getClass().getClassLoader();
-      InputStreamReader input = new InputStreamReader(
-          cl.getResourceAsStream("resources/real_latencies.data"));
+    ClassLoader cl = getClass().getClassLoader();
+    InputStreamReader input =
+        new InputStreamReader(cl.getResourceAsStream("resources/real_latencies.data"));
 
-      BufferedReader reader = new BufferedReader(input);
+    BufferedReader reader = new BufferedReader(input);
+    try {
       String line = reader.readLine();
       int i = 0;
       while (data.size() < n) {
@@ -93,7 +94,9 @@ final class MetricsPrecisionDemo {
           line = reader.readLine();
         }
       }
-    } catch (Exception e) { e.printStackTrace(); }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
 
     return data;
   }

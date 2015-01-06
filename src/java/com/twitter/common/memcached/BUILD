@@ -18,7 +18,7 @@ java_library(name='memcached',
   provides=artifact(
     org='com.twitter.common',
     name='memcached',
-    repo='build-support/commons/ivy:public',
+    repo=public,
   ),
   dependencies=[
     '3rdparty/jvm/com/google/guava',

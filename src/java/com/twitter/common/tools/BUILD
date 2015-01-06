@@ -18,7 +18,7 @@ java_library(name='compiler',
   provides=artifact(
     org='com.twitter.common.tools',
     name='java-compiler',
-    repo='build-support/commons/ivy:public',
+    repo=public,
   ),
   sources=globs('*.java'),
   dependencies=[

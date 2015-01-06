@@ -20,7 +20,7 @@ java_library(name = 'caching',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'util-caching',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/guava',

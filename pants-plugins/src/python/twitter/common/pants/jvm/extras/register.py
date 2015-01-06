@@ -14,15 +14,11 @@
 # limitations under the License.
 # ==================================================================================================
 
-from pants.backend.core.tasks.what_changed import WhatChanged
 from pants.backend.jvm.tasks.checkstyle import Checkstyle
 from pants.goal.task_registrar import TaskRegistrar as task
 
 
 def register_goals():
-  task(name='changed', action=WhatChanged
-  ).install().with_description('Print the targets changed since some prior commit.')
-
   # We always want compile to finish with a checkstyle
   task(name='checkstyle', action=Checkstyle,
        dependencies=['gen', 'resolve']).install('compile')

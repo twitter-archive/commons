@@ -18,7 +18,7 @@ java_library(name='log4j',
   provides=artifact(
     org='com.twitter.common.logging',
     name='log4j',
-    repo='build-support/commons/ivy:public',
+    repo=public,
   ),
   dependencies=[
     '3rdparty/jvm/com/google/guava',

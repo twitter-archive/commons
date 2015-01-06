@@ -15,6 +15,19 @@
 # ==================================================================================================
 
 python_library(
+  name='read_contents',
+  sources=['read_contents.py'],
+)
+
+python_library(
+  name='remote_python_thrift_fileset',
+  sources=['remote_python_thrift_fileset.py'],
+  dependencies=[
+    'pants-plugins/3rdparty:pants',
+  ]
+)
+
+python_library(
   name='version',
   sources=['version.py'],
   dependencies=[
@@ -26,6 +39,8 @@ python_library(
   name='plugin',
   sources=['register.py'],
   dependencies=[
-    ':version'
+    ':version',
+    ':read_contents',
+    ':remote_python_thrift_fileset',
   ]
 )

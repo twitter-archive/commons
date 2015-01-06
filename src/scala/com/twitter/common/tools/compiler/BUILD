@@ -4,7 +4,7 @@ scalac_plugin(name='dependency-emitter',
   provides=artifact(
     org = 'com.twitter.common.tools',
     name = 'dependency-emitter-plugin_2.9.3',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies=[
     '3rdparty/jvm/org/scala-lang:scala-compiler',

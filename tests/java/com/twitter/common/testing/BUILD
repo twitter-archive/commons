@@ -14,17 +14,13 @@
 # limitations under the License.
 # ==================================================================================================
 
-import os
-
-java_tests(name = 'testing',
-  dependencies = [
-    '3rdparty/jvm/org/easymock',
-    '3rdparty/jvm/com/google/guava',
+java_tests(name='testing',
+  dependencies=[
     '3rdparty/jvm/junit',
     '3rdparty/jvm/com/google/testing:tl4j',
-    'src/java/com/twitter/common/testing/easymock',
+    'src/java/com/twitter/common/base',
     'src/java/com/twitter/common/testing:action',
   ],
-  sources = [ 'EasyMockTestTest.java', 'TearDownRegistryTest.java' ],
+  sources=['TearDownRegistryTest.java'],
 )
 

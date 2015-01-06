@@ -18,7 +18,7 @@ scala_library(name = 'explicit-specs-runner',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'specs-testing',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/org/scala-tools/testing:specs',

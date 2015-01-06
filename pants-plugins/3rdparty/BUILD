@@ -19,6 +19,6 @@ python_requirement_library(
   requirements=[
     # TODO(John Sirois): centralize this requirement for use by the wrapper script and the plugins
     # themselves.
-    python_requirement('pantsbuild.pants>=0.0.23,<0.1.0')
+    python_requirement('pantsbuild.pants>=0.0.26,<0.1.0')
   ]
 )
