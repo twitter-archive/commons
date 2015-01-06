@@ -25,13 +25,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.easymock.Capture;
 import org.easymock.IAnswer;
-import org.junit.Rule;
 import org.junit.Test;
 
 import com.twitter.common.base.Command;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
-import com.twitter.common.testing.junit.rules.Retry;
 import com.twitter.common.util.testing.FakeClock;
 
 import static org.easymock.EasyMock.anyBoolean;
@@ -101,10 +99,7 @@ public class LowResClockTest {
     }
   }
 
-  @Rule public Retry.Rule retry = new Retry.Rule();
-
-  @Test(timeout = 5000)
-  @Retry(times = 100000)
+  @Test
   public void testLowResClock() {
     final WaitingFakeClock clock = new WaitingFakeClock();
     final long start = clock.nowMillis();
