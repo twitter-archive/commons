@@ -82,7 +82,7 @@ class ResourceMapper(JvmBinaryTask):
   RESOURCE_BASENAME = 'cmdline.arg.info.txt'
 
   @classmethod
-  def product_type(cls):
+  def product_types(cls):
     return ['resources_by_target']
 
   def prepare(self, round_manager):

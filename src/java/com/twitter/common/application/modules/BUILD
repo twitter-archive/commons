@@ -18,7 +18,7 @@ java_library(name = 'applauncher',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'application-module-applauncher',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/inject:guice',
@@ -33,7 +33,7 @@ java_library(name = 'lifecycle',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'application-module-lifecycle',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/guava',
@@ -51,7 +51,7 @@ java_library(name = 'http',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'application-module-http',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/inject:guice',
@@ -72,7 +72,7 @@ java_library(name = 'log',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'application-module-log',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/inject:guice',
@@ -89,7 +89,7 @@ java_library(name = 'stats',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'application-module-stats',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/inject:guice',
@@ -109,7 +109,7 @@ java_library(name = 'stats_export',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'application-module-stats_export',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/guava',
@@ -128,7 +128,7 @@ java_library(name = 'thrift',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'application-module-thrift',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/inject:guice',

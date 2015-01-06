@@ -18,7 +18,7 @@ java_library(name='easymock',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'testing-easymock',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/org/easymock',

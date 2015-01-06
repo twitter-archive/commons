@@ -18,7 +18,7 @@ java_library(name = 'base',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'base',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/commons-lang',
