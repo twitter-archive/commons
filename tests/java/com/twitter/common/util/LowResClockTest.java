@@ -16,6 +16,7 @@
 
 package com.twitter.common.util;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.SynchronousQueue;
@@ -26,11 +27,13 @@ import org.easymock.Capture;
 import org.easymock.IAnswer;
 import org.junit.Test;
 
+import com.twitter.common.base.Command;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
 import com.twitter.common.util.testing.FakeClock;
 
 import static org.easymock.EasyMock.anyBoolean;
+import static org.easymock.EasyMock.anyLong;
 import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.captureLong;
 import static org.easymock.EasyMock.createMock;
@@ -44,75 +47,86 @@ import static org.junit.Assert.fail;
 public class LowResClockTest {
 
   /**
-   * Token representing a unit of work the ScheduledExecutorService need to execute.
-   * The caller can wait for the ScheduledExecutorService thread to complete his task
-   * by calling the blocking function {@code waitForCompletion}.
+   * A FakeClock that overrides the {@link FakeClock#advance(Amount) advance} method to allow a
+   * co-operating thread to execute a synchronous action via {@link #doOnAdvance(Command)}.
    */
-  private class Token {
-    public synchronized void waitForCompletion() {
+  static class WaitingFakeClock extends FakeClock {
+    private final SynchronousQueue<CountDownLatch> signalQueue =
+        new SynchronousQueue<CountDownLatch>();
+
+    @Override
+    public void advance(Amount<Long, Time> period) {
+      super.advance(period);
+      CountDownLatch signal = new CountDownLatch(1);
       try {
-        this.wait();
+        signalQueue.put(signal);
       } catch (InterruptedException e) {
-        /* ignore */
+        throw new RuntimeException(e);
+      }
+      try {
+        signal.await();
+      } catch (InterruptedException e) {
+        // ignore
       }
     }
 
-    public synchronized void notifyCompletion() {
-      this.notify();
+    void doOnAdvance(Command action) throws InterruptedException {
+      CountDownLatch signal = signalQueue.take();
+      action.execute();
+      signal.countDown();
     }
   }
 
-  /**
-   * FakeClock that override the `advance` method, it waits for the remote thread to complete
-   * its task.
-   */
-  private class WaitingFakeClock extends FakeClock {
-    final SynchronousQueue<Token> queue;
+  static class Tick implements Command {
+    private final Clock clock;
+    private final long period;
+    private final Runnable advancer;
+    private long time;
 
-    public WaitingFakeClock(SynchronousQueue<Token> q) {
-      this.queue = q;
+    Tick(Clock clock, long startTime, long period, Runnable advancer) {
+      this.clock = clock;
+      time = startTime;
+      this.period = period;
+      this.advancer = advancer;
     }
 
-    public synchronized void advance(Amount<Long, Time> period) {
-      super.advance(period);
-      Token token = new Token();
-      queue.offer(token);
-      token.waitForCompletion();
+    @Override
+    public void execute() {
+      if (clock.nowMillis() >= time + period) {
+        advancer.run();
+        time = clock.nowMillis();
+      }
     }
   }
 
   @Test
   public void testLowResClock() {
-    final SynchronousQueue<Token> queue = new SynchronousQueue<Token>();
-    final WaitingFakeClock clock = new WaitingFakeClock(queue);
+    final WaitingFakeClock clock = new WaitingFakeClock();
+    final long start = clock.nowMillis();
 
     ScheduledExecutorService mockExecutor = createMock(ScheduledExecutorService.class);
     final Capture<Runnable> runnable = new Capture<Runnable>();
     final Capture<Long> period = new Capture<Long>();
-    mockExecutor.scheduleWithFixedDelay(capture(runnable), eq(0L), captureLong(period),
-      eq(TimeUnit.MILLISECONDS));
-    expectLastCall().andAnswer(new IAnswer() {
+    mockExecutor.scheduleAtFixedRate(capture(runnable), anyLong(), captureLong(period),
+        eq(TimeUnit.MILLISECONDS));
+
+    expectLastCall().andAnswer(new IAnswer<ScheduledFuture<?>>() {
       public ScheduledFuture<?> answer() {
-        final Thread t = new Thread() {
+        final Thread ticker = new Thread() {
           @Override
           public void run() {
-            long t = clock.nowMillis();
+            Tick tick = new Tick(clock, start, period.getValue(), runnable.getValue());
             try {
               while (true) {
-                Token token = queue.take();
-                if (clock.nowMillis() >= t + period.getValue()) {
-                  runnable.getValue().run();
-                  t = clock.nowMillis();
-                }
-                token.notifyCompletion();
+                clock.doOnAdvance(tick);
               }
             } catch (InterruptedException e) {
               /* terminate */
             }
           }
         };
-        t.setDaemon(true);
-        t.start();
+        ticker.setDaemon(true);
+        ticker.start();
         final ScheduledFuture<?> future = createMock(ScheduledFuture.class);
         final AtomicBoolean stopped = new AtomicBoolean(false);
         expect(future.isCancelled()).andAnswer(new IAnswer<Boolean>() {
@@ -124,7 +138,7 @@ public class LowResClockTest {
         expect(future.cancel(anyBoolean())).andAnswer(new IAnswer<Boolean>() {
           @Override
           public Boolean answer() throws Throwable {
-            t.interrupt();
+            ticker.interrupt();
             stopped.set(true);
             return true;
           }

@@ -20,7 +20,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
 import java.io.Closeable;
-import java.lang.IllegalStateException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -38,7 +37,7 @@ import com.twitter.common.quantity.Time;
  */
 public class LowResClock implements Clock, Closeable {
   private static final ScheduledExecutorService GLOBAL_SCHEDULER =
-    Executors.newScheduledThreadPool(1, new ThreadFactory() {
+      Executors.newScheduledThreadPool(1, new ThreadFactory() {
         public Thread newThread(Runnable r) {
           Thread t = new Thread(r, "LowResClock");
           t.setDaemon(true);
@@ -52,13 +51,21 @@ public class LowResClock implements Clock, Closeable {
 
   @VisibleForTesting
   LowResClock(Amount<Long, Time> resolution, ScheduledExecutorService executor, Clock clock) {
-    final long sleepTimeInMs = resolution.as(Time.MILLISECONDS);
-    Preconditions.checkArgument(sleepTimeInMs > 0);
+    long sleepTimeMs = resolution.as(Time.MILLISECONDS);
+    Preconditions.checkArgument(sleepTimeMs > 0);
     underlying = clock;
-    time = underlying.nowMillis();
-    updaterHandler = executor.scheduleWithFixedDelay(new Runnable() {
-      @Override public void run() { time = underlying.nowMillis(); }
-    }, 0, sleepTimeInMs, TimeUnit.MILLISECONDS);
+    Runnable ticker = new Runnable() {
+      @Override public void run() {
+        time = underlying.nowMillis();
+      }
+    };
+
+    // Ensure the constructing thread sees a LowResClock with a valid (low-res) time by executing a
+    // blocking call now.
+    ticker.run();
+
+    updaterHandler =
+        executor.scheduleAtFixedRate(ticker, sleepTimeMs, sleepTimeMs, TimeUnit.MILLISECONDS);
   }
 
 
@@ -73,25 +80,32 @@ public class LowResClock implements Clock, Closeable {
 
   /**
    * Terminate the underlying updater task.
-   * Any subsequent usage of the clock will throw an IllegalStateException!
+   * Any subsequent usage of the clock will throw an {@link IllegalStateException}.
    */
   public void close() {
     updaterHandler.cancel(true);
   }
 
-  @Override public long nowMillis() {
-    if (updaterHandler.isCancelled()) {
-      throw new IllegalStateException("LowResClock invoked after being closed!");
-    }
+  @Override
+  public long nowMillis() {
+    checkNotClosed();
     return time;
   }
-  @Override public long nowNanos() {
+
+  @Override
+  public long nowNanos() {
     return nowMillis() * 1000 * 1000;
   }
-  @Override public void waitFor(long millis) throws InterruptedException {
+
+  @Override
+  public void waitFor(long millis) throws InterruptedException {
+    checkNotClosed();
+    underlying.waitFor(millis);
+  }
+
+  private void checkNotClosed() {
     if (updaterHandler.isCancelled()) {
       throw new IllegalStateException("LowResClock invoked after being closed!");
     }
-    underlying.waitFor(millis);
   }
 }
