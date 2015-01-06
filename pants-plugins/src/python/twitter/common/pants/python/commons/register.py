@@ -14,13 +14,29 @@
 # limitations under the License.
 # ==================================================================================================
 
+import os
+
+from pants.backend.jvm.repository import Repository
 from pants.base.build_file_aliases import BuildFileAliases
 
 from twitter.common.pants.python.commons.read_contents import read_contents_factory
+from twitter.common.pants.python.commons.remote_python_thrift_fileset import (
+    RemotePythonThriftFileset)
 from twitter.common.pants.python.commons.version import Version
+
+
+public_repo = Repository(name='public',
+                         url='http://maven.twttr.com',
+                         push_db_basedir=os.path.join('build-support', 'commons', 'ivy', 'pushdb'))
 
 
 def build_file_aliases():
   return BuildFileAliases.create(
-      objects=dict(commons_version=Version('src/python/twitter/common/VERSION').version),
-      context_aware_object_factories=dict(read_contents=read_contents_factory))
+      objects={
+          'commons_version': Version('src/python/twitter/common/VERSION').version,
+          'public': public_repo,  # key 'public' must match name='public' above)
+      },
+      context_aware_object_factories={
+          'read_contents': read_contents_factory,
+          'remote_python_thrift_fileset': RemotePythonThriftFileset.factory,
+      })

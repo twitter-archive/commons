@@ -26,7 +26,7 @@ java_library(name = 'action',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'application-action',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/commons-lang',
@@ -41,7 +41,7 @@ java_library(name = 'application',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'application',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/guava',

@@ -18,7 +18,7 @@ java_library(name = 'stat',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'stat',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [],
   sources = ['Stat.java'],
@@ -28,7 +28,7 @@ java_library(name = 'stats-provider',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'stats-provider',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/guava',
@@ -43,7 +43,7 @@ java_library(name = 'stat-registry',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'stat-registry',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     ':stat',
@@ -58,7 +58,7 @@ java_library(name = 'stats',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'stats',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/guava',
@@ -93,7 +93,7 @@ java_library(name = 'jvm',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'stats-jvm',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     ':stats',
@@ -106,7 +106,7 @@ java_library(name = 'time-series',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'stats-time-series',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/guava',
@@ -128,7 +128,7 @@ java_library(name = 'util',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'stats-util',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/guava',

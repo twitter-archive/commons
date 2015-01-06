@@ -18,7 +18,7 @@ java_library(name='tool',
   provides=artifact(
     org='com.twitter.common',
     name='jar-tool',
-    repo='build-support/commons/ivy:public',
+    repo=public,
   ),
   dependencies=[
     # Note both commons-io & twitter/common/io have a FileUtils class we use - 1 imported, 1 fully

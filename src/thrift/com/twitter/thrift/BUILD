@@ -18,7 +18,7 @@ java_thrift_library(name = 'thrift',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'service-thrift',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   sources = globs('*.thrift')
 )

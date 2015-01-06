@@ -18,7 +18,7 @@ java_library(name = 'io',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'io',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/commons-io',
@@ -37,7 +37,7 @@ java_library(name = 'base64zlibcodec',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'io-base64zlibcodec',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/commons-codec',
@@ -52,7 +52,7 @@ java_library(name = 'streamer',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'io-streamer',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/guava',
@@ -65,7 +65,7 @@ java_library(name = 'thrift',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'io-thrift',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/guava',
@@ -80,7 +80,7 @@ java_library(name = 'json',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'io-json',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
     '3rdparty/jvm/com/google/code/gson',

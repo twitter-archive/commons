@@ -18,7 +18,7 @@ java_library(name='logging',
   provides=artifact(
     org='com.twitter.common',
     name='logging',
-    repo='build-support/commons/ivy:public',
+    repo=public,
   ),
   dependencies=[
     '3rdparty/jvm/commons-lang',
@@ -39,7 +39,7 @@ java_library(name='buffered',
   provides=artifact(
     org='com.twitter.common',
     name='logging-buffered',
-    repo='build-support/commons/ivy:public',
+    repo=public,
   ),
   dependencies=[
     '3rdparty/jvm/com/google/guava',

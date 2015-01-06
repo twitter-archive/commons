@@ -66,11 +66,11 @@ if [[ "${skip_bootstrap:-false}" == "false" ]]; then
   (
     ./build-support/python/clean.sh && \
     PANTS_VERBOSE=1 PEX_VERBOSE=1 PYTHON_VERBOSE=1 ./pants;
-    ./pants goal goals
+    ./pants goals
   ) || die "Failed to bootstrap pants."
 fi
 
-./pants goal clean-all || die "Failed to clean-all."
+./pants clean-all || die "Failed to clean-all."
 
 if [[ "${skip_distribution:-false}" == "false" ]]; then
   banner "Running distribution tests"
@@ -81,16 +81,19 @@ fi
 if [[ "${skip_java:-false}" == "false" ]]; then
   banner "Running jvm tests"
   (
-    ./pants goal test {src,tests}/java/com/twitter/common:: $daemons -x ${INTERPRETER_ARGS[@]} && \
-    ./pants goal test {src,tests}/scala/com/twitter/common:: $daemons -x ${INTERPRETER_ARGS[@]}
+    ./pants test {src,tests}/java/com/twitter/common:: $daemons -x ${INTERPRETER_ARGS[@]} && \
+    ./pants test {src,tests}/scala/com/twitter/common:: $daemons -x ${INTERPRETER_ARGS[@]}
   ) || die "Jvm test failure."
 fi
 
 if [[ "${skip_python:-false}" == "false" ]]; then
   banner "Running python tests"
   (
+    # TODO(John Sirois): We clean-all here to work-around args resource mapper issues finding leftover
+    # entries from args tests in the jvm tests above, kill the clean-all once the resource mapper bug
+    # is identified and fixed.
     PANTS_PYTHON_TEST_FAILSOFT=1 \
-      ./pants goal --timeout=5 test --no-test-pytest-fast ${INTERPRETER_ARGS[@]} \
+      ./pants --timeout=5 clean-all test.pytest --no-fast ${INTERPRETER_ARGS[@]} \
         tests/python/twitter/common:all
   ) || die "Python test failure"
 fi

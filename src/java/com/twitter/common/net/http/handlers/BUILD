@@ -29,7 +29,7 @@ java_library(
   provides=artifact(
     org='com.twitter.common',
     name='net-http-handlers-text',
-    repo='build-support/commons/ivy:public',
+    repo=public,
   ),
   dependencies=[
     '3rdparty/jvm/javax/servlet:servlet-api',
@@ -42,7 +42,7 @@ java_library(
   provides=artifact(
     org='com.twitter.common',
     name='net-http-handlers-string-template',
-    repo='build-support/commons/ivy:public',
+    repo=public,
   ),
   dependencies=[
     '3rdparty/jvm/com/google/guava',
@@ -60,7 +60,7 @@ java_library(
   provides=artifact(
     org='com.twitter.common',
     name='net-http-handlers',
-    repo='build-support/commons/ivy:public',
+    repo=public,
   ),
   dependencies=[
     '3rdparty/jvm/commons-codec',
@@ -92,7 +92,7 @@ java_library(
   provides=artifact(
     org='com.twitter.common',
     name='net-http-handlers-thrift',
-    repo='build-support/commons/ivy:public',
+    repo=public,
   ),
   dependencies=[
     '3rdparty/jvm/com/google/guava',
@@ -117,7 +117,7 @@ java_library(
   provides=artifact(
     org='com.twitter.common',
     name='net-http-handlers-time-series',
-    repo='build-support/commons/ivy:public',
+    repo=public,
   ),
   dependencies=[
     '3rdparty/jvm/com/google/code/gson',
@@ -135,7 +135,7 @@ java_library(
   provides=artifact(
     org='com.twitter.common',
     name='net-http-handlers-params',
-    repo='build-support/commons/ivy:public',
+    repo=public,
   ),
   dependencies=[
     '3rdparty/jvm/com/google/guava',
