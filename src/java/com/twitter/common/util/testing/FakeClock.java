@@ -29,7 +29,8 @@ import java.util.concurrent.TimeUnit;
  * @author John Sirois
  */
 public class FakeClock implements Clock {
-  private long nowNanos;
+  // Tests may need to use the clock from multiple threads, ensure liveness.
+  private volatile long nowNanos;
 
   /**
    * Sets what {@link #nowMillis()} will return until this method is called again with a new value

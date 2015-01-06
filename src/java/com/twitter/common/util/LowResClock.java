@@ -59,8 +59,13 @@ public class LowResClock implements Clock, Closeable {
         time = underlying.nowMillis();
       }
     };
+
+    // Ensure the constructing thread sees a LowResClock with a valid (low-res) time by executing a
+    // blocking call now.
     ticker.run();
-    updaterHandler = executor.scheduleWithFixedDelay(ticker, 0, sleepTimeMs, TimeUnit.MILLISECONDS);
+
+    updaterHandler =
+        executor.scheduleAtFixedRate(ticker, sleepTimeMs, sleepTimeMs, TimeUnit.MILLISECONDS);
   }
 
 
