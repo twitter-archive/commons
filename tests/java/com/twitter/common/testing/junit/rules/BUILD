@@ -1,5 +1,5 @@
 # ==================================================================================================
-# Copyright 2011 Twitter, Inc.
+# Copyright 2015 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -14,18 +14,13 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name = 'util',
-  dependencies = [
-    '3rdparty/jvm/org/easymock',
-    '3rdparty/jvm/com/google/guava',
+junit_tests(
+  name='rules',
+  dependencies=[
     '3rdparty/jvm/junit',
-    'src/java/com/twitter/common/base',
-    'src/java/com/twitter/common/collections',
-    'src/java/com/twitter/common/quantity',
-    'src/java/com/twitter/common/testing/easymock',
+    '3rdparty/jvm/com/google/code/findbugs:jsr305',
+    'src/java/com/twitter/common/junit/annotations',
     'src/java/com/twitter/common/testing/junit/rules',
-    'src/java/com/twitter/common/util',
-    'src/java/com/twitter/common/util:testing',
   ],
-  sources = globs('*.java') + globs('testing/*.java')
+  sources=globs('*.java')
 )
