@@ -10,12 +10,13 @@ If following the guide causes unnecessary hoop-jumping or otherwise less-readabl
 perils or pitfalls, readability may be sacrificed.
 
 In general, much of our style and conventions mirror the
-[Code Conventions for the Java Programming Language](http://www.oracle.com/technetwork/java/codeconvtoc-136057.html).
+[Code Conventions for the Java Programming Language](http://www.oracle.com/technetwork/java/codeconvtoc-136057.html)
+and [Google's Java Style Guide](https://google-styleguide.googlecode.com/svn/trunk/javaguide.html).
 
 [TOC]
 
 ## Recommended reading
-- [Effective Java](http://java.sun.com/docs/books/effective/)
+- [Effective Java](http://www.amazon.com/Effective-Java-Edition-Joshua-Bloch/dp/0321356683)
 
 - [Java Concurrency in Practice](http://jcip.net/)
 
@@ -692,23 +693,23 @@ it can be accomplished without deadlocks or unnecessary time-wait statements.
 
 If you are testing code that needs to perform periodic background tasks
 (such as with a
-[ScheduledExecutorService](http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/ScheduledExecutorService.html)),
+[ScheduledExecutorService](http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ScheduledExecutorService.html)),
 consider mocking the service and/or manually triggering the tasks from your tests, and
 avoiding the actual scheduling.
 If you are testing code that submits tasks to an
-[ExecutorService](http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/ExecutorService.html),
+[ExecutorService](http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html),
 you might consider allowing the executor to be injected, and supplying a
-[single-thread executor](http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/Executors.html#newSingleThreadExecutor()) in tests.
+[single-thread executor](http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Executors.html#newSingleThreadExecutor()) in tests.
 
 In cases where multiple threads are inevitable,
-[java.util.concurrent](http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/package-summary.html)
+[java.util.concurrent](http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/package-summary.html)
 provides some useful libraries to help manage lock-step execution.
 
 For example,
-[LinkedBlockingDeque](http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/LinkedBlockingDeque.html)
+[LinkedBlockingDeque](http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/LinkedBlockingDeque.html)
 can provide synchronization between producer and consumer when an asynchronous operation is
 performed.
-[CountDownLatch](http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/CountDownLatch.html)
+[CountDownLatch](http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/CountDownLatch.html)
 is useful for state/operation synchronization when a queue does not apply.
 
 ### Testing antipatterns
@@ -750,7 +751,7 @@ use fixed input data that exercises known edge cases.
 
 #### Avoid assert
 We avoid the assert statement since it can be
-[disabled](http://docs.oracle.com/javase/6/docs/technotes/guides/language/assert.html#enable-disable)
+[disabled](http://docs.oracle.com/javase/7/docs/technotes/guides/language/assert.html#enable-disable)
 at execution time, and prefer to enforce these types of invariants at all times.
 
 *See also [preconditions](#preconditions)*
@@ -949,7 +950,7 @@ internally without affecting users or peripheral code.
 
 #### Always use type parameters
 Java 5 introduced support for
-[generics](http://docs.oracle.com/javase/tutorial/java/generics/index.html).  This added type
+[generics](http://docs.oracle.com/javase/tutorial/java/generics/index.html). This added type
 parameters to collection types, and allowed users to implement their own type-parameterized classes.
 Backwards compatibility and
 [type erasure](http://docs.oracle.com/javase/tutorial/java/generics/erasure.html) mean that
@@ -974,7 +975,7 @@ of classes that are too large or complex and should be broken up.
 #### Avoid typecasting
 Typecasting is a sign of poor class design, and can often be avoided.  An obvious exception here is
 overriding
-[equals](http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html#equals(java.lang.Object)).
+[equals](http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html#equals(java.lang.Object)).
 
 #### Use final fields
 *See also [favor immutability](#favor-immutability)*
@@ -1017,7 +1018,7 @@ An empty `catch` block is usually a bad idea, as you have no signal of a problem
 
 ##### When interrupted, reset thread interrupted state
 Many blocking operations throw
-[InterruptedException](http://docs.oracle.com/javase/6/docs/api/java/lang/InterruptedException.html)
+[InterruptedException](http://docs.oracle.com/javase/7/docs/api/java/lang/InterruptedException.html)
 so that you may be awaken for events like a JVM shutdown.  When catching `InterruptedException`,
 it is good practice to ensure that the thread interrupted state is preserved.
 
@@ -1075,7 +1076,7 @@ callers when it comes to exceptions.
 ### Use newer/better libraries
 
 #### StringBuilder over StringBuffer
-[StringBuffer](http://docs.oracle.com/javase/6/docs/api/java/lang/StringBuffer.html) is thread-safe,
+[StringBuffer](http://docs.oracle.com/javase/7/docs/api/java/lang/StringBuffer.html) is thread-safe,
 which is rarely needed.
 
 #### ScheduledExecutorService over Timer
@@ -1096,13 +1097,13 @@ a stackoverflow
 
 #### List over Vector
 `Vector` is synchronized, which is often unneeded.  When synchronization is desirable,
-a [synchronized list](http://docs.oracle.com/javase/6/docs/api/java/util/Collections.html#synchronizedList(java.util.List))
+a [synchronized list](http://docs.oracle.com/javase/7/docs/api/java/util/Collections.html#synchronizedList(java.util.List))
 can usually serve as a drop-in replacement for `Vector`.
 
 ### equals() and hashCode()
 If you override one, you must implement both.
 *See the equals/hashCode
-[contract](http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html#hashCode())*
+[contract](http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html#hashCode())*
 
 [Objects.equal()](http://docs.guava-libraries.googlecode.com/git-history/v11.0.2/javadoc/com/google/common/base/Objects.html#equal(java.lang.Object, java.lang.Object))
 and
@@ -1246,14 +1247,14 @@ For a more long-winded discussion on this topic, read
 When spawning a thread, either directly or with a thread pool, you need to take special care that
 you properly manage the lifecycle.  Please familiarize yourself with the concept
 of daemon and non-daemon threads (and their effect on the JVM lifecycle) by reading the
-documentation for [Thread](http://docs.oracle.com/javase/6/docs/api/java/lang/Thread.html).
+documentation for [Thread](http://docs.oracle.com/javase/7/docs/api/java/lang/Thread.html).
 Failing to understand these concepts can cause your application to hang at shutdown.
 
 Shutting down an
-[ExecutorService](http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/ExecutorService.html)
+[ExecutorService](http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html)
 properly is a slightly tricky process (see javadoc).
 If your code manages an executor service with non-daemon threads, you need to follow this procedure.
-[ExecutorServiceShutdown]([ExecutorService](http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/ExecutorService.html))
+[ExecutorServiceShutdown]([ExecutorService](http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html))
 very nicely contains this behavior for you.
 
 If you want to automatically perform cleanup like this when the VM is shutting down, consider
