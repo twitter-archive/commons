@@ -33,5 +33,5 @@ PROJECTS=(
 )
 
 for project in ${PROJECTS[@]}; do
-  ./pants setup_py src/python/twitter/common/$project
+  ./pants setup-py src/python/twitter/common/$project
 done
