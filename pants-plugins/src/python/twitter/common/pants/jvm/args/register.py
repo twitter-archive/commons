@@ -20,5 +20,4 @@ from twitter.common.pants.jvm.args.tasks.resource_mapper import ResourceMapper
 
 
 def register_goals():
-  task(name='args-apt', action=ResourceMapper,
-       dependencies=['compile']).install('resources')
+  task(name='args-apt', action=ResourceMapper).install('resources')

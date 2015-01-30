@@ -16,6 +16,6 @@
 
 jar_library(name='jansi',
   jars=[
-    jar(org='org.fusesource.jansi', name='jansi', rev='1.8').with_sources()
+    jar(org='org.fusesource.jansi', name='jansi', rev='1.8')
   ]
 )

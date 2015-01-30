@@ -20,5 +20,4 @@ from pants.goal.task_registrar import TaskRegistrar as task
 
 def register_goals():
   # We always want compile to finish with a checkstyle
-  task(name='checkstyle', action=Checkstyle,
-       dependencies=['gen', 'resolve']).install('compile')
+  task(name='checkstyle', action=Checkstyle).install('compile')

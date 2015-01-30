@@ -16,7 +16,7 @@
 
 jar_library(name='libthrift-0.5.0',
   jars=[
-    jar(org='org.apache.thrift', name='libthrift', rev='0.5.0-1').with_sources(),
+    jar(org='org.apache.thrift', name='libthrift', rev='0.5.0-1'),
   ]
 )
 

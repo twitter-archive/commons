@@ -19,7 +19,7 @@ SCALA_REV = '2.9.2'
 
 def make_lib(name, rev, scala_rev=None, excludes=None, deps=None):
   artifact_name=name if scala_rev is None else '%s_%s' % (name, scala_rev)
-  jar_dep=jar(org='com.twitter', name=artifact_name, rev=rev).with_sources()
+  jar_dep=jar(org='com.twitter', name=artifact_name, rev=rev)
   if excludes:
     for exclude in excludes:
       jar_dep.exclude(exclude.org, exclude.name)
