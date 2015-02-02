@@ -16,6 +16,6 @@
 
 jar_library(name='spy-memcached',
   jars=[
-    jar(org='net.spy', name='spymemcached', rev='2.11.2').with_sources()
+    jar(org='net.spy', name='spymemcached', rev='2.11.2')
   ]
 )

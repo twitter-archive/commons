@@ -19,7 +19,7 @@ REV = '1.12'
 def make_lib(name):
   jar_library(name=name,
     jars=[
-      jar(org='com.sun.jersey', name=name, rev=REV).with_sources()
+      jar(org='com.sun.jersey', name=name, rev=REV)
     ]
   )
 

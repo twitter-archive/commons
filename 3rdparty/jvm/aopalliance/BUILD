@@ -16,6 +16,6 @@
 
 jar_library(name='aopalliance',
   jars=[
-    jar(org='aopalliance', name='aopalliance', rev='1.0').with_sources()
+    jar(org='aopalliance', name='aopalliance', rev='1.0')
   ]
 )

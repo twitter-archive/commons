@@ -16,7 +16,7 @@
 
 jar_library(name='zookeeper',
   jars=[
-    jar(org='org.apache.zookeeper', name='zookeeper', rev='3.3.4').with_sources()
+    jar(org='org.apache.zookeeper', name='zookeeper', rev='3.3.4')
       .exclude(org='jline', name='jline')
       .exclude(org='javax.jms', name='jms')
       .exclude(org='com.sun.jdmk', name='jmxtools')

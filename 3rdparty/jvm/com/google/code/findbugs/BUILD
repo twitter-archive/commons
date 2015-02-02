@@ -16,6 +16,6 @@
 
 jar_library(name='jsr305',
   jars=[
-    jar(org='com.google.code.findbugs', name='jsr305', rev='2.0.3').with_sources()
+    jar(org='com.google.code.findbugs', name='jsr305', rev='2.0.3')
   ]
 )

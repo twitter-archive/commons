@@ -16,6 +16,6 @@
 
 jar_library(name='hadoop-core',
   jars=[
-    jar(org='org.apache.hadoop', name='hadoop-core', rev='0.20.2').with_sources()
+    jar(org='org.apache.hadoop', name='hadoop-core', rev='0.20.2')
   ]
 )

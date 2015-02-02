@@ -85,7 +85,8 @@ class ResourceMapper(JvmBinaryTask):
   def product_types(cls):
     return ['resources_by_target']
 
-  def prepare(self, round_manager):
+  @classmethod
+  def prepare(cls, options, round_manager):
     round_manager.require_data('classes_by_target')
 
   def execute(self):

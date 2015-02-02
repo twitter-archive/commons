@@ -18,9 +18,7 @@ REV = '3.0'
 
 jar_library(name='guice',
   jars=[
-    jar(
-      org='com.google.inject', name='guice', rev=REV,
-      apidocs='http://google-guice.googlecode.com/svn/tags/%(rev)s/javadoc/' % dict(rev=REV)
-    ).with_sources()
+    jar(org='com.google.inject', name='guice', rev=REV,
+        apidocs='http://google-guice.googlecode.com/svn/tags/%(rev)s/javadoc/' % dict(rev=REV))
   ]
 )
