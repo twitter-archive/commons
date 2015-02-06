@@ -48,4 +48,10 @@ public @interface CmdLine {
    * the field being annotated.
    */
   Class<? extends Parser<?>> parser() default NoParser.class;
+
+  /**
+   * The flag to indicate whether an argument file is accepted for this argument.
+   *
+   */
+  boolean argFileAllowed() default false;
 }
