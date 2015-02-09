@@ -44,6 +44,11 @@ import static com.google.common.base.Preconditions.checkArgument;
  */
 public final class OptionInfo<T> extends ArgumentInfo<T> {
   static final String ARG_NAME_RE = "[\\w\\-\\.]+";
+  static final String ARG_FILE_HELP_TEMPLATE
+      = "%s  Note this argument supports @argfile format where argfile is a file containing "
+      + "otherwise cmdline argument value. For example: -%s=@/tmp/%s_value.txt. The format "
+      + "of the argfile content should be exactly the same as it would be specified on the "
+      + "cmdline.";
   private static final Pattern ARG_NAME_PATTERN = Pattern.compile(ARG_NAME_RE);
   private static final String NEGATE_BOOLEAN = "no_";
   private static final String ARG_FILE_INDICATOR = "@";
@@ -91,7 +96,7 @@ public final class OptionInfo<T> extends ArgumentInfo<T> {
     OptionInfo<?> optionInfo = new OptionInfo(
         canonicalizer,
         name,
-        cmdLine.help(),
+        getCmdLineHelp(cmdLine),
         cmdLine.argFileAllowed(),
         ArgumentInfo.getArgForField(field, Optional.fromNullable(instance)),
         TypeUtil.getTypeParamTypeToken(field),
@@ -99,6 +104,22 @@ public final class OptionInfo<T> extends ArgumentInfo<T> {
         cmdLine.parser());
 
     return optionInfo;
+  }
+
+  /**
+   * Return the help string for a given cmdline argument. If @argfile format is
+   * allowed, it will append additional help information about the @argfile usage.
+   * @param cmdLine The cmdline argument.
+   * @return The help string for the argument.
+   */
+  private static String getCmdLineHelp(CmdLine cmdLine) {
+    String help = cmdLine.help();
+
+    if (cmdLine.argFileAllowed()) {
+      help = String.format(ARG_FILE_HELP_TEMPLATE, help, cmdLine.name(), cmdLine.name());
+    }
+
+    return help;
   }
 
   private final Function<String, String> canonicalizer;
@@ -128,9 +149,9 @@ public final class OptionInfo<T> extends ArgumentInfo<T> {
 
     String finalValue = value;
 
-    // If the "-arg=@file" is allowed and specified, then we read the value from the 'file'
+    // If "-arg=@file" is allowed and specified, then we read the value from the file
     // and use it as the raw value to be parsed for the argument.
-    if (argFileAllowed
+    if (isArgFileAllowed()
         && !Strings.isNullOrEmpty(value)
         && value.startsWith(ARG_FILE_INDICATOR)) {
       finalValue = getArgFileContent(optionName, value.substring(ARG_FILE_INDICATOR.length()));
@@ -154,6 +175,8 @@ public final class OptionInfo<T> extends ArgumentInfo<T> {
     setValue(parsed);
   }
 
+  boolean isArgFileAllowed() { return argFileAllowed; }
+
   boolean isBoolean() {
     return getType().getRawType() == Boolean.class;
   }
@@ -174,11 +197,19 @@ public final class OptionInfo<T> extends ArgumentInfo<T> {
     return canonicalizer.apply(getNegatedName());
   }
 
+  /**
+   * Read out the argument file content and return it as the argument value.
+   * @param optionName The argument name
+   * @param argFilePath The argument file path
+   * @return The value of the argument file content.
+   * @throws IllegalArgumentException if argFilePath is null or empty, or it fails to read
+   *     the content of the file.
+   */
   String getArgFileContent(String optionName, String argFilePath)
       throws IllegalArgumentException {
     if (Strings.isNullOrEmpty(argFilePath)) {
       throw new IllegalArgumentException(
-          String.format("Invalid null/empty value for arg " + optionName));
+          String.format("Invalid null/empty value for argument '%s'." + optionName));
     }
 
     try {

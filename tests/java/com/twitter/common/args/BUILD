@@ -14,7 +14,10 @@
 # limitations under the License.
 # ==================================================================================================
 
-MEDIUM_TESTS = ['ArgScannerTest.java']
+MEDIUM_TESTS = [
+  'ArgScannerTest.java',
+  'OptionInfoTest.java',
+]
 
 java_tests(name='small',
   dependencies=[
@@ -28,9 +31,11 @@ java_tests(name='small',
 
 java_tests(name='medium',
   dependencies=[
+    '3rdparty/jvm/com/google/guava',
     '3rdparty/jvm/junit',
     'src/java/com/twitter/common/args',
     'src/java/com/twitter/common/base',
+    'src/java/com/twitter/common/io',
     'src/java/com/twitter/common/net:util',
     'src/java/com/twitter/common/quantity',
   ],
