@@ -23,38 +23,32 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
 
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
-import com.twitter.common.io.FileUtils;
+import org.junit.rules.TemporaryFolder;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
-
 public class OptionInfoTest {
   private static class App {
-    @CmdLine(name = "files", help = "help.", argFileAllowed = true)
+    @CmdLine(name = "files", help = "help.", argFile = true)
     private final Arg<List<File>> files = Arg.<List<File>>create(ImmutableList.<File>of());
 
     @CmdLine(name = "flag", help = "help.")
     private final Arg<Boolean> flag = Arg.create();
   }
 
-  private File tmpDir;
+  @Rule
+  public TemporaryFolder tmpDir = new TemporaryFolder();
   private App app;
 
   @Before
   public void setUp() throws Exception {
-    tmpDir = FileUtils.createTempDir();
     app = new App();
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    org.apache.commons.io.FileUtils.deleteDirectory(tmpDir);
   }
 
   @Test
@@ -64,7 +58,7 @@ public class OptionInfoTest {
     assertEquals(
         String.format(OptionInfo.ARG_FILE_HELP_TEMPLATE, "help.", "files", "files"),
         optionInfo.getHelp());
-    assertTrue(optionInfo.isArgFileAllowed());
+    assertTrue(optionInfo.argFile());
     assertEquals("com.twitter.common.args.OptionInfoTest.App.files",
         optionInfo.getCanonicalName());
   }
@@ -92,8 +86,7 @@ public class OptionInfoTest {
 
   @Test
   public void testArgumentFilesArgFileFormat() throws Exception {
-    FileUtils.Temporary temporary = new FileUtils.Temporary(tmpDir);
-    File argfile = temporary.createFile(".txt");
+    File argfile = tmpDir.newFile();
     // Note the '\n' at the end. Some editors auto add a newline at the end so
     // make sure our arg scanner and parser can deal with this.
     Files.write("1.txt,2.txt\n", argfile, Charsets.UTF_8);
@@ -109,7 +102,7 @@ public class OptionInfoTest {
     OptionInfo optionInfo = OptionInfo.createFromField(App.class.getDeclaredField("flag"), app);
     assertEquals("flag", optionInfo.getName());
     assertEquals("help.", optionInfo.getHelp());
-    assertFalse(optionInfo.isArgFileAllowed());
+    assertFalse(optionInfo.argFile());
     assertEquals("com.twitter.common.args.OptionInfoTest.App.flag", optionInfo.getCanonicalName());
     assertEquals("no_flag", optionInfo.getNegatedName());
     assertEquals(

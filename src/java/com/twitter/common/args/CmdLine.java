@@ -53,5 +53,5 @@ public @interface CmdLine {
    * The flag to indicate whether an argument file is accepted for this argument.
    *
    */
-  boolean argFileAllowed() default false;
+  boolean argFile() default false;
 }

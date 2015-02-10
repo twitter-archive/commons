@@ -45,10 +45,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 public final class OptionInfo<T> extends ArgumentInfo<T> {
   static final String ARG_NAME_RE = "[\\w\\-\\.]+";
   static final String ARG_FILE_HELP_TEMPLATE
-      = "%s  Note this argument supports @argfile format where argfile is a file containing "
-      + "otherwise cmdline argument value. For example: -%s=@/tmp/%s_value.txt. The format "
-      + "of the argfile content should be exactly the same as it would be specified on the "
-      + "cmdline.";
+      = "%s This argument supports @argfile format. See details below.";
+
   private static final Pattern ARG_NAME_PATTERN = Pattern.compile(ARG_NAME_RE);
   private static final String NEGATE_BOOLEAN = "no_";
   private static final String ARG_FILE_INDICATOR = "@";
@@ -97,7 +95,7 @@ public final class OptionInfo<T> extends ArgumentInfo<T> {
         canonicalizer,
         name,
         getCmdLineHelp(cmdLine),
-        cmdLine.argFileAllowed(),
+        cmdLine.argFile(),
         ArgumentInfo.getArgForField(field, Optional.fromNullable(instance)),
         TypeUtil.getTypeParamTypeToken(field),
         Arrays.asList(field.getAnnotations()),
@@ -106,16 +104,10 @@ public final class OptionInfo<T> extends ArgumentInfo<T> {
     return optionInfo;
   }
 
-  /**
-   * Return the help string for a given cmdline argument. If @argfile format is
-   * allowed, it will append additional help information about the @argfile usage.
-   * @param cmdLine The cmdline argument.
-   * @return The help string for the argument.
-   */
   private static String getCmdLineHelp(CmdLine cmdLine) {
     String help = cmdLine.help();
 
-    if (cmdLine.argFileAllowed()) {
+    if (cmdLine.argFile()) {
       help = String.format(ARG_FILE_HELP_TEMPLATE, help, cmdLine.name(), cmdLine.name());
     }
 
@@ -123,22 +115,20 @@ public final class OptionInfo<T> extends ArgumentInfo<T> {
   }
 
   private final Function<String, String> canonicalizer;
-  private final boolean argFileAllowed;
 
   private OptionInfo(
       Function<String, String> canonicalizer,
       String name,
       String help,
-      boolean argFileAllowed,
+      boolean argFile,
       Arg<T> arg,
       TypeToken<T> type,
       List<Annotation> verifierAnnotations,
       @Nullable Class<? extends Parser<T>> parser) {
 
-    super(canonicalizer.apply(name), name, help, arg, type,
+    super(canonicalizer.apply(name), name, help, argFile, arg, type,
         verifierAnnotations, parser);
     this.canonicalizer = canonicalizer;
-    this.argFileAllowed = argFileAllowed;
   }
 
   /**
@@ -151,7 +141,7 @@ public final class OptionInfo<T> extends ArgumentInfo<T> {
 
     // If "-arg=@file" is allowed and specified, then we read the value from the file
     // and use it as the raw value to be parsed for the argument.
-    if (isArgFileAllowed()
+    if (argFile()
         && !Strings.isNullOrEmpty(value)
         && value.startsWith(ARG_FILE_INDICATOR)) {
       finalValue = getArgFileContent(optionName, value.substring(ARG_FILE_INDICATOR.length()));
@@ -175,8 +165,6 @@ public final class OptionInfo<T> extends ArgumentInfo<T> {
     setValue(parsed);
   }
 
-  boolean isArgFileAllowed() { return argFileAllowed; }
-
   boolean isBoolean() {
     return getType().getRawType() == Boolean.class;
   }
@@ -197,19 +185,11 @@ public final class OptionInfo<T> extends ArgumentInfo<T> {
     return canonicalizer.apply(getNegatedName());
   }
 
-  /**
-   * Read out the argument file content and return it as the argument value.
-   * @param optionName The argument name
-   * @param argFilePath The argument file path
-   * @return The value of the argument file content.
-   * @throws IllegalArgumentException if argFilePath is null or empty, or it fails to read
-   *     the content of the file.
-   */
-  String getArgFileContent(String optionName, String argFilePath)
+  private String getArgFileContent(String optionName, String argFilePath)
       throws IllegalArgumentException {
     if (Strings.isNullOrEmpty(argFilePath)) {
       throw new IllegalArgumentException(
-          String.format("Invalid null/empty value for argument '%s'." + optionName));
+          String.format("Invalid null/empty value for argument '%s'.", optionName));
     }
 
     try {
