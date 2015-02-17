@@ -22,9 +22,8 @@ from twitter.common.quantity import Amount, Time
 
 
 class Deferred(ExceptionalThread):
-  """
-    Wrapper for a delayed closure.
-  """
+  """Wrapper for a delayed closure."""
+
   def __init__(self, closure, delay=Amount(0, Time.SECONDS), clock=time):
     super(Deferred, self).__init__()
     self._closure = closure
@@ -46,11 +45,13 @@ class Deferred(ExceptionalThread):
 def defer(closure, **kw):
   """Run a closure with a specified delay on its own thread.
 
-    Args:
-      closure (function)
-    Keyword args:
-      delay (in seconds, or Amount of Time, default 0)
-      clock (the clock to use for time() and sleep(), default time)
+  :param closure: The callable to be deferred.
+  :keyword delay: The delay in seconds or :class:`Amount` of :class:`Time`, default 0.
+  :keyword clock: The clock interface to use for ``time`` and ``sleep``, default ``time`` module.
+  :returns: A deferred thread handle.
+  :rtype: :class:`Deferred`
   """
 
-  Deferred(closure, **kw).start()
+  deferred = Deferred(closure, **kw)
+  deferred.start()
+  return deferred
