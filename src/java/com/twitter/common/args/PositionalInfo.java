@@ -96,7 +96,9 @@ public final class PositionalInfo<T> extends ArgumentInfo<List<T>> {
       List<Annotation> verifierAnnotations,
       @Nullable Class<? extends Parser<? extends List<T>>> parser) {
 
-    super(canonicalName, name, help, arg, type, verifierAnnotations, parser);
+    // TODO: https://github.com/twitter/commons/issues/353, consider future support of
+    // argFile for Positional arguments.
+    super(canonicalName, name, help, false, arg, type, verifierAnnotations, parser);
     this.elementType = elementType;
   }
 

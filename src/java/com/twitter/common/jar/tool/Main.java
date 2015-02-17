@@ -141,9 +141,10 @@ public final class Main {
   private final Arg<String> mainClass = Arg.create(null);
 
   @CmdLine(name = "classpath",
-      help = "A list of classpath entries. "
+      help = "A list of comma-separated classpath entries. "
           + "If a -manifest is specified its contents will be used but this -classpath will "
-          + "override any entry already present.")
+          + "override any entry already present.",
+      argFile = true)
   private final Arg<List<String>> classPath = Arg.create(null);
 
   @Exists
@@ -164,12 +165,15 @@ public final class Main {
           + "[fs path1](=[jar path1]),[fs path2](=[jar path2]). For example: "
           + "/etc/hosts=hosts,/var/log=logs would create a jar with a hosts file entry and the "
           + "contents of the /var/log tree added as individual entries under the logs/ directory "
-          + "in the jar.  For directories, the mapping can be skipped in which case the directory "
-          + "tree is added as-is to the resulting jar.")
+          + "in the jar. For directories, the mapping can be skipped in which case the directory "
+          + "tree is added as-is to the resulting jar.",
+      argFile = true)
   private final Arg<List<FileSource>> files =
       Arg.<List<FileSource>>create(ImmutableList.<FileSource>of());
 
-  @CmdLine(name = "jars", help = "A list of jar files whose entries to add to the output jar")
+  @CmdLine(name = "jars",
+      help = "A list of comma-separated jar files whose entries to add to the output jar.",
+      argFile = true)
   private final Arg<List<File>> jars = Arg.<List<File>>create(ImmutableList.<File>of());
 
   @CmdLine(name = "skip", help = "A list of regular expressions identifying entries to skip.")

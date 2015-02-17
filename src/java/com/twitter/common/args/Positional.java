@@ -38,4 +38,6 @@ public @interface Positional {
    * type as the field being annotated.
    */
   Class<? extends Parser<?>> parser() default NoParser.class;
+
+  // TODO: https://github.com/twitter/commons/issues/353, Consider to add argFile for positional.
 }
