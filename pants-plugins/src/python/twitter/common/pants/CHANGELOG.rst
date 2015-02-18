@@ -1,6 +1,15 @@
 RELEASE HISTORY
 ===============
 
+0.8.1 (2/17/2015)
+-----------------
+
+Bugfixes
+~~~~~~~~
+
+* Allow non-jar resources on the classpath.
+  `RB #1752 <https://rbcommons.com/s/twitter/r/1752/>`_
+
 0.8.0 (2/2/2015)
 ----------------
 
