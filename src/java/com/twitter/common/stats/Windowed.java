@@ -86,8 +86,7 @@ public abstract class Windowed<T> {
    * You have to modulo it with buffer.length before accessing the array with this number.
    */
   protected int getCurrentIndex() {
-    long now = clock.nowMillis();
-    return (int) (now / sliceDuration);
+    return clock.nowMillis() / sliceDuration;
   }
 
   /**
