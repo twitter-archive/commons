@@ -16,11 +16,10 @@ function die() {
 function usage() {
   echo "Runs commons tests for local or hosted CI."
   echo
-  echo "Usage: $0 (-h|-bsdjp)"
+  echo "Usage: $0 (-h|-bsjp)"
   echo " -h           print out this help message"
   echo " -b           skip bootstraping pants"
   echo " -s           skip distribution tests"
-  echo " -d           if running jvm tests, don't use nailgun daemons"
   echo " -j           skip jvm tests"
   echo " -p           skip python tests"
 
@@ -31,14 +30,11 @@ function usage() {
   fi
 }
 
-daemons="--ng-daemons"
-
 while getopts "hbsdjp" opt; do
   case ${opt} in
     h) usage ;;
     b) skip_bootstrap="true" ;;
     s) skip_distribution="true" ;;
-    d) daemons="--no-ng-daemons" ;;
     j) skip_java="true" ;;
     p) skip_python="true" ;;
     *) usage "Invalid option: -${OPTARG}" ;;
@@ -81,8 +77,8 @@ fi
 if [[ "${skip_java:-false}" == "false" ]]; then
   banner "Running jvm tests"
   (
-    ./pants test {src,tests}/java/com/twitter/common:: $daemons -x ${INTERPRETER_ARGS[@]} && \
-    ./pants test {src,tests}/scala/com/twitter/common:: $daemons -x ${INTERPRETER_ARGS[@]}
+    ./pants -x ${INTERPRETER_ARGS[@]} test {src,tests}/java/com/twitter/common:: && \
+    ./pants -x ${INTERPRETER_ARGS[@]} test {src,tests}/scala/com/twitter/common::
   ) || die "Jvm test failure."
 fi
 
@@ -93,7 +89,7 @@ if [[ "${skip_python:-false}" == "false" ]]; then
     # entries from args tests in the jvm tests above, kill the clean-all once the resource mapper bug
     # is identified and fixed.
     PANTS_PYTHON_TEST_FAILSOFT=1 \
-      ./pants --timeout=5 clean-all test.pytest --no-fast ${INTERPRETER_ARGS[@]} \
+      ./pants --timeout=5 ${INTERPRETER_ARGS[@]} clean-all test.pytest --no-fast \
         tests/python/twitter/common:all
   ) || die "Python test failure"
 fi
