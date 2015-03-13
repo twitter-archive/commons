@@ -30,7 +30,7 @@ function usage() {
   fi
 }
 
-while getopts "hbsdjp" opt; do
+while getopts "hbsjp" opt; do
   case ${opt} in
     h) usage ;;
     b) skip_bootstrap="true" ;;
