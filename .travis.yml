@@ -6,7 +6,7 @@ sudo: false
 
 cache:
   directories:
-    - $HOME/.pants.d
+    - $HOME/.cache/pants
     - $HOME/.ivy2
     - build-support/pants.venv
     - build-support/virtualenv.dist
@@ -19,5 +19,5 @@ jdk:
 
 script: |
   java -version
-  ./build-support/bin/ci.sh -d
+  ./build-support/bin/ci.sh
 

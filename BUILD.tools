@@ -16,9 +16,7 @@
 
 def make_lib(org, name, rev, lib_name=None, excludes=None, intransitive=False, jars=None, deps=None):
   lib_name = lib_name or name
-  jar_dep = jar(org=org, name=name, rev=rev)
-  if intransitive:
-    jar_dep.intransitive()
+  jar_dep = jar(org=org, name=name, rev=rev, intransitive=intransitive)
   jar_library(name=lib_name, jars=[jar_dep] + (jars or []), dependencies=deps or [])
 
 
@@ -39,12 +37,12 @@ make_lib('xalan', 'xalan', '2.7.1')
 
 
 # JavaCompile
-make_lib('org.pantsbuild', 'jmake', '1.3.8-9')
+make_lib('org.pantsbuild', 'jmake', '1.3.8-10')
 make_lib('com.twitter.common.tools', 'java-compiler', '0.0.17')
 
 
 # ScalaCompile
-make_lib('com.typesafe.zinc', 'zinc', '0.3.2-M1')
+make_lib('com.typesafe.zinc', 'zinc', '0.3.7')
 jar_library(name='scala-compiler',
   dependencies=[
     '3rdparty/jvm/org/scala-lang:scala-compiler'
@@ -107,5 +105,8 @@ make_lib('org.scala-lang', 'scala-compiler', '2.9.3', lib_name='scala-repl',
 
 
 # JarTask
+# TODO(John Sirois): Upgrade past 0.1.9 when a 0.1.10+ version of the tool is published with
+# java 1.6 version classfiles.  The 0.1.8 and 0.1.9 jars contain java 1.7 classfiles.
+# see: https://github.com/twitter/commons/issues/361
 make_lib('com.twitter.common', 'jar-tool', '0.1.7')
 
