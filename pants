@@ -17,7 +17,7 @@
 
 source build-support/python/libvirtualenv.sh
 
-PANTS_VERSION=0.0.29
+PANTS_VERSION=0.0.31
 
 PIP_OPTIONS=(
   ${PIP_OPTIONS}
