@@ -1,6 +1,15 @@
 RELEASE HISTORY
 ===============
 
+0.8.2 (3/20/2015)
+----------------
+
+API Changes
+~~~~~~~~~~~
+
+* Update to ``pantsbuild.pants`` 0.0.31 api changes
+  `RB #1963 <https://rbcommons.com/s/twitter/r/1963/>`_
+
 0.8.1 (2/17/2015)
 -----------------
 
