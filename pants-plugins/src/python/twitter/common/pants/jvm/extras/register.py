@@ -20,6 +20,6 @@ from pants.goal.task_registrar import TaskRegistrar as task
 
 
 def register_goals():
-  # We always want compile to finish with a style checks.
+  # We always want compile to finish with style checks.
   task(name='checkstyle', action=Checkstyle).install('compile')
   task(name='scalastyle', action=Scalastyle).install('compile')
