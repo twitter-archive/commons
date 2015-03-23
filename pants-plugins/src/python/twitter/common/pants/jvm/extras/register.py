@@ -15,9 +15,11 @@
 # ==================================================================================================
 
 from pants.backend.jvm.tasks.checkstyle import Checkstyle
+from pants.backend.jvm.tasks.scalastyle import Scalastyle
 from pants.goal.task_registrar import TaskRegistrar as task
 
 
 def register_goals():
-  # We always want compile to finish with a checkstyle
+  # We always want compile to finish with style checks.
   task(name='checkstyle', action=Checkstyle).install('compile')
+  task(name='scalastyle', action=Scalastyle).install('compile')

@@ -32,6 +32,4 @@ PANTS_PACKAGES=(
 
 setup_virtualenv pants ${PANTS_PACKAGES[@]} ${PIP_OPTIONS[@]}
 
-# Enable local plugins
-export PYTHONPATH=pants-plugins/src/python
 exec pants "$@"

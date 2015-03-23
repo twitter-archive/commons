@@ -32,6 +32,10 @@ make_lib('org.antlr', 'antlr', '4.2.2', lib_name='antlr-4')
 make_lib('com.twitter', name='scrooge-generator_2.9.2', rev='3.16.3', lib_name='scrooge-gen')
 
 
+# ThriftLinter
+make_lib('com.twitter', name='scrooge-linter_2.9.2', rev='3.16.3', lib_name='scrooge-linter')
+
+
 # IvyResolve
 make_lib('xalan', 'xalan', '2.7.1')
 
