@@ -109,8 +109,5 @@ make_lib('org.scala-lang', 'scala-compiler', '2.9.3', lib_name='scala-repl',
 
 
 # JarTask
-# TODO(John Sirois): Upgrade past 0.1.9 when a 0.1.10+ version of the tool is published with
-# java 1.6 version classfiles.  The 0.1.8 and 0.1.9 jars contain java 1.7 classfiles.
-# see: https://github.com/twitter/commons/issues/361
-make_lib('com.twitter.common', 'jar-tool', '0.1.7')
+make_lib('com.twitter.common', 'jar-tool', '0.1.10')
 
