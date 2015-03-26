@@ -17,19 +17,13 @@
 
 source build-support/python/libvirtualenv.sh
 
-PANTS_VERSION=0.0.31
-
-PIP_OPTIONS=(
-  ${PIP_OPTIONS}
-  --allow-external elementtree
-  --allow-unverified elementtree
-)
+PANTS_VERSION=0.0.32
 
 PANTS_PACKAGES=(
   pantsbuild.pants==${PANTS_VERSION}
   pantsbuild.pants.contrib.scrooge==${PANTS_VERSION}
 )
 
-setup_virtualenv pants ${PANTS_PACKAGES[@]} ${PIP_OPTIONS[@]}
+setup_virtualenv pants ${PANTS_PACKAGES[@]} ${PIP_OPTIONS}
 
 exec pants "$@"

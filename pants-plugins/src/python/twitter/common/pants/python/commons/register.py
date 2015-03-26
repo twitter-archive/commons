@@ -17,7 +17,9 @@
 import os
 
 from pants.backend.jvm.repository import Repository
+from pants.backend.python.tasks.python_eval import PythonEval
 from pants.base.build_file_aliases import BuildFileAliases
+from pants.goal.task_registrar import TaskRegistrar as task
 
 from twitter.common.pants.python.commons.read_contents import read_contents_factory
 from twitter.common.pants.python.commons.remote_python_thrift_fileset import (
@@ -40,3 +42,9 @@ def build_file_aliases():
           'read_contents': read_contents_factory,
           'remote_python_thrift_fileset': RemotePythonThriftFileset.factory,
       })
+
+
+def register_goals():
+  # Turn on python "compilation" to enable basic sanity checks for python_library and python_binary
+  # targets.
+  task(name='python-eval', action=PythonEval).install('compile')

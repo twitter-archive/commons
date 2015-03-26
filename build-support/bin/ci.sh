@@ -83,6 +83,29 @@ if [[ "${skip_java:-false}" == "false" ]]; then
 fi
 
 if [[ "${skip_python:-false}" == "false" ]]; then
+  banner "Compiling python libraries and binaries"
+  (
+    compile_exclusions=(
+      # The app/modules design forces a cycle between app and modules that must be broken
+      # by modules not depending on app.
+      src/python/twitter/common/app/modules
+
+      # These support legacy zookeeper client via the c bindings and only have their zookeeper
+      # dep activated by an extra_requires on pip install.
+      src/python/twitter/common/zookeeper/group:group
+      src/python/twitter/common/zookeeper/serverset:cli
+      src/python/twitter/common/zookeeper:zookeeper-old
+
+      # These are source-only targets and each have a dependencies-only target that is used
+      # to get the proper dep set.
+      src/python/twitter/common/rpc/sasl:sourceonly
+      src/python/twitter/common/python:python-source
+    )
+    ./pants \
+      ${compile_exclusions[@]/#/--exclude-target-regexp=} \
+      compile.python-eval --fail-slow src/python/::
+  ) || die "Python compile failure"
+
   banner "Running python tests"
   (
     # TODO(John Sirois): We clean-all here to work-around args resource mapper issues finding leftover
