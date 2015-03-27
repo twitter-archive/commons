@@ -17,6 +17,7 @@
 python_library(
   name = 'text',
   dependencies = [
+    '3rdparty/python:thrift'
   ],
   sources = globs('*.py'),
 )

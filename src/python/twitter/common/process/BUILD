@@ -18,6 +18,7 @@ python_library(
   name = 'process',
   sources = rglobs('*.py'),
   dependencies = [
+    'src/python/twitter/common/dirutil',
     'src/python/twitter/common/lang',
     'src/python/twitter/common/string',
   ],
