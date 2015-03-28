@@ -24,20 +24,16 @@ class TestMeh(unittest.TestCase):
     mock_obj = mock.Mock()
     mock_obj.meh_obj = mock_obj.Meh()
     fake_meh = mock_obj.meh_obj
-
     fake_meh.get_data(self.meh_api_url)
     fake_meh.get_data.assert_called_with(self.meh_api_url)
     fake_meh.get_data.return_value = RAW_DATA
-
     self.assertEqual(mock_obj.meh_obj.get_data.return_value, RAW_DATA)
 
   def test_get_json(self):
     mock_obj = mock.Mock()
     mock_obj.meh_obj = mock_obj.Meh()
     fake_meh = mock_obj.meh_obj
-
     fake_meh.get_json(RAW_DATA)
     fake_meh.get_json.assert_called_with(RAW_DATA)
     fake_meh.get_json.return_value = JSON_DICT
-
     self.assertEqual(fake_meh.get_json.return_value, JSON_DICT)
