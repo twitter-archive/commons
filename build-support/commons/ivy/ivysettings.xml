@@ -27,7 +27,8 @@ limitations under the License.
                root="http://repo1.maven.org/maven2/"/>
 
       <!-- This is just for jvm tools used by Pants and not yet published to maven central.
-           Kill once they are published to maven central. -->
+           TODO(John Sirois): Kill once they are published to maven central.
+           See: http://github.com/twitter/commons/issues/370 -->
       <ibiblio name="pantsbuild-maven-repo"
                m2compatible="true"
                usepoms="true"
