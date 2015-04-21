@@ -28,6 +28,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import com.twitter.common.objectsize.ObjectSizeIgnoreField;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
@@ -286,12 +288,17 @@ public class ObjectSizeCalculator {
         if (Modifier.isStatic(f.getModifiers())) {
           continue;
         }
+	boolean ignoreSubtree = f.getAnnotation(ObjectSizeIgnoreField.class) != null;
+
         final Class<?> type = f.getType();
         if (type.isPrimitive()) {
           fieldsSize += getPrimitiveFieldSize(type);
         } else {
-          f.setAccessible(true);
-          referenceFields.add(f);
+          if (!ignoreSubtree)
+          {
+            f.setAccessible(true);
+            referenceFields.add(f);
+          }
           fieldsSize += referenceSize;
         }
       }
