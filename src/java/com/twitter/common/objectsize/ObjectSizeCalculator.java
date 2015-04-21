@@ -16,6 +16,7 @@
 
 package com.twitter.common.objectsize;
 
+import java.lang.annotation.Annotation;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
 import java.lang.reflect.Array;
@@ -29,7 +30,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.twitter.common.objectsize.ObjectSizeIgnoreField;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
@@ -105,6 +105,8 @@ public class ObjectSizeCalculator {
    * Given an object, returns the total allocated size, in bytes, of the object
    * and all other objects reachable from it.  Attempts to to detect the current JVM memory layout,
    * but may fail with {@link UnsupportedOperationException};
+   * Any objects below fields annotated with ObjectSizeIgnoreField, or the annotation set via
+   * #setIgnoreFieldAnnotation(Class<? extends Annotation> annotation), are ignored.
    *
    * @param obj the object; can be null. Passing in a {@link java.lang.Class} object doesn't do
    *          anything special, it measures the size of all objects
@@ -119,6 +121,11 @@ public class ObjectSizeCalculator {
    */
   public static long getObjectSize(Object obj) throws UnsupportedOperationException {
     return obj == null ? 0 : new ObjectSizeCalculator(CurrentLayout.SPEC).calculateObjectSize(obj);
+  }
+
+  private static Class<? extends Annotation> ignoreFieldAnnotationClass = ObjectSizeIgnoreField.class;
+  public static void setIgnoreFieldAnnotation(Class<? extends Annotation> annotation) {
+	  ignoreFieldAnnotationClass = annotation;
   }
 
   // Fixed object header size for arrays.
@@ -288,7 +295,7 @@ public class ObjectSizeCalculator {
         if (Modifier.isStatic(f.getModifiers())) {
           continue;
         }
-	boolean ignoreSubtree = f.getAnnotation(ObjectSizeIgnoreField.class) != null;
+	boolean ignoreSubtree = f.getAnnotation(ignoreFieldAnnotationClass) != null;
 
         final Class<?> type = f.getType();
         if (type.isPrimitive()) {
