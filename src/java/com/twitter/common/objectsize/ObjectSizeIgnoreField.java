@@ -37,5 +37,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ObjectSizeIgnoreField
 {
+	String reason() default "";
 }
 
