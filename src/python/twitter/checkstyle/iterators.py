@@ -84,7 +84,7 @@ def tuple_from_diff(diff):
     From GitPython:
 
     It contains two sides a and b of the diff, members are prefixed with
-    "a" and "b" respectively to inidcate that.
+    "a" and "b" respectively to indicate that.
 
     Diffs keep information about the changed blob objects, the file mode, renames,
     deletions and new files.
@@ -117,6 +117,6 @@ def git_iterator(args, options):
     raise ValueError('Git has not been enabled for this checkstyle library!')
 
   repo = Repo()
-  diff_commit = repo.rev_parse(options.diff or 'master')
+  diff_commit = repo.rev_parse(options.diff or repo.git.merge_base('master', 'HEAD'))
   for filename, line_filter in filter(None, map(tuple_from_diff, diff_commit.diff(None))):
-    yield filename, line_filter
+    yield os.path.join(repo.working_tree_dir, filename), line_filter

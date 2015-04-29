@@ -25,9 +25,6 @@ from .iterators import git_iterator, path_iterator
 from .plugins import list_plugins
 
 
-DEFAULT_BRANCH = 'master'
-
-
 app.add_option(
   '-p',
   action='append',
@@ -60,7 +57,7 @@ app.add_option(
   default=None,
   dest='diff',
   help='If specified, only checkstyle against the diff of the supplied branch, e.g. --diff=master.'
-    ' Defaults to master if no paths are specified.')
+    ' Defaults to $(git merge-base master HEAD) if no paths are specified.')
 
 
 app.add_option(
@@ -138,13 +135,11 @@ def proxy_main():
         plugins_map.pop(plugin, None)
       plugins = list(plugins_map.values())
 
-    if not args and options.diff is None:
-      options.diff = DEFAULT_BRANCH
-
-    if options.diff:
-      iterator = git_iterator(args, options)
-    else:
+    if args and not options.diff:
       iterator = path_iterator(args, options)
+    else:
+      # No path, use git to find what changed.
+      iterator = git_iterator(args, options)
 
     severity = Nit.COMMENT
     for number, name in Nit.SEVERITY.items():
