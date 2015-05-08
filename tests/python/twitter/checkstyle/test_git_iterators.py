@@ -52,15 +52,25 @@ def test_py_changed_in_branch(tmpdir, repo):
   repo.index.commit("modify a python file in another branch")
   repo.heads.feature_branch.checkout()
 
-  assert [f[0] for f in git_iterator(None, Options(other_branch))] == [python_filename]
+  assert [f[0] for f in git_iterator(None, Options(other_branch))] == [
+      tmpdir.join(python_filename).strpath]
 
 
 def test_py_file_changed(tmpdir, repo):
+  # First create a commit on master. Since we diff against the merge-base to master
+  # by default, it shouldn't be in the diff.
+  repo.heads.master.checkout()
+  python_filename_on_master = 'some-python-file.py'
+  tmpdir.join('some-python-file.py').write('some python in master')
+  repo.index.add([python_filename_on_master])
+  repo.index.commit("commit on master")
+
+  repo.heads.feature_branch.checkout()
   tmpdir.join(python_filename).write('some python to check')
   repo.index.add([python_filename])
   repo.index.commit("modify a python file")
 
-  assert [f[0] for f in git_iterator(None, Options())] == [python_filename]
+  assert [f[0] for f in git_iterator(None, Options())] == [tmpdir.join(python_filename).strpath]
 
 
 def test_py_file_added(tmpdir, repo):
@@ -70,7 +80,7 @@ def test_py_file_added(tmpdir, repo):
   repo.index.add([new_python_filename])
   repo.index.commit("add a python file")
 
-  assert [f[0] for f in git_iterator(None, Options())] == [new_python_filename]
+  assert [f[0] for f in git_iterator(None, Options())] == [tmpdir.join(new_python_filename).strpath]
 
 
 def test_py_file_renamed(tmpdir, repo):
@@ -80,4 +90,4 @@ def test_py_file_renamed(tmpdir, repo):
   repo.index.add([new_python_filename])
   repo.index.commit("rename a python file")
 
-  assert [f[0] for f in git_iterator(None, Options())] == [new_python_filename]
+  assert [f[0] for f in git_iterator(None, Options())] == [tmpdir.join(new_python_filename).strpath]
