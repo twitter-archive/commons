@@ -17,8 +17,8 @@
 java_tests(name = 'metrics',
   dependencies = [
     '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/twitter/common:junit-runner-annotations',
     '3rdparty/jvm/junit',
-    'src/java/com/twitter/common/junit/annotations',
     'src/java/com/twitter/common/metrics',
     'src/java/com/twitter/common/objectsize',
     'src/java/com/twitter/common/stats',
