@@ -82,14 +82,6 @@ make_lib('com.twitter.common', name='junit-runner', rev='0.0.41', lib_name='juni
 make_lib('emma', 'emma', '2.1.5320')
 
 
-# SpecsRun
-make_lib('com.twitter.common', 'specs-testing', '0.0.6', lib_name='scala-specs',
-  deps=[
-    '3rdparty/jvm/org/scala-tools/testing:specs_2.9'
-  ]
-)
-
-
 # BenchmarkRun
 make_lib('com.google.caliper', 'caliper', '0.5-rc1', lib_name='benchmark-caliper-0.5',
   excludes=[
