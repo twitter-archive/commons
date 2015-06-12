@@ -81,12 +81,18 @@ def test_zglobs():
   FILELIST = [
     'foo.txt',
     '.hidden_file',
+    '.hidden.txt',
+    '.txt',
     'a/',
     'a/foo.txt',
     'a/.hidden_file',
+    'a/.hidden.txt',
+    'a/.txt',
     'a/b/',
     'a/b/foo.txt',
     'a/b/.hidden_file',
+    'a/b/.hidden.txt',
+    'a/b/.txt',
     'foo/bar/baz.txt',
     'foo/',
     'foo/bar/',
@@ -96,11 +102,11 @@ def test_zglobs():
   with Fileset.over(FILELIST):
     assert ll(Fileset.zglobs('')) == 0
     assert ll(Fileset.zglobs('*.txt')) == 1
-    assert ll(Fileset.zglobs('.*')) == 1
+    assert ll(Fileset.zglobs('.*')) == 3
     assert ll(Fileset.zglobs('*/*.txt')) == 1
-    assert ll(Fileset.zglobs('*/.*')) == 1
+    assert ll(Fileset.zglobs('*/.*')) == 3
     assert ll(Fileset.zglobs('*/*/*.txt')) == 2
-    assert ll(Fileset.zglobs('*/*/.*')) == 1
+    assert ll(Fileset.zglobs('*/*/.*')) == 3
     assert ll(Fileset.zglobs('???.txt')) == 1
     assert ll(Fileset.zglobs('?/*.txt')) == 1
     assert ll(Fileset.zglobs('?/?/*.txt')) == 1
@@ -108,11 +114,12 @@ def test_zglobs():
     assert ll(Fileset.zglobs('a/b/*.txt')) == 1
     assert ll(Fileset.zglobs('a/???.txt')) == 1
     assert ll(Fileset.zglobs('a/?/*.txt')) == 1
-    assert ll(Fileset.zglobs('*.txt', '*/.*')) == 2
+    assert ll(Fileset.zglobs('*.txt', '*/.*')) == 4
+    assert ll(Fileset.zglobs('foo*.txt')) == 1
 
   with Fileset.over(FILELIST):
     assert leq(Fileset.zglobs('*'), 'foo.txt', 'a', 'foo')
-    assert leq(Fileset.zglobs('.*'), '.hidden_file')
+    assert leq(Fileset.zglobs('.*'), '.hidden_file', '.hidden.txt', '.txt')
     assert leq(Fileset.zglobs('**'), 'foo.txt', 'a', 'foo')
     assert leq(Fileset.zglobs('**/'), 'a/', 'a/b/', 'a/b/c/', 'foo/', 'foo/bar/')
     assert leq(Fileset.zglobs('**/*'),
@@ -130,7 +137,9 @@ def test_zglobs():
         'foo/bar/baz.txt')
     assert leq(Fileset.zglobs('**/foo.txt'), 'foo.txt', 'a/foo.txt', 'a/b/foo.txt')
     assert leq(Fileset.zglobs('**/.*'),
-        '.hidden_file', 'a/.hidden_file', 'a/b/.hidden_file')
+        '.hidden_file', '.hidden.txt', '.txt',
+        'a/.hidden_file', 'a/.hidden.txt', 'a/.txt',
+        'a/b/.hidden_file', 'a/b/.hidden.txt', 'a/b/.txt')
     assert leq(Fileset.zglobs('*', 'a/*.txt'), 'foo.txt', 'a', 'foo', 'a/foo.txt')
 
 

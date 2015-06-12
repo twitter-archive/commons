@@ -26,7 +26,7 @@ from twitter.common.lang import Compatibility
 def fnmatch_translate_extended(pat):
   """
      A modified version of fnmatch.translate to match zsh semantics more closely:
-       '*' matches one or more characters instead of zero or more
+       '*' matches zero or more characters (but not '.' at the beginning of a path component)
        '**' is equivalent to '*'
        '**/' matches one or more directories.
      E.g. src/**/*.py => match all files ending with .py in any subdirectory of src/
@@ -40,11 +40,10 @@ def fnmatch_translate_extended(pat):
       if pat[i:i+2] == '*/':
         res += '([^/]+/)*'
         i += 2
-      elif pat[i:i+1] == '*':
-        res += '([^/]+)'
-        i += 1
       else:
-        res += '([^/]+)'
+        res += '([^/]*)'
+        if pat[i:i+1] == '*':
+          i += 1
     elif c == '?':
       res += '.'
     elif c == '[':
@@ -67,6 +66,9 @@ def fnmatch_translate_extended(pat):
         res += '[' + stuff + ']'
     else:
       res += re.escape(c)
+    # Don't allow match on trailing /
+  if pat[-1:] == '*':
+    res += '[^/]'
   return res + '\Z(?ms)'
 
 
