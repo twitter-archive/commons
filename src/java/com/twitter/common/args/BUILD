@@ -89,7 +89,7 @@ java_library(name = 'args',
     ':apt',
     ':core',
   ],
-  sources = rglobs('*.java', exclude = [APT_SOURCES + CORE_SOURCES + DURATION_PARSER])
+  sources = rglobs('*.java', exclude = [APT_SOURCES, CORE_SOURCES, DURATION_PARSER])
 )
 
 java_library(name = 'duration_parser',

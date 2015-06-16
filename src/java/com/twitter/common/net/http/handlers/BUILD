@@ -77,10 +77,10 @@ java_library(
     'src/java/com/twitter/common/stats',
   ],
   sources=globs('*.java',
-                exclude=[TEXT_SOURCES +
-                         STRING_TEMPLATE_SOURCES +
-                         THRIFT_SOURCES +
-                         TIME_SERIES_SOURCES +
+                exclude=[TEXT_SOURCES,
+                         STRING_TEMPLATE_SOURCES,
+                         THRIFT_SOURCES,
+                         TIME_SERIES_SOURCES,
                          PARAMS_SOURCES]),
   resources=[
     'src/resources/com/twitter/common/net/http/handlers:log'
