@@ -111,9 +111,8 @@ if [[ "${skip_python:-false}" == "false" ]]; then
     # TODO(John Sirois): We clean-all here to work-around args resource mapper issues finding leftover
     # entries from args tests in the jvm tests above, kill the clean-all once the resource mapper bug
     # is identified and fixed.
-    PANTS_PYTHON_TEST_FAILSOFT=1 \
-      ./pants --timeout=5 ${INTERPRETER_ARGS[@]} clean-all test.pytest --no-fast \
-        tests/python/twitter/common:all
+    ./pants --timeout=5 ${INTERPRETER_ARGS[@]} clean-all test.pytest --fail-slow --no-fast \
+      tests/python/twitter/common:all
   ) || die "Python test failure"
 fi
 

@@ -68,7 +68,7 @@ python_library(
 
 python_library(
   name = 'twitter',
-  sources = globs('*.py') - ['pep8.py', 'pyflakes.py'],
+  sources = globs('*.py', exclude=['pep8.py', 'pyflakes.py']),
   dependencies = [
     ':plugin',
     'src/python/twitter/checkstyle:common',

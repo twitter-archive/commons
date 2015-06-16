@@ -14,13 +14,13 @@
 # limitations under the License.
 # ==================================================================================================
 
-ACTION_SOURCES = set([
-    'Lifecycle.java',
-    'ShutdownRegistry.java',
-    'ShutdownStage.java',
-    'StartupRegistry.java',
-    'StartupStage.java',
-])
+ACTION_SOURCES = [
+  'Lifecycle.java',
+  'ShutdownRegistry.java',
+  'ShutdownStage.java',
+  'StartupRegistry.java',
+  'StartupStage.java',
+]
 
 java_library(name = 'action',
   provides = artifact(
@@ -52,5 +52,5 @@ java_library(name = 'application',
     'src/java/com/twitter/common/base',
     'src/java/com/twitter/common/net/http/handlers',
   ],
-  sources = globs('*.java') - ACTION_SOURCES
+  sources = globs('*.java', exclude = [ACTION_SOURCES])
 )

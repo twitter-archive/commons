@@ -72,8 +72,10 @@ java_library(name = 'util',
     'src/java/com/twitter/common/quantity',
     'src/java/com/twitter/common/stats',
   ],
-  sources = globs('*.java', 'concurrent/*.java')
-    - EXECUTOR_SERVICE_SHUTDOWN_SOURCES - SYSTEM_MOCKS_SOURCES - SAMPLER_SOURCES,
+  sources = globs('*.java', 'concurrent/*.java',
+                  exclude = [EXECUTOR_SERVICE_SHUTDOWN_SOURCES +
+                             SYSTEM_MOCKS_SOURCES +
+                             SAMPLER_SOURCES]),
 )
 
 java_library(name = 'system-mocks',

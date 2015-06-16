@@ -45,7 +45,7 @@ java_tests(name = 'small',
     'src/java/com/twitter/common/zookeeper:server-set',
     'src/thrift/com/twitter/thrift',
   ],
-  sources = globs('*.java') - MEDIUM - LARGE
+  sources = globs('*.java', exclude=[MEDIUM + LARGE])
 )
 
 java_tests(name = 'medium-main',

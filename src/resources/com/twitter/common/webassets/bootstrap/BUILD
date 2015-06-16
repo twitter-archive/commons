@@ -15,12 +15,16 @@
 # ==================================================================================================
 
 
-def version_sources(version):
-  specs = ['%s/%s' % (version, pattern) for pattern in ('css/*.css', 'js/*.js', 'img/*.png')]
-  return globs(*specs)
+def version_sources(*versions):
+  def specs():
+    for version in versions:
+      for pattern in ('css/*.css', 'js/*.js', 'img/*.png'):
+        yield '%s/%s' % (version, pattern)
+
+  return globs(*specs())
 
 
 resources(
   name='bootstrap',
-  sources=version_sources('2.1.1') + version_sources('2.3.2')
+  sources=version_sources('2.1.1', '2.3.2')
 )

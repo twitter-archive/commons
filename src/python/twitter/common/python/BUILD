@@ -28,7 +28,7 @@ python_requirement_library(
 
 python_library(
   name = 'python-source',
-  sources = globs('*.py') + globs('http/*.py'),
+  sources = globs('*.py', 'http/*.py'),
 )
 
 
