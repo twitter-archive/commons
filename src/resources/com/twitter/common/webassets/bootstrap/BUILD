@@ -14,13 +14,14 @@
 # limitations under the License.
 # ==================================================================================================
 
-
-def version_sources(version):
-  specs = ['%s/%s' % (version, pattern) for pattern in ('css/*.css', 'js/*.js', 'img/*.png')]
-  return globs(*specs)
-
-
 resources(
   name='bootstrap',
-  sources=version_sources('2.1.1') + version_sources('2.3.2')
+  sources=globs(
+    '2.1.1/css/*.css',
+    '2.1.1/img/*.png',
+    '2.1.1/js/*.js',
+    '2.3.2/css/*.css',
+    '2.3.2/img/*.png',
+    '2.3.2/js/*.js',
+  )
 )

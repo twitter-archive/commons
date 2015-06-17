@@ -29,17 +29,20 @@ jvm_app(
   bundles=[]
 )
 
-APT_SOURCES = globs('apt/*.java')
+APT_SOURCES = [
+  'apt/CmdLineProcessor.java',
+  'apt/Configuration.java',
+]
 CORE_SOURCES = [
- 'Arg.java',
- 'ArgParser.java',
- 'CmdLine.java',
- 'NoParser.java',
- 'Parser.java',
- 'ParserOracle.java',
- 'Positional.java',
- 'Verifier.java',
- 'VerifierFor.java',
+  'Arg.java',
+  'ArgParser.java',
+  'CmdLine.java',
+  'NoParser.java',
+  'Parser.java',
+  'ParserOracle.java',
+  'Positional.java',
+  'Verifier.java',
+  'VerifierFor.java',
 ]
 DURATION_PARSER = ['parsers/TimeDurationParser.java']
 
@@ -86,7 +89,7 @@ java_library(name = 'args',
     ':apt',
     ':core',
   ],
-  sources = rglobs('*.java') - APT_SOURCES - CORE_SOURCES - DURATION_PARSER
+  sources = rglobs('*.java', exclude = [APT_SOURCES, CORE_SOURCES, DURATION_PARSER])
 )
 
 java_library(name = 'duration_parser',

@@ -26,5 +26,5 @@ java_tests(name = 'util',
     'src/java/com/twitter/common/util',
     'src/java/com/twitter/common/util:testing',
   ],
-  sources = globs('*.java') + globs('testing/*.java')
+  sources = globs('*.java', 'testing/*.java')
 )

@@ -1,6 +1,6 @@
 python_library(
   name = 'serverset_base',
-  sources = globs('*.py') - ['cli.py'],
+  sources = globs('*.py', exclude = ['cli.py']),
   dependencies = [
     'src/python/twitter/common/lang',
     'src/python/twitter/common/zookeeper/group:group_base',

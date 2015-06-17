@@ -22,7 +22,7 @@ python_test_suite(name = 'all',
 )
 
 python_tests(name = 'dirutil',
-  sources = globs('*.py') - ['fileset_test.py'],
+  sources = globs('*.py', exclude = ['fileset_test.py']),
   dependencies = [
     'src/python/twitter/common/contextutil',
     'src/python/twitter/common/dirutil',
