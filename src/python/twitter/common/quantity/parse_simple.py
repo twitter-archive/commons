@@ -45,7 +45,7 @@ class InvalidData(ValueError):
 def parse_data(datastring):
   """
     Parse a data string of the format:
-      [integer][unit]
+    [integer][unit]
     where unit is in upper/lowercase k, kb, m, mb, g, gb, t, tb
   """
   if not isinstance(datastring, Compatibility.string):

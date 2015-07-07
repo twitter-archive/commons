@@ -1,0 +1,1 @@
+.. include:: ../app/docs/module.rst

@@ -66,18 +66,18 @@ def branch(sha, project=None, repo=None):
     Perform actions at a given sha in a repository.  Implemented as a context manager.
     Must be run in the CWD of a git repository.
 
-    sha: A fully-qualified revision as specified in:
+    :param sha: A fully-qualified revision as specified in
       http://www.kernel.org/pub/software/scm/git/docs/git-rev-parse.html
-
-    project (optional): A label to prepend to the temporary branch.
-
-    repo (optional): The location of the .git repository (by default current working directory.)
+    :param project: (optional) A label to prepend to the temporary branch.
+    :param repo: (optional) The location of the .git repository (by default current working directory.)
 
     Example:
-      import subprocess
-      from twitter.common.git import branch
-      with branch('master@{yesterday}'):
-        subprocess.check_call('./pants tests/python/twitter/common:all')
+      >>> import subprocess
+      >>> from twitter.common.git import branch
+      >>> with branch('master@{yesterday}'):
+      ...  subprocess.check_call('./pants tests/python/twitter/common:all')
+
+
   """
 
   active_head, repo, branch_name = validate_args(sha, project, repo)
@@ -95,6 +95,12 @@ def branch(sha, project=None, repo=None):
 def checkout(sha, project=None, repo=None):
   """
     Checkout a sha in a given repository.
+
+    :param sha: A fully-qualified revision as specified in
+      http://www.kernel.org/pub/software/scm/git/docs/git-rev-parse.html
+    :param project: (optional) A label to prepend to the temporary branch.
+    :param repo: (optional) The location of the .git repository (by default current working directory.)
+
 
     If project is supplied, generate a more readable branch name based upon
     the project name.

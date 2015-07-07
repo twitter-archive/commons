@@ -145,7 +145,7 @@ class Fileset(object):
 
   @classmethod
   def zglobs(cls, *globspecs, **kw):
-    """Returns a Fileset that matches zsh-style globs, including '**/' for recursive globbing.
+    """Returns a Fileset that matches zsh-style globs, including `**/` for recursive globbing.
 
        By default searches from the current working directory.  Can be overridden
        with the 'root' keyword argument.  File names starting with '.' are not
