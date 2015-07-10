@@ -46,7 +46,7 @@ make_lib('org.pantsbuild.tools.compiler', 'java-compiler', '0.0.1')
 
 
 # ScalaCompile
-make_lib('org.pantsbuild', 'zinc', '1.0.6')
+make_lib('org.pantsbuild', 'zinc', '1.0.7')
 
 # We just want the single compiler-interface and sbt-interface jars and not their deps on
 # scala-lang.
@@ -84,7 +84,7 @@ make_lib('org.scalastyle', 'scalastyle_2.9.3', '0.3.2', lib_name='scalastyle')
 
 
 # JunitRun
-make_lib('org.pantsbuild', 'junit-runner', '0.0.5', lib_name='junit')
+make_lib('org.pantsbuild', 'junit-runner', '0.0.8', lib_name='junit')
 make_lib('emma', 'emma', '2.1.5320')
 
 
