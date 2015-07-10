@@ -1,8 +1,7 @@
 <?xml version="1.0"?>
-
 <!--
 =================================================================================================
-Copyright 2011 Twitter, Inc.
+Copyright 2015 Twitter, Inc.
 _________________________________________________________________________________________________
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this work except in compliance with the License.
@@ -18,18 +17,16 @@ limitations under the License.
 =================================================================================================
 -->
 
-<ivysettings>
-  <macrodef name="_remote_resolvers">
-    <chain returnFirst="true">
-      <ibiblio name="maven2"
-               m2compatible="true"
-               descriptor="required"/>
+<ivy-module version="2.0"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
 
-       <!-- Used only for com.twitter.common#metrics-data-sample -->
-       <ibiblio name="maven.twttr.com-maven"
-                m2compatible="true"
-                root="http://maven.twttr.com/"
-                descriptor="required"/>
-    </chain>
-  </macrodef>
-</ivysettings>
+  <info organisation="org.pantsbuild" module="ivy"/>
+
+  <dependencies defaultconf="default">
+    <dependency org="org.apache.ivy" name="ivy" rev="2.4.0"/>
+
+    <!-- Enable support for the more robust commons-httpclient downloader. -->
+    <dependency org="commons-httpclient" name="commons-httpclient" rev="3.1"/>
+  </dependencies>
+</ivy-module>
