@@ -59,8 +59,8 @@ def _make_proxy_function(method_name):
       bound_method = types.MethodType(unbound_method,
                                       Application.active())
     return bound_method(*args, **kwargs)
-  proxy_function.__doc__ = getattr(Application, attribute).__doc__
-  proxy_function.__name__ = attribute
+  proxy_function.__doc__ = getattr(Application, method_name).__doc__
+  proxy_function.__name__ = method_name
   return proxy_function
 
 
