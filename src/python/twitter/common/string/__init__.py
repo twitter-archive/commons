@@ -10,7 +10,7 @@ def basic_scanf(fmt_string, value_string):
     See ScanfParser class for variable description.
   """
   so = ScanfParser(fmt_string).parse(value_string)
-  if len(so.grouped()) > 0:
+  if len(so.groups()) > 0:
     raise ScanfParser.ParseError("basic_scanf does not support named arguments!")
   return so.ungrouped()
 
