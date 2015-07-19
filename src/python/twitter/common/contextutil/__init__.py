@@ -35,9 +35,9 @@ from twitter.common.lang import Compatibility
 def environment_as(**kwargs):
   """Update the environment to the supplied values, for example:
 
-  with environment_as(PYTHONPATH='foo:bar:baz',
-                      PYTHON='/usr/bin/python2.6'):
-    subprocess.Popen(foo).wait()
+  >>> with environment_as(PYTHONPATH='foo:bar:baz', PYTHON='/usr/bin/python2.7'):
+  ...  subprocess.Popen(foo).wait()
+
   """
   new_environment = kwargs
   old_environment = {}
@@ -65,8 +65,17 @@ def temporary_dir(root_dir=None, cleanup=True):
     A with-context that creates a temporary directory.
 
     You may specify the following keyword args:
-      root_dir [path]: The parent directory to create the temporary directory.
-      cleanup [True/False]: Whether or not to clean up the temporary directory.
+
+    :param str root_dir: The parent directory to create the temporary directory.
+    :param bool cleanup: Whether or not to clean up the temporary directory.
+
+    For example:
+
+    >>> with temporary_dir() as td:
+    ...   with open(os.path.join(td, 'my_file.txt')) as fp:
+    ...     fp.write(junk)
+
+
   """
   path = tempfile.mkdtemp(dir=root_dir)
   try:
@@ -82,8 +91,9 @@ def temporary_file_path(root_dir=None, cleanup=True):
     A with-context that creates a temporary file and returns its path.
 
     You may specify the following keyword args:
-      root_dir [path]: The parent directory to create the temporary file.
-      cleanup [True/False]: Whether or not to clean up the temporary file.
+
+    :param str root_dir: The parent directory to create the temporary file.
+    :param bool cleanup: Whether or not to clean up the temporary file.
   """
   with temporary_file(root_dir, cleanup) as fd:
     fd.close()
@@ -96,8 +106,15 @@ def temporary_file(root_dir=None, cleanup=True):
     A with-context that creates a temporary file and returns a writeable file descriptor to it.
 
     You may specify the following keyword args:
-      root_dir [path]: The parent directory to create the temporary file.
-      cleanup [True/False]: Whether or not to clean up the temporary file.
+
+    :param str root_dir: The parent directory to create the temporary file.
+    :param bool cleanup: Whether or not to clean up the temporary file.
+
+    >>> with temporary_file() as fp:
+    ...  fp.write('woot')
+    ...  fp.sync()
+    ...  # pass fp on to something else
+
   """
   with tempfile.NamedTemporaryFile(dir=root_dir, delete=False) as fd:
     try:
@@ -134,6 +151,10 @@ def safe_file(path, suffix=None, cleanup=True):
 def pushd(directory):
   """
     A with-context that encapsulates pushd/popd.
+
+    >>> with pushd('subdir/data'):
+    ...  glob.glob("*json") # run code in subdir
+
   """
   cwd = os.getcwd()
   os.chdir(directory)

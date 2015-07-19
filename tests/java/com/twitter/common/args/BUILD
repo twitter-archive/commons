@@ -14,20 +14,32 @@
 # limitations under the License.
 # ==================================================================================================
 
-MEDIUM_TESTS = ['ArgScannerTest.java']
+MEDIUM_TESTS = [
+  'ArgScannerTest.java',
+  'OptionInfoTest.java',
+]
 
 java_tests(name='small',
   dependencies=[
+    '3rdparty/jvm/com/google/guava',
     '3rdparty/jvm/junit',
     'src/java/com/twitter/common/args',
     'src/java/com/twitter/common/args:apt',
     'src/java/com/twitter/common/args:duration_parser',
   ],
-  sources=rglobs('argfilterstest/*.java') + globs('*.java', 'parsers/*.java') - MEDIUM_TESTS
+  sources=globs('*.java',
+                'parsers/*.java',
+                'argfilterstest/*.java',
+                'argfilterstest/subpackageA/*.java',
+                'argfilterstest/subpackageA/subsubpackage1/*.java',
+                'argfilterstest/subpackageB/*.java',
+                'argfilterstest/subpackageBwithSuffix/*.java',
+                exclude=[MEDIUM_TESTS])
 )
 
 java_tests(name='medium',
   dependencies=[
+    '3rdparty/jvm/com/google/guava',
     '3rdparty/jvm/junit',
     'src/java/com/twitter/common/args',
     'src/java/com/twitter/common/base',

@@ -16,6 +16,6 @@
 
 jar_library(name='commons-codec',
   jars=[
-    jar(org='commons-codec', name='commons-codec', rev='1.6').with_sources()
+    jar(org='commons-codec', name='commons-codec', rev='1.6')
   ]
 )

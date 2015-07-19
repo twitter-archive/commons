@@ -9,7 +9,7 @@ python_library(
 
 python_library(
   name = 'group',
-  sources = globs('*.py') - ['kazoo_group.py'],
+  sources = globs('*.py', exclude = ['kazoo_group.py']),
   dependencies = [
     ':group_base',
     'src/python/twitter/common/concurrent',

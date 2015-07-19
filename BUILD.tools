@@ -16,9 +16,7 @@
 
 def make_lib(org, name, rev, lib_name=None, excludes=None, intransitive=False, jars=None, deps=None):
   lib_name = lib_name or name
-  jar_dep = jar(org=org, name=name, rev=rev)
-  if intransitive:
-    jar_dep.intransitive()
+  jar_dep = jar(org=org, name=name, rev=rev, intransitive=intransitive)
   jar_library(name=lib_name, jars=[jar_dep] + (jars or []), dependencies=deps or [])
 
 
@@ -34,23 +32,38 @@ make_lib('org.antlr', 'antlr', '4.2.2', lib_name='antlr-4')
 make_lib('com.twitter', name='scrooge-generator_2.9.2', rev='3.16.3', lib_name='scrooge-gen')
 
 
+# ThriftLinter
+make_lib('com.twitter', name='scrooge-linter_2.9.2', rev='3.16.3', lib_name='scrooge-linter')
+
+
 # IvyResolve
 make_lib('xalan', 'xalan', '2.7.1')
 
 
 # JavaCompile
-make_lib('com.sun.tools', 'jmake', '1.3.8-3')
-make_lib('com.twitter.common.tools', 'java-compiler', '0.0.17')
+make_lib('org.pantsbuild', 'jmake', '1.3.8-10')
+make_lib('org.pantsbuild.tools.compiler', 'java-compiler', '0.0.1')
 
 
 # ScalaCompile
-make_lib('com.typesafe.zinc', 'zinc', '0.3.2-M1')
-jar_library(name='scala-compile-2.9.3',
+make_lib('org.pantsbuild', 'zinc', '1.0.7')
+
+# We just want the single compiler-interface and sbt-interface jars and not their deps on
+# scala-lang.
+jar_library(
+  name='compiler-interface',
+  jars=[
+    jar('com.typesafe.sbt', 'compiler-interface', '0.13.8', classifier='sources', intransitive=True)
+  ]
+)
+make_lib('com.typesafe.sbt', 'sbt-interface', '0.13.8', intransitive=True)
+
+jar_library(name='scala-compiler',
   dependencies=[
     '3rdparty/jvm/org/scala-lang:scala-compiler'
   ]
 )
-jar_library(name='scala-library-2.9.3',
+jar_library(name='scala-library',
   dependencies=[
     '3rdparty/jvm/org/scala-lang:scala-library'
   ]
@@ -58,7 +71,7 @@ jar_library(name='scala-library-2.9.3',
 
 
 # Checkstyle
-make_lib('com.puppycrawl.tools', 'checkstyle', '5.7', lib_name='twitter-checkstyle',
+make_lib('com.puppycrawl.tools', 'checkstyle', '5.7', lib_name='checkstyle',
   jars=[
     jar(org='com.twitter.common', name='checkstyle', rev='0.0.7')
       .exclude(jar(org='com.google.guava', name='guava'))
@@ -71,21 +84,8 @@ make_lib('org.scalastyle', 'scalastyle_2.9.3', '0.3.2', lib_name='scalastyle')
 
 
 # JunitRun
-make_lib('com.twitter.common', name='junit-runner', rev='0.0.41', lib_name='junit',
-  deps=[
-    '3rdparty/jvm/junit',
-    '3rdparty/jvm/org/hamcrest:hamcrest-core',
-  ]
-)
+make_lib('org.pantsbuild', 'junit-runner', '0.0.8', lib_name='junit')
 make_lib('emma', 'emma', '2.1.5320')
-
-
-# SpecsRun
-make_lib('com.twitter.common', 'specs-testing', '0.0.6', lib_name='scala-specs-2.9.3',
-  deps=[
-    '3rdparty/jvm/org/scala-tools/testing:specs_2.9'
-  ]
-)
 
 
 # BenchmarkRun
@@ -99,7 +99,7 @@ make_lib('com.google.code.java-allocation-instrumenter', 'java-allocation-instru
 
 
 # ScalaRepl
-make_lib('org.scala-lang', 'scala-compiler', '2.9.3', lib_name='scala-repl-2.9.3',
+make_lib('org.scala-lang', 'scala-compiler', '2.9.3', lib_name='scala-repl',
   jars=[
     jar(org='org.scala-lang', name='jline', rev='2.9.3'),
   ]
@@ -107,5 +107,9 @@ make_lib('org.scala-lang', 'scala-compiler', '2.9.3', lib_name='scala-repl-2.9.3
 
 
 # JarTask
-make_lib('com.twitter.common', 'jar-tool', '0.1.7')
+make_lib('org.pantsbuild', 'jar-tool', '0.0.5')
+
+
+# Tool Auto-shading
+make_lib('org.pantsbuild.jarjar', 'jarjar', '1.5')
 

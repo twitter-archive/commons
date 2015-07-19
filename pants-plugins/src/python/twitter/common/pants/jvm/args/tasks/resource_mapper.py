@@ -17,6 +17,8 @@
 from collections import defaultdict
 
 import os
+from textwrap import dedent
+import zipfile
 
 from twitter.common.contextutil import open_zip
 from twitter.common.dirutil import safe_mkdir, safe_open
@@ -85,7 +87,8 @@ class ResourceMapper(JvmBinaryTask):
   def product_types(cls):
     return ['resources_by_target']
 
-  def prepare(self, round_manager):
+  @classmethod
+  def prepare(cls, options, round_manager):
     round_manager.require_data('classes_by_target')
 
   def execute(self):
@@ -133,10 +136,20 @@ class ResourceMapper(JvmBinaryTask):
       # Add args from any of our transitive external deps that have them.
       resource_path = os.path.join(self.RESOURCE_RELDIR, self.RESOURCE_BASENAME)
       for base_dir, jar_path in self.list_external_jar_dependencies(target):
-        with open_zip(os.path.join(base_dir, jar_path)) as jar:
-          for zipinfo in jar.infolist():
-            if zipinfo.filename.startswith(resource_path):
-              lines.update(jar.open(zipinfo).readlines())
+        jar_file = os.path.join(base_dir, jar_path)
+        try:
+          with open_zip(jar_file) as jar:
+            for zipinfo in jar.infolist():
+              if zipinfo.filename.startswith(resource_path):
+                lines.update(jar.open(zipinfo).readlines())
+        except zipfile.BadZipfile as e:
+          # Java itself allows non-jar files on the classpath, but
+          # doing do is only useful with a custom classloader that
+          # knows how to handle these files.  This use of the
+          # classpath is innovative, bordering on the avant-garde.
+          self.context.log.info(dedent("""
+          Skipping mapping of {file}. It is not a valid jar.
+          Continuing because invalid jars are ignored. {error}""").format (file=jar_file, error=e))
 
     self._addargs(lines, target, resources_by_target, transitive)
 

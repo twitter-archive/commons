@@ -1,0 +1,1 @@
+.. include:: ../git/docs/git.rst

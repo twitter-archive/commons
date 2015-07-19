@@ -1,0 +1,1 @@
+.. include:: ../collections/docs/collections.rst

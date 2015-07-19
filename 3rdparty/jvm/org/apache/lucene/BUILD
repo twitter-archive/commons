@@ -22,7 +22,7 @@
 def make_lib(name, jar_name, rev, force=False):
   jar_library(name=name,
     jars=[
-      jar(org='org.apache.lucene', name=jar_name, rev=rev, force=force).withSources()
+      jar(org='org.apache.lucene', name=jar_name, rev=rev, force=force)
     ]
   )
 

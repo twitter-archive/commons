@@ -28,5 +28,5 @@ java_tests(name = 'application',
     'src/java/com/twitter/common/net:util',
     'src/java/com/twitter/common/testing/easymock',
   ],
-  sources = rglobs('*.java') - ['modules/LifecycleModuleTest.java']
+  sources = rglobs('*.java', exclude = ['modules/LifecycleModuleTest.java'])
 )

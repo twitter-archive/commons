@@ -42,16 +42,27 @@ def test_sampler_base():
   sampler = TestSampler(Amount(1, Time.SECONDS), clock=test_clock)
   sampler.start()
 
+  assert test_clock.converge(threads=[sampler])
+  test_clock.assert_waiting(sampler, 1)
+
   test_clock.tick(0.5)
+  assert test_clock.converge(threads=[sampler])
   assert sampler.count == 0
+
   test_clock.tick(0.5)
+  assert test_clock.converge(threads=[sampler])
   assert sampler.count == 1
+
   test_clock.tick(5)
+  assert test_clock.converge(threads=[sampler])
   assert sampler.count == 6
+
   assert not sampler.is_stopped()
   sampler.stop()
+
   # make sure that stopping the sampler short circuits any sampling
   test_clock.tick(5)
+  assert test_clock.converge(threads=[sampler])
   assert sampler.count == 6
 
 

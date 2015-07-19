@@ -16,6 +16,6 @@
 
 jar_library(name='commons-lang',
   jars=[
-    jar(org='commons-lang', name='commons-lang', rev='2.6').with_sources()
+    jar(org='commons-lang', name='commons-lang', rev='2.6')
   ]
 )

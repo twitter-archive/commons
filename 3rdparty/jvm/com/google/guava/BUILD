@@ -14,13 +14,12 @@
 # limitations under the License.
 # ==================================================================================================
 
-REV='16.0'
+REV = '16.0'
 
 jar_library(name='guava',
   jars=[
     jar(org='com.google.guava', name='guava', rev=REV,
-      apidocs='http://docs.guava-libraries.googlecode.com/git-history/v%s/javadoc/' % REV
-    ).with_sources(),
+        apidocs='http://docs.guava-libraries.googlecode.com/git-history/v%s/javadoc/' % REV),
   ],
   dependencies=[
     # Defined in provided scope so we provide here

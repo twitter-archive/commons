@@ -1,6 +1,33 @@
 RELEASE HISTORY
 ===============
 
+0.8.2 (3/20/2015)
+----------------
+
+API Changes
+~~~~~~~~~~~
+
+* Update to ``pantsbuild.pants`` 0.0.31 api changes
+  `RB #1963 <https://rbcommons.com/s/twitter/r/1963/>`_
+
+0.8.1 (2/17/2015)
+-----------------
+
+Bugfixes
+~~~~~~~~
+
+* Allow non-jar resources on the classpath.
+  `RB #1752 <https://rbcommons.com/s/twitter/r/1752/>`_
+
+0.8.0 (2/2/2015)
+----------------
+
+API Changes
+~~~~~~~~~~~
+
+* Update to ``pantsbuild.pants`` 0.0.28 api changes
+  `RB #1698 <https://rbcommons.com/s/twitter/r/1698/>`_
+
 0.7.0 (12/18/2014)
 ------------------
 

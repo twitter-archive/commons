@@ -19,6 +19,7 @@ python_library(
   sources = ['__init__.py'],
   dependencies = [
     '3rdparty/python:git-python',
+    'src/python/twitter/common/lang',
   ],
   provides = setup_py(
     name = 'twitter.common.git',

@@ -16,6 +16,8 @@
 
 package com.twitter.common.args;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -24,9 +26,12 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
+import com.google.common.base.Strings;
+import com.google.common.io.Files;
 import com.google.common.reflect.TypeToken;
 
 import com.twitter.common.args.apt.Configuration;
@@ -39,8 +44,12 @@ import static com.google.common.base.Preconditions.checkArgument;
  */
 public final class OptionInfo<T> extends ArgumentInfo<T> {
   static final String ARG_NAME_RE = "[\\w\\-\\.]+";
+  static final String ARG_FILE_HELP_TEMPLATE
+      = "%s This argument supports @argfile format. See details below.";
+
   private static final Pattern ARG_NAME_PATTERN = Pattern.compile(ARG_NAME_RE);
   private static final String NEGATE_BOOLEAN = "no_";
+  private static final String ARG_FILE_INDICATOR = "@";
 
   /**
    * Factory method to create a OptionInfo from a field.
@@ -85,7 +94,8 @@ public final class OptionInfo<T> extends ArgumentInfo<T> {
     OptionInfo<?> optionInfo = new OptionInfo(
         canonicalizer,
         name,
-        cmdLine.help(),
+        getCmdLineHelp(cmdLine),
+        cmdLine.argFile(),
         ArgumentInfo.getArgForField(field, Optional.fromNullable(instance)),
         TypeUtil.getTypeParamTypeToken(field),
         Arrays.asList(field.getAnnotations()),
@@ -94,18 +104,30 @@ public final class OptionInfo<T> extends ArgumentInfo<T> {
     return optionInfo;
   }
 
+  private static String getCmdLineHelp(CmdLine cmdLine) {
+    String help = cmdLine.help();
+
+    if (cmdLine.argFile()) {
+      help = String.format(ARG_FILE_HELP_TEMPLATE, help, cmdLine.name(), cmdLine.name());
+    }
+
+    return help;
+  }
+
   private final Function<String, String> canonicalizer;
 
   private OptionInfo(
       Function<String, String> canonicalizer,
       String name,
       String help,
+      boolean argFile,
       Arg<T> arg,
       TypeToken<T> type,
       List<Annotation> verifierAnnotations,
       @Nullable Class<? extends Parser<T>> parser) {
 
-    super(canonicalizer.apply(name), name, help, arg, type, verifierAnnotations, parser);
+    super(canonicalizer.apply(name), name, help, argFile, arg, type,
+        verifierAnnotations, parser);
     this.canonicalizer = canonicalizer;
   }
 
@@ -114,7 +136,18 @@ public final class OptionInfo<T> extends ArgumentInfo<T> {
    */
   void load(ParserOracle parserOracle, String optionName, String value) {
     Parser<? extends T> parser = getParser(parserOracle);
-    Object result = parser.parse(parserOracle, getType().getType(), value); // [A]
+
+    String finalValue = value;
+
+    // If "-arg=@file" is allowed and specified, then we read the value from the file
+    // and use it as the raw value to be parsed for the argument.
+    if (argFile()
+        && !Strings.isNullOrEmpty(value)
+        && value.startsWith(ARG_FILE_INDICATOR)) {
+      finalValue = getArgFileContent(optionName, value.substring(ARG_FILE_INDICATOR.length()));
+    }
+
+    Object result = parser.parse(parserOracle, getType().getType(), finalValue); // [A]
 
     // If the arg type is boolean, check if the command line uses the negated boolean form.
     if (isBoolean()) {
@@ -150,5 +183,22 @@ public final class OptionInfo<T> extends ArgumentInfo<T> {
    */
   String getCanonicalNegatedName() {
     return canonicalizer.apply(getNegatedName());
+  }
+
+  private String getArgFileContent(String optionName, String argFilePath)
+      throws IllegalArgumentException {
+    if (argFilePath.isEmpty()) {
+      throw new IllegalArgumentException(
+          String.format("Invalid null/empty value for argument '%s'.", optionName));
+    }
+
+    try {
+      return Files.toString(new File(argFilePath), Charsets.UTF_8);
+    } catch (IOException e) {
+      throw new IllegalArgumentException(
+          String.format("Unable to read argument '%s' value from file '%s'.",
+              optionName, argFilePath),
+          e);
+    }
   }
 }

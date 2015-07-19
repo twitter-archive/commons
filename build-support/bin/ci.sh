@@ -16,11 +16,10 @@ function die() {
 function usage() {
   echo "Runs commons tests for local or hosted CI."
   echo
-  echo "Usage: $0 (-h|-bsdjp)"
+  echo "Usage: $0 (-h|-bsjp)"
   echo " -h           print out this help message"
   echo " -b           skip bootstraping pants"
   echo " -s           skip distribution tests"
-  echo " -d           if running jvm tests, don't use nailgun daemons"
   echo " -j           skip jvm tests"
   echo " -p           skip python tests"
 
@@ -31,14 +30,11 @@ function usage() {
   fi
 }
 
-daemons="--ng-daemons"
-
-while getopts "hbsdjp" opt; do
+while getopts "hbsjp" opt; do
   case ${opt} in
     h) usage ;;
     b) skip_bootstrap="true" ;;
     s) skip_distribution="true" ;;
-    d) daemons="--no-ng-daemons" ;;
     j) skip_java="true" ;;
     p) skip_python="true" ;;
     *) usage "Invalid option: -${OPTARG}" ;;
@@ -81,20 +77,42 @@ fi
 if [[ "${skip_java:-false}" == "false" ]]; then
   banner "Running jvm tests"
   (
-    ./pants test {src,tests}/java/com/twitter/common:: $daemons -x ${INTERPRETER_ARGS[@]} && \
-    ./pants test {src,tests}/scala/com/twitter/common:: $daemons -x ${INTERPRETER_ARGS[@]}
+    ./pants -x ${INTERPRETER_ARGS[@]} test {src,tests}/java/com/twitter/common:: && \
+    ./pants -x ${INTERPRETER_ARGS[@]} test {src,tests}/scala/com/twitter/common::
   ) || die "Jvm test failure."
 fi
 
 if [[ "${skip_python:-false}" == "false" ]]; then
+  banner "Compiling python libraries and binaries"
+  (
+    compile_exclusions=(
+      # The app/modules design forces a cycle between app and modules that must be broken
+      # by modules not depending on app.
+      src/python/twitter/common/app/modules
+
+      # These support legacy zookeeper client via the c bindings and only have their zookeeper
+      # dep activated by an extra_requires on pip install.
+      src/python/twitter/common/zookeeper/group:group
+      src/python/twitter/common/zookeeper/serverset:cli
+      src/python/twitter/common/zookeeper:zookeeper-old
+
+      # These are source-only targets and each have a dependencies-only target that is used
+      # to get the proper dep set.
+      src/python/twitter/common/rpc/sasl:sourceonly
+      src/python/twitter/common/python:python-source
+    )
+    ./pants \
+      ${compile_exclusions[@]/#/--exclude-target-regexp=} \
+      compile.python-eval --fail-slow src/python/::
+  ) || die "Python compile failure"
+
   banner "Running python tests"
   (
     # TODO(John Sirois): We clean-all here to work-around args resource mapper issues finding leftover
     # entries from args tests in the jvm tests above, kill the clean-all once the resource mapper bug
     # is identified and fixed.
-    PANTS_PYTHON_TEST_FAILSOFT=1 \
-      ./pants --timeout=5 clean-all test.pytest --no-fast ${INTERPRETER_ARGS[@]} \
-        tests/python/twitter/common:all
+    ./pants --timeout=5 ${INTERPRETER_ARGS[@]} clean-all test.pytest --fail-slow --no-fast \
+      tests/python/twitter/common:all
   ) || die "Python test failure"
 fi
 

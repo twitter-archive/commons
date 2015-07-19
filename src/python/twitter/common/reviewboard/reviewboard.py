@@ -56,7 +56,8 @@ class ReviewBoardServer:
                repository=None,
                username=None,
                password=None,
-               debug=False):
+               debug=False,
+               timeout=None):
     self._debug = debug
 
     # Load the config and cookie files
@@ -80,6 +81,7 @@ class ReviewBoardServer:
     self.info = info
     self.cookie_file = cookie_file
     self.cookie_jar = cookielib.MozillaCookieJar(self.cookie_file)
+    self.timeout = timeout
 
     if not self.has_valid_cookie() and (not username or not password):
       print('==> Review Board Login Required')
@@ -398,7 +400,7 @@ class ReviewBoardServer:
       r.get_method = lambda: method
 
     try:
-      return urllib2.urlopen(r).read()
+      return urllib2.urlopen(r, timeout=self.timeout).read()
     except urllib2.URLError, e:
       try:
         self.debug(e.read())

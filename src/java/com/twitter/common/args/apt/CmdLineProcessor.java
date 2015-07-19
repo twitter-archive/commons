@@ -267,7 +267,7 @@ public class CmdLineProcessor extends AbstractProcessor {
       writer.printf("%d items\n", contributingClassNames.size());
       try {
         for (String className : contributingClassNames) {
-          writer.printf("%s -> %s\n", className, cmdLinePropertiesResourcePath.getName());
+          writer.printf("%s -> %s\n", className, cmdLinePropertiesResourcePath.toUri().getPath());
         }
       } finally {
         closeQuietly(writer);
