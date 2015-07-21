@@ -57,7 +57,17 @@ make_dep('python_daemon', '1.5.5')
 make_dep('requests', '2.0.0')
 make_dep('setuptools', '2.2')
 make_dep('socksipy-branch', '1.01', 'SocksiPy-Branch')
-make_dep('thrift', '0.9.1')
 make_dep('zc-zookeeper-static', '3.4.4')
+
+
+# We accept 0.9.1 or 0.9.2 to open up a transition to 0.9.2 - the latest release.
+# https://github.com/twitter/commons/issues/392 tracks pinning to 0.9.2 once we've released an
+# sdist with this change and known users of the sdist have been upgraded.
+python_requirement_library(
+  name='thrift',
+  requirements=[
+    python_requirement(requirement='thrift>=0.9.1,<=0.9.2')
+  ]
+)
 
 target(name='antlr-python-runtime', dependencies=[':antlr-3.1.3'])
