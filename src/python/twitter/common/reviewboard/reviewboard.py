@@ -210,7 +210,7 @@ class ReviewBoardServer:
     """
     Replies to a review with a message.
     """
-    self.api_call('/api/review-requests/%s/reviews/' % review_request_id, {
+    self.api_call('api/review-requests/%s/reviews/' % review_request_id, {
         'public': True,
         'body_top': message
         }, method='POST')
@@ -262,7 +262,7 @@ class ReviewBoardServer:
     Returns a list of review requests that meet specified criteria.
     If max_results is negative, then ignores 'start' and returns all the matched review requests.
     """
-    url = "/api/review-requests/"
+    url = "api/review-requests/"
 
     params = [
       ("time-added-from", time_added_from),
@@ -278,9 +278,10 @@ class ReviewBoardServer:
       ("status", status)
     ]
 
-    qs = "&".join(["%s=%s" % p if p[1] is not None else "" for p in params])
+    qs = "&".join(["%s=%s" % p for p in params if p[1] is not None])
+    url = ("%s?%s" % (url, qs)) if len(qs) > 0 else url
 
-    return self._smart_query("%s?%s" % (url, qs), "review_requests", start, max_results)
+    return self._smart_query(url, "review_requests", start, max_results)
 
   def get_review_request(self, rid):
     """
@@ -339,7 +340,7 @@ class ReviewBoardServer:
     Fetches reviews in response to a review request.
     If max_results is negative, then ignores 'start' and returns all reviews.
     """
-    url = '/api/review-requests/%s/reviews/' % rb_id
+    url = 'api/review-requests/%s/reviews/' % rb_id
     return self._smart_query(url, 'reviews', start, max_results)
 
   def get_reviews(self, rb_id, start=0, max_results=25):
@@ -350,7 +351,7 @@ class ReviewBoardServer:
     Fetches replies to a given review in a review request.
     If max_results is negative, then ignores 'start' and returns all reviews.
     """
-    url = '/api/review-requests/%s/reviews/%s/replies/' % (rb_id, review)
+    url = 'api/review-requests/%s/reviews/%s/replies/' % (rb_id, review)
     return self._smart_query(url, 'replies', start, max_results)
 
   def process_json(self, data):
@@ -587,5 +588,5 @@ class ReviewBoardServer:
     Returns a list of diff comments for the specified file.
     If max_results is negative, then ignores 'start' and returns all the files.
     """
-    url = 'api/review-requests/%d/diffs/%d/files/%d/diff-comments' % (rb_id, revision, file_id)
+    url = 'api/review-requests/%d/diffs/%d/files/%d/diff-comments/' % (rb_id, revision, file_id)
     return self._smart_query(url, "diff_comments", start, max_results)
