@@ -58,12 +58,12 @@ jar_library(
 )
 make_lib('com.typesafe.sbt', 'sbt-interface', '0.13.8', intransitive=True)
 
-jar_library(name='scala-compiler',
+target(name='scala-compiler',
   dependencies=[
     '3rdparty/jvm/org/scala-lang:scala-compiler'
   ]
 )
-jar_library(name='scala-library',
+target(name='scala-library',
   dependencies=[
     '3rdparty/jvm/org/scala-lang:scala-library'
   ]
