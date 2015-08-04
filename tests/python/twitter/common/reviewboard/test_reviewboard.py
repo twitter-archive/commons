@@ -4,7 +4,7 @@ import mock
 from mock import call
 import pytest
 
-@mock.patch.object(ReviewBoardServer, "http_request", autospec=True)
+@mock.patch.object(ReviewBoardServer, "http_request", autospec=True, spec_set=True)
 def test_fetch_review_requests(mock_method):
   mock_method.return_value = '''{
     "stat" : "ok",
@@ -20,7 +20,7 @@ def test_fetch_review_requests(mock_method):
   ]
 
 
-@mock.patch.object(ReviewBoardServer, "http_request", autospec=True)
+@mock.patch.object(ReviewBoardServer, "http_request", autospec=True, spec_set=True)
 def test_get_reviews(mock_method):
   mock_method.return_value = '''{
     "stat" : "ok",
@@ -36,7 +36,7 @@ def test_get_reviews(mock_method):
          None, None, {'Accept': 'application/json'}, method=None)
   ]
 
-@mock.patch.object(ReviewBoardServer, "http_request", autospec=True)
+@mock.patch.object(ReviewBoardServer, "http_request", autospec=True, spec_set=True)
 def test_get_replies(mock_method):
   mock_method.return_value = '''{
     "stat" : "ok",
@@ -53,7 +53,7 @@ def test_get_replies(mock_method):
          None, None, {'Accept': 'application/json'}, method=None)
   ]
 
-@mock.patch.object(ReviewBoardServer, "http_request", autospec=True)
+@mock.patch.object(ReviewBoardServer, "http_request", autospec=True, spec_set=True)
 def test_get_changes(mock_method):
   mock_method.return_value = '''{
     "stat" : "ok",
@@ -69,7 +69,7 @@ def test_get_changes(mock_method):
          None, None, {'Accept': 'application/json'}, method=None)
   ]
 
-@mock.patch.object(ReviewBoardServer, "http_request", autospec=True)
+@mock.patch.object(ReviewBoardServer, "http_request", autospec=True, spec_set=True)
 def test_get_diffs(mock_method):
   mock_method.return_value = '''{
     "stat" : "ok",
@@ -85,7 +85,7 @@ def test_get_diffs(mock_method):
          None, None, {'Accept': 'application/json'}, method=None)
   ]
 
-@mock.patch.object(ReviewBoardServer, "http_request", autospec=True)
+@mock.patch.object(ReviewBoardServer, "http_request", autospec=True, spec_set=True)
 def test_get_files(mock_method):
   mock_method.return_value = '''{
     "stat" : "ok",
@@ -102,7 +102,7 @@ def test_get_files(mock_method):
          None, None, {'Accept': 'application/json'}, method=None)
   ]
 
-@mock.patch.object(ReviewBoardServer, "http_request", autospec=True)
+@mock.patch.object(ReviewBoardServer, "http_request", autospec=True, spec_set=True)
 def test_diff_comments(mock_method):
   mock_method.return_value = '''{
     "stat" : "ok",
