@@ -42,17 +42,28 @@ make_lib('xalan', 'xalan', '2.7.1')
 
 # JavaCompile
 make_lib('org.pantsbuild', 'jmake', '1.3.8-10')
-make_lib('com.twitter.common.tools', 'java-compiler', '0.0.17')
+make_lib('org.pantsbuild.tools.compiler', 'java-compiler', '0.0.1')
 
 
 # ScalaCompile
-make_lib('com.typesafe.zinc', 'zinc', '0.3.7')
-jar_library(name='scala-compiler',
+make_lib('org.pantsbuild', 'zinc', '1.0.7')
+
+# We just want the single compiler-interface and sbt-interface jars and not their deps on
+# scala-lang.
+jar_library(
+  name='compiler-interface',
+  jars=[
+    jar('com.typesafe.sbt', 'compiler-interface', '0.13.8', classifier='sources', intransitive=True)
+  ]
+)
+make_lib('com.typesafe.sbt', 'sbt-interface', '0.13.8', intransitive=True)
+
+target(name='scala-compiler',
   dependencies=[
     '3rdparty/jvm/org/scala-lang:scala-compiler'
   ]
 )
-jar_library(name='scala-library',
+target(name='scala-library',
   dependencies=[
     '3rdparty/jvm/org/scala-lang:scala-library'
   ]
@@ -73,21 +84,8 @@ make_lib('org.scalastyle', 'scalastyle_2.9.3', '0.3.2', lib_name='scalastyle')
 
 
 # JunitRun
-make_lib('com.twitter.common', name='junit-runner', rev='0.0.41', lib_name='junit',
-  deps=[
-    '3rdparty/jvm/junit',
-    '3rdparty/jvm/org/hamcrest:hamcrest-core',
-  ]
-)
+make_lib('org.pantsbuild', 'junit-runner', '0.0.8', lib_name='junit')
 make_lib('emma', 'emma', '2.1.5320')
-
-
-# SpecsRun
-make_lib('com.twitter.common', 'specs-testing', '0.0.6', lib_name='scala-specs',
-  deps=[
-    '3rdparty/jvm/org/scala-tools/testing:specs_2.9'
-  ]
-)
 
 
 # BenchmarkRun
@@ -109,8 +107,9 @@ make_lib('org.scala-lang', 'scala-compiler', '2.9.3', lib_name='scala-repl',
 
 
 # JarTask
-# TODO(John Sirois): Upgrade past 0.1.9 when a 0.1.10+ version of the tool is published with
-# java 1.6 version classfiles.  The 0.1.8 and 0.1.9 jars contain java 1.7 classfiles.
-# see: https://github.com/twitter/commons/issues/361
-make_lib('com.twitter.common', 'jar-tool', '0.1.7')
+make_lib('org.pantsbuild', 'jar-tool', '0.0.5')
+
+
+# Tool Auto-shading
+make_lib('org.pantsbuild.jarjar', 'jarjar', '1.5')
 

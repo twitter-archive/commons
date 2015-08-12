@@ -65,7 +65,7 @@ Continuation indent is 4 columns.  Nested continuations may add 4 columns or 2 a
     //   - Scanning the code makes it difficult to piece the message together.
     throw new IllegalStateException("Failed to process request" + request.getId()
         + " for user " + user.getId() + " query: '" + query.getText()
-        + "'";
+        + "'");
 
     // Good.
     //   - Each component of the message is separate and self-contained.
@@ -73,7 +73,7 @@ Continuation indent is 4 columns.  Nested continuations may add 4 columns or 2 a
     throw new IllegalStateException("Failed to process"
         + " request " + request.getId()
         + " for user " + user.getId()
-        + " query: '" + query.getText() + "'";
+        + " query: '" + query.getText() + "'");
 
 Don't break up a statement unnecessarily.
 

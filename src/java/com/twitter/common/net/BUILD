@@ -14,12 +14,12 @@
 # limitations under the License.
 # ==================================================================================================
 
-DYNAMIC_HOST_SET_SOURCES = set([ 'pool/DynamicHostSet.java' ])
+DYNAMIC_HOST_SET_SOURCES = ['pool/DynamicHostSet.java']
 
-URL_RESOLVER_SOURCES = set([
+URL_RESOLVER_SOURCES = [
   'UrlResolver.java',
   'UrlResolverUtil.java'
-])
+]
 
 java_library(name = 'dynamic-host-set',
   provides = artifact(
@@ -47,7 +47,7 @@ java_library(name = 'util',
     'src/java/com/twitter/common/base',
     'src/java/com/twitter/common/collections',
   ],
-  sources = globs('*.java') - URL_RESOLVER_SOURCES
+  sources = globs('*.java', exclude = [URL_RESOLVER_SOURCES])
 )
 
 java_library(name = 'url-resolver',
@@ -82,6 +82,6 @@ java_library(name = 'pool',
     'src/java/com/twitter/common/util',
     'src/java/com/twitter/common/util:system-mocks',
   ],
-  sources = globs('pool/*.java', 'monitoring/*.java', 'loadbalancing/*.java')
-    - DYNAMIC_HOST_SET_SOURCES
+  sources = globs('pool/*.java', 'monitoring/*.java', 'loadbalancing/*.java',
+                  exclude = [DYNAMIC_HOST_SET_SOURCES])
 )

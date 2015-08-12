@@ -23,22 +23,13 @@ limitations under the License.
     <chain returnFirst="true">
       <ibiblio name="maven2"
                m2compatible="true"
-               usepoms="true"
-               root="http://repo1.maven.org/maven2/"/>
-
-      <!-- This is just for jvm tools used by Pants and not yet published to maven central.
-           TODO(John Sirois): Kill once they are published to maven central.
-           See: http://github.com/twitter/commons/issues/370 -->
-      <ibiblio name="pantsbuild-maven-repo"
-               m2compatible="true"
-               usepoms="true"
-               root="https://dl.bintray.com/pantsbuild/maven/"/>
+               descriptor="required"/>
 
        <!-- Used only for com.twitter.common#metrics-data-sample -->
        <ibiblio name="maven.twttr.com-maven"
-               m2compatible="true"
-               usepoms="true"
-               root="http://maven.twttr.com/"/>
+                m2compatible="true"
+                root="http://maven.twttr.com/"
+                descriptor="required"/>
     </chain>
   </macrodef>
 </ivysettings>

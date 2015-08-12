@@ -31,7 +31,9 @@ class Observable(object):
 
     Application owners can then register observable objects into a metric
     space or the root metrics, e.g. via
-        RootMetrics().register_observable('object_namespace', my_object)
+
+    >>> RootMetrics().register_observable('object_namespace', my_object)
+
   """
   @property
   def metrics(self):

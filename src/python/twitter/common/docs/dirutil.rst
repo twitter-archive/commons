@@ -1,0 +1,1 @@
+.. include:: ../dirutil/docs/dirutil.rst

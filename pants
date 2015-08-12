@@ -17,7 +17,7 @@
 
 source build-support/python/libvirtualenv.sh
 
-PANTS_VERSION=0.0.32
+PANTS_VERSION=0.0.41
 
 PANTS_PACKAGES=(
   pantsbuild.pants==${PANTS_VERSION}

@@ -50,10 +50,11 @@ class Confluence(object):
   def login(confluence_url, user=None, api_entrypoint='confluence2'):
     """Prompts the user to log in to confluence, and returns a Confluence object.
 
-    confluence_url: Base url of wiki, e.g. https://confluence.atlassian.com/
-    user: Username
-    api_entrypoint: one of 'confluence1' or None (Confluence 3.x) [default],
-                           'confluence2' (Confluence 4.x or 5.x)
+    :param confluence_url: Base url of wiki, e.g. https://confluence.atlassian.com/
+    :param user: Username
+    :param api_entrypoint: 'confluence1' or None results in Confluence 3.x. The default
+                           value is 'confluence2' which results in Confluence 4.x or 5.x
+    :rtype: returns a connected Confluence instance
 
     raises ConfluenceError if login is unsuccessful.
     """

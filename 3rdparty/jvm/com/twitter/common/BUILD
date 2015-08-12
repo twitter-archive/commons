@@ -16,6 +16,13 @@
 
 jar_library(name='metrics-data-sample',
   jars=[
-    jar(org = 'com.twitter.common', name = 'metrics-data-sample', rev = '0.0.1'),
+    jar(org='com.twitter.common', name='metrics-data-sample', rev='0.0.1'),
   ]
 )
+
+jar_library(name='junit-runner-annotations',
+  jars=[
+    jar(org='com.twitter.common', name='junit-runner-annotations', rev='0.0.6'),
+  ]
+)
+

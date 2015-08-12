@@ -14,9 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-
-
-TIMED_SOURCES = set([ 'TimedInterceptor.java' ])
+TIMED_SOURCES = ['TimedInterceptor.java']
 
 java_library(name = 'inject',
   provides = artifact(
@@ -30,7 +28,7 @@ java_library(name = 'inject',
     '3rdparty/jvm/com/google/inject:guice',
     '3rdparty/jvm/com/google/inject/extensions:guice-multibindings',
   ],
-  sources = globs('*.java') - TIMED_SOURCES
+  sources = globs('*.java', exclude = [TIMED_SOURCES])
 )
 
 java_library(name = 'timed',

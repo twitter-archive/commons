@@ -16,7 +16,7 @@
 
 python_library(
   name = "recordio",
-  sources = rglobs('*.py') - ['thrift_recordio.py'],
+  sources = rglobs('*.py', exclude = ['thrift_recordio.py']),
   dependencies = [
     'src/python/twitter/common/log',
     'src/python/twitter/common/lang'

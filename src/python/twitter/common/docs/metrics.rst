@@ -1,0 +1,1 @@
+.. include:: ../metrics/docs/metrics.rst

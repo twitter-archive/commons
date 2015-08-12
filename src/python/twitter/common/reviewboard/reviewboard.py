@@ -210,7 +210,7 @@ class ReviewBoardServer:
     """
     Replies to a review with a message.
     """
-    self.api_call('/api/review-requests/%s/reviews/' % review_request_id, {
+    self.api_call('api/review-requests/%s/reviews/' % review_request_id, {
         'public': True,
         'body_top': message
         }, method='POST')
@@ -226,6 +226,62 @@ class ReviewBoardServer:
 
     self.api_call('api/review-requests/%s/draft/set/' % rid,
             {field: value})
+
+  def _smart_query(self, base_url, element_name, start=0, max_results=25):
+    base_url += "&" if "?" in base_url else "?"
+
+    if max_results < 0:
+      rsp = self.api_call('%scounts-only=true' % base_url)
+      count = rsp['count']
+
+      files = []
+      while len(files) < count:
+        rsp = self.api_call('%sstart=%s&max-results=200' % (base_url, len(files)))
+        files.extend(rsp[element_name])
+
+      return files
+    else:
+      rsp = self.api_call('%sstart=%d&max-results=%d' % (base_url, start, max_results))
+      return rsp[element_name]
+
+  def fetch_review_requests(self,
+                            time_added_from=None,
+                            time_added_to=None,
+                            last_updated_from=None,
+                            last_updated_to=None,
+                            from_user=None,
+                            to_groups=None,
+                            to_user_groups=None,
+                            to_users=None,
+                            to_users_directly=None,
+                            ship_it=None,
+                            status=None,
+                            start=0,
+                            max_results=25):
+    """
+    Returns a list of review requests that meet specified criteria.
+    If max_results is negative, then ignores 'start' and returns all the matched review requests.
+    """
+    url = "api/review-requests/"
+
+    params = [
+      ("time-added-from", time_added_from),
+      ("time-added-to", time_added_to),
+      ("last-updated-from", last_updated_from),
+      ("last-updated-to", last_updated_to),
+      ("from-user", from_user),
+      ("to-groups", to_groups),
+      ("to-user-groups", to_user_groups),
+      ("to-users", to_users),
+      ("to-users-directly", to_users_directly),
+      ("ship-it", ship_it),
+      ("status", status)
+    ]
+
+    qs = "&".join(["%s=%s" % p for p in params if p[1] is not None])
+    url = ("%s?%s" % (url, qs)) if len(qs) > 0 else url
+
+    return self._smart_query(url, "review_requests", start, max_results)
 
   def get_review_request(self, rid):
     """
@@ -282,9 +338,21 @@ class ReviewBoardServer:
   def fetch_reviews(self, rb_id, start=0, max_results=25):
     """
     Fetches reviews in response to a review request.
+    If max_results is negative, then ignores 'start' and returns all reviews.
     """
-    return self.api_call('/api/review-requests/%s/reviews/?start=%s&max-results=%s'
-                         % (rb_id, start, max_results))['reviews']
+    url = 'api/review-requests/%s/reviews/' % rb_id
+    return self._smart_query(url, 'reviews', start, max_results)
+
+  def get_reviews(self, rb_id, start=0, max_results=25):
+    return self.fetch_reviews(rb_id, start, max_results)
+
+  def get_replies(self, rb_id, review, start=0, max_results=25):
+    """
+    Fetches replies to a given review in a review request.
+    If max_results is negative, then ignores 'start' and returns all reviews.
+    """
+    url = 'api/review-requests/%s/reviews/%s/replies/' % (rb_id, review)
+    return self._smart_query(url, 'replies', start, max_results)
 
   def process_json(self, data):
     """
@@ -487,8 +555,38 @@ class ReviewBoardServer:
 
     return 1
 
-  def get_raw_diff(self, review):
+  def get_raw_diff(self, rb_id):
     """
     Returns the raw diff for the given reviewboard item.
     """
-    return self.http_request('/r/%s/diff/raw/' % review, {})
+    return self.http_request('/r/%s/diff/raw/' % rb_id, {})
+
+  def get_changes(self, rb_id, start=0, max_results=25):
+    """
+    Returns a list of changes of the sepcified review request.
+    """
+    url = 'api/review-requests/%s/changes/' % rb_id
+    return self._smart_query(url, 'changes', start, max_results)
+
+  def get_diffs(self, rb_id):
+    """
+    Returns a list of diffs of the sepcified review request.
+    """
+    rsp = self.api_call('api/review-requests/%s/diffs/' % rb_id)
+    return rsp['diffs']
+
+  def get_files(self, rb_id, revision, start=0, max_results=25):
+    """
+    Returns a list of files in the specified diff.
+    If max_results is negative, then ignores 'start' and returns all the files.
+    """
+    url = 'api/review-requests/%d/diffs/%d/files/' % (rb_id, revision)
+    return self._smart_query(url, "files", start, max_results)
+
+  def get_diff_comments(self, rb_id, revision, file_id, start=0, max_results=25):
+    """
+    Returns a list of diff comments for the specified file.
+    If max_results is negative, then ignores 'start' and returns all the files.
+    """
+    url = 'api/review-requests/%d/diffs/%d/files/%d/diff-comments/' % (rb_id, revision, file_id)
+    return self._smart_query(url, "diff_comments", start, max_results)
