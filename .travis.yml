@@ -18,8 +18,6 @@ cache:
   directories:
     - $HOME/.cache/pants
     - $HOME/.ivy2/twitter-commons
-    - build-support/pants.venv
-    - build-support/virtualenv.dist
 
 language: java
 

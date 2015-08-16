@@ -60,9 +60,7 @@ banner "CI BEGINS"
 if [[ "${skip_bootstrap:-false}" == "false" ]]; then
   banner "Bootstrapping pants"
   (
-    ./build-support/python/clean.sh && \
-    PANTS_VERBOSE=1 PEX_VERBOSE=1 PYTHON_VERBOSE=1 ./pants;
-    ./pants goals
+    ./pants help
   ) || die "Failed to bootstrap pants."
 fi
 
