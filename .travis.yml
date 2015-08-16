@@ -13,6 +13,9 @@ before_cache:
     # operation).
   - find $HOME/.ivy2/twitter-commons -type f -name "ivydata-*.properties" -print -delete
   - rm -fv $HOME/.ivy2/twitter-commons/*.{css,properties,xml,xsl}
+  # The stats cache contains timestamped reports unused by CI but that
+  # thrash the cache.  Skip caching these.
+  - rm -rf $HOME/.cache/pants/stats
 
 cache:
   directories:
