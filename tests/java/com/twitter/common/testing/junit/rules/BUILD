@@ -19,7 +19,7 @@ junit_tests(
   dependencies=[
     '3rdparty/jvm/junit',
     '3rdparty/jvm/com/google/code/findbugs:jsr305',
-    '3rdparty/jvm/com/twitter/common:junit-runner-annotations',
+    '3rdparty/jvm/org/pantsbuild:junit-runner-annotations',
     'src/java/com/twitter/common/testing/junit/rules',
   ],
   sources=globs('*.java')

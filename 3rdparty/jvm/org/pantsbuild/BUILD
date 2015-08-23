@@ -1,5 +1,5 @@
 # ==================================================================================================
-# Copyright 2014 Twitter, Inc.
+# Copyright 2015 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -14,15 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
-jar_library(name='specs',
+jar_library(name='junit-runner-annotations',
   jars=[
-    # This arrangement gets our version of scalatest playing well with specs; without this,
-    # a scala-library inconsistency - _despite_ matching 2.9.3 monikers at the dep roots - creeps
-    # in.
-    jar(org='org.scala-tools.testing', name='specs_2.10', rev='1.6.9')
-      .exclude(org='org.scalatest', name='scalatest'),
-  ],
-  dependencies=[
-    '3rdparty/jvm/org/scalatest'
+    jar(org='org.pantsbuild', name='junit-runner-annotations', rev='0.0.4')
   ]
 )

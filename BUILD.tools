@@ -99,9 +99,9 @@ make_lib('com.google.code.java-allocation-instrumenter', 'java-allocation-instru
 
 
 # ScalaRepl
-make_lib('org.scala-lang', 'scala-compiler', '2.9.3', lib_name='scala-repl',
+make_lib('org.scala-lang', 'scala-compiler', '2.10.4', lib_name='scala-repl',
   jars=[
-    jar(org='org.scala-lang', name='jline', rev='2.9.3'),
+    jar(org='org.scala-lang', name='jline', rev='2.10.4'),
   ]
 )
 

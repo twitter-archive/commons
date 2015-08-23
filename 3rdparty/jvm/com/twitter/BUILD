@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-SCALA_REV = '2.9.2'
+SCALA_REV = '2.10'
 
 
 def make_lib(name, rev, scala_rev=None, excludes=None, deps=None):
@@ -77,7 +77,7 @@ make_util_lib('util-jvm')
 make_lib('jsr166e', '1.0.0')
 
 
-make_lib('ostrich', '9.1.2')
+make_lib('ostrich', '9.1.2', scala_rev=SCALA_REV)
 
 
 make_lib('twitter-text', '1.5.0')
