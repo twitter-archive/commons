@@ -16,6 +16,6 @@
 
 jar_library(name='scalatest',
   jars=[
-    jar(org='org.scalatest', name='scalatest_2.9.3', rev='1.9.2')
+    jar(org='org.scalatest', name='scalatest_2.10', rev='1.9.2')
   ]
 )

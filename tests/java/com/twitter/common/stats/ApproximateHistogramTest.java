@@ -8,8 +8,8 @@ import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 
 import org.junit.Test;
+import org.pantsbuild.junit.annotations.TestParallel;
 
-import com.twitter.common.junit.annotations.TestParallel;
 import com.twitter.common.objectsize.ObjectSizeCalculator;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Data;

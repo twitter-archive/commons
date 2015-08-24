@@ -1,8 +1,8 @@
 package com.twitter.common.stats;
 
 import org.junit.Test;
+import org.pantsbuild.junit.annotations.TestParallel;
 
-import com.twitter.common.junit.annotations.TestParallel;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
 import com.twitter.common.stats.WindowedStatistics;

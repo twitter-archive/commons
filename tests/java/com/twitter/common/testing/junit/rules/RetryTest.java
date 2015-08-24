@@ -31,8 +31,7 @@ import org.junit.Test;
 import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
-
-import com.twitter.common.junit.annotations.TestSerial;
+import org.pantsbuild.junit.annotations.TestSerial;
 
 // SUPPRESS CHECKSTYLE:OFF IllegalThrows
 public class RetryTest {
