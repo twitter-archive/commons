@@ -97,18 +97,19 @@ class Fileset(object):
   @classmethod
   def globs(cls, *globspecs, **kw):
     """Returns a Fileset that combines the lists of files returned by
-       glob.glob for each globspec.  File names starting with '.' are not
-       returned unless explicitly globbed.  For example, ".*" matches
+       glob.glob for each non-empty globspec.  File names starting with '.'
+       are not returned unless explicitly globbed.  For example, ".*" matches
        ".bashrc" but "*" does not, mirroring the semantics of 'ls' without
        '-a'.
 
-       Walks the current working directory by default, can be overrided with
+       Walks the current working directory by default, can be overridden with
        the 'root' keyword argument.
     """
     root = kw.pop('root', os.curdir)
     def relative_glob(globspec):
-      for fn in glob.glob(os.path.join(root, globspec)):
-        yield os.path.relpath(fn, root)
+      if globspec:
+        for fn in glob.glob(os.path.join(root, globspec)):
+          yield os.path.relpath(fn, root)
     def combine(files, globspec):
       return files ^ set(relative_glob(globspec))
     return cls(lambda: reduce(combine, globspecs, set()))
@@ -144,7 +145,7 @@ class Fileset(object):
 
   @classmethod
   def zglobs(cls, *globspecs, **kw):
-    """Returns a Fileset that matches zsh-style globs, including '**/' for recursive globbing.
+    """Returns a Fileset that matches zsh-style globs, including `**/` for recursive globbing.
 
        By default searches from the current working directory.  Can be overridden
        with the 'root' keyword argument.  File names starting with '.' are not

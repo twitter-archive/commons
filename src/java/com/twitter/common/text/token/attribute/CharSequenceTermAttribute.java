@@ -18,11 +18,9 @@ package com.twitter.common.text.token.attribute;
 
 import org.apache.lucene.util.Attribute;
 
-import com.twitter.common.text.token.TokenStream;
-
 /**
  * {@code TermAttribute} backed by a larger {@link CharSequence} that does not change as
- * {@link TokenStream#incrementToken()} is called. Instead, the offset and character length are
+ * {@link com.twitter.common.text.token.TwitterTokenStream#incrementToken()} is called. Instead, the offset and character length are
  * updated to reference a new span with respect to the underlying {@code CharSequence}.
  */
 public interface CharSequenceTermAttribute extends Attribute {
@@ -103,7 +101,7 @@ public interface CharSequenceTermAttribute extends Attribute {
 
   /**
    * Returns the term text as a {@code CharSequence}, without needing to construct a
-   * {@code String}. This method is preferred over {@link getTermString()}.
+   * {@code String}. This method is preferred over {@link #getTermString()}.
    *
    * @return {@code CharSequence} representing the term text.
    */
@@ -111,7 +109,7 @@ public interface CharSequenceTermAttribute extends Attribute {
 
   /**
    * Returns the term text as a {@code String}.
-   * {@link getTermCharSequence()} is preferred over this method.
+   * {@link #getTermCharSequence()} is preferred over this method.
    *
    * @return {@code String} representing the term text.
    */

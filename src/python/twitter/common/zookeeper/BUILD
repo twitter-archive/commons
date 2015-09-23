@@ -1,24 +1,37 @@
-with open(os.path.join(os.path.dirname(__file__), '..', 'VERSION')) as fp:
-  VERSION = fp.read().strip()
+# ==================================================================================================
+# Copyright 2014 Twitter, Inc.
+# --------------------------------------------------------------------------------------------------
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this work except in compliance with the License.
+# You may obtain a copy of the License in the LICENSE file, or at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==================================================================================================
 
 TEST_SERVER = ['test_server.py']
 
 python_library(
   name = 'zookeeper',
   dependencies = [
-    pants(':kazoo_client'),
-    pants('src/python/twitter/common/zookeeper/group:kazoo_group'),
-    pants('src/python/twitter/common/zookeeper/serverset:kazoo_serverset'),
+    ':kazoo_client',
+    'src/python/twitter/common/zookeeper/group:kazoo_group',
+    'src/python/twitter/common/zookeeper/serverset:kazoo_serverset',
 
     # keep around zookeeper-old code until we can purge it forever.  do not use
     # these implementations!  use the kazoo implementations!
-    pants(':zookeeper-old'),
-    pants('src/python/twitter/common/zookeeper/group'),
-    pants('src/python/twitter/common/zookeeper/serverset'),
+    ':zookeeper-old',
+    'src/python/twitter/common/zookeeper/group',
+    'src/python/twitter/common/zookeeper/serverset',
   ],
   provides = setup_py(
     name = 'twitter.common.zookeeper',
-    version = VERSION,
+    version = commons_version(),
     description = "Implementations of Twitter's service discovery libraries on top of Kazoo.",
     extras_require = {
       # Require twitter.common.zookeeper[old] to pull in zc-zookeeper-static, which will not
@@ -34,8 +47,8 @@ python_library(
   name = 'zookeeper-old',
   sources = ['client.py', 'constants.py', 'named_value.py'],
   dependencies = [
-    pants('src/python/twitter/common/log'),
-    pants('src/python/twitter/common/metrics'),
+    'src/python/twitter/common/log',
+    'src/python/twitter/common/metrics',
   ],
 )
 
@@ -43,8 +56,8 @@ python_library(
   name = 'kazoo_client',
   sources = ['kazoo_client.py'],
   dependencies = [
-    pants('3rdparty/python:kazoo'),
-    pants('src/python/twitter/common/metrics'),
+    '3rdparty/python:kazoo',
+    'src/python/twitter/common/metrics',
   ]
 )
 
@@ -52,9 +65,9 @@ python_library(
   name = 'testing',
   sources = TEST_SERVER,
   dependencies = [
-    pants('src/python/twitter/common/contextutil'),
-    pants('src/python/twitter/common/dirutil'),
-    pants('src/python/twitter/common/rpc/finagle'),
-    pants('src/thrift/com/twitter/common/zookeeper/testing/angrybird:py-thrift')
+    'src/python/twitter/common/contextutil',
+    'src/python/twitter/common/dirutil',
+    'src/python/twitter/common/rpc/finagle',
+    'src/thrift/com/twitter/common/zookeeper/testing/angrybird:py-thrift'
   ]
 )

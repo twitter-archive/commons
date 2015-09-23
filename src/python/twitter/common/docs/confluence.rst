@@ -1,0 +1,1 @@
+.. include:: ../confluence/docs/confluence.rst

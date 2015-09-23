@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-dependencies(name='pingpong',
+target(name='pingpong',
   dependencies=[
-    pants('tests/java/com/twitter/common/examples/pingpong/handler'),
+    'tests/java/com/twitter/common/examples/pingpong/handler',
   ])

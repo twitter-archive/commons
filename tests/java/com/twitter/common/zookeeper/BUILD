@@ -35,59 +35,59 @@ LARGE = [
 
 java_tests(name = 'small',
   dependencies = [
-    pants('3rdparty:easymock'),
-    pants('3rdparty:guava'),
-    pants('3rdparty:junit'),
-    pants('src/java/com/twitter/common/base'),
-    pants('src/java/com/twitter/common/collections'),
-    pants('src/java/com/twitter/common/testing'),
-    pants('src/java/com/twitter/common/zookeeper:candidate'),
-    pants('src/java/com/twitter/common/zookeeper:server-set'),
-    pants('src/thrift/com/twitter/thrift'),
+    '3rdparty/jvm/org/easymock',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/junit',
+    'src/java/com/twitter/common/base',
+    'src/java/com/twitter/common/collections',
+    'src/java/com/twitter/common/testing/easymock',
+    'src/java/com/twitter/common/zookeeper:candidate',
+    'src/java/com/twitter/common/zookeeper:server-set',
+    'src/thrift/com/twitter/thrift',
   ],
-  sources = globs('*.java') - MEDIUM - LARGE
+  sources = globs('*.java', exclude=[MEDIUM, LARGE])
 )
 
 java_tests(name = 'medium-main',
   dependencies = [
-    pants('3rdparty:guava'),
-    pants('3rdparty:guice'),
-    pants('3rdparty:junit'),
-    pants('3rdparty:mockito'),
-    pants('3rdparty:zookeeper'),
-    pants('src/java/com/twitter/common/base'),
-    pants('src/java/com/twitter/common/testing'),
-    pants('src/java/com/twitter/common/zookeeper:client'),
-    pants('src/java/com/twitter/common/zookeeper:group'),
-    pants('src/java/com/twitter/common/zookeeper:lock'),
-    pants('src/java/com/twitter/common/zookeeper:partitioner'),
-    pants('src/java/com/twitter/common/zookeeper:singleton-service'),
-    pants('src/java/com/twitter/common/zookeeper:testing'),
-    pants('src/java/com/twitter/common/zookeeper/guice'),
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/inject:guice',
+    '3rdparty/jvm/junit',
+    '3rdparty/jvm/org/mockito',
+    '3rdparty/jvm/org/apache/zookeeper',
+    'src/java/com/twitter/common/base',
+    'src/java/com/twitter/common/testing/easymock',
+    'src/java/com/twitter/common/zookeeper:client',
+    'src/java/com/twitter/common/zookeeper:group',
+    'src/java/com/twitter/common/zookeeper:lock',
+    'src/java/com/twitter/common/zookeeper:partitioner',
+    'src/java/com/twitter/common/zookeeper:singleton-service',
+    'src/java/com/twitter/common/zookeeper:testing',
+    'src/java/com/twitter/common/zookeeper/guice',
   ],
   sources = MEDIUM
 )
 
-jar_library(name = 'medium',
+target(name = 'medium',
   dependencies = [
-    'tests/java/com/twitter/common/zookeeper/testing/angrybird',
     ':medium-main',
+    'tests/java/com/twitter/common/zookeeper/testing/angrybird'
   ]
 )
 
 java_tests(name = 'large',
   dependencies = [
-    '3rdparty:easymock',
-    '3rdparty:guava',
-    '3rdparty:junit',
-    '3rdparty:thrift',
-    '3rdparty:tl4j',
-    '3rdparty:zookeeper',
+    '3rdparty/jvm/org/easymock',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/junit',
+    '3rdparty/jvm/org/apache/thrift',
+    '3rdparty/jvm/com/google/testing:tl4j',
+    '3rdparty/jvm/org/apache/zookeeper',
     'src/java/com/twitter/common/base',
     'src/java/com/twitter/common/collections',
     'src/java/com/twitter/common/net:dynamic-host-set',
     'src/java/com/twitter/common/quantity',
-    'src/java/com/twitter/common/testing',
+    'src/java/com/twitter/common/testing/easymock',
     'src/java/com/twitter/common/thrift',
     'src/java/com/twitter/common/zookeeper:candidate',
     'src/java/com/twitter/common/zookeeper:client',
@@ -101,7 +101,7 @@ java_tests(name = 'large',
   sources = LARGE
 )
 
-jar_library(name = 'all',
+target(name = 'all',
   dependencies = [
     ':large',
     ':medium',
@@ -109,4 +109,4 @@ jar_library(name = 'all',
   ]
 )
 
-jar_library(name = 'zookeeper', dependencies = [ ':all' ])
+target(name = 'zookeeper', dependencies = [ ':all' ])

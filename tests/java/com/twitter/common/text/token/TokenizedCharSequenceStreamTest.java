@@ -27,13 +27,13 @@ import com.google.common.collect.ImmutableList;
 import com.twitter.common.text.tokenizer.RegexTokenizer;
 
 public class TokenizedCharSequenceStreamTest {
-  TokenStream tokenizer = new RegexTokenizer.Builder()
+  TwitterTokenStream tokenizer = new RegexTokenizer.Builder()
                                                    .setDelimiterPattern(Pattern.compile(" "))
                                                    .build();
 
   @Test
   public void testWithBackupTokenizer() {
-    TokenStream stream = new TokenizedCharSequenceStream(tokenizer);
+    TwitterTokenStream stream = new TokenizedCharSequenceStream(tokenizer);
 
     String text = "This is a test #hashtag";
     TokenizedCharSequence tokenized = TokenizedCharSequence.createFrom(text, tokenizer);
@@ -49,7 +49,7 @@ public class TokenizedCharSequenceStreamTest {
 
   @Test
   public void testWithoutBackupTokenizer() {
-    TokenStream stream = new TokenizedCharSequenceStream();
+    TwitterTokenStream stream = new TokenizedCharSequenceStream();
 
     String text = "This is a test #hashtag";
     TokenizedCharSequence tokenized = TokenizedCharSequence.createFrom(text, tokenizer);
@@ -69,14 +69,14 @@ public class TokenizedCharSequenceStreamTest {
 
   @Test
   public void testWithDummyTokenizer() {
-    TokenStream stream = new TokenizedCharSequenceStream(new TokenStream() {
+    TwitterTokenStream stream = new TokenizedCharSequenceStream(new TwitterTokenStream() {
       @Override
       public boolean incrementToken() {
         throw new IllegalArgumentException("this should not be called!");
       }
 
       @Override
-      public void reset(CharSequence input) {
+      public void reset() {
         throw new IllegalArgumentException("this should not be called!");
       }
     });

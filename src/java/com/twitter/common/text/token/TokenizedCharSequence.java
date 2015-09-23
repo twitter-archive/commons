@@ -71,7 +71,7 @@ public class TokenizedCharSequence implements CharSequence {
 
     /**
      * Returns a new Token object which represents a term starting with {@code offset} and with
-     * {@length}.
+     * {@code length}.
      *
      * @param offset offset of the sub-token
      * @param length length of the sub-token
@@ -300,7 +300,7 @@ public class TokenizedCharSequence implements CharSequence {
     }
   }
 
-  public static final TokenizedCharSequence createFrom(TokenStream tokenizer) {
+  public static final TokenizedCharSequence createFrom(TwitterTokenStream tokenizer) {
     CharSequenceTermAttribute termAttr = tokenizer.getAttribute(CharSequenceTermAttribute.class);
     TokenTypeAttribute typeAttr = tokenizer.getAttribute(TokenTypeAttribute.class);
     PartOfSpeechAttribute posAttr = null;
@@ -342,20 +342,20 @@ public class TokenizedCharSequence implements CharSequence {
   }
 
   public static final TokenizedCharSequence createFrom(CharSequence text,
-      TokenStream tokenizer) {
+      TwitterTokenStream tokenizer) {
     tokenizer.reset(text);
     return createFrom(tokenizer);
   }
 
   public static final List<TokenizedCharSequence> createFromTokenGroupsIn(
-      TokenStream stream) {
+      TwitterTokenStream stream) {
     TokenGroupAttribute groupAttr = stream.getAttribute(TokenGroupAttribute.class);
 
     List<TokenizedCharSequence> groups = Lists.newArrayList();
     while (stream.incrementToken()) {
       Builder builder = new Builder(stream.term());
 
-      TokenStream groupStream = groupAttr.getTokenGroupStream();
+      TwitterTokenStream groupStream = groupAttr.getTokenGroupStream();
       PartOfSpeechAttribute posAttr = null;
       if (groupStream.hasAttribute(PartOfSpeechAttribute.class)) {
         posAttr = groupStream.getAttribute(PartOfSpeechAttribute.class);

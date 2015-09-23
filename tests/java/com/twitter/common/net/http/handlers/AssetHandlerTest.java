@@ -34,7 +34,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.twitter.common.net.http.handlers.AssetHandler.StaticAsset;
-import com.twitter.common.testing.EasyMockTest;
+import com.twitter.common.testing.easymock.EasyMockTest;
 
 import static com.twitter.common.net.http.handlers.AssetHandler.CACHE_CONTROL_MAX_AGE_SECS;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_MODIFIED;

@@ -14,20 +14,17 @@
 # limitations under the License.
 # ==================================================================================================
 
-with open(os.path.join(os.path.dirname(__file__), '..', 'VERSION')) as fp:
-  VERSION = fp.read().strip()
-
 python_library(
   name = 'metrics',
   sources = rglobs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/exceptions'),
-    pants('src/python/twitter/common/lang'),
-    pants('src/python/twitter/common/quantity'),
+    'src/python/twitter/common/exceptions',
+    'src/python/twitter/common/lang',
+    'src/python/twitter/common/quantity',
   ],
   provides = setup_py(
     name = 'twitter.common.metrics',
-    version = VERSION,
+    version = commons_version(),
     description = 'twitter.common metrics registry and collector.',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',

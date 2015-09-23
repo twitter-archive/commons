@@ -4,27 +4,25 @@ Twitter common libraries for python and the jvm
 
 Building requires:
 + jdk 1.6+
-+ python 2.6+
++ python 2.7+
 
 The build tool is custom and hosted in the repository itself.
 
 == Usage ==
 
 To build all jvm code and run all tests:
-$ ./pants goal test tests/{java,scala}/com/twitter/common::
+$ ./pants test {src,tests}/java/com/twitter/common::
+$ ./pants test {src,tests}/scala/com/twitter/common::
 
 Likewise for python commons:
-$ ./pants tests/python/twitter/common/:all
-
-And for the pants build tool itself:
-$ ./pants tests/python/twitter/pants:all
+$ ./pants test tests/python/twitter/common/:all
 
 To get help on pants:
 $ ./pants help
 
 Read more http://twitter.github.com/commons/
 
-TODO(John Sirois): migrate pants documentation to the public wiki
+Refer to pants documentation at http://pantsbuild.github.io
 
 == Usage questions and feature discussions ==
 
@@ -38,7 +36,7 @@ https://github.com/twitter/commons/issues
 
 == Copyright and License ==
 
-Copyright 2011 Twitter, Inc.
+Copyright 2015 Twitter, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this work except in compliance with the License.

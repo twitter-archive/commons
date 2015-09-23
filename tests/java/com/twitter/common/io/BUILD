@@ -14,12 +14,12 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name='io',
-  dependencies=[
-    '3rdparty:guava',
-    '3rdparty:junit',
-    '3rdparty:thrift',
-    '3rdparty:tl4j',
+java_tests(name = 'io',
+  dependencies = [
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/junit',
+    '3rdparty/jvm/org/apache/thrift',
+    '3rdparty/jvm/com/google/testing:tl4j',
     'src/java/com/twitter/common/base',
     'src/java/com/twitter/common/io',
     'src/java/com/twitter/common/io:base64zlibcodec',
@@ -28,5 +28,5 @@ java_tests(name='io',
     'src/java/com/twitter/common/io:thrift',
     'src/java/com/twitter/common/thrift:testing',
   ],
-  sources=globs('*.java')
+  sources = globs('*.java')
 )

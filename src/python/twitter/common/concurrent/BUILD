@@ -14,21 +14,18 @@
 # limitations under the License.
 # ==================================================================================================
 
-with open(os.path.join(os.path.dirname(__file__), '..', 'VERSION')) as fp:
-  VERSION = fp.read().strip()
-
 python_library(
   name = 'concurrent',
   sources = globs('*.py'),
   dependencies = [
-    pants('3rdparty/python:futures'),
-    pants('src/python/twitter/common/exceptions'),
-    pants('src/python/twitter/common/lang'),
-    pants('src/python/twitter/common/quantity')
+    '3rdparty/python:futures',
+    'src/python/twitter/common/exceptions',
+    'src/python/twitter/common/lang',
+    'src/python/twitter/common/quantity'
   ],
   provides = setup_py(
     name = 'twitter.common.concurrent',
-    version = VERSION,
+    version = commons_version(),
     description = 'twitter.common basic concurrency utilities such as deadline() and defer().',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',

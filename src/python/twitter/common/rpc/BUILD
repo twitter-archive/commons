@@ -14,29 +14,26 @@
 # limitations under the License.
 # ==================================================================================================
 
-with open(os.path.join(os.path.dirname(__file__), '..', 'VERSION')) as fp:
-  VERSION = fp.read().strip()
-
 python_library(
   name = 'rpc',
   sources = globs('*.py'),
   dependencies = [
-    pants('3rdparty/python:thrift'),
-    pants('src/python/twitter/common/lang')
+    '3rdparty/python:thrift',
+    'src/python/twitter/common/lang'
   ],
 )
 
 python_library(
   name = 'rpc-packaged',
   dependencies = [
-    pants(':rpc'),
-    pants('src/python/twitter/common/rpc/finagle'),
-    pants('src/python/twitter/common/rpc/sasl:sourceonly'),
-    pants('src/python/twitter/common/rpc/transports:all'),
+    ':rpc',
+    'src/python/twitter/common/rpc/finagle',
+    'src/python/twitter/common/rpc/sasl:sourceonly',
+    'src/python/twitter/common/rpc/transports:all',
   ],
   provides = setup_py(
     name = 'twitter.common.rpc',
-    version = VERSION,
+    version = commons_version(),
     description = 'twitter.common thrift helpers including finagle and ssl transports.',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',

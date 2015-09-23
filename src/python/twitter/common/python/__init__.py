@@ -14,3 +14,9 @@
 # limitations under the License.
 # ==================================================================================================
 
+import warnings
+
+warnings.warn("""
+twitter.common.python has been renamed to pex.  please switch imports
+to use pex instead.
+""")

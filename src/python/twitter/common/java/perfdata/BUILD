@@ -16,9 +16,9 @@
 
 python_library(
   name = 'perfdata',
-  sources = globs('*.py') + globs('builders/*.py'),
+  sources = globs('*.py', 'builders/*.py'),
   dependencies = [
-    pants('src/python/twitter/common/lang'),
+    'src/python/twitter/common/lang',
   ]
 )
 
@@ -26,7 +26,7 @@ python_binary(
   name = 'jammystat',
   source = 'bin/jammystat.py',
   dependencies = [
-    pants('src/python/twitter/common/app'),
-    pants(':perfdata')
+    'src/python/twitter/common/app',
+    ':perfdata'
   ]
 )

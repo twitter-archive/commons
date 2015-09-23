@@ -1,7 +1,7 @@
 package com.twitter.common.text.combiner;
 
 import com.twitter.common.text.extractor.RegexExtractor;
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 import com.twitter.common.text.token.attribute.TokenType;
 
 import java.util.regex.Pattern;
@@ -14,7 +14,7 @@ public class PunctuationExceptionCombiner extends ExtractorBasedTokenCombiner {
   private static final Pattern PUNCTUATION_EXCEPTIONS_PATTERN =
       Pattern.compile(PUNCTUATION_EXCEPTION_REGEX);
 
-  protected PunctuationExceptionCombiner(TokenStream inputStream, Pattern exceptionsPattern) {
+  protected PunctuationExceptionCombiner(TwitterTokenStream inputStream, Pattern exceptionsPattern) {
     super(inputStream);
     setExtractor(new RegexExtractor.Builder().setRegexPattern(exceptionsPattern, 0, 0)
         .build());
@@ -23,9 +23,9 @@ public class PunctuationExceptionCombiner extends ExtractorBasedTokenCombiner {
 
   public static class Builder {
     private String exceptionChars = null;
-    private TokenStream inputStream;
+    private TwitterTokenStream inputStream;
 
-    public Builder(TokenStream inputStream) {
+    public Builder(TwitterTokenStream inputStream) {
       this.inputStream = inputStream;
     }
 

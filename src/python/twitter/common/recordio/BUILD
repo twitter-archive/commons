@@ -14,15 +14,12 @@
 # limitations under the License.
 # ==================================================================================================
 
-with open(os.path.join(os.path.dirname(__file__), '..', 'VERSION')) as fp:
-  VERSION = fp.read().strip()
-
 python_library(
   name = "recordio",
-  sources = rglobs('*.py') - ['thrift_recordio.py'],
+  sources = rglobs('*.py', exclude = ['thrift_recordio.py']),
   dependencies = [
-    pants('src/python/twitter/common/log'),
-    pants('src/python/twitter/common/lang')
+    'src/python/twitter/common/log',
+    'src/python/twitter/common/lang'
   ]
 )
 
@@ -30,20 +27,20 @@ python_library(
   name = "recordio-thrift",
   sources = ['thrift_recordio.py'],
   dependencies = [
-    pants(':recordio'),
-    pants('3rdparty/python:thrift'),
+    ':recordio',
+    '3rdparty/python:thrift',
   ]
 )
 
 python_library(
   name = 'recordio-packaged',
   dependencies = [
-    pants(':recordio'),
-    pants(':recordio-thrift'),
+    ':recordio',
+    ':recordio-thrift',
   ],
   provides = setup_py(
     name = 'twitter.common.recordio',
-    version = VERSION,
+    version = commons_version(),
     description = 'twitter.common simple record reader/writer library',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',

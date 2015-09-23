@@ -58,8 +58,7 @@ public class Config {
 
   /**
    *
-   * @param config
-   * @return
+   * @param config the builder configuration to use
    */
   public static Builder builder(Config config) {
     Preconditions.checkNotNull(config);
@@ -161,13 +160,14 @@ public class Config {
 
     protected abstract T getThis();
 
-    // TODO(John Sirois): extra validation or design ... can currently do stange things like:
+    // TODO(John Sirois): extra validation or design ... can currently do strange things like:
     // builder.blocking().withDeadline(1, TimeUnit.MILLISECONDS)
     // builder.noRetries().retryOn(TException.class)
 
     /**
-     * Specifies that all calls be blocking calls with no inherent deadline.  It may be the case that
-     * underlying transports will eventually deadline, but {@link Thrift} will not enforce a dealine.
+     * Specifies that all calls be blocking calls with no inherent deadline.  It may be the
+     * case that underlying transports will eventually deadline, but {@link Thrift} will not
+     * enforce a deadline.
      */
     public final T blocking() {
       config.requestTimeout = DEADLINE_BLOCKING;
@@ -215,8 +215,8 @@ public class Config {
     /**
      * Specifies that failing calls meeting {@link #retryOn retry} criteria be retried up to a
      * maximum of {@code retries} times before failing.  On an asynchronous client, these retries
-     * will be forced to be non-blocking, failing fast if they cannot immediately acquire the connection
-     * pool locks, so they only provide a best-effort retry strategy there.
+     * will be forced to be non-blocking, failing fast if they cannot immediately acquire the
+     * connection pool locks, so they only provide a best-effort retry strategy there.
      */
     public final T withRetries(int retries) {
       Preconditions.checkArgument(retries >= 0, "A negative retry count is invalid: %d", retries);

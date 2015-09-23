@@ -31,14 +31,14 @@ import com.twitter.common.args.TypeUtil;
  * @author William Farner
  */
 @ArgParser
-public class ClassParser extends TypeParameterizedParser<Class> {
+public class ClassParser extends TypeParameterizedParser<Class<?>> {
 
   public ClassParser() {
     super(1);
   }
 
   @Override
-  public Class doParse(ParserOracle parserOracle, String raw, final List<Type> typeParams) {
+  public Class<?> doParse(ParserOracle parserOracle, String raw, final List<Type> typeParams) {
     Class<?> rawClassType = TypeUtil.getRawType(typeParams.get(0));
     try {
       Class<?> actualClass = Class.forName(raw);

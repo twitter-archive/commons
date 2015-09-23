@@ -18,7 +18,7 @@ java_thrift_library(name = 'scribe_client-0.1.2',
   provides = artifact(
     org = 'org.apache.scribe',
     name = 'scribe_client',
-    repo = pants('build-support/commons/ivy:public'),
+    repo = public,
   ),
   sources = globs('0.1.2/*.thrift')
 )

@@ -14,9 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
-jar_library(name='small',
-  dependencies=[
-    '3rdparty:junit',
+target(name = 'small',
+  dependencies = [
     'tests/java/com/twitter/common/application',
     'tests/java/com/twitter/common/application/modules:lifecycle',
     'tests/java/com/twitter/common/args:small',
@@ -25,6 +24,7 @@ jar_library(name='small',
     'tests/java/com/twitter/common/inject',
     'tests/java/com/twitter/common/io',
     'tests/java/com/twitter/common/logging',
+    'tests/java/com/twitter/common/logging/julbridge',
     'tests/java/com/twitter/common/memcached',
     'tests/java/com/twitter/common/metrics',
     'tests/java/com/twitter/common/net',
@@ -35,15 +35,15 @@ jar_library(name='small',
     'tests/java/com/twitter/common/runtime',
     'tests/java/com/twitter/common/stats',
     'tests/java/com/twitter/common/testing',
+    'tests/java/com/twitter/common/testing/easymock',
+    'tests/java/com/twitter/common/testing/junit/rules',
     'tests/java/com/twitter/common/text',
     'tests/java/com/twitter/common/thrift',
     'tests/java/com/twitter/common/util',
     'tests/java/com/twitter/common/util/caching',
+    'tests/java/com/twitter/common/util/concurrent',
     'tests/java/com/twitter/common/util/templating',
     'tests/java/com/twitter/common/zookeeper:small',
-
-    # TODO(jsirois): conflict with spiderduck -> finagle -> new ostrich here - upgrade dep.
-    #'tests/scala/com/twitter/common/stats',
 
     # No tests for these, adding deps to support a single target for --ide builds with comprehensive
     # deps
@@ -53,23 +53,26 @@ jar_library(name='small',
   ],
 )
 
-jar_library(name='medium',
-  dependencies=[
+target(name = 'medium',
+  dependencies = [
     'tests/java/com/twitter/common/args:medium',
     'tests/java/com/twitter/common/zookeeper:medium',
   ]
 )
 
-jar_library(name='large',
-  dependencies=[
+target(name = 'large',
+  dependencies = [
     'tests/java/com/twitter/common/zookeeper:large',
   ]
 )
 
-jar_library(name='all',
-  dependencies=[
-    ':small',
-    ':medium',
+target(name = 'all',
+  dependencies = [
     ':large',
+    ':medium',
+    ':small',
   ]
 )
+
+# TODO(John Sirois): kill this legacy alias with a deprecation cycle
+target(name = 'all-tests', dependencies = [ ':all' ])

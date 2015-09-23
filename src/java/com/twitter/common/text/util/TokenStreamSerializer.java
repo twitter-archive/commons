@@ -30,10 +30,10 @@ import com.google.common.collect.Lists;
 
 import org.apache.lucene.util.AttributeSource;
 
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 
 /**
- * Helper class to serialize a TokenStream into a byte array.
+ * Helper class to serialize a TwitterTokenStream into a byte array.
  *
  * A list of AttributeSerializers must be defined using the Builder, which serialize
  * and deserialize individual attributes.
@@ -77,11 +77,45 @@ public class TokenStreamSerializer {
   }
 
   /**
-   * Serialize the given TokenStream into a byte array using the provided AttributeSerializer(s).
-   * Note that this method doesn't serialize the CharSequence of the TokenStream - the caller
+   * Serialize the given TwitterTokenStream into a byte array using the provided AttributeSerializer(s).
+   * Note that this method doesn't serialize the CharSequence of the TwitterTokenStream - the caller
    * has to take care of serializing this if necessary.
    */
-  public final byte[] serialize(final TokenStream tokenStream) throws IOException {
+  public final byte[] serialize(final TwitterTokenStream twitterTokenStream) throws IOException {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    AttributeOutputStream output = new AttributeOutputStream(baos);
+
+    for (AttributeSerializer serializer : attributeSerializers) {
+      serializer.initialize(twitterTokenStream, CURRENT_VERSION);
+    }
+
+    int numTokens = 0;
+
+    while (twitterTokenStream.incrementToken()) {
+      serializeAttributes(output);
+      numTokens++;
+    }
+
+    output.flush();
+
+    byte[] data = baos.toByteArray();
+    baos.close();
+    baos = new ByteArrayOutputStream(8 + data.length);
+    output = new AttributeOutputStream(baos);
+    output.writeVInt(CURRENT_VERSION.ordinal());
+    output.writeInt(attributeSerializersFingerprint);
+    output.writeVInt(numTokens);
+    output.write(data);
+    output.flush();
+
+    return baos.toByteArray();
+  };
+
+  /**
+   * Same as above but serializers a lucene TwitterTokenStream.
+   */
+  public final byte[] serialize(final org.apache.lucene.analysis.TokenStream tokenStream)
+      throws IOException {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     AttributeOutputStream output = new AttributeOutputStream(baos);
 
@@ -111,19 +145,18 @@ public class TokenStreamSerializer {
     return baos.toByteArray();
   };
 
-
   /**
-   * Deserializes the previously serialized TokenStream using the provided AttributeSerializer(s).
+   * Deserializes the previously serialized TwitterTokenStream using the provided AttributeSerializer(s).
    *
    * This method only deserializes all Attributes; the CharSequence instance containing the text
    * must be provided separately.
    * @param data  the byte-serialized representation of the tokenstream.
    * @param charSequence  the text that was tokenized.
-   * @return  a TokenStream object. Notice that, in order to support lucene-like TokenStream
+   * @return  a TwitterTokenStream object. Notice that, in order to support lucene-like TwitterTokenStream
    *          behavior, this object's reset method must only be used as reset(null) and will reset
-   *          the TokenStream to its starting point.
+   *          the TwitterTokenStream to its starting point.
    */
-  public final TokenStream deserialize(final byte[] data,
+  public final TwitterTokenStream deserialize(final byte[] data,
                                        final CharSequence charSequence) throws IOException {
     return deserialize(data, 0, data.length, charSequence);
   }
@@ -131,7 +164,7 @@ public class TokenStreamSerializer {
   /**
    * Other form of deserialize that reads data from a "slice" in a byte array.
    */
-  public final TokenStream deserialize(final byte[] data, int offset, int length,
+  public final TwitterTokenStream deserialize(final byte[] data, int offset, int length,
                                        final CharSequence charSequence) throws IOException {
     Preconditions.checkNotNull(data);
     Preconditions.checkState(length > 0);
@@ -173,18 +206,19 @@ public class TokenStreamSerializer {
   /**
    * Other form of deserialize for a ByteArrayInputStream.
    */
-  public final TokenStream deserialize(final ByteArrayInputStream bais, final CharSequence charSequence)
+  public final TwitterTokenStream deserialize(final ByteArrayInputStream bais, final CharSequence charSequence)
       throws IOException {
     final AttributeInputStream input = new AttributeInputStream(bais);
 
-    TokenStream tokenStream = new TokenStream() {
+    TwitterTokenStream twitterTokenStream = new TwitterTokenStream() {
       CharSequence chars = charSequence;
       // All other members are initialized in reset.
       int token;
       Version version;
       int numTokens;
 
-      @Override public boolean incrementToken() {
+      @Override
+      public final boolean incrementToken() {
         if (token < numTokens) {
           token++;
           try {
@@ -199,9 +233,10 @@ public class TokenStreamSerializer {
       }
 
       @Override
-      public void reset(CharSequence newChars) {
+      public void reset() {
+        CharSequence newChars = inputCharSequence();
         Preconditions.checkArgument(newChars == null || newChars == chars,
-            "this TokenStream does not do actual tokenization and only supports reset(null)");
+            "this TwitterTokenStream does not do actual tokenization and only supports reset(null)");
         try {
           input.reset();
           bais.reset();
@@ -217,8 +252,8 @@ public class TokenStreamSerializer {
       }
     };
 
-    tokenStream.reset(null);
-    return tokenStream;
+    twitterTokenStream.reset(null);
+    return twitterTokenStream;
   };
 
   private void deserializeAttributes(AttributeInputStream input,
@@ -248,7 +283,7 @@ public class TokenStreamSerializer {
   public interface AttributeSerializer {
     /**
      * Initialises this AttributeSerializer. This method should be used to get the attribute
-     * instance from the TokenStream that this serializer handles. E.g.:
+     * instance from the TwitterTokenStream that this serializer handles. E.g.:
      *
      * CharSequenceTermAttribute termAtt =
      *                    attributeSource.addAttribute(CharSequenceTermAttribute.class);
@@ -267,6 +302,11 @@ public class TokenStreamSerializer {
      */
     public abstract void deserialize(AttributeInputStream input, CharSequence charSequence)
         throws IOException;
+
+    /**
+     * Create a new instance of this AttributeSerializer.
+     */
+    public abstract AttributeSerializer newInstance();
   }
 
   /**
@@ -290,6 +330,19 @@ public class TokenStreamSerializer {
     public TokenStreamSerializer build() {
       return new TokenStreamSerializer(attributeSerializers);
     }
+
+    /**
+     * Build a TokenStreamSerializer. This can be repeatedly called to create TokenStreamSerializers
+     * that do not share AttributeSerializers
+     */
+    public TokenStreamSerializer safeBuild() {
+      List<AttributeSerializer> attributeSerializersCopy =
+          Lists.newArrayListWithCapacity(attributeSerializers.size());
+      for(AttributeSerializer serializer : attributeSerializers) {
+        attributeSerializersCopy.add(serializer.newInstance());
+      }
+      return new TokenStreamSerializer(attributeSerializersCopy);
+    }
   }
 
   /**
@@ -301,10 +354,21 @@ public class TokenStreamSerializer {
     }
 
     /**
-     * Writes a value using VInt encoding.
+     * Writes an integer value using VInt encoding.
      */
     public final void writeVInt(int value) throws IOException {
       while ((value & ~0x7F) != 0) {
+        writeByte((byte)((value & 0x7f) | 0x80));
+        value >>>= 7;
+      }
+      writeByte((byte)value);
+    }
+
+    /**
+     * Writes a long value using VInt encoding.
+     */
+    public final void writeVLong(long value) throws IOException {
+      while ((value & ~0x7FL) != 0) {
         writeByte((byte)((value & 0x7f) | 0x80));
         value >>>= 7;
       }
@@ -321,7 +385,7 @@ public class TokenStreamSerializer {
     }
 
     /**
-     * Reads a value using VInt encoding.
+     * Reads a int value using VInt encoding.
      */
     public final int readVInt() throws IOException {
       byte b = readByte();
@@ -329,6 +393,20 @@ public class TokenStreamSerializer {
       for (int shift = 7; (b & 0x80) != 0; shift += 7) {
         b = readByte();
         value |= (b & 0x7F) << shift;
+      }
+      return value;
+    }
+
+    /**
+     * Reads a long value using VInt encoding.
+     */
+    public final long readVLong() throws IOException {
+      byte b = readByte();
+      long value = b & 0x7FL;
+      for (int shift = 7; (b & 0x80) != 0; shift += 7) {
+        b = readByte();
+        // Must use 0x7FL here instead of 0x7F.
+        value |= (b & 0x7FL) << shift;
       }
       return value;
     }

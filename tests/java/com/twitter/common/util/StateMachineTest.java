@@ -24,7 +24,7 @@ import com.twitter.common.base.Command;
 import com.twitter.common.base.Commands;
 import com.twitter.common.base.ExceptionalSupplier;
 import com.twitter.common.base.Supplier;
-import com.twitter.common.testing.EasyMockTest;
+import com.twitter.common.testing.easymock.EasyMockTest;
 import com.twitter.common.util.StateMachine.Transition;
 import com.twitter.common.util.StateMachine.Rule;
 

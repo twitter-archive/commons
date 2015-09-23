@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 import com.google.common.base.Preconditions;
 
 import com.twitter.common.text.token.TokenProcessor;
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 import com.twitter.common.text.token.attribute.TokenType;
 
 /**
@@ -31,7 +31,7 @@ public class RegexDetector extends TokenProcessor {
   private Pattern regexPattern;
   private TokenType type;
 
-  protected RegexDetector(TokenStream inputStream) {
+  protected RegexDetector(TwitterTokenStream inputStream) {
     super(inputStream);
   }
 
@@ -44,7 +44,7 @@ public class RegexDetector extends TokenProcessor {
   }
 
   @Override
-  public boolean incrementToken() {
+  public final boolean incrementToken() {
     if (!incrementInputStream()) {
       return false;
     }
@@ -57,7 +57,7 @@ public class RegexDetector extends TokenProcessor {
   }
 
   public static class Builder extends AbstractBuilder<RegexDetector, Builder> {
-    public Builder(TokenStream inputStream) {
+    public Builder(TwitterTokenStream inputStream) {
       super(new RegexDetector(inputStream));
     }
   }

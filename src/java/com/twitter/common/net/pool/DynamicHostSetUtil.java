@@ -17,35 +17,36 @@
 package com.twitter.common.net.pool;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 
-import java.util.Set;
+import com.twitter.common.base.Command;
+
+import static com.twitter.common.net.pool.DynamicHostSet.HostChangeMonitor;
+import static com.twitter.common.net.pool.DynamicHostSet.MonitorException;
 
 /**
- * Util Class for dealing with dynamic sets of hosts.
- *
- * @author Florian Leibert
- * @author Jake Mannix
+ * Utility methods for dealing with dynamic sets of hosts.
  */
-public class DynamicHostSetUtil {
+public final class DynamicHostSetUtil {
 
   /**
    * Gets a snapshot of a set of dynamic hosts (e.g. a ServerSet) and returns a readable copy of
    * the underlying actual endpoints.
-   * @param hostSet
-   * @param <T>
-   * @return
-   * @throws DynamicHostSet.MonitorException
+   *
+   * @param hostSet The hostSet to snapshot.
+   * @throws MonitorException if there was a problem obtaining the snapshot.
    */
-  public static <T> ImmutableSet<T> getSnapshot(DynamicHostSet<T> hostSet)
-      throws DynamicHostSet.MonitorException {
-    final Set<T> set = Sets.newHashSet();
-    hostSet.monitor(new DynamicHostSet.HostChangeMonitor<T>() {
-      @Override
-      public void onChange(ImmutableSet<T> hostSet) {
-        set.addAll(hostSet);
+  public static <T> ImmutableSet<T> getSnapshot(DynamicHostSet<T> hostSet) throws MonitorException {
+    final ImmutableSet.Builder<T> snapshot = ImmutableSet.builder();
+    Command unwatch = hostSet.watch(new HostChangeMonitor<T>() {
+      @Override public void onChange(ImmutableSet<T> hostSet) {
+        snapshot.addAll(hostSet);
       }
     });
-    return ImmutableSet.copyOf(set);
+    unwatch.execute();
+    return snapshot.build();
+  }
+
+  private DynamicHostSetUtil() {
+    // utility
   }
 }

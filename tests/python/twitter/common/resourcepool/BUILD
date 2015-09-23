@@ -17,6 +17,6 @@
 python_tests(name = 'resourcepool',
   sources = globs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/resourcepool')
+    'src/python/twitter/common/resourcepool'
   ]
 )

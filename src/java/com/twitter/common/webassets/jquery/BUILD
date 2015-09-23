@@ -17,15 +17,17 @@
 java_library(
   name='jquery',
   provides=artifact(
-    org='com.twitter.common-webassets',
+    org='com.twitter.common.webassets',
     name='jquery',
-    repo=pants('build-support/commons/ivy:public'),
+    repo=public,
   ),
   dependencies=[
-    pants('3rdparty:guava'),
-    pants('3rdparty:guice'),
-    pants('src/java/com/twitter/common/application/http'),
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/inject:guice',
+    'src/java/com/twitter/common/application/http',
   ],
   sources=globs('*.java'),
-  resources=pants('src/resources/com/twitter/common/webassets/jquery'),
+  resources=[
+    'src/resources/com/twitter/common/webassets/jquery',
+  ]
 )

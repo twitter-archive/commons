@@ -14,15 +14,12 @@
 # limitations under the License.
 # ==================================================================================================
 
-with open(os.path.join(os.path.dirname(__file__), '..', 'VERSION')) as fp:
-  VERSION = fp.read().strip()
-
 python_library(
   name = 'tunnel',
   sources = ('tunnel.py',),
   dependencies = [
-    pants('src/python/twitter/common/log'),
-    pants('src/python/twitter/common/quantity')
+    'src/python/twitter/common/log',
+    'src/python/twitter/common/quantity'
   ]
 )
 
@@ -31,11 +28,11 @@ python_library(
 python_library(
   name = 'net',
   dependencies = [
-    pants(':tunnel'),
+    ':tunnel',
   ],
   provides = setup_py(
     name = 'twitter.common.net',
-    version = VERSION,
+    version = commons_version(),
     description = 'twitter.common tunneling and network utilities.',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',
@@ -52,7 +49,7 @@ python_library(
 python_library(
   name = 'ssh',
   dependencies = [
-    pants(':tunnel'),
+    ':tunnel',
   ]
 )
 
@@ -60,6 +57,6 @@ python_library(
   name = 'socks',
   sources = ('socks.py',),
   dependencies = [
-    pants('3rdparty/python:socksipy-branch')
+    '3rdparty/python:socksipy-branch'
   ]
 )

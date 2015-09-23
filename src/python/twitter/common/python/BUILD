@@ -14,30 +14,41 @@
 # limitations under the License.
 # ==================================================================================================
 
+
+FINAL_VERSION = '0.7.0'
+
+
+python_requirement_library(
+  name = 'pex',
+  requirements = [
+    python_requirement('pex==%s' % FINAL_VERSION),
+  ]
+)
+
+
 python_library(
   name = 'python-source',
-  sources = globs('*.py') + globs('http/*.py'),
-  # Do not add dependencies as these are embedded in every pex.
-  dependencies = [
-    # Use any setuptools post-distribute merge.
-    python_requirement('setuptools>=1'),
-  ],
+  sources = globs('*.py', 'http/*.py'),
 )
+
+
+LONG_DESCRIPTION = """
+As of 0.7.0, twitter.common.python has been renamed to pex.  Please install
+pex instead.
+"""
+
 
 python_library(
   name = 'python',
   dependencies = [
-    pants(':python-source'),
+    ':python-source',
+    ':pex',
   ],
   provides = setup_py(
     name = 'twitter.common.python',
-    version = '0.5.6',
+    version = FINAL_VERSION,
     description = "Twitter's Python packaging toolchain.",
-    long_description = """
-Twitter's Python packaging libraries and toolchain for fetching,
-building and packaging dependencies into .pex ("Python EXecutable")
-virtualized environments.
-""",
+    long_description = LONG_DESCRIPTION,
     url = 'https://github.com/twitter/commons/tree/master/src/python/twitter/common/python',
     license = 'Apache License, Version 2.0',
     zip_safe = True,
@@ -47,18 +58,5 @@ virtualized environments.
       'Operating System :: OS Independent',
       'Programming Language :: Python',
     ]
-  ).with_binaries(
-    pex = pants('src/python/twitter/common/python/bin:pex'),
   )
-)
-
-page(name = 'pexreadme',
-  source = 'README.md',
-  dependencies = [
-    pants(':pexinstall'),
-  ]
-)
-
-page(name = 'pexinstall',
-  source = 'INSTALL.md',
 )

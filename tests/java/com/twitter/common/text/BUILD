@@ -17,8 +17,8 @@
 
 java_tests(name = 'text',
   dependencies = [
-    '3rdparty:easymock',
-    '3rdparty:junit',
+    '3rdparty/jvm/org/easymock',
+    '3rdparty/jvm/junit',
     'src/java/com/twitter/common/collections:collections',
     'src/java/com/twitter/common/text:text',
     'src/java/com/twitter/common/util:util',

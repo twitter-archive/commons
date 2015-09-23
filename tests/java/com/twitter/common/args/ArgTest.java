@@ -16,13 +16,11 @@
 
 package com.twitter.common.args;
 
-import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author Attila Szegedi
- *
- */
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
+
 public class ArgTest {
 
   @Test
@@ -31,9 +29,9 @@ public class ArgTest {
     arg.get();
     try {
       arg.set(true);
-      Assert.fail();
-    }
-    catch(IllegalStateException e) {
+      fail("Expected set after get to throw");
+    } catch (IllegalStateException e) {
+      assertFalse(arg.get());
     }
   }
 }

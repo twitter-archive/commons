@@ -16,8 +16,8 @@
 
 python_tests(name = 'text',
   dependencies = [
-    pants('src/python/twitter/thrift/text'),
-    pants('src/thrift/com/twitter/thrift/text/testing:testing-py'),
+    'src/python/twitter/thrift/text',
+    'src/thrift/com/twitter/thrift/text/testing:testing-py',
   ],
   sources = globs('*.py'),
 )

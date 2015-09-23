@@ -18,10 +18,10 @@
 
 java_library(name = 'text',
   dependencies = [
-    '3rdparty:commons-codec',
-    '3rdparty:gson',
-    '3rdparty:guava',
-    '3rdparty:thrift',
+    '3rdparty/jvm/commons-codec',
+    '3rdparty/jvm/com/google/code/gson',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/org/apache/thrift',
   ],
   sources = globs('*.java')
 )

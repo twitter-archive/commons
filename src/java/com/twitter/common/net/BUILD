@@ -14,21 +14,22 @@
 # limitations under the License.
 # ==================================================================================================
 
-DYNAMIC_HOST_SET_SOURCES = set([ 'pool/DynamicHostSet.java' ])
+DYNAMIC_HOST_SET_SOURCES = ['pool/DynamicHostSet.java']
 
-URL_RESOLVER_SOURCES = set([
+URL_RESOLVER_SOURCES = [
   'UrlResolver.java',
   'UrlResolverUtil.java'
-])
+]
 
 java_library(name = 'dynamic-host-set',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'dynamic-host-set',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
-    '3rdparty:guava',
+    '3rdparty/jvm/com/google/guava',
+    'src/java/com/twitter/common/base',
   ],
   sources = DYNAMIC_HOST_SET_SOURCES
 )
@@ -37,28 +38,28 @@ java_library(name = 'util',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'net-util',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
-    '3rdparty:commons-codec',
-    '3rdparty:commons-lang',
-    '3rdparty:guava',
+    '3rdparty/jvm/commons-codec',
+    '3rdparty/jvm/commons-lang',
+    '3rdparty/jvm/com/google/guava',
     'src/java/com/twitter/common/base',
     'src/java/com/twitter/common/collections',
   ],
-  sources = globs('*.java') - URL_RESOLVER_SOURCES
+  sources = globs('*.java', exclude = [URL_RESOLVER_SOURCES])
 )
 
 java_library(name = 'url-resolver',
   dependencies = [
-    '3rdparty:guava',
-    '3rdparty:jsr305',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/code/findbugs:jsr305',
+    ':util',
     'src/java/com/twitter/common/base',
     'src/java/com/twitter/common/quantity',
     'src/java/com/twitter/common/stats:util',
     'src/java/com/twitter/common/util',
     'src/java/com/twitter/common/util/caching',
-    ':util',
   ],
   sources = URL_RESOLVER_SOURCES
 )
@@ -68,19 +69,19 @@ java_library(name = 'pool',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'net-pool',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
-    '3rdparty:commons-codec',
-    '3rdparty:guava',
-    '3rdparty:jsr305',
+    '3rdparty/jvm/commons-codec',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/code/findbugs:jsr305',
+    ':dynamic-host-set',
     'src/java/com/twitter/common/base',
     'src/java/com/twitter/common/quantity',
     'src/java/com/twitter/common/stats',
     'src/java/com/twitter/common/util',
     'src/java/com/twitter/common/util:system-mocks',
-    ':dynamic-host-set',
   ],
-  sources = globs('pool/*.java', 'monitoring/*.java', 'loadbalancing/*.java')
-    - DYNAMIC_HOST_SET_SOURCES
+  sources = globs('pool/*.java', 'monitoring/*.java', 'loadbalancing/*.java',
+                  exclude = [DYNAMIC_HOST_SET_SOURCES])
 )

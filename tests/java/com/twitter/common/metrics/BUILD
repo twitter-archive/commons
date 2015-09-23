@@ -14,15 +14,35 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name='metrics',
-  dependencies=[
-    '3rdparty:easymock',
-    '3rdparty:guava',
-    '3rdparty:junit',
+java_tests(name = 'metrics',
+  dependencies = [
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/junit',
+    '3rdparty/jvm/org/pantsbuild:junit-runner-annotations',
     'src/java/com/twitter/common/metrics',
-    'src/java/com/twitter/common/testing',
+    'src/java/com/twitter/common/objectsize',
+    'src/java/com/twitter/common/stats',
+    'src/java/com/twitter/common/testing/easymock',
     'src/java/com/twitter/common/util:system-mocks',
     'src/java/com/twitter/common/util:testing',
   ],
-  sources=globs('*.java')
+  sources = globs('*.java')
 )
+
+jvm_binary(name = 'metrics-precision',
+  main = 'com.twitter.common.metrics.demo.MetricsPrecisionDemo',
+  source = 'demo/MetricsPrecisionDemo.java',
+  dependencies = [
+    '3rdparty/jvm/com/twitter/common:metrics-data-sample',
+    'tests/java/com/twitter/common/metrics',
+    'src/java/com/twitter/common/metrics',
+    'src/java/com/twitter/common/objectsize',
+    'src/java/com/twitter/common/stats/testing:histogram',
+  ],
+  description="""
+Demo code to show precision/memory performance based on constructor
+parameters (used to find default values)
+  """
+)
+
+

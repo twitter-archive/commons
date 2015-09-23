@@ -14,18 +14,19 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name='application',
-  dependencies=[
-    '3rdparty:easymock',
-    '3rdparty:guava',
-    '3rdparty:guice',
-    '3rdparty:junit',
+java_tests(name = 'application',
+  dependencies = [
+    '3rdparty/jvm/org/easymock',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/inject:guice',
+    '3rdparty/jvm/junit',
     'src/java/com/twitter/common/application',
     'src/java/com/twitter/common/application:action',
+    'src/java/com/twitter/common/application/modules:stats',
     'src/java/com/twitter/common/args',
     'src/java/com/twitter/common/base',
     'src/java/com/twitter/common/net:util',
-    'src/java/com/twitter/common/testing',
+    'src/java/com/twitter/common/testing/easymock',
   ],
-  sources=rglobs('*.java') - ['modules/LifecycleModuleTest.java']
+  sources = rglobs('*.java', exclude = ['modules/LifecycleModuleTest.java'])
 )

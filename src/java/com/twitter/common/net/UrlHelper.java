@@ -149,7 +149,7 @@ public class UrlHelper {
     List<String> domainParts = Lists.newLinkedList(Arrays.asList(host.split("\\.")));
     List<String> levels = Lists.newLinkedList();
 
-    while (domainParts.size() > 1) {
+    while (!domainParts.isEmpty()) {
       levels.add(joiner.join(domainParts));
       domainParts.remove(0);
     }

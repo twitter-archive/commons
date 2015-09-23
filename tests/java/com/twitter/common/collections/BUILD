@@ -14,11 +14,11 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name='collections',
-  dependencies=[
-    '3rdparty:guava',
-    '3rdparty:junit',
+java_tests(name = 'collections',
+  dependencies = [
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/junit',
     'src/java/com/twitter/common/collections',
   ],
-  sources=globs('*.java'),
+  sources = globs('*.java'),
 )

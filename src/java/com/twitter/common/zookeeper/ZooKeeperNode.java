@@ -14,7 +14,6 @@ import com.google.common.base.Supplier;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.data.Stat;
 
@@ -62,9 +61,9 @@ public class ZooKeeperNode<T> implements Supplier<T> {
   private final Closure<T> dataUpdateListener;
 
   /**
-   * When a call to ZooKeeper.getData is made, the Watcher is added to a Set before the the network request is made
-   * and if the request fails, the Watcher remains. There's a problem where WatcherS can accumulate when there are
-   * failed requests, so they are set to instance fields and reused.
+   * When a call to ZooKeeper.getData is made, the Watcher is added to a Set before the the network
+   * request is made and if the request fails, the Watcher remains. There's a problem where Watcher
+   * can accumulate when there are failed requests, so they are set to instance fields and reused.
    */
   private final Watcher nodeWatcher;
   private final Watcher existenceWatcher;
@@ -165,7 +164,7 @@ public class ZooKeeperNode<T> implements Supplier<T> {
     safeToRewatchLock = new Object();
     safeToRewatch = false;
     nodeData = NO_DATA;
-    
+
     nodeWatcher = new Watcher() {
       @Override public void process(WatchedEvent event) {
         if (event.getState() == KeeperState.SyncConnected) {
@@ -182,8 +181,7 @@ public class ZooKeeperNode<T> implements Supplier<T> {
     };
 
     existenceWatcher = new Watcher() {
-      @Override
-      public void process(WatchedEvent event) {
+      @Override public void process(WatchedEvent event) {
         if (event.getType() == Watcher.Event.EventType.NodeCreated) {
           try {
             tryWatchDataNode();

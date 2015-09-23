@@ -23,11 +23,11 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
 
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 import com.twitter.common.text.tokenizer.LatinTokenizer;
 
 public class StockTokenCombinerTest {
-  private TokenStream stream;
+  private TwitterTokenStream stream;
 
   @Before
   public void setup() {

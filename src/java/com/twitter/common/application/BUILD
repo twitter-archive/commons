@@ -14,26 +14,25 @@
 # limitations under the License.
 # ==================================================================================================
 
-ACTION_SOURCES = set([
-    'Lifecycle.java',
-    'ShutdownRegistry.java',
-    'ShutdownStage.java',
-    'StartupRegistry.java',
-    'StartupStage.java',
-])
+ACTION_SOURCES = [
+  'Lifecycle.java',
+  'ShutdownRegistry.java',
+  'ShutdownStage.java',
+  'StartupRegistry.java',
+  'StartupStage.java',
+]
 
 java_library(name = 'action',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'application-action',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
-    '3rdparty:commons-lang',
-    '3rdparty:guava',
-    '3rdparty:guice',
+    '3rdparty/jvm/commons-lang',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/inject:guice',
     'src/java/com/twitter/common/base',
-    'src/java/com/twitter/common/net:util',
   ],
   sources = ACTION_SOURCES
 )
@@ -42,16 +41,16 @@ java_library(name = 'application',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'application',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
-    '3rdparty:guava',
-    '3rdparty:guice',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/inject:guice',
     'src/java/com/twitter/common/application/modules:applauncher',
     'src/java/com/twitter/common/application/modules:lifecycle',
     'src/java/com/twitter/common/args',
     'src/java/com/twitter/common/base',
     'src/java/com/twitter/common/net/http/handlers',
   ],
-  sources = globs('*.java') - ACTION_SOURCES
+  sources = globs('*.java', exclude = [ACTION_SOURCES])
 )

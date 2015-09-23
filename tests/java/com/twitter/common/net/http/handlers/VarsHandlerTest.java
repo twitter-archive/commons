@@ -44,14 +44,14 @@ public class VarsHandlerTest extends StatSupplierTestBase {
   @Test
   public void testGet() {
     expectVarScrape(ImmutableMap.<String, Object>of(
-        "str", "foobar",
+        "float", 4.16126,
         "int", 5,
-        "float", 4.16126
+        "str", "foobar"
     ));
 
     control.replay();
 
-    // expect the output to be sorted
+    // expect the output to be in the same order
     checkOutput(Arrays.asList(
         "float 4.16126",
         "int 5",

@@ -18,12 +18,12 @@ scala_library(name = 'stats',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'stats-ostrich-adapter',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
-    pants('3rdparty:guava'),
-    pants('3rdparty:ostrich'),
-    pants('src/java/com/twitter/common/stats:stats-provider'),
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/twitter:ostrich',
+    'src/java/com/twitter/common/stats:stats-provider',
   ],
   sources = globs('*.scala'),
 )

@@ -1,16 +1,30 @@
+# ==================================================================================================
+# Copyright 2014 Twitter, Inc.
+# --------------------------------------------------------------------------------------------------
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this work except in compliance with the License.
+# You may obtain a copy of the License in the LICENSE file, or at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==================================================================================================
+
 REV = '1.12'
 
-dependencies(name='jersey-client',
-  dependencies=[jar(org='com.sun.jersey', name='jersey-client', rev=REV).with_sources()])
+def make_lib(name):
+  jar_library(name=name,
+    jars=[
+      jar(org='com.sun.jersey', name=name, rev=REV)
+    ]
+  )
 
-dependencies(name='jersey-core',
-  dependencies=[jar(org='com.sun.jersey', name='jersey-core', rev=REV).with_sources()])
+make_lib('jersey-client')
+make_lib('jersey-core')
+make_lib('jersey-server')
+make_lib('jersey-servlet')
 
-dependencies(name='jersey-server',
-  dependencies=[jar(org='com.sun.jersey', name='jersey-server', rev=REV).with_sources()])
-
-dependencies(name='jersey-servlet',
-  dependencies=[jar(org='com.sun.jersey', name='jersey-servlet', rev=REV).with_sources()])
-
-dependencies(name='jersey-guice',
-  dependencies=[jar(org='com.sun.jersey.contribs', name='jersey-guice', rev=REV).with_sources()])

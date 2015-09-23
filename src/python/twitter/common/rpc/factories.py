@@ -69,35 +69,42 @@ class ClientFactory(object):
 
 def make_client(client_iface, *args, **kw):
   """
-    Ex, basic usage:
-      make_client(UserService, 'localhost', 9999)
+    Basic usage:
 
-    Ex, make an SSL socket server (see also make_server)
-      make_client(UserService, 'smf1-amk-25-sr1.prod.twitter.com', 9999,
-                  connection=TSocket.TSSLServerSocket,
-                  ca_certs=...)
+    >>> make_client(UserService, 'localhost', 9999)
 
-    Ex, make a finagle client:
-      make_client(UserService, 'localhost', 9999,
-                  protocol=TFinagleProtocol)
+    or make an SSL socket server (see also make_server)
+
+    >>> make_client(UserService, 'smf1-amk-25-sr1.prod.twitter.com', 9999,
+    ...             connection=TSocket.TSSLServerSocket,
+    ...             ca_certs=...)
+
+    Make a finagle client:
+
+    >>> make_client(UserService, 'localhost', 9999,
+    ...             protocol=TFinagleProtocol)
 
     And one with a client_id
-      make_client(UserService, 'localhost', 9999,
-                  protocol=functools.partial(TFinagleProtocol, client_id="test_client"))
 
-    (this is equivalent to
-      make_client(UserService, 'localhost', 9999,
-                  protocol=TFinagleProtocolWithClientId("test_client")))
+    >>> make_client(UserService, 'localhost', 9999,
+    ...             protocol=functools.partial(TFinagleProtocol, client_id="test_client"))
 
-    Ex, bind to a unix_socket instead of host/port pair (unix_socket is kwarg to
-    TSocket.TSocket):
-      make_client(UserService, unix_socket=...opened-fifo...)
+    this is equivalent to
+
+    >>> make_client(UserService, 'localhost', 9999,
+    ...             protocol=TFinagleProtocolWithClientId("test_client")))
+
+    Bind to a unix_socket instead of host/port pair (unix_socket is kwarg to
+    TSocket.TSocket)
+
+    >>> make_client(UserService, unix_socket=...opened-fifo...)
 
     N.B. This can also be used as a contextmanager or with contextlib.closing to
          automatically handle closing of the thrift connection (or manually via close()).
 
-      with make_client(...) as c:
-        c.somefunc()
+    >>> with make_client(...) as c:
+    ...   c.somefunc()
+
   """
   protocol_class = kw.pop('protocol', TBinaryProtocol.TBinaryProtocolAccelerated)
   transport_class = kw.pop('transport', TTransport.TFramedTransport)

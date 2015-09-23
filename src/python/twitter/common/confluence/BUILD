@@ -14,18 +14,15 @@
 # limitations under the License.
 # ==================================================================================================
 
-with open(os.path.join(os.path.dirname(__file__), '..', 'VERSION')) as fp:
-  VERSION = fp.read().strip()
-
 python_library(
   name = 'confluence',
   sources = rglobs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/log')
+    'src/python/twitter/common/log'
   ],
   provides = setup_py(
     name = 'twitter.common.confluence',
-    version = VERSION,
+    version = commons_version(),
     description = 'Confluence utilities for twitter.',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',

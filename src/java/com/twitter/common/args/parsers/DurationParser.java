@@ -33,7 +33,7 @@ import com.twitter.common.quantity.Time;
  * parameters for durations.
  *
  */
-public class DurationParser extends TypeParameterizedParser<Amount> {
+public class DurationParser extends TypeParameterizedParser<Amount<?, ?>> {
 
   private static final String SUFFIXES = "dhms";
   private static final Time[] TIME_UNITS = {Time.DAYS, Time.HOURS, Time.MINUTES, Time.SECONDS};
@@ -43,7 +43,7 @@ public class DurationParser extends TypeParameterizedParser<Amount> {
   }
 
   @Override
-  Amount doParse(ParserOracle parserOracle, String raw, List<Type> paramParsers)
+  Amount<?, ?> doParse(ParserOracle parserOracle, String raw, List<Type> paramParsers)
       throws IllegalArgumentException {
     Type secondParamClass = paramParsers.get(1);
     Preconditions.checkArgument(

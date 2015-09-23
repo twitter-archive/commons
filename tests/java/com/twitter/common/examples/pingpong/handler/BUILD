@@ -16,11 +16,11 @@
 
 java_tests(name='handler',
   dependencies=[
-    pants('3rdparty:easymock'),
-    pants('3rdparty:guava'),
-    pants('3rdparty:junit'),
-    pants('src/java/com/twitter/common/examples/pingpong/handler'),
-    pants('src/java/com/twitter/common/testing'),
+    '3rdparty/jvm/org/easymock',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/junit',
+    'src/java/com/twitter/common/examples/pingpong/handler',
+    'src/java/com/twitter/common/testing/easymock',
   ],
   sources=globs('*.java'),
 )

@@ -16,24 +16,24 @@
 
 python_test_suite(name = 'all',
   dependencies = [
-    pants(':dirutil'),
-    pants(':fileset'),
+    ':dirutil',
+    ':fileset',
   ]
 )
 
 python_tests(name = 'dirutil',
-  sources = globs('*.py') - ['fileset_test.py'],
+  sources = globs('*.py', exclude = ['fileset_test.py']),
   dependencies = [
-    pants('src/python/twitter/common/contextutil'),
-    pants('src/python/twitter/common/dirutil'),
-    pants('3rdparty/python:mox')
+    'src/python/twitter/common/contextutil',
+    'src/python/twitter/common/dirutil',
+    '3rdparty/python:mox'
   ]
 )
 
 python_tests(name = 'fileset',
   sources = ['fileset_test.py'],
   dependencies = [
-    pants('src/python/twitter/common/contextutil'),
-    pants('src/python/twitter/common/dirutil'),
+    'src/python/twitter/common/contextutil',
+    'src/python/twitter/common/dirutil',
   ]
 )

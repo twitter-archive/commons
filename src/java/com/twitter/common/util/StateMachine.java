@@ -562,7 +562,7 @@ public class StateMachine<T> {
         return true;
       }
 
-      Transition other = (Transition) o;
+      Transition<?> other = (Transition) o;
       return from.equals(other.from) && to.equals(other.to);
     }
 

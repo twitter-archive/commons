@@ -14,24 +14,22 @@
 # limitations under the License.
 # ==================================================================================================
 
-
-
 java_tests(name='thrift',
   dependencies=[
-    '3rdparty:easymock',
-    '3rdparty:guava',
-    '3rdparty:guice',
-    '3rdparty:jsr305',
-    '3rdparty:junit',
-    '3rdparty:servlet-api',
-    '3rdparty:thrift',
-    '3rdparty:tl4j',
-    '3rdparty:zookeeper',
+    '3rdparty/jvm/org/easymock',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/inject:guice',
+    '3rdparty/jvm/com/google/code/findbugs:jsr305',
+    '3rdparty/jvm/junit',
+    '3rdparty/jvm/javax/servlet:servlet-api',
+    '3rdparty/jvm/org/apache/thrift',
+    '3rdparty/jvm/com/google/testing:tl4j',
+    '3rdparty/jvm/org/apache/zookeeper',
     'src/java/com/twitter/common/base',
     'src/java/com/twitter/common/collections',
     'src/java/com/twitter/common/quantity',
     'src/java/com/twitter/common/stats',
-    'src/java/com/twitter/common/testing',
+    'src/java/com/twitter/common/testing/easymock',
     'src/java/com/twitter/common/thrift',
     'src/java/com/twitter/common/thrift/text',
     'src/java/com/twitter/common/thrift:testing',
@@ -43,6 +41,12 @@ java_tests(name='thrift',
     'src/thrift/com/twitter/common/thrift/text',
     'src/thrift/com/twitter/thrift',
   ],
-  sources=globs('*.java', 'callers/*.java', 'loadbalancing/*.java', 'monitoring/*.java', 'text/*.java'),
-  resources=pants('tests/resources/com/twitter/common/thrift/text')
+  sources = globs('*.java',
+                  'callers/*.java',
+                  'loadbalancing/*.java',
+                  'monitoring/*.java',
+                  'text/*.java'),
+  resources = [
+    'tests/resources/com/twitter/common/thrift/text'
+  ]
 )

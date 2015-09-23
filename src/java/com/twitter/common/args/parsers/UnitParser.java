@@ -33,23 +33,21 @@ import static com.google.common.base.Preconditions.checkArgument;
 /**
  * Unit parser.
  * Units are matched (case sensitively) against the result of {@link Unit#toString()}.
- *
- * @author William Farner
  */
 @ArgParser
-public class UnitParser extends NonParameterizedTypeParser<Unit> {
+public class UnitParser extends NonParameterizedTypeParser<Unit<?>> {
 
-  private final Map<String, Unit> unitValues;
+  private final Map<String, Unit<?>> unitValues;
 
   public UnitParser() {
     unitValues = Maps.uniqueIndex(
-        ImmutableList.<Unit>builder().add(Time.values()).add(Data.values()).build(),
+        ImmutableList.<Unit<?>>builder().add(Time.values()).add(Data.values()).build(),
         Functions.toStringFunction());
   }
 
   @Override
-  public Unit doParse(String raw) {
-    Unit unit = unitValues.get(raw);
+  public Unit<?> doParse(String raw) {
+    Unit<?> unit = unitValues.get(raw);
 
     checkArgument(unit != null, String.format(
         "No Units found matching %s, options: (Time): %s, (Data): %s",

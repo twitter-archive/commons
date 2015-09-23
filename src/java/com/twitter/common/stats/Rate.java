@@ -63,6 +63,10 @@ public class Rate<T extends Number> extends SampledStat<Double> {
     return new Builder<T>(input);
   }
 
+  public static Builder<Long> of(String name, Supplier<Long> input) {
+    return new Builder<Long>(name, input);
+  }
+
   public static Builder<AtomicInteger> of(String name, AtomicInteger input) {
     return new Builder<AtomicInteger>(name, input);
   }
@@ -102,6 +106,11 @@ public class Rate<T extends Number> extends SampledStat<Double> {
     Builder(String name, final T input) {
       this.name = name;
       inputAccessor = Suppliers.ofInstance(input);
+    }
+
+    Builder(String name, Supplier<T> input) {
+      this.name = name;
+      inputAccessor = input;
     }
 
     Builder(final Stat<T> input) {

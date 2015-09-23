@@ -25,6 +25,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -34,35 +35,29 @@ import com.twitter.common.args.apt.Configuration;
 
 /**
  * Description of a positional command line argument.
- *
- * @author Nick Kallen
  */
-public class PositionalInfo<T> extends ArgumentInfo<List<T>> {
-  private final String canonicalName;
-  private final TypeToken<T> elementType;
-
-  public PositionalInfo(
-      String canonicalName,
-      String help,
-      Arg<List<T>> arg,
-      TypeToken<List<T>> type,
-      TypeToken<T> elementType,
-      List<Annotation> verifierAnnotations,
-      @Nullable Class<? extends Parser<? extends List<T>>> parser) {
-
-    super(help, arg, type, verifierAnnotations, parser);
-    this.elementType = elementType;
-    this.canonicalName = canonicalName;
+public final class PositionalInfo<T> extends ArgumentInfo<List<T>> {
+  /**
+   * Factory method to create a PositionalInfo from a field.
+   *
+   * @param field The field must contain a {@link Arg Arg&lt;List&lt;?&gt;&gt;}. The List&lt;?&gt;
+   *     represents zero or more positional arguments.
+   * @return a PositionalInfo describing the field.
+   */
+  static PositionalInfo<?> createFromField(Field field) {
+    return createFromField(field, null);
   }
 
   /**
-   * Factory method to create a PositionalInfo from a java.lang.reflect.Field.
+   * Factory method to create a PositionalInfo from a field.
    *
-   * @param field The field must contain a Arg<List<?>>. The List<?> represents zero or more
-   *     positional arguments.
-   * @return a PositionalInfo
+   * @param field The field must contain a {@link Arg Arg&lt;List&lt;?&gt;&gt;}. The List&lt;?&gt;
+   *     represents zero or more positional arguments.
+   * @param instance The object containing the non-static Arg instance or else null if the Arg
+   *     field is static.
+   * @return a PositionalInfo describing the field.
    */
-  static PositionalInfo createFromField(Field field) {
+  static PositionalInfo<?> createFromField(Field field, @Nullable Object instance) {
     Preconditions.checkNotNull(field);
     Positional positional = field.getAnnotation(Positional.class);
     if (positional == null) {
@@ -75,34 +70,42 @@ public class PositionalInfo<T> extends ArgumentInfo<List<T>> {
         "Field is annotated for positional parsing but is not of Arg<List<?>> type");
     Type nestedType = TypeUtil.extractTypeToken(TypeUtil.getTypeParam(field));
 
-    @SuppressWarnings("unchecked")
-    PositionalInfo positionalInfo = new PositionalInfo(
+    @SuppressWarnings({"unchecked", "rawtypes"}) // we have no way to know the type here
+    PositionalInfo<?> positionalInfo = new PositionalInfo(
         field.getDeclaringClass().getCanonicalName() + "." + field.getName(),
+        "[positional args]",
         positional.help(),
-        ArgumentInfo.getArgForField(field),
+        ArgumentInfo.getArgForField(field, Optional.fromNullable(instance)),
         TypeUtil.getTypeParamTypeToken(field),
         TypeToken.of(nestedType),
         Arrays.asList(field.getAnnotations()),
         positional.parser());
+
     return positionalInfo;
   }
 
+  private final TypeToken<T> elementType;
+
+  private PositionalInfo(
+      String canonicalName,
+      String name,
+      String help,
+      Arg<List<T>> arg,
+      TypeToken<List<T>> type,
+      TypeToken<T> elementType,
+      List<Annotation> verifierAnnotations,
+      @Nullable Class<? extends Parser<? extends List<T>>> parser) {
+
+    // TODO: https://github.com/twitter/commons/issues/353, consider future support of
+    // argFile for Positional arguments.
+    super(canonicalName, name, help, false, arg, type, verifierAnnotations, parser);
+    this.elementType = elementType;
+  }
+
   /**
-   * Get the "name" of the positional argument. Positional arguments, unlike optional arguments,
-   * don't have names (like `-foo=bar`). However, when printing help info, we use the name to
-   * represent the positional argument.
-   *
-   * @return the string "[positional args]"
+   * Parses the positional args and stores the results in the {@link Arg} described by this
+   * {@code PositionalInfo}.
    */
-  @Override
-  public String getName() {
-    return "[positional args]";
-  }
-
-  String getCanonicalName() {
-    return this.canonicalName;
-  }
-
   void load(final ParserOracle parserOracle, List<String> positionalArgs) {
     final Parser<? extends T> parser = parserOracle.get(elementType);
     List<T> assignmentValue = Lists.newArrayList(Iterables.transform(positionalArgs,

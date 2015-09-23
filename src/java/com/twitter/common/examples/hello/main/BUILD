@@ -18,7 +18,7 @@
 
 jvm_binary(name = 'main',
   dependencies = [
-    pants('src/java/com/twitter/common/examples/hello/greet'),
+    'src/java/com/twitter/common/examples/hello/greet',
   ],
   source = 'HelloMain.java',
   main = 'com.twitter.common.examples.hello.main.HelloMain',

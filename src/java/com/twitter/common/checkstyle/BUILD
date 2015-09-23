@@ -14,18 +14,15 @@
 # limitations under the License.
 # ==================================================================================================
 
-
-java_library(name = 'checkstyle',
-  provides = artifact(
-    org = 'com.twitter.common',
-    name = 'checkstyle',
-    repo = 'build-support/commons/ivy:public',
+java_library(name='checkstyle',
+  provides=artifact(
+    org='com.twitter.common',
+    name='checkstyle',
+    repo=public,
   ),
-  dependencies = [
-    '3rdparty:antlr2',
-    '3rdparty:checkstyle',
-    '3rdparty:commons-beanutils',
-    '3rdparty:guava',
+  dependencies=[
+    '3rdparty/jvm/com/puppycrawl/tools:checkstyle',
+    '3rdparty/jvm/com/google/guava',
   ],
-  sources = globs('*.java'),
+  sources=globs('*.java'),
 )

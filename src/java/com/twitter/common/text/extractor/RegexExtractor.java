@@ -21,12 +21,12 @@ import java.util.regex.Pattern;
 
 import com.google.common.base.Preconditions;
 
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 
 /**
  * Extracts entities from text according to a given regular expression.
  */
-public class RegexExtractor extends TokenStream {
+public class RegexExtractor extends TwitterTokenStream {
   private Pattern regexPattern;
   private int startGroup = 0;
   private int endGroup = 0;
@@ -78,11 +78,10 @@ public class RegexExtractor extends TokenStream {
   }
 
   /**
-   * Reset the extractor to use a new {@code CharSequence} as input.
-   *
-   * @param input {@code CharSequence} from which to extract the entities.
+   * Reset the extractor. User reset(CharSequence input) to update InputCharSequence attribute.
    */
-  public void reset(CharSequence input) {
+  public void reset() {
+    CharSequence input = inputCharSequence();
     Preconditions.checkNotNull(input);
     updateInputCharSequence(input);
     clearAttributes();
@@ -109,7 +108,7 @@ public class RegexExtractor extends TokenStream {
   }
 
   @Override
-  public boolean incrementToken() {
+  public final boolean incrementToken() {
     if (matcher != null && matcher.find()) {
       int start = matcher.start(startGroup);
       int end = matcher.end(endGroup);

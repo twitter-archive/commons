@@ -14,36 +14,34 @@
 # limitations under the License.
 # ==================================================================================================
 
-
-
-TIMED_SOURCES = set([ 'TimedInterceptor.java' ])
+TIMED_SOURCES = ['TimedInterceptor.java']
 
 java_library(name = 'inject',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'inject',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
-    '3rdparty:commons-lang',
-    '3rdparty:guava',
-    '3rdparty:guice',
-    '3rdparty:guice-multibindings',
+    '3rdparty/jvm/commons-lang',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/inject:guice',
+    '3rdparty/jvm/com/google/inject/extensions:guice-multibindings',
   ],
-  sources = globs('*.java') - TIMED_SOURCES
+  sources = globs('*.java', exclude = [TIMED_SOURCES])
 )
 
 java_library(name = 'timed',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'inject-timed',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
-    '3rdparty:aopalliance',
-    '3rdparty:commons-lang',
-    '3rdparty:guava',
-    '3rdparty:guice',
+    '3rdparty/jvm/aopalliance',
+    '3rdparty/jvm/commons-lang',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/inject:guice',
     'src/java/com/twitter/common/stats',
     'src/java/com/twitter/common/stats:time-series',
     ':inject',

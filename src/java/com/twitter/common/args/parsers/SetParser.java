@@ -36,16 +36,16 @@ import com.twitter.common.args.Parsers;
  * @author William Farner
  */
 @ArgParser
-public class SetParser extends TypeParameterizedParser<Set> {
+public class SetParser extends TypeParameterizedParser<Set<?>> {
 
   public SetParser() {
     super(1);
   }
 
   @Override
-  Set doParse(final ParserOracle parserOracle, String raw, List<Type> typeParams) {
+  Set<?> doParse(final ParserOracle parserOracle, String raw, List<Type> typeParams) {
     final Type setType = typeParams.get(0);
-    final Parser parser = parserOracle.get(TypeToken.of(setType));
+    final Parser<?> parser = parserOracle.get(TypeToken.of(setType));
 
     return ImmutableSet.copyOf(Iterables.transform(Parsers.MULTI_VALUE_SPLITTER.split(raw),
         new Function<String, Object>() {

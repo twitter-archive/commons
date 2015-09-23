@@ -1,3 +1,4 @@
+
 // =================================================================================================
 // Copyright 2011 Twitter, Inc.
 // -------------------------------------------------------------------------------------------------
@@ -152,11 +153,11 @@ public class TTextProtocolTest {
   }
 
   // For TUnion structure, TTextProtocol can only handle serialization, but not deserialization.
-// Because when deserialization, we loose the context of which thrift class we are currently at.
-// Specifically, because we rely on the callstack to determine which structure is currently being
-// parsed, but TUnion actually implements of read/write. So when the parser comes to any TUnion,
-// it only knows TUnion from the stack, but not the specific thrift struct.
-// So here we only test serialization, not the deserialization part.
+  // Because when deserialization, we loose the context of which thrift class we are currently at.
+  // Specifically, because we rely on the callstack to determine which structure is currently being
+  // parsed, but TUnion actually implements of read/write. So when the parser comes to any TUnion,
+  // it only knows TUnion from the stack, but not the specific thrift struct.
+  // So here we only test serialization, not the deserialization part.
   @Test
   public void tTextProtocolWriteUnionTest() throws IOException, TException {
     TTextProtocolTestMsgUnion msg = new TTextProtocolTestMsgUnion();
@@ -168,10 +169,10 @@ public class TTextProtocolTest {
 
     String  expectedMsg =
         "{\n" +
-            "  \"u\": {\n" +
-            "    \"f2\": 2\n" +
-            "  }\n" +
-            "}";
+        "  \"u\": {\n" +
+        "    \"f2\": 2\n" +
+        "  }\n" +
+        "}";
 
     assertEquals(expectedMsg, baos.toString());
   }

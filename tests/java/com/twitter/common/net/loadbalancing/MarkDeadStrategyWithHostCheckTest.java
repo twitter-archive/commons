@@ -29,7 +29,7 @@ import com.twitter.common.base.Closure;
 import com.twitter.common.net.loadbalancing.LoadBalancingStrategy.ConnectionResult;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
-import com.twitter.common.testing.EasyMockTest;
+import com.twitter.common.testing.easymock.EasyMockTest;
 import com.twitter.common.util.BackoffDecider;
 import com.twitter.common.util.Random;
 import com.twitter.common.util.TruncatedBinaryBackoff;

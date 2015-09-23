@@ -18,15 +18,15 @@ java_library(name='scribe',
   provides=artifact(
     org='com.twitter.common',
     name='logging-scribe',
-    repo=pants('build-support/commons/ivy:public'),
+    repo=public,
   ),
   dependencies=[
-    pants('3rdparty:guava'),
-    pants('3rdparty:thrift'),
-    pants('src/java/com/twitter/common/logging'),
-    pants('src/java/com/twitter/common/quantity'),
-    pants('src/java/com/twitter/common/thrift'),
-    pants('src/thrift/org/apache/scribe:scribe_client-0.1.2'),
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/org/apache/thrift',
+    'src/java/com/twitter/common/logging',
+    'src/java/com/twitter/common/quantity',
+    'src/java/com/twitter/common/thrift',
+    'src/thrift/org/apache/scribe:scribe_client-0.1.2',
   ],
   sources=[ 'ScribeLog.java' ]
 )

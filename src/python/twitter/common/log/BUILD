@@ -14,19 +14,16 @@
 # limitations under the License.
 # ==================================================================================================
 
-with open(os.path.join(os.path.dirname(__file__), '..', 'VERSION')) as fp:
-  VERSION = fp.read().strip()
-
 python_library(
   name = "log",
   sources = rglobs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/dirutil'),
-    pants('src/python/twitter/common/options'),
+    'src/python/twitter/common/dirutil',
+    'src/python/twitter/common/options',
   ],
   provides = setup_py(
     name = 'twitter.common.log',
-    version = VERSION,
+    version = commons_version(),
     description = 'twitter.common logging handlers.',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',
@@ -43,7 +40,7 @@ python_library(
 python_library(
   name = "log-scribe",
   dependencies = [
-    pants(':log'),
-    pants('src/thrift/org/apache/scribe:py-scribe'),
+    ':log',
+    'src/thrift/org/apache/scribe:py-scribe',
   ]
 )

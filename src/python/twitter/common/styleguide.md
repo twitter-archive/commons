@@ -69,15 +69,6 @@ Within each collection, imports should be lexically ordered. For example:
       from twitter.common.rpc import make_client
       from twitter.common.rpc.finagle import TFinagleProtocolWithClientId
 
-      from gen.twitter.gizmoduck import UserService
-      from gen.twitter.gizmoduck.models import ttypes as UserServiceModels
-      from gen.twitter.gizmoduck.ttypes import (
-          AccessDenied,
-          InternalServerError,
-          LookupContext,
-          OverCapacity,
-          QueryFields)
-
       from thrift.Thrift import TApplicationException
       import zookeeper
 

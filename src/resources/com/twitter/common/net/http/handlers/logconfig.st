@@ -18,8 +18,10 @@ limitations under the License.
 
 <html>
   <title>Logger Config</title>
+    <head>
+      <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    </head>
     <body>
-      <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
       <table border=1 cellpadding=0 cellspacing=0 align=left>
         <tr>
           <th>Logger</th>

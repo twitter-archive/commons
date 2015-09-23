@@ -55,9 +55,14 @@ limitations under the License.
         <property name="basedir" value="${basedir}"/>
           -->
 
+    <!-- TODO(John Sirois): Eliminate the strange `__shaded_by_pants__` package prefixes for
+         twitter custom checks from this configuration when this issue is fixed:
+           https://github.com/pantsbuild/pants/issues/1906
+    -->
+
     <!-- We use this to turn off specific checks for specific file types.
     -->
-    <module name="com.twitter.common.checkstyle.SplitSuppressionFilter">
+    <module name="__shaded_by_pants__.com.twitter.common.checkstyle.SplitSuppressionFilter">
       <property name="files" value="${checkstyle.suppression.files}"/>
     </module>
 
@@ -114,7 +119,7 @@ limitations under the License.
 
       <!-- Checks for Javadoc comments.                     -->
       <!-- See http://checkstyle.sf.net/config_javadoc.html -->
-      <module name="com.twitter.common.checkstyle.JavadocMethodRegexCheck">
+      <module name="__shaded_by_pants__.com.twitter.common.checkstyle.JavadocMethodRegexCheck">
         <!-- don't require javadoc for methods shorter than or equal to
         this many lines (including opening & closing brace lines)
         -->
@@ -136,12 +141,14 @@ limitations under the License.
         <property name="checkFirstSentence" value="false"/>
         <property name="checkEmptyJavadoc" value="true"/>
       </module>
-      <module name="BooleanExpressionComplexity">
-        <property name="max" value="4"/>
-      </module>
 
       <!-- Checks for Naming Conventions.                  -->
-      <module name="ClassTypeParameterName"/>
+      <module name="ClassTypeParameterName">
+        <property name="format" value="^[A-Z][A-Z0-9]?$"/>
+      </module>
+      <module name="MethodTypeParameterName">
+        <property name="format" value="^[A-Z][A-Z0-9]?$"/>
+      </module>
       <module name="ConstantName"/>
       <module name="LocalFinalVariableName">
         <!-- allow VAR_NAME and varName in local final variables,
@@ -153,10 +160,9 @@ limitations under the License.
       </module>
       <module name="LocalVariableName"/>
       <module name="MemberName"/>
-      <module name="com.twitter.common.checkstyle.NonOverriddenMethodName">
+      <module name="__shaded_by_pants__.com.twitter.common.checkstyle.NonOverriddenMethodName">
         <property name="format" value="^(([a-z][a-zA-Z0-9]*)|(\$tag))$" />
       </module>
-      <module name="MethodTypeParameterName"/>
       <module name="PackageName"/>
       <module name="ParameterName"/>
       <module name="StaticVariableName"/>
@@ -189,7 +195,8 @@ com.twitter. Each group should be separated by a single blank line." />
       <!-- See http://checkstyle.sf.net/config_sizes.html -->
       <module name="LineLength">
         <property name="max" value="100"/>
-        <property name="ignorePattern" value="^import"/>
+        <!-- Ignore import statements and javadoc comments                 -->
+        <property name="ignorePattern" value="^import.*$|^ *\*( |[^/]) *.*$"/>
       </module>
       <module name="OuterTypeNumber"/>
 
@@ -290,7 +297,7 @@ classpath." />
       <module name="SuperClone"/>
       <module name="SuperFinalize"/>
       <!-- disallow throws Throwable unless a superclass or interface requires this -->
-      <module name="com.twitter.common.checkstyle.IllegalThrowsCheck"/>
+      <module name="__shaded_by_pants__.com.twitter.common.checkstyle.IllegalThrowsCheck"/>
       <module name="PackageDeclaration">
         <property name="ignoreDirectoryName" value="true"/>
       </module>

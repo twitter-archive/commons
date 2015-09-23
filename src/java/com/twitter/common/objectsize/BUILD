@@ -18,10 +18,10 @@ java_library(name='objectsize',
   provides=artifact(
     org='com.twitter.common',
     name='objectsize',
-    repo='build-support/commons/ivy:public',
+    repo=public,
   ),
   dependencies=[
-    '3rdparty:guava',
+    '3rdparty/jvm/com/google/guava',
   ],
   sources=globs('*.java')
 )

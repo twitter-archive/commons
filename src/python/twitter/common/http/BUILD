@@ -14,20 +14,17 @@
 # limitations under the License.
 # ==================================================================================================
 
-with open(os.path.join(os.path.dirname(__file__), '..', 'VERSION')) as fp:
-  VERSION = fp.read().strip()
-
 python_library(
   name = "http",
   sources = globs("*.py"),
   dependencies = [
-    pants('src/python/twitter/common/lang'),
-    pants('src/python/twitter/common/log'),
-    pants('3rdparty/python:bottle'),
+    'src/python/twitter/common/lang',
+    'src/python/twitter/common/log',
+    '3rdparty/python:bottle',
   ],
   provides = setup_py(
     name = 'twitter.common.http',
-    version = VERSION,
+    version = commons_version(),
     description = 'twitter.common wrappers for bottle and simple diagnostics endpoints.',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',

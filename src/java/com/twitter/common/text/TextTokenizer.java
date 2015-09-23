@@ -2,7 +2,7 @@ package com.twitter.common.text;
 
 import com.google.common.base.Preconditions;
 import com.twitter.common.text.combiner.PunctuationExceptionCombiner;
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 import com.twitter.common.text.token.TokenizedCharSequence;
 import com.twitter.common.text.token.TokenizedCharSequenceStream;
 import com.twitter.common.text.tokenizer.LatinTokenizer;
@@ -10,19 +10,19 @@ import com.twitter.common.text.tokenizer.LatinTokenizer;
 import java.util.List;
 
 public abstract class TextTokenizer {
-  protected TokenStream tokenizationStream =
+  protected TwitterTokenStream tokenizationStream =
       new TokenizedCharSequenceStream(applyDefaultChain(
         new PunctuationExceptionCombiner.Builder(
           new LatinTokenizer.Builder().build()).build()));
 
-  public abstract TokenStream applyDefaultChain(TokenStream tokenizer);
+  public abstract TwitterTokenStream applyDefaultChain(TwitterTokenStream tokenizer);
 
   /**
-   * Returns {@code TokenStream} to tokenize a text.
+   * Returns {@code TwitterTokenStream} to tokenize a text.
    *
-   * @return {@code TokenStream} to tokenize the text
+   * @return {@code TwitterTokenStream} to tokenize the text
    */
-  public TokenStream getDefaultTokenStream() {
+  public TwitterTokenStream getDefaultTokenStream() {
     return tokenizationStream;
   }
 
@@ -45,7 +45,7 @@ public abstract class TextTokenizer {
    */
   public List<String> tokenizeToStrings(CharSequence input) {
     Preconditions.checkNotNull(input);
-    TokenStream tokenizer = getDefaultTokenStream();
+    TwitterTokenStream tokenizer = getDefaultTokenStream();
     tokenizer.reset(input);
     return tokenizer.toStringList();
   }

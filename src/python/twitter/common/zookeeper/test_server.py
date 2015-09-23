@@ -66,7 +66,7 @@ class ZookeeperServer(object):
   class NotStarted(Error): pass
 
   BUILD_COMMAND = """
-    ./pants goal binary --binary-deployjar src/java/com/twitter/common/zookeeper/testing/angrybird
+    ./pants binary src/java/com/twitter/common/zookeeper/testing/angrybird
   """
   COMMAND = "java -jar dist/angrybird.jar -thrift_port %(thrift_port)s -zk_port %(zookeeper_port)s"
   BUILT = False

@@ -24,8 +24,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Annotation for a command line argument.
- *
- * @author William Farner
  */
 @Target(FIELD)
 @Retention(RUNTIME)
@@ -49,7 +47,11 @@ public @interface CmdLine {
    * The parser class to use for parsing this argument.  The parser must return the same type as
    * the field being annotated.
    */
-  // The default is fully qualified to work around an apt bug:
-  // http://bugs.sun.com/view_bug.do?bug_id=6512707
-  Class<? extends Parser> parser() default com.twitter.common.args.Parser.class;
+  Class<? extends Parser<?>> parser() default NoParser.class;
+
+  /**
+   * The flag to indicate whether an argument file is accepted for this argument.
+   *
+   */
+  boolean argFile() default false;
 }

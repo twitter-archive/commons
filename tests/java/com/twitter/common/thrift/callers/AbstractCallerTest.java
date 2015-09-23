@@ -18,7 +18,7 @@ package com.twitter.common.thrift.callers;
 
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
-import com.twitter.common.testing.EasyMockTest;
+import com.twitter.common.testing.easymock.EasyMockTest;
 import org.junit.Before;
 
 import java.lang.reflect.Method;

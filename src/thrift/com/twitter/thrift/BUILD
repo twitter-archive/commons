@@ -14,16 +14,32 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_thrift_library(name = 'thrift',
-  provides = artifact(
-    org = 'com.twitter.common',
-    name = 'service-thrift',
-    repo = pants('build-support/commons/ivy:public'),
-  ),
-  sources = globs('*.thrift')
+java_thrift_library(
+  name='thrift',
+  sources=globs('*.thrift'),
+  provides=artifact(
+    org='com.twitter.common',
+    name='service-thrift',
+    repo=public,
+  )
 )
 
 python_thrift_library(
-  name = 'py-thrift',
-  sources = globs('*.thrift')
+  name='py-thrift',
+  sources=globs('*.thrift'),
+  provides = setup_py(
+    name = 'twitter.common.service-thrift',
+    version = commons_version(),
+    description = "twitter.common thrift stubs for metadata used with Twitter's service discovery "
+                  "libraries.",
+    url = 'https://github.com/twitter/commons',
+    license = 'Apache License, Version 2.0',
+    zip_safe = True,
+    classifiers = [
+      'Intended Audience :: Developers',
+      'License :: OSI Approved :: Apache Software License',
+      'Operating System :: OS Independent',
+      'Programming Language :: Python',
+    ]
+  )
 )

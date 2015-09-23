@@ -1,17 +1,33 @@
-language: python
+# Enables support for a docker container-based build
+# which should provide faster startup times and beefier
+# "machines". This is also required in order to use the
+# cache configured below.
+sudo: false
 
-python:
-  - "2.6"
-  - "2.7"
+before_cache:
+    # The `ivydata-*.properties` & root level `*.{properties,xml}` files'
+    # effect on resolution time is in the noise, but they are
+    # re-timestamped in internal comments and fields on each run and this
+    # leads to travis-ci cache thrash.  Kill these files before the cache
+    # check to avoid un-needed cache re-packing and re-upload (a ~100s
+    # operation).
+  - find $HOME/.ivy2/twitter-commons -type f -name "ivydata-*.properties" -print -delete
+  - rm -fv $HOME/.ivy2/twitter-commons/*.{css,properties,xml,xsl}
+  # The stats cache contains timestamped reports unused by CI but that
+  # thrash the cache.  Skip caching these.
+  - rm -rf $HOME/.cache/pants/stats
+
+cache:
+  directories:
+    - $HOME/.cache/pants
+    - $HOME/.ivy2/twitter-commons
+
+language: java
 
 jdk:
-  - openjdk6
   - openjdk7
 
 script: |
-  java -version; ./build-support/bin/ci.sh -d
-
-notifications:
-  email:
-      - john.sirois@gmail.com
+  java -version
+  ./build-support/bin/ci.sh
 

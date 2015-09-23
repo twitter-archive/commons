@@ -18,10 +18,11 @@ java_library(name='metrics',
   provides=artifact(
     org='com.twitter.common',
     name='metrics',
-    repo='build-support/commons/ivy:public',
+    repo=public,
   ),
-  dependencies=[
-    '3rdparty:guava',
+  dependencies = [
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/twitter:jsr166e',
     'src/java/com/twitter/common/base',
     'src/java/com/twitter/common/quantity',
     'src/java/com/twitter/common/stats:util',

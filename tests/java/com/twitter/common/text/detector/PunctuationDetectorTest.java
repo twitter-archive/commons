@@ -18,7 +18,6 @@ package com.twitter.common.text.detector;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import java.util.regex.Pattern;
 
@@ -26,10 +25,8 @@ import com.google.common.collect.ImmutableSet;
 
 import org.junit.Test;
 
-import com.twitter.common.text.token.TokenStream;
-import com.twitter.common.text.token.attribute.CharSequenceTermAttribute;
+import com.twitter.common.text.token.TwitterTokenStream;
 import com.twitter.common.text.token.attribute.TokenType;
-import com.twitter.common.text.token.attribute.TokenTypeAttribute;
 import com.twitter.common.text.tokenizer.RegexTokenizer;
 
 public class PunctuationDetectorTest {
@@ -37,15 +34,13 @@ public class PunctuationDetectorTest {
   public void testNoPunctuationDetector() {
     // This test case shows that, without a punctuation detector, the punctuation characters do not
     // have the correct token type.
-    TokenStream stream =
+    TwitterTokenStream stream =
         new RegexTokenizer.Builder().setDelimiterPattern(Pattern.compile(" ")).build();
     stream.reset("When I was young , I liked insects .");
 
-    TokenTypeAttribute typeAttr = stream.getAttribute(TokenTypeAttribute.class);
-
     int cnt = 0;
     while (stream.incrementToken()) {
-      assertFalse(TokenType.PUNCTUATION.equals(typeAttr.getType()));
+      assertFalse(TokenType.PUNCTUATION.equals(stream.type()));
       cnt++;
     }
     // Make sure we've consumed the correct number of tokens.
@@ -56,21 +51,19 @@ public class PunctuationDetectorTest {
   public void testPunctuationDetector() {
     // Compare with testNoPunctuationDetector(): now we add a punctuation detector, and the
     // punctuation characters have the correct types.
-    TokenStream mockStream =
+    TwitterTokenStream regexTokenizerStream =
       new RegexTokenizer.Builder().setDelimiterPattern(Pattern.compile(" ")).build();
-    mockStream.reset("When I was young , I liked insects .");
+    regexTokenizerStream.reset("When I was young , I liked insects .");
 
-    PunctuationDetector stream = new PunctuationDetector(mockStream);
-    CharSequenceTermAttribute termAttr = stream.getAttribute(CharSequenceTermAttribute.class);
-    TokenTypeAttribute typeAttr = stream.getAttribute(TokenTypeAttribute.class);
+    PunctuationDetector stream = new PunctuationDetector.Builder(regexTokenizerStream).build();
 
     int cnt = 0;
     while (stream.incrementToken()) {
-      String token = termAttr.getTermString();
+      String token = stream.term().toString();
       if (",".equals(token) || ".".equals(token)) {
-        assertEquals(typeAttr.getType(), TokenType.PUNCTUATION);
+        assertEquals(TokenType.PUNCTUATION, stream.type());
       } else {
-        assertFalse(TokenType.PUNCTUATION.equals(typeAttr.getType()));
+        assertFalse(TokenType.PUNCTUATION.equals(stream.type()));
       }
       cnt++;
     }
@@ -81,10 +74,10 @@ public class PunctuationDetectorTest {
 
     cnt = 0;
     while (stream.incrementToken()) {
-      if (ImmutableSet.of("[", "、", "。", "」").contains(termAttr.getTermString())) {
-        assertEquals(typeAttr.getType(), TokenType.PUNCTUATION);
+      if (ImmutableSet.of("[", "、", "。", "」").contains(stream.term().toString())) {
+        assertEquals(stream.type(), TokenType.PUNCTUATION);
       } else {
-        assertFalse(TokenType.PUNCTUATION.equals(typeAttr.getType()));
+        assertFalse(TokenType.PUNCTUATION.equals(stream.type()));
       }
       cnt++;
     }
@@ -93,18 +86,17 @@ public class PunctuationDetectorTest {
 
   @Test
   public void testAllPunctuation() {
-    TokenStream mockStream =
+    TwitterTokenStream regexTokenizerStream =
         new RegexTokenizer.Builder().setDelimiterPattern(Pattern.compile(" ")).build();
-    mockStream.reset("When I was young , I liked insects .");
+    regexTokenizerStream.reset("When I was young , I liked insects .");
 
-    PunctuationDetector stream = new PunctuationDetector(mockStream);
-    TokenTypeAttribute typeAttr = stream.getAttribute(TokenTypeAttribute.class);
+    PunctuationDetector stream = new PunctuationDetector.Builder(regexTokenizerStream).build();
 
     // Variations of middle dots.
     stream.reset("· · • ∙ ⋅ ・ ･ ● ○ ◎");
     int cnt = 0;
     while (stream.incrementToken()) {
-      assertEquals(TokenType.PUNCTUATION, typeAttr.getType());
+      assertEquals(TokenType.PUNCTUATION, stream.type());
       cnt++;
     }
     assertEquals(10, cnt);
@@ -112,19 +104,52 @@ public class PunctuationDetectorTest {
 
   @Test
   public void testNewlineIsPunctuation() {
-    TokenStream mockStream =
+    TwitterTokenStream regexTokenizerStream =
         new RegexTokenizer.Builder().setDelimiterPattern(Pattern.compile(" ")).build();
-    mockStream.reset("Newline \n as punctuation");
-    PunctuationDetector stream = new PunctuationDetector(mockStream);
-    TokenTypeAttribute typeAttr = stream.getAttribute(TokenTypeAttribute.class);
-    CharSequenceTermAttribute termAttr = stream.getAttribute(CharSequenceTermAttribute.class);
+    regexTokenizerStream.reset("Newline \n as punctuation");
+    PunctuationDetector stream = new PunctuationDetector.Builder(regexTokenizerStream).build();
     int cnt = 0;
     while (stream.incrementToken()) {
-      if (termAttr.getTermString().equals("\n")) {
+      if (stream.term().toString().equals("\n")) {
         cnt++;
-        assertEquals(TokenType.PUNCTUATION, typeAttr.getType());
+        assertEquals(TokenType.PUNCTUATION, stream.type());
       }
     }
     assertEquals(1, cnt);
+  }
+
+  @Test
+  public void testCombiningMarks() {
+    TwitterTokenStream regexTokenizerStream =
+            new RegexTokenizer.Builder().setDelimiterPattern(Pattern.compile(" ")).build();
+    // escaped sequence for "word ́ ̋ ̔ ̛ ̧ word ِ ٓ ा ै ิ word"
+    regexTokenizerStream.reset("word \u0301 \u030b \u0314 \u031b \u0327 word \u0650 \u0653 \u093e \u0948 \u0e34 word");
+
+    // Test behavior with regard to combining marks in various languages
+    PunctuationDetector stream = new PunctuationDetector.Builder(regexTokenizerStream).build();
+
+    int cnt = 0;
+    while (stream.incrementToken()) {
+      if ("word".equals(stream.term().toString())) {
+        assertFalse(TokenType.PUNCTUATION.equals(stream.type()));
+      } else {
+        assertEquals(TokenType.PUNCTUATION, stream.type());
+      }
+      cnt++;
+    }
+    assertEquals(13, cnt);
+
+    // Test with combining marks not treated as punctuation
+    regexTokenizerStream.reset();
+    stream = new PunctuationDetector.Builder(regexTokenizerStream)
+            .useCombiningMarks(false)
+            .build();
+
+    cnt = 0;
+    while (stream.incrementToken()) {
+      assertFalse(TokenType.PUNCTUATION.equals(stream.type()));
+      cnt++;
+    }
+    assertEquals(13, cnt);
   }
 }

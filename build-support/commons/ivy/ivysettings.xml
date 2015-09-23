@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+
 <!--
 =================================================================================================
 Copyright 2011 Twitter, Inc.
@@ -18,25 +19,17 @@ limitations under the License.
 -->
 
 <ivysettings>
-  <property name="ivy.cache.dir" value="${user.home}/.ivy2/twitter-commons" override="false"/>
-
   <macrodef name="_remote_resolvers">
     <chain returnFirst="true">
       <ibiblio name="maven2"
                m2compatible="true"
-               usepoms="true"
-               root="http://repo1.maven.org/maven2/"/>
+               descriptor="required"/>
 
-      <ibiblio name="maven.twttr.com-maven"
-               m2compatible="true"
-               usepoms="true"
-               root="http://maven.twttr.com/"/>
-
-      <!--  This is just for spy#spymemcached;2.8.1 -->
-      <ibiblio name="jboss-public"
-               m2compatible="true"
-               usepoms="true"
-               root="http://repository.jboss.org/nexus/content/groups/public/"/>
+       <!-- Used only for com.twitter.common#metrics-data-sample -->
+       <ibiblio name="maven.twttr.com-maven"
+                m2compatible="true"
+                root="http://maven.twttr.com/"
+                descriptor="required"/>
     </chain>
   </macrodef>
 </ivysettings>

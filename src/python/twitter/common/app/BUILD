@@ -14,24 +14,21 @@
 # limitations under the License.
 # ==================================================================================================
 
-with open(os.path.join(os.path.dirname(__file__), '..', 'VERSION')) as fp:
-  VERSION = fp.read().strip()
-
 python_library(
   name = "app",
   sources = globs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/collections'),
-    pants('src/python/twitter/common/lang'),
-    pants('src/python/twitter/common/log'),
-    pants('src/python/twitter/common/options'),
-    pants('src/python/twitter/common/process'),
-    pants('src/python/twitter/common/util'),
-    pants('src/python/twitter/common/app/modules'),
+    'src/python/twitter/common/collections',
+    'src/python/twitter/common/lang',
+    'src/python/twitter/common/log',
+    'src/python/twitter/common/options',
+    'src/python/twitter/common/process',
+    'src/python/twitter/common/util',
+    'src/python/twitter/common/app/modules',
   ],
   provides = setup_py(
     name = 'twitter.common.app',
-    version = VERSION,
+    version = commons_version(),
     description = "Twitter's Python application lifecycle framework.",
     url = 'https://github.com/twitter/commons/tree/master/src/python/twitter/common/app',
     license = 'Apache License, Version 2.0',

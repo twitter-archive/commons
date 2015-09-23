@@ -14,19 +14,23 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name='stats',
-  dependencies=[
-    '3rdparty:easymock',
-    '3rdparty:guava',
-    '3rdparty:junit',
-    '3rdparty:mockito',
+java_tests(name = 'stats',
+  dependencies = [
+    '3rdparty/jvm/org/easymock',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/junit',
+    '3rdparty/jvm/org/mockito',
+    '3rdparty/jvm/org/pantsbuild:junit-runner-annotations',
     'src/java/com/twitter/common/quantity',
+    'src/java/com/twitter/common/objectsize',
     'src/java/com/twitter/common/stats',
     'src/java/com/twitter/common/stats:time-series',
     'src/java/com/twitter/common/stats:util',
-    'src/java/com/twitter/common/testing',
+    'src/java/com/twitter/common/stats/testing:histogram',
+    'src/java/com/twitter/common/testing/easymock',
+    'src/java/com/twitter/common/testing/mockito',
     'src/java/com/twitter/common/util:system-mocks',
     'src/java/com/twitter/common/util:testing',
   ],
-  sources=globs('*.java')
+  sources = globs('*.java')
 )

@@ -82,6 +82,8 @@ class OrderedSet(collections.MutableSet):
     return '%s(%r)' % (self.__class__.__name__, list(self))
 
   def __eq__(self, other):
+    if other is None:
+      return False
     if isinstance(other, OrderedSet):
       return len(self) == len(other) and list(self) == list(other)
     return set(self) == set(other)

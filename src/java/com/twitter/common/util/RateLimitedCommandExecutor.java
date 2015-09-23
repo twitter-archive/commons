@@ -42,7 +42,7 @@ public class RateLimitedCommandExecutor implements CommandExecutor {
 
   private static final Logger LOG = Logger.getLogger(RateLimitedCommandExecutor.class.getName());
 
-  private final BlockingQueue<RetryingRunnable> blockingQueue;
+  private final BlockingQueue<RetryingRunnable<?>> blockingQueue;
 
   /**
    * Create a CommandExecutor that executes enquequed tasks in the task
@@ -58,7 +58,7 @@ public class RateLimitedCommandExecutor implements CommandExecutor {
       ScheduledExecutorService taskExecutor,
       Amount<Long, Time> intervalBetweenRequests,
       Runnable queueDrainer,
-      BlockingQueue<RetryingRunnable> blockingQueue) {
+      BlockingQueue<RetryingRunnable<?>> blockingQueue) {
 
     checkNotNull(taskExecutor);
     checkNotNull(intervalBetweenRequests);

@@ -14,18 +14,15 @@
 # limitations under the License.
 # ==================================================================================================
 
-with open(os.path.join(os.path.dirname(__file__), '..', 'VERSION')) as fp:
-  VERSION = fp.read().strip()
-
 python_library(
   name = 'contextutil',
   sources = globs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/dirutil'),
+    'src/python/twitter/common/dirutil',
   ],
   provides = setup_py(
     name = 'twitter.common.contextutil',
-    version = VERSION,
+    version = commons_version(),
     description = 'twitter.common standard context managers.',
     url = 'https://github.com/twitter/commons',
     license = 'Apache License, Version 2.0',

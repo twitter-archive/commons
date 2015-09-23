@@ -25,10 +25,10 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.twitter.common.text.extractor.RegexExtractor;
-import com.twitter.common.text.token.TokenStream;
+import com.twitter.common.text.token.TwitterTokenStream;
 
 public class PossessiveContractionTokenCombinerTest {
-  private TokenStream stream;
+  private TwitterTokenStream stream;
 
   @Before
   public void setup() {

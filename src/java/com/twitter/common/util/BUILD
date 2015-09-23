@@ -27,18 +27,14 @@ SAMPLER_SOURCES = [
   'Sampler.java'
 ]
 
-KESTREL_SOURCES = [
-  'KestrelConsumer.java',
-]
-
 java_library(name = 'logging',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'jdk-logging',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
-    '3rdparty:guava',
+    '3rdparty/jvm/com/google/guava',
   ],
   sources = globs('logging/*.java'),
 )
@@ -47,10 +43,10 @@ java_library(name = 'executor-service-shutdown',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'util-executor-service-shutdown',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
-    '3rdparty:guava',
+    '3rdparty/jvm/com/google/guava',
     'src/java/com/twitter/common/base',
     'src/java/com/twitter/common/quantity',
   ],
@@ -61,33 +57,35 @@ java_library(name = 'util',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'util',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
-    #   on the util target just to get logging - fix.
+    ':executor-service-shutdown',
+    '3rdparty/jvm/commons-lang',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/code/findbugs:jsr305',
     # TODO(William Farner): Untangle this false dependency, there are likely people relying
-    '3rdparty:commons-lang',
-    '3rdparty:guava',
-    '3rdparty:jsr305',
+    #   on the util target just to get logging - fix.
+    ':logging',
     'src/java/com/twitter/common/base',
     'src/java/com/twitter/common/collections',
     'src/java/com/twitter/common/quantity',
     'src/java/com/twitter/common/stats',
-    ':executor-service-shutdown',
-    ':logging',
   ],
-  sources = globs('*.java', 'concurrent/*.java')
-    - EXECUTOR_SERVICE_SHUTDOWN_SOURCES - SYSTEM_MOCKS_SOURCES - SAMPLER_SOURCES - KESTREL_SOURCES,
+  sources = globs('*.java', 'concurrent/*.java',
+                  exclude = [EXECUTOR_SERVICE_SHUTDOWN_SOURCES,
+                             SYSTEM_MOCKS_SOURCES,
+                             SAMPLER_SOURCES]),
 )
 
 java_library(name = 'system-mocks',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'util-system-mocks',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
-    '3rdparty:guava',
+    '3rdparty/jvm/com/google/guava',
   ],
   sources = SYSTEM_MOCKS_SOURCES,
 )
@@ -96,35 +94,25 @@ java_library(name = 'sampler',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'util-sampler',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
-    '3rdparty:guava',
+    '3rdparty/jvm/com/google/guava',
     ':system-mocks',
   ],
   sources = SAMPLER_SOURCES,
-)
-
-java_library(name = 'kestrel',
-  dependencies = [
-    '3rdparty:guava',
-    '3rdparty:spy-memcached',
-    'src/java/com/twitter/common/memcached',
-    'src/java/com/twitter/common/stats',
-  ],
-  sources = KESTREL_SOURCES,
 )
 
 java_library(name = 'testing',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'util-testing',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
-    '3rdparty:guava',
-    'src/java/com/twitter/common/quantity',
+    '3rdparty/jvm/com/google/guava',
     ':system-mocks',
+    'src/java/com/twitter/common/quantity',
   ],
   sources = globs('testing/*.java'),
 )

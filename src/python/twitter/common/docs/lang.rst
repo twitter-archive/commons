@@ -1,0 +1,1 @@
+.. include:: ../lang/docs/lang.rst

@@ -19,9 +19,9 @@
 junit_tests(name='usethrift',
   sources=['UseThriftTest.java',],
   dependencies=[
-    pants('3rdparty:junit'),
-    pants('src/thrift/com/twitter/common/examples/distance:distance-java'),
-    pants('src/thrift/com/twitter/common/examples/precipitation:precipitation-java'),
+    '3rdparty/jvm/junit',
+    'src/thrift/com/twitter/common/examples/distance:distance-java',
+    'src/thrift/com/twitter/common/examples/precipitation:precipitation-java',
   ],
 )
 

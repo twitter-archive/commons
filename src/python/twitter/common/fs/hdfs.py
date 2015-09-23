@@ -210,6 +210,12 @@ class HDFSHelper(object):
     """
     return self._call("-cp", src, dest, suppress_output=True)
 
+  def mv(self, src, dest):
+    """
+    Move a src file to dest
+    """
+    return self._call("-mv", src, dest, suppress_output=True)
+
   def copy_from_local(self, local, remote):
     """
     Copies the file from local to remote

@@ -19,17 +19,19 @@ java_library(
   provides=artifact(
     org='com.twitter.common',
     name='application-http',
-    repo=pants('build-support/commons/ivy:public'),
+    repo=public,
   ),
   dependencies=[
-    pants('3rdparty:guava'),
-    pants('3rdparty:guice'),
-    pants('3rdparty:guice-multibindings'),
-    pants('src/java/com/twitter/common/application:action'),
-    pants('src/java/com/twitter/common/base'),
-    pants('src/java/com/twitter/common/net/http'),
-    pants('src/java/com/twitter/common/net/http/handlers'),
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/inject:guice',
+    '3rdparty/jvm/com/google/inject/extensions:guice-multibindings',
+    'src/java/com/twitter/common/application:action',
+    'src/java/com/twitter/common/base',
+    'src/java/com/twitter/common/net/http',
+    'src/java/com/twitter/common/net/http/handlers',
   ],
   sources=globs('*.java'),
-  resources=pants('src/resources/com/twitter/common/application/http')
+  resources=[
+    'src/resources/com/twitter/common/application/http',
+  ]
 )

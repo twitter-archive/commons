@@ -18,13 +18,13 @@ java_library(name='logging',
   provides=artifact(
     org='com.twitter.common',
     name='logging',
-    repo=pants('build-support/commons/ivy:public'),
+    repo=public,
   ),
   dependencies=[
-    pants('3rdparty:commons-lang'),
-    pants('3rdparty:guava'),
-    pants('3rdparty:joda-time'),
-    pants('src/java/com/twitter/common/args'),
+    '3rdparty/jvm/commons-lang',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/org/joda:joda-time',
+    'src/java/com/twitter/common/args',
   ],
   sources=[
     'Glog.java',
@@ -39,13 +39,13 @@ java_library(name='buffered',
   provides=artifact(
     org='com.twitter.common',
     name='logging-buffered',
-    repo=pants('build-support/commons/ivy:public'),
+    repo=public,
   ),
   dependencies=[
-    pants('3rdparty:guava'),
-    pants(':logging'),
-    pants('src/java/com/twitter/common/quantity'),
-    pants('src/java/com/twitter/common/stats'),
+    '3rdparty/jvm/com/google/guava',
+    ':logging',
+    'src/java/com/twitter/common/quantity',
+    'src/java/com/twitter/common/stats',
   ],
   sources=[ 'BufferedLog.java' ]
 )

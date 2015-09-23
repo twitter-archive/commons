@@ -49,7 +49,12 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
- * Loads and stores {@literal @CmdLine} configuration data.
+ * Loads and stores {@literal @CmdLine} configuration data. By default, that data
+ * is contained in text files called cmdline.arg.info.txt.0, cmdline.arg.info.txt.1
+ * etc. Every time a new Configuration object is created, it consumes all existing
+ * files with the above names. Saving this Configuration results in creation of a
+ * file with index increased by one, e.g. cmdline.arg.info.txt.2 in the above
+ * example.
  *
  * @author John Sirois
  */
@@ -357,15 +362,19 @@ public final class Configuration {
   }
 
   private static ConfigurationResources getAllResources() throws IOException {
+    int maxResourceIndex = 0;
     Iterator<URL> allResources = getResources(0); // Try for a main
-    for (int nextResourceIndex = 1; /* until no resources */; nextResourceIndex++) {
+    // Probe for resource files with index up to 10 (or more, while resources at the
+    // given index can be found)
+    for (int nextResourceIndex = 1; nextResourceIndex <= maxResourceIndex + 10;
+         nextResourceIndex++) {
       Iterator<URL> resources = getResources(nextResourceIndex);
       if (resources.hasNext()) {
         allResources = Iterators.concat(allResources, resources);
-      } else {
-        return new ConfigurationResources(nextResourceIndex, allResources);
+        maxResourceIndex = nextResourceIndex;
       }
     }
+    return new ConfigurationResources(maxResourceIndex + 1, allResources);
   }
 
   private static Iterator<URL> getResources(int index) throws IOException {

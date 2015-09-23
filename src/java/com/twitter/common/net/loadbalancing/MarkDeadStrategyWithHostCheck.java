@@ -54,7 +54,7 @@ public class MarkDeadStrategyWithHostCheck<S> extends MarkDeadStrategy<S> {
 
     /**
      * Checks if the last connection result for this backend and returns {@code true} if it
-     * was {@link ConnectionResult#SUCCESS} otherwise returns {@code false}.
+     * was {@link LoadBalancingStrategy.ConnectionResult#SUCCESS} otherwise returns {@code false}.
      *
      * @param backend typically the socket address of the backend.
      */

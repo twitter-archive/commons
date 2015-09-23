@@ -16,19 +16,19 @@
 
 python_binary(
   name = 'java_inspect',
-  source = ['java_inspect.py'],
+  source = 'java_inspect.py',
   dependencies = [
-    pants('src/python/twitter/common/app'),
-    pants('src/python/twitter/common/java')
+    'src/python/twitter/common/app',
+    'src/python/twitter/common/java'
   ]
 )
 
 python_binary(
   name = 'jar_inspect',
-  source = ['jar_inspect.py'],
+  source = 'jar_inspect.py',
   dependencies = [
-    pants('src/python/twitter/common/app'),
-    pants('src/python/twitter/common/log'),
-    pants('src/python/twitter/common/java')
+    'src/python/twitter/common/app',
+    'src/python/twitter/common/log',
+    'src/python/twitter/common/java'
   ]
 )

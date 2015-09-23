@@ -16,13 +16,14 @@
 
 package com.twitter.common.util;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.twitter.common.base.MorePreconditions;
-
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.google.common.annotations.VisibleForTesting;
+
+import com.twitter.common.base.MorePreconditions;
 
 /**
  * Handles loading of a build properties file, and provides keys to look up known values in the
@@ -80,7 +81,7 @@ public class BuildInfo {
    * Fetches the properties stored in the resource location.
    *
    * @return The loaded properties, or a default properties object if there was a problem loading
-   *    the specified proeprites resource.
+   *    the specified properties resource.
    */
   public Properties getProperties() {
     if (properties == null) fetchProperties();
@@ -99,6 +100,7 @@ public class BuildInfo {
     TIMESTAMP("build.timestamp"),
     GIT_TAG("build.git.tag"),
     GIT_REVISION("build.git.revision"),
+    GIT_REVISION_NUMBER("build.git.revision.number"),
     GIT_BRANCHNAME("build.git.branchname");
 
     public final String value;

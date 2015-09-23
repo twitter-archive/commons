@@ -24,13 +24,11 @@ import com.google.common.base.Preconditions;
 /**
  * Wrapper class for the value of an argument.  For proper behavior, an {@code Arg} should always
  * be annotated with {@link CmdLine}, which will define the command line interface to the argument.
- *
- * @author William Farner
  */
 public class Arg<T> {
 
-  private final T defaultValue;
-  private T value;
+  @Nullable private final T defaultValue;
+  @Nullable private T value;
   private boolean hasDefault = true;
   private boolean valueApplied = false;
   private boolean valueObserved = false;
@@ -41,7 +39,7 @@ public class Arg<T> {
    */
   public Arg() {
     this(null);
-    this.hasDefault = false;
+    hasDefault = false;
   }
 
   /**
@@ -51,21 +49,21 @@ public class Arg<T> {
    */
   public Arg(@Nullable T defaultValue) {
     this.defaultValue = defaultValue;
-    this.value = defaultValue;
+    value = defaultValue;
   }
 
-  synchronized void set(T appliedValue) {
+  synchronized void set(@Nullable T appliedValue) {
     Preconditions.checkState(!valueApplied, "A value cannot be applied twice to an argument.");
     Preconditions.checkState(!valueObserved, "A value cannot be changed after it was read.");
     valueApplied = true;
-    this.value = appliedValue;
+    value = appliedValue;
   }
 
   @VisibleForTesting
   synchronized void reset() {
     valueApplied = false;
     valueObserved = false;
-    this.value = hasDefault ? defaultValue : null;
+    value = hasDefault ? defaultValue : null;
   }
 
   public boolean hasDefault() {
@@ -78,6 +76,7 @@ public class Arg<T> {
    *
    * @return The argument value.
    */
+  @Nullable
   public synchronized T get() {
     // TODO(William Farner): This has a tendency to break bad-arg reporting by ArgScanner.  Fix.
     Preconditions.checkState(valueApplied || hasDefault,
@@ -102,6 +101,7 @@ public class Arg<T> {
    *
    * @return The argument value.
    */
+  @Nullable
   synchronized T uncheckedGet() {
     return value;
   }

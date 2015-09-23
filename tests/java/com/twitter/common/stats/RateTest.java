@@ -16,6 +16,7 @@
 
 package com.twitter.common.stats;
 
+import com.twitter.common.base.Supplier;
 import com.twitter.common.util.testing.FakeTicker;
 import org.easymock.IMocksControl;
 import org.junit.After;
@@ -202,6 +203,20 @@ public class RateTest {
     assertResults(Rate.of(input).withTicker(ticker).withScaleFactor(0.1).build(), 1, 1, 1);
   }
 
+  @Test
+  public void testSupplier() throws Exception {
+    Supplier<Long> supplier = new Supplier<Long>() {
+      long value = 0;
+      @Override public Long get() {
+        value += 10;
+        return value;
+      }
+    };
+
+    control.replay();
+    assertResults(Rate.of("test", supplier).withTicker(ticker).build(), 10, 10, 10);
+  }
+
   private void expectCalls(int... samples) {
     expect(input.getName()).andReturn("test");
     expectLastCall().atLeastOnce();
@@ -214,13 +229,13 @@ public class RateTest {
     assertResults(Rate.of(input).withTicker(ticker).build(), results);
   }
 
-  private void assertResults(Rate<Integer> rate, double... results) throws Exception {
+  private void assertResults(Rate rate, double... results) throws Exception {
     // First result is always zero.
-    assertEquals(0d, rate.sample(), EPSILON);
+    assertEquals(0d, rate.sample().doubleValue(), EPSILON);
     ticker.waitNanos(ONE_SEC);
 
     for (double result : results) {
-      assertEquals(result, rate.sample(), EPSILON);
+      assertEquals(result, rate.sample().doubleValue(), EPSILON);
       ticker.waitNanos(ONE_SEC);
     }
   }

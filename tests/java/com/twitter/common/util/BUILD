@@ -16,15 +16,15 @@
 
 java_tests(name = 'util',
   dependencies = [
-    '3rdparty:easymock',
-    '3rdparty:guava',
-    '3rdparty:junit',
+    '3rdparty/jvm/org/easymock',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/junit',
     'src/java/com/twitter/common/base',
     'src/java/com/twitter/common/collections',
     'src/java/com/twitter/common/quantity',
-    'src/java/com/twitter/common/testing',
+    'src/java/com/twitter/common/testing/easymock',
     'src/java/com/twitter/common/util',
     'src/java/com/twitter/common/util:testing',
   ],
-  sources = globs('*.java') + globs('testing/*.java')
+  sources = globs('*.java', 'testing/*.java')
 )

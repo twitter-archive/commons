@@ -14,15 +14,15 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name='logging',
-  dependencies=[
-    '3rdparty:easymock',
-    '3rdparty:guava',
-    '3rdparty:hamcrest-core',
-    '3rdparty:junit',
+java_tests(name = 'logging',
+  dependencies = [
+    '3rdparty/jvm/org/easymock',
+    '3rdparty/jvm/org/hamcrest:hamcrest-core',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/junit',
     'src/java/com/twitter/common/logging:buffered',
     'src/java/com/twitter/common/logging:logging',
     'src/java/com/twitter/common/quantity',
   ],
-  sources=globs('*.java')
+  sources = globs('*.java')
 )

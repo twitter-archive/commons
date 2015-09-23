@@ -37,7 +37,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
@@ -47,6 +46,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 
+import com.twitter.common.args.Args.ArgsInfo;
 import com.twitter.common.args.apt.Configuration;
 import com.twitter.common.collections.Pair;
 
@@ -79,20 +79,18 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * TODO(William Farner): Make default verifier and parser classes package-private and in this
  * package.
- *
- * @author William Farner
  */
 public final class ArgScanner {
 
-  private static final Function<OptionInfo, String> GET_OPTIONINFO_NAME =
-      new Function<OptionInfo, String>() {
-        @Override public String apply(OptionInfo optionInfo) {
+  private static final Function<OptionInfo<?>, String> GET_OPTION_INFO_NAME =
+      new Function<OptionInfo<?>, String>() {
+        @Override public String apply(OptionInfo<?> optionInfo) {
           return optionInfo.getName();
         }
       };
 
-  public static final Ordering<OptionInfo> ORDER_BY_NAME =
-      Ordering.natural().onResultOf(GET_OPTIONINFO_NAME);
+  public static final Ordering<OptionInfo<?>> ORDER_BY_NAME =
+      Ordering.natural().onResultOf(GET_OPTION_INFO_NAME);
 
   private static final Function<String, String> ARG_NAME_TO_FLAG = new Function<String, String>() {
     @Override public String apply(String argName) {
@@ -100,9 +98,9 @@ public final class ArgScanner {
     }
   };
 
-  private static final Predicate<OptionInfo> IS_BOOLEAN =
-      new Predicate<OptionInfo>() {
-        @Override public boolean apply(OptionInfo optionInfo) {
+  private static final Predicate<OptionInfo<?>> IS_BOOLEAN =
+      new Predicate<OptionInfo<?>>() {
+        @Override public boolean apply(OptionInfo<?> optionInfo) {
           return optionInfo.isBoolean();
         }
       };
@@ -126,9 +124,9 @@ public final class ArgScanner {
   /**
    * Extracts the name from an @OptionInfo.
    */
-  private static final Function<OptionInfo, String> GET_OPTIONINFO_NEGATED_NAME =
-      new Function<OptionInfo, String>() {
-        @Override public String apply(OptionInfo optionInfo) {
+  private static final Function<OptionInfo<?>, String> GET_OPTION_INFO_NEGATED_NAME =
+      new Function<OptionInfo<?>, String>() {
+        @Override public String apply(OptionInfo<?> optionInfo) {
           return optionInfo.getNegatedName();
         }
       };
@@ -136,9 +134,9 @@ public final class ArgScanner {
   /**
    * Gets the canonical name for an @Arg, based on the class containing the field it annotates.
    */
-  private static final Function<OptionInfo, String> GET_CANONICAL_ARG_NAME =
-      new Function<OptionInfo, String>() {
-        @Override public String apply(OptionInfo optionInfo) {
+  private static final Function<OptionInfo<?>, String> GET_CANONICAL_ARG_NAME =
+      new Function<OptionInfo<?>, String>() {
+        @Override public String apply(OptionInfo<?> optionInfo) {
           return optionInfo.getCanonicalName();
         }
       };
@@ -146,9 +144,9 @@ public final class ArgScanner {
   /**
    * Gets the canonical negated name for an @Arg.
    */
-  private static final Function<OptionInfo, String> GET_CANONICAL_NEGATED_ARG_NAME =
-      new Function<OptionInfo, String>() {
-        @Override public String apply(OptionInfo optionInfo) {
+  private static final Function<OptionInfo<?>, String> GET_CANONICAL_NEGATED_ARG_NAME =
+      new Function<OptionInfo<?>, String>() {
+        @Override public String apply(OptionInfo<?> optionInfo) {
           return optionInfo.getCanonicalNegatedName();
         }
       };
@@ -194,7 +192,7 @@ public final class ArgScanner {
    *    arguments found.
    */
   public boolean parse(Iterable<String> args) {
-    return parse(ArgFilters.SELECT_ALL, args);
+    return parse(ArgFilters.SELECT_ALL, ImmutableList.copyOf(args));
   }
 
   /**
@@ -212,16 +210,19 @@ public final class ArgScanner {
    *    arguments found.
    */
   public boolean parse(Predicate<Field> filter, Iterable<String> args) {
+    Preconditions.checkNotNull(filter);
+    ImmutableList<String> arguments = ImmutableList.copyOf(args);
+
     Configuration configuration = load();
-    Args.ArgumentInfo argumentInfo = Args.fromConfiguration(configuration, filter);
-    return parse(argumentInfo, configuration, args);
+    ArgsInfo argsInfo = Args.fromConfiguration(configuration, filter);
+    return parse(argsInfo, arguments);
   }
 
   /**
-   * Parse command line arguments given a {@link Args.ArgumentInfo}
+   * Parse command line arguments given a {@link ArgsInfo}
    *
-   * @param argumentInfo A description of any optional and positional arguments
-   * @param args A sequence of strings from the command-line
+   * @param argsInfo A description of any optional and positional arguments to parse.
+   * @param args Argument values to map, parse, validate, and apply.
    * @return {@code true} if the given {@code args} were successfully applied to their corresponding
    *     {@link Arg} fields.
    * @throws ArgScanException if there was a problem loading {@literal @CmdLine} argument
@@ -229,17 +230,14 @@ public final class ArgScanner {
    * @throws IllegalArgumentException If the arguments provided are invalid based on the declared
    *    arguments found.
    */
-  public boolean parse(Args.ArgumentInfo argumentInfo, Iterable<String> args) {
-    Configuration configuration = load();
-    return parse(argumentInfo, configuration, args);
-  }
+  public boolean parse(ArgsInfo argsInfo, Iterable<String> args) {
+    Preconditions.checkNotNull(argsInfo);
+    ImmutableList<String> arguments = ImmutableList.copyOf(args);
 
-  private boolean parse(Args.ArgumentInfo argumentInfo, Configuration configuration,
-    Iterable<String> args) {
-    ParserOracle parserOracle = Parsers.fromConfiguration(configuration);
-    Verifiers verifiers = Verifiers.fromConfiguration(configuration);
-    Pair<ImmutableMap<String, String>, List<String>> results = mapArguments(args);
-    return process(parserOracle, verifiers, argumentInfo, results.getFirst(), results.getSecond());
+    ParserOracle parserOracle = Parsers.fromConfiguration(argsInfo.getConfiguration());
+    Verifiers verifiers = Verifiers.fromConfiguration(argsInfo.getConfiguration());
+    Pair<ImmutableMap<String, String>, List<String>> results = mapArguments(arguments);
+    return process(parserOracle, verifiers, argsInfo, results.getFirst(), results.getSecond());
   }
 
   private Configuration load() {
@@ -335,12 +333,28 @@ public final class ArgScanner {
     return copy;
   }
 
+  private static Set<String> getNoCollisions(Iterable<? extends OptionInfo<?>> optionInfos) {
+    Iterable<String> argShortNames = Iterables.transform(optionInfos, GET_OPTION_INFO_NAME);
+    Iterable<String> argShortNegNames =
+        Iterables.transform(Iterables.filter(optionInfos, IS_BOOLEAN),
+            GET_OPTION_INFO_NEGATED_NAME);
+    Iterable<String> argAllShortNames = Iterables.concat(argShortNames, argShortNegNames);
+    Set<String> argAllShortNamesNoCollisions = dropCollisions(argAllShortNames);
+    Set<String> collisionsDropped = Sets.difference(ImmutableSet.copyOf(argAllShortNames),
+        argAllShortNamesNoCollisions);
+    if (!collisionsDropped.isEmpty()) {
+      LOG.warning("Found argument name collisions, args must be referenced by canonical names: "
+          + collisionsDropped);
+    }
+    return argAllShortNamesNoCollisions;
+  }
+
   /**
    * Applies argument values to fields based on their annotations.
    *
    * @param parserOracle ParserOracle available to parse raw args with.
    * @param verifiers Verifiers available to verify argument constraints with.
-   * @param argumentInfo Fields to apply argument values to.
+   * @param argsInfo Fields to apply argument values to.
    * @param args Unparsed argument values.
    * @param positionalArgs The unparsed positional arguments.
    * @return {@code true} if the given {@code args} were successfully applied to their
@@ -348,44 +362,40 @@ public final class ArgScanner {
    */
   private boolean process(final ParserOracle parserOracle,
       Verifiers verifiers,
-      Args.ArgumentInfo argumentInfo,
+      ArgsInfo argsInfo,
       Map<String, String> args,
       List<String> positionalArgs) {
 
     if (!Sets.intersection(args.keySet(), ArgumentInfo.HELP_ARGS).isEmpty()) {
-      printHelp(verifiers, argumentInfo);
+      printHelp(verifiers, argsInfo);
       return false;
     }
 
-    Optional<? extends PositionalInfo<?>> positionalInfoOptional = argumentInfo.getPositionalInfo();
+    Optional<? extends PositionalInfo<?>> positionalInfoOptional = argsInfo.getPositionalInfo();
     checkArgument(positionalInfoOptional.isPresent() || positionalArgs.isEmpty(),
         "Positional arguments have been supplied but there is no Arg annotated to received them.");
 
-    Iterable<? extends OptionInfo<?>> optionInfos = argumentInfo.getOptionInfos();
+    Iterable<? extends OptionInfo<?>> optionInfos = argsInfo.getOptionInfos();
 
     final Set<String> argsFailedToParse = Sets.newHashSet();
     final Set<String> argsConstraintsFailed = Sets.newHashSet();
 
-    Iterable<String> argShortNames = Iterables.transform(optionInfos, GET_OPTIONINFO_NAME);
-    Set<String> argShortNamesNoCollisions = dropCollisions(argShortNames);
-    Set<String> collisionsDropped = Sets.difference(ImmutableSet.copyOf(argShortNames),
-      argShortNamesNoCollisions);
-    if (!collisionsDropped.isEmpty()) {
-      LOG.warning("Found argument name collisions, args must be referenced by canonical names: "
-          + collisionsDropped);
-    }
+    Set<String> argAllShortNamesNoCollisions = getNoCollisions(optionInfos);
 
-    final Map<String, OptionInfo> argsByName =
-        ImmutableMap.<String, OptionInfo>builder()
+    final Map<String, OptionInfo<?>> argsByName =
+        ImmutableMap.<String, OptionInfo<?>>builder()
         // Map by short arg name -> arg def.
         .putAll(Maps.uniqueIndex(Iterables.filter(optionInfos,
-            Predicates.compose(Predicates.in(argShortNamesNoCollisions), GET_OPTIONINFO_NAME)),
-                               GET_OPTIONINFO_NAME))
+            Predicates.compose(Predicates.in(argAllShortNamesNoCollisions), GET_OPTION_INFO_NAME)),
+            GET_OPTION_INFO_NAME))
         // Map by canonical arg name -> arg def.
         .putAll(Maps.uniqueIndex(optionInfos, GET_CANONICAL_ARG_NAME))
         // Map by negated short arg name (for booleans)
-        .putAll(Maps.uniqueIndex(Iterables.filter(optionInfos, IS_BOOLEAN),
-            GET_OPTIONINFO_NEGATED_NAME))
+        .putAll(Maps.uniqueIndex(
+            Iterables.filter(Iterables.filter(optionInfos, IS_BOOLEAN),
+                Predicates.compose(Predicates.in(argAllShortNamesNoCollisions),
+                    GET_OPTION_INFO_NEGATED_NAME)),
+            GET_OPTION_INFO_NEGATED_NAME))
         // Map by negated canonical arg name (for booleans)
         .putAll(Maps.uniqueIndex(Iterables.filter(optionInfos, IS_BOOLEAN),
             GET_CANONICAL_NEGATED_ARG_NAME))
@@ -401,7 +411,7 @@ public final class ArgScanner {
 
     for (String argName : recognizedArgs) {
       String argValue = args.get(argName);
-      OptionInfo optionInfo = argsByName.get(argName);
+      OptionInfo<?> optionInfo = argsByName.get(argName);
 
       try {
         optionInfo.load(parserOracle, argName, argValue);
@@ -417,7 +427,7 @@ public final class ArgScanner {
 
     Set<String> commandLineArgumentInfos = Sets.newTreeSet();
 
-    Iterable<? extends ArgumentInfo<?>> allArguments = argumentInfo.getOptionInfos();
+    Iterable<? extends ArgumentInfo<?>> allArguments = argsInfo.getOptionInfos();
 
     if (positionalInfoOptional.isPresent()) {
       PositionalInfo<?> positionalInfo = positionalInfoOptional.get();
@@ -446,7 +456,7 @@ public final class ArgScanner {
         .build();
 
     if (!warningMessages.isEmpty()) {
-      printHelp(verifiers, argumentInfo);
+      printHelp(verifiers, argsInfo);
       StringBuilder sb = new StringBuilder();
       for (Map.Entry<String, Collection<String>> warnings : warningMessages.asMap().entrySet()) {
         sb.append(warnings.getKey()).append(":\n\t").append(Joiner.on("\n\t")
@@ -464,32 +474,36 @@ public final class ArgScanner {
     return true;
   }
 
-  private void printHelp(Verifiers verifiers, Args.ArgumentInfo argumentInfo) {
+  private void printHelp(Verifiers verifiers, ArgsInfo argsInfo) {
     ImmutableList.Builder<String> requiredHelps = ImmutableList.builder();
     ImmutableList.Builder<String> optionalHelps = ImmutableList.builder();
+    Optional<String> firstArgFileArgumentName = Optional.absent();
     for (OptionInfo<?> optionInfo
-        : ORDER_BY_NAME.immutableSortedCopy(argumentInfo.getOptionInfos())) {
+        : ORDER_BY_NAME.immutableSortedCopy(argsInfo.getOptionInfos())) {
       Arg<?> arg = optionInfo.getArg();
       Object defaultValue = arg.uncheckedGet();
-      ImmutableList<String> constraints = collectConstraints(verifiers, optionInfo);
+      ImmutableList<String> constraints = optionInfo.collectConstraints(verifiers);
       String help = formatHelp(optionInfo, constraints, defaultValue);
       if (!arg.hasDefault()) {
         requiredHelps.add(help);
       } else {
         optionalHelps.add(help);
       }
+      if (optionInfo.argFile() && !firstArgFileArgumentName.isPresent()) {
+        firstArgFileArgumentName = Optional.of(optionInfo.getName());
+      }
     }
 
     infoLog("-------------------------------------------------------------------------");
     infoLog(String.format("%s to print this help message",
         Joiner.on(" or ").join(Iterables.transform(ArgumentInfo.HELP_ARGS, ARG_NAME_TO_FLAG))));
-    Optional<? extends PositionalInfo<?>> positionalInfoOptional = argumentInfo.getPositionalInfo();
+    Optional<? extends PositionalInfo<?>> positionalInfoOptional = argsInfo.getPositionalInfo();
     if (positionalInfoOptional.isPresent()) {
       infoLog("\nPositional args:");
       PositionalInfo<?> positionalInfo = positionalInfoOptional.get();
       Arg<?> arg = positionalInfo.getArg();
       Object defaultValue = arg.uncheckedGet();
-      ImmutableList<String> constraints = collectConstraints(verifiers, positionalInfo);
+      ImmutableList<String> constraints = positionalInfo.collectConstraints(verifiers);
       infoLog(String.format("%s%s\n\t%s\n\t(%s)",
                             defaultValue != null ? "default " + defaultValue : "",
                             Iterables.isEmpty(constraints)
@@ -497,6 +511,9 @@ public final class ArgScanner {
                                 : " [" + Joiner.on(", ").join(constraints) + "]",
                             positionalInfo.getHelp(),
                             positionalInfo.getCanonicalName()));
+      // TODO: https://github.com/twitter/commons/issues/353, in the future we may
+      // want to support @argfile format for positional arguments. We should check
+      // to update firstArgFileArgumentName for them as well.
     }
     ImmutableList<String> required = requiredHelps.build();
     if (!required.isEmpty()) {
@@ -508,14 +525,14 @@ public final class ArgScanner {
       infoLog("\nOptional flags:");
       infoLog(Joiner.on('\n').join(optional));
     }
+    if (firstArgFileArgumentName.isPresent()) {
+      infoLog(String.format("\n"
+          + "For arguments that support @argfile format: @argfile is a text file that contains "
+          + "cmdline argument values. For example: -%s=@/tmp/%s_value.txt. The format "
+          + "of the argfile content should be exactly the same as it would be specified on the "
+          + "cmdline.", firstArgFileArgumentName.get(), firstArgFileArgumentName.get()));
+    }
     infoLog("-------------------------------------------------------------------------");
-  }
-
-  private ImmutableList<String> collectConstraints(Verifiers verifierOracle,
-      ArgumentInfo<?> argumentInfo) {
-    Builder<String> builder = ImmutableList.builder();
-    argumentInfo.collectConstraints(verifierOracle, builder);
-    return builder.build();
   }
 
   private String formatHelp(ArgumentInfo<?> argumentInfo, Iterable<String> constraints,

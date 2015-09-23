@@ -630,6 +630,26 @@ class Application(object):
     """
     self._usage = usage
 
+  def set_usage_based_on_commands(self):
+    """
+      Sets the usage message automatically, to show the available commands.
+    """
+    self.set_usage(
+      'Please run with one of the following commands:\n' +
+      '\n'.join(['  %-22s%s' % (command, self._set_string_margin(docstring or '', 0, 24))
+                 for (command, docstring) in self.get_commands_and_docstrings()])
+    )
+
+  @staticmethod
+  def _set_string_margin(s, first_line_indentation, other_lines_indentation):
+    """
+      Given a multi-line string, resets the indentation to the given number of spaces.
+    """
+    lines = s.strip().splitlines()
+    lines = ([' ' * first_line_indentation  + line.strip() for line in lines[:1]] +
+             [' ' * other_lines_indentation + line.strip() for line in lines[1:]])
+    return '\n'.join(lines)
+
   def error(self, message):
     """
       Print the application help message, an error message, then exit.
@@ -749,7 +769,7 @@ class Application(object):
     except Exception as e:
       return_code = 1
       self._debug_log('%s excepted with %s' % (method_name, type(e)))
-      print(traceback.format_exc(), file=sys.stderr)
+      sys.excepthook(*sys.exc_info())
     return return_code
 
   @post_initialization

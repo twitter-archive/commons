@@ -35,8 +35,6 @@ import java.io.OutputStream;
 
 /**
  * A {@code Codec} that can encode and decode thrift structs.
- *
- * @author John Sirois
  */
 public class ThriftCodec<T extends TBase> implements Codec<T> {
 
@@ -70,7 +68,7 @@ public class ThriftCodec<T extends TBase> implements Codec<T> {
   }
 
   /**
-   * @deprecated use {@link ThriftCodec#create(thriftStructType, protocolFactory) instead.
+   * @deprecated use {@link ThriftCodec#create(Class, Function)} instead.
    */
   @Deprecated
   public ThriftCodec(final Class<T> thriftStructType,

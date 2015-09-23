@@ -17,8 +17,8 @@
 python_tests(name = 'concurrent',
   sources = globs('*.py'),
   dependencies = [
-    pants('src/python/twitter/common/concurrent'),
-    pants('src/python/twitter/common/contextutil'),
-    pants('src/python/twitter/common/testing'),
+    'src/python/twitter/common/concurrent',
+    'src/python/twitter/common/contextutil',
+    'src/python/twitter/common/testing',
   ]
 )

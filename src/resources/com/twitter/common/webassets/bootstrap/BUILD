@@ -16,5 +16,12 @@
 
 resources(
   name='bootstrap',
-  sources=globs('css/*.css', 'js/*.js', 'img/*.png'),
+  sources=globs(
+    '2.1.1/css/*.css',
+    '2.1.1/img/*.png',
+    '2.1.1/js/*.js',
+    '2.3.2/css/*.css',
+    '2.3.2/img/*.png',
+    '2.3.2/js/*.js',
+  )
 )

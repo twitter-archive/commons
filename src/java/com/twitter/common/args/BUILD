@@ -29,16 +29,20 @@ jvm_app(
   bundles=[]
 )
 
-APT_SOURCES = globs('apt/*.java')
+APT_SOURCES = [
+  'apt/CmdLineProcessor.java',
+  'apt/Configuration.java',
+]
 CORE_SOURCES = [
- 'Arg.java',
- 'ArgParser.java',
- 'CmdLine.java',
- 'Parser.java',
- 'ParserOracle.java',
- 'Positional.java',
- 'Verifier.java',
- 'VerifierFor.java',
+  'Arg.java',
+  'ArgParser.java',
+  'CmdLine.java',
+  'NoParser.java',
+  'Parser.java',
+  'ParserOracle.java',
+  'Positional.java',
+  'Verifier.java',
+  'VerifierFor.java',
 ]
 DURATION_PARSER = ['parsers/TimeDurationParser.java']
 
@@ -46,11 +50,11 @@ annotation_processor(name = 'core',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'args-core',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
-    '3rdparty:guava',
-    '3rdparty:jsr305',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/code/findbugs:jsr305',
   ],
   sources = CORE_SOURCES,
 )
@@ -59,12 +63,12 @@ annotation_processor(name = 'apt',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'args-apt',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
-    '3rdparty:commons-lang',
-    '3rdparty:guava',
-    '3rdparty:jsr305',
+    '3rdparty/jvm/commons-lang',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/google/code/findbugs:jsr305',
     ':core',
   ],
   sources = APT_SOURCES,
@@ -75,28 +79,28 @@ java_library(name = 'args',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'args',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
-    '3rdparty:guava',
+    '3rdparty/jvm/com/google/guava',
     'src/java/com/twitter/common/base',
     'src/java/com/twitter/common/net:util',
     'src/java/com/twitter/common/quantity',
     ':apt',
     ':core',
   ],
-  sources = rglobs('*.java') - APT_SOURCES - CORE_SOURCES - DURATION_PARSER
+  sources = rglobs('*.java', exclude = [APT_SOURCES, CORE_SOURCES, DURATION_PARSER])
 )
 
 java_library(name = 'duration_parser',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'args-duration-parser',
-    repo = 'build-support/commons/ivy:public',
+    repo = public,
   ),
   dependencies = [
-    '3rdparty:guava',
-    '3rdparty:util-core',
+    '3rdparty/jvm/com/google/guava',
+    '3rdparty/jvm/com/twitter:util-core',
     ':args',
   ],
   sources = DURATION_PARSER

@@ -23,7 +23,7 @@ import com.twitter.common.base.Closure;
 import com.twitter.common.net.pool.ResourceExhaustedException;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
-import com.twitter.common.testing.EasyMockTest;
+import com.twitter.common.testing.easymock.EasyMockTest;
 import com.twitter.common.net.loadbalancing.LoadBalancingStrategy.ConnectionResult;
 import com.twitter.common.net.loadbalancing.RequestTracker.RequestResult;
 import com.twitter.common.util.BackoffDecider;

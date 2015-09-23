@@ -36,19 +36,19 @@ import static com.google.common.base.Preconditions.checkArgument;
  * @author William Farner
  */
 @ArgParser
-public class PairParser extends TypeParameterizedParser<Pair> {
+public class PairParser extends TypeParameterizedParser<Pair<?, ?>> {
 
   public PairParser() {
     super(2);
   }
 
   @Override
-  Pair doParse(ParserOracle parserOracle, String raw, List<Type> typeParams) {
+  Pair<?, ?> doParse(ParserOracle parserOracle, String raw, List<Type> typeParams) {
     Type leftType = typeParams.get(0);
-    Parser leftParser = parserOracle.get(TypeToken.of(leftType));
+    Parser<?> leftParser = parserOracle.get(TypeToken.of(leftType));
 
     Type rightType = typeParams.get(1);
-    Parser rightParser = parserOracle.get(TypeToken.of(rightType));
+    Parser<?> rightParser = parserOracle.get(TypeToken.of(rightType));
 
     List<String> parts = ImmutableList.copyOf(Parsers.MULTI_VALUE_SPLITTER.split(raw));
     checkArgument(parts.size() == 2,
