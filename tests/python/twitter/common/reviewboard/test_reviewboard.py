@@ -119,3 +119,7 @@ def test_diff_comments(mock_method):
     call(rbs, "api/review-requests/%d/diffs/%d/files/%d/diff-comments/?start=0&max-results=25" % (rb_id, revision, file_id),
          None, None, {'Accept': 'application/json'}, method=None)
   ]
+
+def test_get_url():
+  for url in ['http://reviewboard.com', 'http://reviewboard.com/']:
+    assert ReviewBoardServer(url, username='user', password='pass1').get_url(123456) == 'http://reviewboard.com/r/123456'
