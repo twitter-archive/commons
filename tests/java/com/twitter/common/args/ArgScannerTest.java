@@ -19,9 +19,6 @@ package com.twitter.common.args;
 import java.io.File;
 import java.io.PrintStream;
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -51,14 +48,10 @@ import com.twitter.common.args.constraints.Range;
 import com.twitter.common.args.parsers.NonParameterizedTypeParser;
 import com.twitter.common.base.Command;
 import com.twitter.common.base.Function;
-import com.twitter.common.base.MorePreconditions;
 import com.twitter.common.collections.Pair;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Data;
 import com.twitter.common.quantity.Time;
-
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -146,7 +139,10 @@ public class ArgScannerTest {
         "string", "newstring");
     test(StandardArgs.class,
         new Command() {
-          @Override public void execute() { assertThat(StandardArgs.CHAR_VAL.get(), is('x')); }
+          @Override
+          public void execute() {
+            assertThat(StandardArgs.CHAR_VAL.get(), is('x'));
+          }
         },
         "char", "x");
     test(StandardArgs.class,
@@ -165,32 +161,50 @@ public class ArgScannerTest {
         "short", "10");
     test(StandardArgs.class,
         new Command() {
-          @Override public void execute() { assertThat(StandardArgs.INT_VAL.get(), is(10)); }
+          @Override
+          public void execute() {
+            assertThat(StandardArgs.INT_VAL.get(), is(10));
+          }
         },
         "int", "10");
     test(StandardArgs.class,
         new Command() {
-          @Override public void execute() { assertThat(StandardArgs.LONG_VAL.get(), is(10L)); }
+          @Override
+          public void execute() {
+            assertThat(StandardArgs.LONG_VAL.get(), is(10L));
+          }
         },
         "long", "10");
     test(StandardArgs.class,
         new Command() {
-          @Override public void execute() { assertThat(StandardArgs.FLOAT_VAL.get(), is(10f)); }
+          @Override
+          public void execute() {
+            assertThat(StandardArgs.FLOAT_VAL.get(), is(10f));
+          }
         },
         "float", "10.0");
     test(StandardArgs.class,
         new Command() {
-          @Override public void execute() { assertThat(StandardArgs.DOUBLE_VAL.get(), is(10d)); }
+          @Override
+          public void execute() {
+            assertThat(StandardArgs.DOUBLE_VAL.get(), is(10d));
+          }
         },
         "double", "10.0");
     test(StandardArgs.class,
         new Command() {
-          @Override public void execute() { assertThat(StandardArgs.BOOL.get(), is(true)); }
+          @Override
+          public void execute() {
+            assertThat(StandardArgs.BOOL.get(), is(true));
+          }
         },
         "bool", "true");
     test(StandardArgs.class,
         new Command() {
-          @Override public void execute() { assertThat(StandardArgs.BOOL.get(), is(true)); }
+          @Override
+          public void execute() {
+            assertThat(StandardArgs.BOOL.get(), is(true));
+          }
         },
         "bool", "");
     test(StandardArgs.class,
@@ -202,12 +216,18 @@ public class ArgScannerTest {
         "regex", ".*ack$");
     test(StandardArgs.class,
         new Command() {
-          @Override public void execute() { assertThat(StandardArgs.BOOL.get(), is(false)); }
+          @Override
+          public void execute() {
+            assertThat(StandardArgs.BOOL.get(), is(false));
+          }
         },
         "no_bool", "");
     test(StandardArgs.class,
         new Command() {
-          @Override public void execute() { assertThat(StandardArgs.BOOL.get(), is(true)); }
+          @Override
+          public void execute() {
+            assertThat(StandardArgs.BOOL.get(), is(true));
+          }
         },
         "no_bool", "false");
     test(StandardArgs.class,
@@ -237,35 +257,6 @@ public class ArgScannerTest {
     assertEquals(ImmutableList.builder()
         .add(Amount.of(60L, Time.SECONDS))
         .add(Amount.of(2L, Time.SECONDS)).build(), StandardArgs.POSITIONAL.get());
-  }
-
-  public static class Name {
-    private final String name;
-
-    public Name(String name) {
-      this.name = MorePreconditions.checkNotBlank(name);
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    @Override
-    public int hashCode() {
-      return this.name.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      return (obj instanceof Name) && name.equals(((Name) obj).name);
-    }
-  }
-
-  @ArgParser
-  public static class NameParser extends NonParameterizedTypeParser<Name> {
-    @Override public Name doParse(String raw) {
-      return new Name(raw);
-    }
   }
 
   public static class MeaningOfLife {
@@ -516,31 +507,8 @@ public class ArgScannerTest {
         true, "classList2", Serializable1.class.getName() + "," + Runnable.class.getName());
   }
 
-  @Target(FIELD)
-  @Retention(RUNTIME)
-  public static @interface Equals {
-    String value();
-  }
-
-  @VerifierFor(Equals.class)
-  public static class SameName implements Verifier<Name> {
-    @Override
-    public void verify(Name value, Annotation annotation) {
-      Preconditions.checkArgument(getValue(annotation).equals(value.getName()));
-    }
-
-    @Override
-    public String toString(Class<? extends Name> argType, Annotation annotation) {
-      return "name = " + getValue(annotation);
-    }
-
-    private String getValue(Annotation annotation) {
-      return ((Equals) annotation).value();
-    }
-  }
-
   public static class VerifyArgs {
-    @Equals("jake") @CmdLine(name = "custom", help = "help")
+    @Name.Equals("jake") @CmdLine(name = "custom", help = "help")
     static final Arg<Name> CUSTOM_VAL = Arg.create(new Name("jake"));
     @NotEmpty @CmdLine(name = "string", help = "help")
     static final Arg<String> STRING_VAL = Arg.create("string");

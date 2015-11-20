@@ -18,7 +18,6 @@ target(name = 'small',
   dependencies = [
     'tests/java/com/twitter/common/application',
     'tests/java/com/twitter/common/application/modules:lifecycle',
-    'tests/java/com/twitter/common/args:small',
     'tests/java/com/twitter/common/base',
     'tests/java/com/twitter/common/collections',
     'tests/java/com/twitter/common/inject',
@@ -55,7 +54,7 @@ target(name = 'small',
 
 target(name = 'medium',
   dependencies = [
-    'tests/java/com/twitter/common/args:medium',
+    'tests/java/com/twitter/common/args:args',
     'tests/java/com/twitter/common/zookeeper:medium',
   ]
 )

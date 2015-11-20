@@ -17,6 +17,7 @@
 package com.twitter.common.args;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Set;
 
 import com.google.common.base.Preconditions;
@@ -106,6 +107,30 @@ public final class ArgFilters {
     return new Predicate<Field>() {
       @Override public boolean apply(Field field) {
         return listOfClasses.contains(field.getDeclaringClass());
+      }
+    };
+  }
+
+  /**
+   * Creates a filter that selects all non-static {@literal @CmdLine} {@link Arg}s found in the
+   * given objects.
+   *
+   * @param obj The objects whose non-static command line args will be selected.
+   * @return A filter that selects only non-static command line args declared in the given objects.
+   */
+  public static Predicate<Field> selectInstances(final Object ... obj) {
+    final Set<Object> setOfObjects = ImmutableSet.copyOf(obj);
+    return new Predicate<Field>() {
+      @Override public boolean apply(Field field) {
+        if (Modifier.isStatic(field.getModifiers())) {
+          return false;
+        }
+        for (Object o : setOfObjects) {
+          if (field.getDeclaringClass().isAssignableFrom(o.getClass())) {
+            return true;
+          }
+        }
+        return false;
       }
     };
   }
