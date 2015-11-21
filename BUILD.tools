@@ -14,6 +14,11 @@
 # limitations under the License.
 # ==================================================================================================
 
+def make_lib(org, name, rev, lib_name=None, excludes=None, intransitive=False, jars=None, deps=None):
+  lib_name = lib_name or name
+  jar_dep = jar(org=org, name=name, rev=rev, intransitive=intransitive)
+  jar_library(name=lib_name, jars=[jar_dep] + (jars or []), dependencies=deps or [])
+
 target(name='scala-compiler',
   dependencies=[
     '3rdparty/jvm/org/scala-lang:scala-compiler'
@@ -25,3 +30,17 @@ target(name='scala-library',
     '3rdparty/jvm/org/scala-lang:scala-library'
   ]
 )
+
+# Scalastyle
+make_lib('org.scalastyle', 'scalastyle_2.9.3', '0.3.2', lib_name='scalastyle')
+
+# ScalaRepl
+make_lib('org.scala-lang', 'scala-compiler', '2.10.5', lib_name='scala-repl', jars=[
+  jar(org='org.scala-lang', name='jline', rev='2.10.5')
+])
+
+# ScroogeGen
+make_lib('com.twitter', name='scrooge-generator_2.9.2', rev='3.16.3', lib_name='scrooge-gen')
+
+# ThriftLinter
+make_lib('com.twitter', name='scrooge-linter_2.9.2', rev='3.16.3', lib_name='scrooge-linter')
