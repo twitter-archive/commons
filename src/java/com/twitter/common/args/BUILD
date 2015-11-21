@@ -14,39 +14,22 @@
 # limitations under the License.
 # ==================================================================================================
 
-
-jvm_binary(
-  name = 'bin',
-  main = 'com.twitter.common.args.Arg',
-  dependencies = [
-    ':args',
-  ]
-)
-
-jvm_app(
-  name="app",
-  binary=":bin",
-  bundles=[]
-)
-
-APT_SOURCES = [
-  'apt/CmdLineProcessor.java',
-  'apt/Configuration.java',
-]
+APT_SOURCES = globs('apt/*.java')
 CORE_SOURCES = [
-  'Arg.java',
-  'ArgParser.java',
-  'CmdLine.java',
-  'NoParser.java',
-  'Parser.java',
-  'ParserOracle.java',
-  'Positional.java',
-  'Verifier.java',
-  'VerifierFor.java',
+ 'Arg.java',
+ 'ArgParser.java',
+ 'CmdLine.java',
+ 'NoParser.java',
+ 'Parser.java',
+ 'ParserOracle.java',
+ 'Positional.java',
+ 'TestMode.java',
+ 'Verifier.java',
+ 'VerifierFor.java',
 ]
 DURATION_PARSER = ['parsers/TimeDurationParser.java']
 
-annotation_processor(name = 'core',
+java_library(name = 'core',
   provides = artifact(
     org = 'com.twitter.common',
     name = 'args-core',
@@ -57,6 +40,9 @@ annotation_processor(name = 'core',
     '3rdparty/jvm/com/google/code/findbugs:jsr305',
   ],
   sources = CORE_SOURCES,
+  excludes = [
+    exclude('com.twitter.common', 'args-core'),
+  ],
 )
 
 annotation_processor(name = 'apt',
@@ -66,13 +52,16 @@ annotation_processor(name = 'apt',
     repo = public,
   ),
   dependencies = [
-    '3rdparty/jvm/commons-lang',
+    ':core',
+    '3rdparty/jvm/commons-lang:commons-lang',
     '3rdparty/jvm/com/google/guava',
     '3rdparty/jvm/com/google/code/findbugs:jsr305',
-    ':core',
   ],
   sources = APT_SOURCES,
-  processors = [ 'com.twitter.common.args.apt.CmdLineProcessor' ]
+  processors = [ 'com.twitter.common.args.apt.CmdLineProcessor' ],
+  excludes = [
+    exclude('com.twitter.common', 'args-apt'),
+  ],
 )
 
 java_library(name = 'args',
@@ -82,14 +71,21 @@ java_library(name = 'args',
     repo = public,
   ),
   dependencies = [
+    ':apt',
+    ':core',
     '3rdparty/jvm/com/google/guava',
     'src/java/com/twitter/common/base',
     'src/java/com/twitter/common/net:util',
     'src/java/com/twitter/common/quantity',
-    ':apt',
-    ':core',
   ],
-  sources = rglobs('*.java', exclude = [APT_SOURCES, CORE_SOURCES, DURATION_PARSER])
+  sources = rglobs('*.java', exclude=[APT_SOURCES, CORE_SOURCES, DURATION_PARSER]),
+  excludes = [
+    exclude('com.twitter.common', 'args'),
+  ],
+  tags = {
+    # Prefer TwitterServer and com.twitter.app.Flags for argument parsing.
+    'deprecated',
+  },
 )
 
 java_library(name = 'duration_parser',
@@ -99,9 +95,9 @@ java_library(name = 'duration_parser',
     repo = public,
   ),
   dependencies = [
+    ':args',
     '3rdparty/jvm/com/google/guava',
     '3rdparty/jvm/com/twitter:util-core',
-    ':args',
   ],
   sources = DURATION_PARSER
 )

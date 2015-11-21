@@ -31,6 +31,9 @@ import com.twitter.common.args.ArgParser;
 public class DateParser extends NonParameterizedTypeParser<Date> {
 
   private static final String FORMAT = "MM/dd/yyyy HH:mm";
+  // TODO(DPB-3882) For now make an exception for not using TwitterDateFormat since
+  // com.twitter.common.args is open sourced and cannot depend on an internal util-core.
+  // SUPPRESS CHECKSTYLE IllegalType
   private static final SimpleDateFormat SIMPLE_FORMAT = new SimpleDateFormat(FORMAT);
 
   @Override
