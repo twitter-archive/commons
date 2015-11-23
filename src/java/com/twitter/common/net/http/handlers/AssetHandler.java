@@ -19,6 +19,7 @@ package com.twitter.common.net.http.handlers;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
+import com.google.common.io.ByteSource;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
 import com.google.common.io.InputSupplier;
@@ -58,7 +59,7 @@ public class AssetHandler extends HttpServlet {
   private final StaticAsset staticAsset;
 
   public static class StaticAsset {
-    private final InputSupplier<? extends InputStream> inputSupplier;
+    private final ByteSource inputSupplier;
     private final String contentType;
     private final boolean cacheLocally;
 
@@ -73,7 +74,7 @@ public class AssetHandler extends HttpServlet {
      * @param cacheLocally If {@code true} the asset will be loaded once and stored in memory, if
      *    {@code false} it will be loaded on each request.
      */
-    public StaticAsset(InputSupplier<? extends InputStream> inputSupplier,
+    public StaticAsset(ByteSource inputSupplier,
         String contentType, boolean cacheLocally) {
       this.inputSupplier = checkNotNull(inputSupplier);
       this.contentType = checkNotNull(contentType);
@@ -114,7 +115,7 @@ public class AssetHandler extends HttpServlet {
     private void load() throws IOException {
       ByteArrayOutputStream gzipBaos = new ByteArrayOutputStream();
       GZIPOutputStream gzipStream = new GZIPOutputStream(gzipBaos);
-      ByteStreams.copy(inputSupplier, gzipStream);
+      inputSupplier.copyTo(gzipStream);
       gzipStream.flush();  // copy() does not flush or close output stream.
       gzipStream.close();
       gzipData = gzipBaos.toByteArray();

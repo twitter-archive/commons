@@ -38,8 +38,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.common.io.ByteSource;
 import com.google.common.io.CharSource;
+import com.google.common.io.CharStreams;
+import com.google.common.io.InputSupplier;
 import com.google.common.io.LineProcessor;
 import com.google.common.io.Resources;
 import com.google.common.reflect.ClassPath;
@@ -95,23 +96,12 @@ public final class Configuration {
         }
       });
 
-  private static final Function<URL, ByteSource> URL_TO_INPUT =
-      new Function<URL, ByteSource>() {
-        @Override public ByteSource apply(final URL resource) {
-          return Resources.asByteSource(resource);
+  private static final Function<URL, CharSource> URL_TO_CHAR_SOURCE =
+      new Function<URL, CharSource>() {
+        @Override public CharSource apply(final URL resource) {
+          return Resources.asCharSource(resource, Charsets.UTF_8);
         }
       };
-
-  private static final Function<ByteSource, CharSource> INPUT_TO_READER =
-      new Function<ByteSource, CharSource>() {
-        @Override public CharSource apply(
-            final ByteSource input) {
-          return input.asCharSource(Charsets.UTF_8);
-        }
-      };
-
-  private static final Function<URL, CharSource> URL_TO_READER =
-      Functions.compose(INPUT_TO_READER, URL_TO_INPUT);
 
   private final ImmutableSet<ArgInfo> positionalInfos;
   private final ImmutableSet<ArgInfo> cmdLineInfos;
@@ -337,8 +327,9 @@ public final class Configuration {
     } else {
       LOG.fine("Loading @CmdLine config for: " + resources.keySet());
     }
-    CharSource input = CharSource.concat(Iterables.transform(resources.values(), URL_TO_READER));
-    return input.readLines(new ConfigurationParser());
+    return CharStreams.readLines(
+        CharSource.concat(Iterables.transform(resources.values(), URL_TO_CHAR_SOURCE)).openStream(),
+        new ConfigurationParser());
   }
 
   /**

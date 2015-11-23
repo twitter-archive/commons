@@ -48,7 +48,7 @@ public class HttpAssetConfig {
   public HttpAssetConfig(String path, URL asset, String contentType, boolean silent) {
     this.path = checkNotBlank(path);
     this.handler = new AssetHandler(
-        new StaticAsset(Resources.newInputStreamSupplier(asset), contentType, true));
+        new StaticAsset(Resources.asByteSource(asset), contentType, true));
     this.silent = silent;
   }
 }
