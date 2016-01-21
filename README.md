@@ -1,5 +1,7 @@
 Twitter common libraries for Python and the JVM
 =============
+[![Build Status](https://travis-ci.org/twitter/commons.svg?branch=master)](https://travis-ci.org/twitter/commons)
+
 **Read more** http://twitter.github.com/commons/
 
 ## Compilation Prerequisite 
