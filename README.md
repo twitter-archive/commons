@@ -1,42 +1,41 @@
-Twitter common libraries for python and the jvm
+Twitter common libraries for Python and the JVM
+=============
+**Read more** http://twitter.github.com/commons/
 
-== Installation ==
+## Compilation Prerequisite 
++ JDK 1.6+
++ Python 2.7+
 
-Building requires:
-+ jdk 1.6+
-+ python 2.7+
-
+## Compilation
 The build tool is custom and hosted in the repository itself.
 
-== Usage ==
+To build all **JVM** code and run all tests
+````
+   $ ./pants test {src,tests}/java/com/twitter/common::
+   $ ./pants test {src,tests}/scala/com/twitter/common::
+````
 
-To build all jvm code and run all tests:
-$ ./pants test {src,tests}/java/com/twitter/common::
-$ ./pants test {src,tests}/scala/com/twitter/common::
-
-Likewise for python commons:
-$ ./pants test tests/python/twitter/common/:all
-
-To get help on pants:
-$ ./pants help
-
-Read more http://twitter.github.com/commons/
+To build for **Python** commons:
+````
+   $ ./pants test tests/python/twitter/common/:all
+````
+To get help on *pants*:
+````
+   $ ./pants help
+````
 
 Refer to pants documentation at http://pantsbuild.github.io
 
-== Usage questions and feature discussions ==
+### Usage questions and feature discussions
+Please check the archives for twitter-commons@googlegroups.com then fire away if the question has not been addressed.
 
-Please check the archives for twitter-commons@googlegroups.com then fire
-away if the question has not been addressed.
-
-== Reporting bugs ==
-
+### Reporting bugs 
 Please use the github issue tracker for twitter commons at:
 https://github.com/twitter/commons/issues
 
-== Copyright and License ==
-
-Copyright 2015 Twitter, Inc.
+## Copyright and License 
+````
+   Copyright 2015 Twitter, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this work except in compliance with the License.
@@ -49,5 +48,5 @@ Copyright 2015 Twitter, Inc.
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
-
+````
 
