@@ -36,7 +36,7 @@ public final class Metrics implements MetricRegistry, MetricProvider {
   private Metrics() { }
 
   private void checkNameCollision(String key) {
-    if (gauges.containsKey(key) || counters.containsKey(key) || counters.containsKey(key)) {
+    if (gauges.containsKey(key) || counters.containsKey(key) || histograms.containsKey(key)) {
       throw new MetricCollisionException(
           "A metric with the name " + key + " has already been defined");
     }
