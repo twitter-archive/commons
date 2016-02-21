@@ -91,8 +91,8 @@ public class Ratio extends SampledStat<Double> {
     double denominatorValue = denominatorAccessor.get().doubleValue();
 
     if ((denominatorValue == 0)
-        || (denominatorValue == Double.NaN)
-        || (numeratorValue == Double.NaN)) {
+        || (Double.isNaN(denominatorValue))
+        || (Double.isNaN(numeratorValue))) {
       return 0d;
     }
 
