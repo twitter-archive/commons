@@ -72,7 +72,10 @@ function bootstrap_pants {
       staging_dir=$(tempdir "${PANTS_BOOTSTRAP}") && \
       "${PYTHON}" "${venv_path}/virtualenv.py" "${staging_dir}/install" && \
       source "${staging_dir}/install/bin/activate" && \
-      pip install "${pants_requirement}" && \
+      # NB: The `pbr` dep is added to fix install issues as reccomended here:
+      #  https://groups.google.com/d/topic/pants-devel/OnPISJosUoI/discussion
+      # If pants is upgraded to >= 0.0.80 the `pbr==1.9.0` can be deleted.
+      pip install "${pants_requirement}" pbr==1.9.0 && \
       ln -s "${staging_dir}/install" "${staging_dir}/${pants_version}" && \
       mv "${staging_dir}/${pants_version}" "${PANTS_BOOTSTRAP}/${pants_version}"
     ) 1>&2
