@@ -82,7 +82,14 @@ class ServerSet(object):
     if on_join or on_leave:
       self._internal_monitor(set(self._members))
 
-  def join(self, endpoint, additional=None, shard=None, callback=None, expire_callback=None):
+  def join(
+      self,
+      endpoint,
+      additional=None,
+      shard=None,
+      member_id=None,
+      callback=None,
+      expire_callback=None):
     """
       Given 'endpoint' (twitter.common.zookeeper.serverset.Endpoint) and an
       optional map 'additional' of string => endpoint (also Endpoint), and an
@@ -97,7 +104,8 @@ class ServerSet(object):
       If 'expire_callback' is provided, it will be called if the membership
       is severed for any reason such as session expiration or malice.
     """
-    service_instance = ServiceInstance.pack(ServiceInstance(endpoint, additional, shard=shard))
+    service_instance = ServiceInstance.pack(
+        ServiceInstance(endpoint, additional, shard=shard, member_id=member_id))
     return self._group.join(service_instance, callback=callback, expire_callback=expire_callback)
 
   def cancel(self, membership, callback=None):
@@ -108,7 +116,7 @@ class ServerSet(object):
     """Iterate over the services (ServiceInstance objects) in this ServerSet."""
     for member in self._group.list():
       try:
-        yield ServiceInstance.unpack(self._group.info(member))
+        yield ServiceInstance.unpack(self._group.info(member), member_id=member.id)
       except Exception as e:
         log.warning('Failed to deserialize endpoint: %s' % e)
         continue

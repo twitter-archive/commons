@@ -101,19 +101,19 @@ class ServiceInstance(object):
   class UnknownEndpoint(Exception): pass
 
   @classmethod
-  def unpack(cls, blob):
+  def unpack(cls, blob, member_id=None):
     try:
-      return cls.unpack_json(blob)
+      return cls.unpack_json(blob, member_id)
     except Exception as e1:
       try:
-        return cls.unpack_thrift(blob)
+        return cls.unpack_thrift(blob, member_id)
       except Exception as e2:
         log.debug('Failed to deserialize JSON: %s (%s) && Thrift: %s (%s)' % (
           e1, e1.__class__.__name__, e2, e2.__class__.__name__))
         return None
 
   @classmethod
-  def unpack_json(cls, blob):
+  def unpack_json(cls, blob, member_id=None):
     blob = json.loads(blob)
     for key in ('status', 'serviceEndpoint', 'additionalEndpoints'):
       if key not in blob:
@@ -127,23 +127,37 @@ class ServiceInstance(object):
       except ValueError:
         log.warn('Failed to deserialize shard from value %r' % shard)
         shard = None
+    if member_id is not None:
+      try:
+        member_id = int(member_id)
+      except ValueError:
+        log.warn('Failed to deserialize member_id from value %r' % member_id)
+        member_id = None
     return cls(
       service_endpoint=Endpoint(blob['serviceEndpoint']['host'], blob['serviceEndpoint']['port']),
       additional_endpoints=additional_endpoints,
       status=Status.from_string(blob['status']),
-      shard=shard)
+      shard=shard,
+      member_id=member_id)
 
   @classmethod
-  def unpack_thrift(cls, blob):
+  def unpack_thrift(cls, blob, member_id=None):
     if not isinstance(blob, ThriftServiceInstance):
       blob = thrift_deserialize(ThriftServiceInstance(), blob)
     additional_endpoints = dict((name, Endpoint.unpack_thrift(value))
       for name, value in blob.additionalEndpoints.items())
+    if member_id is not None:
+      try:
+        member_id = int(member_id)
+      except ValueError:
+        log.warn('Failed to deserialize member_id from value %r' % member_id)
+        member_id = None
     return cls(
       service_endpoint=Endpoint.unpack_thrift(blob.serviceEndpoint),
       additional_endpoints=additional_endpoints,
       status=Status.from_thrift(blob.status),
-      shard=blob.shard)
+      shard=blob.shard,
+      member_id=member_id)
 
   @classmethod
   def to_dict(cls, service_instance):
@@ -155,16 +169,25 @@ class ServiceInstance(object):
     )
     if service_instance.shard is not None:
       instance.update(shard=service_instance.shard)
+    if service_instance.member_id is not None:
+      instance.update(member_id=service_instance.member_id)
     return instance
 
   @classmethod
   def pack(cls, service_instance):
     return json.dumps(cls.to_dict(service_instance))
 
-  def __init__(self, service_endpoint, additional_endpoints=None, status='ALIVE', shard=None):
+  def __init__(
+      self,
+      service_endpoint,
+      additional_endpoints=None,
+      status='ALIVE',
+      shard=None,
+      member_id=None):
     if not isinstance(service_endpoint, Endpoint):
       raise ValueError('Expected service_endpoint to be an Endpoint, got %r' % service_endpoint)
     self._shard = shard
+    self._member_id = member_id
     self._service_endpoint = service_endpoint
     self._additional_endpoints = additional_endpoints or {}
     if not isinstance(self._additional_endpoints, dict):
@@ -199,6 +222,10 @@ class ServiceInstance(object):
   def shard(self):
     return self._shard
 
+  @property
+  def member_id(self):
+    return self._member_id
+
   def __additional_endpoints_string(self):
     return ['%s=>%s' % (key, val) for key, val in self.additional_endpoints.items()]
 
@@ -207,7 +234,8 @@ class ServiceInstance(object):
         self.service_endpoint,
         frozenset(sorted(self.__additional_endpoints_string())),
         self.status,
-        self._shard)
+        self._shard,
+        self._member_id)
 
   def __eq__(self, other):
     return isinstance(other, self.__class__) and self.__key() == other.__key()
@@ -217,8 +245,9 @@ class ServiceInstance(object):
 
 
   def __str__(self):
-    return 'ServiceInstance(%s, %saddl: %s, status: %s)' % (
+    return 'ServiceInstance(%s, %s, %saddl: %s, status: %s)' % (
       self.service_endpoint,
       ('shard: %s, ' % self._shard) if self._shard is not None else '',
+      ('member_id: %s, ' % self._member_id) if self._member_id is not None else '',
       ' : '.join(self.__additional_endpoints_string()),
       self.status)
