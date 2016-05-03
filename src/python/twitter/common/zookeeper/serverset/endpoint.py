@@ -102,6 +102,11 @@ class ServiceInstance(object):
 
   @classmethod
   def unpack(cls, blob, member_id=None):
+    """Return a ServiceInstance object from the json or thrift implementation of
+      a serverset member.
+      The member_id needs to be passed in separately because the info method from the group
+      (either Group or KazooGroup) does not include it.
+    """
     try:
       return cls.unpack_json(blob, member_id)
     except Exception as e1:
@@ -120,19 +125,8 @@ class ServiceInstance(object):
         raise ValueError('Expected to find %s in ServiceInstance JSON!' % key)
     additional_endpoints = dict((name, Endpoint(value['host'], value['port']))
       for name, value in blob['additionalEndpoints'].items())
-    shard = blob.get('shard')
-    if shard is not None:
-      try:
-        shard = int(shard)
-      except ValueError:
-        log.warn('Failed to deserialize shard from value %r' % shard)
-        shard = None
-    if member_id is not None:
-      try:
-        member_id = int(member_id)
-      except ValueError:
-        log.warn('Failed to deserialize member_id from value %r' % member_id)
-        member_id = None
+    shard = cls.__check_int(blob.get('shard'))
+    member_id = cls.__check_int(member_id)
     return cls(
       service_endpoint=Endpoint(blob['serviceEndpoint']['host'], blob['serviceEndpoint']['port']),
       additional_endpoints=additional_endpoints,
@@ -146,12 +140,7 @@ class ServiceInstance(object):
       blob = thrift_deserialize(ThriftServiceInstance(), blob)
     additional_endpoints = dict((name, Endpoint.unpack_thrift(value))
       for name, value in blob.additionalEndpoints.items())
-    if member_id is not None:
-      try:
-        member_id = int(member_id)
-      except ValueError:
-        log.warn('Failed to deserialize member_id from value %r' % member_id)
-        member_id = None
+    member_id = cls.__check_int(member_id)
     return cls(
       service_endpoint=Endpoint.unpack_thrift(blob.serviceEndpoint),
       additional_endpoints=additional_endpoints,
@@ -225,6 +214,16 @@ class ServiceInstance(object):
   @property
   def member_id(self):
     return self._member_id
+
+  @staticmethod
+  def __check_int(item):
+    if item is not None:
+      try:
+        item = int(item)
+      except ValueError:
+        log.warn('Failed to deserialize value %r' % item)
+        item = None
+    return item
 
   def __additional_endpoints_string(self):
     return ['%s=>%s' % (key, val) for key, val in self.additional_endpoints.items()]
