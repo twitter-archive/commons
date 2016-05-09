@@ -34,6 +34,7 @@ def _service_instance(vals):
         "port": 31181
     },
     "shard": %d,
+    "member_id": %d,
     "status": "ALIVE"
 }''' % vals
 
@@ -73,22 +74,22 @@ def test_status_hash_inequality():
 
 
 def test_service_instance_equality():
-  vals = (1, 2, 3, 4)
+  vals = (1, 2, 3, 4, 5)
   assert _service_instance(vals) == _service_instance(vals)
 
 
 def test_service_instance_hash_equality():
-  vals = (1, 2, 3, 4)
+  vals = (1, 2, 3, 4, 5)
   assert _service_instance(vals).__hash__() == _service_instance(vals).__hash__()
 
 
 def test_service_instance_inequality():
-  vals = (1, 2, 3, 4)
-  vals2 = (5, 6, 7, 8)
+  vals = (1, 2, 3, 4, 5)
+  vals2 = (6, 7, 8, 9, 10)
   assert _service_instance(vals) != _service_instance(vals2)
 
 
 def test_service_instance_hash_inequality():
-  vals = (1, 2, 3, 4)
-  vals2 = (5, 6, 7, 8)
+  vals = (1, 2, 3, 4, 5)
+  vals2 = (6, 7, 8, 9, 10)
   assert _service_instance(vals).__hash__() != _service_instance(vals2).__hash__()

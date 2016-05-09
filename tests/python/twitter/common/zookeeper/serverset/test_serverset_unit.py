@@ -41,6 +41,7 @@ SERVICE_INSTANCE_JSON = '''{
         "port": 31510
     },
     "shard": 0,
+    "member_id": 0,
     "status": "ALIVE"
 }'''
 

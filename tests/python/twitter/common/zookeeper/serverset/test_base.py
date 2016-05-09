@@ -50,25 +50,32 @@ class ServerSetTestBase(object):
     ss = ServerSet(self.make_zk(self._server.ensemble), self.SERVICE_PATH)
     assert list(ss) == []
     ss.join(self.INSTANCE1)
-    assert list(ss) == [ServiceInstance(self.INSTANCE1)]
+    assert list(ss) == [ServiceInstance(self.INSTANCE1, member_id=0)]
     ss.join(self.INSTANCE2)
-    assert list(ss) == [ServiceInstance(self.INSTANCE1), ServiceInstance(self.INSTANCE2)]
+    assert list(ss) == [
+      ServiceInstance(self.INSTANCE1, member_id=0), ServiceInstance(self.INSTANCE2, member_id=1)]
 
   def test_async_client_iteration(self):
     ss1 = ServerSet(self.make_zk(self._server.ensemble), self.SERVICE_PATH)
     ss2 = ServerSet(self.make_zk(self._server.ensemble), self.SERVICE_PATH)
     ss1.join(self.INSTANCE1)
     ss2.join(self.INSTANCE2)
-    assert list(ss1) == [ServiceInstance(self.INSTANCE1), ServiceInstance(self.INSTANCE2)]
-    assert list(ss2) == [ServiceInstance(self.INSTANCE1), ServiceInstance(self.INSTANCE2)]
+    assert list(ss1) == [
+      ServiceInstance(self.INSTANCE1, member_id=0), ServiceInstance(self.INSTANCE2, member_id=1)]
+    assert list(ss2) == [
+      ServiceInstance(self.INSTANCE1, member_id=0), ServiceInstance(self.INSTANCE2, member_id=1)]
 
   def test_shard_id_registers(self):
     ss1 = ServerSet(self.make_zk(self._server.ensemble), self.SERVICE_PATH)
     ss2 = ServerSet(self.make_zk(self._server.ensemble), self.SERVICE_PATH)
     ss1.join(self.INSTANCE1, shard=0)
     ss2.join(self.INSTANCE2, shard=1)
-    assert list(ss1) == [ServiceInstance(self.INSTANCE1, shard=0), ServiceInstance(self.INSTANCE2, shard=1)]
-    assert list(ss2) == [ServiceInstance(self.INSTANCE1, shard=0), ServiceInstance(self.INSTANCE2, shard=1)]
+    assert list(ss1) == [
+      ServiceInstance(self.INSTANCE1, shard=0, member_id=0),
+      ServiceInstance(self.INSTANCE2, shard=1, member_id=1)]
+    assert list(ss2) == [
+      ServiceInstance(self.INSTANCE1, shard=0, member_id=0),
+      ServiceInstance(self.INSTANCE2, shard=1, member_id=1)]
 
   def test_canceled_join_long_time(self):
     zk = self.make_zk(self._server.ensemble)
