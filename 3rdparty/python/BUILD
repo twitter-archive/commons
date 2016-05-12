@@ -16,12 +16,18 @@
 #
 # Dependencies for the open source Twitter Commons
 
+
+# This consumes the requirements.txt in this directory and creates a python_requirement_library target for each entry.
+python_requirements()
+
+
+# A wrapper for requirements.txt entries whose names clash with BUILD file naming conventions.
 def make_dep(name, version, dependency_name=None):
   """Build a target from a specified dependency tuple.
 
-    name is the target name, specified in other BUILD files.
-    version is a hardcoded version string
-    dependency_name is used to identify the specific binary to resolve
+  :param str name: A target name, specified in other BUILD files.
+  :param str version: A hardcoded version string.
+  :param str dependency_name: Identifies the specific binary to resolve.
   """
   dependency_name = dependency_name or name
   versioned_name = "%s==%s" % (dependency_name, version)
@@ -33,38 +39,6 @@ def make_dep(name, version, dependency_name=None):
   )
 
 
-make_dep('ansicolors', '1.0.2')
-make_dep('antlr-3.1.3', '3.1.3', 'antlr_python_runtime')
-make_dep('bottle', '0.11.6')
-make_dep('coverage', '3.7.1')
-make_dep('elementtree', '1.2.7_20070827_preview')
-make_dep('futures', '2.2.0')
+make_dep('antlr-python-runtime', '3.1.3', 'antlr_python_runtime')
 make_dep('git-python', '0.3.2.RC1', 'GitPython')
-make_dep('kazoo', '2.2.1')
-make_dep('kerberos', '1.1.1')
-make_dep('mako', '0.4.0', 'Mako')
-make_dep('markdown', '2.1.1', 'Markdown')
-make_dep('mock', '1.0.1')
-make_dep('mox', '0.5.3')
-make_dep('psutil', '1.1.2')
-make_dep('pure-sasl', '0.1.4')
-make_dep('pyfakefs', '2.3')
-make_dep('pygments', '1.4', 'Pygments')
-make_dep('pystache', '0.5.3')
-make_dep('pytest', '2.5.2')
-make_dep('pytest-cov', '1.6')
-make_dep('python_daemon', '1.5.5')
-make_dep('requests', '2.0.0')
-make_dep('setuptools', '2.2')
 make_dep('socksipy-branch', '1.01', 'SocksiPy-Branch')
-make_dep('zc-zookeeper-static', '3.4.4')
-
-# TODO: Temporary solution until https://github.com/pantsbuild/pants/issues/2533 is resolved.
-python_requirement_library(
-  name='thrift',
-  requirements=[
-    python_requirement(requirement='thrift')
-  ]
-)
-
-target(name='antlr-python-runtime', dependencies=[':antlr-3.1.3'])
