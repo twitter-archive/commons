@@ -1,7 +1,7 @@
 python_test_suite(
   name = 'all',
   dependencies = [
-    ':endpoint',
+    ':test_endpoint',
     ':test_kazoo_serverset',
     ':test_serverset_unit',
   ],
@@ -25,7 +25,7 @@ python_tests(
 )
 
 python_tests(
-  name = 'endpoint',
+  name = 'test_endpoint',
   sources = ['test_endpoint.py'],
   dependencies = [
     'src/python/twitter/common/zookeeper/serverset:serverset_base'

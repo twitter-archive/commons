@@ -1,4 +1,5 @@
 import json
+import socket
 from thrift.TSerialization import deserialize as thrift_deserialize
 
 from gen.twitter.thrift.endpoint.ttypes import (
@@ -16,25 +17,59 @@ from twitter.common.lang import Compatibility
 class Endpoint(object):
   @classmethod
   def unpack_thrift(cls, blob):
-    return cls(blob.host, blob.port)
+    return cls(blob.host, blob.port, blob.inet, blob.inet6)
+
+  @classmethod
+  def from_dict(cls, value):
+    inet = value.get('inet')
+    inet6 = value.get('inet6')
+    return Endpoint(value['host'], value['port'], inet, inet6)
 
   @classmethod
   def to_dict(cls, endpoint):
-    return {
+    d = {
       'host': endpoint.host,
       'port': endpoint.port
     }
+    if endpoint.inet is not None:
+      d['inet'] = endpoint.inet
+    if endpoint.inet6 is not None:
+      d['inet6'] = endpoint.inet6
+    return d
 
-  def __init__(self, host, port):
+  def __init__(self, host, port, inet=None, inet6=None):
+    """host -- the hostname of the device where this endpoint can be found
+       port -- the port number the device serves this endpoint on
+       inet -- a human-readable representation of the  IPv4 address of the device
+               where this endpoint can be found.
+       inet6 -- a human-readable representation of the IPv6 address of the device
+                where this endpoint can be found.
+
+    `inet` and/or `inet6` can be used when present to avoid a DNS lookup.
+
+    """
     if not isinstance(host, Compatibility.string):
       raise ValueError('Expected host to be a string!')
     if not isinstance(port, int):
       raise ValueError('Expected port to be an integer!')
+    if inet is not None:
+      try:
+        socket.inet_pton(socket.AF_INET, inet)
+      except socket.error:
+        raise ValueError('Expected "%s" to be a string containing a valid IPv4 address!' % inet)
+    if inet6 is not None:
+      try:
+        socket.inet_pton(socket.AF_INET6, inet6)
+      except socket.error:
+        raise ValueError('Expected "%s" to be a string containing a valid IPv6 address!' % inet6)
+
     self._host = host
     self._port = port
+    self._inet = inet
+    self._inet6 = inet6
 
   def __key(self):
-    return (self.host, self.port)
+    return (self.host, self.port, self._inet, self._inet6)
 
   def __eq__(self, other):
     return isinstance(other, self.__class__) and self.__key() == other.__key()
@@ -49,6 +84,14 @@ class Endpoint(object):
   @property
   def port(self):
     return self._port
+
+  @property
+  def inet(self):
+    return self._inet
+
+  @property
+  def inet6(self):
+    return self._inet6
 
   def __str__(self):
     return '%s:%s' % (self.host, self.port)
@@ -123,12 +166,12 @@ class ServiceInstance(object):
     for key in ('status', 'serviceEndpoint', 'additionalEndpoints'):
       if key not in blob:
         raise ValueError('Expected to find %s in ServiceInstance JSON!' % key)
-    additional_endpoints = dict((name, Endpoint(value['host'], value['port']))
+    additional_endpoints = dict((name, Endpoint.from_dict(value))
       for name, value in blob['additionalEndpoints'].items())
     shard = cls.__check_int(blob.get('shard'))
     member_id = cls.__check_int(member_id)
     return cls(
-      service_endpoint=Endpoint(blob['serviceEndpoint']['host'], blob['serviceEndpoint']['port']),
+      service_endpoint=Endpoint.from_dict(blob['serviceEndpoint']),
       additional_endpoints=additional_endpoints,
       status=Status.from_string(blob['status']),
       shard=shard,
@@ -241,7 +284,6 @@ class ServiceInstance(object):
 
   def __hash__(self):
     return hash(self.__key())
-
 
   def __str__(self):
     return 'ServiceInstance(%s, %s, %saddl: %s, status: %s)' % (
