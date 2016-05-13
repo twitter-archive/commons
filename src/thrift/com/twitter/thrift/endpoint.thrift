@@ -76,6 +76,18 @@ struct Endpoint {
    * The TCP port the endpoint listens on.
    */
   2: i32 port
+
+  /*
+   * The human readable representation of a IPv4 address of the endpoint.  May
+   * be used instead of a DNS lookup for host.
+   */
+  3: optional string inet
+
+  /*
+   * The IPv6 address of the endpoint. May be used instead of a DNS lookup for
+   * host.
+   */
+  4: optional string inet6
 }
 
 /*

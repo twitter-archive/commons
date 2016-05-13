@@ -29,16 +29,20 @@ SERVICE_INSTANCE_JSON = '''{
     "additionalEndpoints": {
         "aurora": {
             "host": "smfd-aki-15-sr1.devel.twitter.com",
-            "port": 31510
+            "port": 31510,
+            "inet": "1.2.3.4"
         },
         "health": {
             "host": "smfd-aki-15-sr1.devel.twitter.com",
-            "port": 31510
+            "port": 31511,
+            "inet6": "2001:db8:1234:ffff:ffff:ffff:ffff:ffff"
         }
     },
     "serviceEndpoint": {
         "host": "smfd-aki-15-sr1.devel.twitter.com",
-        "port": 31510
+        "port": 31512,
+        "inet": "1.2.3.4",
+        "inet6": "2001:db8:1234:ffff:ffff:ffff:ffff:ffff"
     },
     "shard": 0,
     "member_id": 0,
