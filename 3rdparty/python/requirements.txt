@@ -19,5 +19,5 @@ pytest-cov==1.6
 python_daemon==1.5.5
 requests==2.0.0
 setuptools==2.2
-thrift==0.9.3
+thrift
 zc-zookeeper-static==3.4.4
