@@ -106,6 +106,20 @@ class HdfsTest(unittest.TestCase):
                              command_class=MockCommandUtil)
     self.assertEqual(hdfs_helper.config,'/etc/hadoop/hadoop-conf-tst-smf1')
 
+  def test_hadoop_v1(self):
+    hdfs_helper = HDFSHelper("/etc/hadoop/hadoop-conf-tst-smf1",
+                             command_class=MockCommandUtil,
+                             use_hadoop_v1=True)
+    cmd = hdfs_helper.get(['src'],"dst")
+    expected_cmd = "hadoop --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -get src dst"
+    self.assertEqual(cmd, expected_cmd)
+    cmd = hdfs_helper.mkdir('dest')
+    expected_cmd = "hadoop --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -mkdir dest"
+    self.assertEqual(cmd, expected_cmd)
+    cmd = hdfs_helper.cp('src','dest')
+    expected_cmd = "hadoop --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -cp src dest"
+    self.assertEqual(cmd, expected_cmd)
+
   def test_get(self):
     hdfs_helper = HDFSHelper("/etc/hadoop/hadoop-conf-tst-smf1",
                              command_class=MockCommandUtil)
@@ -141,8 +155,7 @@ class HdfsTest(unittest.TestCase):
     cmd = hdfs_helper.ls('empty', True)
     self.assertTrue(not cmd)
     #Return code 255
-    self.assertRaises(HDFSHelper.InternalError,hdfs_helper.ls,'non_existing', True )
-
+    self.assertRaises(HDFSHelper.InternalError,hdfs_helper.ls,'non_existing', True)
 
   def test_hdfs_lsr(self):
     hdfs_helper = HDFSHelper("/etc/hadoop/hadoop-conf-tst-smf1",
