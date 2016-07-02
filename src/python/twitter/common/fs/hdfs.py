@@ -28,8 +28,8 @@ from twitter.common.util.command_util import CommandUtil
 
 class HDFSHelper(object):
   """
-  This Class provides a set of functions for hadoop operations. 
-  NOTE: This class assumes a local hadoop client on the path.
+  This Class provides a set of functions for hdfs operations.
+  NOTE: This class assumes a local hdfs client on the path.
   """
   class InternalError(Exception): pass
 
@@ -37,14 +37,14 @@ class HDFSHelper(object):
             '%(year)d-%(month)d-%(day)d %(hour)d:%(minute)d')
 
   def __init__(self, config, command_class=CommandUtil, heap_limit=Amount(256, Data.MB)):
-    """heap_limit is the maximum heap that should be allocated to the hadoop process,
+    """heap_limit is the maximum heap that should be allocated to the hdfs process,
     defined using twitter.common.quantity.Data."""
     if not os.path.isdir(config):
-      raise ValueError("hadoop requires root of a config tree")
+      raise ValueError("hdfs requires root of a config tree")
     self._config = config
     self._cmd_class = command_class
     if heap_limit is None:
-      raise ValueError('The hadoop heap_limit must not be specified as "None".')
+      raise ValueError('The hdfs heap_limit must not be specified as "None".')
     self._heap_limit = heap_limit
 
   @property
@@ -52,10 +52,10 @@ class HDFSHelper(object):
     return self._config
 
   def _call(self, cmd, *args, **kwargs):
-    """Runs hadoop fs command  with the given command and args.
+    """Runs hdfs fs command  with the given command and args.
     Checks the result of the call by default but this can be disabled with check=False.
     """
-    cmd = ['hadoop', '--config', self._config, 'dfs', cmd] + list(args)
+    cmd = ['hdfs', '--config', self._config, 'dfs', cmd] + list(args)
     heapsize = str(int(self._heap_limit.as_(Data.MB)))
     with environment_as(HADOOP_HEAPSIZE=heapsize):
       if kwargs.get('check'):
@@ -80,7 +80,7 @@ class HDFSHelper(object):
 
   def put(self, src, dst):
     """
-    Copy the local file src to a hadoop path dst.
+    Copy the local file src to a hdfs path dst.
     """
     abs_src = os.path.expanduser(src)
     assert os.path.exists(abs_src), 'File does not exist, cannot copy: %s' % abs_src
@@ -118,7 +118,7 @@ class HDFSHelper(object):
   def _ls(self, path, is_dir=False, is_recursive=False):
     """
     Return list of [hdfs_full_path, filesize]
-    Raises exception when the hadoop ls command returns error
+    Raises exception when the hdfs ls command returns error
     """
     hdfs_cmd = '-lsr' if is_recursive else '-ls'
     (exit_code, ls_result) = self._call(hdfs_cmd, path, return_output=True)
