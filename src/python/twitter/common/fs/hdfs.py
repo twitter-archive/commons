@@ -60,11 +60,11 @@ class HDFSHelper(object):
     """Runs fs command with the given command and args.
     Checks the result of the call by default but this can be disabled with check=False.
     """
-    self._hadoop_command = 'hdfs'
+    cli_command = 'hdfs'
     if self.use_hadoop_v1 or self._cmd_class.execute_suppress_stdout_stderr('hdfs') != 0:
-      self._hadoop_command = 'hadoop'
+      cli_command = 'hadoop'
 
-    cmd = [self._hadoop_command, '--config', self._config, 'dfs', cmd] + list(args)
+    cmd = [cli_command, '--config', self._config, 'dfs', cmd] + list(args)
     heapsize = str(int(self._heap_limit.as_(Data.MB)))
     with environment_as(HADOOP_HEAPSIZE=heapsize):
       if kwargs.get('check'):
