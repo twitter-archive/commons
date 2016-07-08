@@ -42,15 +42,22 @@ class HDFSHelper(object):
     heap_limit is the maximum heap that should be allocated to the command process,
     defined using twitter.common.quantity.Data.
 
-    use_hadoop_v1 sets the command to hadoop instead of hdfs.
+    use_hadoop_v1 sets the command to hadoop instead of hdfs and will error if
     """
     if not os.path.isdir(config):
-      raise ValueError("command requires root of a config tree")
+      raise ValueError('Command requires root of a config tree')
     self._config = config
     self._cmd_class = command_class
     if heap_limit is None:
       raise ValueError('The hdfs heap_limit must not be specified as "None".')
     self._heap_limit = heap_limit
+    self.cli_command = 'hdfs'
+    if self.use_hadoop_v1:
+      self.cli_command = 'hadoop'
+      if self._cmd_class.execute_suppress_stdout_stderr('hadoop') != 0:
+        raise OSError('The "hadoop" utility is not available on the system PATH')
+    elif self._cmd_class.execute_suppress_stdout_stderr('hdfs') != 0:
+      raise OSError('The "hdfs" utility is not available on the system PATH')
 
   @property
   def config(self):
@@ -60,11 +67,7 @@ class HDFSHelper(object):
     """Runs fs command with the given command and args.
     Checks the result of the call by default but this can be disabled with check=False.
     """
-    cli_command = 'hdfs'
-    if self.use_hadoop_v1 or self._cmd_class.execute_suppress_stdout_stderr('hdfs') != 0:
-      cli_command = 'hadoop'
-
-    cmd = [cli_command, '--config', self._config, 'dfs', cmd] + list(args)
+    cmd = [self.cli_command, '--config', self._config, 'dfs', cmd] + list(args)
     heapsize = str(int(self._heap_limit.as_(Data.MB)))
     with environment_as(HADOOP_HEAPSIZE=heapsize):
       if kwargs.get('check'):
