@@ -42,7 +42,7 @@ class HDFSHelper(object):
     heap_limit is the maximum heap that should be allocated to the command process,
     defined using twitter.common.quantity.Data.
 
-    use_hadoop_v1 sets the command to hadoop instead of hdfs and will error if
+    use_hadoop_v1 sets the command to hadoop instead of hdfs.
     """
     if not os.path.isdir(config):
       raise ValueError('Command requires root of a config tree')
@@ -54,10 +54,9 @@ class HDFSHelper(object):
     self.cli_command = 'hdfs'
     if self.use_hadoop_v1:
       self.cli_command = 'hadoop'
-      if self._cmd_class.execute_suppress_stdout_stderr('hadoop') != 0:
-        raise OSError('The "hadoop" utility is not available on the system PATH')
-    elif self._cmd_class.execute_suppress_stdout_stderr('hdfs') != 0:
-      raise OSError('The "hdfs" utility is not available on the system PATH')
+    if self._cmd_class.execute_suppress_stdout_stderr(self.cli_command) != 0:
+      raise OSError('The "{0}" utility is not available on the system PATH'.format(
+        self.cli_command))
 
   @property
   def config(self):
