@@ -52,7 +52,7 @@ class HDFSHelper(object):
       raise ValueError('The hdfs heap_limit must not be specified as "None".')
     self._heap_limit = heap_limit
     self.cli_command = 'hdfs'
-    if self.use_hadoop_v1:
+    if use_hadoop_v1:
       self.cli_command = 'hadoop'
     if self._cmd_class.execute_suppress_stdout_stderr(self.cli_command) != 0:
       raise OSError('The "{0}" utility is not available on the system PATH'.format(
