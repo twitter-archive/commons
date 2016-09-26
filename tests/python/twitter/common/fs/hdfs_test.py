@@ -213,6 +213,13 @@ class HdfsTest(unittest.TestCase):
     expected_cmd = "hdfs --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -mv src dest"
     self.assertEqual(cmd, expected_cmd)
 
+  def test_mv(self):
+    hdfs_helper = HDFSHelper("/etc/hadoop/hadoop-conf-tst-smf1",
+                             command_class=MockCommandUtil)
+    cmd = hdfs_helper.mv('src','dest')
+    expected_cmd = "hadoop --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -mv src dest"
+    self.assertEqual(cmd, expected_cmd)
+
   def test_copy_from_local(self):
     hdfs_helper = HDFSHelper("/etc/hadoop/hadoop-conf-tst-smf1",
                              command_class=MockCommandUtil)
