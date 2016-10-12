@@ -96,3 +96,7 @@ class CommandUtilTest(unittest.TestCase):
     (ret, output) = CommandUtil.execute_and_get_output(['echo1', 'test'])
     self.assertEqual(ret, 1)
     self.assertEqual(output, None)
+
+  def test_cmd_within_path(self):
+    self.assertEqual(CommandUtil.cmd_within_path('ls'), True)
+    self.assertEqual(CommandUtil.cmd_within_path('xxx'), False)
