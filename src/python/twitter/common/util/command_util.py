@@ -125,3 +125,11 @@ class CommandUtil(object):
     return CommandUtil._execute_internal(cmd, True, True, log_cmd, None, True)
     """
     return CommandUtil._execute_internal(cmd, True, False, log_cmd, None, True)
+
+  @staticmethod
+  def cmd_within_path(cmd):
+    """
+    Verify command is within the environment PATH
+    return True or False
+    """
+    return any(os.access(os.path.join(path, cmd), os.X_OK) for path in os.environ["PATH"].split(os.pathsep))
