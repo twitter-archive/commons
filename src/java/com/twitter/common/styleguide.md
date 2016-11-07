@@ -11,7 +11,7 @@ perils or pitfalls, readability may be sacrificed.
 
 In general, much of our style and conventions mirror the
 [Code Conventions for the Java Programming Language](http://www.oracle.com/technetwork/java/codeconvtoc-136057.html)
-and [Google's Java Style Guide](https://google-styleguide.googlecode.com/svn/trunk/javaguide.html).
+and [Google's Java Style Guide](https://google.github.io/styleguide/javaguide.html).
 
 [TOC]
 
