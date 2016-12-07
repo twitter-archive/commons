@@ -19,95 +19,28 @@ def make_lib(org, name, rev, lib_name=None, excludes=None, intransitive=False, j
   jar_dep = jar(org=org, name=name, rev=rev, intransitive=intransitive)
   jar_library(name=lib_name, jars=[jar_dep] + (jars or []), dependencies=deps or [])
 
-
-make_lib('com.martiansoftware', 'nailgun-server', '0.9.1')
-
-
-# AntlrGen
-make_lib('org.antlr', 'antlr', '3.4', lib_name='antlr-3.4')
-make_lib('org.antlr', 'antlr', '4.2.2', lib_name='antlr-4')
-
-
-# ScroogeGen
-make_lib('com.twitter', name='scrooge-generator_2.9.2', rev='3.16.3', lib_name='scrooge-gen')
-
-
-# ThriftLinter
-make_lib('com.twitter', name='scrooge-linter_2.9.2', rev='3.16.3', lib_name='scrooge-linter')
-
-
-# IvyResolve
-make_lib('xalan', 'xalan', '2.7.1')
-
-
-# JavaCompile
-make_lib('org.pantsbuild', 'jmake', '1.3.8-10')
-make_lib('org.pantsbuild.tools.compiler', 'java-compiler', '0.0.1')
-
-
-# ScalaCompile
-make_lib('org.pantsbuild', 'zinc', '1.0.7')
-
-# We just want the single compiler-interface and sbt-interface jars and not their deps on
-# scala-lang.
-jar_library(
-  name='compiler-interface',
-  jars=[
-    jar('com.typesafe.sbt', 'compiler-interface', '0.13.8', classifier='sources', intransitive=True)
-  ]
-)
-make_lib('com.typesafe.sbt', 'sbt-interface', '0.13.8', intransitive=True)
-
 target(name='scala-compiler',
   dependencies=[
     '3rdparty/jvm/org/scala-lang:scala-compiler'
   ]
 )
+
 target(name='scala-library',
   dependencies=[
     '3rdparty/jvm/org/scala-lang:scala-library'
   ]
 )
 
-
-# Checkstyle
-make_lib('com.puppycrawl.tools', 'checkstyle', '5.7', lib_name='checkstyle',
-  jars=[
-    jar(org='com.twitter.common', name='checkstyle', rev='0.0.7')
-  ],
-  excludes=[
-    exclude(org='com.google.guava', name='guava')
-  ]
-)
-
-
 # Scalastyle
 make_lib('org.scalastyle', 'scalastyle_2.9.3', '0.3.2', lib_name='scalastyle')
 
-
-# JunitRun
-make_lib('org.pantsbuild', 'junit-runner', '0.0.8', lib_name='junit')
-make_lib('emma', 'emma', '2.1.5320')
-
-
-# BenchmarkRun
-make_lib('com.google.caliper', 'caliper', '0.5-rc1', lib_name='benchmark-caliper-0.5',
-  excludes=[
-    exclude(org='com.google.guava', name='guava')
-  ]
-)
-make_lib('com.google.code.java-allocation-instrumenter', 'java-allocation-instrumenter', '2.1',
-         lib_name='benchmark-java-allocation-instrumenter-2.1', intransitive=True)
-
-
 # ScalaRepl
-make_lib('org.scala-lang', 'scala-compiler', '2.10.5', lib_name='scala-repl',
-  jars=[
-    jar(org='org.scala-lang', name='jline', rev='2.10.5'),
-  ]
-)
+make_lib('org.scala-lang', 'scala-compiler', '2.10.5', lib_name='scala-repl', jars=[
+  jar(org='org.scala-lang', name='jline', rev='2.10.5')
+])
 
+# ScroogeGen
+make_lib('com.twitter', name='scrooge-generator_2.9.2', rev='3.16.3', lib_name='scrooge-gen')
 
-# Tool Auto-shading
-make_lib('org.pantsbuild.jarjar', 'jarjar', '1.5')
-
+# ThriftLinter
+make_lib('com.twitter', name='scrooge-linter_2.9.2', rev='3.16.3', lib_name='scrooge-linter')
