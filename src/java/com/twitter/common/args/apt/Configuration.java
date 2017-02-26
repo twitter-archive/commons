@@ -17,14 +17,12 @@
 package com.twitter.common.args.apt;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
-import java.io.Reader;
 import java.io.Writer;
 import java.net.URL;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -35,14 +33,16 @@ import com.google.common.base.Functions;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.common.io.CharStreams;
-import com.google.common.io.InputSupplier;
+import com.google.common.io.ByteSource;
+import com.google.common.io.CharSource;
 import com.google.common.io.LineProcessor;
+import com.google.common.io.Resources;
+import com.google.common.reflect.ClassPath;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -73,6 +73,11 @@ public final class Configuration {
   }
 
   static final String DEFAULT_RESOURCE_PACKAGE = Configuration.class.getPackage().getName();
+  private static final String DEFAULT_RESOURCE_PREFIX;
+  static {
+    DEFAULT_RESOURCE_PREFIX = DEFAULT_RESOURCE_PACKAGE.replace('.', '/') + "/";
+  };
+  static final String DEFAULT_RESOURCE_SUFFIX = ".txt";
 
   private static final Logger LOG = Logger.getLogger(Configuration.class.getName());
 
@@ -90,41 +95,31 @@ public final class Configuration {
         }
       });
 
-  private static final Function<URL, InputSupplier<? extends InputStream>> URL_TO_INPUT =
-      new Function<URL, InputSupplier<? extends InputStream>>() {
-        @Override public InputSupplier<? extends InputStream> apply(final URL resource) {
-          return new InputSupplier<InputStream>() {
-            @Override public InputStream getInput() throws IOException {
-              return resource.openStream();
-            }
-          };
+  private static final Function<URL, ByteSource> URL_TO_INPUT =
+      new Function<URL, ByteSource>() {
+        @Override public ByteSource apply(final URL resource) {
+          return Resources.asByteSource(resource);
         }
       };
 
-  private static final Function<InputSupplier<? extends InputStream>,
-                                InputSupplier<? extends Reader>> INPUT_TO_READER =
-      new Function<InputSupplier<? extends InputStream>, InputSupplier<? extends Reader>>() {
-        @Override public InputSupplier<? extends Reader> apply(
-            final InputSupplier<? extends InputStream> input) {
-          return CharStreams.newReaderSupplier(input, Charsets.UTF_8);
+  private static final Function<ByteSource, CharSource> INPUT_TO_READER =
+      new Function<ByteSource, CharSource>() {
+        @Override public CharSource apply(
+            final ByteSource input) {
+          return input.asCharSource(Charsets.UTF_8);
         }
       };
 
-  private static final Function<URL, InputSupplier<? extends Reader>> URL_TO_READER =
+  private static final Function<URL, CharSource> URL_TO_READER =
       Functions.compose(INPUT_TO_READER, URL_TO_INPUT);
 
-  private static final String DEFAULT_RESOURCE_NAME = "cmdline.arg.info.txt";
-
-  private int nextResourceIndex;
   private final ImmutableSet<ArgInfo> positionalInfos;
   private final ImmutableSet<ArgInfo> cmdLineInfos;
   private final ImmutableSet<ParserInfo> parserInfos;
   private final ImmutableSet<VerifierInfo> verifierInfos;
 
-  private Configuration(int nextResourceIndex,
-      Iterable<ArgInfo> positionalInfos, Iterable<ArgInfo> cmdLineInfos,
+  private Configuration(Iterable<ArgInfo> positionalInfos, Iterable<ArgInfo> cmdLineInfos,
       Iterable<ParserInfo> parserInfos, Iterable<VerifierInfo> verifierInfos) {
-    this.nextResourceIndex = nextResourceIndex;
     this.positionalInfos = ImmutableSet.copyOf(positionalInfos);
     this.cmdLineInfos = ImmutableSet.copyOf(cmdLineInfos);
     this.parserInfos = ImmutableSet.copyOf(parserInfos);
@@ -282,10 +277,15 @@ public final class Configuration {
   }
 
   static class Builder {
+    public final String className;
     private final Set<ArgInfo> positionalInfos = Sets.newHashSet();
     private final Set<ArgInfo> argInfos = Sets.newHashSet();
     private final Set<ParserInfo> parserInfos = Sets.newHashSet();
     private final Set<VerifierInfo> verifierInfos = Sets.newHashSet();
+
+    public Builder(String className) {
+      this.className = className;
+    }
 
     public boolean isEmpty() {
       return positionalInfos.isEmpty()
@@ -318,28 +318,8 @@ public final class Configuration {
       addVerifier(new VerifierInfo(verifierForType, annotationType, verifierType));
     }
 
-    public Configuration build(Configuration configuration) {
-      return new Configuration(configuration.nextResourceIndex + 1,
-          positionalInfos, argInfos, parserInfos, verifierInfos);
-    }
-  }
-
-  private static String getResourceName(int index) {
-    return String.format("%s.%s", DEFAULT_RESOURCE_NAME, index);
-  }
-
-  private static String getResourcePath(int index) {
-    return String.format("%s/%s", DEFAULT_RESOURCE_PACKAGE.replace('.', '/'),
-        getResourceName(index));
-  }
-
-  static final class ConfigurationResources {
-    private final int nextResourceIndex;
-    private final Iterator<URL> resources;
-
-    private ConfigurationResources(int nextResourceIndex, Iterator<URL> resources) {
-      this.nextResourceIndex = nextResourceIndex;
-      this.resources = resources;
+    public Configuration build() {
+      return new Configuration(positionalInfos, argInfos, parserInfos, verifierInfos);
     }
   }
 
@@ -351,49 +331,60 @@ public final class Configuration {
    * @throws IOException if the configuration data can not be read from the classpath.
    */
   public static Configuration load() throws ConfigurationException, IOException {
-    ConfigurationResources allResources = getAllResources();
-    List<URL> configs = ImmutableList.copyOf(allResources.resources);
-    if (configs.isEmpty()) {
-      LOG.info("No @CmdLine arg configs found on the classpath");
+    Map<String, URL> resources = getLiveResources();
+    if (resources.isEmpty()) {
+      LOG.fine("No @CmdLine arg resources found on the classpath");
     } else {
-      LOG.info("Loading @CmdLine config from: " + configs);
+      LOG.fine("Loading @CmdLine config for: " + resources.keySet());
     }
-    return load(allResources.nextResourceIndex, configs);
+    CharSource input = CharSource.concat(Iterables.transform(resources.values(), URL_TO_READER));
+    return input.readLines(new ConfigurationParser());
   }
 
-  private static ConfigurationResources getAllResources() throws IOException {
-    int maxResourceIndex = 0;
-    Iterator<URL> allResources = getResources(0); // Try for a main
-    // Probe for resource files with index up to 10 (or more, while resources at the
-    // given index can be found)
-    for (int nextResourceIndex = 1; nextResourceIndex <= maxResourceIndex + 10;
-         nextResourceIndex++) {
-      Iterator<URL> resources = getResources(nextResourceIndex);
-      if (resources.hasNext()) {
-        allResources = Iterators.concat(allResources, resources);
-        maxResourceIndex = nextResourceIndex;
+  /**
+   * Gets all relevant resources from our package.
+   *
+   * This filters classnames that actually exist, to avoid including Configuration
+   * for classes that were removed.
+   */
+  private static ImmutableMap<String, URL> getLiveResources() throws IOException {
+    ClassLoader classLoader = Configuration.class.getClassLoader();
+    ClassPath classPath = ClassPath.from(classLoader);
+    ImmutableMap.Builder<String, URL> resources = new ImmutableMap.Builder<String, URL>();
+    for (ClassPath.ResourceInfo resourceInfo : classPath.getResources()) {
+      String name = resourceInfo.getResourceName();
+      // Find relevant resource files.
+      if (name.startsWith(DEFAULT_RESOURCE_PREFIX) && name.endsWith(DEFAULT_RESOURCE_SUFFIX)) {
+        String className =
+          name.substring(
+              DEFAULT_RESOURCE_PREFIX.length(),
+              name.length() - DEFAULT_RESOURCE_SUFFIX.length());
+        // Include only those resources for live classes.
+        if (classExists(classLoader, className)) {
+          resources.put(className, resourceInfo.url());
+        }
       }
     }
-    return new ConfigurationResources(maxResourceIndex + 1, allResources);
+    return resources.build();
   }
 
-  private static Iterator<URL> getResources(int index) throws IOException {
-    return Iterators.forEnumeration(
-        Configuration.class.getClassLoader().getResources(getResourcePath(index)));
+  private static boolean classExists(ClassLoader cl, String className) {
+    try {
+      cl.loadClass(className);
+      return true;
+    } catch (ClassNotFoundException e) {
+      // Expected for classes removed during incremental compilation.
+      return false;
+    }
   }
 
   private static final class ConfigurationParser implements LineProcessor<Configuration> {
-    private final int nextIndex;
     private int lineNumber = 0;
 
     private final ImmutableList.Builder<ArgInfo> positionalInfo = ImmutableList.builder();
     private final ImmutableList.Builder<ArgInfo> fieldInfoBuilder = ImmutableList.builder();
     private final ImmutableList.Builder<ParserInfo> parserInfoBuilder = ImmutableList.builder();
     private final ImmutableList.Builder<VerifierInfo> verifierInfoBuilder = ImmutableList.builder();
-
-    private ConfigurationParser(int nextIndex) {
-      this.nextIndex = nextIndex;
-    }
 
     @Override
     public boolean processLine(String line) throws IOException {
@@ -437,15 +428,9 @@ public final class Configuration {
 
     @Override
     public Configuration getResult() {
-      return new Configuration(nextIndex, positionalInfo.build(),
+      return new Configuration(positionalInfo.build(),
           fieldInfoBuilder.build(), parserInfoBuilder.build(), verifierInfoBuilder.build());
     }
-  }
-
-  private static Configuration load(int nextIndex, List<URL> configs)
-      throws ConfigurationException, IOException {
-    InputSupplier<Reader> input = CharStreams.join(Iterables.transform(configs, URL_TO_READER));
-    return CharStreams.readLines(input, new ConfigurationParser(nextIndex));
   }
 
   public boolean isEmpty() {
@@ -491,14 +476,6 @@ public final class Configuration {
    */
   public Iterable<VerifierInfo> verifierInfo() {
     return verifierInfos;
-  }
-
-  static String mainResourceName() {
-    return getResourceName(0);
-  }
-
-  String nextResourceName() {
-    return getResourceName(nextResourceIndex);
   }
 
   void store(Writer output, String message) {

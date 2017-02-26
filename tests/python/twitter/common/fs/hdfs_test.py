@@ -43,19 +43,19 @@ class MockCommandUtil:
 
     if cmd[4] == '-test':
       return " ".join(cmd) == \
-          'hadoop --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -test -e hadoop_dir'
+          'hdfs --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -test -e hadoop_dir'
 
     if cmd[4] == '-copyToLocal':
       if get_output:
         tmp_file = cmd[6]
         if " ".join(cmd) == \
-            "hadoop --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -copyToLocal " + \
+            "hdfs --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -copyToLocal " + \
              "somefile " + tmp_file:
           with open(tmp_file, "w") as f:
             f.write("read_test")
           return 0
         elif " ".join(cmd) == \
-            "hadoop --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -copyToLocal " + \
+            "hdfs --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -copyToLocal " + \
              "non_exist " + tmp_file:
           return 1
 
@@ -65,7 +65,7 @@ class MockCommandUtil:
         with open(tmp_file, "r") as f:
           text1 = f.read()
         return (text1 == "write_text" and
-          " ".join(cmd) == " ".join(["hadoop", "--config", "/etc/hadoop/hadoop-conf-tst-smf1",
+          " ".join(cmd) == " ".join(["hdfs", "--config", "/etc/hadoop/hadoop-conf-tst-smf1",
                                      "dfs", "-copyFromLocal", tmp_file, "somefile"]))
     #For rest all cases return the command
     return " ".join(cmd)
@@ -106,25 +106,39 @@ class HdfsTest(unittest.TestCase):
                              command_class=MockCommandUtil)
     self.assertEqual(hdfs_helper.config,'/etc/hadoop/hadoop-conf-tst-smf1')
 
+  def test_hadoop_v1(self):
+    hdfs_helper = HDFSHelper("/etc/hadoop/hadoop-conf-tst-smf1",
+                             command_class=MockCommandUtil,
+                             use_hadoop_v1=True)
+    cmd = hdfs_helper.get(['src'],"dst")
+    expected_cmd = "hadoop --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -get src dst"
+    self.assertEqual(cmd, expected_cmd)
+    cmd = hdfs_helper.mkdir('dest')
+    expected_cmd = "hadoop --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -mkdir dest"
+    self.assertEqual(cmd, expected_cmd)
+    cmd = hdfs_helper.cp('src','dest')
+    expected_cmd = "hadoop --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -cp src dest"
+    self.assertEqual(cmd, expected_cmd)
+
   def test_get(self):
     hdfs_helper = HDFSHelper("/etc/hadoop/hadoop-conf-tst-smf1",
                              command_class=MockCommandUtil)
     cmd = hdfs_helper.get(['src'],"dst")
-    expected_cmd = "hadoop --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -get src dst"
+    expected_cmd = "hdfs --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -get src dst"
     self.assertEqual(cmd, expected_cmd)
 
   def test_put(self):
     hdfs_helper = HDFSHelper("/etc/hadoop/hadoop-conf-tst-smf1",
                              command_class=MockCommandUtil)
     cmd = hdfs_helper.put('src','dst')
-    expected_cmd = "hadoop --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -put src dst"
+    expected_cmd = "hdfs --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -put src dst"
     self.assertEqual(cmd, expected_cmd)
 
   def test_cat(self):
     hdfs_helper = HDFSHelper("/etc/hadoop/hadoop-conf-tst-smf1",
                              command_class=MockCommandUtil)
     cmd = hdfs_helper.cat('text_file', 'local')
-    expected_cmd = "hadoop --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -cat " + \
+    expected_cmd = "hdfs --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -cat " + \
       "text_file"
     self.assertEqual(cmd, expected_cmd)
 
@@ -141,8 +155,7 @@ class HdfsTest(unittest.TestCase):
     cmd = hdfs_helper.ls('empty', True)
     self.assertTrue(not cmd)
     #Return code 255
-    self.assertRaises(HDFSHelper.InternalError,hdfs_helper.ls,'non_existing', True )
-
+    self.assertRaises(HDFSHelper.InternalError,hdfs_helper.ls,'non_existing', True)
 
   def test_hdfs_lsr(self):
     hdfs_helper = HDFSHelper("/etc/hadoop/hadoop-conf-tst-smf1",
@@ -176,35 +189,35 @@ class HdfsTest(unittest.TestCase):
     hdfs_helper = HDFSHelper("/etc/hadoop/hadoop-conf-tst-smf1",
                              command_class=MockCommandUtil)
     cmd = hdfs_helper.mkdir('dest')
-    expected_cmd = "hadoop --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -mkdir dest"
+    expected_cmd = "hdfs --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -mkdir dest"
     self.assertEqual(cmd, expected_cmd)
 
   def test_rm(self):
     hdfs_helper = HDFSHelper("/etc/hadoop/hadoop-conf-tst-smf1",
                              command_class=MockCommandUtil)
     cmd = hdfs_helper.rm('dest')
-    expected_cmd = "hadoop --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -rm dest"
+    expected_cmd = "hdfs --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -rm dest"
     self.assertEqual(cmd, expected_cmd)
 
   def test_cp(self):
     hdfs_helper = HDFSHelper("/etc/hadoop/hadoop-conf-tst-smf1",
                              command_class=MockCommandUtil)
     cmd = hdfs_helper.cp('src','dest')
-    expected_cmd = "hadoop --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -cp src dest"
+    expected_cmd = "hdfs --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -cp src dest"
     self.assertEqual(cmd, expected_cmd)
 
   def test_mv(self):
     hdfs_helper = HDFSHelper("/etc/hadoop/hadoop-conf-tst-smf1",
                              command_class=MockCommandUtil)
     cmd = hdfs_helper.mv('src', 'dest')
-    expected_cmd = "hadoop --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -mv src dest"
+    expected_cmd = "hdfs --config /etc/hadoop/hadoop-conf-tst-smf1 dfs -mv src dest"
     self.assertEqual(cmd, expected_cmd)
 
   def test_copy_from_local(self):
     hdfs_helper = HDFSHelper("/etc/hadoop/hadoop-conf-tst-smf1",
                              command_class=MockCommandUtil)
     cmd = hdfs_helper.copy_from_local('text_file','dest')
-    expected_cmd = "hadoop --config /etc/hadoop/hadoop-conf-tst-smf1 dfs " + \
+    expected_cmd = "hdfs --config /etc/hadoop/hadoop-conf-tst-smf1 dfs " + \
       "-copyFromLocal text_file dest"
     self.assertEqual(cmd, expected_cmd)
 
@@ -212,6 +225,6 @@ class HdfsTest(unittest.TestCase):
     hdfs_helper = HDFSHelper("/etc/hadoop/hadoop-conf-tst-smf1",
                              command_class=MockCommandUtil)
     cmd = hdfs_helper.copy_to_local('text_file','dest')
-    expected_cmd = "hadoop --config /etc/hadoop/hadoop-conf-tst-smf1 dfs " + \
+    expected_cmd = "hdfs --config /etc/hadoop/hadoop-conf-tst-smf1 dfs " + \
       "-copyToLocal text_file dest"
     self.assertEqual(cmd, expected_cmd)

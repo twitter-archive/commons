@@ -105,7 +105,7 @@ class ReviewBoardServer:
     urllib2.install_opener(opener)
 
   def get_url(self, rb_id):
-    return '%s/r/%s' % (self.url, rb_id)
+    return urljoin(self.url, '/r/%s' % (rb_id))
 
   def debug(self, message):
     """

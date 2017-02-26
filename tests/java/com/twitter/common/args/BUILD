@@ -14,37 +14,28 @@
 # limitations under the License.
 # ==================================================================================================
 
-MEDIUM_TESTS = [
-  'ArgScannerTest.java',
-  'OptionInfoTest.java',
-]
+ARGSCANNER_DEFINITIONS=['Name.java']
 
-java_tests(name='small',
+junit_tests(name='args',
   dependencies=[
+    ':argscanner-definitions',
     '3rdparty/jvm/com/google/guava',
     '3rdparty/jvm/junit',
     'src/java/com/twitter/common/args',
     'src/java/com/twitter/common/args:apt',
     'src/java/com/twitter/common/args:duration_parser',
-  ],
-  sources=globs('*.java',
-                'parsers/*.java',
-                'argfilterstest/*.java',
-                'argfilterstest/subpackageA/*.java',
-                'argfilterstest/subpackageA/subsubpackage1/*.java',
-                'argfilterstest/subpackageB/*.java',
-                'argfilterstest/subpackageBwithSuffix/*.java',
-                exclude=[MEDIUM_TESTS])
-)
-
-java_tests(name='medium',
-  dependencies=[
-    '3rdparty/jvm/com/google/guava',
-    '3rdparty/jvm/junit',
-    'src/java/com/twitter/common/args',
     'src/java/com/twitter/common/base',
     'src/java/com/twitter/common/net:util',
     'src/java/com/twitter/common/quantity',
   ],
-  sources=MEDIUM_TESTS
+  sources=rglobs('*.java', exclude=[ARGSCANNER_DEFINITIONS]),
+)
+
+# ArgParser annotation definitions must be compiled in a separate round than
+# they are used from.
+java_library(name='argscanner-definitions',
+  dependencies=[
+    'src/java/com/twitter/common/args',
+  ],
+  sources=ARGSCANNER_DEFINITIONS,
 )

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-source build-support/python/libvirtualenv.sh
-setup_virtualenv 'rbt' 'RBTools==0.7.4' \
-  '--allow-external RBTools'
-exec rbt "$@"
+echo "commons has switched to a github PR based workflow!"
+echo "Please open a pull request to contribute."
+echo
+
+exit 1

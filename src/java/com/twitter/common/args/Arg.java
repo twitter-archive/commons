@@ -53,8 +53,10 @@ public class Arg<T> {
   }
 
   synchronized void set(@Nullable T appliedValue) {
-    Preconditions.checkState(!valueApplied, "A value cannot be applied twice to an argument.");
-    Preconditions.checkState(!valueObserved, "A value cannot be changed after it was read.");
+    if (!TestMode.isTestMode()) {
+      Preconditions.checkState(!valueApplied, "A value cannot be applied twice to an argument.");
+      Preconditions.checkState(!valueObserved, "A value cannot be changed after it was read.");
+    }
     valueApplied = true;
     value = appliedValue;
   }

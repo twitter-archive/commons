@@ -38,9 +38,9 @@ make_dep('antlr-3.1.3', '3.1.3', 'antlr_python_runtime')
 make_dep('bottle', '0.11.6')
 make_dep('coverage', '3.7.1')
 make_dep('elementtree', '1.2.7_20070827_preview')
-make_dep('futures', '2.1.6')
+make_dep('futures', '2.2.0')
 make_dep('git-python', '0.3.2.RC1', 'GitPython')
-make_dep('kazoo', '1.3.1')
+make_dep('kazoo', '2.2.1')
 make_dep('kerberos', '1.1.1')
 make_dep('mako', '0.4.0', 'Mako')
 make_dep('markdown', '2.1.1', 'Markdown')
@@ -60,14 +60,11 @@ make_dep('setuptools', '2.2')
 make_dep('socksipy-branch', '1.01', 'SocksiPy-Branch')
 make_dep('zc-zookeeper-static', '3.4.4')
 
-
-# We accept 0.9.1 or 0.9.2 to open up a transition to 0.9.2 - the latest release.
-# https://github.com/twitter/commons/issues/392 tracks pinning to 0.9.2 once we've released an
-# sdist with this change and known users of the sdist have been upgraded.
+# TODO: Temporary solution until https://github.com/pantsbuild/pants/issues/2533 is resolved.
 python_requirement_library(
   name='thrift',
   requirements=[
-    python_requirement(requirement='thrift>=0.9.1,<=0.9.2')
+    python_requirement(requirement='thrift')
   ]
 )
 

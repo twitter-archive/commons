@@ -18,9 +18,9 @@ package com.twitter.common.args.apt;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +50,6 @@ import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 
 import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
 import com.google.common.base.Supplier;
@@ -72,22 +71,12 @@ import com.twitter.common.args.VerifierFor;
 import com.twitter.common.args.apt.Configuration.ParserInfo;
 
 import static com.twitter.common.args.apt.Configuration.ArgInfo;
-import static com.twitter.common.args.apt.Configuration.VerifierInfo;
 
 /**
  * Processes {@literal @CmdLine} annotated fields and {@literal @ArgParser} and
  * {@literal @VerifierFor} parser and verifier registrations and stores configuration data listing
  * these fields, parsers and verifiers on the classpath for discovery via
  * {@link com.twitter.common.args.apt.Configuration#load()}.
- *
- * <p>Supports an apt option useful for some build setups that create monolithic jars aggregating
- * many library jars, one or more of which have embedded arg definitions themselves.  By adding the
- * following flag to a javac invocation:
- * <code>-Acom.twitter.common.args.apt.CmdLineProcessor.main</code>
- * you signal this apt processor that the compilation target is a leaf target that will comprise one
- * or more executable mains (as opposed to a library jar).  As a result, the embedded arg
- * definitions generated will occupy a special resource that is always checked for first during
- * runtime arg parsing.
  */
 @SupportedOptions({
     CmdLineProcessor.MAIN_OPTION,
@@ -105,34 +94,22 @@ public class CmdLineProcessor extends AbstractProcessor {
     }
   };
 
-  private final Supplier<Configuration> configSupplier =
-      Suppliers.memoize(new Supplier<Configuration>() {
-        @Override public Configuration get() {
-          try {
-            Configuration configuration = Configuration.load();
-            for (ArgInfo argInfo : configuration.positionalInfo()) {
-              configBuilder.addPositionalInfo(argInfo);
-            }
-            for (ArgInfo argInfo : configuration.optionInfo()) {
-              configBuilder.addCmdLineArg(argInfo);
-            }
-            for (ParserInfo parserInfo : configuration.parserInfo()) {
-              configBuilder.addParser(parserInfo);
-            }
-            for (VerifierInfo verifierInfo : configuration.verifierInfo()) {
-              configBuilder.addVerifier(verifierInfo);
-            }
-            return configuration;
-          } catch (IOException e) {
-            error("Problem loading existing flags on compile time classpath: %s",
-                Throwables.getStackTraceAsString(e));
-            return null;
-          }
+  /** Existing merged Configuration loaded from the classpath. */
+  private Supplier<Configuration> persistedConfig =
+    Suppliers.memoize(new Supplier<Configuration>() {
+      @Override public Configuration get() {
+        try {
+          return Configuration.load();
+        } catch (IOException e) {
+          throw new RuntimeException("Failed to load existing Arg fields:", e);
         }
-      });
-
-  private final Configuration.Builder configBuilder = new Configuration.Builder();
-  private final ImmutableSet.Builder<String> contributingClassNamesBuilder = ImmutableSet.builder();
+      }
+    });
+  /** New configurations for this round. */
+  private Map<String, Configuration.Builder> roundConfigs =
+    new HashMap<String, Configuration.Builder>();
+  /** Relevant classnames that were alive in any round. */
+  private final ImmutableSet.Builder<String> liveClassNamesBuilder = ImmutableSet.builder();
 
   private Types typeUtils;
   private Elements elementUtils;
@@ -180,19 +157,29 @@ public class CmdLineProcessor extends AbstractProcessor {
         GET_NAME));
   }
 
+  /** Get or create a Configuration.Builder for the current round. */
+  private Configuration.Builder getBuilder(String className) {
+    Configuration.Builder builder = this.roundConfigs.get(className);
+    if (builder == null) {
+      builder = new Configuration.Builder(className);
+      this.roundConfigs.put(className, builder);
+    }
+    return builder;
+  }
+
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
     try {
-      @Nullable Configuration classpathConfiguration = configSupplier.get();
+      // Collect all live classnames from this round, so that if they lose all annotated fields, we
+      // can delete their previous resources.
+      liveClassNamesBuilder.addAll(extractClassNames(roundEnv));
 
+      // Then collect all relevant annotated classes.
       Set<? extends Element> parsers = getAnnotatedElements(roundEnv, ArgParser.class);
-      contributingClassNamesBuilder.addAll(extractClassNames(parsers));
-      @Nullable Set<String> parsedTypes = getParsedTypes(classpathConfiguration, parsers);
+      @Nullable Set<String> parsedTypes = getParsedTypes(parsers);
 
       Set<? extends Element> cmdlineArgs = getAnnotatedElements(roundEnv, CmdLine.class);
-      contributingClassNamesBuilder.addAll(extractEnclosingClassNames(cmdlineArgs));
       Set<? extends Element> positionalArgs = getAnnotatedElements(roundEnv, Positional.class);
-      contributingClassNamesBuilder.addAll(extractEnclosingClassNames(positionalArgs));
 
       ImmutableSet<? extends Element> invalidArgs =
           Sets.intersection(cmdlineArgs, positionalArgs).immutableCopy();
@@ -202,46 +189,45 @@ public class CmdLineProcessor extends AbstractProcessor {
       }
 
       for (ArgInfo cmdLineInfo : processAnnotatedArgs(parsedTypes, cmdlineArgs, CmdLine.class)) {
-        configBuilder.addCmdLineArg(cmdLineInfo);
+        getBuilder(cmdLineInfo.className).addCmdLineArg(cmdLineInfo);
       }
 
       for (ArgInfo positionalInfo
           : processAnnotatedArgs(parsedTypes, positionalArgs, Positional.class)) {
-
-        configBuilder.addPositionalInfo(positionalInfo);
+        getBuilder(positionalInfo.className).addPositionalInfo(positionalInfo);
       }
       checkPositionalArgsAreLists(roundEnv);
 
       processParsers(parsers);
 
       Set<? extends Element> verifiers = getAnnotatedElements(roundEnv, VerifierFor.class);
-      contributingClassNamesBuilder.addAll(extractClassNames(verifiers));
       processVerifiers(verifiers);
 
       if (roundEnv.processingOver()) {
-        if (classpathConfiguration != null
-            && (!classpathConfiguration.isEmpty() || !configBuilder.isEmpty())) {
-
-          @Nullable Resource cmdLinePropertiesResource =
-              openCmdLinePropertiesResource(classpathConfiguration);
-          if (cmdLinePropertiesResource != null) {
-            Writer writer = cmdLinePropertiesResource.getWriter();
-            try {
-              configBuilder.build(classpathConfiguration).store(writer,
-                  "Generated via apt by " + getClass().getName());
-            } finally {
-              closeQuietly(writer);
-            }
-
-            writeResourceMapping(contributingClassNamesBuilder.build(),
-                cmdLinePropertiesResource.getResource());
+        for (String className : this.liveClassNamesBuilder.build()) {
+          FileObject cmdLinePropertiesResource = createCommandLineDb(className);
+          Configuration.Builder configBuilder = getBuilder(className);
+          // Delete the config resource for classes which no longer exist, or which have
+          // no fields.
+          if (configBuilder.isEmpty()) {
+            cmdLinePropertiesResource.delete();
+            continue;
+          }
+          // Otherwise, write a new copy of the resource.
+          Writer writer = null;
+          try {
+            writer = cmdLinePropertiesResource.openWriter();
+            configBuilder.build().store(writer, "Generated via apt by " + getClass().getName());
+          } catch (IOException e) {
+            throw new RuntimeException(
+                "Failed to write Arg resource file for " + className + ":",
+                e);
+          } finally {
+            closeQuietly(writer);
           }
         }
       }
-    // TODO(John Sirois): Investigate narrowing this catch - its not clear there is any need to be
-    // so general.
-    // SUPPRESS CHECKSTYLE RegexpSinglelineJava
-    } catch (RuntimeException e) {
+    } catch (RuntimeException e) {      // SUPPRESS CHECKSTYLE IllegalCatch
       // Catch internal errors - when these bubble more useful queued error messages are lost in
       // some javac implementations.
       error("Unexpected error completing annotation processing:\n%s",
@@ -250,56 +236,31 @@ public class CmdLineProcessor extends AbstractProcessor {
     return true;
   }
 
-  private void writeResourceMapping(
-      Set<String> contributingClassNames,
-      FileObject cmdLinePropertiesResourcePath) {
-
-    // TODO(John Sirois): Lift the compiler resource-mappings writer to its own class/artifact to be
-    // re-used by other apt processors: https://github.com/twitter/commons/issues/319
-
-    // NB: javac rejects a package name with illegal package name characters like '-' so we just
-    // pass the empty package and the fully qualified resource file name.
-    @Nullable Resource resource = openResource("",
-        "META-INF/compiler/resource-mappings/" + getClass().getName());
-    if (resource != null) {
-      PrintWriter writer = new PrintWriter(resource.getWriter());
-      writer.printf("resources by class name:\n");
-      writer.printf("%d items\n", contributingClassNames.size());
-      try {
-        for (String className : contributingClassNames) {
-          writer.printf("%s -> %s\n", className, cmdLinePropertiesResourcePath.toUri().getPath());
-        }
-      } finally {
-        closeQuietly(writer);
-      }
+  /** Return classNames from the given RoundEnvironment. */
+  private Iterable<String> extractClassNames(RoundEnvironment roundEnv) {
+    ImmutableList.Builder<String> classNames = new ImmutableList.Builder<String>();
+    for (Element element : roundEnv.getRootElements()) {
+      classNames.addAll(extractClassNames(element));
     }
+    return classNames.build();
   }
 
-  private static final Function<Element, Element> EXTRACT_ENCLOSING_CLASS =
-      new Function<Element, Element>() {
-        @Override public Element apply(Element element) {
-          return element.getEnclosingElement();
-        }
-      };
-
-  private final Function<Element, String> extractClassName = new Function<Element, String>() {
-    @Override public String apply(Element element) {
-      return getBinaryName((TypeElement) element);
+  /** If the given element is a class, returns its className, and those of its inner classes. */
+  private Iterable<String> extractClassNames(Element element) {
+    if (!(element instanceof TypeElement)) {
+      return ImmutableList.<String>of();
     }
-  };
-
-  private final Function<Element, String> extractEnclosingClassName =
-      Functions.compose(extractClassName, EXTRACT_ENCLOSING_CLASS);
-
-  private Iterable<String> extractEnclosingClassNames(Iterable<? extends Element> elements) {
-    return Iterables.transform(elements, extractEnclosingClassName);
-  }
-
-  private Iterable<String> extractClassNames(Iterable<? extends Element> elements) {
-    return Iterables.transform(elements, extractClassName);
+    Iterable<String> classNames = ImmutableList.of(getBinaryName((TypeElement) element));
+    for (Element child : element.getEnclosedElements()) {
+      classNames = Iterables.concat(classNames, extractClassNames(child));
+    }
+    return classNames;
   }
 
   private void closeQuietly(Closeable closeable) {
+    if (closeable == null) {
+      return;
+    }
     try {
       closeable.close();
     } catch (IOException e) {
@@ -320,9 +281,7 @@ public class CmdLineProcessor extends AbstractProcessor {
   }
 
   @Nullable
-  private Set<String> getParsedTypes(@Nullable Configuration configuration,
-      Set<? extends Element> parsers) {
-
+  private Set<String> getParsedTypes(Set<? extends Element> parsers) {
     if (!isCheckLinkage) {
       return null;
     }
@@ -339,19 +298,17 @@ public class CmdLineProcessor extends AbstractProcessor {
             return Optional.of(typeUtils.erasure(parsedType).toString());
           }
         }));
-    if (configuration != null) {
-      parsersFor = Iterables.concat(parsersFor, Iterables.filter(
-          Iterables.transform(configuration.parserInfo(),
-              new Function<ParserInfo, String>() {
-                @Override @Nullable public String apply(ParserInfo parserInfo) {
-                  TypeElement typeElement = elementUtils.getTypeElement(parserInfo.parsedType);
-                  // We may not have a type on the classpath for a previous round - this is fine as
-                  // long as the no Args in this round that are of the type.
-                  return (typeElement == null)
-                      ? null : typeUtils.erasure(typeElement.asType()).toString();
-                }
-              }), Predicates.notNull()));
-    }
+    parsersFor = Iterables.concat(parsersFor, Iterables.filter(
+        Iterables.transform(this.persistedConfig.get().parserInfo(),
+            new Function<ParserInfo, String>() {
+              @Override @Nullable public String apply(ParserInfo parserInfo) {
+                TypeElement typeElement = elementUtils.getTypeElement(parserInfo.parsedType);
+                // We may not have a type on the classpath for a previous round - this is fine as
+                // long as the no Args in this round that are of the type.
+                return (typeElement == null)
+                    ? null : typeUtils.erasure(typeElement.asType()).toString();
+              }
+            }), Predicates.notNull()));
     return ImmutableSet.copyOf(parsersFor);
   }
 
@@ -411,7 +368,7 @@ public class CmdLineProcessor extends AbstractProcessor {
           TypeMirror customParserType = getClassType(cmdLine, "parser", parserType).asType();
           if (typeUtils.isSameType(parserType.asType(), customParserType)) {
             if (!checkTypePresent(parsedTypes, typeArgument)) {
-              error("No parser registered for %s, %s.%s is un-parseable",
+              error("No parser registered for %s; %s.%s is un-parseable",
                   typeArgument, containingType, annotationElement);
             }
           } else {
@@ -458,7 +415,8 @@ public class CmdLineProcessor extends AbstractProcessor {
 
         @Nullable String parsedType = getTypeArgument(parser, parserType);
         if (parsedType != null) {
-          configBuilder.addParser(parsedType, getBinaryName(parser));
+          String parserClassName = getBinaryName(parser);
+          getBuilder(parserClassName).addParser(parsedType, getBinaryName(parser));
         }
       }
     }
@@ -476,6 +434,7 @@ public class CmdLineProcessor extends AbstractProcessor {
           error("Found a @Verifier annotation on a non-Verifier %s", element);
           return;
         }
+        String verifierClassName = getBinaryName(verifier);
 
         @Nullable AnnotationMirror verifierFor = getAnnotationMirror(verifier, verifierForType);
         if (verifierFor != null) {
@@ -485,8 +444,8 @@ public class CmdLineProcessor extends AbstractProcessor {
             if (verifiedType != null) {
               String verifyAnnotationClassName =
                   elementUtils.getBinaryName(verifyAnnotationType).toString();
-              configBuilder.addVerifier(verifiedType, verifyAnnotationClassName,
-                  getBinaryName(verifier));
+              getBuilder(verifierClassName).addVerifier(verifiedType, verifyAnnotationClassName,
+                  verifierClassName);
             }
           }
         }
@@ -580,9 +539,11 @@ public class CmdLineProcessor extends AbstractProcessor {
   }
 
   @Nullable
-  private FileObject createCommandLineDb(Configuration configuration) {
-    String name = isMain ? Configuration.mainResourceName() : configuration.nextResourceName();
-    return createResource(Configuration.DEFAULT_RESOURCE_PACKAGE, name);
+  private FileObject createCommandLineDb(String className) {
+    // TODO: Move into the Configuration package somehow.
+    return createResource(
+        Configuration.DEFAULT_RESOURCE_PACKAGE,
+        className + Configuration.DEFAULT_RESOURCE_SUFFIX);
   }
 
   @Nullable
@@ -591,58 +552,8 @@ public class CmdLineProcessor extends AbstractProcessor {
       return processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT,
           packageName, name);
     } catch (IOException e) {
-      error("Failed to create resource file to store %s/%s: %s",
-          packageName, name, Throwables.getStackTraceAsString(e));
-      return null;
-    }
-  }
-
-  private static final class Resource {
-    private final FileObject resource;
-    private final Writer writer;
-
-    Resource(FileObject resource, Writer writer) {
-      this.resource = resource;
-      this.writer = writer;
-    }
-
-    FileObject getResource() {
-      return resource;
-    }
-
-    Writer getWriter() {
-      return writer;
-    }
-  }
-
-  @Nullable
-  private Resource openCmdLinePropertiesResource(Configuration configuration) {
-    @Nullable FileObject resource = createCommandLineDb(configuration);
-    return openResource(resource);
-  }
-
-  @Nullable
-  private Resource openResource(String packageName, String name) {
-    @Nullable FileObject resource = createResource(packageName, name);
-    return openResource(resource);
-  }
-
-  @Nullable
-  private Resource openResource(@Nullable FileObject resource) {
-    if (resource == null) {
-      return null;
-    }
-    try {
-      log(Kind.NOTE, "Writing %s", resource.toUri());
-      return new Resource(resource, resource.openWriter());
-    } catch (IOException e) {
-      if (!resource.delete()) {
-        log(Kind.WARNING, "Failed to clean up %s after a failing to open it for writing",
-            resource.toUri());
-      }
-      error("Failed to open resource file to store %s: %s", resource.toUri(),
-          Throwables.getStackTraceAsString(e));
-      return null;
+      throw new RuntimeException(
+          "Failed to create resource file to store %s/%s:".format(packageName, name), e);
     }
   }
 

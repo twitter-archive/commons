@@ -14,17 +14,16 @@
 # limitations under the License.
 # ==================================================================================================
 
-jar_library(name='specs_2.9',
+jar_library(name='specs',
   jars=[
     # This arrangement gets our version of scalatest playing well with specs; without this,
     # a scala-library inconsistency - _despite_ matching 2.9.3 monikers at the dep roots - creeps
     # in.
-    jar(org='org.scala-tools.testing', name='specs_2.9.3', rev='1.6.9')
-      .exclude(org='org.scalatest', name='scalatest'),
+    jar(org='org.scala-tools.testing', name='specs_2.10', rev='1.6.9', excludes=[
+      exclude(org='org.scalatest', name='scalatest')
+    ])
   ],
   dependencies=[
     '3rdparty/jvm/org/scalatest'
   ]
 )
-
-target(name='specs', dependencies=[':specs_2.9'])

@@ -1,5 +1,5 @@
 # ==================================================================================================
-# Copyright 2014 Twitter, Inc.
+# Copyright 2015 Twitter, Inc.
 # --------------------------------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -14,10 +14,8 @@
 # limitations under the License.
 # ==================================================================================================
 
-from pants.goal.task_registrar import TaskRegistrar as task
-
-from twitter.common.pants.jvm.args.tasks.resource_mapper import ResourceMapper
-
-
-def register_goals():
-  task(name='args-apt', action=ResourceMapper).install('resources')
+jar_library(name='junit-runner-annotations',
+  jars=[
+    jar(org='org.pantsbuild', name='junit-runner-annotations', rev='0.0.4')
+  ]
+)

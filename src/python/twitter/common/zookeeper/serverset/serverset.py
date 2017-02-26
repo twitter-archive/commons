@@ -108,7 +108,7 @@ class ServerSet(object):
     """Iterate over the services (ServiceInstance objects) in this ServerSet."""
     for member in self._group.list():
       try:
-        yield ServiceInstance.unpack(self._group.info(member))
+        yield ServiceInstance.unpack(self._group.info(member), member_id=member.id)
       except Exception as e:
         log.warning('Failed to deserialize endpoint: %s' % e)
         continue

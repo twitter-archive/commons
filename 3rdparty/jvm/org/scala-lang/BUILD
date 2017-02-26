@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-REV = '2.9.3'
+REV = '2.10.5'
 
 def make_lib(name):
   jar_library(name=name,

@@ -14,15 +14,14 @@
 # limitations under the License.
 # ==================================================================================================
 
-SCALA_REV = '2.9.2'
+SCALA_REV = '2.10'
 
 
 def make_lib(name, rev, scala_rev=None, excludes=None, deps=None):
   artifact_name=name if scala_rev is None else '%s_%s' % (name, scala_rev)
-  jar_dep=jar(org='com.twitter', name=artifact_name, rev=rev)
-  if excludes:
-    for exclude in excludes:
-      jar_dep.exclude(exclude.org, exclude.name)
+  jar_dep = jar(org='com.twitter', name=artifact_name, rev=rev, excludes=[
+    exclude(x.org, x.name) for x in excludes
+  ] if excludes else None)
   jar_library(name=name, jars=[jar_dep], dependencies=deps or [])
 
 
@@ -77,7 +76,7 @@ make_util_lib('util-jvm')
 make_lib('jsr166e', '1.0.0')
 
 
-make_lib('ostrich', '9.1.2')
+make_lib('ostrich', '9.1.2', scala_rev=SCALA_REV)
 
 
 make_lib('twitter-text', '1.5.0')

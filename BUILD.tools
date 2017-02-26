@@ -74,7 +74,9 @@ target(name='scala-library',
 make_lib('com.puppycrawl.tools', 'checkstyle', '5.7', lib_name='checkstyle',
   jars=[
     jar(org='com.twitter.common', name='checkstyle', rev='0.0.7')
-      .exclude(jar(org='com.google.guava', name='guava'))
+  ],
+  excludes=[
+    exclude(org='com.google.guava', name='guava')
   ]
 )
 
@@ -99,15 +101,11 @@ make_lib('com.google.code.java-allocation-instrumenter', 'java-allocation-instru
 
 
 # ScalaRepl
-make_lib('org.scala-lang', 'scala-compiler', '2.9.3', lib_name='scala-repl',
+make_lib('org.scala-lang', 'scala-compiler', '2.10.5', lib_name='scala-repl',
   jars=[
-    jar(org='org.scala-lang', name='jline', rev='2.9.3'),
+    jar(org='org.scala-lang', name='jline', rev='2.10.5'),
   ]
 )
-
-
-# JarTask
-make_lib('org.pantsbuild', 'jar-tool', '0.0.5')
 
 
 # Tool Auto-shading

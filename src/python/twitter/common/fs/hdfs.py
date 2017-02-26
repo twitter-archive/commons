@@ -28,34 +28,43 @@ from twitter.common.util.command_util import CommandUtil
 
 class HDFSHelper(object):
   """
-  This Class provides a set of functions for hadoop operations. 
-  NOTE: This class assumes a local hadoop client on the path.
+  This Class provides a set of functions for hdfs operations.
+  NOTE: This class assumes a local hdfs or hadoop client on the path.
   """
   class InternalError(Exception): pass
 
   PARSER = ScanfParser('%(mode)s %(dirents)s %(user)s %(group)s %(filesize)d '
             '%(year)d-%(month)d-%(day)d %(hour)d:%(minute)d')
 
-  def __init__(self, config, command_class=CommandUtil, heap_limit=Amount(256, Data.MB)):
-    """heap_limit is the maximum heap that should be allocated to the hadoop process,
-    defined using twitter.common.quantity.Data."""
+  def __init__(self, config, command_class=CommandUtil, heap_limit=Amount(256, Data.MB),
+    use_hadoop_v1=False):
+    """
+    heap_limit is the maximum heap that should be allocated to the command process,
+    defined using twitter.common.quantity.Data.
+
+    use_hadoop_v1 sets the command to hadoop instead of hdfs.
+    """
     if not os.path.isdir(config):
-      raise ValueError("hadoop requires root of a config tree")
+      raise ValueError('Command requires root of a config tree')
     self._config = config
     self._cmd_class = command_class
     if heap_limit is None:
-      raise ValueError('The hadoop heap_limit must not be specified as "None".')
+      raise ValueError('The hdfs heap_limit must not be specified as "None".')
     self._heap_limit = heap_limit
+    self.cli_command = 'hadoop' if use_hadoop_v1 else 'hdfs'
+    if not self._cmd_class.cmd_within_path(self.cli_command):
+      raise OSError('The "{0}" utility is not available on the system PATH'.format(
+        self.cli_command))
 
   @property
   def config(self):
     return self._config
 
   def _call(self, cmd, *args, **kwargs):
-    """Runs hadoop fs command  with the given command and args.
+    """Runs fs command with the given command and args.
     Checks the result of the call by default but this can be disabled with check=False.
     """
-    cmd = ['hadoop', '--config', self._config, 'dfs', cmd] + list(args)
+    cmd = [self.cli_command, '--config', self._config, 'dfs', cmd] + list(args)
     heapsize = str(int(self._heap_limit.as_(Data.MB)))
     with environment_as(HADOOP_HEAPSIZE=heapsize):
       if kwargs.get('check'):
@@ -69,7 +78,7 @@ class HDFSHelper(object):
 
   def get(self, src, dst):
     """
-    Copy file(s) in hdfs to local path (via proxy if necessary).
+    Copy file(s) in HDFS to local path (via proxy if necessary).
     NOTE: If src matches multiple files, make sure dst is a directory!
     """
     if isinstance(src, list):
@@ -80,7 +89,7 @@ class HDFSHelper(object):
 
   def put(self, src, dst):
     """
-    Copy the local file src to a hadoop path dst.
+    Copy the local file src to a HDFS path dst.
     """
     abs_src = os.path.expanduser(src)
     assert os.path.exists(abs_src), 'File does not exist, cannot copy: %s' % abs_src
@@ -100,7 +109,7 @@ class HDFSHelper(object):
 
   def exists(self, path, flag='-e'):
     """
-    Checks if the path exists in hdfs
+    Checks if the path exists in HDFS
     Returns true if it exists or else
     Returns false
     """
@@ -111,14 +120,14 @@ class HDFSHelper(object):
 
   def cat(self, remote_file_pattern, local_file=sys.stdout):
     """
-    Cat hdfs file to local
+    Cat HDFS file to local
     """
     return self._call("-cat", remote_file_pattern, also_output_to_file=local_file)
 
   def _ls(self, path, is_dir=False, is_recursive=False):
     """
     Return list of [hdfs_full_path, filesize]
-    Raises exception when the hadoop ls command returns error
+    Raises exception when the HDFS ls command returns error
     """
     hdfs_cmd = '-lsr' if is_recursive else '-ls'
     (exit_code, ls_result) = self._call(hdfs_cmd, path, return_output=True)
