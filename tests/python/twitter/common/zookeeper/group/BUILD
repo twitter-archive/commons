@@ -1,4 +1,4 @@
-python_test_suite(
+target(
   name = 'group',
   dependencies = [
     ':test_kazoo_group',

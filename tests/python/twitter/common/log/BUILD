@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-python_test_suite(name = 'log',
+target(name = 'log',
   dependencies = [
     ':test_log',
     ':test_log_with_scribe',

@@ -11,12 +11,24 @@
 # You can learn more here: https://pantsbuild.github.io/setup
 # ====================================================================
 
+set -e
+
 PYTHON=${PYTHON:-$(which python2.7)}
 
 PANTS_HOME="${PANTS_HOME:-${HOME}/.cache/pants/setup}"
-PANTS_BOOTSTRAP="${PANTS_HOME}/bootstrap"
+PANTS_BOOTSTRAP="${PANTS_HOME}/bootstrap-$(uname -s)-$(uname -m)"
 
-VENV_VERSION=13.1.0
+VENV_VERSION=15.0.2
+
+# This requirement is installed before pantsbuild.pants to hack around
+# interpreters that have newer setuptools already installed, effectively
+# re-installing an older setuptools and pinning low to a version known to be 
+# ingestable by both pants and pex for all reasonable versions of pants.
+# See:
+#   https://github.com/pantsbuild/pants/issues/3948
+#   https://github.com/pantsbuild/setup/issues/14
+#   https://github.com/pantsbuild/setup/issues/19
+SETUPTOOLS_REQUIREMENT="setuptools==5.4.1"
 
 VENV_PACKAGE=virtualenv-${VENV_VERSION}
 VENV_TARBALL=${VENV_PACKAGE}.tar.gz
@@ -42,8 +54,8 @@ function bootstrap_venv {
     (
       mkdir -p "${PANTS_BOOTSTRAP}" && \
       staging_dir=$(tempdir "${PANTS_BOOTSTRAP}") && \
-      cd ${staging_dir} && \
-      curl -O https://pypi.python.org/packages/source/v/virtualenv/${VENV_TARBALL} && \
+      cd "${staging_dir}" && \
+      curl -LO https://pypi.io/packages/source/v/virtualenv/${VENV_TARBALL} && \
       tar -xzf ${VENV_TARBALL} && \
       ln -s "${staging_dir}/${VENV_PACKAGE}" "${staging_dir}/latest" && \
       mv "${staging_dir}/latest" "${PANTS_BOOTSTRAP}/${VENV_PACKAGE}"
@@ -56,7 +68,7 @@ function bootstrap_pants {
   pants_requirement="pantsbuild.pants"
   pants_version=$(
     grep -E "^[[:space:]]*pants_version" pants.ini 2>/dev/null | \
-      sed -E 's|^[[:space:]]*pants_version[:=][[:space:]]*([^[:space:]]+)|\1|'
+      cut -f2 -d: | tr -d " "
   )
   if [[ -n "${pants_version}" ]]
   then
@@ -68,20 +80,23 @@ function bootstrap_pants {
   if [[ ! -d "${PANTS_BOOTSTRAP}/${pants_version}" ]]
   then
     (
+      # NB: We setup the virtualenv with no setuptools to ensure our
+      # ${SETUPTOOLS_REQUIREMENT} wins.
       venv_path="$(bootstrap_venv)" && \
       staging_dir=$(tempdir "${PANTS_BOOTSTRAP}") && \
-      "${PYTHON}" "${venv_path}/virtualenv.py" "${staging_dir}/install" && \
-      source "${staging_dir}/install/bin/activate" && \
-      # NB: The `pbr` dep is added to fix install issues as reccomended here:
-      #  https://groups.google.com/d/topic/pants-devel/OnPISJosUoI/discussion
-      # If pants is upgraded to >= 0.0.80 the `pbr==1.9.0` can be deleted.
-      pip install "${pants_requirement}" pbr==1.9.0 && \
+      "${PYTHON}" "${venv_path}/virtualenv.py" --no-setuptools --no-download \
+        "${staging_dir}/install" && \
+      "${staging_dir}/install/bin/python" \
+        "${staging_dir}/install/bin/pip" install \
+          "${SETUPTOOLS_REQUIREMENT}" && \
+      "${staging_dir}/install/bin/python" \
+        "${staging_dir}/install/bin/pip" install \
+          "${pants_requirement}" && \
       ln -s "${staging_dir}/install" "${staging_dir}/${pants_version}" && \
       mv "${staging_dir}/${pants_version}" "${PANTS_BOOTSTRAP}/${pants_version}"
     ) 1>&2
   fi
   echo "${PANTS_BOOTSTRAP}/${pants_version}"
 }
-
 pants_dir=$(bootstrap_pants) && \
-exec "${pants_dir}/bin/pants" "$@"
+exec "${pants_dir}/bin/python" "${pants_dir}/bin/pants" "$@"

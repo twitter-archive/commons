@@ -19,7 +19,7 @@ python_library(
   resources = globs('resources/*'),
 )
 
-python_test_suite(
+target(
   name = 'java',
   dependencies = [
     ':class_file',
