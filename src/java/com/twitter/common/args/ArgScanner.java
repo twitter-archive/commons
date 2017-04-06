@@ -191,7 +191,7 @@ public final class ArgScanner {
    * @throws IllegalArgumentException If the arguments provided are invalid based on the declared
    *    arguments found.
    */
-  public boolean parse(Iterable<String> args) {
+  public boolean parse(Iterable<String> args) throws ArgScanException, IllegalArgumentException {
     return parse(ArgFilters.SELECT_ALL, ImmutableList.copyOf(args));
   }
 
@@ -209,7 +209,8 @@ public final class ArgScanner {
    * @throws IllegalArgumentException If the arguments provided are invalid based on the declared
    *    arguments found.
    */
-  public boolean parse(Predicate<Field> filter, Iterable<String> args) {
+  public boolean parse(Predicate<Field> filter, Iterable<String> args)
+      throws ArgScanException, IllegalArgumentException {
     Preconditions.checkNotNull(filter);
     ImmutableList<String> arguments = ImmutableList.copyOf(args);
 
@@ -230,7 +231,8 @@ public final class ArgScanner {
    * @throws IllegalArgumentException If the arguments provided are invalid based on the declared
    *    arguments found.
    */
-  public boolean parse(ArgsInfo argsInfo, Iterable<String> args) {
+  public boolean parse(ArgsInfo argsInfo, Iterable<String> args)
+      throws ArgScanException, IllegalArgumentException {
     Preconditions.checkNotNull(argsInfo);
     ImmutableList<String> arguments = ImmutableList.copyOf(args);
 

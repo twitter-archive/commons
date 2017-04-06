@@ -326,7 +326,7 @@ public final class Either<L, R> {
    */
   public static <X extends Exception, R> Either<X, R> guard(
       Iterable<Class<? extends X>> exceptionTypes,
-      ExceptionalSupplier<R, X> work) {
+      ExceptionalSupplier<R, X> work) throws UnguardedException {
 
     try {
       return right(work.get());

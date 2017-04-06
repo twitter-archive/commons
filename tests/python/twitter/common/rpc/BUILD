@@ -21,7 +21,7 @@ python_tests(name = 'rpc',
   ]
 )
 
-python_test_suite(name = 'all',
+target(name = 'all',
   dependencies = [
     ':rpc',
     'tests/python/twitter/common/rpc/finagle'

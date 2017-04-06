@@ -1,11 +1,11 @@
-python_test_suite(
+target(
   name = 'all',
   dependencies = [
     ':checkstyle',
   ]
 )
 
-python_test_suite(
+target(
   name = 'checkstyle',
   dependencies = [
     ':test_common',
