@@ -15,7 +15,7 @@
 # ==================================================================================================
 
 
-java_tests(name = 'text',
+junit_tests(name = 'text',
   dependencies = [
     '3rdparty/jvm/org/easymock',
     '3rdparty/jvm/junit',

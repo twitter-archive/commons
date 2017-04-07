@@ -1,4 +1,4 @@
-java_tests(name = 'angrybird',
+junit_tests(name = 'angrybird',
   dependencies = [
     '3rdparty/jvm/com/google/guava',
     '3rdparty/jvm/org/hamcrest:hamcrest-core',

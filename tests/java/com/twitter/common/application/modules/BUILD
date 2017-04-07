@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name='lifecycle',
+junit_tests(name='lifecycle',
   dependencies=[
     '3rdparty/jvm/org/easymock',
     '3rdparty/jvm/com/google/guava',

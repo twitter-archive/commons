@@ -16,7 +16,7 @@
 
 
 
-java_tests(name = 'quantity',
+junit_tests(name = 'quantity',
   dependencies = [
     '3rdparty/jvm/com/google/guava',
     '3rdparty/jvm/junit',

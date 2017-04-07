@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name = 'inject',
+junit_tests(name = 'inject',
   dependencies = [
     '3rdparty/jvm/commons-lang',
     '3rdparty/jvm/com/google/guava',

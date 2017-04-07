@@ -1,4 +1,4 @@
-java_tests(name = 'filters',
+junit_tests(name = 'filters',
   dependencies = [
     '3rdparty/jvm/org/easymock',
     '3rdparty/jvm/com/google/inject:guice',

@@ -1,4 +1,4 @@
-java_tests(name = 'concurrent',
+junit_tests(name = 'concurrent',
   dependencies = [
     '3rdparty/jvm/junit',
     'src/java/com/twitter/common/testing/easymock',

@@ -16,7 +16,7 @@
 
 
 
-java_tests(name = 'net',
+junit_tests(name = 'net',
   dependencies = [
     '3rdparty/jvm/commons-codec',
     '3rdparty/jvm/com/google/guava',

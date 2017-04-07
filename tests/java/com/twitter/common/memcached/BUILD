@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name = 'memcached',
+junit_tests(name = 'memcached',
   dependencies = [
     '3rdparty/jvm/com/google/guava',
     '3rdparty/jvm/junit',

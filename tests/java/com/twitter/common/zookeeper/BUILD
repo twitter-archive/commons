@@ -33,7 +33,7 @@ LARGE = [
   'ZooKeeperNodeTest.java',
 ]
 
-java_tests(name = 'small',
+junit_tests(name = 'small',
   dependencies = [
     '3rdparty/jvm/org/easymock',
     '3rdparty/jvm/com/google/guava',
@@ -48,7 +48,7 @@ java_tests(name = 'small',
   sources = globs('*.java', exclude=[MEDIUM, LARGE])
 )
 
-java_tests(name = 'medium-main',
+junit_tests(name = 'medium-main',
   dependencies = [
     '3rdparty/jvm/com/google/guava',
     '3rdparty/jvm/com/google/inject:guice',
@@ -75,7 +75,7 @@ target(name = 'medium',
   ]
 )
 
-java_tests(name = 'large',
+junit_tests(name = 'large',
   dependencies = [
     '3rdparty/jvm/org/easymock',
     '3rdparty/jvm/com/google/guava',

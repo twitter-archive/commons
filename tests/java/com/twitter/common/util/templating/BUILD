@@ -1,4 +1,4 @@
-java_tests(name='templating',
+junit_tests(name='templating',
   dependencies=[
     '3rdparty/jvm/com/google/guava',
     '3rdparty/jvm/junit',
