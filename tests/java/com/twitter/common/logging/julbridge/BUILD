@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name = 'julbridge',
+junit_tests(name = 'julbridge',
   dependencies = [
     '3rdparty/jvm/org/hamcrest:hamcrest-core',
     '3rdparty/jvm/junit',

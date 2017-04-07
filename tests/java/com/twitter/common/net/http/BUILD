@@ -1,4 +1,4 @@
-java_tests(name = 'http',
+junit_tests(name = 'http',
   dependencies = [
     '3rdparty/jvm/org/easymock',
     '3rdparty/jvm/org/mortbay/jetty',
