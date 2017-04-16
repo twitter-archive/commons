@@ -239,7 +239,7 @@ _STDERR_LOGGERS = []
 _DISK_LOGGERS = []
 
 
-def init(filebase=None):
+def init(filebase=None, quiet=False):
   """
     Sets up default stderr logging and, if filebase is supplied, sets up disk logging using:
       {--log_dir}/filebase.{INFO,WARNING,...}
@@ -282,9 +282,9 @@ def init(filebase=None):
 
   logging._releaseLock()
 
-  if len(_DISK_LOGGERS) > 0:
+  if len(_DISK_LOGGERS) > 0 and not quiet:
     print_stderr('Writing log files to disk in %s' % LogOptions.log_dir())
-  if len(_SCRIBE_LOGGERS) > 0:
+  if len(_SCRIBE_LOGGERS) > 0 and not quiet:
     print_stderr('Sending log messages to scribe host=%s:%d category=%s'
           % (LogOptions.scribe_host(), LogOptions.scribe_port(), LogOptions.scribe_category()))
 
