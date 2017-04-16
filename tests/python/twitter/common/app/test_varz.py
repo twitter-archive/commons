@@ -50,6 +50,8 @@ class TestVarz(unittest.TestCase):
     assert "zone" in metrics_returned
     assert "alpha" not in metrics_returned
     request.GET.replace('filtered', None)
+    rm.clear()
+    metrics.clear()
 
   def test_filtering_vars_filter_enabled_and_not_requested(self):
     rm = RootMetrics()
@@ -66,6 +68,8 @@ class TestVarz(unittest.TestCase):
     assert "zone" in metrics_returned
     assert "alpha" in metrics_returned
     request.GET.replace('filtered', None)
+    rm.clear()
+    metrics.clear()
 
   def test_filtering_vars_filter_disabled_and_requested(self):
     rm = RootMetrics()
@@ -83,3 +87,5 @@ class TestVarz(unittest.TestCase):
     assert "zone" in metrics_returned
     assert "alpha" in metrics_returned
     request.GET.replace('filtered', None)
+    rm.clear()
+    metrics.clear()
