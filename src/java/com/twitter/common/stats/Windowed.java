@@ -85,9 +85,8 @@ public abstract class Windowed<T> {
    * Return the index of the latest Histogram.
    * You have to modulo it with buffer.length before accessing the array with this number.
    */
-  protected int getCurrentIndex() {
-    long now = clock.nowMillis();
-    return (int) (now / sliceDuration);
+  protected long getCurrentIndex() {
+    return clock.nowMillis() / sliceDuration;
   }
 
   /**
