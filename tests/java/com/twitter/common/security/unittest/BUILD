@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name = 'unittest',
+junit_tests(name = 'unittest',
   dependencies = [
     '3rdparty/jvm/junit',
 

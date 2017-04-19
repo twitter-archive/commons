@@ -1,11 +1,11 @@
-python_test_suite(
+target(
   name = 'all',
   dependencies = [
     ':examples',
   ]
 )
 
-python_test_suite(
+target(
   name = 'examples',
   dependencies = [
     ':test_pingpong_server',

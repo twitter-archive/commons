@@ -6,7 +6,7 @@ python_tests(name = 'jira',
   ]
 )
 
-python_test_suite(name = 'all',
+target(name = 'all',
   dependencies = [
     ':jira',
   ]

@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name = 'logging',
+junit_tests(name = 'logging',
   dependencies = [
     '3rdparty/jvm/org/easymock',
     '3rdparty/jvm/org/hamcrest:hamcrest-core',

@@ -45,13 +45,13 @@ done
 # flip-flop that settled out at 3.3.  Make sure travis-ci
 # for example does not attempt to setup a 3.2 interpreter.
 INTERPRETER_CONSTRAINTS=(
-  "CPython>=2.6,<3"
+  "CPython>=2.7,<3"
   "CPython>=3.3"
 )
 for constraint in ${INTERPRETER_CONSTRAINTS[@]}; do
   INTERPRETER_ARGS=(
     ${INTERPRETER_ARGS[@]}
-    --interpreter="${constraint}"
+    --python-setup-interpreter-constraints="${constraint}"
   )
 done
 
@@ -101,7 +101,7 @@ if [[ "${skip_python:-false}" == "false" ]]; then
     )
     ./pants \
       ${compile_exclusions[@]/#/--exclude-target-regexp=} \
-      compile.python-eval --fail-slow src/python/::
+      compile.python-eval --no-skip src/python/::
   ) || die "Python compile failure"
 
   banner "Running python tests"
@@ -109,7 +109,7 @@ if [[ "${skip_python:-false}" == "false" ]]; then
     # TODO(John Sirois): We clean-all here to work-around args resource mapper issues finding leftover
     # entries from args tests in the jvm tests above, kill the clean-all once the resource mapper bug
     # is identified and fixed.
-    ./pants --timeout=5 ${INTERPRETER_ARGS[@]} clean-all test.pytest --fail-slow --no-fast \
+    ./pants --timeout=5 ${INTERPRETER_ARGS[@]} clean-all test.pytest --no-fast \
       tests/python/twitter/common:all
   ) || die "Python test failure"
 fi

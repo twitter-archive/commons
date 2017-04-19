@@ -24,7 +24,7 @@ import urllib2
 
 from pants.base.build_environment import get_buildroot
 
-from twitter.common.dirutil import Fileset, safe_delete
+from twitter.common.dirutil import safe_delete
 
 
 # TODO(John Sirois): replace this source fetching backdoor with a proper remote fileset once
@@ -69,7 +69,5 @@ class RemotePythonThriftFileset(object):
       safe_delete(fetched)
 
   def __call__(self, base_url, sources):
-    def fetch():
-      atexit.register(self.cleanup)
-      return self._fetch(base_url, sources)
-    return Fileset(fetch)
+    atexit.register(self.cleanup)
+    return list(self._fetch(base_url, sources))

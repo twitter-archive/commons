@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name='runtime',
+junit_tests(name='runtime',
   dependencies=[
     '3rdparty/jvm/com/google/guava',
     '3rdparty/jvm/junit',

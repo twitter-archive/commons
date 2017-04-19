@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name='testing',
+junit_tests(name='testing',
   dependencies=[
     '3rdparty/jvm/junit',
     '3rdparty/jvm/com/google/testing:tl4j',

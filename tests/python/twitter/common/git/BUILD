@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-python_test_suite(
+target(
   name = 'all',
   dependencies = [
     ':git',

@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-java_tests(name = 'base',
+junit_tests(name = 'base',
   dependencies = [
     '3rdparty/jvm/org/easymock',
     '3rdparty/jvm/com/google/guava',
