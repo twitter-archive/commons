@@ -1,0 +1,10 @@
+python_binary(
+  name='yagddns',
+  source='yagddns.py',
+  dependencies=[
+    '3rdparty/python:pyyaml',
+    '3rdparty/python:requests',
+    'src/python/twitter/common/app:app',
+    'src/python/twitter/common/log:log',
+  ],
+)
