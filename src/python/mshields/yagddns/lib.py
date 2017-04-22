@@ -1,8 +1,6 @@
 """Yagddns common library."""
 # pylint: disable=import-error
 
-from twitter.common import log
-
 import requests
 
 
@@ -13,10 +11,9 @@ def update_dns(creds, url='https://domains.google.com/nic/update'):
   :param creds: credentials from processed yaml.
   :type creds: dict
   :param url: URL to submit credentials.
-  :returns: responses
+  :yield: response
   :rtype: obj, requests response
   """
-  log.info(creds)
   for hostname in creds:
     username = creds[hostname]['username']
     password = creds[hostname]['password']
@@ -25,4 +22,4 @@ def update_dns(creds, url='https://domains.google.com/nic/update'):
 
     response = requests.post(url, auth=(username, password), data=payload)
 
-    log.info(response)
+    yield response

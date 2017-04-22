@@ -22,7 +22,8 @@ def main(args):
     with open(yaml_file) as yaml_fh:
       creds = safe_load(yaml_fh)
 
-    lib.update_dns(creds)
+    for response in lib.update_dns(creds):
+      log.info('Response: %s', response)
 
 
 app.main()
