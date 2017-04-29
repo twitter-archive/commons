@@ -1,0 +1,8 @@
+[Unit]
+Description=yagddns.pex to update Google Dynamic DNS
+
+[Service]
+Type=onshot
+ExecStart=/usr/local/bin/yagddns.pex --help
+User=nobody
+Group=nobody

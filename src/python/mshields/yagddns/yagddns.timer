@@ -1,0 +1,9 @@
+[Unit]
+Description=Run yagddns.pex minutely to update Google Dynamic DNS.
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=1min
+
+[Install]
+WantedBy=timers.target
