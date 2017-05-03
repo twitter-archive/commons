@@ -111,5 +111,23 @@ def run_goal(args):
   pants(pants_args)
 
 
+@app.command_option("--coverage", dest="coverage", default=False, help="Python test coverage.")
+@app.command(name="test")
+def test_goal(args, options):
+  """
+  Use test.pytest goal with pants.
+
+  :param args: relative targets.
+  :param type: list `str`.
+  :param options: twitter.common.app options.
+  :param type: obj
+  """
+  _targets = targets(rel_cwd(), args)
+  log.debug("chaps targets: %s", _targets)
+
+  pants_args = "test.pytest  {0} {1}".format("--coverage=%d" % int(options.coverage), _targets)
+  pants(pants_args)
+
+
 app.add_option("--quiet", "-q", default=False)
 app.main()
