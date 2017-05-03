@@ -1,4 +1,4 @@
-"""Chaps, a relative dir pants wrapper."""
+"""Chaps, a relative dir pants wrapper for Python targets."""
 # pylint: disable=E0401
 
 import os
