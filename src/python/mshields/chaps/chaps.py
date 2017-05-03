@@ -5,7 +5,10 @@ import os
 
 from twitter.common import app, log
 
-from sarge import capture_stdout, run
+from sarge import capture_stdout, run, shell_format
+
+
+log.LogOptions().disable_disk_logging()
 
 
 def git_toplevel():
@@ -49,7 +52,6 @@ def pants(args):
   :rtype: sarge `obj`
   """
   os.chdir(git_toplevel())
-
   _pants = run("./pants %s" % args)
 
   return _pants
@@ -74,7 +76,9 @@ def binary_goal(args):
 def list_goal():
   """List relative path pants targets."""
   path = rel_cwd()
-  pants_args = "list {0}".format(path)
+  awk_args = shell_format("{0}", '/:/{print ":"$NF}')
+  pants_args = "list {0} | awk -F: {1}".format(path, awk_args)
+
   pants(pants_args)
 
 
