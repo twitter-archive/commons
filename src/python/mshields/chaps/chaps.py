@@ -13,7 +13,7 @@ def git_toplevel():
   Grab absolute path of repo using git command.
 
   :returns: git.stdout.text.rstrip()
-  :rtype: str
+  :rtype: str.
   """
   git = capture_stdout("git rev-parse --show-toplevel")
   return git.stdout.text.rstrip()
@@ -24,7 +24,7 @@ def rel_cwd():
   Given the cwd and git_toplevel result, constructs the relative path difference.
 
   :returns: os.path.relpath
-  :rtype: str
+  :rtype: str.
   """
   return os.path.relpath(os.getcwd(), git_toplevel())
 
@@ -34,7 +34,7 @@ def targets(path, args):
   Assembles Fully Qualified Pants Targets (FQPT).
 
   :returns: space-delimited FQPT targets.
-  :rtype: str
+  :rtype: str.
   """
   return " ".join(["{0}{1}".format(path, target) for target in args])
 
@@ -61,7 +61,7 @@ def binary_goal(args):
   Create a binary using pants.
 
   :param args: relative targets.
-  :param type: list `str`
+  :param type: list `str`.
   """
   _targets = targets(rel_cwd(), args)
   log.debug("chaps targets: %s", _targets)
@@ -84,7 +84,7 @@ def repl_goal(args):
   Enter an ipython REPL.
 
   :param args: relative targets.
-  :type args: list `str`
+  :type args: list `str`.
   """
   _targets = targets(rel_cwd(), args)
   log.debug("chaps targets: %s", _targets)
@@ -99,7 +99,7 @@ def run_goal(args):
   Run a target using pants.
 
   :param args: relative targets.
-  :param type: list `str`
+  :param type: list `str`.
   """
   single_target = args[0]
   _targets = targets(rel_cwd(), [single_target])
