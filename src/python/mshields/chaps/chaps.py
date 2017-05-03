@@ -61,7 +61,7 @@ def binary_goal(args):
   Create a binary using pants.
 
   :param args: relative targets.
-  :param rtype: list `str`
+  :param type: list `str`
   """
   _targets = targets(rel_cwd(), args)
   log.debug("chaps targets: %s", _targets)
@@ -84,7 +84,7 @@ def repl_goal(args):
   Enter an ipython REPL.
 
   :param args: relative targets.
-  :param rtype: list `str`
+  :type args: list `str`
   """
   _targets = targets(rel_cwd(), args)
   log.debug("chaps targets: %s", _targets)
