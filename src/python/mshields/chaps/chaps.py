@@ -93,5 +93,23 @@ def repl_goal(args):
   pants(pants_args)
 
 
+@app.command(name="run")
+def run_goal(args):
+  """
+  Run a target using pants.
+
+  :param args: relative targets.
+  :param type: list `str`
+  """
+  single_target = args[0]
+  _targets = targets(rel_cwd(), [single_target])
+  run_args = " ".join(args[1:])
+
+  log.debug("chaps targets: %s", _targets)
+
+  pants_args = "run {0} {1}".format(_targets, run_args)
+  pants(pants_args)
+
+
 app.add_option("--quiet", "-q", default=False)
 app.main()
