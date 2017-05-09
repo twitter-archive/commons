@@ -35,16 +35,12 @@ class RemotePythonThriftFileset(object):
   FROM_RE = re.compile('from[,;]*$', re.MULTILINE)
   FROM_REPLACEMENT = 'from_'
 
-  @classmethod
-  def factory(cls, parse_context):
-    staging_dir = os.path.join(get_buildroot(), parse_context.rel_path)
-    return cls(staging_dir)
-
-  def __init__(self, staging_dir):
-    self._staging_dir = staging_dir
+  def __init__(self, parse_context):
+    self._parse_context = parse_context
     self._fetched = []
 
   def _fetch(self, base_url, sources):
+    staging_dir = os.path.join(get_buildroot(), self._parse_context.rel_path)
     for source in sources:
       if isinstance(source, tuple):
         assert len(source) == 2, 'Expected source, namespace tuple, got %s' % repr(source)
@@ -53,7 +49,7 @@ class RemotePythonThriftFileset(object):
         source_file, namespace = source, None
       fetch_path = base_url + '/' + source_file
       print('Fetching %s' % fetch_path, file=sys.stderr)
-      target_file = os.path.join(self._staging_dir, source_file)
+      target_file = os.path.join(staging_dir, source_file)
       url = urllib2.urlopen(fetch_path)
       with open(target_file, 'wb') as fp:
         fp.write(self.prefilter(url.read(), namespace=namespace))

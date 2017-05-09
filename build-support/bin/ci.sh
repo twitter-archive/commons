@@ -75,8 +75,8 @@ fi
 if [[ "${skip_java:-false}" == "false" ]]; then
   banner "Running jvm tests"
   (
-    ./pants -x ${INTERPRETER_ARGS[@]} test {src,tests}/java/com/twitter/common:: && \
-    ./pants -x ${INTERPRETER_ARGS[@]} test {src,tests}/scala/com/twitter/common::
+    ./pants -x ${INTERPRETER_ARGS[@]} test lint {src,tests}/java/com/twitter/common:: && \
+    ./pants -x ${INTERPRETER_ARGS[@]} test lint {src,tests}/scala/com/twitter/common::
   ) || die "Jvm test failure."
 fi
 
@@ -109,7 +109,7 @@ if [[ "${skip_python:-false}" == "false" ]]; then
     # TODO(John Sirois): We clean-all here to work-around args resource mapper issues finding leftover
     # entries from args tests in the jvm tests above, kill the clean-all once the resource mapper bug
     # is identified and fixed.
-    ./pants --timeout=5 ${INTERPRETER_ARGS[@]} clean-all test.pytest --no-fast \
+    ./pants --timeout=5 ${INTERPRETER_ARGS[@]} clean-all test.pytest lint --no-fast \
       tests/python/twitter/common:all
   ) || die "Python test failure"
 fi

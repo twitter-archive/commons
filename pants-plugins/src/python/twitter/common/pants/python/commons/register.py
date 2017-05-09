@@ -39,5 +39,5 @@ def build_file_aliases():
       },
       context_aware_object_factories={
           'read_contents': read_contents_factory,
-          'remote_python_thrift_fileset': RemotePythonThriftFileset.factory,
+          'remote_python_thrift_fileset': RemotePythonThriftFileset,
       })
