@@ -1,12 +1,3 @@
-target(
-  name = 'all',
-  dependencies = [
-    ':kazoo_client',
-    'tests/python/twitter/common/zookeeper/group',
-    'tests/python/twitter/common/zookeeper/serverset:all',
-  ],
-)
-
 python_tests(
   name = 'kazoo_client',
   dependencies = [

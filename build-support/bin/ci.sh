@@ -35,7 +35,7 @@ while getopts "hbsjp" opt; do
     h) usage ;;
     b) skip_bootstrap="true" ;;
     s) skip_distribution="true" ;;
-    j) skip_java="true" ;;
+    j) skip_jvm="true" ;;
     p) skip_python="true" ;;
     *) usage "Invalid option: -${OPTARG}" ;;
   esac
@@ -72,11 +72,10 @@ if [[ "${skip_distribution:-false}" == "false" ]]; then
   # be built.
 fi
 
-if [[ "${skip_java:-false}" == "false" ]]; then
+if [[ "${skip_jvm:-false}" == "false" ]]; then
   banner "Running jvm tests"
   (
-    ./pants -x ${INTERPRETER_ARGS[@]} test lint {src,tests}/java/com/twitter/common:: && \
-    ./pants -x ${INTERPRETER_ARGS[@]} test lint {src,tests}/scala/com/twitter/common::
+    ./pants -x ${INTERPRETER_ARGS[@]} test lint {src,tests}/{java,scala}/com/twitter/common::
   ) || die "Jvm test failure."
 fi
 
@@ -109,8 +108,7 @@ if [[ "${skip_python:-false}" == "false" ]]; then
     # TODO(John Sirois): We clean-all here to work-around args resource mapper issues finding leftover
     # entries from args tests in the jvm tests above, kill the clean-all once the resource mapper bug
     # is identified and fixed.
-    ./pants --timeout=5 ${INTERPRETER_ARGS[@]} clean-all test lint --test-pytest-no-fast \
-      tests/python/twitter/common:all
+    ./pants --timeout=5 ${INTERPRETER_ARGS[@]} test lint tests/python/twitter/common::
   ) || die "Python test failure"
 fi
 

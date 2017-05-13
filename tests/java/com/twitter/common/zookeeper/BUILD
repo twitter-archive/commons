@@ -48,7 +48,7 @@ junit_tests(name = 'small',
   sources = globs('*.java', exclude=[MEDIUM, LARGE])
 )
 
-junit_tests(name = 'medium-main',
+junit_tests(name = 'medium',
   dependencies = [
     '3rdparty/jvm/com/google/guava',
     '3rdparty/jvm/com/google/inject:guice',
@@ -66,13 +66,6 @@ junit_tests(name = 'medium-main',
     'src/java/com/twitter/common/zookeeper/guice',
   ],
   sources = MEDIUM
-)
-
-target(name = 'medium',
-  dependencies = [
-    ':medium-main',
-    'tests/java/com/twitter/common/zookeeper/testing/angrybird'
-  ]
 )
 
 junit_tests(name = 'large',
@@ -100,13 +93,3 @@ junit_tests(name = 'large',
   ],
   sources = LARGE
 )
-
-target(name = 'all',
-  dependencies = [
-    ':large',
-    ':medium',
-    ':small',
-  ]
-)
-
-target(name = 'zookeeper', dependencies = [ ':all' ])
