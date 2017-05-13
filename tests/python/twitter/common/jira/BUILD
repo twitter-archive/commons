@@ -5,9 +5,3 @@ python_tests(name = 'jira',
     '3rdparty/python:mock'
   ]
 )
-
-target(name = 'all',
-  dependencies = [
-    ':jira',
-  ]
-)
