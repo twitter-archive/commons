@@ -20,9 +20,7 @@ junit_tests(name='runtime',
     '3rdparty/jvm/junit',
     'src/java/com/twitter/common/io',
     'src/java/com/twitter/common/runtime:native',
+    'tests/resources/com/twitter/common/runtime',
   ],
   sources=globs('*.java'),
-  resources=[
-    'tests/resources/com/twitter/common/runtime',
-  ]
 )

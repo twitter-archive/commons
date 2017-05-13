@@ -25,9 +25,7 @@ java_library(
     '3rdparty/jvm/com/google/guava',
     '3rdparty/jvm/com/google/inject:guice',
     'src/java/com/twitter/common/application/http',
+    'src/resources/com/twitter/common/webassets/jquery',
   ],
   sources=globs('*.java'),
-  resources=[
-    'src/resources/com/twitter/common/webassets/jquery',
-  ]
 )

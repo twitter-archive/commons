@@ -16,12 +16,7 @@
 
 python_thrift_library(
   name='finagle-py-thrift',
-  sources=remote_python_thrift_fileset(
-    base_url='https://raw.github.com/twitter/finagle/master/finagle-thrift/src/main/thrift',
-    sources=[
-      ('tracing.thrift', 'gen.twitter.finagle.thrift')
-    ]
-  ),
+  sources=['tracing.thrift'],
   provides = setup_py(
     name = 'twitter.common.finagle-thrift',
     version = commons_version(),

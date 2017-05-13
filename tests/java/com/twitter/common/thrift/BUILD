@@ -40,13 +40,11 @@ junit_tests(name='thrift',
     'src/java/com/twitter/common/zookeeper:testing',
     'src/thrift/com/twitter/common/thrift/text',
     'src/thrift/com/twitter/thrift',
+    'tests/resources/com/twitter/common/thrift/text'
   ],
   sources = globs('*.java',
                   'callers/*.java',
                   'loadbalancing/*.java',
                   'monitoring/*.java',
                   'text/*.java'),
-  resources = [
-    'tests/resources/com/twitter/common/thrift/text'
-  ]
 )

@@ -14,9 +14,9 @@
 # limitations under the License.
 # ==================================================================================================
 
-python_library(
+resources(
   name = 'resources',
-  resources = globs('resources/*'),
+  sources = globs('resources/*'),
 )
 
 target(
