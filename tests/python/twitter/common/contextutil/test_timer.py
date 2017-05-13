@@ -20,6 +20,7 @@ from twitter.common.contextutil import Timer
 
 def test_timer():
   with Timer() as t:
+    time.sleep(0.1)
     assert t.start < time.time()
     assert t.elapsed > 0
     time.sleep(0.1)

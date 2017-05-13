@@ -1,10 +1,3 @@
-target(
-  name = 'group',
-  dependencies = [
-    ':test_kazoo_group',
-  ],
-)
-
 python_library(
   name = 'test_base',
   sources = ['test_base.py'],
@@ -24,7 +17,7 @@ python_library(
 
 python_tests(
   name = 'test_kazoo_group',
-  sources = ['test_active_kazoo_group.py', 'test_kazoo_group.py'],
+  sources = ['test_active_kazoo_group.py'],
   dependencies = [
     '3rdparty/python:kazoo',
     '3rdparty/python:mock',

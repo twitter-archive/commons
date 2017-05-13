@@ -14,19 +14,17 @@
 # limitations under the License.
 # ==================================================================================================
 
-target(name = 'all',
-  dependencies = [
-    ':recordio',
-    ':recordio-thrift',
-  ]
+python_library(name = 'harness',
+  sources=['recordio_test_harness.py'],
 )
 
 python_tests(name = 'recordio',
   sources = ['recordio_test.py'],
   dependencies = [
+    '3rdparty/python:mox',
+    ':harness',
     'src/python/twitter/common/recordio',
     'src/thrift/com/twitter/test:py-thrift',
-    '3rdparty/python:mox'
   ],
   coverage = 'twitter.common.recordio'
 )
@@ -34,8 +32,9 @@ python_tests(name = 'recordio',
 python_tests(name = 'recordio-thrift',
   sources = ['thrift_recordio_test.py'],
   dependencies = [
+    ':harness',
     'src/python/twitter/common/recordio:recordio-thrift',
-    'src/thrift/com/twitter/test:py-thrift'
+    'src/thrift/com/twitter/test:py-thrift',
   ],
   coverage = 'twitter.common.recordio'
 )

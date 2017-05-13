@@ -14,14 +14,6 @@
 # limitations under the License.
 # ==================================================================================================
 
-target(
-  name = 'all',
-  dependencies = [
-    ':socks',
-    ':tunnel',
-  ]
-)
-
 python_tests(
   name = 'socks',
   sources = ['test_socks.py'],
