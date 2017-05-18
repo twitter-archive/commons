@@ -29,9 +29,7 @@ java_library(
     'src/java/com/twitter/common/base',
     'src/java/com/twitter/common/net/http',
     'src/java/com/twitter/common/net/http/handlers',
+    'src/resources/com/twitter/common/application/http',
   ],
   sources=globs('*.java'),
-  resources=[
-    'src/resources/com/twitter/common/application/http',
-  ]
 )

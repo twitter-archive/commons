@@ -25,6 +25,12 @@ from twitter.common.metrics import (
 from twitter.common.metrics.metrics import Metrics
 
 
+def _cleared_rm():
+  rm = RootMetrics()
+  rm.clear()
+  return rm
+
+
 def test_root_metrics_singleton():
   rm = RootMetrics()
   rm2 = RootMetrics()
@@ -33,7 +39,7 @@ def test_root_metrics_singleton():
 
 def test_basic_registration_and_clear():
   lb = Label('ping', 'pong')
-  rm = RootMetrics()
+  rm = _cleared_rm()
   rm.register(lb)
   assert rm.sample() == {'ping': 'pong'}
   rm.clear()
@@ -43,7 +49,7 @@ def test_basic_registration_and_clear():
 def test_nontrivial_gauges():
   for label_value in ['a', 0, 2.5, [1,2,"3"], {'a': 'b'}, {'c': None}, False]:
     lb = Label('ping', label_value)
-    rm = RootMetrics()
+    rm = _cleared_rm()
     rm.register(lb)
     assert rm.sample() == {'ping': label_value}
     rm.clear()
@@ -52,7 +58,7 @@ def test_nontrivial_gauges():
 
 def test_basic_scoping():
   lb = Label('ping', 'pong')
-  rm = RootMetrics()
+  rm = _cleared_rm()
   rm.register(lb)
   rm.scope('bing').register(lb)
   assert rm.sample() == { 'ping': 'pong', 'bing.ping': 'pong' }
@@ -61,7 +67,7 @@ def test_basic_scoping():
 
 def test_scoped_registration_uses_references():
   mg = MutatorGauge('name', 'brian')
-  rm = RootMetrics()
+  rm = _cleared_rm()
   rm.scope('earth').register(mg)
   rm.scope('pluto').register(mg)
   assert rm.sample() == { 'earth.name': 'brian', 'pluto.name': 'brian' }
@@ -71,7 +77,7 @@ def test_scoped_registration_uses_references():
 
 
 def test_register_string():
-  rm = RootMetrics()
+  rm = _cleared_rm()
   hello_gauge = rm.register('hello')
   assert rm.sample() == { 'hello': None }
   hello_gauge.write('poop')
@@ -80,7 +86,7 @@ def test_register_string():
 
 
 def test_nested_scopes():
-  rm = RootMetrics()
+  rm = _cleared_rm()
   mg = rm.scope('a').scope('b').scope('c').register('123')
   mg.write(Amount(1, Time.MILLISECONDS))
   assert rm.sample() == {'a.b.c.123': '1 ms'}
@@ -88,7 +94,7 @@ def test_nested_scopes():
 
 
 def test_bad_scope_names():
-  rm = RootMetrics()
+  rm = _cleared_rm()
   my_scope = rm.scope('my_scope')
   with pytest.raises(TypeError):
     my_scope.scope(None)

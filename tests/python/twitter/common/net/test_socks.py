@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from twitter.common.net.socks import (
     SocksiPyConnection,
     SocksiPyHandler,

@@ -20,10 +20,3 @@ python_tests(name = 'rpc',
     'src/python/twitter/common/rpc'
   ]
 )
-
-target(name = 'all',
-  dependencies = [
-    ':rpc',
-    'tests/python/twitter/common/rpc/finagle'
-  ]
-)

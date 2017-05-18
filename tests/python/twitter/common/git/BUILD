@@ -14,13 +14,6 @@
 # limitations under the License.
 # ==================================================================================================
 
-target(
-  name = 'all',
-  dependencies = [
-    ':git',
-  ]
-)
-
 python_tests(
   name = 'git',
   sources = ['test_git.py'],

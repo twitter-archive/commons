@@ -21,6 +21,7 @@ cache:
   directories:
     - $HOME/.cache/pants
     - $HOME/.ivy2/twitter-commons
+    - $TRAVIS_BUILD_DIR/.cache
 
 language: java
 

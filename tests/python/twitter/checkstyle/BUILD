@@ -1,21 +1,3 @@
-target(
-  name = 'all',
-  dependencies = [
-    ':checkstyle',
-  ]
-)
-
-target(
-  name = 'checkstyle',
-  dependencies = [
-    ':test_common',
-    ':test_git_iterators',
-    ':test_iterators',
-    ':test_noqa',
-    'tests/python/twitter/checkstyle/plugins:all',
-  ]
-)
-
 python_tests(
   name = 'test_common',
   sources = ['test_common.py'],

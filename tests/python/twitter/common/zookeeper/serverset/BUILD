@@ -1,12 +1,3 @@
-target(
-  name = 'all',
-  dependencies = [
-    ':test_endpoint',
-    ':test_kazoo_serverset',
-    ':test_serverset_unit',
-  ],
-)
-
 python_library(
   name = 'test_base',
   sources = ['test_base.py'],

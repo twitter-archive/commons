@@ -21,8 +21,6 @@ from pants.build_graph.build_file_aliases import BuildFileAliases
 from pants.goal.task_registrar import TaskRegistrar as task
 
 from twitter.common.pants.python.commons.read_contents import read_contents_factory
-from twitter.common.pants.python.commons.remote_python_thrift_fileset import (
-    RemotePythonThriftFileset)
 from twitter.common.pants.python.commons.version import Version
 
 
@@ -39,5 +37,4 @@ def build_file_aliases():
       },
       context_aware_object_factories={
           'read_contents': read_contents_factory,
-          'remote_python_thrift_fileset': RemotePythonThriftFileset.factory,
       })

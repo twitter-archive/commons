@@ -4,9 +4,7 @@ junit_tests(name='templating',
     '3rdparty/jvm/junit',
     '3rdparty/jvm/org/antlr:stringtemplate',
     'src/java/com/twitter/common/util/templating',
+    'tests/resources/com/twitter/common/util/templating',
   ],
   sources=globs('*.java'),
-  resources=[
-    'tests/resources/com/twitter/common/util/templating',
-  ]
 )

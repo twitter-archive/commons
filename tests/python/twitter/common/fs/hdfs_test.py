@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==================================================================================================
-__author__ = 'Tejal Desai'
 
 import sys
 import unittest
@@ -78,6 +77,8 @@ class MockCommandUtil:
   def execute_suppress_stdout(cmd):
     return MockCommandUtil.execute(cmd, get_output=False)
 
+
+@unittest.skip("Old and busted.")
 class HdfsTest(unittest.TestCase):
   _config_dir = "/etc/hadoop/hadoop-conf-tst-smf1"
   _site_config = "%s/site.xml" % _config_dir

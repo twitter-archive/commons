@@ -14,13 +14,6 @@
 # limitations under the License.
 # ==================================================================================================
 
-target(name = 'all',
-  dependencies = [
-    ':dirutil',
-    ':fileset',
-  ]
-)
-
 python_tests(name = 'dirutil',
   sources = globs('*.py', exclude = ['fileset_test.py']),
   dependencies = [

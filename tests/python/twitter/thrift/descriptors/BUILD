@@ -15,13 +15,8 @@
 # ==================================================================================================
 
 
-# python_tests resources aren't currently copied to the chroot, so we have to indirect
-# through this python_library.
-# TODO: Support resources in python_tests targets.
-python_library(name = 'test_data',
-  dependencies = [],
-  sources = [],
-  resources = globs('test_data/*')
+resources(name = 'test_data',
+  sources = globs('test_data/*')
 )
 
 python_tests(name = 'descriptors',
