@@ -39,7 +39,17 @@ python_library(
     ':iterators',
     'src/python/twitter/checkstyle/plugins:plugin',
     'src/python/twitter/common/app',
-  ]
+  ],
+  provides = setup_py(
+    name = 'twitter.checkstyle',
+    version = '0.1.0',
+    description = "Twitter's python styleguide checkstyle tool.",
+    url = 'https://github.com/twitter/commons/tree/master/src/python/twitter/checkstyle',
+    license = 'Apache License, Version 2.0',
+    zip_safe = True,
+  ).with_binaries(
+    twitterstyle = ':check',
+  )
 )
 
 def make_checker(name, *plugins):
@@ -57,19 +67,9 @@ make_checker('check_twitter', 'twitter')
 make_checker('check', 'all')
 
 
-python_library(
+target(
   name = 'checkstyle',
   dependencies = [
     ':checker',
   ],
-  provides = setup_py(
-    name = 'twitter.checkstyle',
-    version = '0.1.0',
-    description = "Twitter's python styleguide checkstyle tool.",
-    url = 'https://github.com/twitter/commons/tree/master/src/python/twitter/checkstyle',
-    license = 'Apache License, Version 2.0',
-    zip_safe = True,
-  ).with_binaries(
-    twitterstyle = ':check',
-  )
 )

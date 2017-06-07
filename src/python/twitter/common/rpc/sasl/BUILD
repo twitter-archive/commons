@@ -22,7 +22,7 @@ python_library(
   ],
 )
 
-python_library(
+target(
   name = 'sasl',
   dependencies = [
     ':sourceonly',

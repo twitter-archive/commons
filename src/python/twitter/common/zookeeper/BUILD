@@ -40,7 +40,9 @@ python_library(
         'zc-zookeeper-static==3.4.4',
       ],
     },
-  )
+  ),
+  # TODO: This is currently a publishable 'alias' for kazoo_client. Replace it.
+  sources = [],
 )
 
 python_library(

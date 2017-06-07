@@ -1,5 +1,4 @@
 python_library(
-  name = 'serverset_base',
   sources = globs('*.py', exclude = ['cli.py']),
   dependencies = [
     'src/python/twitter/common/lang',
@@ -9,18 +8,10 @@ python_library(
   ]
 )
 
-python_library(
-  name = 'serverset',
-  dependencies = [
-    ':serverset_base',
-    'src/python/twitter/common/zookeeper/group',
-  ]
-)
-
-python_library(
+target(
   name = 'kazoo_serverset',
   dependencies = [
-    ':serverset_base',
+    ':serverset',
     'src/python/twitter/common/zookeeper/group:kazoo_group',
   ]
 )
@@ -30,6 +21,7 @@ python_binary(
   source = 'cli.py',
   dependencies = [
     'src/python/twitter/common/app',
-    ':serverset'
+    ':serverset',
+    'src/python/twitter/common/zookeeper/group',
   ],
 )

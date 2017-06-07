@@ -19,14 +19,7 @@ python_library(
   sources = globs('*.py'),
   dependencies = [
     '3rdparty/python:thrift',
-    'src/python/twitter/common/lang'
-  ],
-)
-
-python_library(
-  name = 'rpc-packaged',
-  dependencies = [
-    ':rpc',
+    'src/python/twitter/common/lang',
     'src/python/twitter/common/rpc/finagle',
     'src/python/twitter/common/rpc/sasl:sourceonly',
     'src/python/twitter/common/rpc/transports:all',
@@ -51,5 +44,5 @@ python_library(
         'pure-sasl==0.1.4',
       ],
     },
-  )
+  ),
 )
