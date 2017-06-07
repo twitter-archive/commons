@@ -19,7 +19,7 @@ python_library(
   sources = ['__init__.py'],
 )
 
-python_library(
+target(
   name = "all",
   dependencies = [
     ":exceptions",

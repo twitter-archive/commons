@@ -14,21 +14,12 @@
 # limitations under the License.
 # ==================================================================================================
 
+
 python_library(
-  name = 'tunnel',
   sources = ('tunnel.py',),
   dependencies = [
     'src/python/twitter/common/log',
     'src/python/twitter/common/quantity'
-  ]
-)
-
-
-# aliases
-python_library(
-  name = 'net',
-  dependencies = [
-    ':tunnel',
   ],
   provides = setup_py(
     name = 'twitter.common.net',
@@ -43,14 +34,7 @@ python_library(
       'Operating System :: OS Independent',
       'Programming Language :: Python',
     ]
-  )
-)
-
-python_library(
-  name = 'ssh',
-  dependencies = [
-    ':tunnel',
-  ]
+  ),
 )
 
 python_library(
@@ -58,5 +42,20 @@ python_library(
   sources = ('socks.py',),
   dependencies = [
     '3rdparty/python:socksipy-branch'
+  ]
+)
+
+# aliases
+target(
+  name = 'tunnel',
+  dependencies = [
+    ':net',
+  ],
+)
+
+target(
+  name = 'ssh',
+  dependencies = [
+    ':net',
   ]
 )

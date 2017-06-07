@@ -58,5 +58,7 @@ python_library(
       'Operating System :: OS Independent',
       'Programming Language :: Python',
     ]
-  )
+  ),
+  # TODO: Empty aggregator target.
+  sources = [],
 )

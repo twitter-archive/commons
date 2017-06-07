@@ -37,7 +37,7 @@ python_library(
   )
 )
 
-python_library(
+target(
   name = "log-scribe",
   dependencies = [
     ':log',

@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==================================================================================================
 
-python_library(
+target(
   name = 'plugins',
   dependencies = [
     ':echo',

@@ -19,7 +19,7 @@ python_tests(
   name = 'test_endpoint',
   sources = ['test_endpoint.py'],
   dependencies = [
-    'src/python/twitter/common/zookeeper/serverset:serverset_base'
+    'src/python/twitter/common/zookeeper/serverset'
   ]
 )
 
