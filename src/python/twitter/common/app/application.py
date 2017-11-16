@@ -634,10 +634,9 @@ class Application(object):
     """
       Sets the usage message automatically, to show the available commands.
     """
+    commands_and_docstrings = self.get_commands_and_docstrings()
     if sort:
-      commands_and_docstrings = sorted(self.get_commands_and_docstrings())
-    else:
-      commands_and_docstrings = self.get_commands_and_docstrings()
+      commands_and_docstrings = sorted(commands_and_docstrings)
     self.set_usage(
       'Please run with one of the following commands:\n' +
       '\n'.join(['  %-22s%s' % (command, self._set_string_margin(docstring or '', 0, 24))
