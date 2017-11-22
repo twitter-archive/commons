@@ -630,14 +630,17 @@ class Application(object):
     """
     self._usage = usage
 
-  def set_usage_based_on_commands(self):
+  def set_usage_based_on_commands(self, sort=False):
     """
       Sets the usage message automatically, to show the available commands.
     """
+    commands_and_docstrings = self.get_commands_and_docstrings()
+    if sort:
+      commands_and_docstrings = sorted(commands_and_docstrings)
     self.set_usage(
       'Please run with one of the following commands:\n' +
       '\n'.join(['  %-22s%s' % (command, self._set_string_margin(docstring or '', 0, 24))
-                 for (command, docstring) in self.get_commands_and_docstrings()])
+                 for (command, docstring) in commands_and_docstrings])
     )
 
   @staticmethod

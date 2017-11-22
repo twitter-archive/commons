@@ -15,7 +15,7 @@ $ ./pants test {src,tests}/java/com/twitter/common::
 $ ./pants test {src,tests}/scala/com/twitter/common::
 
 Likewise for python commons:
-$ ./pants test tests/python/twitter/common/:all
+$ ./pants test tests/python/twitter/common::
 
 To get help on pants:
 $ ./pants help

@@ -389,3 +389,53 @@ def test_shutdown_exception():
   app.register_shutdown_command(shutdown_command)
   app.main()
   assert app.exited_rc == 0
+
+
+def test_application_help():
+  def real_main():
+    return 0
+
+  def make_app_with_commands(*args):
+    app = TestApplication(*args)
+
+    @app.command
+    def help():
+      return "help"
+
+    @app.command
+    def a_command():
+      return 1
+
+    @app.command
+    def z_command():
+      return 1
+
+    @app.command
+    def command_one():
+      return 1
+
+    @app.command
+    def command_two():
+      return 2
+
+    @app.command
+    def command_three():
+      return 3
+
+    return app
+
+  app = make_app_with_commands(real_main)
+  sorted_commands = (
+    'a_command',
+    'command_one',
+    'command_three',
+    'command_two',
+    'help',
+    'z_command')
+  help_msg = 'Please run with one of the following commands:\n' + \
+    '\n'.join(['  %-22s' % command for command in sorted_commands])
+
+  app.set_usage_based_on_commands()
+  assert(not app._usage == help_msg)
+  app.set_usage_based_on_commands(sort=True)
+  assert(app._usage == help_msg)
