@@ -45,10 +45,10 @@ class Lock(object):
     lock_fd = lock_file(path, blocking=False)
     if not lock_fd:
       blocking = True
-      with open(path, 'r') as fd:
-        pid = int(fd.read().strip())
-        if onwait:
-          blocking = onwait(pid)
+      if onwait:
+          with open(path, 'r') as fd:
+              pid = int(fd.read().strip())
+              blocking = onwait(pid)
       if not blocking:
         return None
       lock_fd = lock_file(path, blocking=blocking)
