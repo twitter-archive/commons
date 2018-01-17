@@ -26,7 +26,7 @@ cache:
 language: java
 
 jdk:
-  - openjdk7
+  - oraclejdk8
 
 script: |
   java -version
