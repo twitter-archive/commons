@@ -105,9 +105,6 @@ if [[ "${skip_python:-false}" == "false" ]]; then
 
   banner "Running python tests"
   (
-    # TODO(John Sirois): We clean-all here to work-around args resource mapper issues finding leftover
-    # entries from args tests in the jvm tests above, kill the clean-all once the resource mapper bug
-    # is identified and fixed.
     ./pants --timeout=5 ${INTERPRETER_ARGS[@]} test lint tests/python/twitter/common::
   ) || die "Python test failure"
 fi
