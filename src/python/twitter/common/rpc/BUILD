@@ -20,7 +20,6 @@ python_library(
   dependencies = [
     '3rdparty/python:thrift',
     'src/python/twitter/common/lang',
-    'src/python/twitter/common/rpc/finagle',
     'src/python/twitter/common/rpc/sasl:sourceonly',
     'src/python/twitter/common/rpc/transports:all',
   ],
