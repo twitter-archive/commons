@@ -17,6 +17,7 @@ and [Google's Java Style Guide](https://google.github.io/styleguide/javaguide.ht
 ## Table of contents
 
 - [Recommended reading](https://github.com/knjk04/commons/blob/master/src/java/com/twitter/common/styleguide.md#recommended-reading)
+<<<<<<< HEAD
 - [Coding style](https://github.com/twitter/commons/blob/master/src/java/com/twitter/common/styleguide.md#coding-style)
   - [Formatting](https://github.com/twitter/commons/blob/master/src/java/com/twitter/common/styleguide.md#formatting)
   - [Field, class, and method declarations](https://github.com/twitter/commons/blob/master/src/java/com/twitter/common/styleguide.md#field-class-and-method-declarations)
