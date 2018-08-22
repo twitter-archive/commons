@@ -1,6 +1,6 @@
 import os
-from process_handle_ps import ProcessHandlePs
-from process_provider import ProcessProvider
+from .process_handle_ps import ProcessHandlePs
+from .process_provider import ProcessProvider
 
 class ProcessProvider_PS(ProcessProvider):
   """
