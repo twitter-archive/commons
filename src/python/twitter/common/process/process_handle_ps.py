@@ -1,6 +1,6 @@
 import os
 import subprocess
-from process_handle import ProcessHandle, ProcessHandleParserBase
+from .process_handle import ProcessHandle, ProcessHandleParserBase
 
 class ProcessHandlersPs(object):
   @staticmethod
