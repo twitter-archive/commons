@@ -128,9 +128,6 @@ class PEP8VariableNames(CheckstylePlugin):
     for class_def in self.iter_ast_types(ast.ClassDef):
       if not is_upper_camel(class_def.name):
         yield self.error('T000', 'Classes must be UpperCamelCased', class_def)
-      for class_global in self.iter_class_globals(class_def):
-        if not is_constant(class_global.id) and class_global.id not in self.CLASS_GLOBAL_BUILTINS:
-          yield self.error('T001', 'Class globals must be UPPER_SNAKE_CASED', class_global)
       if not class_def.bases or all(isinstance(base, ast.Name) and base.id == 'object'
           for base in class_def.bases):
         class_methods.update(self.iter_class_methods(class_def))
