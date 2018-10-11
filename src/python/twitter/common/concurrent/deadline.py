@@ -14,10 +14,13 @@
 # limitations under the License.
 # ==================================================================================================
 
-from Queue import Queue, Empty
+try:
+  from Queue import Queue, Empty
+except ImportError:
+  from queue import Queue, Empty
+
 from threading import Thread
 
-from twitter.common.exceptions import ExceptionalThread
 from twitter.common.lang import Compatibility
 from twitter.common.quantity import Amount, Time
 

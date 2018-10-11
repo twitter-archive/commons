@@ -14,7 +14,11 @@
 # limitations under the License.
 # ==================================================================================================
 
-from Queue import Empty, Queue
+try:
+  from Queue import Queue, Empty
+except ImportError:
+  from queue import Queue, Empty
+
 import threading
 
 class EventMuxer(object):
