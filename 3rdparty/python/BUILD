@@ -38,7 +38,6 @@ make_dep('antlr-3.1.3', '3.1.3', 'antlr_python_runtime')
 make_dep('bottle', '0.11.6')
 make_dep('coverage', '3.7.1')
 make_dep('elementtree', '1.2.7_20070827_preview')
-make_dep('futures', '3.0.5')
 make_dep('git-python', '0.3.2.RC1', 'GitPython')
 make_dep('kazoo', '2.2.1')
 make_dep('kerberos', '1.1.1')
@@ -58,6 +57,13 @@ make_dep('requests', '2.0.0')
 make_dep('setuptools', '2.2')
 make_dep('socksipy-branch', '1.01', 'SocksiPy-Branch')
 make_dep('zc-zookeeper-static', '3.4.4')
+
+python_requirement_library(
+  name='futures',
+  requirements=[
+    python_requirement(requirement = "futures >= 2.2.0")
+  ]
+)
 
 # TODO: Temporary solution until https://github.com/pantsbuild/pants/issues/2533 is resolved.
 python_requirement_library(
