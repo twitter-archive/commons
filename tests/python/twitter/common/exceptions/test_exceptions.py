@@ -18,7 +18,10 @@ import sys
 import threading
 from collections import namedtuple
 from contextlib import contextmanager
-from Queue import Queue
+try:
+  from Queue import Queue
+except ImportError:
+  from queue import Queue
 
 from twitter.common.exceptions import ExceptionalThread
 
