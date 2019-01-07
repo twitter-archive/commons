@@ -20,10 +20,13 @@
 # modifications
 #
 
-import collections
+try:
+  # Python 3 moved MutableSet to collections.abc
+  from collections.abc import MutableSet
+except ImportError:
+  from collections import MutableSet
 
-
-class OrderedSet(collections.MutableSet):
+class OrderedSet(MutableSet):
   KEY, PREV, NEXT = range(3)
 
   def __init__(self, iterable=None):
