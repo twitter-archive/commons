@@ -1,9 +1,3 @@
-# Enables support for a docker container-based build
-# which should provide faster startup times and beefier
-# "machines". This is also required in order to use the
-# cache configured below.
-sudo: false
-
 before_cache:
     # The `ivydata-*.properties` & root level `*.{properties,xml}` files'
     # effect on resolution time is in the noise, but they are
@@ -31,4 +25,3 @@ jdk:
 script: |
   java -version
   ./build-support/bin/ci.sh
-
