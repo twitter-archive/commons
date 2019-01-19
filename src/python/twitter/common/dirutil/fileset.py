@@ -67,7 +67,7 @@ def fnmatch_translate_extended(pat):
         res += '[' + stuff + ']'
     else:
       res += re.escape(c)
-  return res + '\Z(?ms)'
+  return res + r'\Z(?ms)'
 
 
 class Fileset(object):
