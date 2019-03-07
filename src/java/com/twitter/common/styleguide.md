@@ -73,7 +73,7 @@ advantage to effectively tell the story to those reading the code.
 We use the "one true brace style" ([1TBS](http://en.wikipedia.org/wiki/Indent_style#Variant:_1TBS)).
 Indent size is 2 columns.
 
-    :::java
+```java
     // Like this.
     if (x < 0) {
       negative(x);
@@ -87,10 +87,10 @@ Indent size is 2 columns.
 
     // Also not like this.
     if (x < 0) negative(x);
-
+```
 Continuation indent is 4 columns.  Nested continuations may add 4 columns or 2 at each level.
 
-    :::java
+```java
     // Bad.
     //   - Line breaks are arbitrary.
     //   - Scanning the code makes it difficult to piece the message together.
@@ -105,20 +105,20 @@ Continuation indent is 4 columns.  Nested continuations may add 4 columns or 2 a
         + " request " + request.getId()
         + " for user " + user.getId()
         + " query: '" + query.getText() + "'");
-
+```
 Don't break up a statement unnecessarily.
 
-    :::java
+```java
     // Bad.
     final String value =
         otherValue;
 
     // Good.
     final String value = otherValue;
-
+```
 Method declaration continuations.
 
-    :::java
+```java
     // Sub-optimal since line breaks are arbitrary and only filling lines.
     String downloadAnInternet(Internet internet, Tubes tubes,
         Blogosphere blogs, Amount<Long, Data> bandwidth) {
@@ -160,10 +160,10 @@ Method declaration continuations.
       tubes.download(internet);
       ...
     }
-
+```
 ##### Chained method calls
 
-    :::java
+```java
     // Bad.
     //   - Line breaks are based on line length, not logic.
     Iterable<Module> modules = ImmutableList.<Module>builder().add(new LifecycleModule())
@@ -186,7 +186,7 @@ Method declaration continuations.
         .add(new AppLauncherModule())
         .addAll(application.getModules())
         .build();
-
+```
 #### No tabs
 An oldie, but goodie.  We've found tab characters to cause more harm than good.
 
@@ -211,18 +211,18 @@ ordering (sections
 [8.3.1](http://docs.oracle.com/javase/specs/jls/se7/html/jls-8.html#jls-8.3.1) and
 [8.4.3](http://docs.oracle.com/javase/specs/jls/se7/html/jls-8.html#jls-8.4.3)).
 
-    :::java
+```java
     // Bad.
     final volatile private String value;
 
     // Good.
     private final volatile String value;
-
+```
 ### Variable naming
 
 #### Extremely short variable names should be reserved for instances like loop indices.
 
-    :::java
+```java
     // Bad.
     //   - Field names give little insight into what fields are used for.
     class User {
@@ -239,10 +239,10 @@ ordering (sections
 
       ...
     }
-
+```
 #### Include units in variable names
 
-    :::java
+```java
     // Bad.
     long pollInterval;
     int fileSize;
@@ -256,14 +256,14 @@ ordering (sections
     //   - The field is easily adaptable between units, readability is high.
     Amount<Long, Time> pollInterval;
     Amount<Integer, Data> fileSize;
-
+```
 #### Don't embed metadata in variable names
 A variable name should describe the variable's purpose.  Adding extra information like scope and
 type is generally a sign of a bad variable name.
 
 Avoid embedding the field type in the field name.
 
-    :::java
+```java
     // Bad.
     Map<Integer, User> idToUserMap;
     String valueString;
@@ -271,47 +271,47 @@ Avoid embedding the field type in the field name.
     // Good.
     Map<Integer, User> usersById;
     String value;
-
+```
 Also avoid embedding scope information in a variable.  Hierarchy-based naming suggests that a class
 is too complex and should be broken apart.
 
-    :::java
+```java
     // Bad.
     String _value;
     String mValue;
 
     // Good.
     String value;
-
+```
 ### Space pad operators and equals.
 
-    :::java
+```java
     // Bad.
     //   - This offers poor visual separation of operations.
     int foo=a+b+1;
 
     // Good.
     int foo = a + b + 1;
-
+```
 ### Be explicit about operator precedence
 Don't make your reader open the
 [spec](http://docs.oracle.com/javase/tutorial/java/nutsandbolts/operators.html) to confirm,
 if you expect a specific operation ordering, make it obvious with parenthesis.
 
-    :::java
+```java
     // Bad.
     return a << 8 * n + 1 | 0xFF;
 
     // Good.
     return (a << (8 * n) + 1) | 0xFF;
-
+```
 It's even good to be *really* obvious.
 
-    :::java
+```java
     if ((values != null) && (10 > values.size())) {
       ...
     }
-
+```
 ### Documentation
 
 The more visible a piece of code is (and by extension - the farther away consumers might be),
@@ -321,7 +321,7 @@ the more documentation is needed.
 Your elementary school teacher was right - you should never start a statement this way.
 Likewise, you shouldn't write documentation this way.
 
-    :::java
+```java
     // Bad.
     /**
      * This is a class that implements a cache.  It does caching for you.
@@ -337,7 +337,7 @@ Likewise, you shouldn't write documentation this way.
     class Cache {
       ...
     }
-
+```
 #### Documenting a class
 Documentation for a class may range from a single sentence
 to paragraphs with code examples. Documentation should serve to disambiguate any conceptual
@@ -345,7 +345,7 @@ blanks in the API, and make it easier to quickly and *correctly* use your API.
 A thorough class doc usually has a one sentence summary and, if necessary,
 a more detailed explanation.
 
-    :::java
+```java
     /**
      * An RPC equivalent of a unix pipe tee.  Any RPC sent to the tee input is guaranteed to have
      * been sent to both tee outputs before the call returns.
@@ -355,12 +355,12 @@ a more detailed explanation.
     public class RpcTee<T> {
       ...
     }
-
+```
 #### Documenting a method
 A method doc should tell what the method *does*.  Depending on the argument types, it may
 also be important to document input format.
 
-    :::java
+```java
     // Bad.
     //   - The doc tells nothing that the method declaration didn't.
     //   - This is the 'filler doc'.  It would pass style checks, but doesn't help anybody.
@@ -392,12 +392,12 @@ also be important to document input format.
      * @return A list of the whitespace-delimited parts of the input.
      */
     List<String> split(String s);
-
+```
 #### Be professional
 We've all encountered frustration when dealing with other libraries, but ranting about it doesn't
 do you any favors.  Suppress the expletives and get to the point.
 
-    :::java
+```java
     // Bad.
     // I hate xml/soap so much, why can't it do this for me!?
     try {
@@ -413,10 +413,10 @@ do you any favors.  Suppress the expletives and get to the point.
     } catch (NumberFormatException e) {
       ...
     }
-
+```
 #### Don't document overriding methods (usually)
 
-    :::java
+```java
     interface Database {
       /**
        * Gets the installed version of the database.
@@ -459,7 +459,7 @@ do you any favors.  Suppress the expletives and get to the point.
         ...
       }
     }
-
+```
 #### Use javadoc features
 
 ##### No author tags
@@ -473,7 +473,7 @@ history and `OWNERS` files to determine ownership of a body of code.
 Imports are grouped by top-level package, with blank lines separating groups.  Static imports are
 grouped in the same way, in a section below traditional imports.
 
-    :::java
+```java
     import java.*
     import javax.*
 
@@ -488,13 +488,13 @@ grouped in the same way, in a section below traditional imports.
     import com.twitter.*
 
     import static *
-
+```
 #### No wildcard imports
 Wildcard imports make the source of an imported class less clear.  They also tend to hide a high
 class [fan-out](http://en.wikipedia.org/wiki/Coupling_(computer_programming)#Module_coupling).<br />
 *See also [texas imports](#stay-out-of-texas)*
 
-    :::java
+```java
     // Bad.
     //   - Where did Foo come from?
     import com.twitter.baz.foo.*;
@@ -511,7 +511,7 @@ class [fan-out](http://en.wikipedia.org/wiki/Coupling_(computer_programming)#Mod
     interface Bar extends Foo {
       ...
     }
-
+```
 ### Use annotations wisely
 
 #### @Nullable
@@ -520,7 +520,7 @@ be explicit about it by marking
 [@Nullable](http://code.google.com/p/jsr-305/source/browse/trunk/ri/src/main/java/javax/annotation/Nullable.java?r=24).
 This is advisable even for fields/methods with private visibility.
 
-    :::java
+```java
     class Database {
       @Nullable private Connection connection;
 
@@ -533,7 +533,7 @@ This is advisable even for fields/methods with private visibility.
         this.connection = connection;
       }
     }
-
+```
 #### @VisibleForTesting
 Sometimes it makes sense to hide members and functions in general, but they may still be required
 for good test coverage.  It's usually preferred to make these package-private and tag with
@@ -542,7 +542,7 @@ to indicate the purpose for visibility.
 
 Constants are a great example of things that are frequently exposed in this way.
 
-    :::java
+```java
     // Bad.
     //   - Any adjustments to field names need to be duplicated in the test.
     class ConfigReader {
@@ -577,7 +577,7 @@ Constants are a great example of things that are frequently exposed in this way.
             reader.parseConfig(String.format("{%s: bob}", ConfigReader.USER_FIELD)));
       }
     }
-
+```
 ### Use interfaces
 Interfaces decouple functionality from implementation, allowing you to use multiple implementations
 without changing consumers.
@@ -587,7 +587,7 @@ implementations package private.
 Many small interfaces can seem heavyweight, since you end up with a large number of source files.
 Consider the pattern below as an alternative.
 
-    :::java
+```java
     interface FileFetcher {
       File getFile(String name);
 
@@ -599,12 +599,12 @@ Consider the pattern below as an alternative.
         }
       }
     }
-
+```
 #### Leverage or extend existing interfaces
 Sometimes an existing interface allows your class to easily 'plug in' to other related classes.
 This leads to highly [cohesive](http://en.wikipedia.org/wiki/Cohesion_(computer_science)) code.
 
-    :::java
+```java
     // An unfortunate lack of consideration.  Anyone who wants to interact with Blobs will need to
     // write specific glue code.
     class Blobs {
@@ -621,7 +621,7 @@ This leads to highly [cohesive](http://en.wikipedia.org/wiki/Cohesion_(computer_
         ...
       }
     }
-
+```
 Warning - don't bend the definition of an existing interface to make this work.  If the interface
 doesn't conceptually apply cleanly, it's best to avoid this.
 
@@ -635,7 +635,7 @@ for real-world behavior.  For example, rather than fetching a row from a real da
 a test row that you want to return.  This is most commonly performed with a fake object or a mock
 object.  While the difference sounds subtle, mocks have major benefits over fakes.
 
-    :::java
+```java
     class RpcClient {
       RpcClient(HttpTransport transport) {
         ...
@@ -696,10 +696,10 @@ object.  While the difference sounds subtle, mocks have major benefits over fake
 
       ...
     }
-
+```
 ### Let your callers construct support objects
 
-    :::java
+```java
     // Bad.
     //   - A unit test needs to manage a temporary file on disk to test this class.
     class ConfigReader {
@@ -717,7 +717,7 @@ object.  While the difference sounds subtle, mocks have major benefits over fake
         this.configStream = checkNotNull(configStream);
       }
     }
-
+```
 ### Testing multithreaded code
 Testing code that uses multiple threads is notoriously hard.  When approached carefully, however,
 it can be accomplished without deadlocks or unnecessary time-wait statements.
@@ -794,7 +794,7 @@ always be checked against null, unless null is explicitly allowed.
 
 *See also [be wary of null](#be-wary-of-null), [@Nullable](#nullable)*
 
-    :::java
+```java
     // Bad.
     //   - If the file or callback are null, the problem isn't noticed until much later.
     class AsyncFileReader {
@@ -821,14 +821,14 @@ always be checked against null, unless null is explicitly allowed.
         }, 1L, TimeUnit.HOURS);
       }
     }
-
+```
 #### Minimize visibility
 
 In a class API, you should support access to any methods and fields that you make accessible.
 Therefore, only expose what you intend the caller to use.  This can be imperative when
 writing thread-safe code.
 
-    :::java
+```java
     public class Parser {
       // Bad.
       //   - Callers can directly access and mutate, possibly breaking internal assumptions.
@@ -851,13 +851,13 @@ writing thread-safe code.
         ..
       }
     }
-
+```
 #### Favor immutability
 
 Mutable objects carry a burden - you need to make sure that those who are *able* to mutate it are
 not violating expectations of other users of the object, and that it's even safe for them to modify.
 
-    :::java
+```java
     // Bad.
     //   - Anyone with a reference to User can modify the user's birthday.
     //   - Calling getAttributes() gives mutable access to the underlying map.
@@ -890,7 +890,7 @@ not violating expectations of other users of the object, and that it's even safe
         return attributes.get(attributeName);
       }
     }
-
+```
 #### Be wary of null
 Use `@Nullable` where prudent, but favor
 [Optional](http://docs.guava-libraries.googlecode.com/git-history/v11.0.2/javadoc/com/google/common/base/Optional.html)
@@ -898,7 +898,7 @@ over `@Nullable`.  `Optional` provides better semantics around absence of a valu
 
 #### Clean up with finally
 
-    :::java
+```java
     FileInputStream in = null;
     try {
       ...
@@ -907,11 +907,11 @@ over `@Nullable`.  `Optional` provides better semantics around absence of a valu
     } finally {
       Closeables.closeQuietly(in);
     }
-
+```
 Even if there are no checked exceptions, there are still cases where you should use try/finally
 to guarantee resource symmetry.
 
-    :::java
+```java
     // Bad.
     //   - Mutex is never unlocked.
     mutex.lock();
@@ -941,21 +941,21 @@ to guarantee resource symmetry.
         conn.close();
       }
     }
-
+```
 
 ### Clean code
 
 #### Disambiguate
 Favor readability - if there's an ambiguous and unambiguous route, always favor unambiguous.
 
-    :::java
+```java
     // Bad.
     //   - Depending on the font, it may be difficult to discern 1001 from 100l.
     long count = 100l + n;
 
     // Good.
     long count = 100L + n;
-
+```
 #### Remove dead code
 Delete unused code (imports, fields, parameters, methods, classes).  They will only rot.
 
@@ -964,7 +964,7 @@ When declaring fields and methods, it's better to use general types whenever pos
 This avoids implementation detail leak via your API, and allows you to change the types used
 internally without affecting users or peripheral code.
 
-    :::java
+```java
     // Bad.
     //   - Implementations of Database must match the ArrayList return type.
     //   - Changing return type to Set<User> or List<User> could break implementations and users.
@@ -977,7 +977,7 @@ internally without affecting users or peripheral code.
     interface Database {
       Iterable<User> fetchUsers(String query);
     }
-
+```
 
 #### Always use type parameters
 Java 5 introduced support for
@@ -1028,7 +1028,7 @@ as you can end up catching more than you really wanted to deal with.  For exampl
 `catch Exception` would capture `NullPointerException`, and `catch Throwable` would capture
 `OutOfMemoryError`.
 
-    :::java
+```java
     // Bad.
     //   - If a RuntimeException happens, the program continues rather than aborting.
     try {
@@ -1042,7 +1042,7 @@ as you can end up catching more than you really wanted to deal with.  For exampl
     } catch (StorageException e) {
       LOG.error("Failed to insert user.");
     }
-
+```
 ##### Don't swallow exceptions
 An empty `catch` block is usually a bad idea, as you have no signal of a problem.  Coupled with
 [narrow exception](#catch-narrow-exceptions) violations, it's a recipe for disaster.
@@ -1056,7 +1056,7 @@ it is good practice to ensure that the thread interrupted state is preserved.
 IBM has a good [article](http://www.ibm.com/developerworks/java/library/j-jtp05236/index.html) on
 this topic.
 
-    :::java
+```java
     // Bad.
     //   - Surrounding code (or higher-level code) has no idea that the thread was interrupted.
     try {
@@ -1073,14 +1073,14 @@ this topic.
       LOG.info("Interrupted while doing x");
       Thread.currentThread().interrupt();
     }
-
+```
 ##### Throw appropriate exception types
 Let your API users obey [catch narrow exceptions](#catch-narrow-exceptions), don't throw Exception.
 Even if you are calling another naughty API that throws Exception, at least hide that so it doesn't
 bubble up even further.  You should also make an effort to hide implementation details from your
 callers when it comes to exceptions.
 
-    :::java
+```java
     // Bad.
     //   - Caller is forced to catch Exception, trapping many unnecessary types of issues.
     interface DataStore {
@@ -1103,7 +1103,7 @@ callers when it comes to exceptions.
         ...
       }
     }
-
+```
 ### Use newer/better libraries
 
 #### StringBuilder over StringBuffer
@@ -1161,14 +1161,14 @@ debugging.
 #### Leave no TODO unassigned
 TODOs should have owners, otherwise they are unlikely to ever be resolved.
 
-    :::java
+```java
     // Bad.
     //   - TODO is unassigned.
     // TODO: Implement request backoff.
 
     // Good.
     // TODO(George Washington): Implement request backoff.
-
+```
 #### Adopt TODOs
 You should adopt an orphan if the owner has left the company/project, or if you make
 modifications to the code directly related to the TODO topic.
@@ -1184,7 +1184,7 @@ but it can also hide in constructors or methods that take few parameters.  The k
 to defer assembly to the layers of the code that know enough to assemble and instead just
 take the minimal interface you need to get your work done.
 
-    :::java
+```java
     // Bad.
     //   - Weigher uses hosts and port only to immediately construct another object.
     class Weigher {
@@ -1205,7 +1205,7 @@ take the minimal interface you need to get your work done.
         this.weightingService = checkNotNull(weightingService);
       }
     }
-
+```
 If you want to provide a convenience constructor, a factory method or an external factory
 in the form of a builder you still can, but by making the fundamental constructor of a
 Weigher only take the things it actually uses it becomes easier to unit-test and adapt as
@@ -1218,7 +1218,7 @@ like code and more like english, the extracted sites are often easier to flow-an
 human eyes.  The classic case is branched variable assignment.  In the extreme, never do
 this:
 
-    :::java
+```java
     void calculate(Subject subject) {
       double weight;
       if (useWeightingService(subject)) {
@@ -1233,10 +1233,10 @@ this:
 
       // Use weight here for further calculations
     }
-
+```
 Instead do this:
 
-    :::java
+```java
     void calculate(Subject subject) {
       double weight = calculateWeight(subject);
 
@@ -1262,7 +1262,7 @@ Instead do this:
     private double currentDefaultRate() {
       defaultInitialRate * (1 + onlineLearnedBoost);
     }
-
+```
 A code reader that generally trusts methods do what they say can scan calculate
 quickly now and drill down only to those methods where I want to learn more.
 
@@ -1295,7 +1295,7 @@ registering with
 ### Avoid unnecessary code
 #### Superfluous temporary variables.
 
-    :::java
+```java
     // Bad.
     //   - The variable is immediately returned, and just serves to clutter the code.
     List<String> strings = fetchStrings();
@@ -1303,10 +1303,10 @@ registering with
 
     // Good.
     return fetchStrings();
-
+```
 #### Unneeded assignment.
 
-    :::java
+```java
     // Bad.
     //   - The null value is never realized.
     String value = null;
@@ -1323,12 +1323,13 @@ registering with
     } catch (BadException e) {
       throw new IllegalStateException(e);
     }
-
+```
 ### The 'fast' implementation
 Don't bewilder your API users with a 'fast' or 'optimized' implementation of a method.
 
-    :::java
+```java
     int fastAdd(Iterable<Integer> ints);
 
     // Why would the caller ever use this when there's a 'fast' add?
     int add(Iterable<Integer> ints);
+```
