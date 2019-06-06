@@ -25,7 +25,7 @@ from twitter.common.pants.python.commons.version import Version
 
 
 public_repo = Repository(name='public',
-                         url='http://maven.twttr.com',
+                         url='https://maven.twttr.com',
                          push_db_basedir=os.path.join('build-support', 'commons', 'ivy', 'pushdb'))
 
 
