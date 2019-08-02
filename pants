@@ -3,12 +3,12 @@
 # Licensed under the Apache License, Version 2.0 (see LICENSE).
 
 # =============================== NOTE ===============================
-# This pants bootstrap script comes from the pantsbuild/setup
+# This ./pants bootstrap script comes from the pantsbuild/setup
 # project and is intended to be checked into your code repository so
 # that any developer can check out your code and be building it with
-# pants with no prior setup needed.
+# Pants with no prior setup needed.
 #
-# You can learn more here: https://pantsbuild.github.io/setup
+# You can learn more here: https://www.pantsbuild.org/install.html
 # ====================================================================
 
 set -eou pipefail
@@ -72,24 +72,66 @@ EOF
 }
 
 # The high-level flow:
-# 1.) Resolve the Python interpreter, first reading from the env var $PYTHON,
-#     then reading from pants.ini, then defaulting to `python2.7`.
-# 2.) Grab pants version from pants.ini or default to latest.
-# 3.) Check for a venv via a naming/path convention and execute if found.
-# 4.) Otherwise create venv and re-exec self.
+# 1.) Resolve the Pants version from pants.ini or from the latest stable
+#     release to PyPi, so that we know what to name the venv folder and which
+#     Python versions we can use.
+# 2.) Resolve the Python interpreter, first reading from the env var $PYTHON,
+#     then reading from pants.ini, then determining the default based off of
+#     which Python versions the Pants version supports.
+# 3.) Check if the venv (virtual environment) already exists via a naming/path convention,
+#     and create the venv if not found.
+# 4.) Execute Pants with the resolved Python interpreter and venv.
 #
-# After that pants itself will handle making sure any requested plugins
+# After that, Pants itself will handle making sure any requested plugins
 # are installed and up to date.
 
-function determine_pants_runtime_python_version {
+function determine_pants_version {
+  pants_version="$(get_pants_ini_config_value 'pants_version')"
+  if [[ -n "${pants_version}" ]]; then
+    echo "${pants_version}"
+  else
+    curl -sSL https://pypi.python.org/pypi/pantsbuild.pants/json |
+      python -c "import json, sys; print(json.load(sys.stdin)['info']['version'])"
+  fi
+}
+
+function determine_default_python_exe {
+  pants_version="$1"
+  pants_major_version="$(echo "${pants_version}" | cut -d '.' -f1)"
+  pants_minor_version="$(echo "${pants_version}" | cut -d '.' -f2)"
+  if [[ "${pants_major_version}" -eq 1 && "${pants_minor_version}" -le 14 ]]; then
+    supported_python_versions=('2.7')
+    supported_message='2.7'
+  elif [[ "${pants_major_version}" -eq 1 && "${pants_minor_version}" -eq 15 ]]; then
+    supported_python_versions=('3.6' '2.7')
+    supported_message='2.7 or 3.6'
+  elif [[ "${pants_major_version}" -eq 1 && "${pants_minor_version}" -eq 16 ]]; then
+    supported_python_versions=('3.6' '3.7' '2.7')
+    supported_message='2.7, 3.6, or 3.7'
+  elif [[ "${pants_major_version}" -eq 1 && "${pants_minor_version}" -eq 17 ]]; then
+    supported_python_versions=('3.6' '3.7' '3.8' '3.9')
+    supported_message='3.6+'
+  else
+    supported_python_versions=('3.9' '3.8' '3.7' '3.6')
+    supported_message='3.6+'
+  fi
+  for version in "${supported_python_versions[@]}"; do
+    command -v "python${version}" && return 0
+  done
+  die "No valid Python interpreter found. For this Pants version, Pants requires Python ${supported_message}."
+}
+
+function determine_python_exe {
+  pants_version="$1"
   if [[ "${PYTHON_BIN_NAME}" != 'unspecified' ]]; then
     python_bin_name="${PYTHON_BIN_NAME}"
   else
     interpreter_version="$(get_pants_ini_config_value 'pants_runtime_python_version')"
-    if [[ -z "${interpreter_version}" ]]; then
-      interpreter_version='2.7'
+    if [[ -n "${interpreter_version}" ]]; then
+      python_bin_name="python${interpreter_version}"
+    else
+      python_bin_name="$(determine_default_python_exe "${pants_version}")"
     fi
-    python_bin_name="python${interpreter_version}"
   fi
   get_exe_path_or_die "${python_bin_name}"
 }
@@ -113,15 +155,10 @@ function bootstrap_venv {
 }
 
 function bootstrap_pants {
-  python="$1"
-  pants_requirement="pantsbuild.pants"
-  pants_version="$(get_pants_ini_config_value 'pants_version')"
-  if [[ -n "${pants_version}" ]]; then
-    pants_requirement="${pants_requirement}==${pants_version}"
-  else
-    pants_version="unspecified"
-  fi
+  pants_version="$1"
+  python="$2"
 
+  pants_requirement="pantsbuild.pants==${pants_version}"
   python_major_minor_version="$(get_python_major_minor_version "${python}")"
   target_folder_name="${pants_version}_py${python_major_minor_version}"
 
@@ -142,8 +179,9 @@ function bootstrap_pants {
 
 # Ensure we operate from the context of the ./pants buildroot.
 cd "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
-python="$(determine_pants_runtime_python_version)"
-pants_dir="$(bootstrap_pants "${python}")"
+pants_version="$(determine_pants_version)"
+python="$(determine_python_exe "${pants_version}")"
+pants_dir="$(bootstrap_pants "${pants_version}" "${python}")"
 
 
 # We set the env var no_proxy to '*', to work around an issue with urllib using non
