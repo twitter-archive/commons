@@ -19,7 +19,7 @@ REV = '16.0'
 jar_library(name='guava',
   jars=[
     jar(org='com.google.guava', name='guava', rev=REV,
-        apidocs='https://docs.guava-libraries.googlecode.com/git-history/v%s/javadoc/' % REV),
+        apidocs='http://docs.guava-libraries.googlecode.com/git-history/v%s/javadoc/' % REV),
   ],
   dependencies=[
     # Defined in provided scope so we provide here
